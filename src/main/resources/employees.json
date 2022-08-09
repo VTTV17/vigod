@@ -1,0 +1,14 @@
+{
+  "dashboard" : {
+    "url" : "https://admin.unisell.vn",
+    "emptyUsername" : "This field should not be empty",
+    "emptyPassword" : "This field should not be empty",
+    "invalidCredentials" : "Username/Password is not correct"
+  },
+  "storefront" : {
+    "url" : "https://myshopvietnam.unisell.vn/",
+    "emptyUsername" : "Please input username",
+    "emptyPassword" : "Please input username",
+    "invalidCredentials" : "Muốn nói gì?"
+  }
+}

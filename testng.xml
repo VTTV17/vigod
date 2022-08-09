@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Test Suite">
+	<listeners>
+		<listener class-name="utilities.listeners.ReportListener"></listener>
+	</listeners>
+	<test name="Group of group Test">
+		<classes>
+			<class name="LoginStorefront" />
+			<class name="LoginDashboard" />
+		</classes>
+	</test>
+</suite>
