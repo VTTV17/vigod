@@ -102,8 +102,8 @@ public class LoginStorefront extends BaseTest {
         new LoginPage(driver).navigate()
                 .performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
         Thread.sleep(1000);
-        new LoginPage(driver).clickUserInfoIcon();
-        new HeaderSF(driver).clickLogout();
+        new HeaderSF(driver).clickUserInfoIcon()
+        .clickLogout();
     }    
 
     @Test
@@ -111,19 +111,19 @@ public class LoginStorefront extends BaseTest {
         new LoginPage(driver).navigate()
                 .performLogin(MAIL, PASSWORD);
         Thread.sleep(1000);
-        new LoginPage(driver).clickUserInfoIcon();
-        new HeaderSF(driver).clickLogout();
+        new HeaderSF(driver).clickUserInfoIcon()
+        .clickLogout();
     }    
 
   //Don't run this test case. It should only be run in regression test.
-//  @Test
+  @Test
   public void TC08_SF_ForgotMailPassword() throws InterruptedException {
-  	String newPassword = PASSWORD + "@" + generate.generateNumber(3);
+  	String newPassword = PASSWORD;
   	
-  	new LoginPage(driver).navigate()
-  	.clickUserInfoIcon()
-  	.clickLoginIcon()
-  	.clickForgotPassword()
+  	new LoginPage(driver).navigate();
+  	new HeaderSF(driver).clickUserInfoIcon()
+  	.clickLoginIcon();
+  	new LoginPage(driver).clickForgotPassword()
   	.inputUsernameForgot(MAIL)
   	.clickContinueBtn()
   	.inputPasswordForgot(newPassword);
@@ -139,15 +139,15 @@ public class LoginStorefront extends BaseTest {
 	new LoginPage(driver).inputVerificationCode(verificationCode)
 	.clickConfirmBtn();
     Thread.sleep(1000);
-    new LoginPage(driver).clickUserInfoIcon();
-    new HeaderSF(driver).clickLogout();
+    new HeaderSF(driver).clickUserInfoIcon()
+    .clickLogout();
     
 	// Re-login with new password
 	new LoginPage(driver).navigate()
 	.performLogin(MAIL, newPassword);
 	Thread.sleep(1000);
-    new LoginPage(driver).clickUserInfoIcon();
-    new HeaderSF(driver).clickLogout();
+	new HeaderSF(driver).clickUserInfoIcon()
+    .clickLogout();
   }
   
   //Don't run this test case. It should only be run in regression test.
@@ -155,10 +155,10 @@ public class LoginStorefront extends BaseTest {
   public void TC09_SF_ForgotPhonePassword() throws InterruptedException, SQLException {
 	  String newPassword = PHONE_PASSWORD + "@" + generate.generateNumber(3);
 	  
-	  new LoginPage(driver).navigate()
-	  .clickUserInfoIcon()
-	  .clickLoginIcon()
-	  .clickForgotPassword()
+	  new LoginPage(driver).navigate();
+	  new HeaderSF(driver).clickUserInfoIcon()
+	  .clickLoginIcon();
+	  new LoginPage(driver).clickForgotPassword()
 	  .selectCountryForgot(PHONE_COUNTRY)
 	  .inputUsernameForgot(PHONE)
 	  .clickContinueBtn()
@@ -168,15 +168,15 @@ public class LoginStorefront extends BaseTest {
 	  new LoginPage(driver).inputVerificationCode(new InitConnection().getResetKey(PHONE_COUNTRYCODE + ":" + PHONE))
 	  .clickConfirmBtn();
 	  Thread.sleep(1000);
-	  new LoginPage(driver).clickUserInfoIcon();
-	  new HeaderSF(driver).clickLogout();
+	  new HeaderSF(driver).clickUserInfoIcon()
+	  .clickLogout();
 	  
 	  // Re-login with new password
 	  new LoginPage(driver).navigate()
 	  .performLogin(PHONE, newPassword);
 	  Thread.sleep(1000);
-	  new LoginPage(driver).clickUserInfoIcon();
-	  new HeaderSF(driver).clickLogout();
+	  new HeaderSF(driver).clickUserInfoIcon()
+	  .clickLogout();
   }
   
 }
