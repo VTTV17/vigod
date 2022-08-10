@@ -25,6 +25,16 @@ public class HeaderSF {
         commons = new UICommonAction(driver);
         PageFactory.initElements(driver,this);
     }
+
+    @FindBy(css = ".navbar-brand.nav-link")
+    WebElement USER_INFO_ICON;
+
+    @FindBy(id = "btn-login")
+    WebElement LOGIN_ICON;    
+
+    @FindBy(id = "btn-signup")
+    WebElement SIGNUP_ICON;    
+    
     @FindBy(xpath = "//div[@id='custom-search-input']")
     WebElement SEARCH_FIELD_TO_CLICK;
 
@@ -41,6 +51,24 @@ public class HeaderSF {
 
     @FindBy (id = "btn-logout")
     WebElement LOGOUT_BTN;    
+
+    public HeaderSF clickUserInfoIcon() {
+    	commons.clickElement(USER_INFO_ICON);
+    	logger.info("Clicked on User Info icon.");
+        return this;
+    }     
+
+    public HeaderSF clickLoginIcon() {
+    	commons.clickElement(LOGIN_ICON);
+    	logger.info("Clicked on Login icon.");    	
+    	return this;
+    }       
+
+    public HeaderSF clickSignupIcon() {
+    	commons.clickElement(SIGNUP_ICON);
+    	logger.info("Clicked on Signup icon.");   
+    	return this;
+    }      
     
     public HeaderSF searchWithFullName(String fullName){
         commons.clickElement(SEARCH_FIELD_TO_CLICK);
