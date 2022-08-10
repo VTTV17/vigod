@@ -1,0 +1,16 @@
+{
+  "dashboard": {
+    "text": {
+      "staff_management": {
+        "header": "Quản Lý Nhân Viên",
+        "staff_name_column": "TÊN",
+        "staff_permissions_column": "PHÂN QUYỀN",
+        "staff_status_column": "TRẠNG THÁI",
+        "actions_column": "TÁC VỤ",
+        "footer": "Tìm hiểu thêm về\nCài đặt"
+      },
+      "message": {},
+      "common": {}
+    }
+  }
+}
