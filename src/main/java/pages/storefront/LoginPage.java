@@ -34,12 +34,6 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = ".navbar-brand.nav-link")
-    WebElement USER_INFO_ICON;
-    
-    @FindBy(id = "btn-login")
-    WebElement LOGIN_ICON;
-
     @FindBy (id = "login-country-code")
     WebElement COUNTRY_DROPDOWN;       
     
@@ -93,18 +87,6 @@ public class LoginPage {
         return this;
     }
 
-    public LoginPage clickUserInfoIcon() {
-    	commonAction.clickElement(USER_INFO_ICON);
-    	logger.info("Clicked on User Info icon.");
-        return this;
-    }    
-    
-    public LoginPage clickLoginIcon() {
-    	commonAction.clickElement(LOGIN_ICON);
-    	logger.info("Clicked on Login icon.");    	
-    	return this;
-    }    
-
     public LoginPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
     	driver.findElement(By.xpath("//ul[@id='login-country-code-menu']//a[@class='dropdown-item']/span[text()='%s']".formatted(country))).click();
@@ -150,8 +132,8 @@ public class LoginPage {
     }
 
     public LoginPage performLogin(String username, String password) {
-    	clickUserInfoIcon();
-    	clickLoginIcon();
+    	new HeaderSF(driver).clickUserInfoIcon()
+    	.clickLoginIcon();
     	inputEmailOrPhoneNumber(username);
     	inputPassword(password);
     	clickLoginBtn();
@@ -159,8 +141,8 @@ public class LoginPage {
     }
 
     public LoginPage performLogin(String country, String username, String password) {
-    	clickUserInfoIcon();
-    	clickLoginIcon();
+    	new HeaderSF(driver).clickUserInfoIcon()
+    	.clickLoginIcon();
     	selectCountry(country);
     	inputEmailOrPhoneNumber(username);
     	inputPassword(password);
