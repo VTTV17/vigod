@@ -10,6 +10,8 @@ import pages.dashboard.home.HomePage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 public class ProductPage extends ProductVerify {
     public ProductPage(WebDriver driver) {
@@ -62,7 +64,31 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage selectProductVAT(int vatID) {
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN));
+        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN)).click();
+        logger.info("Open VAT dropdown list");
+        wait.until(ExpectedConditions.elementToBeClickable(VAT_LIST.get(vatID)));
+        logger.info("Select product VAT: %s".formatted(VAT_LIST.get(vatID).getText()));
+        VAT_LIST.get(vatID).click();
+        return this;
+    }
+
+    public ProductPage clickOnTheAddVariationBtn() {
+        wait.until(ExpectedConditions.elementToBeClickable(ADD_VARIATION_BTN)).click();
+        logger.info("Click on the Add Variation button");
+        return this;
+    }
+
+    public ProductPage inputVariationName(Map<String, List<String>> variation) {
+        int id = -1;
+        for (String variationName : variation.keySet()) {
+            id++;
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_NAME.get(id))).sendKeys(variationName);
+            logger.info("Input variation %d name: %s".formatted(id, variationName));
+            for (String variationValue : variation.get(variationName)) {
+                wait.until(ExpectedConditions.elementToBeClickable(VARIATION_VALUE.get(id))).sendKeys(variationValue + "\n");
+                logger.info("Input variation %d value: %s".formatted(id, variationValue));
+            }
+        }
         return this;
     }
 }

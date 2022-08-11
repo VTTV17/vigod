@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
@@ -19,6 +20,8 @@ public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
+
+    private final String pageLoadedText = "We have created a short list of things you should do to complete your store";
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
     public HomePage(WebDriver driver) {
@@ -39,6 +42,9 @@ public class HomePage {
 
     @FindBy(css = "a[name $=settings]")
     WebElement SETTINGS_MENU;
+
+    @FindBy(css = "a[name='component.navigation.products'] > span > span")
+    WebElement PRODUCTS_MENU;
 
     @FindBy(css = ".modal-content .gs-button")
     WebElement UPGRADNOW_BTN;
@@ -154,9 +160,16 @@ public class HomePage {
         logger.info("Clicked on Logout linktext");
     }
 
+    public void navigateToAllProductsPage() {
+        wait.until(ExpectedConditions.visibilityOf(PRODUCTS_MENU));
+        ((JavascriptExecutor) driver).executeAsyncScript("arguments[0].click();", PRODUCTS_MENU);
+        logger.info("Click on the Products menu");
+    }
+
     public void navigateToSettingsPage() {
         wait.until(ExpectedConditions.visibilityOf(SETTINGS_MENU));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SETTINGS_MENU);
+        logger.info("Click on the Settings menu");
     }
 
     public String getDashboardLanguage() {
@@ -179,6 +192,14 @@ public class HomePage {
                 }
             }
         }
+        return this;
+    }
+
+    public HomePage verifyPageLoaded() {
+        wait.until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return driver.getPageSource().contains(pageLoadedText);
+        });
         return this;
     }
 }

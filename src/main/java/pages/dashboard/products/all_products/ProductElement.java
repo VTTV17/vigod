@@ -33,6 +33,9 @@ public class ProductElement {
     @FindBy (css = "div#app-body div.uik-select__valueWrapper")
     WebElement PRODUCT_VAT_DROPDOWN;
 
+    @FindBy (css = "div#app-body button[type='button'] > span > div > div.uik-select__label")
+    List<WebElement> VAT_LIST;
+
     @FindBy (css = "div:nth-child(4) > div.gs-widget__header > span")
     WebElement ADD_VARIATION_BTN;
 
