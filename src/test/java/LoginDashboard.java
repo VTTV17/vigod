@@ -84,10 +84,22 @@ public class LoginDashboard extends BaseTest {
 
     @Test
     public void TC03_DB_LoginWithInvalidMailFormat() {
+    	// Mail does not have symbol @
         new LoginPage(driver).navigate()
-                .performLogin(generate.generateString(10), generate.generateString(10))
-                .verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR)
-                .completeVerify();
+        .performLogin(generate.generateString(10), generate.generateString(10))
+        .verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR)
+        .completeVerify();
+        
+        // Mail does not have suffix '.<>'. Eg. '.com'
+        new LoginPage(driver).navigate()
+        .performLogin(generate.generateString(10) + "@" , generate.generateString(10))
+        .verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR)
+        .completeVerify();
+        
+        new LoginPage(driver).navigate()
+        .performLogin(generate.generateString(10) + "@" + generate.generateString(5) + ".", generate.generateString(10))
+        .verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR)
+        .completeVerify();
     }
 
     @Test
@@ -109,7 +121,7 @@ public class LoginDashboard extends BaseTest {
     @Test
     public void TC06_DB_LoginWithCorrectPhoneAccount() {
         new LoginPage(driver).navigate()
-                .performLogin(PHONE_COUNTRYCODE, PHONE, PHONE_PASSWORD);
+                .performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
         new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
     }
 
@@ -203,7 +215,7 @@ public class LoginDashboard extends BaseTest {
     //Don't run this test case. It should only be run in regression test.
 //  @Test
   public void TC12_DB_SellerForgotPhonePassword() throws InterruptedException, SQLException {
-  	String newPassword = PHONE_PASSWORD + generate.generateNumber(4)+ "!";
+	  String newPassword = PHONE_PASSWORD + generate.generateNumber(4)+ "!";
   	
   	new LoginPage(driver).navigate()
   	.clickForgotPassword()

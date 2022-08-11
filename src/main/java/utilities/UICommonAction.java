@@ -191,6 +191,12 @@ public class UICommonAction {
 	}
 
 	public String selectByVisibleText(WebElement element, String visibleText) {
+		//Delay 500ms so that API request has some more time to render data onto front end.
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByVisibleText(visibleText);
