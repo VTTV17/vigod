@@ -116,9 +116,9 @@ public class LoginStorefront extends BaseTest {
     }    
 
   //Don't run this test case. It should only be run in regression test.
-  @Test
+//  @Test
   public void TC08_SF_ForgotMailPassword() throws InterruptedException {
-  	String newPassword = PASSWORD;
+	String newPassword = PASSWORD + "@" + generate.generateNumber(3);
   	
   	new LoginPage(driver).navigate();
   	new HeaderSF(driver).clickUserInfoIcon()
