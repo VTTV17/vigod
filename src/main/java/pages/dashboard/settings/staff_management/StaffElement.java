@@ -59,4 +59,22 @@ public class StaffElement {
 
     @FindBy (css = "div.modal-footer>button.gs-button__green")
     WebElement OK_BTN;
+
+    @FindBy (css = "")
+    WebElement STAFF_MANAGEMENT_HEADER;
+
+    @FindBy (css = "")
+    WebElement STAFF_NAME_COLUMN;
+
+    @FindBy (css = "")
+    WebElement STAFF_PERMISSIONS_COLUMN;
+
+    @FindBy (css = "")
+    WebElement STAFF_STATUS_COLUMN;
+
+    @FindBy (css = "")
+    WebElement ACTIONS_COLUMN;
+
+    @FindBy (css = "")
+    WebElement STAFF_MANAGEMENT_FOOTER;
 }
