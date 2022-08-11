@@ -111,10 +111,10 @@ public class HomePage {
         map.put("Preferences", "component.navigation.preferences");
         map.put("Shopee", "component.button.selector.saleChannel.shopee");
         map.put("Account Information", "component.navigation.account");
-        map.put("Products", "component.navigation.products");
+        map.put("Shopee Products", "component.navigation.products");
         map.put("Link Products", "component.navigation.linkProducts");
         map.put("Account Management", "component.navigation.account.management");
-        map.put("Settings", "component.navigation.account.settings");
+        map.put("Shopee Settings", "component.navigation.account.settings");
         map.put("Lazada", "component.button.selector.saleChannel.lazada");
         map.put("GoMua", "component.button.selector.saleChannel.beecow");
         map.put("Settings", "component.navigation.settings");

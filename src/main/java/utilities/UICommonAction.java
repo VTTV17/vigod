@@ -209,5 +209,7 @@ public class UICommonAction {
 		String js = "arguments[0].style.display='none';";
 		((JavascriptExecutor) driver).executeScript(js, element);
 	}	
-	
+	public void navigateToURL(String url){
+		driver.get(url);
+	}
 }
