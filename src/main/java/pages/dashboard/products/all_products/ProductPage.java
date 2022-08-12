@@ -20,8 +20,13 @@ public class ProductPage extends ProductVerify {
 
     Logger logger = LogManager.getLogger(LogManager.class);
 
+    public ProductPage setLanguage(String language) {
+        ProductVerify.language = language;
+        return this;
+    }
+
     public ProductPage navigate() throws InterruptedException, IOException {
-        new HomePage(driver).selectLanguage(language).navigateToAllProductsPage();
+        new HomePage(driver).verifyPageLoaded(language).selectLanguage(language).navigateToAllProductsPage();
         logger.info("Navigate to All Products Page");
         wait.until(ExpectedConditions.titleIs("Admin Staging - Products"));
         logger.info("Title of Setting page is %s".formatted(driver.getTitle()));
@@ -35,30 +40,34 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage inputProductName(String productName) {
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_NAME)).sendKeys(Keys.CONTROL + "a" + Keys.DELETE + productName);
+        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_NAME)).clear();
+        PRODUCT_NAME.sendKeys(productName);
         logger.info("Input product name: %s".formatted(productName));
         return this;
     }
 
     public ProductPage inputProductDescription(String productDescription) {
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).sendKeys(Keys.CONTROL + "a" + Keys.DELETE + productDescription);
+        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).clear();
+        PRODUCT_DESCRIPTION.sendKeys(productDescription);
         logger.info("Input product descriptions: %s".formatted(productDescription));
         return this;
     }
 
     public ProductPage uploadProductImage(String imageFileName) {
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_IMAGE));
-        PRODUCT_IMAGE.sendKeys(Paths.get(System.getProperty("user.dir") + "/src/main/resources/uploadfile/product_images/img.jpg".replace("/", File.separator)).toString());
+        PRODUCT_IMAGE.sendKeys(Paths.get(System.getProperty("user.dir") + "/src/main/resources/uploadfile/product_images/%s".formatted(imageFileName).replace("/", File.separator)).toString());
         logger.info("Upload product image");
         return this;
     }
 
     public ProductPage inputPriceNormalProduct(String listingPrice, String sellingPrice, String costPrice) {
-        wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(0))).sendKeys(Keys.CONTROL + "a" + Keys.DELETE + listingPrice);
+        wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(0))).clear();
+        NORMAL_PRODUCT_PRICE.get(0).sendKeys(listingPrice);
         logger.info("Input listing price: %s".formatted(listingPrice));
-        wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(1))).sendKeys(Keys.CONTROL + "a" + Keys.DELETE + sellingPrice);
+        wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(1))).clear();
+        NORMAL_PRODUCT_PRICE.get(1).sendKeys(sellingPrice);
         logger.info("Input selling price: %s".formatted(sellingPrice));
-        wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(2))).sendKeys(Keys.CONTROL + "a" + Keys.DELETE + costPrice);
+        wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(2))).clear();
+        NORMAL_PRODUCT_PRICE.get(2).sendKeys(costPrice);
         logger.info("Input cost price: %s".formatted(costPrice));
         return this;
     }

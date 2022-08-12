@@ -14,14 +14,17 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
 
-    private final String pageLoadedText = "We have created a short list of things you should do to complete your store";
+    String pageLoadedTextENG = "We have created a short list of things you should do to complete your store";
+    String pageLoadedTextVIE = "Chúng tôi có chuẩn bị danh sách bạn cần làm để hoàn tất cửa hàng của bạn";
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
     public HomePage(WebDriver driver) {
@@ -162,7 +165,7 @@ public class HomePage {
 
     public void navigateToAllProductsPage() {
         wait.until(ExpectedConditions.visibilityOf(PRODUCTS_MENU));
-        ((JavascriptExecutor) driver).executeAsyncScript("arguments[0].click();", PRODUCTS_MENU);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", PRODUCTS_MENU);
         logger.info("Click on the Products menu");
     }
 
@@ -195,7 +198,13 @@ public class HomePage {
         return this;
     }
 
-    public HomePage verifyPageLoaded() {
+    public HomePage verifyPageLoaded(String language) {
+        String pageLoadedText;
+        if (language.equals("VIE")) {
+            pageLoadedText = pageLoadedTextVIE;
+        } else {
+            pageLoadedText = pageLoadedTextENG;
+        }
         wait.until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
             return driver.getPageSource().contains(pageLoadedText);
