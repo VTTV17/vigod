@@ -9,12 +9,14 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.asserts.SoftAssert;
 
 import utilities.UICommonAction;
 
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Random;
 
 import static utilities.links.Links.*;
 
@@ -22,10 +24,15 @@ public class SignupPage {
 
 	final static Logger logger = LogManager.getLogger(SignupPage.class);
 	
+	public String country;
+	public String countryCode;
+	
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
 
+    SoftAssert soft = new SoftAssert();    
+    
     public SignupPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -79,7 +86,7 @@ public class SignupPage {
     WebElement CITY;
     
     @FindBy (id = "cityCode")
-    WebElement CITYCODE_DROPDOWN;
+    WebElement PROVINCE_DROPDOWN;
     
     @FindBy (id = "districtCode")
     WebElement DISTRICT_DROPDOWN;
@@ -90,14 +97,13 @@ public class SignupPage {
     @FindBy (id = "zipCode")
     WebElement ZIPCODE;
     
-    
     @FindBy (id = "currencyCode")
     WebElement CURRENCY;
     
     @FindBy (id = "country")
     WebElement STORE_LANGUAGE;
 
-    @FindBy (css = "button.uik-select__option>span>div>div>div>div:nth-child(1)")
+    @FindBy (css = ".uik-select__optionContent .phone-option")
     List<WebElement> COUNTRY_LIST;
 
     @FindBy (css = "#verifyCode")
@@ -106,11 +112,17 @@ public class SignupPage {
     @FindBy (css = ".btn-confirm")
     WebElement CONFIRM_OTP;
 
-    @FindBy (css = ".resend-otp")
-    WebElement RESEND_OTP;    
+    @FindBy (css = ".resend-otp a")
+    WebElement RESEND_OTP;
     
     @FindBy (id = "fb-root")
-    WebElement FACEBOOK_BUBBLE;    
+    WebElement FACEBOOK_BUBBLE;
+    
+    @FindBy (css = ".alert__wrapper")
+    WebElement USEREXIST_ERROR;
+    
+    @FindBy (css = ".alert__wrapper")
+    WebElement WRONG_CODE_ERROR;
     
     public SignupPage navigate() {
         driver.get(DOMAIN + SIGNUP_PATH);
@@ -119,25 +131,71 @@ public class SignupPage {
     }
     public SignupPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
-    	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()='%s']".formatted(country))).click();
-    	logger.info("Selected country: " + country);
+    	if (country.contentEquals("rd")) {
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(0, COUNTRY_LIST.size());
+    		COUNTRY_LIST.get(randomNumber).click();
+    	} else {
+    		driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()='%s']".formatted(country))).click();
+    	} 
+    	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
+    	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
+    	this.country = selectedOption[0];
+    	this.countryCode = selectedOption[1];
     	return this;
     }
 
     public SignupPage selectCountryToSetUpShop(String country) {
-    	String selectedOption = commonAction.selectByVisibleText(COUNTRY_DROPDOWN_SETUP_SHOP, country);
+    	String selectedOption;
+    	if (country.contentEquals("rd")) {
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(COUNTRY_DROPDOWN_SETUP_SHOP).size());
+        	selectedOption = commonAction.selectByIndex(COUNTRY_DROPDOWN_SETUP_SHOP, randomNumber);
+    	} else {
+    		selectedOption = commonAction.selectByVisibleText(COUNTRY_DROPDOWN_SETUP_SHOP, country);
+    	}        	
     	logger.info("Selected country: " + selectedOption);
     	return this;
     }
     
     public SignupPage selectCurrency(String currency) {
-    	String selectedOption = commonAction.selectByVisibleText(CURRENCY, currency);
+    	String selectedOption;
+    	if (currency.contentEquals("rd")) {
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(CURRENCY).size());
+        	selectedOption = commonAction.selectByIndex(CURRENCY, randomNumber);
+    	} else {
+    		selectedOption = commonAction.selectByVisibleText(CURRENCY, currency);
+    	}        	
     	logger.info("Selected currency: " + selectedOption);
     	return this;
     }
     
     public SignupPage selectLanguage(String language) {
-    	String selectedOption = commonAction.selectByVisibleText(STORE_LANGUAGE, language);
+    	String selectedOption;
+    	if (language.contentEquals("rd")) {
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(STORE_LANGUAGE).size());
+        	selectedOption = commonAction.selectByIndex(STORE_LANGUAGE, randomNumber);
+    	} else {
+    		selectedOption = commonAction.selectByVisibleText(STORE_LANGUAGE, language);
+    	}     	
     	logger.info("Selected language: " + selectedOption);
     	return this;
     }
@@ -184,20 +242,53 @@ public class SignupPage {
         return this;
     }     
     
-    public SignupPage selectCityCode(String cityCode) {
-    	String selectedOption = commonAction.selectByVisibleText(CITYCODE_DROPDOWN, cityCode);
-    	logger.info("Selected city code: " + selectedOption);
+    public SignupPage selectProvince(String province) {
+    	String selectedOption;
+    	if (province.contentEquals("rd")) {
+    		try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(PROVINCE_DROPDOWN).size());
+        	selectedOption = commonAction.selectByIndex(PROVINCE_DROPDOWN, randomNumber);
+    	} else {
+    		selectedOption = commonAction.selectByVisibleText(PROVINCE_DROPDOWN, province);
+    	}      	
+    	logger.info("Selected state/province: " + selectedOption);
     	return this;
     }
     
     public SignupPage selectDistrict(String district) {
-    	String selectedOption = commonAction.selectByVisibleText(DISTRICT_DROPDOWN, district);
+    	String selectedOption;
+    	if (district.contentEquals("rd")) {
+    		try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(DISTRICT_DROPDOWN).size());
+        	selectedOption = commonAction.selectByIndex(DISTRICT_DROPDOWN, randomNumber);
+    	} else {
+    		selectedOption = commonAction.selectByVisibleText(DISTRICT_DROPDOWN, district);
+    	}    	
     	logger.info("Selected district: " + selectedOption);
     	return this;
     }
 
     public SignupPage selectWard(String ward) {
-    	String selectedOption = commonAction.selectByVisibleText(WARD, ward);
+    	String selectedOption;
+    	if (ward.contentEquals("rd")) {
+    		try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(WARD).size());
+        	selectedOption = commonAction.selectByIndex(WARD, randomNumber);
+    	} else {
+    		selectedOption = commonAction.selectByVisibleText(WARD, ward);
+    	}
     	logger.info("Selected ward: " + selectedOption);
     	return this;
     }        
@@ -254,9 +345,33 @@ public class SignupPage {
         return this;
     }
 
+    public SignupPage clickResendOTP() {
+    	commonAction.clickElement(RESEND_OTP);
+    	logger.info("Clicked on Resend linktext.");        
+        return this;
+    }
+    
     public void clickConfirmBtn() {
     	commonAction.clickElement(CONFIRM_OTP);
     	logger.info("Clicked on Confirm button.");     
     }
+
+    public SignupPage verifyUsernameExistError(String errMessage) {
+    	String text = commonAction.getText(USEREXIST_ERROR);
+    	soft.assertEquals(text,errMessage, "[Signup][Username already exists] Message does not match.");
+    	logger.info("verifyUsernameExistError completed");
+    	return this;
+    }
     
+    public SignupPage verifyVerificationCodeError(String errMessage) {
+        String text = commonAction.getText(WRONG_CODE_ERROR);
+        soft.assertEquals(text,errMessage, "[Signup][Wrong Verification Code] Message does not match.");
+        logger.info("verifyVerificationCodeError completed");
+        return this;
+    }
+
+    public void completeVerify() {
+        soft.assertAll();
+    }
+
 }
