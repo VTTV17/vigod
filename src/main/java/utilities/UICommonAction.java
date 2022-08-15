@@ -3,6 +3,7 @@ package utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -200,9 +201,27 @@ public class UICommonAction {
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByVisibleText(visibleText);
-		WebElement option = select.getFirstSelectedOption();
-		return option.getText();
-	}	
+		
+		// Reduces time taken to get selected option by using javascript.
+		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
+		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+		if (selectedOption == null)
+			throw new NoSuchElementException("No options are selected");
+		return selectedOption.getText();
+	}
+
+	public String selectByIndex(WebElement element, int index) {
+		wait.until(ExpectedConditions.elementToBeClickable(element));
+		Select select = new Select(element);
+		select.selectByIndex(index);
+		
+		// Reduces time taken to get selected option by using javascript.
+		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
+		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+		if (selectedOption == null)
+			throw new NoSuchElementException("No options are selected");
+		return selectedOption.getText();
+	}
 
 	// Useful to hide the facebook message bubble at dashboard login page
 	public void hideElement(WebElement element) {
