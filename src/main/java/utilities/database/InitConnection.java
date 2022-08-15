@@ -4,8 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.Test;
 
-import pages.dashboard.SignupPage;
-
 import java.sql.*;
 
 import static utilities.account.AccountTest.*;
@@ -20,6 +18,11 @@ public class InitConnection {
     }
 
     public String getActivationKey(String phoneNumber) throws SQLException {
+    	try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(phoneNumber);
         ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
         String key = null;
@@ -41,6 +44,18 @@ public class InitConnection {
         logger.debug("Phone number to get reset key from: " + phoneNumber); 
     	logger.info("Reset key retrieved: " + key); 
     	return key;
+    }     
+    
+    public String getStoreURL(String storeName) throws SQLException {
+    	String query = "SELECT url FROM \"store-services\".store x WHERE name = '%s'".formatted(storeName);
+    	ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
+    	String URL = null;
+    	while (resultSet.next()) {
+    		URL = resultSet.getString("url");
+    	}
+    	logger.debug("Store to get URL from: " + storeName); 
+    	logger.info("Store URL retrieved: " + URL); 
+    	return URL;
     }     
     
     @Test
