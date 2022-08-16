@@ -10,6 +10,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.asserts.SoftAssert;
+
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -19,6 +21,9 @@ public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
+    
+    SoftAssert soft = new SoftAssert(); 
+    
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
     public HomePage(WebDriver driver) {
@@ -42,6 +47,9 @@ public class HomePage {
 
     @FindBy(css = ".modal-content .gs-button")
     WebElement UPGRADNOW_BTN;
+    
+    @FindBy(css = ".modal-content")
+    WebElement UPGRADNOW_MESSAGE;
 
     @FindBy(css = "div.language-selector > button")
     WebElement LANGUAGE;
@@ -168,6 +176,13 @@ public class HomePage {
         logger.info("Clicked on Upgrade Now button");
     }
 
+    public HomePage verifyUpgradeNowMessage(String message) {
+    	String text = commons.getText(UPGRADNOW_MESSAGE);
+    	soft.assertEquals(text,message, "[Homepage][Upgrade Now Message] Message does not match.");
+    	logger.info("verifyUpgradeNowMessage completed");
+    	return this;
+    }    
+    
     public HomePage selectLanguage(String language) {
         wait.until(ExpectedConditions.visibilityOf(LANGUAGE));
         if (!getDashboardLanguage().equals(language)) {
@@ -180,5 +195,9 @@ public class HomePage {
             }
         }
         return this;
+    }
+    
+    public void completeVerify() {
+        soft.assertAll();
     }
 }

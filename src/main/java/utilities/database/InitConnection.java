@@ -58,6 +58,30 @@ public class InitConnection {
     	return URL;
     }     
     
+    public String getStoreDomain(String storeName) throws SQLException {
+    	String query = "SELECT * FROM \"store-services\".store x WHERE name = '%s'".formatted(storeName);
+    	ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
+    	String domain = null;
+    	while (resultSet.next()) {
+    		domain = resultSet.getString("domain");
+    	}
+    	logger.debug("Store to get domain from: " + storeName); 
+    	logger.info("Store domain retrieved: " + domain); 
+    	return domain;
+    }     
+    
+    public String getStoreGiftCode(String storeName) throws SQLException {
+    	String query = "SELECT * FROM \"store-services\".store x WHERE name = '%s'".formatted(storeName);
+    	ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
+    	String domain = null;
+    	while (resultSet.next()) {
+    		domain = resultSet.getString("gift_code");
+    	}
+    	logger.debug("Store to get domain from: " + storeName); 
+    	logger.info("Store domain retrieved: " + domain); 
+    	return domain;
+    }     
+    
     @Test
     public void test() throws SQLException {
         java.sql.Connection connection = createConnection();
