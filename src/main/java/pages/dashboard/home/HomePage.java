@@ -57,6 +57,12 @@ public class HomePage {
     @FindBy(css = "button.uik-select__option")
     List<WebElement> LANGUAGE_LIST;
 
+	@FindBy(css = ".Toastify__toast-body")
+	WebElement TOAST_MESSAGE;
+
+	@FindBy(css = ".Toastify__close-button")
+	WebElement TOAST_MESSAGE_CLOSE_BTN;    
+    
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
 
     public Map<String, String> pageMap() {
@@ -196,6 +202,11 @@ public class HomePage {
         }
         return this;
     }
+
+	public String getToastMessage() {
+		logger.info("Finished getting toast message.");
+		return commons.getText(TOAST_MESSAGE);
+	}    
     
     public void completeVerify() {
         soft.assertAll();

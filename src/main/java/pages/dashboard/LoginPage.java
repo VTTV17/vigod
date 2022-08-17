@@ -14,12 +14,16 @@ import org.testng.asserts.SoftAssert;
 import utilities.UICommonAction;
 
 import java.time.Duration;
+import java.util.Random;
 
 import static utilities.links.Links.*;
 
 public class LoginPage {
 	
 	final static Logger logger = LogManager.getLogger(LoginPage.class);
+
+	public String country;
+	public String countryCode;	
 	
     WebDriver driver;
     WebDriverWait wait;
@@ -82,6 +86,9 @@ public class LoginPage {
     @FindBy (css = "input[name='key']")
     WebElement VERIFICATION_CODE;    
     
+    @FindBy (css = ".btn-resend")
+    WebElement RESEND_OTP;
+    
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
         wait.until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
@@ -91,9 +98,12 @@ public class LoginPage {
     public LoginPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
     	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()='%s']".formatted(country))).click();
-    	logger.info("Selected country: " + country);
+    	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
+    	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
+    	this.country = selectedOption[0];
+    	this.countryCode = selectedOption[1];
     	return this;
-    }    
+    }   
     
     public LoginPage switchToStaffTab() {
     	commonAction.clickElement(STAFF_TAB);
@@ -148,6 +158,12 @@ public class LoginPage {
     	logger.info("Clicked on Forgot Password linktext.");
     	return this;
     }
+
+    public LoginPage clickResendOTP() {
+    	commonAction.clickElement(RESEND_OTP);
+    	logger.info("Clicked on Resend linktext.");        
+        return this;
+    }    
     
     public LoginPage clickContinueOrConfirmBtn() {
     	commonAction.clickElement(CONTINUE_BTN);

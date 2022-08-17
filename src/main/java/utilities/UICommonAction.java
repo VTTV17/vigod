@@ -30,11 +30,16 @@ public class UICommonAction {
 	}
 
 	public void clickElement(WebElement element) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-		} catch (StaleElementReferenceException ex) {
-			logger.debug("StaleElementReferenceException caught in clickElement");
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+		int count = 0;
+		int maxTries = 3;
+		while(true) {
+			try {
+				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+				break;
+			} catch (StaleElementReferenceException ex) {
+				logger.debug("StaleElementReferenceException caught in clickElement");
+				if (++count == maxTries) throw ex;
+			}
 		}
 	}
 	
