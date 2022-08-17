@@ -14,6 +14,9 @@ public class ProductElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+    
+    @FindBy(css = "iframe[data-testid='dialog_iframe']")
+    WebElement FACEBOOK_BUBBLE;
 
     @FindBy(css = "div.d-flex > button.gs-button__green > div")
     WebElement CREATE_PRODUCT_BTN;
@@ -44,7 +47,61 @@ public class ProductElement {
 
     @FindBy (css = "div.second-item > div > div > div.css-1hwfws3")
     List<WebElement> VARIATION_VALUE;
+    
+    @FindBy(css = "div:nth-child(4) > div > div > table > thead > tr > th:nth-child(1) > label")
+    WebElement SELECT_ALL_VARIATIONS_CHECKBOX;
+    
+    @FindBy(css = "div#app-body th > div > div > span")
+    WebElement SELECT_ACTIONS_IN_VARIATION_TABLE;
 
+    // 0: Update Price
+    // 1: Update Stock
+    // 3: Update SKU
+    // 4: Update Image
+    @FindBy(css = "div#app-body th > div > div > div > button")
+    List<WebElement> LIST_ACTIONS_IN_VARIATION_TABLE;
+
+    // 0: Listing price
+    // 1: Selling price
+    // 2: Cost price
+    // 3: Stock quantity
+    // 4: SKU
+    @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr > td > div.cursor--pointer")
+    List<WebElement> OPEN_TABLE;
+
+    @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr > td > img")
+    List<WebElement> IMAGE_LIST_VARIATION_TABLE;
+
+    @FindBy(css = "div.modal-footer > button.gs-button__green")
+    WebElement UPDATE_BTN;
+    
+    @FindBy(css = "div.modal-content div.image-uploader-wrapper>input")
+    WebElement VARIATION_IMAGE;
+
+    @FindBy(css = "div.product-variation-price-editor-modal__apply-price > div > div > input")
+    WebElement PRICE_VALUE_IN_VARIATION_TABLE;
+    
+    @FindBy(css = "div.product-variation-price-editor-modal__apply-all-wrapper > button > div")
+    WebElement APPLY_ALL_IN_VARIATION_TABLE;
+    
+    @FindBy(css = "div.product-variation-price-editor-modal__select-price-type > button > span > div > div:nth-child(1)")
+    WebElement PRICE_DROPDOWN_IN_VARIATION_TABLE;
+    
+    @FindBy(css = "div.product-variation-price-editor-modal__select-price-type > div > div > button > span > div > div:nth-child(1)")
+    List<WebElement> PRICE_TYPE_IN_VARIATION_TABLE;
+
+    @FindBy(css = "div.modal-body  .d-flex > button:nth-child(1)")
+    WebElement ADD_STOCK_IN_STOCK_QUANTITY_TABLE;
+
+    @FindBy(css = "div.modal-body  .d-flex > button:nth-child(2)")
+    WebElement CHANGE_STOCK_IN_STOCK_QUANTITY_TABLE;
+
+    @FindBy(css = ".d-flex > div > input")
+    WebElement STOCK_VALUE_IN_STOCK_QUANTITY_TABLE;
+
+    @FindBy(css = ".d-flex > input")
+    List<WebElement> SKU_LIST_IN_SKU_TABLE;
+    
     @FindBy (css = "input#input-search")
     WebElement CONVERSION_UNIT_SEARCH_BOX;
 
@@ -87,8 +144,17 @@ public class ProductElement {
     @FindBy (css = "div.product-form-collection-selector2 > div:nth-child(1) > div > input")
     WebElement COLLECTION_SEARCH_BOX;
 
-    @FindBy (css = "select#manageInventory")
-    WebElement MANAGE_INVENTORY_DROPDOWN;
+    @FindBy(css = "div.product-form-collection-selector2__search-item")
+    List<WebElement> COLLECTION_LIST;
+
+    @FindBy (css = "select#manageInventory > option:nth-child(2)")
+    WebElement MANAGE_INVENTORY_BY_IMEI;
+
+    @FindBy(css = "div[name = productQuantity] input")
+    WebElement NORMAL_PRODUCT_STOCK_QUANTITY;
+    
+    @FindBy(css = "div.row > button")
+    WebElement APPLY_ALL_STOCK_QUANTITY;
 
     // 0: Show as listing product on storefront
     // 1: Display if out of stock
@@ -112,5 +178,8 @@ public class ProductElement {
     WebElement PRODUCT_PRIORITY;
 
     @FindBy (css = "div.gs-widget__content > label > div")
-    List<WebElement> PRODUCT_PLATFORM;
+    List<WebElement> PRODUCT_PLATFORM_LABEL;
+
+    @FindBy (css = "div.gs-widget__content > label > input")
+    List<WebElement> PRODUCT_PLATFORM_CHECKBOX;
 }

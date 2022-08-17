@@ -18,19 +18,42 @@ public class ProductTest extends BaseTest {
     String productDescription;
     int vatID;
     Map<String, List<String>> variations;
+    int listingPrice;
+    int sellingPrice;
+    int costPrice;
+    int weight;
+    int length;
+    int width;
+    int height;
+    int inventoryStock;
+    List<String> platforms;
+
+    String collectionName;
 
     @BeforeClass
     public void initTestData() {
         fileName = "img.jpg";
-        sellerAccount = "stgaboned@nbobd.com";
+        sellerAccount = "stgauto@nbobd.com";
         sellerPassword = "Abc@12345";
         env = "stg";
         language = "ENG";
         productName = "New products";
         productDescription = "New product descriptions";
+        listingPrice = 10000;
+        sellingPrice = 9000;
+        costPrice = 8000;
         vatID = 2;
         variations = new HashMap<>();
-        variations.put("size", List.of("S", "M", "L"));
+        variations.put("Size", List.of("S", "M", "L"));
+        variations.put("Color", List.of("Red", "White", "Blue"));
+        collectionName = "Manual Collections 1";
+        weight = 100;
+        length = 100;
+        width = 100;
+        height = 100;
+        platforms = List.of("In-Store", "App", "Web", "GoSOCIAL");
+        inventoryStock = 1000;
+
     }
 
     @Test
@@ -42,12 +65,22 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
+                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
                 .selectProductVAT(vatID)
+//                .inputPriceNormalProduct(listingPrice, sellingPrice, costPrice)
                 .uploadProductImage(fileName)
-                .clickOnTheAddVariationBtn()
-                .inputVariationName(variations);
+                .addVariations(variations)
+                .selectCollections(collectionName)
+//                .manageInventoryByIMEI()
+//                .setInventoryByNormalProduct(inventoryStock)
+                .setDimension(weight, length, width, height)
+                .setPlatForm(platforms)
+                .changeVariationPriceForAllVariations(listingPrice, sellingPrice, costPrice)
+                .changeStockQuantityForAllVariations(inventoryStock)
+                .changeSKUForAllVariations()
+                .uploadImageForAllVariations(fileName);
     }
 }

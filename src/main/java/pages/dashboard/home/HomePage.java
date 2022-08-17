@@ -198,16 +198,10 @@ public class HomePage {
         return this;
     }
 
-    public HomePage verifyPageLoaded(String language) {
-        String pageLoadedText;
-        if (language.equals("VIE")) {
-            pageLoadedText = pageLoadedTextVIE;
-        } else {
-            pageLoadedText = pageLoadedTextENG;
-        }
+    public HomePage verifyPageLoaded() {
         wait.until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
-            return driver.getPageSource().contains(pageLoadedText);
+            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
         });
         return this;
     }

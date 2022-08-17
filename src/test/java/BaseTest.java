@@ -1,5 +1,4 @@
 import org.openqa.selenium.WebDriver;
-import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import utilities.UICommonAction;
@@ -17,16 +16,16 @@ public class BaseTest {
 
     @BeforeMethod
     public void setup() throws InterruptedException {
-        driver = new InitWebdriver().getDriver("chrome", "true");
+        driver = new InitWebdriver().getDriver("chrome", "false");
         generate = new DataGenerator();
         commonAction = new UICommonAction(driver);
     }
 
     @AfterMethod
     public void tearDown() throws IOException {
-        new Screenshot().takeScreenshot(driver);
+//        new Screenshot().takeScreenshot(driver);
         if (driver != null) {
-            driver.quit();
+//            driver.quit();
         }
     }
 }
