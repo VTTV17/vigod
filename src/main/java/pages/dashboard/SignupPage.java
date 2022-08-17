@@ -45,6 +45,9 @@ public class SignupPage {
 
     @FindBy (css = "#password")
     WebElement PASSWORD;
+    
+    @FindBy (css = "#refCode")
+    WebElement REFERRAL_CODE;
 
     @FindBy (css = "button.uik-btn__iconRight")
     WebElement SIGNUP_BTN;
@@ -129,6 +132,13 @@ public class SignupPage {
         wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
         return this;
     }
+    
+    public SignupPage navigate(String link) {
+    	driver.get(DOMAIN + link);
+    	wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
+    	return this;
+    }
+    
     public SignupPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
     	if (country.contentEquals("rd")) {
@@ -324,6 +334,12 @@ public class SignupPage {
     	logger.info("Input '" + password + "' into Password field.");
         return this;
     }
+    
+    public SignupPage inputReferralCode(String code) {
+    	commonAction.inputText(REFERRAL_CODE, code);
+    	logger.info("Input '" + code + "' into Referral Code field.");
+    	return this;
+    }
 
     public SignupPage clickSignupBtn() {
     	commonAction.clickElement(SIGNUP_BTN);
@@ -331,13 +347,14 @@ public class SignupPage {
         return this;
     }
 
-    public SignupPage fillOutSignupForm(String country, String user, String password) {
+    public SignupPage fillOutSignupForm(String country, String user, String password, String referralCode) {
     	selectCountry(country);
     	inputMailOrPhoneNumber(user);
     	inputPassword(password);
+    	inputReferralCode(referralCode);
     	clickSignupBtn();
         return this;
-    }    
+    }
     
     public SignupPage inputVerificationCode(String verificationCode) throws SQLException {
     	commonAction.inputText(OTP, verificationCode);
