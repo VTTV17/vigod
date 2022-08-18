@@ -2,12 +2,7 @@ package utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -235,5 +230,26 @@ public class UICommonAction {
 	}	
 	public void navigateToURL(String url){
 		driver.get(url);
+	}
+	public WebElement getElementByXpath(String xpath) {
+		return driver.findElement(By.xpath(xpath));
+	}
+
+	public void sleepInSecond(long miliSecond) {
+		try {
+			Thread.sleep(miliSecond);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public Boolean isElementDisplay(WebElement element){
+		try {
+			if(element.isDisplayed()){
+				return true;
+			}else return false;
+		}catch (Exception e){
+			logger.debug("Element not display: "+e.getMessage());
+			return false;
+		}
 	}
 }
