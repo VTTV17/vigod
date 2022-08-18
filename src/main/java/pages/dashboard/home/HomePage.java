@@ -2,39 +2,46 @@ package pages.dashboard.home;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
-
+import org.testng.Assert;
 import utilities.UICommonAction;
+import utilities.assert_customize.AssertCustomize;
+import utilities.excel.Excel;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+
+import static utilities.links.Links.DOMAIN;
 
 public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
-    
+
     SoftAssert soft = new SoftAssert(); 
-    
+
+    Excel excel;
+    int countFailed = 0;
+    AssertCustomize assertCustomize;
+    String planPermissionFileName = "PlanPermission.xlsx";
+
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         commons = new UICommonAction(driver);
+        assertCustomize = new AssertCustomize(driver);
         PageFactory.initElements(driver, this);
     }
-
-    @FindBy(xpath = "//a[@name='component.navigation.services']")
-    WebElement SERVICES_LINK;
 
     @FindBy(css = ".header-right__ele-right a[href='/logout']")
     WebElement LOGOUT_BTN;
@@ -56,6 +63,8 @@ public class HomePage {
 
     @FindBy(css = "button.uik-select__option")
     List<WebElement> LANGUAGE_LIST;
+    @FindBy(css = ".gs-sale-pitch_content")
+    WebElement SALE_PITCH_POPUP;
 
 	@FindBy(css = ".Toastify__toast-body")
 	WebElement TOAST_MESSAGE;
@@ -136,24 +145,30 @@ public class HomePage {
     }
 
     public void navigateToPage(String pageName) {
-        commons.waitTillElementDisappear(SPINNER, 15);
+        commons.sleepInSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
-        commons.clickElement(driver.findElement(By.xpath(newXpath)));
-        logger.info("Click on %s item on menu".formatted(pageName));
+        if (pageName.equals("Shopee Products")) {
+            newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
+        }
+        logger.debug("xpath: %s".formatted(newXpath));
+        Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
+        logger.debug("xpath: %s".formatted(flag));
+        if (flag) {
+            try {
+                commons.clickElement(driver.findElement(By.xpath(newXpath)));
+            } catch (StaleElementReferenceException ex) {
+                logger.debug("StaleElementReferenceException caught in navigateToPage");
+                commons.clickElement(driver.findElement(By.xpath(newXpath)));
+            }
+            logger.info("Click on %s item on menu".formatted(pageName));
+        }
     }
 
     public void navigateToPage(String pageName, String... subMenus) {
-        commons.waitTillElementDisappear(SPINNER, 15);
-        String pageNavigate = pageMap().get(pageName);
-        String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
-        commons.clickElement(driver.findElement(By.xpath(newXpath)));
-        logger.info("Click on %s item on menu".formatted(pageName));
+        navigateToPage(pageName);
         for (String subMenu : subMenus) {
-            pageNavigate = pageMap().get(subMenu);
-            newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
-            commons.clickElement(driver.findElement(By.xpath(newXpath)));
-            logger.info("Click on %s item on menu".formatted(pageName));
+            navigateToPage(subMenu);
         }
     }
 
@@ -203,6 +218,7 @@ public class HomePage {
         return this;
     }
 
+
 	public String getToastMessage() {
 		logger.info("Finished getting toast message.");
 		return commons.getText(TOAST_MESSAGE);
@@ -210,5 +226,148 @@ public class HomePage {
     
     public void completeVerify() {
         soft.assertAll();
+    }
+    public Integer verifySalePitchPopupDisplay() throws IOException {
+        commons.sleepInSecond(1000);
+        AssertCustomize assertCustomize = new AssertCustomize(driver);
+        countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
+        return countFailed;
+    }
+    public Integer verifySalePitchPopupNotDisplay() throws IOException {
+        commons.sleepInSecond(1000);
+        AssertCustomize assertCustomize = new AssertCustomize(driver);
+        countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
+        return countFailed;
+    }
+    public boolean isMenuClicked(WebElement element) {
+        commons.sleepInSecond(1000);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        try {
+            wait.until(ExpectedConditions.visibilityOf(element)).click();
+            logger.debug("Element is clickable");
+            return true;
+        } catch (Exception e) {
+            logger.debug("Element is not clickable");
+            logger.debug(e.getMessage());
+            return false;
+        }
+    }
+
+    public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
+        commons.sleepInSecond(1000);
+        String pageNavigate = pageMap().get(pageName);
+        String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
+        if (pageName.equals("Shopee Products")) {
+            newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
+        }
+        boolean isClicked = false;
+        try {
+            WebElement element = commons.getElementByXpath(newXpath);
+            isClicked = isMenuClicked(element);
+        } catch (StaleElementReferenceException ex) {
+            logger.debug("StaleElementReferenceException caught in checkPageHasPermission");
+            WebElement element = commons.getElementByXpath(newXpath);
+            isClicked = isMenuClicked(element);
+        }
+        countFailed = assertCustomize.assertTrue(countFailed, isClicked, "Check Menu clickable");
+        verifySalePitchPopupNotDisplay();
+        if (path.contains("intro") || path.contains("info")) {
+            commons.waitForElementInvisible(SPINNER);
+            commons.sleepInSecond(1000);
+        }
+        if (pageName.equals("POS") || pageName.equals("Affiliate")) {
+            commons.switchToWindow(1);
+            commons.sleepInSecond(1000);
+            countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of Page: " + pageName);
+            commons.closeTab();
+            commons.switchToWindow(0);
+        } else {
+            countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of page: " + pageName);
+        }
+        logger.info("Check page has permission");
+        return this;
+    }
+
+    public HomePage checkPageNoPermission(String pageName, String path, String hasSalePitch) throws IOException {
+        if (hasSalePitch.equalsIgnoreCase("Y")) {
+            navigateToPage(pageName);
+            verifySalePitchPopupDisplay();
+        } else {
+            String pageNavigate = pageMap().get(pageName);
+            String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
+            if (pageName.equals("Shopee Products")) {
+                newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
+            }
+            commons.sleepInSecond(1000);
+            countFailed = assertCustomize.assertFalse(countFailed, isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
+            commons.openNewTab();
+            commons.switchToWindow(1);
+            commons.navigateToURL(DOMAIN + path);
+            countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + "/404", "Check url 404: " + pageName);
+            commons.closeTab();
+            commons.switchToWindow(0);
+        }
+        logger.info("Check page no permission");
+        return this;
+    }
+
+    public HomePage checkPermissionFromExcel(String permission, String pageName, String path, String hasSalePitch) throws IOException {
+        switch (permission) {
+            case "A":
+                checkPageHasPermission(pageName, path);
+                break;
+            case "D":
+                checkPageNoPermission(pageName, path, hasSalePitch);
+                break;
+            default:
+                break;
+        }
+        logger.info("Read and check permission from excel");
+        return this;
+    }
+
+    public HomePage checkPermissionAllPageByPackage(String packageType) throws IOException {
+        excel = new Excel();
+        Sheet planPermissionSheet = excel.getSheet(planPermissionFileName, 0);
+        int rowNumber = planPermissionSheet.getLastRowNum();
+        String permissionParentMenu = "";
+        for (int i = 1; i <= rowNumber; i++) {
+            int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet, planPermissionSheet.getRow(0), packageType);
+            logger.debug("packageColIndex: " + packageColIndex);
+            String permissionFromExcel = planPermissionSheet.getRow(i).getCell(packageColIndex).getStringCellValue();
+            String menuItemExcel = planPermissionSheet.getRow(i).getCell(0).getStringCellValue();
+            logger.debug("PagesExcel: " + menuItemExcel);
+            String pathExcel = planPermissionSheet.getRow(i).getCell(1).getStringCellValue();
+            String hasSalePitch = planPermissionSheet.getRow(i).getCell(2).getStringCellValue();
+            String[] pageNames = menuItemExcel.split("-");
+            if (pageNames.length == 1) {
+                checkPermissionFromExcel(permissionFromExcel, pageNames[0], pathExcel, hasSalePitch);
+                permissionParentMenu = permissionFromExcel;
+            } else {
+                if (permissionParentMenu.equalsIgnoreCase("D") && hasSalePitch.equalsIgnoreCase("N")) {
+                    logger.debug("Parent menu is disable");
+                    continue;
+                }
+                for (int j = 0; j < pageNames.length; j++) {
+                    logger.debug(pageNames[j]);
+                    if (j != pageNames.length - 1) {
+                        navigateToPage(pageNames[j]);
+                    } else {
+                        checkPermissionFromExcel(permissionFromExcel, pageNames[j], pathExcel, hasSalePitch);
+                    }
+                }
+            }
+        }
+        return this;
+    }
+
+    public HomePage completeVerifyPermissionByPackage() {
+        logger.info("countFail = %s".formatted(countFailed));
+        if (countFailed > 0) {
+            Assert.fail("[Failed] Fail %d cases".formatted(countFailed));
+        }
+        countFailed = 0;
+        return this;
+
     }
 }
