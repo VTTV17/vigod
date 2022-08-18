@@ -171,7 +171,6 @@ public class SignupPage {
 
 			selectedOption = commonAction.selectByIndex(COUNTRY_DROPDOWN_SETUP_SHOP, randomNumber);
     	} else {
-			commonAction.sleepInMiliSecond(3000);
     		selectedOption = commonAction.selectByVisibleText(COUNTRY_DROPDOWN_SETUP_SHOP, country);
     	}        	
     	logger.info("Selected country: " + selectedOption);
