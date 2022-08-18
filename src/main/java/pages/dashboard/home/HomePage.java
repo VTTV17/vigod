@@ -2,7 +2,6 @@ package pages.dashboard.home;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
@@ -145,7 +144,7 @@ public class HomePage {
     }
 
     public void navigateToPage(String pageName) {
-        commons.sleepInSecond(1000);
+        commons.sleepInMiliSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
@@ -228,19 +227,19 @@ public class HomePage {
         soft.assertAll();
     }
     public Integer verifySalePitchPopupDisplay() throws IOException {
-        commons.sleepInSecond(1000);
+        commons.sleepInMiliSecond(1500);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
         return countFailed;
     }
     public Integer verifySalePitchPopupNotDisplay() throws IOException {
-        commons.sleepInSecond(1000);
+        commons.sleepInMiliSecond(1000);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
         return countFailed;
     }
     public boolean isMenuClicked(WebElement element) {
-        commons.sleepInSecond(1000);
+        commons.sleepInMiliSecond(1000);
         wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         try {
             wait.until(ExpectedConditions.visibilityOf(element)).click();
@@ -254,7 +253,7 @@ public class HomePage {
     }
 
     public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
-        commons.sleepInSecond(1000);
+        commons.sleepInMiliSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
@@ -273,16 +272,20 @@ public class HomePage {
         verifySalePitchPopupNotDisplay();
         if (path.contains("intro") || path.contains("info")) {
             commons.waitForElementInvisible(SPINNER);
-            commons.sleepInSecond(1000);
+            commons.sleepInMiliSecond(1000);
         }
         if (pageName.equals("POS") || pageName.equals("Affiliate")) {
             commons.switchToWindow(1);
-            commons.sleepInSecond(1000);
+            commons.sleepInMiliSecond(1000);
             countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of Page: " + pageName);
             commons.closeTab();
             commons.switchToWindow(0);
         } else {
             countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of page: " + pageName);
+            if (commons.getCurrentURL().contains("404")){
+                commons.navigateBack();
+                logger.debug("Page show 404");
+            }
         }
         logger.info("Check page has permission");
         return this;
@@ -298,7 +301,7 @@ public class HomePage {
             if (pageName.equals("Shopee Products")) {
                 newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
             }
-            commons.sleepInSecond(1000);
+            commons.sleepInMiliSecond(1000);
             countFailed = assertCustomize.assertFalse(countFailed, isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
             commons.openNewTab();
             commons.switchToWindow(1);
@@ -332,7 +335,7 @@ public class HomePage {
         int rowNumber = planPermissionSheet.getLastRowNum();
         String permissionParentMenu = "";
         for (int i = 1; i <= rowNumber; i++) {
-            int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet, planPermissionSheet.getRow(0), packageType);
+            int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet.getRow(0), packageType);
             logger.debug("packageColIndex: " + packageColIndex);
             String permissionFromExcel = planPermissionSheet.getRow(i).getCell(packageColIndex).getStringCellValue();
             String menuItemExcel = planPermissionSheet.getRow(i).getCell(0).getStringCellValue();

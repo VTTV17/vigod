@@ -1,5 +1,7 @@
 package pages.dashboard.settings.plans;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -32,23 +34,34 @@ public class PlansPage extends HomePage {
     WebElement ORDER_ID;
     @FindBy(xpath = "//button[@class='btn btn-outline-secondary']")
     WebElement BANK_TRANSFER_BTN;
+    @FindBy(css = ".wizard-layout__content a[href='/logout']")
+    WebElement LOGOUT_BTN;
     String PLAN_PRICE_12M = "//tr[contains(@class,'plan-price')]//td[count(//div[text()='%planName%']//ancestor::th/preceding-sibling::*)+1]//button[not(contains(@class,'price-btn--disable'))]";
+    final static Logger logger = LogManager.getLogger(PlansPage.class);
 
     public PlansPage selectPlan(String planName) {
         commons.waitTillElementDisappear(LOADING, 20);
         String newXpath = PLAN_PRICE_12M.replace("%planName%", planName);
         commons.clickElement(driver.findElement(By.xpath(newXpath)));
+        logger.info("Select plan: "+planName);
         return this;
     }
 
     public PlansPage selectPayment() {
         commons.clickElement(BANK_TRANSFER_BTN);
+        logger.info("Click bank transfer");
         commons.clickElement(PAY_BTN);
+        logger.info("Click Pay button");
         return this;
     }
 
     public String getOrderId() {
+        logger.info("Get orderID: "+commons.getText(ORDER_ID));
         return commons.getText(ORDER_ID);
     }
-
+    public PlansPage clickOnLogOut(){
+        commons.clickElement(LOGOUT_BTN);
+        logger.info("Clicked on Logout link");
+        return this;
+    }
 }

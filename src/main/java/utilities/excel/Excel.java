@@ -40,11 +40,10 @@ public class Excel {
         }
         return list;
     }
-    public int getCellIndexByCellValue (Sheet sheet, Row row, String cellValue){
+    public int getCellIndexByCellValue ( Row row, String cellValue){
         int index = -1;
         for (int i=0; i<row.getLastCellNum(); i++) {
             Cell cell = row.getCell(i);
-
             if (cell == null || cell.getCellType() == CellType.BLANK) {
                 continue;
             }
