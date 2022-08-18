@@ -11,6 +11,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.products.conversion_unit.ConversionUnitPage;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,16 +24,20 @@ import java.util.Map;
 
 import static java.lang.Thread.sleep;
 
-public class ProductPage extends ProductVerify {
+public class ProductPage extends ProductElement {
+    WebDriverWait wait;
+    String language;
     public ProductPage(WebDriver driver) {
         super(driver);
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     Logger logger = LogManager.getLogger(LogManager.class);
     Actions actions = new Actions(driver);
 
     public ProductPage setLanguage(String language) {
-        ProductVerify.language = language;
+        this.language = language;
         return this;
     }
 
@@ -276,7 +281,6 @@ public class ProductPage extends ProductVerify {
         for (WebElement skuElement : SKU_LIST_IN_SKU_TABLE) {
             String skuValue = RandomStringUtils.random(10, true, true).toUpperCase(Locale.ROOT);
             wait.until(ExpectedConditions.elementToBeClickable(skuElement)).sendKeys(skuValue);
-            logger.info(skuValue);
         }
 
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
@@ -320,6 +324,27 @@ public class ProductPage extends ProductVerify {
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS_IN_VARIATION_TABLE.get(3))).click();
         uploadVariationImage(imageFileName);
+        return this;
+    }
+
+    public ProductPage configureConversionUnit() {
+        wait.until(ExpectedConditions.elementToBeClickable(ADD_CONVERSION_UNIT_CHECKBOX)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_CONVERSION_UNIT_BTN)).click();
+        return this;
+    }
+
+    public ProductPage selectAllVariations() {
+        new ConversionUnitPage(driver).selectVariations();
+        return this;
+    }
+
+    public ProductPage configureConversionUnitForNormalProduct(Map<String, Integer> conversionMap) throws InterruptedException {
+        new ConversionUnitPage(driver).selectConversionUnit(conversionMap);
+        return this;
+    }
+
+    public ProductPage configureConversionUnitForAllVariations(Map<String, Integer> conversionMap) throws InterruptedException {
+        new ConversionUnitPage(driver).configureConversionUnitForAllVariations(conversionMap);
         return this;
     }
 

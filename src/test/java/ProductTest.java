@@ -2,6 +2,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.dashboard.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
+import pages.dashboard.products.conversion_unit.ConversionUnitPage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class ProductTest extends BaseTest {
     List<String> platforms;
 
     String collectionName;
+    Map<String, Integer> conversionMap;
 
     @BeforeClass
     public void initTestData() {
@@ -53,7 +55,9 @@ public class ProductTest extends BaseTest {
         height = 100;
         platforms = List.of("In-Store", "App", "Web", "GoSOCIAL");
         inventoryStock = 1000;
-
+        conversionMap = new HashMap<>();
+        conversionMap.put("10 products", 10);
+        conversionMap.put("100 products", 100);
     }
 
     @Test
@@ -81,6 +85,9 @@ public class ProductTest extends BaseTest {
                 .changeVariationPriceForAllVariations(listingPrice, sellingPrice, costPrice)
                 .changeStockQuantityForAllVariations(inventoryStock)
                 .changeSKUForAllVariations()
-                .uploadImageForAllVariations(fileName);
+                .uploadImageForAllVariations(fileName)
+                .configureConversionUnit()
+                .selectAllVariations()
+                .configureConversionUnitForAllVariations(conversionMap);
     }
 }
