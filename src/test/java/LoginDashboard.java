@@ -6,11 +6,15 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import pages.Mailnesia;
 import pages.dashboard.LoginPage;
+import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.settings.account.AccountPage;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 
 public class LoginDashboard extends BaseTest {
+	
+	LoginPage loginPage;
 	
     String MAIL;
     String PASSWORD;
@@ -26,6 +30,48 @@ public class LoginDashboard extends BaseTest {
     String INVALID_MAIL_ERROR;
     String INVALID_PHONE_ERROR;
     String INVALID_CREDENTIALS_ERROR;
+    String INVALID_PASSWORD_FORMAT_ERROR_VI;
+    String INVALID_PASSWORD_FORMAT_ERROR_EN;
+    String INVALID_CODE_ERROR_VI = "Mã xác thực không đúng!";	
+    String INVALID_CODE_ERROR_EN = "Incorrect confirmation code!";
+    
+    String language;
+
+	public String getVerificationCode(String username) throws InterruptedException, SQLException {
+		String verificationCode;
+		if (!username.matches("\\d+")) {
+			// Get verification code from Mailnesia
+			Thread.sleep(8000);
+			commonAction.openNewTab();
+			commonAction.switchToWindow(1);
+			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
+			commonAction.closeTab();
+			commonAction.switchToWindow(0);  
+		} else {
+			verificationCode = new InitConnection().getResetKey(loginPage.countryCode + ":" + username);
+		}
+		return verificationCode;
+	}    
+
+    public void verifyChangePasswordError() throws InterruptedException {
+    	String message;
+    	if (new LoginPage(driver).getSelectedLanguage().contentEquals("English")) {
+    		message = INVALID_PASSWORD_FORMAT_ERROR_EN;
+    	} else {
+    		message = INVALID_PASSWORD_FORMAT_ERROR_VI;
+    	}
+    	new LoginPage(driver).verifyPasswordError(message).completeVerify();
+    }	
+    
+    public void verifyConfirmationCodeError() throws InterruptedException {
+    	String message;
+    	if (language.contentEquals("English")) {
+    		message = INVALID_CODE_ERROR_EN;
+    	} else {
+    		message = INVALID_CODE_ERROR_VI;
+    	}
+    	new SignupPage(driver).verifyVerificationCodeError(message).completeVerify();
+    }		
 	
     @BeforeClass
     public void readData() {
@@ -46,8 +92,10 @@ public class LoginDashboard extends BaseTest {
 		INVALID_MAIL_ERROR = data.findValue("invalidMailFormat").asText();
 		INVALID_PHONE_ERROR = data.findValue("invalidPhoneFormat").asText();
 		INVALID_CREDENTIALS_ERROR = data.findValue("invalidCredentials").asText();
+		INVALID_PASSWORD_FORMAT_ERROR_VI = "Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt";
+		INVALID_PASSWORD_FORMAT_ERROR_EN = "Your password must have at least 8 characters with at least 1 letter, 1 number and 1 special character";
     }	    
-    
+
     @Test
     public void TC01_DB_LoginWithAllFieldsLeftBlank() {
     	// Username field is left empty.
@@ -155,53 +203,42 @@ public class LoginDashboard extends BaseTest {
     
     //Don't run this test case. It should only be run in regression test.
 //    @Test
-    public void TC10_DB_SellerForgotEmailPassword() throws InterruptedException {
-    	String newPassword = PASSWORD + generate.generateNumber(4)+ "!";
-    	
-    	new LoginPage(driver).navigate()
-    	.clickForgotPassword()
-    	.inputEmailOrPhoneNumber(MAIL)
-    	.inputPassword(newPassword)
-    	.clickContinueOrConfirmBtn();
-    	
-    	// Get verification code from Mailnesia
-    	Thread.sleep(7000);
-    	commonAction.openNewTab(); // Open a new tab
-    	commonAction.switchToWindow(1); // Switch to the newly opened tab
-    	String verificationCode = new Mailnesia(driver).navigate(MAIL).getVerificationCode(); // Get verification code
-    	commonAction.closeTab(); // Close the newly opened tab
-    	commonAction.switchToWindow(0); // Switch back to the original tab
-    	
-    	new LoginPage(driver).inputVerificationCode(verificationCode)
-    	.clickContinueOrConfirmBtn();
-    	new HomePage(driver).clickLogout();
-    	
-    	// Re-login with new password
-    	new LoginPage(driver).navigate().performLogin(MAIL, newPassword);
-    	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
-    }
-    
-    //Don't run this test case. It should only be run in regression test.
-//    @Test
-    public void TC11_DB_StaffForgotPassword() throws InterruptedException {
+    public void BH_1813_StaffForgotPassword() throws InterruptedException, SQLException {
     	String newPassword = STAFF_PASSWORD + generate.generateNumber(4)+ "!";
     	
-        new LoginPage(driver).navigate()
-		.switchToStaffTab()
+    	loginPage = new LoginPage(driver);
+    	
+    	language = loginPage.navigate().getSelectedLanguage();
+    	
+    	loginPage.switchToStaffTab()
 		.clickForgotPassword()
         .inputEmailOrPhoneNumber(STAFF)
-        .inputPassword(newPassword)
+        .inputPassword("fortt!1")
+        .clickContinueOrConfirmBtn();
+        verifyChangePasswordError();
+        
+        loginPage.inputPassword("fortesting!")
+        .clickContinueOrConfirmBtn();
+        verifyChangePasswordError();
+        
+        loginPage.inputPassword("12345678!")
+        .clickContinueOrConfirmBtn();
+        verifyChangePasswordError();
+        
+        loginPage.inputPassword("fortesting1")
+        .clickContinueOrConfirmBtn();   
+        verifyChangePasswordError();
+        
+        loginPage.inputPassword(newPassword)
         .clickContinueOrConfirmBtn();
         
-    	// Get verification code from Mailnesia
-        Thread.sleep(7000);
-    	commonAction.openNewTab();
-    	commonAction.switchToWindow(1);
-    	String verificationCode = new Mailnesia(driver).navigate(STAFF).getVerificationCode();
-    	commonAction.closeTab(); 
-    	commonAction.switchToWindow(0);
+        String code = getVerificationCode(STAFF);
+        
+        loginPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) -1))
+    	.clickContinueOrConfirmBtn();
+    	verifyConfirmationCodeError();
     	
-    	new LoginPage(driver).inputVerificationCode(verificationCode)
+    	loginPage.inputVerificationCode(code)
     	.clickContinueOrConfirmBtn();
     	new HomePage(driver).clickLogout();
 
@@ -212,24 +249,133 @@ public class LoginDashboard extends BaseTest {
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
     }
     
-    //Don't run this test case. It should only be run in regression test.
-//  @Test
-  public void TC12_DB_SellerForgotPhonePassword() throws InterruptedException, SQLException {
-	  String newPassword = PHONE_PASSWORD + generate.generateNumber(4)+ "!";
-  	
-  	new LoginPage(driver).navigate()
-  	.clickForgotPassword()
-  	.selectCountry(PHONE_COUNTRY)
-  	.inputEmailOrPhoneNumber(PHONE)
-  	.inputPassword(newPassword)
-  	.clickContinueOrConfirmBtn()
-  	.inputVerificationCode(new InitConnection().getResetKey(PHONE_COUNTRYCODE + ":" + PHONE))
-  	.clickContinueOrConfirmBtn();
-	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();  
-  	
-  	// Re-login with new password
-  	new LoginPage(driver).navigate()
-  	.performLogin(PHONE_COUNTRY, PHONE, newPassword);
-  	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
-  }   
+  	//Don't run this test case. It should only be run in regression test.
+//	@Test
+	public void BH_4050_SellerChangePassword() throws InterruptedException {
+		String username = "";
+		String password = "";
+		String country = "";
+		
+		String[][] testData = {
+				{"Poland", "automation0-shop842@mailnesia.com", "fortesting!1"}, 
+				{"Vietnam", "tienvan-staging-vn@mailnesia.com", "fortesting!1"},
+				{"United Kingdom", "9123456084", "fortesting!1"},
+				{"Vietnam", "9123456832", "fortesting!1"}
+		};
+		
+		for (String[] row:testData) {
+			country = row[0];
+			username = row[1];
+			password = row[2];
+			
+			String newPassword = password + generate.generateNumber(3)+ "!";
+			
+			// Login
+			new LoginPage(driver)
+			.navigate()
+			.performLogin(country, username, password);
+			
+			// Change password
+			new HomePage(driver)
+			.navigateToPage("Settings");
+			new AccountPage(driver).navigate()
+			.changePassword(password, newPassword, newPassword);
+			new HomePage(driver).getToastMessage();
+			new HomePage(driver).clickLogout();
+			
+			// Re-login
+			new LoginPage(driver)
+			.navigate()
+			.performLogin(country, username, newPassword);
+			
+			
+			// Change password back to the first password
+			String tempLogin = "";
+			for (int i=0; i<5; i++) {
+	    		tempLogin = newPassword;
+	    		
+				if (i!=4) {
+					newPassword = password + generate.generateNumber(3)+ "!";
+				} else {
+					newPassword = password;
+				}	
+	    		
+				new HomePage(driver)
+				.navigateToPage("Settings");
+	    		new AccountPage(driver).navigate()
+	    		.changePassword(tempLogin, newPassword, newPassword);
+	    		new HomePage(driver).getToastMessage();				
+			}
+			new HomePage(driver).clickLogout();
+		}
+	}
+	
+	//Don't run this test case. It should only be run in regression test.
+//	@Test
+	public void BH_4050_SellerForgotPassword() throws InterruptedException, SQLException {
+		String username = "";
+		String password = "";
+		String country = "";
+		
+		String[][] testData = {
+				{"Poland", "automation0-shop842@mailnesia.com", "fortesting!1"}, 
+				{"Vietnam", "tienvan-staging-vn@mailnesia.com", "fortesting!1"},
+				{"United Kingdom", "9123456084", "fortesting!1"},
+				{"Vietnam", "9123456832", "fortesting!1"},
+		};
+		
+		for (String[] row:testData) {
+			country = row[0];
+			username = row[1];
+			password = row[2];
+			
+			String newPassword = "";
+			String tempLogin;
+			
+			newPassword = password + generate.generateNumber(3)+ "!";
+			
+			loginPage = new LoginPage(driver);
+			loginPage.navigate();
+			loginPage.clickForgotPassword();
+			loginPage.selectCountry(country);
+			loginPage.inputEmailOrPhoneNumber(username)
+	    	.inputPassword(newPassword)
+	    	.clickContinueOrConfirmBtn();
+			
+			String code = null;
+			for (int i=0;i<3;i++) {
+				code = getVerificationCode(username);
+				if (code ==null) {
+					loginPage.clickResendOTP();
+				} else {
+					break;
+				}
+			}
+			loginPage.inputVerificationCode(code);
+			loginPage.clickContinueOrConfirmBtn();
+	    	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
+	    	
+	    	// Re-login with new password
+	    	loginPage.navigate().performLogin(country, username, newPassword);
+	    	
+	    	// Change password back to the first password
+	    	for (int i=0; i<5; i++) {
+	    		tempLogin = newPassword;
+	    		
+				if (i!=4) {
+					newPassword = password + generate.generateNumber(3)+ "!";
+				} else {
+					newPassword = password;
+				}		
+				
+				new HomePage(driver)
+				.navigateToPage("Settings");
+	    		new AccountPage(driver).navigate()
+	    		.changePassword(tempLogin, newPassword, newPassword);
+	    		new HomePage(driver).getToastMessage();
+	    	}
+	    	new HomePage(driver).clickLogout();
+		}
+	}
+
 }

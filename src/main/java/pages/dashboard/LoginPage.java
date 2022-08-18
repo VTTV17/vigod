@@ -38,6 +38,9 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
+    WebElement LANGUAGE;       
+    
     @FindBy (css = "div.uik-select__valueRenderedWrapper")
     WebElement COUNTRY_DROPDOWN;    
     
@@ -210,6 +213,13 @@ public class LoginPage {
     	commonAction.switchToWindow(originalWindow);
         return this;
     }      
+
+    public String getSelectedLanguage() {
+    	String selectedLanguage = commonAction.getText(LANGUAGE);
+    	logger.info("Retrieved selected language.");
+        return selectedLanguage;
+    }  
+
     
     public LoginPage verifyEmailOrPhoneNumberError(String errMessage) {
         String text = commonAction.getText(USER_ERROR);
@@ -220,7 +230,7 @@ public class LoginPage {
 
     public LoginPage verifyPasswordError(String errMessage) {
         String text = commonAction.getText(PASSWORD_ERROR);
-        soft.assertEquals(text,errMessage, "[Login][Password] Message does not match.");
+        soft.assertEquals(text,errMessage, "[Login/Forgot Password][Password] Message does not match.");
         logger.info("verifyPasswordError completed");
         return this;
     }

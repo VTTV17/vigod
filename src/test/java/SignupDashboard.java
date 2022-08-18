@@ -41,7 +41,8 @@ public class SignupDashboard extends BaseTest{
 	String city;
 	String zipCode;
 	
-    String INVALID_CODE_ERROR = "Mã xác thực không đúng";	
+    String INVALID_CODE_ERROR_VI = "Mã xác thực không đúng";	
+    String INVALID_CODE_ERROR_EN = "Incorrect confirmation code!";	
     String USERNAME_EXIST_ERROR = "Email / số điện thoại đã tồn tại";
     String UPGRADENOW_MESSAGE_VI = "Xác nhận\nAdmin Staging - Nền tảng bán hàng Online & Offline chuyên nghiệp. Tạo website/ứng dụng bán hàng chỉ trong vài phút. Hỗ trợ kết nối các sàn TMĐT Shopee, Lazada, quản lý bán hàng đa kênh, quản lý danh sách khách hàng, tạo email quảng cáo, gửi thông báo cho khách hàng qua ứng dụng di động, tạo landing page ….\nNâng cấp ngay hôm nay để trải nghiệm thêm nhiều tính năng tuyệt vời từ Admin Staging.\nNâng cấp ngay";
     String UPGRADENOW_MESSAGE_EN = "Confirmation\nAdmin Staging - Online & Offline sales platform. Build your e-commerce Website/App in few minutes, connect multi-channel sales platform Shopee, Lazada, manage customer data, create promotional emails, send notifications to customers via mobile applications, create landing pages ….\nUpgrade today to experience more great features from Admin Staging.\nUpgrade Now";
@@ -116,16 +117,20 @@ public class SignupDashboard extends BaseTest{
 		signupPage.clickCompleteBtn();
     }    
     
+    public void verifyUpgradNowMessage() throws InterruptedException {
+    	String upgradeNowMessage;
+    	if (new HomePage(driver).getDashboardLanguage().contentEquals("VIE")) {
+    		upgradeNowMessage = UPGRADENOW_MESSAGE_VI;
+    	} else {
+    		upgradeNowMessage = UPGRADENOW_MESSAGE_EN;
+    	}
+    	new HomePage(driver).verifyUpgradeNowMessage(upgradeNowMessage).completeVerify();
+    	new HomePage(driver).clickUpgradeNow();
+    }
+    
     public void reLogintoShop(String country, String user, String password) throws InterruptedException {
         new LoginPage(driver).navigate().performLogin(country, user, password);
-		String upgradeNowMessage;
-		if (new HomePage(driver).getDashboardLanguage().contentEquals("VIE")) {
-			upgradeNowMessage = UPGRADENOW_MESSAGE_VI;
-		} else {
-			upgradeNowMessage = UPGRADENOW_MESSAGE_EN;
-		}
-		new HomePage(driver).verifyUpgradeNowMessage(upgradeNowMessage).completeVerify();
-    	new HomePage(driver).clickUpgradeNow();
+        verifyUpgradNowMessage();
     	Thread.sleep(1000);
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();    
     }			
@@ -137,7 +142,7 @@ public class SignupDashboard extends BaseTest{
     	generateTestData();
     }		
 
-//	@Test
+	@Test
 	public void SignUpForShopWithRandomData() throws SQLException, InterruptedException {
 
 		String username = storePhone;
@@ -276,6 +281,71 @@ public class SignupDashboard extends BaseTest{
     }
 
 //    @Test
+	public void BH_1363_SignUpForMailAccountFromPromotionLink() throws SQLException, InterruptedException {
+
+		String referralCode = "fromthompson";
+		String domain = "abcdef";
+
+		String country = "Vietnam";
+		String currency = "Dong - VND(₫)";
+		String language = "Tiếng Việt";
+
+		String username = mail;
+		String contact = storePhone;
+
+		// Sign up
+		signupPage.navigate()
+				.fillOutSignupForm(country, username, password, referralCode)
+				.inputVerificationCode(getVerificationCode(username))
+				.clickConfirmBtn();
+
+		country = signupPage.country;
+
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		verifyUpgradNowMessage();
+		signupPage.clickLogout();
+		
+		// Need more work done to verify "successful registration" and "Welcome to Gosell"
+		
+		
+		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
+		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+	}    
+    
+//    @Test
+	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException, InterruptedException {
+
+		String referralCode = "fromthompson";
+		String domain = "abcdefgh";
+
+		String country = "Vietnam";
+		String currency = "Dong - VND(₫)";
+		String language = "Tiếng Việt";
+
+		String username = storePhone;
+		String contact = mail;
+
+		// Sign up
+		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
+				.fillOutSignupForm(country, username, password, referralCode)
+				.inputVerificationCode(getVerificationCode(username))
+				.clickConfirmBtn();
+
+		country = signupPage.country;
+
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		verifyUpgradNowMessage();
+		
+		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
+		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+	}
+    
+    @Test
     public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException, InterruptedException {
     	
 		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
@@ -292,7 +362,7 @@ public class SignupDashboard extends BaseTest{
     	.completeVerify();
     }    
     
-//    @Test
+    @Test
     public void BH_4038_ResendVerificationCodeToPhone() throws SQLException, InterruptedException {
    
     	String username = storePhone;
@@ -305,7 +375,7 @@ public class SignupDashboard extends BaseTest{
     	signupPage.inputVerificationCode(firstCode);
     	signupPage.clickResendOTP();
     	signupPage.clickConfirmBtn();
-    	signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR).completeVerify();
+    	signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
     	String resentCode = getVerificationCode(username);
     	signupPage.inputVerificationCode(resentCode);
     	Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
@@ -334,7 +404,7 @@ public class SignupDashboard extends BaseTest{
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
 		signupPage.clickConfirmBtn();
-		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR).completeVerify();
+		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
 		String resentCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
