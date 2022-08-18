@@ -235,7 +235,7 @@ public class UICommonAction {
 		return driver.findElement(By.xpath(xpath));
 	}
 
-	public void sleepInSecond(long miliSecond) {
+	public void sleepInMiliSecond(long miliSecond) {
 		try {
 			Thread.sleep(miliSecond);
 		} catch (InterruptedException e) {
@@ -251,5 +251,8 @@ public class UICommonAction {
 			logger.debug("Element not display: "+e.getMessage());
 			return false;
 		}
+	}
+	public void navigateBack(){
+		driver.navigate().back();
 	}
 }
