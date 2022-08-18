@@ -9,6 +9,7 @@ import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
+import utilities.driver.InitWebdriver;
 import pages.Mailnesia;
 
 import java.sql.SQLException;
@@ -21,8 +22,8 @@ public class SignupDashboard extends BaseTest{
 	
 	String randomNumber;
 	String mail;
-	String username;
 	String password;
+	String referralCode;
 	String country;
 	String countryCode;
 	String currency;
@@ -39,7 +40,30 @@ public class SignupDashboard extends BaseTest{
 	String zipCode;
 	
     String INVALID_CODE_ERROR = "Mã xác thực không đúng";	
-    String USERNAME_EXIST_ERROR = "Email / số điện thoại đã tồn tại";	
+    String USERNAME_EXIST_ERROR = "Email / số điện thoại đã tồn tại";
+    String UPGRADENOW_MESSAGE_VI = "Xác nhận\nAdmin Staging - Nền tảng bán hàng Online & Offline chuyên nghiệp. Tạo website/ứng dụng bán hàng chỉ trong vài phút. Hỗ trợ kết nối các sàn TMĐT Shopee, Lazada, quản lý bán hàng đa kênh, quản lý danh sách khách hàng, tạo email quảng cáo, gửi thông báo cho khách hàng qua ứng dụng di động, tạo landing page ….\nNâng cấp ngay hôm nay để trải nghiệm thêm nhiều tính năng tuyệt vời từ Admin Staging.\nNâng cấp ngay";
+    String UPGRADENOW_MESSAGE_EN = "Confirmation\nAdmin Staging - Online & Offline sales platform. Build your e-commerce Website/App in few minutes, connect multi-channel sales platform Shopee, Lazada, manage customer data, create promotional emails, send notifications to customers via mobile applications, create landing pages ….\nUpgrade today to experience more great features from Admin Staging.\nUpgrade Now";
+
+    public void generateTestData() throws InterruptedException {
+		randomNumber = generate.generateNumber(3);
+		mail = "automation0-shop" + randomNumber + "@mailnesia.com";
+		storePhone = "9123456" + randomNumber;
+		password = "fortesting!1";
+		referralCode = "";
+		country = "rd";
+		countryCode = "+84";
+		currency = "rd";
+		language = "rd";
+		storeName = "Automation Shop " + randomNumber;
+		storeURL = "";
+		pickupAddress = "12 Quang Trung";
+    	secondPickupAddress = "16 Wall Street";
+    	province = "rd";
+    	district = "rd";
+    	ward = "rd";
+    	city = "Cockney";
+    	zipCode = generate.generateNumber(6);  
+    }	    
 
 	public String getVerificationCode(String username) throws InterruptedException, SQLException {
 		String verificationCode;
@@ -87,6 +111,13 @@ public class SignupDashboard extends BaseTest{
     
     public void reLogintoShop(String country, String user, String password) throws InterruptedException {
         new LoginPage(driver).navigate().performLogin(country, user, password);
+		String upgradeNowMessage;
+		if (new HomePage(driver).getDashboardLanguage().contentEquals("VIE")) {
+			upgradeNowMessage = UPGRADENOW_MESSAGE_VI;
+		} else {
+			upgradeNowMessage = UPGRADENOW_MESSAGE_EN;
+		}
+		new HomePage(driver).verifyUpgradeNowMessage(upgradeNowMessage).completeVerify();
     	new HomePage(driver).clickUpgradeNow();
     	Thread.sleep(1000);
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();    
@@ -96,27 +127,10 @@ public class SignupDashboard extends BaseTest{
     public void setup() throws InterruptedException {
     	super.setup();
     	signupPage = new SignupPage(driver);
-    	
-		randomNumber = generate.generateNumber(3);
-		mail = "automation0-shop" + randomNumber + "@mailnesia.com";
-		storePhone = "9123456" + randomNumber;
-		password = "fortesting!1";
-		country = "rd";
-		countryCode = "+84";
-		currency = "rd";
-		language = "rd";
-		storeName = "Automation Shop " + randomNumber;
-		storeURL = "";
-		pickupAddress = "12 Quang Trung";
-    	secondPickupAddress = "16 Wall Street";
-    	province = "rd";
-    	district = "rd";
-    	ward = "rd";
-    	city = "Cockney";
-    	zipCode = generate.generateNumber(6);
+    	generateTestData();
     }		
 
-	@Test
+//	@Test
 	public void SignUpForShopWithRandomData() throws SQLException, InterruptedException {
 
 		String username = storePhone;
@@ -124,7 +138,7 @@ public class SignupDashboard extends BaseTest{
 		
     	//Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password)
+    	.fillOutSignupForm(country, username, password, referralCode)
     	.inputVerificationCode(getVerificationCode(username))
     	.clickConfirmBtn();
     	
@@ -138,7 +152,7 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);
 	}       
     
-    @Test
+//    @Test
     public void SignUpForForeignShopWithPhone() throws SQLException, InterruptedException {
 
     	String country = "United Kingdom";
@@ -154,7 +168,7 @@ public class SignupDashboard extends BaseTest{
 		
     	//Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password)
+    	.fillOutSignupForm(country, username, password, referralCode)
     	.inputVerificationCode(getVerificationCode(username))
     	.clickConfirmBtn();
     	
@@ -168,7 +182,7 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);  	
     }
 
-    @Test
+//    @Test
     public void SignUpForForeignShopWithEmail() throws SQLException, InterruptedException {
     	
     	String country = "United Kingdom";
@@ -184,7 +198,7 @@ public class SignupDashboard extends BaseTest{
 		
     	//Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password)
+    	.fillOutSignupForm(country, username, password, referralCode)
     	.inputVerificationCode(getVerificationCode(username))
     	.clickConfirmBtn();
     	
@@ -198,7 +212,7 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);
     }    
     
-    @Test
+//    @Test
     public void SignUpForVNShopWithPhone() throws SQLException, InterruptedException {
     	
     	String country = "Vietnam";
@@ -211,7 +225,7 @@ public class SignupDashboard extends BaseTest{
 		
     	//Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password)
+    	.fillOutSignupForm(country, username, password, referralCode)
     	.inputVerificationCode(getVerificationCode(username))
     	.clickConfirmBtn();
     	
@@ -225,7 +239,7 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);
     }
     
-    @Test
+//    @Test
     public void SignUpForVNShopWithEmail() throws SQLException, InterruptedException {
     	
     	String country = "Vietnam";
@@ -240,7 +254,7 @@ public class SignupDashboard extends BaseTest{
 		
     	//Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password)
+    	.fillOutSignupForm(country, username, password, referralCode)
     	.inputVerificationCode(getVerificationCode(username))
     	.clickConfirmBtn();
     	
@@ -254,7 +268,7 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);
     }
 
-    @Test
+//    @Test
     public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException, InterruptedException {
     	
 		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
@@ -266,12 +280,12 @@ public class SignupDashboard extends BaseTest{
     	
     	// Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password);
+    	.fillOutSignupForm(country, username, password, referralCode);
     	signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR)
     	.completeVerify();
     }    
     
-    @Test
+//    @Test
     public void BH_4038_ResendVerificationCodeToPhone() throws SQLException, InterruptedException {
    
     	String username = storePhone;
@@ -279,7 +293,7 @@ public class SignupDashboard extends BaseTest{
     	
     	// Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password);
+    	.fillOutSignupForm(country, username, password, referralCode);
     	String firstCode = getVerificationCode(username);
     	signupPage.inputVerificationCode(firstCode);
     	signupPage.clickResendOTP();
@@ -300,7 +314,7 @@ public class SignupDashboard extends BaseTest{
     	reLogintoShop(country, username, password);
     }
     
-    @Test
+//    @Test
     public void BH_4039_ResendVerificationCodeToEmail() throws SQLException, InterruptedException {
     	
     	String username = mail;
@@ -308,28 +322,53 @@ public class SignupDashboard extends BaseTest{
     	
     	// Sign up
     	signupPage.navigate()
-    	.fillOutSignupForm(country, username, password);
+    	.fillOutSignupForm(country, username, password, referralCode);
     	String firstCode = getVerificationCode(username);
-    	signupPage.inputVerificationCode(firstCode);
-    	signupPage.clickResendOTP();
-    	signupPage.clickConfirmBtn();
-    	signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR).completeVerify();
-    	String resentCode = getVerificationCode(username);
-    	signupPage.inputVerificationCode(resentCode);
-    	Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
-    	signupPage.clickConfirmBtn();
-    	
-    	country = signupPage.country;
-    	
-    	//Setup store
-    	setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, city, zipCode);
-    	signupPage.clickLogout();
-    	
-    	// Re-login to the shop
-    	reLogintoShop(country, username, password);
-    }
+		signupPage.inputVerificationCode(firstCode);
+		signupPage.clickResendOTP();
+		signupPage.clickConfirmBtn();
+		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR).completeVerify();
+		String resentCode = getVerificationCode(username);
+		signupPage.inputVerificationCode(resentCode);
+		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
+		signupPage.clickConfirmBtn();
 
-  @Test
+    	country = signupPage.country;
+
+    	//Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, city, zipCode);
+		signupPage.clickLogout();
+
+		// Re-login to the shop
+		reLogintoShop(country, username, password);
+	}
+
+	@Test
+	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException, InterruptedException {
+
+		String username = mail;
+		String contact = storePhone;
+		
+    	//Sign up
+    	signupPage.navigate()
+    	.fillOutSignupForm(country, username, password, referralCode)
+    	.inputVerificationCode(getVerificationCode(username))
+    	.clickConfirmBtn();
+    	country = signupPage.country;
+    	new LoginPage(driver).navigate().performLogin(country, username, password);
+    	new SignupPage(driver).inputStoreName(storeName);
+    	
+    	//Exit current session
+    	super.tearDown();
+    	
+		//Re-login
+    	driver = new InitWebdriver().getDriver("chrome", "false");
+    	new LoginPage(driver).navigate().performLogin(country, username, password);
+    	new SignupPage(driver).inputStoreName(storeName);
+
+	}     
+    
+//	@Test
 	public void BH_5195_SignUpForShopWithURLInUpperCase() throws SQLException, InterruptedException {
   	
 		String username = mail;
@@ -343,7 +382,7 @@ public class SignupDashboard extends BaseTest{
 	
 		// Sign up
 		signupPage.navigate()
-		.fillOutSignupForm(country, username, password)
+		.fillOutSignupForm(country, username, password, referralCode)
 		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
 	
@@ -357,6 +396,38 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);
   	
 		Assert.assertEquals(storeURL.toLowerCase(), new InitConnection().getStoreURL(storeName));
-  }    
+	}    
     
+//    @Test
+    public void BH_1363_SignUpForGoFreeAccountViaEmail() throws SQLException, InterruptedException {
+    	
+    	String referralCode = "fromthompson";
+    	String domain = "abcdefgh";
+    	
+    	String country = "Vietnam";
+    	String currency = "Dong - VND(₫)";
+    	String language = "Tiếng Việt";
+    	
+		String username = storePhone;
+		String contact = mail;
+		
+    	//Sign up
+    	signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
+    	.fillOutSignupForm(country, username, password, referralCode)
+    	.inputVerificationCode(getVerificationCode(username))
+    	.clickConfirmBtn();
+    	
+    	country = signupPage.country;
+    	
+		//Setup store
+    	setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, city, zipCode);
+//    	signupPage.clickLogout();
+    	
+		// Re-login to the shop
+		reLogintoShop(country, username, password);
+    	
+    	Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
+    	Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+    }  
+
 }
