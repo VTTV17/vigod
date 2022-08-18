@@ -43,7 +43,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -80,7 +80,7 @@ public class CreateServiceTest extends BaseTest{
        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
    }
-    @Test
+//    @Test
     public void CS03_CreateListingPriceService() {
         login = new LoginPage(driver);
         login.navigate().performLogin("0703618433","Psso124@");
@@ -90,7 +90,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -104,7 +104,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test
+//    @Test
     public void CS04_VerifyListingPriceServiceOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
@@ -123,7 +123,7 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
-    @Test
+//    @Test
     public void CS05_CreateServiceBelongToMultipleCollections() {
         login = new LoginPage(driver);
         login.navigate().performLogin("0703618433","Psso124@");
@@ -133,7 +133,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -147,7 +147,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-       @Test
+//       @Test
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
@@ -169,7 +169,7 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle("All Services")
                 .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
     }
-    @Test
+//    @Test
     public void CS07_CreateServiceWithSEOInfo() {
         login = new LoginPage(driver);
         login.navigate().performLogin("0703618433","Psso124@");
@@ -179,7 +179,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -198,7 +198,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test
+//    @Test
     public void CS08_VerifyServiceWithSEOInfoOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
