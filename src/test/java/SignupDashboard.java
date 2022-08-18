@@ -359,7 +359,7 @@ public class SignupDashboard extends BaseTest{
     	new SignupPage(driver).inputStoreName(storeName);
     	
     	//Exit current session
-    	super.tearDown();
+    	driver.quit();
     	
 		//Re-login
     	driver = new InitWebdriver().getDriver("chrome", "false");
