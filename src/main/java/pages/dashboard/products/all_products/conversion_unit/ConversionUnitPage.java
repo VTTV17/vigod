@@ -1,4 +1,4 @@
-package pages.dashboard.products.conversion_unit;
+package pages.dashboard.products.all_products.conversion_unit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +26,6 @@ public class ConversionUnitPage extends ConversionUnitElement {
         int id = 0;
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_VARIATION_BTN)).click();
         int max = VARIATION_LIST_IN_SELECT_VARIATION_POPUP.size();
-        logger.info(max);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", VARIATION_LIST_IN_SELECT_VARIATION_POPUP.get(id));
         wait.until(ExpectedConditions.elementToBeClickable(OK_BTN_IN_SELECT_VARIATION_POPUP)).click();
         id++;

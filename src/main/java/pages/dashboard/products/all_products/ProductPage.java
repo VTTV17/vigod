@@ -11,7 +11,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.products.conversion_unit.ConversionUnitPage;
+import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
+import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 
 import java.io.File;
 import java.io.IOException;
@@ -134,10 +135,12 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage selectCollections(String... collectionNames) {
+    public ProductPage selectCollections(String... collectionNames) throws InterruptedException {
         for (String collectionName : collectionNames) {
             wait.until(ExpectedConditions.elementToBeClickable(COLLECTION_SEARCH_BOX)).clear();
-            COLLECTION_SEARCH_BOX.sendKeys("%s\n".formatted(collectionName));
+            COLLECTION_SEARCH_BOX.click();
+            COLLECTION_SEARCH_BOX.sendKeys(collectionName);
+            sleep(500);
             if (COLLECTION_LIST.size() > 0) {
                 logger.info("Collection \"%s\" is selected".formatted(COLLECTION_LIST.get(0).getText()));
                 COLLECTION_LIST.get(0).click();
@@ -160,10 +163,12 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage setInventoryByNormalProduct(int stockQuantity) {
+    public ProductPage setInventoryByNormalProduct(int stockQuantity) throws InterruptedException {
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_STOCK_QUANTITY)).click();
         actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + stockQuantity).build().perform();
         logger.info("Stock quantity for all branch, number of stock: %d".formatted(stockQuantity));
+
+        sleep(3000);
 
         wait.until(ExpectedConditions.elementToBeClickable(APPLY_ALL_STOCK_QUANTITY)).click();
         return this;
@@ -198,7 +203,6 @@ public class ProductPage extends ProductElement {
         for (int i = 0; i < PRODUCT_PLATFORM_LABEL.size(); i++) {
             if (PRODUCT_PLATFORM_CHECKBOX.get(i).isSelected()) {
                 actions.moveToElement(PRODUCT_PLATFORM_LABEL.get(i)).click().build().perform();
-//                PRODUCT_PLATFORM_LABEL.get(i).click();
             }
         }
         for (String platform : platFormList) {
@@ -327,7 +331,7 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage configureConversionUnit() {
+    public ProductPage clickOnTheConfigureConversionUnit() {
         wait.until(ExpectedConditions.elementToBeClickable(ADD_CONVERSION_UNIT_CHECKBOX)).click();
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_CONVERSION_UNIT_BTN)).click();
         return this;
@@ -345,6 +349,27 @@ public class ProductPage extends ProductElement {
 
     public ProductPage configureConversionUnitForAllVariations(Map<String, Integer> conversionMap) throws InterruptedException {
         new ConversionUnitPage(driver).configureConversionUnitForAllVariations(conversionMap);
+        return this;
+    }
+
+    public ProductPage clickOnTheConfigureWholesalePriceBtn() throws InterruptedException {
+        wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRICE_CHECK_BOX)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_WHOLESALE_PRICE_BTN)).click();
+        sleep(15000);
+        return this;
+    }
+
+    public ProductPage configureWholesalePriceForNormalProduct(Map<Integer, List<String>> wholesaleMap) throws InterruptedException {
+        new WholesalePricePage(driver).addWholesalePriceForNormalProduct(wholesaleMap)
+                .configureWholesalePrice(wholesaleMap)
+                .configureSegment(wholesaleMap);
+        return this;
+    }
+
+    public ProductPage configureWholesalePriceForVariationProduct(Map<Integer, List<String>> wholesaleMap) throws InterruptedException {
+        new WholesalePricePage(driver).addWholesalePriceForAllVariations(wholesaleMap)
+                .configureWholesalePrice(wholesaleMap)
+                .configureSegment(wholesaleMap);
         return this;
     }
 

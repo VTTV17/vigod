@@ -2,12 +2,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.dashboard.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
-import pages.dashboard.products.conversion_unit.ConversionUnitPage;
+import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.Thread.sleep;
 
 public class ProductTest extends BaseTest {
     String fileName;
@@ -31,6 +33,8 @@ public class ProductTest extends BaseTest {
 
     String collectionName;
     Map<String, Integer> conversionMap;
+
+    Map<Integer, List<String>> wholesaleMap;
 
     @BeforeClass
     public void initTestData() {
@@ -58,6 +62,9 @@ public class ProductTest extends BaseTest {
         conversionMap = new HashMap<>();
         conversionMap.put("10 products", 10);
         conversionMap.put("100 products", 100);
+        wholesaleMap = new HashMap<>();
+        wholesaleMap.put(0,List.of("wholesaleName1", "1", "1000","Segment 1", "Segment 2"));
+        wholesaleMap.put(1,List.of("wholesaleName2", "2", "1000","Segment 2", "Segment 1"));
     }
 
     @Test
@@ -86,8 +93,12 @@ public class ProductTest extends BaseTest {
                 .changeStockQuantityForAllVariations(inventoryStock)
                 .changeSKUForAllVariations()
                 .uploadImageForAllVariations(fileName)
-                .configureConversionUnit()
+                .clickOnTheConfigureConversionUnit()
+//                .configureConversionUnitForNormalProduct(conversionMap)
                 .selectAllVariations()
-                .configureConversionUnitForAllVariations(conversionMap);
+                .configureConversionUnitForAllVariations(conversionMap)
+                .clickOnTheConfigureWholesalePriceBtn()
+//                .configureWholesalePriceForNormalProduct(wholesaleMap);
+                .configureWholesalePriceForVariationProduct(wholesaleMap);
     }
 }
