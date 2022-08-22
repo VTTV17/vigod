@@ -33,10 +33,13 @@ public class CreateServiceTest extends BaseTest{
     String SEODesctiption="SEO description service";
     String SEOKeyword="seo keyword";
     String SEOUrl="";
+    String userName = "0703618433";
+    String passWord = "Psso124@";
+    String SF_URL = SF_ShopVi;
     @Test
     public void CS01_CreateService() {
         login = new LoginPage(driver);
-        login.navigate().performLogin("0703618433","Psso124@");
+        login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
         home.waitTillSpinnerDisappear().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
@@ -57,7 +60,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
    }
-   @Test
+   @Test(dependsOnMethods = "CS01_CreateService")
     public void CS02_VerifyServiceOnSF() throws IOException {
        loginSF = new pages.storefront.LoginPage(driver);
        loginSF.navigate(SF_ShopVi);
@@ -83,7 +86,7 @@ public class CreateServiceTest extends BaseTest{
     @Test
     public void CS03_CreateListingPriceService() {
         login = new LoginPage(driver);
-        login.navigate().performLogin("0703618433","Psso124@");
+        login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
         home.waitTillSpinnerDisappear().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
@@ -104,7 +107,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test
+    @Test(dependsOnMethods = "CS03_CreateListingPriceService")
     public void CS04_VerifyListingPriceServiceOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
@@ -126,7 +129,7 @@ public class CreateServiceTest extends BaseTest{
     @Test
     public void CS05_CreateServiceBelongToMultipleCollections() {
         login = new LoginPage(driver);
-        login.navigate().performLogin("0703618433","Psso124@");
+        login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
         home.waitTillSpinnerDisappear().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
@@ -147,10 +150,10 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-       @Test
+       @Test(dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
-        loginSF.navigate(SF_ShopVi);
+        loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
         headerSF.searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName,sellingPrice)
@@ -172,7 +175,7 @@ public class CreateServiceTest extends BaseTest{
     @Test
     public void CS07_CreateServiceWithSEOInfo() {
         login = new LoginPage(driver);
-        login.navigate().performLogin("0703618433","Psso124@");
+        login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
         home.waitTillSpinnerDisappear().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
@@ -198,10 +201,10 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test
+    @Test(dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
     public void CS08_VerifyServiceWithSEOInfoOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
-        loginSF.navigate(SF_ShopVi);
+        loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
         headerSF.searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName,sellingPrice)
@@ -216,6 +219,7 @@ public class CreateServiceTest extends BaseTest{
                 .verifyServiceDescription(description)
                 .verifyCollectionLink(selectedCollection.size(),selectedCollection)
                 .verifySEOInfo(SEOTitle,SEODesctiption,SEOKeyword,serviceName,description)
+                .verifyNavigateToServiceDetailBySEOUrl(SF_ShopVi,SEOUrl,serviceName)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
