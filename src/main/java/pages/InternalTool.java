@@ -47,8 +47,11 @@ public class InternalTool {
     String PAGE_LINKS = "//li[text()='%s']//following-sibling::li[1]//a[text()='%s']";
     String APPROVE_BTN_BY_ORDERID = "//tbody//td[text()='%s']//parent::tr//td[count(//th[text()='Approved']//preceding-sibling::*)+1]/span";
 
+    /**
+     * @param packageType Input value: GoSell, VipDeal, Call center, Go F&B, Branch Purchase,Shopee Purchase, Language Purchase,Affiliate Purchase,Reports
+     * @param menuItems Input value: Packages, Orders list
+     */
     public InternalTool navigateToPage(String packageType,String...menuItems) {
-        /*packageType: GoSell, VipDeal, Call center, Go F&B, Branch Purchase,Shopee Purchase, Language Purchase,Affiliate Purchase,Reports*/
         commons.waitTillElementDisappear(LOADING,20);
         for (String menuItem:menuItems) {
             String NEW_XPATH_ORDER_LIST = PAGE_LINKS.formatted(packageType,menuItem);

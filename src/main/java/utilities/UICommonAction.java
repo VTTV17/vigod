@@ -176,14 +176,10 @@ public class UICommonAction {
 		waitForElementInvisible(element, timeout);
 	}
 	public boolean isElementNotDisplay(List<WebElement> elements){
-		if(elements.size()==0) {
-			return true;
-		}else if(elements.size()>0 && !elements.get(0).isDisplayed()) {
-			return true;
-		}else {
-			return false;
+			if(elements.size()==0) {
+				return true;
+			}else return !elements.get(0).isDisplayed();
 		}
-	}
 	public String getElementAttribute(WebElement element,String attributeName){
 		return element.getAttribute(attributeName);
 	}

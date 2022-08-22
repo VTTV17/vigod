@@ -259,7 +259,7 @@ public class HomePage {
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
-        boolean isClicked = false;
+        boolean isClicked;
         try {
             WebElement element = commons.getElementByXpath(newXpath);
             isClicked = isMenuClicked(element);
@@ -328,7 +328,11 @@ public class HomePage {
         logger.info("Read and check permission from excel");
         return this;
     }
-
+    /**
+     *
+     * @param packageType Input value: GoWeb, GoApp, GoPos, GoSocial, GoLead (ignore case)
+     * @throws IOException
+     */
     public HomePage checkPermissionAllPageByPackage(String packageType) throws IOException {
         excel = new Excel();
         Sheet planPermissionSheet = excel.getSheet(planPermissionFileName, 0);
@@ -371,6 +375,5 @@ public class HomePage {
         }
         countFailed = 0;
         return this;
-
     }
 }
