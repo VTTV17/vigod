@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
@@ -16,7 +17,9 @@ import utilities.excel.Excel;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static utilities.links.Links.DOMAIN;
 
@@ -25,7 +28,10 @@ public class HomePage {
     UICommonAction commons;
     WebDriverWait wait;
 
-    SoftAssert soft = new SoftAssert(); 
+    String pageLoadedTextENG = "We have created a short list of things you should do to complete your store";
+    String pageLoadedTextVIE = "Chúng tôi có chuẩn bị danh sách bạn cần làm để hoàn tất cửa hàng của bạn";
+
+    SoftAssert soft = new SoftAssert();
 
     Excel excel;
     int countFailed = 0;
@@ -42,6 +48,9 @@ public class HomePage {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy(xpath = "//a[@name='component.navigation.services']")
+    WebElement SERVICES_LINK;
+
     @FindBy(css = ".header-right__ele-right a[href='/logout']")
     WebElement LOGOUT_BTN;
 
@@ -51,9 +60,12 @@ public class HomePage {
     @FindBy(css = "a[name $=settings]")
     WebElement SETTINGS_MENU;
 
+    @FindBy(css = "a[name='component.navigation.products'] > span > span")
+    WebElement PRODUCTS_MENU;
+
     @FindBy(css = ".modal-content .gs-button")
     WebElement UPGRADNOW_BTN;
-    
+
     @FindBy(css = ".modal-content")
     WebElement UPGRADNOW_MESSAGE;
 
@@ -69,8 +81,8 @@ public class HomePage {
 	WebElement TOAST_MESSAGE;
 
 	@FindBy(css = ".Toastify__close-button")
-	WebElement TOAST_MESSAGE_CLOSE_BTN;    
-    
+	WebElement TOAST_MESSAGE_CLOSE_BTN;
+
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
 
     public Map<String, String> pageMap() {
@@ -182,9 +194,16 @@ public class HomePage {
         logger.info("Clicked on Logout linktext");
     }
 
+    public void navigateToAllProductsPage() {
+        wait.until(ExpectedConditions.visibilityOf(PRODUCTS_MENU));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", PRODUCTS_MENU);
+        logger.info("Click on the Products menu");
+    }
+
     public void navigateToSettingsPage() {
         wait.until(ExpectedConditions.visibilityOf(SETTINGS_MENU));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SETTINGS_MENU);
+        logger.info("Click on the Settings menu");
     }
 
     public String getDashboardLanguage() {
@@ -201,8 +220,8 @@ public class HomePage {
     	soft.assertEquals(text,message, "[Homepage][Upgrade Now Message] Message does not match.");
     	logger.info("verifyUpgradeNowMessage completed");
     	return this;
-    }    
-    
+    }
+
     public HomePage selectLanguage(String language) {
         wait.until(ExpectedConditions.visibilityOf(LANGUAGE));
         if (!getDashboardLanguage().equals(language)) {
@@ -221,8 +240,8 @@ public class HomePage {
 	public String getToastMessage() {
 		logger.info("Finished getting toast message.");
 		return commons.getText(TOAST_MESSAGE);
-	}    
-    
+	}
+
     public void completeVerify() {
         soft.assertAll();
     }
@@ -374,6 +393,14 @@ public class HomePage {
             Assert.fail("[Failed] Fail %d cases".formatted(countFailed));
         }
         countFailed = 0;
+        return this;
+    }
+
+    public HomePage verifyPageLoaded() {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
+        });
         return this;
     }
 }

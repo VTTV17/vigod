@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static utilities.links.Links.SETTING_PAGE_TITLE;
 
 public class StaffPage extends StaffVerify {
     Logger logger = LogManager.getLogger(StaffPage.class);
@@ -48,10 +47,10 @@ public class StaffPage extends StaffVerify {
         return this;
     }
 
-    public StaffPage navigate() throws InterruptedException {
+    public StaffPage navigate() throws InterruptedException, IOException {
         new HomePage(driver).selectLanguage(language).navigateToSettingsPage();
         logger.info("Access to Setting page");
-        wait.until(ExpectedConditions.titleIs(SETTING_PAGE_TITLE));
+        wait.until(ExpectedConditions.titleIs(getDomainTitle() + getPageTitle().get(52)));
         logger.info("Title of Setting page is %s".formatted(driver.getTitle()));
         wait.until(ExpectedConditions.elementToBeClickable(STAFF_MANAGEMENT_MENU)).click();
         logger.info("Switch to Staff Management tab");
