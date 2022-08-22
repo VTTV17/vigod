@@ -26,6 +26,7 @@ public class WholesalePricePage extends WholesalePriceElement {
     public WholesalePricePage addWholesalePriceForAllVariations(Map<Integer, List<String>> wholesaleMap) throws InterruptedException {
         int id = 0;
         wait.until(ExpectedConditions.elementToBeClickable(ADD_VARIATION_BTN)).click();
+        waitElementList(LIST_VARIATION);
         int max = LIST_VARIATION.size();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_VARIATION.get(id))).click();
         wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
