@@ -53,6 +53,13 @@ public class PlanPermissionTest extends BaseTest {
         signUpDashboardTest.setupShop(username, storeName, "", country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, "", "");
         return username;
     }
+
+    /**
+     *
+     * @param plan Input value: GoWEB, GoAPP, GoPOS, GoSOCIAL, GoLEAD (need correct lowercase, uppercase)
+     * @throws SQLException
+     * @throws InterruptedException
+     */
     public void SignUpSelectAndAprovePlan(String plan) throws SQLException,InterruptedException {
         switch (plan){
             case "GoWEB":
@@ -80,6 +87,7 @@ public class PlanPermissionTest extends BaseTest {
                 .navigateToPage("GoSell","Packages","Orders list")
                 .approveOrder(orderID);
     }
+
     public void checkPlanPermission(String packageType, String userName) throws IOException {
         loginPage = new LoginPage(driver);
         loginPage.navigate().performLogin(userName,password);
