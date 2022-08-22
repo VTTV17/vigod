@@ -166,6 +166,13 @@ public class ServiceDetailPage {
         commons.clickElement(COLLECTION_LINK);
         logger.info("Click on collection link to go to collection page");
     }
-
-
+    public ServiceDetailPage verifyNavigateToServiceDetailBySEOUrl(String domain, String SEOUrl, String seviceName) throws IOException {
+        commons.openNewTab();
+        commons.switchToWindow(1);
+        commons.navigateToURL(domain+SEOUrl);
+        verifyServiceName(seviceName);
+        commons.closeTab();
+        commons.switchToWindow(0);
+        return this;
+    }
 }
