@@ -36,7 +36,7 @@ public class CreateServiceTest extends BaseTest{
     String userName = "0703618433";
     String passWord = "Psso124@";
     String SF_URL = SF_ShopVi;
-    @Test
+    @Test (priority = 0)
     public void CS01_CreateService() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -60,7 +60,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
    }
-   @Test(dependsOnMethods = "CS01_CreateService")
+   @Test(priority = 1,dependsOnMethods = "CS01_CreateService")
     public void CS02_VerifyServiceOnSF() throws IOException {
        loginSF = new pages.storefront.LoginPage(driver);
        loginSF.navigate(SF_ShopVi);
@@ -83,7 +83,7 @@ public class CreateServiceTest extends BaseTest{
        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
    }
-    @Test
+    @Test(priority = 2)
     public void CS03_CreateListingPriceService() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -107,7 +107,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test(dependsOnMethods = "CS03_CreateListingPriceService")
+    @Test(priority = 3, dependsOnMethods = "CS03_CreateListingPriceService")
     public void CS04_VerifyListingPriceServiceOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
@@ -126,7 +126,7 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
-    @Test
+    @Test (priority = 4)
     public void CS05_CreateServiceBelongToMultipleCollections() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -150,7 +150,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-       @Test(dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
+       @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_URL);
@@ -172,7 +172,7 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle("All Services")
                 .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
     }
-    @Test
+    @Test (priority = 6)
     public void CS07_CreateServiceWithSEOInfo() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -201,7 +201,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test(dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
+    @Test(priority = 7, dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
     public void CS08_VerifyServiceWithSEOInfoOnSF() throws IOException {
         loginSF = new pages.storefront.LoginPage(driver);
         loginSF.navigate(SF_URL);
