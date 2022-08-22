@@ -135,7 +135,7 @@ public class PlanPermissionTest extends BaseTest {
 
     }
     @Test
-    public void PP10_CheckPermissionLead() throws IOException {
+    public void PP10_CheckPermissionGoLead() throws IOException {
         checkPlanPermission("GoLead",userName_GoLead);
     }
 }
