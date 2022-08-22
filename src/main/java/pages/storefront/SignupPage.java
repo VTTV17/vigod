@@ -7,14 +7,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.UICommonAction;
-import utilities.database.InitConnection;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
@@ -36,12 +32,6 @@ public class SignupPage {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = ".navbar-brand.nav-link")
-    WebElement USER_INFO_ICON;    
-
-    @FindBy(css = "#btn-signup")
-    WebElement SIGNUP_ICON;
-    
     @FindBy(css = "#signup-username")
     WebElement USERNAME;
     
@@ -50,10 +40,16 @@ public class SignupPage {
     
     @FindBy(css = "#signup-dob")
     WebElement BIRTHDAY;
+    
+    @FindBy(css = "#get-email")
+    WebElement EMAIL_TEXTBOX;
 
     @FindBy (css = "#signup-password")
     WebElement PASSWORD;
 
+    @FindBy (css = "#frm-get-email .btn-submit")
+    WebElement COMPLETE_BTN;
+    
     @FindBy (css = "#frm-signup .btn-submit")
     WebElement SIGNUP_BTN;
 
@@ -79,18 +75,6 @@ public class SignupPage {
         driver.get(DOMAIN1);
         return this;
     }
-    
-    public SignupPage clickUserInfoIcon() {
-    	commonAction.clickElement(USER_INFO_ICON);
-    	logger.info("Clicked on User Info icon.");
-        return this;
-    }    
-    
-    public SignupPage clickSignupIcon() {
-    	commonAction.clickElement(SIGNUP_ICON);
-    	logger.info("Clicked on Signup icon.");   
-    	return this;
-    }    
     
     public SignupPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
@@ -122,7 +106,19 @@ public class SignupPage {
     	logger.info("Input '" + date + "' into Birthday field.");
     	return this;
     }
+    
+    public SignupPage inputEmail(String mail) {
+    	commonAction.inputText(EMAIL_TEXTBOX, mail);
+    	logger.info("Input '" + mail + "' into Email field.");
+    	return this;
+    }
 
+    public SignupPage clickCompleteBtn() {
+    	commonAction.clickElement(COMPLETE_BTN);
+    	logger.info("Clicked on Complete button.");  
+    	return this;
+    }
+    
     public SignupPage clickSignupBtn() {
     	commonAction.clickElement(SIGNUP_BTN);
     	logger.info("Clicked on Signup button.");  
@@ -130,13 +126,13 @@ public class SignupPage {
     }
 
     public SignupPage fillOutSignupForm(String country, String user, String password, String displayName, String birthday) {
-		clickUserInfoIcon();
-		clickSignupIcon();
+		new HeaderSF(driver).clickUserInfoIcon()
+		.clickSignupIcon();
+		inputBirthday(birthday);
     	selectCountry(country);
     	inputMailOrPhoneNumber(user);
     	inputPassword(password);
     	inputDisplayName(displayName);
-    	inputBirthday(birthday);
     	clickSignupBtn();
         return this;
     }        

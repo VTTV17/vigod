@@ -21,4 +21,6 @@ public class AccountTest {
     // postgres
     // R7LHffcgeEh2tpQ0qU2y
     public static String DB_PASS = "R7LHffcgeEh2tpQ0qU2y";
+    public static String USERNAME_INTERNALTOOL = "editor@mediastep.com";
+    public static String PASSWORD_INTERNALTOOL = "editor.mediastep@1";
 }

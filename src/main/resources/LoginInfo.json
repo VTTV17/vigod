@@ -4,7 +4,9 @@
     "seller" : {
       "mail" : {
         "username" : "tienvan-staging-vn@mailnesia.com",
-        "password" : "fortesting!1"
+        "password" : "fortesting!1",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
       },
       "phone" : {
         "username" : "9123456084",
@@ -33,7 +35,9 @@
     "buyer" : {
       "mail" : {
         "username" : "buyertest@mailnesia.com",
-        "password" : "fortesting!4"
+        "password" : "fortesting!4",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
       },
       "phone" : {
         "username" : "0856256079",

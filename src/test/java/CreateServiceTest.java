@@ -43,7 +43,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -90,7 +90,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -133,7 +133,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));
@@ -179,7 +179,7 @@ public class CreateServiceTest extends BaseTest{
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
         serviceName= "Automation Service SV"+ generate.generateString(10);
-        listingPrice = generate.generateNumber(6);
+        listingPrice = "2"+generate.generateNumber(5);
         createService.inputServiceName(serviceName)
                 .inputListingPrice(listingPrice);
         sellingPrice=  createService.inputSellingPrice(listingPrice,generate.generateNumber(2));

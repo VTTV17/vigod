@@ -2,11 +2,7 @@ package utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -29,11 +25,16 @@ public class UICommonAction {
 	}
 
 	public void clickElement(WebElement element) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-		} catch (StaleElementReferenceException ex) {
-			logger.debug("StaleElementReferenceException caught in clickElement");
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+		int count = 0;
+		int maxTries = 3;
+		while(true) {
+			try {
+				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+				break;
+			} catch (StaleElementReferenceException ex) {
+				logger.debug("StaleElementReferenceException caught in clickElement");
+				if (++count == maxTries) throw ex;
+			}
 		}
 	}
 	
@@ -191,17 +192,67 @@ public class UICommonAction {
 	}
 
 	public String selectByVisibleText(WebElement element, String visibleText) {
+		//Delay 500ms so that API request has some more time to render data onto front end.
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByVisibleText(visibleText);
-		WebElement option = select.getFirstSelectedOption();
-		return option.getText();
-	}	
+		
+		// Reduces time taken to get selected option by using javascript.
+		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
+		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+		if (selectedOption == null)
+			throw new NoSuchElementException("No options are selected");
+		return selectedOption.getText();
+	}
+
+	public String selectByIndex(WebElement element, int index) {
+		wait.until(ExpectedConditions.elementToBeClickable(element));
+		Select select = new Select(element);
+		select.selectByIndex(index);
+		
+		// Reduces time taken to get selected option by using javascript.
+		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
+		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+		if (selectedOption == null)
+			throw new NoSuchElementException("No options are selected");
+		return selectedOption.getText();
+	}
 
 	// Useful to hide the facebook message bubble at dashboard login page
 	public void hideElement(WebElement element) {
 		String js = "arguments[0].style.display='none';";
 		((JavascriptExecutor) driver).executeScript(js, element);
 	}	
-	
+	public void navigateToURL(String url){
+		driver.get(url);
+	}
+	public WebElement getElementByXpath(String xpath) {
+		return driver.findElement(By.xpath(xpath));
+	}
+
+	public void sleepInMiliSecond(long miliSecond) {
+		try {
+			Thread.sleep(miliSecond);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public Boolean isElementDisplay(WebElement element){
+		try {
+			if(element.isDisplayed()){
+				return true;
+			}else return false;
+		}catch (Exception e){
+			logger.debug("Element not display: "+e.getMessage());
+			return false;
+		}
+	}
+	public void navigateBack(){
+		driver.navigate().back();
+	}
 }

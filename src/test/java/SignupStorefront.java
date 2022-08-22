@@ -1,6 +1,8 @@
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import pages.storefront.HeaderSF;
+import pages.storefront.LoginPage;
 import pages.storefront.SignupPage;
 import utilities.database.InitConnection;
 import pages.Mailnesia;
@@ -19,33 +21,67 @@ public class SignupStorefront extends BaseTest{
 	
     @Test
     public void SignupWithPhone() throws SQLException, InterruptedException {
-    	String phone = "1122334455";
-    	
+    	String randomNumber = generate.generateNumber(3);
+    	String country = "Austria";
+    	String countryCode = "+43";
+    	String phone = "9923456" + randomNumber;
+    	String username = "automation0-shop" + randomNumber + "@mailnesia.com";
+    	String password = "fortesting!1";
+    	String nameDisplay = "Luke Thames";
+    	String birthday = "02/02/1990";
+
     	signupPage.navigate()
-    			.fillOutSignupForm("Andorra", phone, "Abc@12345", "Luke Thames", "02/02/1990")
-                .inputVerificationCode(new InitConnection().getActivationKey("+376:" + phone));
-//                .clickConfirmBtn();
-        Thread.sleep(2000);
+    	.fillOutSignupForm(country, phone, password, nameDisplay, birthday)
+    	.inputVerificationCode(new InitConnection().getActivationKey(countryCode + ":" + phone))
+    	.clickConfirmBtn();
+    	signupPage.inputEmail(username).clickCompleteBtn();
+    	
+		Thread.sleep(1000);
+		new HeaderSF(driver).clickUserInfoIcon()
+		.clickLogout();
+    	
+    	// Re-login with new password
+    	new LoginPage(driver).navigate()
+    	.performLogin(country, phone, password);
+    	Thread.sleep(1000);
+    	new HeaderSF(driver).clickUserInfoIcon()
+        .clickLogout();    	
     }
     
-//    @Test
+    @Test
     public void SignupWithEmail() throws SQLException, InterruptedException {
-    	String username = "tienvan345";
+    	String randomNumber = generate.generateNumber(3);
+    	String country = "Brazil";
+    	String username = "automation0-shop" + randomNumber + "@mailnesia.com";
+    	String password = "fortesting!1";
+    	String nameDisplay = "Luke Thames";
+    	String birthday = "02/02/1990";    	
     	
     	signupPage.navigate()
-    	.fillOutSignupForm("Andorra", username + "@mailnesia.com", "Abc@12345", "Luke Thames", "02/02/1990");
+    	.fillOutSignupForm(country, username, password, nameDisplay, birthday);
     	Thread.sleep(7000);
 
     	// Get verification code from Mailnesia
-    	commonAction.openNewTab(); // Open a new tab
-    	commonAction.switchToWindow(1); // Switch to the newly opened tab
-    	String verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode(); // Get verification code
-    	commonAction.closeTab(); // Close the newly opened tab
-    	commonAction.switchToWindow(0); // Switch back to the original tab
+    	commonAction.openNewTab();
+    	commonAction.switchToWindow(1);
+    	String verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
+    	commonAction.closeTab();
+    	commonAction.switchToWindow(0);
     	
-    	signupPage.inputVerificationCode(verificationCode);
-//    	.clickConfirmBtn();
-        Thread.sleep(2000);
+    	signupPage.inputVerificationCode(verificationCode)
+    	.clickConfirmBtn();
+
+		Thread.sleep(1000);
+		new HeaderSF(driver).clickUserInfoIcon()
+		.clickLogout();   	
+    	
+    	// Re-login with new password
+    	new LoginPage(driver).navigate()
+    	.performLogin(country, username, password);
+    	Thread.sleep(1000);
+    	new HeaderSF(driver).clickUserInfoIcon()
+        .clickLogout();    	    	
+    	
     }
     
 }

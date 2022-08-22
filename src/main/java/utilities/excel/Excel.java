@@ -1,10 +1,7 @@
 package utilities.excel;
 
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
@@ -42,5 +39,22 @@ public class Excel {
             }
         }
         return list;
+    }
+    public int getCellIndexByCellValue ( Row row, String cellValue){
+        int index = -1;
+        for (int i=0; i<row.getLastCellNum(); i++) {
+            Cell cell = row.getCell(i);
+            if (cell == null || cell.getCellType() == CellType.BLANK) {
+                continue;
+            }
+            if (cell.getCellType() == CellType.STRING) {
+                String text = cell.getStringCellValue();
+                if (cellValue.equalsIgnoreCase(text)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return  index;
     }
 }
