@@ -48,10 +48,12 @@ public class ProductElement {
     @FindBy(css = "div.second-item > div > div > div.css-1hwfws3")
     List<WebElement> VARIATION_VALUE;
 
-    @FindBy(css = "div:nth-child(4) > div > div > table > thead > tr > th:nth-child(1) > label")
+    @FindBy(css = "div:nth-child(4) > div > div > table > thead > tr > th:nth-child(1) > label > input")
     WebElement SELECT_ALL_VARIATIONS_CHECKBOX;
+    @FindBy(css = "div:nth-child(4) > div > div > table > thead > tr > th:nth-child(1) > label")
+    WebElement SELECT_ALL_VARIATIONS_LABEL;
 
-    @FindBy(css = "div#app-body th > div > div > span")
+    @FindBy(css = "div:nth-child(4) > div > div > table > thead > tr:nth-child(1) > th > div > div > span")
     WebElement SELECT_ACTIONS_IN_VARIATION_TABLE;
 
     // 0: Update Price
@@ -59,7 +61,7 @@ public class ProductElement {
     // 3: Update SKU
     // 4: Update Image
     @FindBy(css = "div#app-body th > div > div > div > button")
-    List<WebElement> LIST_ACTIONS_IN_VARIATION_TABLE;
+    List<WebElement> LIST_ACTIONS;
 
     // 0: Listing price
     // 1: Selling price
@@ -67,22 +69,22 @@ public class ProductElement {
     // 3: Stock quantity
     // 4: SKU
     @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr > td > div.cursor--pointer")
-    List<WebElement> OPEN_TABLE;
+    List<WebElement> OPEN_VARIATION_TABLE;
 
     @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr > td > img")
-    List<WebElement> IMAGE_LIST_VARIATION_TABLE;
+    List<WebElement> IMAGE_LIST_IN_VARIATION_TABLE;
 
     @FindBy(css = "div.modal-footer > button.gs-button__green")
     WebElement UPDATE_BTN;
 
     @FindBy(css = "div.modal-content div.image-uploader-wrapper>input")
-    WebElement VARIATION_IMAGE;
+    WebElement ADD_IMAGE;
 
     @FindBy(css = "div.product-variation-price-editor-modal__apply-price > div > div > input")
-    WebElement PRICE_VALUE_IN_VARIATION_TABLE;
+    WebElement PRICE_VALUE_IN_TABLE;
 
     @FindBy(css = "div.product-variation-price-editor-modal__apply-all-wrapper > button > div")
-    WebElement APPLY_ALL_IN_VARIATION_TABLE;
+    WebElement APPLY_ALL_IN_TABLE;
 
     @FindBy(css = "div.product-variation-price-editor-modal__select-price-type > button > span > div > div:nth-child(1)")
     WebElement PRICE_DROPDOWN_IN_VARIATION_TABLE;
@@ -102,9 +104,6 @@ public class ProductElement {
     @FindBy(css = ".d-flex > input")
     List<WebElement> SKU_LIST_IN_SKU_TABLE;
 
-    @FindBy(css = "input#input-search")
-    WebElement CONVERSION_UNIT_SEARCH_BOX;
-
     @FindBy(css = "div.mt-3 > label > div")
     WebElement ADD_CONVERSION_UNIT_CHECKBOX;
 
@@ -117,11 +116,31 @@ public class ProductElement {
     @FindBy(css = "div.gs-widget__content > div > button")
     WebElement CONFIGURE_WHOLESALE_PRICE_BTN;
 
+    @FindBy (css = ".wholesale-group-header > .gs-fake-link")
+    WebElement GO_BACK_TO_PRODUCT_DETAIL;
+
     @FindBy(css = "div:nth-child(7) > div > span")
     WebElement ADD_DEPOSIT_BTN;
 
     @FindBy(css = "div.d-md-block > div > div > div > div.css-1hwfws3")
     WebElement DEPOSIT_VALUE;
+
+    @FindBy (css = "div:nth-child(7) > div > div > table > thead > tr > th:nth-child(1) > label > input")
+    WebElement SELECT_ALL_DEPOSIT_CHECKBOX;
+    @FindBy (css = "div:nth-child(7) > div > div > table > thead > tr > th:nth-child(1) > label")
+    WebElement SELECT_ALL_DEPOSIT_LABEL;
+
+    @FindBy(css = "div:nth-child(7) > div > div > table > thead > tr:nth-child(1) > th > div > div > span")
+    WebElement SELECT_ACTIONS_IN_DEPOSIT_TABLE;
+
+    // 0: Price
+    // 1: Stock quantity
+    // 2: SKU
+    @FindBy (css = "div:nth-child(7) > div > div > table > tbody > tr > td > div.cursor--pointer")
+    List<WebElement> OPEN_DEPOSIT_TABLE;
+
+    @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr > td > img")
+    List<WebElement> IMAGE_LIST_IN_DEPOSIT_TABLE;
 
     @FindBy(css = "input#seoTitle")
     WebElement SEO_TITLE;
@@ -182,4 +201,7 @@ public class ProductElement {
 
     @FindBy(css = "div.gs-widget__content > label > input")
     List<WebElement> PRODUCT_PLATFORM_CHECKBOX;
+
+    @FindBy(css = "div.Toastify__toast-body")
+    WebElement TOAST_MESSAGE;
 }

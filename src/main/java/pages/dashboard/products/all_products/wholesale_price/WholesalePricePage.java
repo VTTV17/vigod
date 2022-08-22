@@ -3,6 +3,7 @@ package pages.dashboard.products.all_products.wholesale_price;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -14,6 +15,8 @@ import static java.lang.Thread.sleep;
 
 public class WholesalePricePage extends WholesalePriceElement {
     WebDriverWait wait;
+    String pageLoadedTextENG = "Set up wholesale price";
+    String pageLoadedTextVIE = "Thiết lập giá sỉ";
 
     public WholesalePricePage(WebDriver driver) {
         super(driver);
@@ -74,7 +77,6 @@ public class WholesalePricePage extends WholesalePriceElement {
             for (int i = 0; i < TOTAL_WHOLESALE_CONFIG.size(); i++) {
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click();", LIST_SEGMENT_BTN.get(id + wholesaleMap.size() * i));
                 for (int segId = 3; segId < wholeSaleInfo.size(); segId++) {
-                    System.out.println(wholeSaleInfo.get(segId));
                     for (int segment = 0; segment < LIST_SEGMENT_LABEL.size(); segment++) {
                         if (LIST_SEGMENT_LABEL.get(segment).getText().equals(wholeSaleInfo.get(segId)) && (!LIST_SEGMENT_CHECKBOX.get(segment).isSelected())) {
                             LIST_SEGMENT_LABEL.get(segment).click();
@@ -84,5 +86,12 @@ public class WholesalePricePage extends WholesalePriceElement {
             }
         }
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+    }
+    public WholesalePricePage verifyPageLoaded() {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
+        });
+        return this;
     }
 }

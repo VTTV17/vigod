@@ -2,17 +2,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.dashboard.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
-import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Thread.sleep;
-
 public class ProductTest extends BaseTest {
-    String fileName;
+    String imgFileName;
     String sellerAccount;
     String sellerPassword;
     String env;
@@ -28,17 +25,20 @@ public class ProductTest extends BaseTest {
     int length;
     int width;
     int height;
-    int inventoryStock;
+    int stockQuantity;
     List<String> platforms;
 
     String collectionName;
     Map<String, Integer> conversionMap;
 
     Map<Integer, List<String>> wholesaleMap;
+    List<String> depositList;
+
+    int depositPrice;
 
     @BeforeClass
     public void initTestData() {
-        fileName = "img.jpg";
+        imgFileName = "img.jpg";
         sellerAccount = "stgauto@nbobd.com";
         sellerPassword = "Abc@12345";
         env = "stg";
@@ -58,13 +58,15 @@ public class ProductTest extends BaseTest {
         width = 100;
         height = 100;
         platforms = List.of("In-Store", "App", "Web", "GoSOCIAL");
-        inventoryStock = 1000;
+        stockQuantity = 1000;
         conversionMap = new HashMap<>();
         conversionMap.put("10 products", 10);
         conversionMap.put("100 products", 100);
         wholesaleMap = new HashMap<>();
-        wholesaleMap.put(0,List.of("wholesaleName1", "1", "1000","Segment 1", "Segment 2"));
-        wholesaleMap.put(1,List.of("wholesaleName2", "2", "1000","Segment 2", "Segment 1"));
+        wholesaleMap.put(0, List.of("wholesaleName1", "1", "1000", "Segment 1", "Segment 2"));
+        wholesaleMap.put(1, List.of("wholesaleName2", "2", "1000", "Segment 2", "Segment 1"));
+        depositList = List.of("D1", "D2", "D3", "D4", "D5");
+        depositPrice = 10000;
     }
 
     @Test
@@ -81,24 +83,27 @@ public class ProductTest extends BaseTest {
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
                 .selectProductVAT(vatID)
+//                .manageInventoryByIMEI()
+//                .setInventoryByNormalProduct(stockQuantity)
 //                .inputPriceNormalProduct(listingPrice, sellingPrice, costPrice)
-                .uploadProductImage(fileName)
+                .uploadProductImage(imgFileName)
                 .addVariations(variations)
                 .selectCollections(collectionName)
-//                .manageInventoryByIMEI()
-//                .setInventoryByNormalProduct(inventoryStock)
                 .setDimension(weight, length, width, height)
                 .setPlatForm(platforms)
                 .changeVariationPriceForAllVariations(listingPrice, sellingPrice, costPrice)
-                .changeStockQuantityForAllVariations(inventoryStock)
+                .changeStockQuantityForAllVariations(stockQuantity)
                 .changeSKUForAllVariations()
-                .uploadImageForAllVariations(fileName)
+                .uploadImageForAllVariations(imgFileName)
                 .clickOnTheConfigureConversionUnit()
-//                .configureConversionUnitForNormalProduct(conversionMap)
-                .selectAllVariations()
-                .configureConversionUnitForAllVariations(conversionMap)
+                .configureConversionUnitForVariationProduct(conversionMap)
                 .clickOnTheConfigureWholesalePriceBtn()
-//                .configureWholesalePriceForNormalProduct(wholesaleMap);
-                .configureWholesalePriceForVariationProduct(wholesaleMap);
+                .configureWholesalePriceForVariationProduct(wholesaleMap)
+                .clickOnTheAddDepositBtn()
+                .addDeposit(depositList)
+                .changeDepositPriceForAllDeposits(depositPrice)
+                .changeStockQuantityForAllDeposits(stockQuantity)
+                .changeSKUForAllDeposits()
+                .uploadImageForAllDeposits(imgFileName);
     }
 }

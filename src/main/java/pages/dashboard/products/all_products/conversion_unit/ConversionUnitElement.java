@@ -46,4 +46,7 @@ public class ConversionUnitElement {
 
     @FindBy(css = "div.Toastify__toast-body")
     WebElement TOAST_MESSAGE;
+
+    @FindBy (css = ".expanded")
+    WebElement CONVERSION_UNIT_RESULT;
 }

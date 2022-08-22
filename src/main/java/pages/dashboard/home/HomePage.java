@@ -199,7 +199,7 @@ public class HomePage {
     }
 
     public HomePage verifyPageLoaded() {
-        wait.until((ExpectedCondition<Boolean>) driver -> {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
             return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
         });
