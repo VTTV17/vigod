@@ -85,7 +85,7 @@ public class ProductTest extends BaseTest {
                 .selectProductVAT(vatID)
 //                .manageInventoryByIMEI()
 //                .setInventoryByNormalProduct(stockQuantity)
-//                .inputPriceNormalProduct(listingPrice, sellingPrice, costPrice)
+                .inputPriceNormalProduct(listingPrice, sellingPrice, costPrice)
                 .uploadProductImage(imgFileName)
                 .addVariations(variations)
                 .selectCollections(collectionName)

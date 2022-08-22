@@ -258,7 +258,8 @@ public class ProductPage extends ProductElement {
     public ProductPage changeVariationPriceForAllVariations(int listingPrice, int sellingPrice, int costPrice) throws InterruptedException {
         selectAllVariationsCheckbox();
         sleep(1000);
-        wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SELECT_ACTIONS_IN_VARIATION_TABLE);
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(0))).click();
         changeVariationPriceInTable(listingPrice, sellingPrice, costPrice);
         return this;
@@ -386,9 +387,11 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage addDeposit(List<String> depositList) {
+    public ProductPage addDeposit(List<String> depositList) throws InterruptedException {
+        sleep(3000);
+        wait.until(ExpectedConditions.elementToBeClickable(DEPOSIT_VALUE));
+        actions.moveToElement(DEPOSIT_VALUE).click().build().perform();
         for (String deposit : depositList) {
-            wait.until(ExpectedConditions.elementToBeClickable(DEPOSIT_VALUE)).click();
             actions.sendKeys(deposit + "\n").build().perform();
         }
         return this;
