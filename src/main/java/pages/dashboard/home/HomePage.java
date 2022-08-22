@@ -173,6 +173,8 @@ public class HomePage {
                 commons.clickElement(driver.findElement(By.xpath(newXpath)));
             }
             logger.info("Click on %s item on menu".formatted(pageName));
+            commons.sleepInMiliSecond(1000);
+            commons.waitForElementInvisible(SPINNER);
         }
     }
 
@@ -246,13 +248,13 @@ public class HomePage {
         soft.assertAll();
     }
     public Integer verifySalePitchPopupDisplay() throws IOException {
-        commons.sleepInMiliSecond(1500);
+//        commons.sleepInMiliSecond(1500);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
         return countFailed;
     }
     public Integer verifySalePitchPopupNotDisplay() throws IOException {
-        commons.sleepInMiliSecond(1000);
+//        commons.sleepInMiliSecond(1000);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
         return countFailed;

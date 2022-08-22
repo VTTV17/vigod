@@ -62,7 +62,6 @@ public class ServiceDetailPage {
     @FindBy(xpath = "//meta[@name='keywords']")
     WebElement META_KEYWORD;
 
-
     public ServiceDetailPage verifyServiceName(String nameExpected) throws IOException {
         String nameActual = commons.getText(SERVICE_NAME);
         Assert.assertEquals(nameActual, nameExpected, "Service name display: " + nameActual + " not match with expected " + nameExpected);
