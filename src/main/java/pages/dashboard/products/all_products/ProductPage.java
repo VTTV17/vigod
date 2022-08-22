@@ -8,6 +8,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
@@ -28,6 +29,9 @@ import static java.lang.Thread.sleep;
 public class ProductPage extends ProductElement {
     WebDriverWait wait;
     String language;
+
+    String pageLoadedTextVIE = "Thiết lập từ khóa SEO";
+    String pageLoadedTextENG = "SEO Settings";
 
     public ProductPage(WebDriver driver) {
         super(driver);
@@ -127,8 +131,8 @@ public class ProductPage extends ProductElement {
             logger.info("Click on the Add Variation button");
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_NAME.get(id))).sendKeys(variationName);
             logger.info("Input variation %d name: %s".formatted(id, variationName));
+            VARIATION_VALUE.get(id).click();
             for (String variationValue : variation.get(variationName)) {
-                VARIATION_VALUE.get(id).click();
                 actions.sendKeys("%s\n".formatted(variationValue)).build().perform();
                 logger.info("Input variation %d value: %s".formatted(id, variationValue));
             }
@@ -290,6 +294,7 @@ public class ProductPage extends ProductElement {
     }
 
     private void changeSKUInTable() {
+        waitElementList(SKU_LIST_IN_SKU_TABLE);
         for (WebElement skuElement : SKU_LIST_IN_SKU_TABLE) {
             String skuValue = RandomStringUtils.random(10, true, true).toUpperCase(Locale.ROOT);
             wait.until(ExpectedConditions.elementToBeClickable(skuElement)).sendKeys(skuValue);
@@ -298,12 +303,10 @@ public class ProductPage extends ProductElement {
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
     }
 
-    public ProductPage changeSKUForEachVariation() throws InterruptedException {
+    public ProductPage changeSKUForEachVariation() {
         for (int i = 4; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
             logger.info("Open SKU table");
-            sleep(500);
-
             changeSKUInTable();
         }
         return this;
@@ -387,10 +390,8 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage addDeposit(List<String> depositList) throws InterruptedException {
-        sleep(3000);
-        wait.until(ExpectedConditions.elementToBeClickable(DEPOSIT_VALUE));
-        actions.moveToElement(DEPOSIT_VALUE).click().build().perform();
+    public ProductPage addDeposit(List<String> depositList) {
+        actions.sendKeys(Keys.TAB);
         for (String deposit : depositList) {
             actions.sendKeys(deposit + "\n").build().perform();
         }
@@ -447,12 +448,10 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage changeSKUForEachDeposit() throws InterruptedException {
+    public ProductPage changeSKUForEachDeposit() {
         for (int i = 2; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
             logger.info("Open SKU table");
-            sleep(500);
-
             changeSKUInTable();
         }
         return this;
@@ -483,4 +482,10 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
+    private void waitElementList(List<WebElement> elementList) {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return elementList.size() > 0;
+        });
+    }
 }
