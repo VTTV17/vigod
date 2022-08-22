@@ -58,6 +58,7 @@ public class WholesalePricePage extends WholesalePriceElement {
             id++;
             List<String> wholeSaleInfo = wholesaleMap.get(key);
             for (int i = 0; i < TOTAL_WHOLESALE_CONFIG.size(); i++) {
+                waitElementList(WHOLESALE_PRICE_CONFIGURE);
                 wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRICE_CONFIGURE.get(3 * (id + wholesaleMap.size() * i)))).clear();
                 WHOLESALE_PRICE_CONFIGURE.get(3 * (id + wholesaleMap.size() * i)).sendKeys(wholeSaleInfo.get(0));
                 wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRICE_CONFIGURE.get(3 * (id + wholesaleMap.size() * i) + 1))).clear();
@@ -93,5 +94,12 @@ public class WholesalePricePage extends WholesalePriceElement {
             return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
         });
         return this;
+    }
+
+    private void waitElementList(List<WebElement> elementList) {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return elementList.size() > 0;
+        });
     }
 }
