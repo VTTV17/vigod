@@ -22,10 +22,25 @@ public class PlanPermissionTest extends BaseTest {
     String password = "fortesting!1";
     String orderID;
     SignupPage signupPage;
-    SignupDashboard signUpDashboardTest;
+    public void setupShop(String username, String storeName, String url, String contact, String pickupAddress, String province, String district, String ward) {
+        signupPage.inputStoreName(storeName);
+        if (url != "") {
+            signupPage.inputStoreURL(url);
+        }
+        if (!username.matches("\\d+")) {
+            signupPage.inputStorePhone(contact);
+        } else {
+            signupPage.inputStoreMail(contact);
+        }
+        signupPage.inputPickupAddress(pickupAddress)
+                .selectProvince(province)
+                .selectDistrict(district)
+                .selectWard(ward)
+                .clickCompleteBtn();
+    }
+
     public String SignUpForVNShopWithEmail() throws SQLException, InterruptedException {
         String country = "Vietnam";
-        String currency = "Dong - VND(₫)";
         String language = "Tiếng Việt";
         String province = "Hồ Chí Minh";
         String district = "Quận 8";
@@ -49,8 +64,7 @@ public class PlanPermissionTest extends BaseTest {
         signupPage.inputVerificationCode(code)
                 .clickConfirmBtn();
         //Setup store
-        signUpDashboardTest = new SignupDashboard(driver);
-        signUpDashboardTest.setupShop(username, storeName, "", country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, "", "");
+        setupShop(username, storeName, "",  contact, pickupAddress, province, district, ward);
         return username;
     }
 

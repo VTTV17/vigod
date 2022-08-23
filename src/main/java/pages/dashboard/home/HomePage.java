@@ -48,9 +48,6 @@ public class HomePage {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(xpath = "//a[@name='component.navigation.services']")
-    WebElement SERVICES_LINK;
-
     @FindBy(css = ".header-right__ele-right a[href='/logout']")
     WebElement LOGOUT_BTN;
 
