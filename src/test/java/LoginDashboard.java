@@ -201,10 +201,11 @@ public class LoginDashboard extends BaseTest {
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
     }    
     
-    //Don't run this test case. It should only be run in regression test.
-//    @Test
+    @Test
     public void BH_1813_StaffForgotPassword() throws InterruptedException, SQLException {
     	String newPassword = STAFF_PASSWORD + generate.generateNumber(4)+ "!";
+    	
+    	String staff = "emcehc@mailnesia.com";
     	
     	loginPage = new LoginPage(driver);
     	
@@ -212,7 +213,7 @@ public class LoginDashboard extends BaseTest {
     	
     	loginPage.switchToStaffTab()
 		.clickForgotPassword()
-        .inputEmailOrPhoneNumber(STAFF)
+        .inputEmailOrPhoneNumber(staff)
         .inputPassword("fortt!1")
         .clickContinueOrConfirmBtn();
         verifyChangePasswordError();
@@ -232,7 +233,7 @@ public class LoginDashboard extends BaseTest {
         loginPage.inputPassword(newPassword)
         .clickContinueOrConfirmBtn();
         
-        String code = getVerificationCode(STAFF);
+        String code = getVerificationCode(staff);
         
         loginPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) -1))
     	.clickContinueOrConfirmBtn();
@@ -245,12 +246,11 @@ public class LoginDashboard extends BaseTest {
     	// Re-login with new password
     	new LoginPage(driver).navigate()
     	.switchToStaffTab()
-    	.performLogin(STAFF, newPassword);
+    	.performLogin(staff, newPassword);
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
     }
     
-  	//Don't run this test case. It should only be run in regression test.
-//	@Test
+	@Test
 	public void BH_4050_SellerChangePassword() throws InterruptedException {
 		String username = "";
 		String password = "";
@@ -258,9 +258,6 @@ public class LoginDashboard extends BaseTest {
 		
 		String[][] testData = {
 				{"Poland", "automation0-shop842@mailnesia.com", "fortesting!1"}, 
-				{"Vietnam", "tienvan-staging-vn@mailnesia.com", "fortesting!1"},
-				{"United Kingdom", "9123456084", "fortesting!1"},
-				{"Vietnam", "9123456832", "fortesting!1"}
 		};
 		
 		for (String[] row:testData) {
@@ -276,7 +273,7 @@ public class LoginDashboard extends BaseTest {
 			.performLogin(country, username, password);
 			
 			// Change password
-			new HomePage(driver)
+			new HomePage(driver).waitTillSpinnerDisappear()
 			.navigateToPage("Settings");
 			new AccountPage(driver).navigate()
 			.changePassword(password, newPassword, newPassword);
@@ -310,8 +307,7 @@ public class LoginDashboard extends BaseTest {
 		}
 	}
 	
-	//Don't run this test case. It should only be run in regression test.
-//	@Test
+	@Test
 	public void BH_4050_SellerForgotPassword() throws InterruptedException, SQLException {
 		String username = "";
 		String password = "";
@@ -319,9 +315,6 @@ public class LoginDashboard extends BaseTest {
 		
 		String[][] testData = {
 				{"Poland", "automation0-shop842@mailnesia.com", "fortesting!1"}, 
-				{"Vietnam", "tienvan-staging-vn@mailnesia.com", "fortesting!1"},
-				{"United Kingdom", "9123456084", "fortesting!1"},
-				{"Vietnam", "9123456832", "fortesting!1"},
 		};
 		
 		for (String[] row:testData) {
@@ -368,8 +361,8 @@ public class LoginDashboard extends BaseTest {
 					newPassword = password;
 				}		
 				
-				new HomePage(driver)
-				.navigateToPage("Settings");
+				if (i==0) new HomePage(driver).waitTillSpinnerDisappear();
+				new HomePage(driver).navigateToPage("Settings");
 	    		new AccountPage(driver).navigate()
 	    		.changePassword(tempLogin, newPassword, newPassword);
 	    		new HomePage(driver).getToastMessage();

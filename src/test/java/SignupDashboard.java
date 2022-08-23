@@ -1,4 +1,3 @@
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -8,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import pages.dashboard.LoginPage;
 import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
-import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
@@ -114,6 +112,7 @@ public class SignupDashboard extends BaseTest{
     
     public void verifyUpgradNowMessage() throws InterruptedException {
     	String upgradeNowMessage;
+    	Thread.sleep(1000);
     	if (new HomePage(driver).getDashboardLanguage().contentEquals("VIE")) {
     		upgradeNowMessage = UPGRADENOW_MESSAGE_VI;
     	} else {
@@ -125,6 +124,7 @@ public class SignupDashboard extends BaseTest{
     
     public void reLogintoShop(String country, String user, String password) throws InterruptedException {
         new LoginPage(driver).navigate().performLogin(country, user, password);
+        Thread.sleep(3000);
         verifyUpgradNowMessage();
     	Thread.sleep(1000);
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();    
@@ -137,7 +137,7 @@ public class SignupDashboard extends BaseTest{
     	generateTestData();
     }		
 
-	@Test
+//	@Test
 	public void SignUpForShopWithRandomData() throws SQLException, InterruptedException {
 
 		String username = storePhone;
@@ -223,7 +223,7 @@ public class SignupDashboard extends BaseTest{
     public void SignUpForVNShopWithPhone() throws SQLException, InterruptedException {
     	
     	String country = "Vietnam";
-    	String currency = "Dong - VND(₫)";
+    	String currency = "Dong - VND(đ)";
     	String language = "Tiếng Việt";
     	String pickupAddress = "12 Quang Trung";
     	
@@ -250,7 +250,7 @@ public class SignupDashboard extends BaseTest{
     public void SignUpForVNShopWithEmail() throws SQLException, InterruptedException {
     	
     	String country = "Vietnam";
-    	String currency = "Dong - VND(₫)";
+    	String currency = "Dong - VND(đ)";
     	String language = "Tiếng Việt";
     	String province = "Hồ Chí Minh";
     	String district = "Quận 8";
@@ -274,49 +274,49 @@ public class SignupDashboard extends BaseTest{
 		// Re-login to the shop
 		reLogintoShop(country, username, password);
     }
-
-//    @Test
-	public void BH_1363_SignUpForMailAccountFromPromotionLink() throws SQLException, InterruptedException {
-
-		String referralCode = "fromthompson";
-		String domain = "abcdef";
-
-		String country = "Vietnam";
-		String currency = "Dong - VND(₫)";
-		String language = "Tiếng Việt";
-
-		String username = mail;
-		String contact = storePhone;
-
-		// Sign up
-		signupPage.navigate()
-				.fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username))
-				.clickConfirmBtn();
-
-		country = signupPage.country;
-
-		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		verifyUpgradNowMessage();
-		signupPage.clickLogout();
-		
-		// Need more work done to verify "successful registration" and "Welcome to Gosell"
-		
-		
-		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
-		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
-	}    
     
+    // Temporarily commented out.
 //    @Test
+//	public void BH_1363_SignUpForMailAccountFromPromotionLink() throws SQLException, InterruptedException {
+//
+//		String referralCode = "fromthompson";
+//		String domain = "abcdef";
+//
+//		String country = "Vietnam";
+//		String currency = "Dong - VND(đ)";
+//		String language = "Tiếng Việt";
+//
+//		String username = mail;
+//		String contact = storePhone;
+//
+//		// Sign up
+//		signupPage.navigate()
+//				.fillOutSignupForm(country, username, password, referralCode)
+//				.inputVerificationCode(getVerificationCode(username))
+//				.clickConfirmBtn();
+//
+//		country = signupPage.country;
+//
+//		// Setup store
+//		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+//				secondPickupAddress, province, district, ward, city, zipCode);
+//		signupPage.clickLogout();
+//		
+//		// Need more work done to verify "successful registration" and "Welcome to Gosell"
+//		
+//		
+//		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
+//		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+//	}    
+    
+    @Test
 	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException, InterruptedException {
 
 		String referralCode = "fromthompson";
 		String domain = "abcdefgh";
 
 		String country = "Vietnam";
-		String currency = "Dong - VND(₫)";
+		String currency = "Dong - VND(đ)";
 		String language = "Tiếng Việt";
 
 		String username = storePhone;
@@ -386,7 +386,7 @@ public class SignupDashboard extends BaseTest{
     	reLogintoShop(country, username, password);
     }
     
-//    @Test
+    @Test
     public void BH_4039_ResendVerificationCodeToEmail() throws SQLException, InterruptedException {
     	
     	String username = mail;
@@ -440,7 +440,7 @@ public class SignupDashboard extends BaseTest{
 
 	}     
     
-//	@Test
+	@Test
 	public void BH_5195_SignUpForShopWithURLInUpperCase() throws SQLException, InterruptedException {
   	
 		String username = mail;
@@ -470,14 +470,14 @@ public class SignupDashboard extends BaseTest{
 		Assert.assertEquals(storeURL.toLowerCase(), new InitConnection().getStoreURL(storeName));
 	}    
     
-//    @Test
+    @Test
     public void BH_1363_SignUpForGoFreeAccountViaEmail() throws SQLException, InterruptedException {
     	
     	String referralCode = "fromthompson";
     	String domain = "abcdefgh";
     	
     	String country = "Vietnam";
-    	String currency = "Dong - VND(₫)";
+    	String currency = "Dong - VND(đ)";
     	String language = "Tiếng Việt";
     	
 		String username = storePhone;
@@ -493,7 +493,10 @@ public class SignupDashboard extends BaseTest{
     	
 		//Setup store
     	setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, city, zipCode);
-//    	signupPage.clickLogout();
+    	Thread.sleep(5000);
+    	
+    	verifyUpgradNowMessage();
+    	new HomePage(driver).clickLogout();
     	
 		// Re-login to the shop
 		reLogintoShop(country, username, password);
