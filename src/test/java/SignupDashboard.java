@@ -47,11 +47,6 @@ public class SignupDashboard extends BaseTest{
     String UPGRADENOW_MESSAGE_VI = "Xác nhận\nAdmin Staging - Nền tảng bán hàng Online & Offline chuyên nghiệp. Tạo website/ứng dụng bán hàng chỉ trong vài phút. Hỗ trợ kết nối các sàn TMĐT Shopee, Lazada, quản lý bán hàng đa kênh, quản lý danh sách khách hàng, tạo email quảng cáo, gửi thông báo cho khách hàng qua ứng dụng di động, tạo landing page ….\nNâng cấp ngay hôm nay để trải nghiệm thêm nhiều tính năng tuyệt vời từ Admin Staging.\nNâng cấp ngay";
     String UPGRADENOW_MESSAGE_EN = "Confirmation\nAdmin Staging - Online & Offline sales platform. Build your e-commerce Website/App in few minutes, connect multi-channel sales platform Shopee, Lazada, manage customer data, create promotional emails, send notifications to customers via mobile applications, create landing pages ….\nUpgrade today to experience more great features from Admin Staging.\nUpgrade Now";
 
-	public SignupDashboard(WebDriver driver){
-		this.driver = driver;
-		this.commonAction = new UICommonAction(driver);
-		signupPage = new SignupPage(driver);
-	}
     public void generateTestData() throws InterruptedException {
 		randomNumber = generate.generateNumber(3);
 		mail = "automation0-shop" + randomNumber + "@mailnesia.com";
