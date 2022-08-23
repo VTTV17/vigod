@@ -28,6 +28,9 @@ public class HeaderSF {
 
     @FindBy(css = ".navbar-brand.nav-link")
     WebElement USER_INFO_ICON;
+    
+    @FindBy(css = "#dropdown-menu-profile > :nth-child(1)")
+    WebElement USER_PROFILE;
 
     @FindBy(id = "btn-login")
     WebElement LOGIN_ICON;    
@@ -56,6 +59,12 @@ public class HeaderSF {
     	commons.clickElement(USER_INFO_ICON);
     	logger.info("Clicked on User Info icon.");
         return this;
+    }
+    
+    public HeaderSF clickUserProfile() {
+    	commons.clickElement(USER_PROFILE);
+    	logger.info("Clicked on User Profile linktext.");
+    	return this;
     }     
 
     public HeaderSF clickLoginIcon() {

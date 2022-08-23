@@ -21,6 +21,9 @@ public class LoginPage {
 	
 	final static Logger logger = LogManager.getLogger(LoginPage.class);
 	
+	public String country;
+	public String countryCode;
+	
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
@@ -97,7 +100,10 @@ public class LoginPage {
     public LoginPage selectCountryForgot(String country) {
     	commonAction.clickElement(COUNTRY_FORGOT_DROPDOWN);
     	driver.findElement(By.xpath("//ul[@id='forgot-pwd-country-code-menu']//a[@class='dropdown-item']/span[text()='%s']".formatted(country))).click();
-    	logger.info("Selected country: " + country);
+    	String[] selectedOption = COUNTRY_FORGOT_DROPDOWN.getText().split("\n");
+    	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
+    	this.country = selectedOption[0];
+    	this.countryCode = selectedOption[1];    	
     	return this;
     }        
     
