@@ -8,23 +8,30 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.asserts.SoftAssert;
 
 import utilities.UICommonAction;
 
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Random;
 
 import static utilities.links.Links.*;
 
 public class SignupPage {
 
 	final static Logger logger = LogManager.getLogger(SignupPage.class);
+
+	public String country;
+	public String countryCode;
 	
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
 
+    SoftAssert soft = new SoftAssert();  
+    
     public SignupPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -59,7 +66,7 @@ public class SignupPage {
     @FindBy (css = "#signup-country-code")
     WebElement COUNTRY_DROPDOWN;
 
-    @FindBy (css = "button.uik-select__option>span>div>div>div>div:nth-child(1)")
+    @FindBy (css = "#signup-country-code-menu .dropdown-item")
     List<WebElement> COUNTRY_LIST;
 
     @FindBy (css = "#activate-code")
@@ -68,8 +75,20 @@ public class SignupPage {
     @FindBy (css = "#frm-activate .btn-submit")
     WebElement CONFIRM_OTP;
 
-    @FindBy (css = ".resend-otp")
+    @FindBy (id = "activate-resend-code")
     WebElement RESEND_OTP;    
+
+    @FindBy (id = "signup-fail")
+    WebElement USEREXIST_ERROR;   
+    
+    @FindBy (id = "signup-username-error")
+    WebElement USER_ERROR;
+    
+    @FindBy (id = "signup-password-error")
+    WebElement PASSWORD_ERROR;
+    
+    @FindBy (id = "activate-fail")
+    WebElement WRONG_CODE_ERROR;  
     
     public SignupPage navigate() {
         driver.get(DOMAIN1);
@@ -78,8 +97,21 @@ public class SignupPage {
     
     public SignupPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
-    	driver.findElement(By.xpath("//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country))).click();
-    	logger.info("Selected country: " + country);
+    	if (country.contentEquals("rd")) {
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    		int randomNumber = new Random().nextInt(0, COUNTRY_LIST.size());
+    		COUNTRY_LIST.get(randomNumber).click();
+    	} else {
+    		driver.findElement(By.xpath("//ul[@id='signup-country-code-menu']//span[text()='%s']".formatted(country))).click();
+    	} 
+    	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
+    	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
+    	this.country = selectedOption[0];
+    	this.countryCode = selectedOption[1];    	
     	return this;
     }
 
@@ -110,13 +142,15 @@ public class SignupPage {
     public SignupPage inputEmail(String mail) {
     	commonAction.inputText(EMAIL_TEXTBOX, mail);
     	logger.info("Input '" + mail + "' into Email field.");
+    	commonAction.sleepInMiliSecond(5000); //Without this delay, the email can not be sent to back end.
     	return this;
     }
 
     public SignupPage clickCompleteBtn() {
-    	commonAction.clickElement(COMPLETE_BTN);
-    	logger.info("Clicked on Complete button.");  
-    	return this;
+		commonAction.clickElement(COMPLETE_BTN);
+		logger.info("Clicked on Complete button.");
+		commonAction.sleepInMiliSecond(2000); //Without this delay, the email can not be sent to back end.
+		return this;
     }
     
     public SignupPage clickSignupBtn() {
@@ -143,9 +177,48 @@ public class SignupPage {
         return this;
     }
 
+    public SignupPage clickResendOTP() {
+    	commonAction.clickElement(RESEND_OTP);
+    	logger.info("Clicked on Resend linktext.");        
+        return this;
+    }    
+    
     public void clickConfirmBtn() {
     	commonAction.clickElement(CONFIRM_OTP);
     	logger.info("Clicked on Confirm button."); 
     }
+
+    public SignupPage verifyUsernameExistError(String errMessage) {
+    	String text = commonAction.getText(USEREXIST_ERROR);
+    	soft.assertEquals(text,errMessage, "[Signup][Username already exists] Message does not match.");
+    	logger.info("verifyUsernameExistError completed");
+    	return this;
+    }    
+
+    public SignupPage verifyEmailOrPhoneNumberError(String errMessage) {
+        String text = commonAction.getText(USER_ERROR);
+        soft.assertEquals(text, errMessage, "[Signup][Email or Phone Number] Message does not match.");
+        logger.info("verifyEmailOrPhoneNumberError completed");
+        return this;
+    }
+
+    public SignupPage verifyPasswordError(String errMessage) {
+        String text = commonAction.getText(PASSWORD_ERROR);
+        soft.assertEquals(text,errMessage, "[Signup][Password] Message does not match.");
+        logger.info("verifyPasswordError completed");
+        return this;
+    }    
+    
+    public SignupPage verifyVerificationCodeError(String errMessage) {
+        String text = commonAction.getText(WRONG_CODE_ERROR);
+        soft.assertEquals(text,errMessage, "[Signup][Wrong Verification Code] Message does not match.");
+        logger.info("verifyVerificationCodeError completed");
+        return this;
+    }    
+    
+    public void completeVerify() {
+        soft.assertAll();
+    }
+
     
 }
