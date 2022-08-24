@@ -60,6 +60,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             if (MATCH_CONVERSION_RESULT.size() > 0) {
                 for (WebElement element : MATCH_CONVERSION_RESULT) {
                     if (element.getText().contains(conversionName)) {
+                        sleep(500);
                         element.click();
                         break;
                     }

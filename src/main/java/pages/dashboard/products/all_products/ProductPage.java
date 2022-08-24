@@ -1,6 +1,5 @@
 package pages.dashboard.products.all_products;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -19,19 +18,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Thread.sleep;
 
 public class ProductPage extends ProductElement {
     WebDriverWait wait;
     String language;
-
-    String pageLoadedTextVIE = "Thiết lập từ khóa SEO";
-    String pageLoadedTextENG = "SEO Settings";
 
     public ProductPage(WebDriver driver) {
         super(driver);
@@ -81,7 +74,7 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage inputPriceNormalProduct(int listingPrice, int sellingPrice, int costPrice) {
+    public ProductPage changePriceForNoVariationProduct(int listingPrice, int sellingPrice, int costPrice) {
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(0))).click();
         actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + listingPrice).build().perform();
         logger.info("Input listing price: %d".formatted(listingPrice));
@@ -96,12 +89,17 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage selectProductVAT(int vatID) {
+    public ProductPage selectProductVAT(String VAT) {
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN)).click();
         logger.info("Open VAT dropdown list");
-        wait.until(ExpectedConditions.elementToBeClickable(VAT_LIST.get(vatID)));
-        logger.info("Select product VAT: %s".formatted(VAT_LIST.get(vatID).getText()));
-        VAT_LIST.get(vatID).click();
+        waitElementList(VAT_LIST);
+        for (WebElement element : VAT_LIST) {
+            if (element.getText().contains(VAT)) {
+                logger.info("Select product VAT: %s".formatted(element.getText()));
+                element.click();
+                break;
+            }
+        }
         return this;
     }
 
@@ -122,7 +120,6 @@ public class ProductPage extends ProductElement {
     }
 
     public ProductPage addVariations(Map<String, List<String>> variation) {
-
         variation = getVariationsMap(variation);
         int id = -1;
         for (String variationName : variation.keySet()) {
@@ -168,7 +165,7 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage setInventoryByNormalProduct(int stockQuantity) throws InterruptedException {
+    public ProductPage changeStockQuantityForNormalProductNoVariation(int stockQuantity) throws InterruptedException {
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_STOCK_QUANTITY)).click();
         actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + stockQuantity).build().perform();
         logger.info("Stock quantity for all branch, number of stock: %d".formatted(stockQuantity));
@@ -176,6 +173,20 @@ public class ProductPage extends ProductElement {
         sleep(3000);
 
         wait.until(ExpectedConditions.elementToBeClickable(APPLY_ALL_STOCK_QUANTITY)).click();
+        return this;
+    }
+
+    public ProductPage changeStockQuantityForIMEIProduct(int stockQuantity) {
+        waitElementList(IMEI_STOCK);
+        for (int i = 0; i < IMEI_STOCK.size(); i++) {
+            IMEI_STOCK.get(i).click();
+            waitElementList(LIST_BRANCH_NAME_IN_STOCK_INVENTORY);
+            String branchName = LIST_BRANCH_NAME_IN_STOCK_INVENTORY.get(i).getText();
+            for (int imei = 0; imei < stockQuantity; imei++) {
+                wait.until(ExpectedConditions.elementToBeClickable(IMEI_INPUT)).sendKeys(branchName + imei + "\n");
+            }
+            wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN_IN_IMEI_STOCK_TABLE)).click();
+        }
         return this;
     }
 
@@ -203,14 +214,14 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage setPlatForm(List<String> platFormList) {
+    public ProductPage setPlatForm(List<String> platformList) {
         // Deselect all platform
         for (int i = 0; i < PRODUCT_PLATFORM_LABEL.size(); i++) {
             if (PRODUCT_PLATFORM_CHECKBOX.get(i).isSelected()) {
                 actions.moveToElement(PRODUCT_PLATFORM_LABEL.get(i)).click().build().perform();
             }
         }
-        for (String platform : platFormList) {
+        for (String platform : platformList) {
             for (WebElement element : PRODUCT_PLATFORM_LABEL) {
                 if (element.getText().contains(platform)) {
                     element.click();
@@ -244,7 +255,7 @@ public class ProductPage extends ProductElement {
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
     }
 
-    public ProductPage changeVariationPriceForEachVariation(int listingPrice, int sellingPrice, int costPrice) {
+    public ProductPage changePriceForEachVariation(int listingPrice, int sellingPrice, int costPrice) {
         for (int i = 0; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
             logger.info("Open variation price table");
@@ -259,7 +270,7 @@ public class ProductPage extends ProductElement {
         }
     }
 
-    public ProductPage changeVariationPriceForAllVariations(int listingPrice, int sellingPrice, int costPrice) throws InterruptedException {
+    public ProductPage changePriceForAllVariations(int listingPrice, int sellingPrice, int costPrice) throws InterruptedException {
         selectAllVariationsCheckbox();
         sleep(1000);
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE));
@@ -269,55 +280,131 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    private void changeStockQuantityInTable(int stockQuantity) {
+    private void changeStockQuantityInTableNormal(int stockQuantity) {
         wait.until(ExpectedConditions.elementToBeClickable(STOCK_VALUE_IN_STOCK_QUANTITY_TABLE)).sendKeys(Integer.toString(stockQuantity));
         logger.info("Change stock quantity for all branch: %d".formatted(stockQuantity));
 
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
     }
 
-    public ProductPage changeStockQuantityForEachVariation(int stockQuantity) {
+
+    /**
+     * IMEI: IMEI_ + Variation name + branch name + index
+     */
+    private void changeStockQuantityInTableIMEI(int stockQuantity, String variationName) {
+        int id = 1;
+        waitElementList(INPUT_IMEI_VALUE);
+        for (WebElement element : INPUT_IMEI_VALUE) {
+            String branchName = getBranchNameInStockTable().get(id);
+            for (int i = 0; i < stockQuantity; i++) {
+                element.sendKeys("IMEI_" + variationName + branchName + i + "\n");
+            }
+            id++;
+        }
+        wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
+    }
+
+    private List<String> getListVariationName() {
+        List<String> list = new ArrayList<>();
+        waitElementList(VARIATION_TEXT);
+        for (WebElement element : VARIATION_TEXT) {
+            list.add(element.getText().split("\n")[0]);
+        }
+        return list;
+    }
+
+    private List<String> getListDepositName() {
+        List<String> list = new ArrayList<>();
+        waitElementList(DEPOSIT_TEXT);
+        for (WebElement element : DEPOSIT_TEXT) {
+            list.add(element.getText().split("\n")[0]);
+        }
+        return list;
+    }
+
+    private List<String> getBranchNameInStockTable() {
+        List<String> list = new ArrayList<>();
+        waitElementList(BRANCH_TEXT_IN_STOCK_TABLE);
+        for (WebElement element : BRANCH_TEXT_IN_STOCK_TABLE) {
+            list.add(element.getText());
+        }
+        return list;
+    }
+
+    private List<String> getListBranchNameInSKUTable() {
+        List<String> list = new ArrayList<>();
+        waitElementList(BRANCH_TEXT_IN_SKU_TABLE);
+        for (WebElement element : BRANCH_TEXT_IN_SKU_TABLE) {
+            list.add(element.getText());
+        }
+        return list;
+    }
+
+    public ProductPage changeStockQuantityForEachVariationNormal(int stockQuantity) {
         for (int i = 3; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
-            changeStockQuantityInTable(stockQuantity);
+            changeStockQuantityInTableNormal(stockQuantity);
         }
         return this;
     }
 
-    public ProductPage changeStockQuantityForAllVariations(int stockQuantity) {
+    public ProductPage changeStockQuantityForEachVariationsIMEI(int stockQuantity) {
+        List<String> listVariationName = getListVariationName();
+        int variationID = 0;
+        for (int i = 3; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
+            wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
+            logger.info("Open stock quantity table");
+            changeStockQuantityInTableIMEI(stockQuantity, listVariationName.get(variationID));
+            variationID++;
+        }
+        return this;
+    }
+
+    public ProductPage changeStockQuantityForAllVariationsNormal(int stockQuantity) {
         selectAllVariationsCheckbox();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(1))).click();
-        changeStockQuantityInTable(stockQuantity);
+        changeStockQuantityInTableNormal(stockQuantity);
         return this;
     }
 
-    private void changeSKUInTable() {
+    private void changeSKUInTable(List<String> listVariationName) {
         waitElementList(SKU_LIST_IN_SKU_TABLE);
+        List<String> branchList = getListBranchNameInSKUTable();
+        int branchId = 0;
+        int variationId = 0;
         for (WebElement skuElement : SKU_LIST_IN_SKU_TABLE) {
-            String skuValue = RandomStringUtils.random(10, true, true).toUpperCase(Locale.ROOT);
-            wait.until(ExpectedConditions.elementToBeClickable(skuElement)).sendKeys(skuValue);
-        }
+            String branchName = branchList.get(branchId);
+            wait.until(ExpectedConditions.elementToBeClickable(skuElement)).sendKeys("SKU_" + listVariationName.get(variationId) + branchName);
+            if (branchId < branchList.size() - 1) {
+                branchId++;
+            } else {
+                branchId = 0;
+                variationId++;
+            }
 
+        }
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
     }
 
     public ProductPage changeSKUForEachVariation() {
+        List<String> listVariationName = getListVariationName();
         for (int i = 4; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
             logger.info("Open SKU table");
-            changeSKUInTable();
+            changeSKUInTable(listVariationName);
         }
         return this;
     }
 
     public ProductPage changeSKUForAllVariations() throws InterruptedException {
         selectAllVariationsCheckbox();
+        List<String> listVariationName = getListVariationName();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(2))).click();
         sleep(500);
-        changeSKUInTable();
+        changeSKUInTable(listVariationName);
         return this;
     }
 
@@ -344,13 +431,13 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage clickOnTheConfigureConversionUnit() {
+    public ProductPage clickOnTheConfigureConversionUnitBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(ADD_CONVERSION_UNIT_CHECKBOX)).click();
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_CONVERSION_UNIT_BTN)).click();
         return this;
     }
 
-    public ProductPage configureConversionUnitForNormalProduct(Map<String, Integer> conversionMap) throws InterruptedException {
+    public ProductPage configureConversionUnitForNoVariationProduct(Map<String, Integer> conversionMap) throws InterruptedException {
         new ConversionUnitPage(driver).verifyPageLoaded()
                 .selectConversionUnit(conversionMap);
         return this;
@@ -369,7 +456,7 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public ProductPage configureWholesalePriceForNormalProduct(Map<Integer, List<String>> wholesaleMap) {
+    public ProductPage configureWholesalePriceForNoVariationProduct(Map<Integer, List<String>> wholesaleMap) {
         new WholesalePricePage(driver).verifyPageLoaded()
                 .addWholesalePriceForNormalProduct(wholesaleMap)
                 .configureWholesalePrice(wholesaleMap)
@@ -407,7 +494,7 @@ public class ProductPage extends ProductElement {
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
     }
 
-    public ProductPage changeDepositPriceForEachDeposit(Integer depositPrice) {
+    public ProductPage changePriceForEachDeposit(Integer depositPrice) {
         for (int i = 0; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
             logger.info("Open deposit price table");
@@ -422,7 +509,7 @@ public class ProductPage extends ProductElement {
         }
     }
 
-    public ProductPage changeDepositPriceForAllDeposits(int depositPrice) throws InterruptedException {
+    public ProductPage changePriceForAllDeposits(int depositPrice) throws InterruptedException {
         selectAllDepositsCheckbox();
         sleep(1000);
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_DEPOSIT_TABLE)).click();
@@ -435,7 +522,7 @@ public class ProductPage extends ProductElement {
         for (int i = 1; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
-            changeStockQuantityInTable(stockQuantity);
+            changeStockQuantityInTableNormal(stockQuantity);
         }
         return this;
     }
@@ -444,25 +531,27 @@ public class ProductPage extends ProductElement {
         selectAllDepositsCheckbox();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_DEPOSIT_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(1))).click();
-        changeStockQuantityInTable(stockQuantity);
+        changeStockQuantityInTableNormal(stockQuantity);
         return this;
     }
 
     public ProductPage changeSKUForEachDeposit() {
+        List<String> listDepositName = getListDepositName();
         for (int i = 2; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
             logger.info("Open SKU table");
-            changeSKUInTable();
+            changeSKUInTable(listDepositName);
         }
         return this;
     }
 
     public ProductPage changeSKUForAllDeposits() throws InterruptedException {
         selectAllDepositsCheckbox();
+        List<String> listDepositName = getListDepositName();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_DEPOSIT_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(2))).click();
         sleep(500);
-        changeSKUInTable();
+        changeSKUInTable(listDepositName);
         return this;
     }
 
@@ -481,6 +570,11 @@ public class ProductPage extends ProductElement {
         addImage(imageFileName);
         return this;
     }
+
+    public void clickOnTheSaveBtn() {
+        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+    }
+
 
     private void waitElementList(List<WebElement> elementList) {
         new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
