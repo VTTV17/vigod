@@ -206,7 +206,7 @@ public class HomePage {
     }
 
     public String getDashboardLanguage() {
-        return wait.until(ExpectedConditions.visibilityOf(LANGUAGE)).getText().replace(" ", "");
+        return commons.getText(LANGUAGE).replace(" ", "");
     }
 
     public void clickUpgradeNow() {

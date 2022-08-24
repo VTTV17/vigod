@@ -46,9 +46,9 @@ public class SignupDashboard extends BaseTest{
     String UPGRADENOW_MESSAGE_EN = "Confirmation\nAdmin Staging - Online & Offline sales platform. Build your e-commerce Website/App in few minutes, connect multi-channel sales platform Shopee, Lazada, manage customer data, create promotional emails, send notifications to customers via mobile applications, create landing pages ….\nUpgrade today to experience more great features from Admin Staging.\nUpgrade Now";
 
     public void generateTestData() throws InterruptedException {
-		randomNumber = generate.generateNumber(3);
+		randomNumber = generate.generateNumber(4);
 		mail = "automation0-shop" + randomNumber + "@mailnesia.com";
-		storePhone = "9123456" + randomNumber;
+		storePhone = "912345" + randomNumber;
 		password = "fortesting!1";
 		referralCode = "";
 		country = "rd";
@@ -70,7 +70,7 @@ public class SignupDashboard extends BaseTest{
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			Thread.sleep(8000);
+			Thread.sleep(10000);
 			commonAction.openNewTab();
 			commonAction.switchToWindow(1);
 			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
@@ -124,7 +124,7 @@ public class SignupDashboard extends BaseTest{
     
     public void reLogintoShop(String country, String user, String password) throws InterruptedException {
         new LoginPage(driver).navigate().performLogin(country, user, password);
-        Thread.sleep(3000);
+//        Thread.sleep(3000);
         verifyUpgradNowMessage();
     	Thread.sleep(1000);
     	new HomePage(driver).waitTillSpinnerDisappear().clickLogout();    
@@ -275,40 +275,6 @@ public class SignupDashboard extends BaseTest{
 		reLogintoShop(country, username, password);
     }
     
-    // Temporarily commented out.
-//    @Test
-//	public void BH_1363_SignUpForMailAccountFromPromotionLink() throws SQLException, InterruptedException {
-//
-//		String referralCode = "fromthompson";
-//		String domain = "abcdef";
-//
-//		String country = "Vietnam";
-//		String currency = "Dong - VND(đ)";
-//		String language = "Tiếng Việt";
-//
-//		String username = mail;
-//		String contact = storePhone;
-//
-//		// Sign up
-//		signupPage.navigate()
-//				.fillOutSignupForm(country, username, password, referralCode)
-//				.inputVerificationCode(getVerificationCode(username))
-//				.clickConfirmBtn();
-//
-//		country = signupPage.country;
-//
-//		// Setup store
-//		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
-//				secondPickupAddress, province, district, ward, city, zipCode);
-//		signupPage.clickLogout();
-//		
-//		// Need more work done to verify "successful registration" and "Welcome to Gosell"
-//		
-//		
-//		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
-//		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
-//	}    
-    
     @Test
 	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException, InterruptedException {
 
@@ -419,7 +385,6 @@ public class SignupDashboard extends BaseTest{
 	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException, InterruptedException {
 
 		String username = mail;
-		String contact = storePhone;
 		
     	//Sign up
     	signupPage.navigate()
@@ -427,8 +392,7 @@ public class SignupDashboard extends BaseTest{
     	.inputVerificationCode(getVerificationCode(username))
     	.clickConfirmBtn();
     	country = signupPage.country;
-    	new LoginPage(driver).navigate().performLogin(country, username, password);
-    	new SignupPage(driver).inputStoreName(storeName);
+    	signupPage.inputStoreName(storeName);
     	
     	//Exit current session
     	driver.quit();
@@ -466,7 +430,6 @@ public class SignupDashboard extends BaseTest{
   	
 		// Re-login to the shop
 		reLogintoShop(country, username, password);
-  	
 		Assert.assertEquals(storeURL.toLowerCase(), new InitConnection().getStoreURL(storeName));
 	}    
     
@@ -480,8 +443,8 @@ public class SignupDashboard extends BaseTest{
     	String currency = "Dong - VND(đ)";
     	String language = "Tiếng Việt";
     	
-		String username = storePhone;
-		String contact = mail;
+		String username = mail;
+		String contact = storePhone;
 		
     	//Sign up
     	signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
@@ -493,7 +456,6 @@ public class SignupDashboard extends BaseTest{
     	
 		//Setup store
     	setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress, secondPickupAddress, province, district, ward, city, zipCode);
-    	Thread.sleep(5000);
     	
     	verifyUpgradNowMessage();
     	new HomePage(driver).clickLogout();
