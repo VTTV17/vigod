@@ -15,8 +15,8 @@ import static java.lang.Thread.sleep;
 
 public class WholesalePricePage extends WholesalePriceElement {
     WebDriverWait wait;
-    String pageLoadedTextENG = "Set up wholesale price";
-    String pageLoadedTextVIE = "Thiết lập giá sỉ";
+    String pageLoadedTextENG = "Go back to product detail";
+    String pageLoadedTextVIE = "Quay lại chi tiết sản phẩm";
 
     public WholesalePricePage(WebDriver driver) {
         super(driver);

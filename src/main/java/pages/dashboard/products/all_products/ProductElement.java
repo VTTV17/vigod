@@ -101,6 +101,22 @@ public class ProductElement {
     @FindBy(css = ".d-flex > div > input")
     WebElement STOCK_VALUE_IN_STOCK_QUANTITY_TABLE;
 
+    @FindBy (css = "div:nth-child(4) > div > div > table > tbody > tr")
+    List<WebElement> VARIATION_TEXT;
+
+    @FindBy (css = "div:nth-child(7) > div > div > table > tbody > tr")
+    List<WebElement> DEPOSIT_TEXT;
+
+    // id = 0, not use.
+    @FindBy (css = ".modal-body thead > tr > th:not(.label)")
+    List<WebElement> BRANCH_TEXT_IN_STOCK_TABLE;
+
+    @FindBy (css = ".h-fit-content tr > th")
+    List<WebElement> BRANCH_TEXT_IN_SKU_TABLE;
+
+    @FindBy (css = ".input-code input")
+    List<WebElement> INPUT_IMEI_VALUE;
+
     @FindBy(css = ".d-flex > input")
     List<WebElement> SKU_LIST_IN_SKU_TABLE;
 
@@ -168,6 +184,18 @@ public class ProductElement {
 
     @FindBy(css = "select#manageInventory > option:nth-child(2)")
     WebElement MANAGE_INVENTORY_BY_IMEI;
+
+    @FindBy (css = "div.mb-0 > div > input")
+    List<WebElement> IMEI_STOCK;
+
+    @FindBy (css = "input[name='serial']")
+    WebElement IMEI_INPUT;
+
+    @FindBy (css = ".branch-list-stock__wrapper__row > div:nth-child(1)")
+    List<WebElement> LIST_BRANCH_NAME_IN_STOCK_INVENTORY;
+
+    @FindBy (css = ".modal-footer button.gs-button__green")
+    WebElement SAVE_BTN_IN_IMEI_STOCK_TABLE;
 
     @FindBy(css = "div[name = productQuantity] input")
     WebElement NORMAL_PRODUCT_STOCK_QUANTITY;

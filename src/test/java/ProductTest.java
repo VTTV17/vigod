@@ -16,7 +16,7 @@ public class ProductTest extends BaseTest {
     String language;
     String productName;
     String productDescription;
-    int vatID;
+    String VAT;
     Map<String, List<String>> variations;
     int listingPrice;
     int sellingPrice;
@@ -26,7 +26,7 @@ public class ProductTest extends BaseTest {
     int width;
     int height;
     int stockQuantity;
-    List<String> platforms;
+    List<String> platformList;
 
     String collectionName;
     Map<String, Integer> conversionMap;
@@ -48,7 +48,7 @@ public class ProductTest extends BaseTest {
         listingPrice = 10000;
         sellingPrice = 9000;
         costPrice = 8000;
-        vatID = 2;
+        VAT = "VAT 2";
         variations = new HashMap<>();
         variations.put("Size", List.of("S", "M", "L"));
         variations.put("Color", List.of("Red", "White", "Blue"));
@@ -57,8 +57,8 @@ public class ProductTest extends BaseTest {
         length = 100;
         width = 100;
         height = 100;
-        platforms = List.of("In-Store", "App", "Web", "GoSOCIAL");
-        stockQuantity = 1000;
+        platformList = List.of("In-Store", "App", "Web", "GoSOCIAL");
+        stockQuantity = 100;
         conversionMap = new HashMap<>();
         conversionMap.put("10 products", 10);
         conversionMap.put("100 products", 100);
@@ -70,7 +70,7 @@ public class ProductTest extends BaseTest {
     }
 
     @Test
-    public void Tcs01_CreateProduct() throws IOException, InterruptedException {
+    public void Tcs01_CreateNormalProduct() throws IOException, InterruptedException {
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -82,28 +82,163 @@ public class ProductTest extends BaseTest {
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
-//                .selectProductVAT(vatID)
-//                .manageInventoryByIMEI()
-//                .setInventoryByNormalProduct(stockQuantity)
-//                .inputPriceNormalProduct(listingPrice, sellingPrice, costPrice)
                 .uploadProductImage(imgFileName)
-                .addVariations(variations)
+                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
+                .selectProductVAT(VAT)
+                .selectCollections(collectionName)
+                .changeStockQuantityForNormalProductNoVariation(stockQuantity)
+                .setDimension(weight, length, width, height)
+                .setPlatForm(platformList)
+                .clickOnTheSaveBtn();
+    }
+
+    @Test
+    public void Tcs02_CreateNormalProductNoVariation_Unit_WholesalePrice_Deposit_EachVariation() throws IOException, InterruptedException {
+        new LoginPage(driver).navigate()
+                .inputEmailOrPhoneNumber(sellerAccount)
+                .inputPassword(sellerPassword)
+                .clickLoginBtn();
+
+        new ProductPage(driver).setLanguage(language)
+                .navigate()
+                .waitAndHideFacebookBubble()
+                .clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
+                .selectProductVAT(VAT)
+                .clickOnTheConfigureConversionUnitBtn()
+                .configureConversionUnitForNoVariationProduct(conversionMap)
+                .clickOnTheConfigureWholesalePriceBtn()
+                .configureWholesalePriceForNoVariationProduct(wholesaleMap)
+                .clickOnTheAddDepositBtn()
+                .addDeposit(depositList)
+                .uploadImageForEachVariation(imgFileName)
+                .changePriceForEachDeposit(depositPrice)
+                .changeStockQuantityForEachDeposit(stockQuantity)
+                .changeSKUForEachDeposit()
                 .selectCollections(collectionName)
                 .setDimension(weight, length, width, height)
-                .setPlatForm(platforms)
-                .changeVariationPriceForAllVariations(listingPrice, sellingPrice, costPrice)
-                .changeStockQuantityForAllVariations(stockQuantity)
-                .changeSKUForAllVariations()
-                .uploadImageForAllVariations(imgFileName)
-                .clickOnTheConfigureConversionUnit()
+                .setPlatForm(platformList)
+                .clickOnTheSaveBtn();
+    }
+
+    @Test
+    public void Tcs03_CreateNormalProductHasVariation_Unit_WholesalePrice_Deposit_EachVariation() throws IOException, InterruptedException {
+        new LoginPage(driver).navigate()
+                .inputEmailOrPhoneNumber(sellerAccount)
+                .inputPassword(sellerPassword)
+                .clickLoginBtn();
+
+        new ProductPage(driver).setLanguage(language)
+                .navigate()
+                .waitAndHideFacebookBubble()
+                .clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+                .selectProductVAT(VAT)
+                .addVariations(variations)
+                .uploadImageForEachVariation(imgFileName)
+                .changePriceForEachVariation(listingPrice, sellingPrice, costPrice)
+                .changeStockQuantityForEachVariationNormal(stockQuantity)
+                .changeSKUForEachVariation()
+                .clickOnTheConfigureConversionUnitBtn()
                 .configureConversionUnitForVariationProduct(conversionMap)
                 .clickOnTheConfigureWholesalePriceBtn()
                 .configureWholesalePriceForVariationProduct(wholesaleMap)
                 .clickOnTheAddDepositBtn()
                 .addDeposit(depositList)
-                .changeDepositPriceForAllDeposits(depositPrice)
+                .uploadImageForEachVariation(imgFileName)
+                .changePriceForEachDeposit(depositPrice)
+                .changeStockQuantityForEachDeposit(stockQuantity)
+                .changeSKUForEachDeposit()
+                .selectCollections(collectionName)
+                .setDimension(weight, length, width, height)
+                .setPlatForm(platformList)
+                .clickOnTheSaveBtn();
+    }
+
+    @Test
+    public void Tcs04_CreateNormalProductHasVariation_Unit_WholesalePrice_Deposit_AllVariations() throws IOException, InterruptedException {
+        new LoginPage(driver).navigate()
+                .inputEmailOrPhoneNumber(sellerAccount)
+                .inputPassword(sellerPassword)
+                .clickLoginBtn();
+
+        new ProductPage(driver).setLanguage(language)
+                .navigate()
+                .waitAndHideFacebookBubble()
+                .clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+                .selectProductVAT(VAT)
+                .addVariations(variations)
+                .uploadImageForAllVariations(imgFileName)
+                .changePriceForAllVariations(listingPrice, sellingPrice, costPrice)
+                .changeStockQuantityForAllVariationsNormal(stockQuantity)
+                .changeSKUForAllVariations()
+                .clickOnTheConfigureConversionUnitBtn()
+                .configureConversionUnitForVariationProduct(conversionMap)
+                .clickOnTheConfigureWholesalePriceBtn()
+                .configureWholesalePriceForVariationProduct(wholesaleMap)
+                .clickOnTheAddDepositBtn()
+                .addDeposit(depositList)
+                .uploadImageForAllDeposits(imgFileName)
+                .changePriceForAllDeposits(depositPrice)
                 .changeStockQuantityForAllDeposits(stockQuantity)
                 .changeSKUForAllDeposits()
-                .uploadImageForAllDeposits(imgFileName);
+                .selectCollections(collectionName)
+                .setDimension(weight, length, width, height)
+                .setPlatForm(platformList)
+                .clickOnTheSaveBtn();
     }
+
+    @Test
+    public void Tcs05_CreateIMEIProduct() throws IOException, InterruptedException {
+        new LoginPage(driver).navigate()
+                .inputEmailOrPhoneNumber(sellerAccount)
+                .inputPassword(sellerPassword)
+                .clickLoginBtn();
+
+        new ProductPage(driver).setLanguage(language)
+                .navigate()
+                .waitAndHideFacebookBubble()
+                .clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+                .uploadProductImage(imgFileName)
+                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
+                .selectProductVAT(VAT)
+                .selectCollections(collectionName)
+                .manageInventoryByIMEI()
+                .changeStockQuantityForIMEIProduct(stockQuantity)
+                .setDimension(weight, length, width, height)
+                .setPlatForm(platformList)
+                .clickOnTheSaveBtn();
+    }
+
+    @Test
+    public void Tcs06_CreateIMEIProductNoVariation_Unit_WholesalePrice_Deposit_EachVariation() throws IOException, InterruptedException {
+        new LoginPage(driver).navigate()
+                .inputEmailOrPhoneNumber(sellerAccount)
+                .inputPassword(sellerPassword)
+                .clickLoginBtn();
+
+        new ProductPage(driver).setLanguage(language)
+                .navigate()
+                .waitAndHideFacebookBubble()
+                .clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
+                .selectProductVAT(VAT)
+                .uploadProductImage(imgFileName)
+                .manageInventoryByIMEI()
+                .clickOnTheConfigureWholesalePriceBtn()
+                .configureWholesalePriceForNoVariationProduct(wholesaleMap)
+                .clickOnTheAddDepositBtn()
+                .clickOnTheSaveBtn();
+    }
+
+
 }
