@@ -41,7 +41,6 @@ public class PlanPermissionTest extends BaseTest {
 
     public String SignUpForVNShopWithEmail() throws SQLException, InterruptedException {
         String country = "Vietnam";
-        String language = "Tiếng Việt";
         String province = "Hồ Chí Minh";
         String district = "Quận 8";
         String ward = "Phường 2";
@@ -49,7 +48,6 @@ public class PlanPermissionTest extends BaseTest {
         String username = "automation0-shop" + randomNumber + "@mailnesia.com";
         String contact =  "9123456" + randomNumber;
         String pickupAddress = "12 Quang Trung";
-        String secondPickupAddress = "16 Wall Street";
         String storeName = "Automation Shop " + randomNumber;
         signupPage = new SignupPage(driver);
         //Sign up
@@ -74,7 +72,7 @@ public class PlanPermissionTest extends BaseTest {
      * @throws SQLException
      * @throws InterruptedException
      */
-    public void SignUpSelectAndAprovePlan(String plan) throws SQLException,InterruptedException {
+    public void SignUpSelectAndApprovePlan(String plan) throws SQLException,InterruptedException {
         switch (plan){
             case "GoWEB":
                 userName_goWeb = SignUpForVNShopWithEmail();
@@ -112,7 +110,7 @@ public class PlanPermissionTest extends BaseTest {
     }
     @Test
     public void PP01_SelectAndAprovePlanGoWeb() throws SQLException, InterruptedException {
-        SignUpSelectAndAprovePlan("GoWEB");
+        SignUpSelectAndApprovePlan("GoWEB");
     }
     @Test
     public void PP02_CheckPermissionGoWeb() throws IOException {
@@ -121,7 +119,7 @@ public class PlanPermissionTest extends BaseTest {
 
     @Test
     public void PP03_SelectAndAprovePlanGoAPP() throws SQLException, InterruptedException {
-        SignUpSelectAndAprovePlan("GoAPP");
+        SignUpSelectAndApprovePlan("GoAPP");
     }
     @Test
     public void PP04_CheckPermissionGoApp() throws IOException {
@@ -129,7 +127,7 @@ public class PlanPermissionTest extends BaseTest {
     }
     @Test
     public void PP05_SelectAndAprovePlanGoPOS() throws SQLException, InterruptedException {
-        SignUpSelectAndAprovePlan("GoPOS");
+        SignUpSelectAndApprovePlan("GoPOS");
     }
     @Test
     public void PP06_CheckPermissionGoPos() throws IOException {
@@ -137,7 +135,7 @@ public class PlanPermissionTest extends BaseTest {
     }
     @Test
     public void PP07_SelectAndAprovePlanGoSocial() throws SQLException, InterruptedException {
-        SignUpSelectAndAprovePlan("GoSOCIAL");
+        SignUpSelectAndApprovePlan("GoSOCIAL");
     }
     @Test
     public void PP08_CheckPermissionGoSocial() throws IOException {
@@ -145,7 +143,7 @@ public class PlanPermissionTest extends BaseTest {
     }
     @Test
     public void PP09_SelectAndAprovePlanGoLead() throws SQLException, InterruptedException {
-        SignUpSelectAndAprovePlan("GoLEAD");
+        SignUpSelectAndApprovePlan("GoLEAD");
 
     }
     @Test

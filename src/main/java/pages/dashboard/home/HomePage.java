@@ -324,7 +324,7 @@ public class HomePage {
             commons.openNewTab();
             commons.switchToWindow(1);
             commons.navigateToURL(DOMAIN + path);
-            countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + "/404", "Check url 404: " + pageName);
+            countFailed = assertCustomize.assertTrue(countFailed, commons.getCurrentURL().contains("/404"),  "Check url 404: " + pageName);
             commons.closeTab();
             commons.switchToWindow(0);
         }
