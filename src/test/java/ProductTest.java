@@ -1,9 +1,12 @@
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +60,8 @@ public class ProductTest extends BaseTest {
         length = 100;
         width = 100;
         height = 100;
-        platformList = List.of("In-Store", "App", "Web", "GoSOCIAL");
-        stockQuantity = 100;
+        platformList = List.of("In-Store", "App", "Web");
+        stockQuantity = 1000000;
         conversionMap = new HashMap<>();
         conversionMap.put("10 products", 10);
         conversionMap.put("100 products", 100);
@@ -69,8 +72,9 @@ public class ProductTest extends BaseTest {
         depositPrice = 10000;
     }
 
-    @Test
-    public void Tcs01_CreateNormalProduct() throws IOException, InterruptedException {
+    @BeforeMethod
+    public void setup() throws InterruptedException {
+        super.setup();
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -78,7 +82,19 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
-                .waitAndHideFacebookBubble()
+                .waitAndHideFacebookBubble();
+    }
+
+    @Test
+    public void Tcs01_CreateNormalProduct() throws InterruptedException {
+        new LoginPage(driver).navigate()
+                .inputEmailOrPhoneNumber(sellerAccount)
+                .inputPassword(sellerPassword)
+                .clickLoginBtn();
+
+        new ProductPage(driver).setLanguage(language)
+                .navigate()
+//                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
@@ -93,7 +109,7 @@ public class ProductTest extends BaseTest {
     }
 
     @Test
-    public void Tcs02_CreateNormalProductNoVariation_Unit_WholesalePrice_Deposit_EachVariation() throws IOException, InterruptedException {
+    public void Tcs02_CreateNormalProductNoVariation_Unit_WholesalePrice_Deposit_EachVariation() throws InterruptedException {
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -101,7 +117,7 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
-                .waitAndHideFacebookBubble()
+//                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
@@ -124,7 +140,7 @@ public class ProductTest extends BaseTest {
     }
 
     @Test
-    public void Tcs03_CreateNormalProductHasVariation_Unit_WholesalePrice_Deposit_EachVariation() throws IOException, InterruptedException {
+    public void Tcs03_CreateNormalProductHasVariation_Unit_WholesalePrice_Deposit_EachVariation() throws InterruptedException {
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -132,7 +148,7 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
-                .waitAndHideFacebookBubble()
+//                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
@@ -159,7 +175,7 @@ public class ProductTest extends BaseTest {
     }
 
     @Test
-    public void Tcs04_CreateNormalProductHasVariation_Unit_WholesalePrice_Deposit_AllVariations() throws IOException, InterruptedException {
+    public void Tcs04_CreateNormalProductHasVariation_Unit_WholesalePrice_Deposit_AllVariations() throws InterruptedException {
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -167,7 +183,7 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
-                .waitAndHideFacebookBubble()
+//                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
@@ -194,7 +210,7 @@ public class ProductTest extends BaseTest {
     }
 
     @Test
-    public void Tcs05_CreateIMEIProduct() throws IOException, InterruptedException {
+    public void Tcs05_CreateIMEIProduct() throws InterruptedException {
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -202,7 +218,7 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
-                .waitAndHideFacebookBubble()
+//                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
@@ -218,7 +234,7 @@ public class ProductTest extends BaseTest {
     }
 
     @Test
-    public void Tcs06_CreateIMEIProductNoVariation_Unit_WholesalePrice_Deposit_EachVariation() throws IOException, InterruptedException {
+    public void Tcs06_CreateIMEIProductNoVariation_Unit_WholesalePrice_Deposit_EachVariation() throws InterruptedException {
         new LoginPage(driver).navigate()
                 .inputEmailOrPhoneNumber(sellerAccount)
                 .inputPassword(sellerPassword)
@@ -226,7 +242,7 @@ public class ProductTest extends BaseTest {
 
         new ProductPage(driver).setLanguage(language)
                 .navigate()
-                .waitAndHideFacebookBubble()
+//                .waitAndHideFacebookBubble()
                 .clickOnTheCreateProductBtn()
                 .inputProductName(productName)
                 .inputProductDescription(productDescription)
@@ -241,4 +257,30 @@ public class ProductTest extends BaseTest {
     }
 
 
+    @Test(groups = "BH_4694")
+    public void BH_4694_CreateNormalProductWithoutVariation_ManageInventoryByProduct() throws InterruptedException, IOException {
+        String productName = "BH_4694_Case1_" + DateTimeFormatter.ofPattern("yyyy_MM_dd-hh_mm_ss").format(LocalDateTime.now());
+        new ProductPage(driver).clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+                .uploadProductImage(imgFileName)
+                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
+                .selectProductVAT(VAT)
+                .selectCollections(collectionName)
+                .changeStockQuantityForNormalProductNoVariation(stockQuantity)
+                .setDimension(weight, length, width, height)
+                .setPlatForm(platformList)
+                .clickOnTheSaveBtn()
+                .closeNotificationPopup()
+                .openProductDetailPage()
+                .checkProductName(productName)
+                .checkProductDescription(productDescription)
+                .checkPrice(listingPrice, sellingPrice, costPrice)
+                .checkVAT(VAT)
+                .checkCollection(List.of(collectionName))
+                .checkStock(stockQuantity)
+                .checkDimension(weight, length, width, height)
+                .checkSelectedPlatform(platformList)
+                .completeVerify();
+    }
 }
