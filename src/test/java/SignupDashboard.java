@@ -371,27 +371,6 @@ public class SignupDashboard extends BaseTest {
 
 //	@Test
 	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException, InterruptedException {
-
-		String username = mail;
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-		country = signupPage.country;
-		signupPage.inputStoreName(storeName);
-
-		// Exit current session
-		driver.quit();
-
-		// Re-login
-		driver = new InitWebdriver().getDriver("chrome", "false");
-		new LoginPage(driver).navigate().performLogin(country, username, password);
-		new SignupPage(driver).inputStoreName(storeName);
-
-	}
-
-//	@Test
-	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException, InterruptedException {
 	
 		String username = mail;
 	
