@@ -30,7 +30,7 @@ public class ProductElement {
     @FindBy(css = "section> div > input[type=file]")
     WebElement PRODUCT_IMAGE;
 
-    @FindBy(css = "div[name *= 'Price']")
+    @FindBy(css = "div[name *= 'Price'] input")
     List<WebElement> NORMAL_PRODUCT_PRICE;
 
     @FindBy(css = "div#app-body div.uik-select__valueWrapper")
@@ -101,20 +101,20 @@ public class ProductElement {
     @FindBy(css = ".d-flex > div > input")
     WebElement STOCK_VALUE_IN_STOCK_QUANTITY_TABLE;
 
-    @FindBy (css = "div:nth-child(4) > div > div > table > tbody > tr")
+    @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr")
     List<WebElement> VARIATION_TEXT;
 
-    @FindBy (css = "div:nth-child(7) > div > div > table > tbody > tr")
+    @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr")
     List<WebElement> DEPOSIT_TEXT;
 
     // id = 0, not use.
-    @FindBy (css = ".modal-body thead > tr > th:not(.label)")
+    @FindBy(css = ".modal-body thead > tr > th:not(.label)")
     List<WebElement> BRANCH_TEXT_IN_STOCK_TABLE;
 
-    @FindBy (css = ".h-fit-content tr > th")
+    @FindBy(css = ".h-fit-content tr > th")
     List<WebElement> BRANCH_TEXT_IN_SKU_TABLE;
 
-    @FindBy (css = ".input-code input")
+    @FindBy(css = ".input-code input")
     List<WebElement> INPUT_IMEI_VALUE;
 
     @FindBy(css = ".d-flex > input")
@@ -132,7 +132,7 @@ public class ProductElement {
     @FindBy(css = "div.gs-widget__content > div > button")
     WebElement CONFIGURE_WHOLESALE_PRICE_BTN;
 
-    @FindBy (css = ".wholesale-group-header > .gs-fake-link")
+    @FindBy(css = ".wholesale-group-header > .gs-fake-link")
     WebElement GO_BACK_TO_PRODUCT_DETAIL;
 
     @FindBy(css = "div:nth-child(7) > div > span")
@@ -141,9 +141,9 @@ public class ProductElement {
     @FindBy(css = "div.d-md-block > div > div > div > div.css-1hwfws3")
     WebElement DEPOSIT_VALUE;
 
-    @FindBy (css = "div:nth-child(7) > div > div > table > thead > tr > th:nth-child(1) > label > input")
+    @FindBy(css = "div:nth-child(7) > div > div > table > thead > tr > th:nth-child(1) > label > input")
     WebElement SELECT_ALL_DEPOSIT_CHECKBOX;
-    @FindBy (css = "div:nth-child(7) > div > div > table > thead > tr > th:nth-child(1) > label")
+    @FindBy(css = "div:nth-child(7) > div > div > table > thead > tr > th:nth-child(1) > label")
     WebElement SELECT_ALL_DEPOSIT_LABEL;
 
     @FindBy(css = "div:nth-child(7) > div > div > table > thead > tr:nth-child(1) > th > div > div > span")
@@ -152,7 +152,7 @@ public class ProductElement {
     // 0: Price
     // 1: Stock quantity
     // 2: SKU
-    @FindBy (css = "div:nth-child(7) > div > div > table > tbody > tr > td > div.cursor--pointer")
+    @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr > td > div.cursor--pointer")
     List<WebElement> OPEN_DEPOSIT_TABLE;
 
     @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr > td > img")
@@ -185,16 +185,16 @@ public class ProductElement {
     @FindBy(css = "select#manageInventory > option:nth-child(2)")
     WebElement MANAGE_INVENTORY_BY_IMEI;
 
-    @FindBy (css = "div.mb-0 > div > input")
+    @FindBy(css = "div.mb-0 > div > input")
     List<WebElement> IMEI_STOCK;
 
-    @FindBy (css = "input[name='serial']")
+    @FindBy(css = "input[name='serial']")
     WebElement IMEI_INPUT;
 
-    @FindBy (css = ".branch-list-stock__wrapper__row > div:nth-child(1)")
+    @FindBy(css = ".branch-list-stock__wrapper__row > div:nth-child(1)")
     List<WebElement> LIST_BRANCH_NAME_IN_STOCK_INVENTORY;
 
-    @FindBy (css = ".modal-footer button.gs-button__green")
+    @FindBy(css = ".modal-footer button.gs-button__green")
     WebElement SAVE_BTN_IN_IMEI_STOCK_TABLE;
 
     @FindBy(css = "div[name = productQuantity] input")
@@ -232,4 +232,15 @@ public class ProductElement {
 
     @FindBy(css = "div.Toastify__toast-body")
     WebElement TOAST_MESSAGE;
+    @FindBy(css = ".modal-footer > button")
+    WebElement CLOSE_BTN;
+
+    @FindBy(css = "tr:nth-child(1) > td:nth-child(1) > span > b")
+    WebElement NEWEST_PRODUCT_ID;
+
+    @FindBy (css = "div.product-form-collection-selector2__selected-container > div > span")
+    List<WebElement> SELECTED_COLLECTION_LIST;
+
+    @FindBy (css = " div.branch-list-stock__wrapper > div > div> div > div")
+    List<WebElement> QUANTITY_STOCK_BY_BRANCH;
 }

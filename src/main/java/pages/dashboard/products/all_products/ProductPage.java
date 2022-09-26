@@ -15,45 +15,59 @@ import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
 import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 
 import static java.lang.Thread.sleep;
 
-public class ProductPage extends ProductElement {
-    WebDriverWait wait;
+public class ProductPage extends ProductVerify {
     String language;
 
     public ProductPage(WebDriver driver) {
         super(driver);
-
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     Logger logger = LogManager.getLogger(LogManager.class);
     Actions actions = new Actions(driver);
 
+    /**
+     * Set language to determine the expected page title or something that we need
+     */
     public ProductPage setLanguage(String language) {
         this.language = language;
         return this;
     }
 
-    public ProductPage navigate() throws InterruptedException, IOException {
-        new HomePage(driver).verifyPageLoaded().selectLanguage(language).navigateToAllProductsPage();
+    /**
+     * <p> After login: </p>
+     * <p> Wait for home page loading </p>
+     * <p> And click on the "Products" button on the Side menu </p>
+     * <p> To navigate to the "All products" page </p>
+     */
+    public ProductPage navigate() throws InterruptedException {
+        new HomePage(driver).verifyPageLoaded()
+                .selectLanguage(language)
+                .navigateToAllProductsPage();
         logger.info("Navigate to All Products Page");
         wait.until(ExpectedConditions.titleIs("Admin Staging - Products"));
         logger.info("Title of Setting page is %s".formatted(driver.getTitle()));
         return this;
     }
 
+    /**
+     * On the "All Products" page, click on the "Create Product" button to open the "Create Product" page
+     *
+     */
     public ProductPage clickOnTheCreateProductBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(CREATE_PRODUCT_BTN)).click();
         logger.info("Click on the Create Product button");
         return this;
     }
 
+    /**
+     * On the "Create Product"/"Product Detail" page, input product name
+     */
     public ProductPage inputProductName(String productName) {
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_NAME)).clear();
         PRODUCT_NAME.sendKeys(productName);
@@ -61,6 +75,9 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
+    /**
+     * On the "Create Product"/"Product Detail" page, input product description
+     */
     public ProductPage inputProductDescription(String productDescription) {
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).clear();
         PRODUCT_DESCRIPTION.sendKeys(productDescription);
@@ -68,12 +85,19 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
+    /**
+     * On the "Create Product"/"Product Detail" page, input product name
+     */
     public ProductPage uploadProductImage(String imageFileName) {
         PRODUCT_IMAGE.sendKeys(Paths.get(System.getProperty("user.dir") + "/src/main/resources/uploadfile/product_images/%s".formatted(imageFileName).replace("/", File.separator)).toString());
         logger.info("Upload product image");
         return this;
     }
 
+    /**
+     * <p> On the "Create Product"/"Product Detail" page, input listing/selling/cost price</p>
+     * <p> WARN1: This function is only used for the normal/IMEI product without variation</p>
+     */
     public ProductPage changePriceForNoVariationProduct(int listingPrice, int sellingPrice, int costPrice) {
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(0))).click();
         actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + listingPrice).build().perform();
@@ -89,6 +113,10 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
+    /**
+     * <p> On the "Create Product"/"Product Detail" page, select VAT</p>
+     * <p> WARN: In case, VAT does not match with any VAT in the VAT list, "Tax does not apply" should be selected</p>
+     */
     public ProductPage selectProductVAT(String VAT) {
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN)).click();
         logger.info("Open VAT dropdown list");
@@ -104,7 +132,7 @@ public class ProductPage extends ProductElement {
     }
 
     /**
-     * <p>Input variations maps. If maps.size() > 2, only keep 2 variations</p>
+     * Only allow 2 variations
      */
     public Map<String, List<String>> getVariationsMap(Map<String, List<String>> variations) {
         Map<String, List<String>> newMaps = new HashMap<>();
@@ -119,6 +147,9 @@ public class ProductPage extends ProductElement {
         return newMaps;
     }
 
+    /**
+     * On the "Create Product"/"Product Detail" page, create variations follow the variations list
+     */
     public ProductPage addVariations(Map<String, List<String>> variation) {
         variation = getVariationsMap(variation);
         int id = -1;
@@ -137,6 +168,10 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
+    /**
+     * <p> On the "Create Product"/"Product Detail" page, select the product collections</p>
+     * <p> WARN: the collection should be ignored if does not match with any collection on the collection dropdown</p>
+     */
     public ProductPage selectCollections(String... collectionNames) throws InterruptedException {
         for (String collectionName : collectionNames) {
             wait.until(ExpectedConditions.elementToBeClickable(COLLECTION_SEARCH_BOX)).clear();
@@ -571,15 +606,50 @@ public class ProductPage extends ProductElement {
         return this;
     }
 
-    public void clickOnTheSaveBtn() {
+    public ProductPage clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        return this;
     }
 
+    public ProductPage closeNotificationPopup() {
+        wait.until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
+        return this;
+    }
 
     private void waitElementList(List<WebElement> elementList) {
         new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
             return elementList.size() > 0;
         });
+    }
+
+    // Integrate function
+
+    private ProductPage createNormalProductWithoutVariation(String productName, String productDescription) throws InterruptedException {
+        setLanguage(language).navigate()
+                .waitAndHideFacebookBubble()
+                .clickOnTheCreateProductBtn()
+                .inputProductName(productName)
+                .inputProductDescription(productDescription)
+//                .uploadProductImage(imgFileName)
+//                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
+//                .selectProductVAT(VAT)
+//                .selectCollections(collectionName)
+//                .changeStockQuantityForNormalProductNoVariation(stockQuantity)
+//                .setDimension(weight, length, width, height)
+//                .setPlatForm(platformList)
+//                .clickOnTheSaveBtn()
+//                .closeNotificationPopup()
+//                .openProductDetailPage()
+//                .checkProductName(productName)
+//                .checkProductDescription(productDescription)
+//                .checkPrice(listingPrice, sellingPrice, costPrice)
+//                .checkVAT(VAT)
+//                .checkCollection(List.of(collectionName))
+//                .checkStock(stockQuantity)
+//                .checkDimension(weight, length, width, height)
+//                .checkSelectedPlatform(platformList)
+                .completeVerify();
+        return this;
     }
 }
