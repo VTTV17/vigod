@@ -32,7 +32,10 @@ public class UICommonAction {
 				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
 				break;
 			} catch (StaleElementReferenceException ex) {
-				logger.debug("StaleElementReferenceException caught in clickElement");
+				logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
+				if (++count == maxTries) throw ex;
+			} catch (ElementNotInteractableException ex) {
+				logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
 				if (++count == maxTries) throw ex;
 			}
 		}
@@ -181,7 +184,14 @@ public class UICommonAction {
 			}else return !elements.get(0).isDisplayed();
 		}
 	public String getElementAttribute(WebElement element,String attributeName){
-		return element.getAttribute(attributeName);
+		String value;
+		try {
+			value = element.getAttribute(attributeName);
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in getElementAttribute");
+			value = element.getAttribute(attributeName);
+		}
+		return value;
 	}
 	public String getCurrentURL(){
 		return driver.getCurrentUrl();

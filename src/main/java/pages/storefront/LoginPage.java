@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 import static utilities.links.Links.*;
@@ -70,6 +71,9 @@ public class LoginPage {
     @FindBy (xpath = "(//button[@class='btn btn-primary btn-block btn-submit'])[1]")
     WebElement LOGIN_BTN;
 
+    @FindBy(css = ".loader")
+    WebElement SPINNER;
+    
     @FindBy (id = "login-username-error")
     WebElement USER_ERROR;
 
@@ -90,6 +94,12 @@ public class LoginPage {
         return this;
     }
 
+    public LoginPage waitTillLoaderDisappear() {
+    	commonAction.waitTillElementDisappear(SPINNER, 15);
+        logger.info("Loader has finished loading");
+        return this;
+    }    
+    
     public LoginPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
     	driver.findElement(By.xpath("//ul[@id='login-country-code-menu']//a[@class='dropdown-item']/span[text()='%s']".formatted(country))).click();

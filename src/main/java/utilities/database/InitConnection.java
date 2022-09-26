@@ -77,8 +77,8 @@ public class InitConnection {
     	while (resultSet.next()) {
     		domain = resultSet.getString("gift_code");
     	}
-    	logger.debug("Store to get domain from: " + storeName); 
-    	logger.info("Store domain retrieved: " + domain); 
+    	logger.debug("Store to get store gift code from: " + storeName); 
+    	logger.info("Store gift code retrieved: " + domain); 
     	return domain;
     }     
     

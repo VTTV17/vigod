@@ -251,7 +251,7 @@ public class LoginDashboard extends BaseTest {
     }
     
 	@Test
-	public void BH_4050_SellerChangePassword() throws InterruptedException {
+	public void BH_4050_SellersChangePassword() throws InterruptedException {
 		String username = "";
 		String password = "";
 		String country = "";
@@ -296,9 +296,7 @@ public class LoginDashboard extends BaseTest {
 				} else {
 					newPassword = password;
 				}	
-	    		
-				new HomePage(driver)
-				.navigateToPage("Settings");
+	    		if (i==0) new HomePage(driver).navigateToPage("Settings");
 	    		new AccountPage(driver).navigate()
 	    		.changePassword(tempLogin, newPassword, newPassword);
 	    		new HomePage(driver).getToastMessage();				
@@ -361,8 +359,7 @@ public class LoginDashboard extends BaseTest {
 					newPassword = password;
 				}		
 				
-				if (i==0) new HomePage(driver).waitTillSpinnerDisappear();
-				new HomePage(driver).navigateToPage("Settings");
+				if (i==0) new HomePage(driver).waitTillSpinnerDisappear().navigateToPage("Settings");
 	    		new AccountPage(driver).navigate()
 	    		.changePassword(tempLogin, newPassword, newPassword);
 	    		new HomePage(driver).getToastMessage();
