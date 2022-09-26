@@ -160,7 +160,13 @@ public class HomePage {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
         logger.debug("xpath: %s".formatted(newXpath));
-        Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
+        Boolean flag;
+        try {
+        	flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
+        } catch (StaleElementReferenceException ex) {
+            logger.debug("StaleElementReferenceException caught while getting attribute of the element \n" + ex);
+            flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
+        }
         logger.debug("xpath: %s".formatted(flag));
         if (flag) {
             try {
@@ -238,7 +244,9 @@ public class HomePage {
 
 	public String getToastMessage() {
 		logger.info("Finished getting toast message.");
-		return commons.getText(TOAST_MESSAGE);
+		String message = commons.getText(TOAST_MESSAGE);
+		commons.clickElement(TOAST_MESSAGE_CLOSE_BTN);
+		return message;
 	}
 
     public void completeVerify() {
