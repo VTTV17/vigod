@@ -35,7 +35,10 @@ public class UserProfileInfo {
 
 	@FindBy(css = ".icon-my-address")
 	WebElement MYADDRESS_SECTION;
-   
+    @FindBy(css = ".box_name .user-left-info__user-name p")
+    WebElement DISPLAY_NAME;
+    @FindBy(css = ".box_name .user-left-info__user-level p")
+    WebElement MEMBER_SHIP_LEVEL;
     
     public UserProfileInfo clickMyAccountSection() {
     	commonAction.clickElement(MYACCOUNT_SECTION);
