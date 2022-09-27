@@ -14,11 +14,11 @@ public class PlanPermissionTest extends BaseTest {
     HomePage homePage;
     PlansPage plansPage;
     InternalTool internalTool;
-    String userName_goWeb = "automation0-shop285@mailnesia.com";
-    String userName_goApp = "automation0-shop850@mailnesia.com";
-    String userName_goPOS = "automation0-shop784@mailnesia.com";
-    String userName_goSocial = "automation0-shop941@mailnesia.com";
-    String userName_GoLead = "automation0-shop105@mailnesia.com";
+    String userName_goWeb = "automation0-shop92717@mailnesia.com";
+    String userName_goApp = "automation0-shop39577@mailnesia.com";
+    String userName_goPOS = "automation0-shop32362@mailnesia.com";
+    String userName_goSocial = "automation0-shop76064@mailnesia.com";
+    String userName_GoLead = "automation0-shop96482@mailnesia.com";
     String password = "fortesting!1";
     String orderID;
     SignupPage signupPage;

@@ -159,6 +159,7 @@ public class HomePage {
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
+<<<<<<< Updated upstream
         logger.debug("xpath: %s".formatted(newXpath));
         Boolean flag;
         try {
@@ -168,6 +169,9 @@ public class HomePage {
             flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
         }
         logger.debug("xpath: %s".formatted(flag));
+=======
+        Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
+>>>>>>> Stashed changes
         if (flag) {
             try {
                 commons.clickElement(driver.findElement(By.xpath(newXpath)));
@@ -253,13 +257,11 @@ public class HomePage {
         soft.assertAll();
     }
     public Integer verifySalePitchPopupDisplay() throws IOException {
-//        commons.sleepInMiliSecond(1500);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
         return countFailed;
     }
     public Integer verifySalePitchPopupNotDisplay() throws IOException {
-//        commons.sleepInMiliSecond(1000);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
         return countFailed;
