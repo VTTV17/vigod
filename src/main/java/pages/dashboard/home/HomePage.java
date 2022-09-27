@@ -159,15 +159,7 @@ public class HomePage {
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
-        Boolean flag;
-        try {
-        	flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
-        } catch (StaleElementReferenceException ex) {
-            logger.debug("StaleElementReferenceException caught while getting attribute of the element \n" + ex);
-            flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
-        }
-        logger.debug("xpath: %s".formatted(flag));
-
+        Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
         if (flag) {
             try {
                 commons.clickElement(driver.findElement(By.xpath(newXpath)));
