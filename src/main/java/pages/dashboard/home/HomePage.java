@@ -159,8 +159,6 @@ public class HomePage {
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
-<<<<<<< Updated upstream
-        logger.debug("xpath: %s".formatted(newXpath));
         Boolean flag;
         try {
         	flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
@@ -169,9 +167,7 @@ public class HomePage {
             flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
         }
         logger.debug("xpath: %s".formatted(flag));
-=======
-        Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
->>>>>>> Stashed changes
+
         if (flag) {
             try {
                 commons.clickElement(driver.findElement(By.xpath(newXpath)));
