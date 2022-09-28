@@ -6,23 +6,17 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.UICommonAction;
-import utilities.assert_customize.AssertCustomize;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 public class HeaderSF {
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commons;
-    public static int countFail = 0;
     final static Logger logger = LogManager.getLogger(HeaderSF.class);
 
     public HeaderSF(WebDriver driver){
@@ -60,15 +54,6 @@ public class HeaderSF {
 
     @FindBy (id = "btn-logout")
     WebElement LOGOUT_BTN;
-
-    @FindBy(css = "#header-search-web-component")
-    WebElement SEARCH_ICON;
-
-    @FindBy(css = "input[name='q']")
-    WebElement SEARCH_BOX;
-
-    @FindBy(css = "div[class *= 'search-result-container'] > a")
-    List<WebElement> LIST_SEARCH_RESULT;
 
     public HeaderSF clickUserInfoIcon() {
     	commons.clickElement(USER_INFO_ICON);
@@ -117,32 +102,5 @@ public class HeaderSF {
     public void clickLogout(){
         commons.clickElement(LOGOUT_BTN);
         logger.info("Clicked on Logout linktext");
-    }
-
-    /**
-     * <p> If have product match condition, hasResult = false</p>
-     * <p> Else hasResult = true</p>
-     */
-    public void checkProductIsDisplayOrHide(Boolean isDisplay, String productName) throws IOException, InterruptedException {
-        wait.until(ExpectedConditions.elementToBeClickable(SEARCH_ICON)).click();
-        wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(productName);
-
-        // If have product match condition, actDisplay = false
-        // Else actDisplay = true
-        sleep(1000);
-        boolean actDisplay = LIST_SEARCH_RESULT.size() > 0;
-        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplay, "[Failed] Product display should be %s but it is %s".formatted(isDisplay, actDisplay));
-    }
-
-    /**
-     * <p> countFail: The number of failure cases in this test</p>
-     * <p> If countFail > 0, some cases have been failed</p>
-     * <p> Reset countFail for the next test</p>
-     */
-    public void completeVerify() {
-        if (countFail > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(countFail));
-        }
-        countFail = 0;
     }
 }
