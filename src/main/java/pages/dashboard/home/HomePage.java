@@ -159,9 +159,7 @@ public class HomePage {
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
-        logger.debug("xpath: %s".formatted(newXpath));
         Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
-        logger.debug("xpath: %s".formatted(flag));
         if (flag) {
             try {
                 commons.clickElement(driver.findElement(By.xpath(newXpath)));
@@ -238,20 +236,20 @@ public class HomePage {
 
 	public String getToastMessage() {
 		logger.info("Finished getting toast message.");
-		return commons.getText(TOAST_MESSAGE);
+		String message = commons.getText(TOAST_MESSAGE);
+		commons.clickElement(TOAST_MESSAGE_CLOSE_BTN);
+		return message;
 	}
 
     public void completeVerify() {
         soft.assertAll();
     }
     public Integer verifySalePitchPopupDisplay() throws IOException {
-//        commons.sleepInMiliSecond(1500);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
         return countFailed;
     }
     public Integer verifySalePitchPopupNotDisplay() throws IOException {
-//        commons.sleepInMiliSecond(1000);
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
         return countFailed;

@@ -109,24 +109,24 @@ public class SignupStorefront extends BaseTest {
 	public void BH_4588_SignUpWithInvalidCredential() throws SQLException, InterruptedException {
 
 		String country = "Philippines";
-		
+
 		signupPage.navigate().fillOutSignupForm(country, "", password, displayName, birthday);
-		signupPage.verifyEmailOrPhoneNumberError(EMPTY_USERNAME_ERROR_VI).completeVerify();	
+		signupPage.verifyEmailOrPhoneNumberError(EMPTY_USERNAME_ERROR_VI).completeVerify();
 
 		signupPage.navigate().fillOutSignupForm(country, phone, "", displayName, birthday);
-		signupPage.verifyPasswordError(EMPTY_PASSWORD_ERROR_VI).completeVerify();	
+		signupPage.verifyPasswordError(EMPTY_PASSWORD_ERROR_VI).completeVerify();
 
 		mail = "automation_mail.com";
 		signupPage.navigate().fillOutSignupForm(country, mail, password, displayName, birthday);
-		signupPage.verifyEmailOrPhoneNumberError(INVALID_FORMAT_ERROR_VI).completeVerify();	
+		signupPage.verifyEmailOrPhoneNumberError(INVALID_FORMAT_ERROR_VI).completeVerify();
 
 		phone = "3454567";
 		signupPage.navigate().fillOutSignupForm(country, phone, password, displayName, birthday);
-		signupPage.verifyEmailOrPhoneNumberError(INVALID_FORMAT_ERROR_VI).completeVerify();	
-		
+		signupPage.verifyEmailOrPhoneNumberError(INVALID_FORMAT_ERROR_VI).completeVerify();
+
 	}
 
-    @Test
+	@Test
 	public void BH_4589_ResendVerificationCodeToEmail() throws SQLException, InterruptedException {
 
 		String country = "Philippines";
@@ -153,7 +153,7 @@ public class SignupStorefront extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, mail, password);
 	}
 
-    @Test
+	@Test
 	public void BH_1625_ResendVerificationCodeToPhone() throws SQLException, InterruptedException {
 
 		String country = "Philippines";
@@ -181,7 +181,7 @@ public class SignupStorefront extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, phone, password);
 	}
 
-    @Test
+	@Test
 	public void BH_1593_SignUpWithUsedEmailAccount() throws SQLException, InterruptedException {
 		// Signup
 		signupPage.navigate().fillOutSignupForm(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD,
@@ -189,7 +189,7 @@ public class SignupStorefront extends BaseTest {
 		signupPage.verifyUsernameExistError(MAIL_EXIST_ERROR_VI).completeVerify();
 	}
 
-    @Test
+	@Test
 	public void BH_1279_SignUpWithUsedPhoneAccount() throws SQLException, InterruptedException {
 		// Signup
 		signupPage.navigate().fillOutSignupForm(BUYER_PHONE_COUNTRY, BUYER_PHONE_USERNAME, BUYER_PHONE_PASSWORD,
@@ -197,7 +197,7 @@ public class SignupStorefront extends BaseTest {
 		signupPage.verifyUsernameExistError(PHONE_EXIST_ERROR_VI).completeVerify();
 	}
 
-    @Test
+	@Test
 	public void BH_1278_SignupWithPhone() throws SQLException, InterruptedException {
 		String country = "Philippines";
 
@@ -241,7 +241,7 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}
 
-    @Test
+	@Test
 	public void BH_1594_SignupWithEmail() throws SQLException, InterruptedException {
 		String country = "Philippines";
 
@@ -277,7 +277,7 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}
 
-  @Test
+	@Test
 	public void BH_4590_SignupForEmailWithWrongVerificationCode() throws SQLException, InterruptedException {
 
 		String country = "Philippines";
@@ -305,7 +305,7 @@ public class SignupStorefront extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, mail, password);
 	}
 
-  @Test
+	@Test
 	public void BH_4590_SignupForPhoneWithWrongVerificationCode() throws SQLException, InterruptedException {
 
 		String country = "Philippines";

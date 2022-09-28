@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import pages.Mailnesia;
 import pages.storefront.HeaderSF;
 import pages.storefront.LoginPage;
-import pages.storefront.SignupPage;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 
 public class LoginStorefront extends BaseTest {
 
 	LoginPage loginPage;
+	HeaderSF headerPage;
 
 	String MAIL;
 	String PASSWORD;
@@ -66,55 +66,53 @@ public class LoginStorefront extends BaseTest {
 	public void setup() throws InterruptedException {
 		super.setup();
 		loginPage = new LoginPage(driver);
+		headerPage = new HeaderSF(driver);
 	}
 
 	@Test
 	public void TC01_SF_LoginWithAllFieldsLeftBlank() {
-		new LoginPage(driver).navigate().performLogin("", generate.generateNumber(9))
+		loginPage.navigate().performLogin("", generate.generateNumber(9))
 				.verifyEmailOrPhoneNumberError(BLANK_USERNAME_ERROR).completeVerify();
 		// Password field is left empty.
-		new LoginPage(driver).navigate().performLogin(generate.generateNumber(9), "")
+		loginPage.navigate().performLogin(generate.generateNumber(9), "")
 				.verifyPasswordError(BLANK_PASSWORD_ERROR).completeVerify();
 		// All fields are left empty.
-		new LoginPage(driver).navigate().performLogin("", "").verifyEmailOrPhoneNumberError(BLANK_USERNAME_ERROR)
+		loginPage.navigate().performLogin("", "").verifyEmailOrPhoneNumberError(BLANK_USERNAME_ERROR)
 				.verifyPasswordError(BLANK_PASSWORD_ERROR).completeVerify();
 	}
 
-    @Test
+	@Test
 	public void TC02_SF_LoginWithInvalidPhoneFormat() {
 		// Log in with a phone number consisting of 7 digits.
-		new LoginPage(driver).navigate().performLogin(generate.generateNumber(7), generate.generateString(10))
+		loginPage.navigate().performLogin(generate.generateNumber(7), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 		// Log in with a phone number consisting of 16 digits.
-		new LoginPage(driver).navigate().performLogin(generate.generateNumber(16), generate.generateString(10))
+		loginPage.navigate().performLogin(generate.generateNumber(16), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 	}
 
-    @Test
+	@Test
 	public void TC03_SF_LoginWithInvalidMailFormat() {
-		new LoginPage(driver).navigate().performLogin(generate.generateString(10), generate.generateString(10))
+		loginPage.navigate().performLogin(generate.generateString(10), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 	}
 
 	@Test
 	public void BH_1334_LoginWithNonExistingAccount() {
-		new LoginPage(driver).navigate()
+		loginPage.navigate()
 				.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
-
-		new LoginPage(driver).navigate().performLogin(generate.generateNumber(13), generate.generateString(10))
+		loginPage.navigate().performLogin(generate.generateNumber(13), generate.generateString(10))
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
 	}
 
-    @Test
+	@Test
 	public void BH_1282_LoginWithCorrectAccount() throws InterruptedException {
-		new LoginPage(driver).navigate().performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
-		Thread.sleep(1000);
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+		loginPage.navigate().performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD).waitTillLoaderDisappear();
+		headerPage.clickUserInfoIcon().clickLogout();
 
-		new LoginPage(driver).navigate().performLogin(COUNTRY, MAIL, PASSWORD);
-		Thread.sleep(1000);
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+		loginPage.navigate().performLogin(COUNTRY, MAIL, PASSWORD).waitTillLoaderDisappear();
+		headerPage.clickUserInfoIcon().clickLogout();
 	}
 
 	@Test
@@ -122,20 +120,17 @@ public class LoginStorefront extends BaseTest {
 		String newPassword = PASSWORD + "@" + generate.generateNumber(3);
 
 		String mail = "buyertest12@mailnesia.com";
-		
+
 		loginPage.navigate();
-		new HeaderSF(driver).clickUserInfoIcon().clickLoginIcon();
+		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickForgotPassword().inputUsernameForgot(mail).clickContinueBtn().inputPasswordForgot(newPassword);
+		loginPage.inputVerificationCode(getVerificationCode(mail)).clickConfirmBtn().waitTillLoaderDisappear();
 
-		loginPage.inputVerificationCode(getVerificationCode(mail)).clickConfirmBtn();
-
-		Thread.sleep(1000);
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(mail, newPassword);
-		Thread.sleep(1000);
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+		loginPage.navigate().performLogin(mail, newPassword).waitTillLoaderDisappear();
+		headerPage.clickUserInfoIcon().clickLogout();
 	}
 
 	@Test
@@ -144,22 +139,18 @@ public class LoginStorefront extends BaseTest {
 
 		String phone = "9023456084";
 		String phoneCountry = "+84";
-		
+
 		loginPage.navigate();
-		new HeaderSF(driver).clickUserInfoIcon().clickLoginIcon();
+		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickForgotPassword().selectCountryForgot(phoneCountry).inputUsernameForgot(phone).clickContinueBtn()
 				.inputPasswordForgot(newPassword);
+		loginPage.inputVerificationCode(getVerificationCode(phone)).clickConfirmBtn().waitTillLoaderDisappear();
 
-		loginPage.inputVerificationCode(getVerificationCode(phone)).clickConfirmBtn();
-
-		Thread.sleep(1000);
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(phoneCountry, phone, newPassword);
-		Thread.sleep(1000);
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+		loginPage.navigate().performLogin(phoneCountry, phone, newPassword).waitTillLoaderDisappear();
+		headerPage.clickUserInfoIcon().clickLogout();
 	}
-
 
 }
