@@ -35,7 +35,15 @@ public class ProductDetailElement {
     @FindBy (css = "#product-description")
     WebElement PRODUCT_DESCRIPTION;
 
-
     @FindBy (css = ".sold-out")
     WebElement SOLD_OUT_MARK;
+
+    @FindBy(css = "#header-search-web-component")
+    WebElement SEARCH_ICON;
+
+    @FindBy(css = "input[name='q']")
+    WebElement SEARCH_BOX;
+
+    @FindBy(css = "div[class *= 'search-result-container'] > a")
+    List<WebElement> LIST_SEARCH_RESULT;
 }

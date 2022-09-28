@@ -129,7 +129,6 @@ public class ProductVerify extends ProductElement {
     }
 
     public ProductVerify completeVerify() {
-        logger.info("countFail = %s".formatted(countFail));
         if (countFail > 0) {
             Assert.fail("[Failed] Fail %d cases".formatted(countFail));
         }

@@ -19,10 +19,11 @@ import java.util.Map;
 
 import static java.lang.Thread.sleep;
 import static pages.dashboard.products.all_products.ProductVerify.productID;
-import static pages.storefront.HeaderSF.countFail;
 
 public class ProductDetailPage extends ProductDetailElement {
     WebDriverWait wait;
+
+    static int countFail = 0;
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
 
@@ -35,6 +36,42 @@ public class ProductDetailPage extends ProductDetailElement {
         driver.get(driver.getCurrentUrl() + "/product/" + productID);
         logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
         sleep(3000);
+        return this;
+    }
+
+    /**
+     * <p> Without variation product</p>
+     * <p> If have product match condition, hasResult = false</p>
+     * <p> Else hasResult = true</p>
+     */
+    public ProductDetailPage checkProductIsDisplayOrHideWithoutVariationProduct(Boolean isDisplay, String productName, int stockQuantity) throws IOException, InterruptedException {
+        wait.until(ExpectedConditions.elementToBeClickable(SEARCH_ICON)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(productName);
+
+        // If have product match condition, actDisplay = false
+        // Else actDisplay = true
+        sleep(1000);
+        boolean inStock = stockQuantity > 0;
+        boolean actDisplay = LIST_SEARCH_RESULT.size() > 0;
+        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplay || inStock, "[Failed] Product display should be %s but it is %s".formatted(isDisplay, actDisplay));
+        return this;
+    }
+
+    /**
+     * <p> Variation product</p>
+     * <p> If have product match condition, hasResult = false</p>
+     * <p> Else hasResult = true</p>
+     */
+    public ProductDetailPage checkProductIsDisplayOrHideVariationProduct(Boolean isDisplay, String productName, int startQuantity, int increaseStockForNextVariation) throws IOException, InterruptedException {
+        wait.until(ExpectedConditions.elementToBeClickable(SEARCH_ICON)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(productName);
+
+        // If have product match condition, actDisplay = false
+        // Else actDisplay = true
+        sleep(1000);
+        boolean inStock = !((startQuantity == 0) && (increaseStockForNextVariation == 0));
+        boolean actDisplay = LIST_SEARCH_RESULT.size() > 0;
+        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplay || inStock, "[Failed] Product display should be %s but it is %s".formatted(isDisplay, actDisplay));
         return this;
     }
 
@@ -110,10 +147,10 @@ public class ProductDetailPage extends ProductDetailElement {
                         .replace("Còn hàng ", "").replace(" in stock", "").replace(",", "");
                 countFail = new AssertCustomize(driver).assertEquals(countFail, actStock, String.valueOf(stockQuantity), "[Failed] Stock quantity should be %s instead of %s".formatted(stockQuantity, actStock));
             }
+            logger.info("Check current stock quantity");
         } else {
             checkSoldOutMarkHasBeenShown();
         }
-        logger.info("Check current stock quantity");
     }
 
     /**
@@ -223,8 +260,9 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     public void completeVerify() {
         if (countFail > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(countFail));
+            int count = countFail;
+            countFail = 0;
+            Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
-        countFail = 0;
     }
 }
