@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -20,6 +21,8 @@ public class ProductVerify extends ProductElement {
     WebDriverWait wait;
 
     static int countFail = 0;
+
+    public static String productID;
 
     Logger logger = LogManager.getLogger(ProductVerify.class);
 
@@ -111,6 +114,20 @@ public class ProductVerify extends ProductElement {
         }
         return this;
     }
+
+    /**
+     * <p> get the just created ProductID to check access permission</p>
+     * <p> craw Storefront URL on the header </p>
+     */
+    public void getURLAndNavigateToStoreFront() {
+        productID = getNewestProductID();
+        driver.get(wait.until(ExpectedConditions.visibilityOf(SF_URL)).getAttribute("href"));
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return driver.getPageSource().contains("Copyright © 2022");
+        });
+    }
+
     public ProductVerify completeVerify() {
         logger.info("countFail = %s".formatted(countFail));
         if (countFail > 0) {
