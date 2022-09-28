@@ -203,11 +203,13 @@ public class ProductElement {
     @FindBy(css = "div.row > button")
     WebElement APPLY_ALL_STOCK_QUANTITY;
 
-    // 0: Show as listing product on storefront
-    // 1: Display if out of stock
-    // 3: Hide remaining stock on online store
-    @FindBy(css = "label.uik-checkbox__wrapper.custom-check-box > div")
-    List<WebElement> CONFIGURE_PRODUCT_DISPLAY;
+    // 0: Display if out of stock
+    // 1: Hide remaining stock on online store
+    @FindBy(css = "div[class = ' '] > label > input")
+    List<WebElement> CONFIGURE_DISPLAY_IN_SF_CHECKBOX;
+
+    @FindBy(css = "div[class = ' '] > label > div")
+    List<WebElement> CONFIGURE_DISPLAY_IN_SF_LABEL;
 
     @FindBy(css = "div[name='productWeight'] > div >div > input")
     WebElement PRODUCT_WEIGHT;
@@ -243,4 +245,10 @@ public class ProductElement {
 
     @FindBy (css = " div.branch-list-stock__wrapper > div > div> div > div")
     List<WebElement> QUANTITY_STOCK_BY_BRANCH;
+
+    @FindBy (css = "div.header-right__ele-left > div > span.store-detail__url > a")
+    WebElement SF_URL;
+
+    @FindBy (css = "cite > a")
+    WebElement SEO_LINK_PREVIEW;
 }

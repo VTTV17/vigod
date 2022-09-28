@@ -17,18 +17,23 @@ import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.Thread.sleep;
 
 public class ProductPage extends ProductVerify {
     String language;
+    String pageLoadedTextVIE = "Thiết lập từ khóa SEO";
+    String pageLoadedTextENG = "SEO Settings";
 
     public ProductPage(WebDriver driver) {
         super(driver);
     }
 
-    Logger logger = LogManager.getLogger(LogManager.class);
+    Logger logger = LogManager.getLogger(ProductPage.class);
     Actions actions = new Actions(driver);
 
     /**
@@ -62,6 +67,10 @@ public class ProductPage extends ProductVerify {
     public ProductPage clickOnTheCreateProductBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(CREATE_PRODUCT_BTN)).click();
         logger.info("Click on the Create Product button");
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
+        });
         return this;
     }
 
@@ -188,10 +197,9 @@ public class ProductPage extends ProductVerify {
         return this;
     }
 
-    public ProductPage waitAndHideFacebookBubble() {
+    public void waitAndHideFacebookBubble() {
         new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.visibilityOf(FACEBOOK_BUBBLE));
         ((JavascriptExecutor) driver).executeScript("arguments[0].style.display = 'none';", FACEBOOK_BUBBLE);
-        return this;
     }
 
     public ProductPage manageInventoryByIMEI() {
@@ -222,6 +230,19 @@ public class ProductPage extends ProductVerify {
             }
             wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN_IN_IMEI_STOCK_TABLE)).click();
         }
+        return this;
+    }
+
+    // BH_9536:Check to display/hide if out of stock at product detail
+    /**
+     * Setting display if out of stock or not
+     */
+    public ProductPage checkOnTheDisplayIfOutOfStockCheckbox(boolean isCheck) {
+        boolean currentCheckboxStatus = CONFIGURE_DISPLAY_IN_SF_CHECKBOX.get(0).isSelected();
+        if (currentCheckboxStatus != isCheck) {
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_DISPLAY_IN_SF_LABEL.get(0))).click();
+        }
+        logger.info("Display if out of stock checkbox is checked: %s".formatted(isCheck));
         return this;
     }
 
@@ -375,11 +396,18 @@ public class ProductPage extends ProductVerify {
         return list;
     }
 
-    public ProductPage changeStockQuantityForEachVariationNormal(int stockQuantity) {
+    /**
+     * <p> startQuantity: the first variation quantity</p>
+     * <p> increaseStockForNextVariation: the next variation quantity = the previous variation quantity + increaseStockForNextVariation</p>
+     * <p> used when the variation stock different</p>
+     */
+    public ProductPage changeStockQuantityForEachVariationNormal(int startQuantity, int increaseStockForNextVariation) {
+        int stockQuantity = startQuantity;
         for (int i = 3; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
             wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
             changeStockQuantityInTableNormal(stockQuantity);
+            stockQuantity += increaseStockForNextVariation;
         }
         return this;
     }
@@ -608,11 +636,13 @@ public class ProductPage extends ProductVerify {
 
     public ProductPage clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        logger.info("Click on the Save button");
         return this;
     }
 
     public ProductPage closeNotificationPopup() {
-        wait.until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
+        logger.info("Wait Product created successfully! popup show and close it.");
         return this;
     }
 
@@ -621,35 +651,5 @@ public class ProductPage extends ProductVerify {
             assert driver != null;
             return elementList.size() > 0;
         });
-    }
-
-    // Integrate function
-
-    private ProductPage createNormalProductWithoutVariation(String productName, String productDescription) throws InterruptedException {
-        setLanguage(language).navigate()
-                .waitAndHideFacebookBubble()
-                .clickOnTheCreateProductBtn()
-                .inputProductName(productName)
-                .inputProductDescription(productDescription)
-//                .uploadProductImage(imgFileName)
-//                .changePriceForNoVariationProduct(listingPrice, sellingPrice, costPrice)
-//                .selectProductVAT(VAT)
-//                .selectCollections(collectionName)
-//                .changeStockQuantityForNormalProductNoVariation(stockQuantity)
-//                .setDimension(weight, length, width, height)
-//                .setPlatForm(platformList)
-//                .clickOnTheSaveBtn()
-//                .closeNotificationPopup()
-//                .openProductDetailPage()
-//                .checkProductName(productName)
-//                .checkProductDescription(productDescription)
-//                .checkPrice(listingPrice, sellingPrice, costPrice)
-//                .checkVAT(VAT)
-//                .checkCollection(List.of(collectionName))
-//                .checkStock(stockQuantity)
-//                .checkDimension(weight, length, width, height)
-//                .checkSelectedPlatform(platformList)
-                .completeVerify();
-        return this;
     }
 }
