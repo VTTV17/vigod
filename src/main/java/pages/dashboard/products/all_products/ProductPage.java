@@ -55,7 +55,6 @@ public class ProductPage extends ProductVerify {
                 .selectLanguage(language)
                 .navigateToAllProductsPage();
         logger.info("Navigate to All Products Page");
-        wait.until(ExpectedConditions.titleIs("Admin Staging - Products"));
         logger.info("Title of Setting page is %s".formatted(driver.getTitle()));
         return this;
     }
@@ -237,12 +236,27 @@ public class ProductPage extends ProductVerify {
     /**
      * Setting display if out of stock or not
      */
-    public ProductPage checkOnTheDisplayIfOutOfStockCheckbox(boolean isCheck) {
+    public ProductPage checkOnTheDisplayIfOutOfStockCheckbox(boolean isDisplay) {
+        waitElementList(CONFIGURE_DISPLAY_IN_SF_CHECKBOX);
         boolean currentCheckboxStatus = CONFIGURE_DISPLAY_IN_SF_CHECKBOX.get(0).isSelected();
-        if (currentCheckboxStatus != isCheck) {
+        if (currentCheckboxStatus != isDisplay) {
             wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_DISPLAY_IN_SF_LABEL.get(0))).click();
         }
-        logger.info("Display if out of stock checkbox is checked: %s".formatted(isCheck));
+        logger.info("Display if out of stock checkbox is checked: %s".formatted(isDisplay));
+        return this;
+    }
+
+    // BH_8616:Check to hide/show available stock at product detail
+    /**
+     * Setting hide remaining stock on online store
+     */
+    public ProductPage checkOnTheHideRemainingStockOnOnlineStoreCheckbox(boolean isHide) {
+        waitElementList(CONFIGURE_DISPLAY_IN_SF_CHECKBOX);
+        boolean currentCheckboxStatus = CONFIGURE_DISPLAY_IN_SF_CHECKBOX.get(1).isSelected();
+        if (currentCheckboxStatus != isHide) {
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_DISPLAY_IN_SF_LABEL.get(1))).click();
+        }
+        logger.info("Hide remaining stock on online store is checked: %s".formatted(isHide));
         return this;
     }
 
@@ -641,7 +655,8 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage closeNotificationPopup() {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
+        new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
+//        wait.until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
         logger.info("Wait Product created successfully! popup show and close it.");
         return this;
     }
