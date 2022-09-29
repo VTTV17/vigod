@@ -232,8 +232,8 @@ public class ProductElement {
     @FindBy(css = "div.gs-widget__content > label > input")
     List<WebElement> PRODUCT_PLATFORM_CHECKBOX;
 
-    @FindBy(css = "div.Toastify__toast-body")
-    WebElement TOAST_MESSAGE;
+    @FindBy (css = ".modal-content")
+    WebElement CREATE_SUCCESS_POPUP;
     @FindBy(css = ".modal-footer > button")
     WebElement CLOSE_BTN;
 
@@ -248,7 +248,4 @@ public class ProductElement {
 
     @FindBy (css = "div.header-right__ele-left > div > span.store-detail__url > a")
     WebElement SF_URL;
-
-    @FindBy (css = "cite > a")
-    WebElement SEO_LINK_PREVIEW;
 }

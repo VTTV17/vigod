@@ -46,4 +46,10 @@ public class ProductDetailElement {
 
     @FindBy(css = "div[class *= 'search-result-container'] > a")
     List<WebElement> LIST_SEARCH_RESULT;
+
+    @FindBy (css = ".info > div:nth-child(1)")
+    List<WebElement> BRANCH_NAME_LIST;
+
+    @FindBy (css = ".info > div:nth-child(2)")
+    List<WebElement> BRANCH_ADDRESS_LIST;
 }

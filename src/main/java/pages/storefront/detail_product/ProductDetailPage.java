@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -14,10 +15,12 @@ import utilities.assert_customize.AssertCustomize;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
+import static pages.dashboard.products.all_products.ProductVerify.branchInfo;
 import static pages.dashboard.products.all_products.ProductVerify.productID;
 
 public class ProductDetailPage extends ProductDetailElement {
@@ -75,6 +78,37 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
+
+    /**
+     * <p> Without variation product</p>
+     * <p> actHide = true when remaining stock has been hidden</p>
+     */
+    public ProductDetailPage checkRemainingStockIsDisplayOrHideWithoutVariationProduct(boolean isHide, int stockQuantity) throws IOException {
+        if (stockQuantity > 0) {
+            boolean actHide = !(STOCK_QUANTITY_IN_BRANCH.size() > 0);
+            countFail = new AssertCustomize(driver).assertTrue(countFail, actHide == isHide, "[Failed] Remaining stock is hidden: %s but it is %s".formatted(isHide, actHide));
+        } else {
+            logger.info("SKIPPED - Out of stock");
+        }
+        return this;
+    }
+
+    /**
+     * <p> Without variation product</p>
+     * <p> actHide = true when remaining stock has been hidden</p>
+     */
+    public ProductDetailPage checkRemainingStockIsDisplayOrHideVariationProduct(boolean isHide, int startQuantity, int increaseStockForNextVariation) throws IOException {
+        if (!((startQuantity == 0) && (increaseStockForNextVariation == 0))) {
+            boolean actHide = !(STOCK_QUANTITY_IN_BRANCH.size() > 0);
+            countFail = new AssertCustomize(driver).assertTrue(countFail, actHide == isHide, "[Failed] Remaining stock is hidden: %s but it is %s".formatted(isHide, actHide));
+            logger.info("isHide: " + isHide);
+            logger.info("actHide: " + actHide);
+        } else {
+            logger.info("SKIPPED - Out of stock");
+        }
+        return this;
+    }
+
     /**
      * <p> In case, setting does not show on SF/Buyer when out of stock</p>
      * <p> Check can not access to product detail page by URL</p>
@@ -82,6 +116,7 @@ public class ProductDetailPage extends ProductDetailElement {
     public ProductDetailPage check404PageShouldBeShownWhenProductOutOfStock() throws IOException, InterruptedException {
         accessToProductDetailPageByURL();
         countFail = new AssertCustomize(driver).assertTrue(countFail, driver.getCurrentUrl().contains("404"), "[Failed] Can access to product detail page by URL although product has been hidden");
+        logger.info(driver.getCurrentUrl());
         logger.info("404 page should be shown when product out of stock");
         return this;
     }
@@ -131,10 +166,22 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> Check can access to product detail page by URL</p>
      * <p> And verify that SoldOut mark has been shown</p>
      */
-    public void checkSoldOutMarkHasBeenShown() throws IOException {
+    private void checkSoldOutMarkHasBeenShown() throws IOException {
         boolean isSoldOut = SOLD_OUT_MARK.getText().equals("Hết hàng") || SOLD_OUT_MARK.getText().equals("Out of stock");
         countFail = new AssertCustomize(driver).assertTrue(countFail, isSoldOut, "[Failed] Sold out mark does not show");
         logger.info("Verify Sold out mark should be shown when product out of stock");
+    }
+
+    private void checkBranchInformation() throws IOException {
+        waitElementList(BRANCH_NAME_LIST);
+        Map<String, String> actBranchInfo = new HashMap<>();
+        for (int i = 0; i < BRANCH_NAME_LIST.size(); i++) {
+            actBranchInfo.put(wait.until(ExpectedConditions.visibilityOf(BRANCH_NAME_LIST.get(i))).getText(),
+                    wait.until(ExpectedConditions.visibilityOf(BRANCH_ADDRESS_LIST.get(i))).getText());
+        }
+        System.out.println(actBranchInfo);
+        System.out.println(branchInfo);
+        countFail = new AssertCustomize(driver).assertTrue(countFail, actBranchInfo.equals(branchInfo), "[Failed] Branch information does not match.");
     }
 
     /**
@@ -236,6 +283,9 @@ public class ProductDetailPage extends ProductDetailElement {
     public ProductDetailPage checkAllInformationIsDisplayedProperlyWithoutVariationProduct(String productName, int listingPrice, int sellingPrice, String currencySymbol, int stockQuantity, String productDescription) throws IOException {
         checkProductName(productName);
         checkProductPrice(listingPrice, sellingPrice, currencySymbol);
+        if (stockQuantity > 0) {
+            checkBranchInformation();
+        }
         checkStockQuantity(stockQuantity);
         checkProductDescription(productDescription);
         return this;
@@ -247,7 +297,9 @@ public class ProductDetailPage extends ProductDetailElement {
     public ProductDetailPage checkAllInformationIsDisplayedProperlyVariationProduct(String productName, int listingPrice, int sellingPrice, String currencySymbol, Map<String, List<String>> variation, int startQuantity, int increaseStockForNextVariation, String productDescription) throws IOException {
         checkProductName(productName);
         checkProductPrice(listingPrice, sellingPrice, currencySymbol);
-        checkVariation(variation);
+        if (!((startQuantity == 0) && (increaseStockForNextVariation == 0))) {
+            checkVariation(variation);
+        }
         checkStockQuantityForVariationProduct(variation, startQuantity, increaseStockForNextVariation);
         checkProductDescription(productDescription);
         return this;
@@ -264,5 +316,15 @@ public class ProductDetailPage extends ProductDetailElement {
             countFail = 0;
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
+    }
+
+    /**
+     * Wait until list element loading successfully
+     */
+    private void waitElementList(List<WebElement> elementList) {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return elementList.size() > 0;
+        });
     }
 }

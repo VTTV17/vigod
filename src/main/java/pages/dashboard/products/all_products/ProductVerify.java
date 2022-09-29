@@ -8,11 +8,13 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import pages.dashboard.settings.branch_management.BranchPage;
 import utilities.assert_customize.AssertCustomize;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static utilities.links.Links.DOMAIN;
 import static utilities.links.Links.PRODUCT_DETAIL_PATH;
@@ -23,6 +25,8 @@ public class ProductVerify extends ProductElement {
     static int countFail = 0;
 
     public static String productID;
+
+    public static Map<String, String> branchInfo;
 
     Logger logger = LogManager.getLogger(ProductVerify.class);
 
@@ -116,11 +120,13 @@ public class ProductVerify extends ProductElement {
     }
 
     /**
+     * <p> get branch information</p>
      * <p> get the just created ProductID to check access permission</p>
      * <p> craw Storefront URL on the header </p>
      */
     public void getURLAndNavigateToStoreFront() {
         productID = getNewestProductID();
+        branchInfo = new BranchPage(driver).getBranchNameAndAddress();
         driver.get(wait.until(ExpectedConditions.visibilityOf(SF_URL)).getAttribute("href"));
         new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
