@@ -1,4 +1,4 @@
-package pages.dashboard.customers;
+package pages.dashboard.customers.allcustomers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
