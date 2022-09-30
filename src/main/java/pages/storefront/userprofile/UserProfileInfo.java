@@ -35,10 +35,14 @@ public class UserProfileInfo {
 
 	@FindBy(css = ".icon-my-address")
 	WebElement MYADDRESS_SECTION;
+
     @FindBy(css = ".box_name .user-left-info__user-name p")
     WebElement DISPLAY_NAME;
     @FindBy(css = ".box_name .user-left-info__user-level p")
     WebElement MEMBER_SHIP_LEVEL;
+
+	@FindBy(css = ".icon-membership")
+	WebElement MEMBERSHIP_SECTION;
     
     public UserProfileInfo clickMyAccountSection() {
     	commonAction.clickElement(MYACCOUNT_SECTION);
@@ -49,6 +53,12 @@ public class UserProfileInfo {
     public UserProfileInfo clickMyAddressSection() {
     	commonAction.clickElement(MYADDRESS_SECTION);
     	logger.info("Clicked on My Address section.");
+    	return this;
+    }
+    
+    public UserProfileInfo clickMembershipInfoSection() {
+    	commonAction.clickElement(MEMBERSHIP_SECTION);
+    	logger.info("Clicked on Membership Infomation section.");
     	return this;
     }
     
