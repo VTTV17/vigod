@@ -14,8 +14,8 @@ import pages.storefront.userprofile.UserProfileInfo;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import pages.Mailnesia;
-import pages.dashboard.customers.AllCustomers;
-import pages.dashboard.customers.CustomerDetails;
+import pages.dashboard.customers.allcustomers.AllCustomers;
+import pages.dashboard.customers.allcustomers.CustomerDetails;
 import pages.dashboard.home.HomePage;
 
 import java.sql.SQLException;
