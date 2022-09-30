@@ -80,6 +80,9 @@ public class HomePage {
 	@FindBy(css = ".Toastify__close-button")
 	WebElement TOAST_MESSAGE_CLOSE_BTN;
 
+	@FindBy (id = "fb-root")
+	WebElement FACEBOOK_BUBBLE;
+	
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
 
     public Map<String, String> pageMap() {
@@ -400,4 +403,11 @@ public class HomePage {
         });
         return this;
     }
+    
+    public HomePage hideFacebookBubble() {
+    	commons.hideElement(FACEBOOK_BUBBLE);
+    	logger.info("Hid Facebook bubble."); 
+        return this;
+    }    
+    
 }
