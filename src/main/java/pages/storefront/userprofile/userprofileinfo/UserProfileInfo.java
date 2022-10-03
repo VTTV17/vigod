@@ -11,8 +11,8 @@ import utilities.UICommonAction;
 import java.time.Duration;
 
 public class UserProfileInfo {
-	
-	final static Logger logger = LogManager.getLogger(UserProfileInfo.class);
+
+    final static Logger logger = LogManager.getLogger(UserProfileInfo.class);
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
@@ -26,42 +26,16 @@ public class UserProfileInfo {
         PageFactory.initElements(driver, this);
     }
 
-<<<<<<< Updated upstream:src/main/java/pages/storefront/userprofile/UserProfileInfo.java
-	@FindBy(css = ".icon-my-account")
-    WebElement MYACCOUNT_SECTION;
-
-	@FindBy(css = ".icon-my-address")
-	WebElement MYADDRESS_SECTION;
-
-    @FindBy(css = ".box_name .user-left-info__user-name p")
-    WebElement DISPLAY_NAME;
-    @FindBy(css = ".box_name .user-left-info__user-level p")
-    WebElement MEMBER_SHIP_LEVEL;
-
-	@FindBy(css = ".icon-membership")
-	WebElement MEMBERSHIP_SECTION;
-    
-=======
->>>>>>> Stashed changes:src/main/java/pages/storefront/userprofile/userprofileinfo/UserProfileInfo.java
     public UserProfileInfo clickMyAccountSection() {
-    	commonAction.clickElement(userProfileUI.MYACCOUNT_SECTION);
-    	logger.info("Clicked on My Account section.");
+        commonAction.clickElement(userProfileUI.MYACCOUNT_SECTION);
+        logger.info("Clicked on My Account section.");
         return this;
     }
     public UserProfileInfo clickMyAddressSection() {
-    	commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
-    	logger.info("Clicked on My Address section.");
-    	return this;
+        commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
+        logger.info("Clicked on My Address section.");
+        return this;
     }
-<<<<<<< Updated upstream:src/main/java/pages/storefront/userprofile/UserProfileInfo.java
-    
-    public UserProfileInfo clickMembershipInfoSection() {
-    	commonAction.clickElement(MEMBERSHIP_SECTION);
-    	logger.info("Clicked on Membership Infomation section.");
-    	return this;
-    }
-    
-=======
     public UserProfileInfo verifyDisplayName(String expectedName){
         Assert.assertEquals(commonAction.getText(userProfileUI.DISPLAY_NAME),expectedName);
         return this;
@@ -78,5 +52,4 @@ public class UserProfileInfo {
         Assert.assertTrue(commonAction.isElementDisplay(userProfileUI.AVATAR));
         return this;
     }
->>>>>>> Stashed changes:src/main/java/pages/storefront/userprofile/userprofileinfo/UserProfileInfo.java
 }
