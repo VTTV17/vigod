@@ -7,6 +7,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+
+import pages.storefront.userprofile.MembershipInfo;
 import utilities.UICommonAction;
 import java.time.Duration;
 
@@ -37,10 +39,10 @@ public class UserProfileInfo {
         return this;
     }
     
-    public UserProfileInfo clickMembershipInfoSection() {
+    public MembershipInfo clickMembershipInfoSection() {
     	commonAction.clickElement(userProfileUI.MEMBERSHIP_SECTION);
     	logger.info("Clicked on Membership Infomation section.");
-    	return this;
+    	return new MembershipInfo(driver);
 	}
     
     public UserProfileInfo verifyDisplayName(String expectedName){

@@ -130,23 +130,21 @@ public class CreateLoyaltyProgram {
 	Create a membership level
 	*/
 	public CreateLoyaltyProgram createMembershipLevel(String tierName, String avatar, String customerSegment, String description, String discountPercent, String maximumDiscount) {
-		new LoyaltyProgram(driver)
-		.clickCreateMembershipBtn()
-		.inputTierName(tierName)
-		.uploadImages(avatar)
-		.clickAddSegment();
+		inputTierName(tierName);
+		uploadImages(avatar);
+		clickAddSegment();
 	
 		new AddCollectionDialog(driver)
 		.inputSearchTerm(customerSegment)
 		.selectCustomerSegment(customerSegment)
 		.clickOKBtn();
 		
-		inputDescription(description)
-		.checkBenefitCheckBox(true)
-		.inputMembershipDiscount(discountPercent)
-		.inputMaximumDiscount(maximumDiscount)
-		.clickSaveBtn()
-		.clickCloseBtn();
+		inputDescription(description);
+		checkBenefitCheckBox(true);
+		inputMembershipDiscount(discountPercent);
+		inputMaximumDiscount(maximumDiscount);
+		clickSaveBtn();
+		clickCloseBtn();
 		return this;
 	}	
 	
