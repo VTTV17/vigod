@@ -38,6 +38,9 @@ public class HeaderSF {
 	@FindBy(id = "btn-signup")
 	WebElement SIGNUP_ICON;
 
+	@FindBy(css = "[data-target='#modalChangeLanguage']")
+	WebElement CHANGE_LANGUAGE_LINKTEXT;	
+	
 	@FindBy(xpath = "//div[@id='custom-search-input']")
 	WebElement SEARCH_FIELD_TO_CLICK;
 
@@ -112,4 +115,31 @@ public class HeaderSF {
 		clickUserProfile();
 		return this;
 	}
+
+	public void clickChangeLanguage() {
+		commons.clickElement(CHANGE_LANGUAGE_LINKTEXT);
+		logger.info("Clicked on 'Change Language' link text.");
+	}
+
+	/**
+	* <p>
+	* Change language of SF
+	* <p>
+	* Example: changeLanguage("English")
+	* @param language the desired language. It is either Vietnamese or English
+	* 
+	*/	
+	public HeaderSF changeLanguage(String language) {
+		clickChangeLanguage();
+		try {
+			new ChangeLanguageDialog(driver)
+			.selectLanguage(language)
+			.clickSaveBtn();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		new LoginPage(driver).waitTillLoaderDisappear();
+		return this;
+	}	
+	
 }
