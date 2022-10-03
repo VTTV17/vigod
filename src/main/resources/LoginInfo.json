@@ -44,7 +44,13 @@
         "password" : "12345678x@X",
         "country" : "Vietnam",
         "countryCode" : "+84"
-      }
+      },
+      "spareAccount" : {
+        "username" : "automation0-buyer555@mailnesia.com",
+        "password" : "fortesting!1",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
+      }      
     },
     "emptyUsernameError" : "Hãy nhập số điện thoại hoặc email",
     "emptyPasswordError" : "Hãy nhập mật khẩu",

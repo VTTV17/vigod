@@ -8,6 +8,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+
+import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -64,10 +66,10 @@ public class HeaderSF {
 		return this;
 	}
 
-	public HeaderSF clickUserProfile() {
+	public UserProfileInfo clickUserProfile() {
 		commons.clickElement(USER_PROFILE);
 		logger.info("Clicked on User Profile linktext.");
-		return this;
+		return new UserProfileInfo(driver);
 	}
 
 	public HeaderSF clickLoginIcon() {
