@@ -36,6 +36,13 @@ public class UserProfileInfo {
         logger.info("Clicked on My Address section.");
         return this;
     }
+    
+    public UserProfileInfo clickMembershipInfoSection() {
+    	commonAction.clickElement(userProfileUI.MEMBERSHIP_SECTION);
+    	logger.info("Clicked on Membership Infomation section.");
+    	return this;
+	}
+    
     public UserProfileInfo verifyDisplayName(String expectedName){
         Assert.assertEquals(commonAction.getText(userProfileUI.DISPLAY_NAME),expectedName);
         return this;
