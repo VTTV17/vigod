@@ -29,9 +29,9 @@ public class HeaderSF {
 	@FindBy(css = ".navbar-brand.nav-link")
 	WebElement USER_INFO_ICON;
 
-	@FindBy(css = "#dropdown-menu-profile > :nth-child(1)")
-	WebElement USER_PROFILE;
-
+    
+    @FindBy(css = "#dropdown-menu-profile > :nth-child(1) a")
+    WebElement USER_PROFILE;
 	@FindBy(id = "btn-login")
 	WebElement LOGIN_ICON;
 
@@ -134,4 +134,9 @@ public class HeaderSF {
 		commons.clickElement(LOGOUT_BTN);
 		logger.info("Clicked on Logout linktext");
 	}
+    public HeaderSF navigateToUserProfile(){
+        clickUserInfoIcon();
+        clickUserProfile();
+        return this;
+    }
 }

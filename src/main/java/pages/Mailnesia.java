@@ -8,6 +8,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
+import utilities.UICommonAction;
 
 import java.time.Duration;
 import java.util.regex.Matcher;
@@ -21,10 +22,12 @@ public class Mailnesia {
     WebDriverWait wait;
     
     SoftAssert soft = new SoftAssert();
-    
+    UICommonAction common;
+    public static String MAILNESIA_DOMAIN= "mailnesia.com";
     public Mailnesia (WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        common = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
     }
 
@@ -47,5 +50,13 @@ public class Mailnesia {
 		logger.info("Verification Code retrieved: " + code);
 		return code;
     }    
-    
+    public String navigateToMailAndGetVerifyCode(String userName){
+        common.sleepInMiliSecond(10000);
+        common.openNewTab();
+        common.switchToWindow(1);
+        String verificationCode = navigate(userName).getVerificationCode();
+        common.closeTab();
+        common.switchToWindow(0);
+        return verificationCode;
+    }
 }
