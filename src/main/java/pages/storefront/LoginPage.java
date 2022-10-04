@@ -95,7 +95,7 @@ public class LoginPage {
     }
 
     public LoginPage waitTillLoaderDisappear() {
-    	commonAction.waitTillElementDisappear(SPINNER, 15);
+    	commonAction.waitForElementInvisible(SPINNER, 15);
         logger.info("Loader has finished loading");
         return this;
     }    
@@ -144,6 +144,7 @@ public class LoginPage {
     public LoginPage clickLoginBtn() {
     	commonAction.clickElement(LOGIN_BTN);
     	logger.info("Clicked on Login button.");
+    	waitTillLoaderDisappear();
         return this;
     }
 
