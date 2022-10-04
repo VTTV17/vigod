@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Thread.sleep;
 import static utilities.links.Links.DOMAIN;
 
 public class HomePage {
@@ -59,6 +60,15 @@ public class HomePage {
 
     @FindBy(css = "a[name='component.navigation.products'] > span > span")
     WebElement PRODUCTS_MENU;
+
+    @FindBy (css = "a[name='component.navigation.promotion'] > span > span")
+    WebElement PROMOTION_MENU;
+
+    @FindBy (css = "a[name='component.navigation.promotion.flashsale'] > span > span")
+    WebElement PROMOTION_FLASH_SALE_MENU;
+
+    @FindBy (css = "a[name='component.navigation.promotion.discount'] > span > span")
+    WebElement PROMOTION_DISCOUNT_MENU;
 
     @FindBy(css = ".modal-content .gs-button")
     WebElement UPGRADNOW_BTN;
@@ -194,11 +204,37 @@ public class HomePage {
         logger.info("Clicked on Logout linktext");
     }
 
-    public void navigateToAllProductsPage() {
+    public void navigateToProducts_AllProductsPage() {
         wait.until(ExpectedConditions.visibilityOf(PRODUCTS_MENU));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", PRODUCTS_MENU);
         logger.info("Click on the Products menu");
     }
+
+    public void navigateToPromotion_FlashSalePage() throws InterruptedException {
+        // Expand promotion menu
+        wait.until(ExpectedConditions.visibilityOf(PROMOTION_MENU));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", PROMOTION_MENU);
+
+        sleep(1000);
+
+        // Navigate to Flash sale page
+        wait.until(ExpectedConditions.visibilityOf(PROMOTION_FLASH_SALE_MENU));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", PROMOTION_FLASH_SALE_MENU);
+    }
+
+    public void navigateToPromotion_DiscountPage() throws InterruptedException {
+        // Expand promotion menu
+        wait.until(ExpectedConditions.visibilityOf(PROMOTION_MENU));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", PROMOTION_MENU);
+
+        sleep(1000);
+
+        // Navigate to Flash sale page
+        wait.until(ExpectedConditions.visibilityOf(PROMOTION_DISCOUNT_MENU));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", PROMOTION_DISCOUNT_MENU);
+    }
+
+
 
     public void navigateToSettingsPage() {
         wait.until(ExpectedConditions.visibilityOf(SETTINGS_MENU));
@@ -408,6 +444,6 @@ public class HomePage {
     	commons.hideElement(FACEBOOK_BUBBLE);
     	logger.info("Hid Facebook bubble."); 
         return this;
-    }    
+    }
     
 }

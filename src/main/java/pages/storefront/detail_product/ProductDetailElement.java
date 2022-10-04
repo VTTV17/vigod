@@ -52,4 +52,7 @@ public class ProductDetailElement {
 
     @FindBy (css = ".info > div:nth-child(2)")
     List<WebElement> BRANCH_ADDRESS_LIST;
+
+    @FindBy (css = ".flash-sale")
+    WebElement FLASH_SALE_BADGE;
 }
