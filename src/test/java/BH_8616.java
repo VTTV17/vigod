@@ -81,8 +81,7 @@ public class BH_8616 extends BaseTest {
                 .clickLoginBtn();
 
         new ProductPage(driver).setLanguage(language)
-                .navigate()
-                .waitAndHideFacebookBubble();
+                .navigate();
     }
 
     @Test

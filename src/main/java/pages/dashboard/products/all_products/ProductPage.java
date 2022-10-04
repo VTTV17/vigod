@@ -51,9 +51,9 @@ public class ProductPage extends ProductVerify {
      * <p> To navigate to the "All products" page </p>
      */
     public ProductPage navigate() throws InterruptedException {
-        new HomePage(driver).verifyPageLoaded()
+        new HomePage(driver).hideFacebookBubble().verifyPageLoaded()
                 .selectLanguage(language)
-                .navigateToAllProductsPage();
+                .navigateToProducts_AllProductsPage();
         logger.info("Navigate to All Products Page");
         logger.info("Title of Setting page is %s".formatted(driver.getTitle()));
         return this;
@@ -194,11 +194,6 @@ public class ProductPage extends ProductVerify {
             }
         }
         return this;
-    }
-
-    public void waitAndHideFacebookBubble() {
-        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.visibilityOf(FACEBOOK_BUBBLE));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.display = 'none';", FACEBOOK_BUBBLE);
     }
 
     public ProductPage manageInventoryByIMEI() {
