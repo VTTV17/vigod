@@ -9,7 +9,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
@@ -43,38 +42,64 @@ public class AllCustomers {
 
     @FindBy(id = "phone")
     WebElement PHONE; 
-    
 
     @FindBy (css = "div.modal-content")
     WebElement WARNING_POPUP;
     
+    @FindBy (css = ".btn-filter-action")
+    WebElement FILTER_BTN;
+    
+    @FindBy (xpath = "(//div[contains(@class,'filter-title')])[1]/following-sibling::div")
+    WebElement BRANCH_FIELD;
+    
+    @FindBy (css = ".dropdown-menu-right .gs-button__green")
+    WebElement DONE_BTN;
+    
+    
+	public AllCustomers navigate() {
+		new HomePage(driver).navigateToPage("Customers");
+		return this;
+	}	
+
+    public AllCustomers clickFilterIcon() {
+    	commonAction.clickElement(FILTER_BTN);
+    	logger.info("Clicked on Filter icon.");
+        return this;
+    }	
+    
+    public AllCustomers clickFilterDoneBtn() {
+    	commonAction.clickElement(DONE_BTN);
+    	logger.info("Clicked on Filter Done button.");
+    	return this;
+    }	
 
     public AllCustomers clickBranchList() {
-    	commonAction.clickElement(BRANCH_LIST);
+    	commonAction.clickElement(BRANCH_FIELD);
     	logger.info("Clicked on Branch list.");
         return this;
     }
     
     public AllCustomers selectBranch(String branch) {
-    	commonAction.sleepInMiliSecond(1000);
+    	clickFilterIcon();
     	clickBranchList();
-    	commonAction.clickElement(driver.findElement(By.xpath("//div[@class='uik-select__label' and text()='%s']".formatted(branch))));
+    	commonAction.clickElement(BRANCH_FIELD.findElement(By.xpath("//div[@class='uik-select__label' and text()='%s']".formatted(branch))));
     	logger.info("Selected branch: " + branch);
+    	clickFilterDoneBtn();
     	new HomePage(driver).waitTillSpinnerDisappear();
     	return this;
     }
     
     public AllCustomers clickUser(String user) {
-    	commonAction.sleepInMiliSecond(1000);
-    	commonAction.clickElement(driver.findElement(By.xpath("//div[@class='full-name' and text()='%s']".formatted(user))));
+    	String xpath = "//div[@class='full-name' and text()='%s']".formatted(user);
+    	commonAction.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
     	logger.info("Clicked on user: " + user);
     	new HomePage(driver).waitTillSpinnerDisappear();
     	return this;
     }    
 
     public String getPhoneNumber(String user) {
-    	WebElement element = driver.findElement(By.xpath("//div[@class='full-name' and text()='%s']/parent::*/following-sibling::td[2]".formatted(user)));
-    	String value = commonAction.getText(element);
+    	String xpath = "//div[@class='full-name' and text()='%s']/ancestor::*/following-sibling::td[2]".formatted(user);
+    	String value = commonAction.getText(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
     	logger.info("Retrieved phone number: " + value);
     	return value;
     }    
