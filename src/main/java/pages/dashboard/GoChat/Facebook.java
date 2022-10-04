@@ -1,2 +1,2 @@
-package pages.dashboard.GoChat;public class Facebook {
+package pages.dashboard.gochat;public class Facebook {
 }

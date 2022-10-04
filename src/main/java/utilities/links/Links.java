@@ -17,4 +17,5 @@ public class Links {
     public static String INTERNAL_TOOL = "http://internal.beecow.info/";
 
     public static String PRODUCT_DETAIL_PATH = "/product/edit/";
+    public static String GOMUA_URL = "https://staging.gomua.vn/market";
 }

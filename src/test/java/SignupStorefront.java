@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import pages.storefront.HeaderSF;
 import pages.storefront.LoginPage;
 import pages.storefront.SignupPage;
-import pages.storefront.userprofile.MyAccount;
+import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.MyAddress;
-import pages.storefront.userprofile.UserProfileInfo;
+import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import pages.Mailnesia;
@@ -244,7 +244,6 @@ public class SignupStorefront extends BaseTest {
 	@Test
 	public void BH_1594_SignupWithEmail() throws SQLException, InterruptedException {
 		String country = "Philippines";
-
 		// Signup
 		signupPage.navigate().fillOutSignupForm(country, mail, password, displayName, birthday)
 				.inputVerificationCode(getVerificationCode(mail)).clickConfirmBtn();
