@@ -40,6 +40,9 @@ public class HeaderSF {
 	@FindBy(id = "btn-signup")
 	WebElement SIGNUP_ICON;
 
+	@FindBy(id = "btn-change-pwd")
+	WebElement CHANGE_PASSWORD_LINKTEXT;	
+	
 	@FindBy(css = "[data-target='#modalChangeLanguage']")
 	WebElement CHANGE_LANGUAGE_LINKTEXT;	
 	
@@ -118,6 +121,12 @@ public class HeaderSF {
 		return this;
 	}
 
+	public ChangePasswordDialog clickChangePassword() {
+		commons.clickElement(CHANGE_PASSWORD_LINKTEXT);
+		logger.info("Clicked on 'Change Password' link text.");
+		return new ChangePasswordDialog(driver);
+	}
+	
 	public void clickChangeLanguage() {
 		commons.clickElement(CHANGE_LANGUAGE_LINKTEXT);
 		logger.info("Clicked on 'Change Language' link text.");
