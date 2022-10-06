@@ -50,7 +50,46 @@
         "password" : "fortesting!1",
         "country" : "Vietnam",
         "countryCode" : "+84"
+      },
+      "forgotMail" : {
+        "username" : "buyertest12@mailnesia.com",
+        "password" : "fortesting!1",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
+      },
+      "forgotPhone" : {
+        "username" : "9023456084",
+        "password" : "fortesting!1",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
       }      
+    },
+    "emptyUsernameError" : "Hãy nhập số điện thoại hoặc email",
+    "emptyPasswordError" : "Hãy nhập mật khẩu",
+    "invalidUsernameFormat" : "Số điện thoại hoặc email không đúng",
+    "invalidCredentials" : "Sai số điện thoại / email hoặc mật khẩu",
+    "notExistingEmailAccount" : "Email không tồn tại",
+    "notExistingPhoneAccount" : "Số điện thoại không tồn tại",
+    "wrongCurrentPassword" : "Mật khẩu hiện tại không đúng",
+    "invalidNewPassword" : "Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt (!@#$%...)",
+    "samePasswords" : "Mật khẩu phải khác mật khẩu hiện tại",
+    "same4Passwords" : "Mật khẩu mới không được trùng với 4 mật khẩu hiện gần nhất"
+  },
+  "gomua" : {
+    "url" : "https://staging.gomua.vn/market",
+    "buyer" : {
+      "mail" : {
+        "username" : "forsik1985@brownell150.com",
+        "password" : "1311518131Aa!",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
+      },
+      "phone" : {
+        "username" : "0586072997",
+        "password" : "fortesting!1",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
+      }
     },
     "emptyUsernameError" : "Hãy nhập số điện thoại hoặc email",
     "emptyPasswordError" : "Hãy nhập mật khẩu",
