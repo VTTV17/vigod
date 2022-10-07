@@ -50,6 +50,7 @@ public class ProductPage extends ProductVerify {
 
     final int MAX_VARIATION_NAME = 14;
     final int MAX_VARIATION_VALUE = 20;
+    final int MAX_VARIATION_NUM = 2;
     final int MAX_NUMBER_OF_VARIATION_PER_VARIATION = 20;
     final int MAX_TOTAL_VARIATION_QUANTITY = 50;
 
@@ -82,6 +83,8 @@ public class ProductPage extends ProductVerify {
     public int increaseStockForNextVariation;
 
     public List<String> branchList = new ArrayList<>();
+
+    public boolean isDisplayIfOutOfStock;
 
     /**
      * Set language to determine the expected page title or something that we need
@@ -203,10 +206,14 @@ public class ProductPage extends ProductVerify {
      */
     public ProductPage selectProductVAT(String... VAT) {
         if (VAT.length != 0) {
+            // open VAT dropdown
             wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN)).click();
             logger.info("Open VAT dropdown list");
+
+            // wait and select VAT
             waitElementList(VAT_LIST);
             for (WebElement element : VAT_LIST) {
+                // select VAT match with input VAT
                 if (element.getText().contains(VAT[0])) {
                     this.VAT = element.getText();
                     logger.info("VAT: %s".formatted(this.VAT));
@@ -214,8 +221,11 @@ public class ProductPage extends ProductVerify {
                     break;
                 }
             }
+
+            // if no VAT match, "Tax does not apply" is selected
             if (VAT_LIST.size() > 0) {
                 VAT_LIST.get(0).click();
+                logger.info("VAT: Tax does not apply");
             }
         } else {
             logger.info("VAT: Tax does not apply");
@@ -232,13 +242,16 @@ public class ProductPage extends ProductVerify {
         for (String key : variations.keySet()) {
             newMaps.put(key, variations.get(key));
             count++;
-            if (count == 2) {
+            if (count == MAX_VARIATION_NUM) {
                 break;
             }
         }
         return newMaps;
     }
 
+    /**
+     * generate Variation value
+     */
     private List<String> randomStringList(int size) {
         List<String> randomList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -247,12 +260,24 @@ public class ProductPage extends ProductVerify {
         return randomList;
     }
 
+    /**
+     * generate variation maps <variation name : list variation value>
+     */
     public Map<String, List<String>> randomVariationMap() {
         Map<String, List<String>> map = new HashMap<>();
-        int lengthMap1 = RandomUtils.nextInt(MAX_NUMBER_OF_VARIATION_PER_VARIATION) + 1;
-        int lengthMap2 = RandomUtils.nextInt(Math.min((MAX_TOTAL_VARIATION_QUANTITY / lengthMap1), MAX_NUMBER_OF_VARIATION_PER_VARIATION)) + 1;
-        map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), randomStringList(lengthMap1));
-        map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), randomStringList(lengthMap2));
+        int variationNum = RandomUtils.nextInt(MAX_VARIATION_NUM) + 1;
+        List<Integer> numberOfVariationValue = new ArrayList<>();
+        numberOfVariationValue.add(RandomUtils.nextInt(MAX_NUMBER_OF_VARIATION_PER_VARIATION) + 1);
+        for (int i = 1; i < variationNum; i++) {
+            int prevMulti = 1;
+            for (int id = 0; id < i; id++) {
+                prevMulti = prevMulti * numberOfVariationValue.get(id);
+            }
+            numberOfVariationValue.add(RandomUtils.nextInt(Math.min((MAX_TOTAL_VARIATION_QUANTITY / prevMulti), MAX_NUMBER_OF_VARIATION_PER_VARIATION)) + 1);
+        }
+        for (Integer num : numberOfVariationValue) {
+            map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), randomStringList(num));
+        }
         return map;
     }
 
@@ -346,13 +371,14 @@ public class ProductPage extends ProductVerify {
     /**
      * Setting display if out of stock or not
      */
-    public ProductPage checkOnTheDisplayIfOutOfStockCheckbox(boolean isDisplay) {
+    public ProductPage checkOnTheDisplayIfOutOfStockCheckbox(boolean... isDisplayIfOutOfStock) {
+        this.isDisplayIfOutOfStock = isDisplayIfOutOfStock.length == 0 ? RandomUtils.nextBoolean() : isDisplayIfOutOfStock[0];
         waitElementList(CONFIGURE_DISPLAY_IN_SF_CHECKBOX);
         boolean currentCheckboxStatus = CONFIGURE_DISPLAY_IN_SF_CHECKBOX.get(0).isSelected();
-        if (currentCheckboxStatus != isDisplay) {
+        if (currentCheckboxStatus != this.isDisplayIfOutOfStock) {
             wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_DISPLAY_IN_SF_LABEL.get(0))).click();
         }
-        logger.info("Display if out of stock checkbox is checked: %s".formatted(isDisplay));
+        logger.info("Display if out of stock checkbox is checked: %s".formatted(this.isDisplayIfOutOfStock));
         return this;
     }
 
@@ -500,7 +526,7 @@ public class ProductPage extends ProductVerify {
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
             changeStockQuantityInTableNormal(this.variationStockQuantity.get(variationID));
-            variationID ++;
+            variationID++;
         }
         return this;
     }
