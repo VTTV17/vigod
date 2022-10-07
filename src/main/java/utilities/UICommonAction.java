@@ -259,5 +259,13 @@ public class UICommonAction {
 	public void navigateBack(){
 		driver.navigate().back();
 	}
-
+	public String getDropDownSelectedValue(WebElement element){
+		wait.until(ExpectedConditions.elementToBeClickable(element));
+		Select select = new Select(element);
+		return  getText(select.getFirstSelectedOption());
+	}
+	public void scrollBottomPage() {
+		JavascriptExecutor executor= (JavascriptExecutor)driver;
+		executor.executeScript( "window.scrollBy(0,document.body.scrollHeight)");
+	}
 }
