@@ -18,4 +18,5 @@ public class Links {
 
     public static String PRODUCT_DETAIL_PATH = "/product/edit/";
     public static String GOMUA_URL = "https://staging.gomua.vn/market";
+    public static String ALL_PRODUCT_PATH = "product";
 }

@@ -237,6 +237,7 @@ public class SignupPage {
         String verifyCode = mailnesia.navigateToMailAndGetVerifyCode(userName);
         inputVerificationCode(verifyCode);
         clickConfirmBtn();
+        commonAction.sleepInMiliSecond(1000);
     }
 
     public void signUpWithPhoneNumber(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
