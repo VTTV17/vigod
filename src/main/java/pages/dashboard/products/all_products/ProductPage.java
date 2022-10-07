@@ -1,5 +1,7 @@
 package pages.dashboard.products.all_products;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -23,11 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
+import static utilities.links.Links.STORE_CURRENCY;
 
 public class ProductPage extends ProductVerify {
     String language;
     String pageLoadedTextVIE = "Thiết lập từ khóa SEO";
     String pageLoadedTextENG = "SEO Settings";
+
 
     public ProductPage(WebDriver driver) {
         super(driver);
@@ -35,6 +39,49 @@ public class ProductPage extends ProductVerify {
 
     Logger logger = LogManager.getLogger(ProductPage.class);
     Actions actions = new Actions(driver);
+
+    // Character limit
+    final int MAX_PRODUCT_NAME = 100;
+    //    final int MAX_PRODUCT_DESCRIPTION = 100000;
+    final int MAX_PRODUCT_DESCRIPTION = 1000;
+    final int MAX_STOCK_QUANTITY = 1000000;
+    final int MAX_STOCK_QUANTITY_IMEI = 10;
+    final Long MAX_PRICE = 99999999999L;
+
+    final int MAX_VARIATION_NAME = 14;
+    final int MAX_VARIATION_VALUE = 20;
+    final int MAX_NUMBER_OF_VARIATION_PER_VARIATION = 20;
+    final int MAX_TOTAL_VARIATION_QUANTITY = 50;
+
+
+    // Product Information
+    public String productName;
+    public String productDescription;
+
+    public int withoutVariationListingPrice;
+    public List<Integer> VariationListingPrice;
+
+    public int withoutVariationSellingPrice;
+    public List<Integer> VariationSellingPrice;
+
+    public int withoutVariationCostPrice;
+    public List<Integer> VariationCostPrice;
+
+    public String VAT;
+
+    public Map<String, List<String>> variation;
+    public boolean isIMEI;
+
+    public List<String> variationsValueList = new ArrayList<>();
+
+    public List<String> depositValueList = new ArrayList<>();
+
+    public int withoutVariationStockQuantity;
+    public List<Integer> variationStockQuantity = new ArrayList<>();
+
+    public int increaseStockForNextVariation;
+
+    public List<String> branchList = new ArrayList<>();
 
     /**
      * Set language to determine the expected page title or something that we need
@@ -51,9 +98,12 @@ public class ProductPage extends ProductVerify {
      * <p> To navigate to the "All products" page </p>
      */
     public ProductPage navigate() throws InterruptedException {
-        new HomePage(driver).hideFacebookBubble().verifyPageLoaded()
+
+        new HomePage(driver).verifyPageLoaded()
+                .hideFacebookBubble()
                 .selectLanguage(language)
                 .navigateToProducts_AllProductsPage();
+
         logger.info("Navigate to All Products Page");
         logger.info("Title of Setting page is %s".formatted(driver.getTitle()));
         return this;
@@ -61,11 +111,13 @@ public class ProductPage extends ProductVerify {
 
     /**
      * On the "All Products" page, click on the "Create Product" button to open the "Create Product" page
-     *
      */
     public ProductPage clickOnTheCreateProductBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(CREATE_PRODUCT_BTN)).click();
+
         logger.info("Click on the Create Product button");
+
+        // wait create product page loaded successfully
         new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
             return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
@@ -76,20 +128,36 @@ public class ProductPage extends ProductVerify {
     /**
      * On the "Create Product"/"Product Detail" page, input product name
      */
-    public ProductPage inputProductName(String productName) {
+    public ProductPage inputProductName(String... productName) {
+        // get product name
+        this.productName = productName.length == 0 ? RandomStringUtils.randomAlphabetic(RandomUtils.nextInt(MAX_PRODUCT_NAME) + 1) : productName[0];
+
+        // input product name
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_NAME)).clear();
-        PRODUCT_NAME.sendKeys(productName);
-        logger.info("Input product name: %s".formatted(productName));
+        PRODUCT_NAME.sendKeys(this.productName);
+
+        // log
+        logger.info("Input product name: %s".formatted(this.productName));
+
+        // get branch list
+        for (WebElement element : BRANCH_NAME_LIST) {
+            branchList.add(element.getText());
+        }
         return this;
     }
 
     /**
      * On the "Create Product"/"Product Detail" page, input product description
      */
-    public ProductPage inputProductDescription(String productDescription) {
+    public ProductPage inputProductDescription(String... productDescription) {
+        // get product description
+        this.productDescription = productDescription.length == 0 ? RandomStringUtils.randomAlphabetic(RandomUtils.nextInt(MAX_PRODUCT_DESCRIPTION)) : productDescription[0];
+
+        // input product description
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).clear();
-        PRODUCT_DESCRIPTION.sendKeys(productDescription);
-        logger.info("Input product descriptions: %s".formatted(productDescription));
+        PRODUCT_DESCRIPTION.sendKeys(this.productDescription);
+
+        logger.info("Input product descriptions: %s".formatted(this.productDescription));
         return this;
     }
 
@@ -106,18 +174,26 @@ public class ProductPage extends ProductVerify {
      * <p> On the "Create Product"/"Product Detail" page, input listing/selling/cost price</p>
      * <p> WARN1: This function is only used for the normal/IMEI product without variation</p>
      */
-    public ProductPage changePriceForNoVariationProduct(int listingPrice, int sellingPrice, int costPrice) {
+    public ProductPage changePriceForNoVariationProduct(int... price) {
+        // get listing, selling and cost price
+        this.withoutVariationListingPrice = price.length == 0 ? (int) (Math.random() * MAX_PRICE) : price[0];
+        this.withoutVariationSellingPrice = price.length < 2 ? (int) (Math.random() * this.withoutVariationListingPrice) : price[1];
+        this.withoutVariationCostPrice = price.length < 3 ? (int) (Math.random() * this.withoutVariationSellingPrice) : price[2];
+
+        // input listing price
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(0))).click();
-        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + listingPrice).build().perform();
-        logger.info("Input listing price: %d".formatted(listingPrice));
+        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + withoutVariationListingPrice).build().perform();
+        logger.info("Input listing price: %d".formatted(withoutVariationListingPrice));
 
+        // input selling price
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(1))).click();
-        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + sellingPrice).build().perform();
-        logger.info("Input selling price: %d".formatted(sellingPrice));
+        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + withoutVariationSellingPrice).build().perform();
+        logger.info("Input selling price: %d".formatted(withoutVariationSellingPrice));
 
+        // input cost price
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_PRICE.get(2))).click();
-        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + costPrice).build().perform();
-        logger.info("Input cost price: %d".formatted(costPrice));
+        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + withoutVariationCostPrice).build().perform();
+        logger.info("Input cost price: %d".formatted(withoutVariationCostPrice));
         return this;
     }
 
@@ -125,16 +201,24 @@ public class ProductPage extends ProductVerify {
      * <p> On the "Create Product"/"Product Detail" page, select VAT</p>
      * <p> WARN: In case, VAT does not match with any VAT in the VAT list, "Tax does not apply" should be selected</p>
      */
-    public ProductPage selectProductVAT(String VAT) {
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN)).click();
-        logger.info("Open VAT dropdown list");
-        waitElementList(VAT_LIST);
-        for (WebElement element : VAT_LIST) {
-            if (element.getText().contains(VAT)) {
-                logger.info("Select product VAT: %s".formatted(element.getText()));
-                element.click();
-                break;
+    public ProductPage selectProductVAT(String... VAT) {
+        if (VAT.length != 0) {
+            wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VAT_DROPDOWN)).click();
+            logger.info("Open VAT dropdown list");
+            waitElementList(VAT_LIST);
+            for (WebElement element : VAT_LIST) {
+                if (element.getText().contains(VAT[0])) {
+                    this.VAT = element.getText();
+                    logger.info("VAT: %s".formatted(this.VAT));
+                    element.click();
+                    break;
+                }
             }
+            if (VAT_LIST.size() > 0) {
+                VAT_LIST.get(0).click();
+            }
+        } else {
+            logger.info("VAT: Tax does not apply");
         }
         return this;
     }
@@ -155,24 +239,48 @@ public class ProductPage extends ProductVerify {
         return newMaps;
     }
 
+    private List<String> randomStringList(int size) {
+        List<String> randomList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            randomList.add(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_VALUE));
+        }
+        return randomList;
+    }
+
+    public Map<String, List<String>> randomVariationMap() {
+        Map<String, List<String>> map = new HashMap<>();
+        int lengthMap1 = RandomUtils.nextInt(MAX_NUMBER_OF_VARIATION_PER_VARIATION) + 1;
+        int lengthMap2 = RandomUtils.nextInt(Math.min((MAX_TOTAL_VARIATION_QUANTITY / lengthMap1), MAX_NUMBER_OF_VARIATION_PER_VARIATION)) + 1;
+        map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), randomStringList(lengthMap1));
+        map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), randomStringList(lengthMap2));
+        return map;
+    }
+
     /**
      * On the "Create Product"/"Product Detail" page, create variations follow the variations list
      */
-    public ProductPage addVariations(Map<String, List<String>> variation) {
-        variation = getVariationsMap(variation);
+    @SafeVarargs
+    public final ProductPage addVariations(Map<String, List<String>>... variation) {
+        this.variation = variation.length == 0 ? randomVariationMap() : variation[0];
+        this.variation = getVariationsMap(this.variation);
         int id = -1;
-        for (String variationName : variation.keySet()) {
+        for (String variationName : this.variation.keySet()) {
             id++;
             wait.until(ExpectedConditions.elementToBeClickable(ADD_VARIATION_BTN)).click();
             logger.info("Click on the Add Variation button");
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_NAME.get(id))).sendKeys(variationName);
             logger.info("Input variation %d name: %s".formatted(id, variationName));
             VARIATION_VALUE.get(id).click();
-            for (String variationValue : variation.get(variationName)) {
+            for (String variationValue : this.variation.get(variationName)) {
                 actions.sendKeys("%s\n".formatted(variationValue)).build().perform();
                 logger.info("Input variation %d value: %s".formatted(id, variationValue));
             }
         }
+
+        for (WebElement element : VARIATION_TEXT) {
+            variationsValueList.add(element.getText().replace(STORE_CURRENCY, "").replace("\n", ""));
+        }
+
         return this;
     }
 
@@ -196,30 +304,36 @@ public class ProductPage extends ProductVerify {
         return this;
     }
 
-    public ProductPage manageInventoryByIMEI() {
-        wait.until(ExpectedConditions.elementToBeClickable(MANAGE_INVENTORY_BY_IMEI)).click();
-        logger.info("Setting manage inventory by IMEI");
+    public ProductPage manageInventory(boolean... isIMEI) {
+        this.isIMEI = isIMEI.length == 0 ? RandomUtils.nextBoolean() : isIMEI[0];
+        if (this.isIMEI) {
+            wait.until(ExpectedConditions.elementToBeClickable(MANAGE_INVENTORY_BY_IMEI)).click();
+            logger.info("MANAGE INVENTORY: Manage inventory by IMEI/Serial number");
+        } else {
+            logger.info("MANAGE INVENTORY: Manage inventory by product");
+        }
         return this;
     }
 
-    public ProductPage changeStockQuantityForNormalProductNoVariation(int stockQuantity) throws InterruptedException {
+    public ProductPage changeStockQuantityForNormalProductNoVariation(int... stockQuantity) throws InterruptedException {
+        this.withoutVariationStockQuantity = stockQuantity.length == 0 ? RandomUtils.nextInt(MAX_STOCK_QUANTITY) + 1 : stockQuantity[0];
         wait.until(ExpectedConditions.elementToBeClickable(NORMAL_PRODUCT_STOCK_QUANTITY)).click();
-        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + stockQuantity).build().perform();
-        logger.info("Stock quantity for all branch, number of stock: %d".formatted(stockQuantity));
-
+        actions.sendKeys(Keys.CONTROL + "a" + Keys.DELETE + this.withoutVariationStockQuantity).build().perform();
+        logger.info("Stock quantity for all branch, number of stock: %d".formatted(this.withoutVariationStockQuantity));
         sleep(3000);
 
         wait.until(ExpectedConditions.elementToBeClickable(APPLY_ALL_STOCK_QUANTITY)).click();
         return this;
     }
 
-    public ProductPage changeStockQuantityForIMEIProduct(int stockQuantity) {
+    public ProductPage changeStockQuantityForIMEIProduct(int... stockQuantity) {
+        this.withoutVariationStockQuantity = stockQuantity.length == 0 ? RandomUtils.nextInt(MAX_STOCK_QUANTITY_IMEI) : stockQuantity[0];
         waitElementList(IMEI_STOCK);
         for (int i = 0; i < IMEI_STOCK.size(); i++) {
             IMEI_STOCK.get(i).click();
             waitElementList(LIST_BRANCH_NAME_IN_STOCK_INVENTORY);
             String branchName = LIST_BRANCH_NAME_IN_STOCK_INVENTORY.get(i).getText();
-            for (int imei = 0; imei < stockQuantity; imei++) {
+            for (int imei = 0; imei < this.withoutVariationStockQuantity; imei++) {
                 wait.until(ExpectedConditions.elementToBeClickable(IMEI_INPUT)).sendKeys(branchName + imei + "\n");
             }
             wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN_IN_IMEI_STOCK_TABLE)).click();
@@ -228,6 +342,7 @@ public class ProductPage extends ProductVerify {
     }
 
     // BH_9536:Check to display/hide if out of stock at product detail
+
     /**
      * Setting display if out of stock or not
      */
@@ -242,6 +357,7 @@ public class ProductPage extends ProductVerify {
     }
 
     // BH_8616:Check to hide/show available stock at product detail
+
     /**
      * Setting hide remaining stock on online store
      */
@@ -321,8 +437,8 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage changePriceForEachVariation(int listingPrice, int sellingPrice, int costPrice) {
-        for (int i = 0; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
+        for (int i = 0; i < VARIATION_TABLE.size(); i = i + 5) {
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE.get(i))).click();
             logger.info("Open variation price table");
             changeVariationPriceInTable(listingPrice, sellingPrice, costPrice);
         }
@@ -352,57 +468,18 @@ public class ProductPage extends ProductVerify {
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
     }
 
-
     /**
      * IMEI: IMEI_ + Variation name + branch name + index
      */
     private void changeStockQuantityInTableIMEI(int stockQuantity, String variationName) {
-        int id = 1;
         waitElementList(INPUT_IMEI_VALUE);
-        for (WebElement element : INPUT_IMEI_VALUE) {
-            String branchName = getBranchNameInStockTable().get(id);
+        for (int id = 0; id < branchList.size(); id++) {
+            String branchName = branchList.get(id);
             for (int i = 0; i < stockQuantity; i++) {
-                element.sendKeys("IMEI_" + variationName + branchName + i + "\n");
+                INPUT_IMEI_VALUE.get(id).sendKeys("IMEI_%s_%s_%s\n".formatted(variationName, branchName, i));
             }
-            id++;
         }
         wait.until(ExpectedConditions.elementToBeClickable(UPDATE_BTN)).click();
-    }
-
-    private List<String> getListVariationName() {
-        List<String> list = new ArrayList<>();
-        waitElementList(VARIATION_TEXT);
-        for (WebElement element : VARIATION_TEXT) {
-            list.add(element.getText().split("\n")[0]);
-        }
-        return list;
-    }
-
-    private List<String> getListDepositName() {
-        List<String> list = new ArrayList<>();
-        waitElementList(DEPOSIT_TEXT);
-        for (WebElement element : DEPOSIT_TEXT) {
-            list.add(element.getText().split("\n")[0]);
-        }
-        return list;
-    }
-
-    private List<String> getBranchNameInStockTable() {
-        List<String> list = new ArrayList<>();
-        waitElementList(BRANCH_TEXT_IN_STOCK_TABLE);
-        for (WebElement element : BRANCH_TEXT_IN_STOCK_TABLE) {
-            list.add(element.getText());
-        }
-        return list;
-    }
-
-    private List<String> getListBranchNameInSKUTable() {
-        List<String> list = new ArrayList<>();
-        waitElementList(BRANCH_TEXT_IN_SKU_TABLE);
-        for (WebElement element : BRANCH_TEXT_IN_SKU_TABLE) {
-            list.add(element.getText());
-        }
-        return list;
     }
 
     /**
@@ -410,40 +487,57 @@ public class ProductPage extends ProductVerify {
      * <p> increaseStockForNextVariation: the next variation quantity = the previous variation quantity + increaseStockForNextVariation</p>
      * <p> used when the variation stock different</p>
      */
-    public ProductPage changeStockQuantityForEachVariationNormal(int startQuantity, int increaseStockForNextVariation) {
-        int stockQuantity = startQuantity;
-        for (int i = 3; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
+    public ProductPage changeStockQuantityForEachVariationNormal(int... stockQuantity) {
+        this.variationStockQuantity.add(stockQuantity.length == 0 ? RandomUtils.nextInt(MAX_STOCK_QUANTITY) : stockQuantity[0]);
+        this.increaseStockForNextVariation = stockQuantity.length > 1 ? stockQuantity[1] : 0;
+
+        for (int i = 0; i < variationsValueList.size() - 1; i++) {
+            this.variationStockQuantity.add(this.variationStockQuantity.get(i) + increaseStockForNextVariation);
+        }
+
+        int variationID = 0;
+        for (int i = 3; i < VARIATION_TABLE.size(); i = i + 5) {
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
-            changeStockQuantityInTableNormal(stockQuantity);
-            stockQuantity += increaseStockForNextVariation;
+            changeStockQuantityInTableNormal(this.variationStockQuantity.get(variationID));
+            variationID ++;
         }
         return this;
     }
 
-    public ProductPage changeStockQuantityForEachVariationsIMEI(int stockQuantity) {
-        List<String> listVariationName = getListVariationName();
+    public ProductPage changeStockQuantityForEachVariationsIMEI(int... stockQuantity) {
+        this.variationStockQuantity.add(stockQuantity.length == 0 ? RandomUtils.nextInt(MAX_STOCK_QUANTITY_IMEI) : stockQuantity[0]);
+        this.increaseStockForNextVariation = stockQuantity.length > 1 ? stockQuantity[1] : 0;
+
         int variationID = 0;
-        for (int i = 3; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
+        for (int i = 3; i < VARIATION_TABLE.size(); i = i + 5) {
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
-            changeStockQuantityInTableIMEI(stockQuantity, listVariationName.get(variationID));
+            changeStockQuantityInTableIMEI(this.variationStockQuantity.get(variationID), variationsValueList.get(variationID));
+            if (variationID < variationsValueList.size() - 1) {
+                variationStockQuantity.add(variationStockQuantity.get(variationID) + increaseStockForNextVariation);
+            }
             variationID++;
         }
         return this;
     }
 
-    public ProductPage changeStockQuantityForAllVariationsNormal(int stockQuantity) {
+    public ProductPage changeStockQuantityForAllVariationsNormal(int... stockQuantity) {
+        this.variationStockQuantity.add(stockQuantity.length == 0 ? RandomUtils.nextInt(MAX_STOCK_QUANTITY) : stockQuantity[0]);
+        for (int i = 0; i < variationsValueList.size() - 1; i++) {
+            variationStockQuantity.add(variationStockQuantity.get(i));
+        }
         selectAllVariationsCheckbox();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(1))).click();
-        changeStockQuantityInTableNormal(stockQuantity);
+        changeStockQuantityInTableNormal(this.variationStockQuantity.get(0));
+        System.out.println(variationStockQuantity);
+        System.out.println(variationsValueList.size() == variationStockQuantity.size());
         return this;
     }
 
     private void changeSKUInTable(List<String> listVariationName) {
         waitElementList(SKU_LIST_IN_SKU_TABLE);
-        List<String> branchList = getListBranchNameInSKUTable();
         int branchId = 0;
         int variationId = 0;
         for (WebElement skuElement : SKU_LIST_IN_SKU_TABLE) {
@@ -461,22 +555,20 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage changeSKUForEachVariation() {
-        List<String> listVariationName = getListVariationName();
-        for (int i = 4; i < OPEN_VARIATION_TABLE.size(); i = i + 5) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_VARIATION_TABLE.get(i))).click();
+        for (int i = 4; i < VARIATION_TABLE.size(); i = i + 5) {
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE.get(i))).click();
             logger.info("Open SKU table");
-            changeSKUInTable(listVariationName);
+            changeSKUInTable(variationsValueList);
         }
         return this;
     }
 
     public ProductPage changeSKUForAllVariations() throws InterruptedException {
         selectAllVariationsCheckbox();
-        List<String> listVariationName = getListVariationName();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_VARIATION_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(2))).click();
         sleep(500);
-        changeSKUInTable(listVariationName);
+        changeSKUInTable(variationsValueList);
         return this;
     }
 
@@ -554,6 +646,11 @@ public class ProductPage extends ProductVerify {
         for (String deposit : depositList) {
             actions.sendKeys(deposit + "\n").build().perform();
         }
+
+        for (WebElement element : DEPOSIT_TEXT) {
+            depositValueList.add(element.getText().replace(STORE_CURRENCY, "").replace("\n", ""));
+        }
+
         return this;
     }
 
@@ -567,8 +664,8 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage changePriceForEachDeposit(Integer depositPrice) {
-        for (int i = 0; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
+        for (int i = 0; i < DEPOSIT_TABLE.size(); i = i + 3) {
+            wait.until(ExpectedConditions.elementToBeClickable(DEPOSIT_TABLE.get(i))).click();
             logger.info("Open deposit price table");
             changeDepositPrice(depositPrice);
         }
@@ -591,8 +688,8 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage changeStockQuantityForEachDeposit(int stockQuantity) {
-        for (int i = 1; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
+        for (int i = 1; i < DEPOSIT_TABLE.size(); i = i + 3) {
+            wait.until(ExpectedConditions.elementToBeClickable(DEPOSIT_TABLE.get(i))).click();
             logger.info("Open stock quantity table");
             changeStockQuantityInTableNormal(stockQuantity);
         }
@@ -608,22 +705,20 @@ public class ProductPage extends ProductVerify {
     }
 
     public ProductPage changeSKUForEachDeposit() {
-        List<String> listDepositName = getListDepositName();
-        for (int i = 2; i < OPEN_DEPOSIT_TABLE.size(); i = i + 3) {
-            wait.until(ExpectedConditions.elementToBeClickable(OPEN_DEPOSIT_TABLE.get(i))).click();
+        for (int i = 2; i < DEPOSIT_TABLE.size(); i = i + 3) {
+            wait.until(ExpectedConditions.elementToBeClickable(DEPOSIT_TABLE.get(i))).click();
             logger.info("Open SKU table");
-            changeSKUInTable(listDepositName);
+            changeSKUInTable(depositValueList);
         }
         return this;
     }
 
     public ProductPage changeSKUForAllDeposits() throws InterruptedException {
         selectAllDepositsCheckbox();
-        List<String> listDepositName = getListDepositName();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ACTIONS_IN_DEPOSIT_TABLE)).click();
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(2))).click();
         sleep(500);
-        changeSKUInTable(listDepositName);
+        changeSKUInTable(depositValueList);
         return this;
     }
 

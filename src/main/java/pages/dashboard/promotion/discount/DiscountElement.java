@@ -13,7 +13,13 @@ public class DiscountElement {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = "div.second-button-group > button > div")
+    @FindBy (css = ".d-flex > div:not(.second-button-group)")
+    WebElement CREATE_PROMOTION_BTN;
+
+    @FindBy (css = ".d-flex > div:not(.second-button-group) > div > button:nth-child(1)")
+    WebElement PRODUCT_DISCOUNT_CODE;
+
+    @FindBy(css = "div.second-button-group > button")
     WebElement WHOLESALE_PRICING_BTN;
 
     @FindBy (css = "div.second-button-group > div > button:nth-child(1)")

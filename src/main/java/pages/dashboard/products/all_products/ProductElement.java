@@ -69,7 +69,7 @@ public class ProductElement {
     // 3: Stock quantity
     // 4: SKU
     @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr > td > div.cursor--pointer")
-    List<WebElement> OPEN_VARIATION_TABLE;
+    List<WebElement> VARIATION_TABLE;
 
     @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr > td > img")
     List<WebElement> IMAGE_LIST_IN_VARIATION_TABLE;
@@ -107,9 +107,8 @@ public class ProductElement {
     @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr")
     List<WebElement> DEPOSIT_TEXT;
 
-    // id = 0, not use.
-    @FindBy(css = ".modal-body thead > tr > th:not(.label)")
-    List<WebElement> BRANCH_TEXT_IN_STOCK_TABLE;
+    @FindBy(css = "[class ^= 'branch-list-stock'] > .font-weight-500")
+    List<WebElement> BRANCH_NAME_LIST;
 
     @FindBy(css = ".h-fit-content tr > th")
     List<WebElement> BRANCH_TEXT_IN_SKU_TABLE;
@@ -153,7 +152,7 @@ public class ProductElement {
     // 1: Stock quantity
     // 2: SKU
     @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr > td > div.cursor--pointer")
-    List<WebElement> OPEN_DEPOSIT_TABLE;
+    List<WebElement> DEPOSIT_TABLE;
 
     @FindBy(css = "div:nth-child(7) > div > div > table > tbody > tr > td > img")
     List<WebElement> IMAGE_LIST_IN_DEPOSIT_TABLE;
