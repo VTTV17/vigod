@@ -1,6 +1,5 @@
 package pages.storefront.userprofile;
 
-import com.beust.ah.A;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -12,9 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import utilities.UICommonAction;
-
 import java.time.Duration;
 
 public class MyAddress {
