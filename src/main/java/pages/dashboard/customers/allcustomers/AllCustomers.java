@@ -33,11 +33,21 @@ public class AllCustomers {
 		PageFactory.initElements(driver, this);
 	}
 
+<<<<<<< Updated upstream
 	@FindBy(css = ".customer-list__filter-container .gs-search-box__wrapper .uik-input__input")
 	WebElement SEARCH_BOX;
 
 	@FindBy(id = "phone")
 	WebElement PHONE;
+=======
+    @FindBy(id = "phone")
+    WebElement PHONE;
+
+    @FindBy (css = "div.modal-content")
+    WebElement WARNING_POPUP;
+    @FindBy(xpath = "//section[contains(@class,'desktop-flex')]//input[@placeholder='Search keyword']")
+    WebElement SEARCH_INPUT;
+>>>>>>> Stashed changes
 
 	@FindBy(css = "div.modal-content")
 	WebElement WARNING_POPUP;

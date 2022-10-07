@@ -8,7 +8,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
 
@@ -115,10 +114,10 @@ public class HeaderSF {
 		commons.clickElement(LOGOUT_BTN);
 		logger.info("Clicked on Logout linktext");
 	}
-	public HeaderSF navigateToUserProfile(){
+	public UserProfileInfo navigateToUserProfile(){
 		clickUserInfoIcon();
 		clickUserProfile();
-		return this;
+		return new UserProfileInfo(driver);
 	}
 
 	public ChangePasswordDialog clickChangePassword() {
