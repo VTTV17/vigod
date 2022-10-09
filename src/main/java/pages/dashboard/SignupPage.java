@@ -61,7 +61,7 @@ public class SignupPage {
     @FindBy (css = "div.uik-select__valueWrapper>div>div:nth-child(2)")
     WebElement COUNTRY_CODE;
 
-    @FindBy (css = "div.uik-select__valueRenderedWrapper")
+    @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
     WebElement COUNTRY_DROPDOWN;
     
     @FindBy (id = "nameStore")
@@ -142,11 +142,7 @@ public class SignupPage {
     public SignupPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
     	if (country.contentEquals("rd")) {
-    		try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(500);
     		int randomNumber = new Random().nextInt(0, COUNTRY_LIST.size());
     		COUNTRY_LIST.get(randomNumber).click();
     	} else {
@@ -162,11 +158,7 @@ public class SignupPage {
     public SignupPage selectCountryToSetUpShop(String country) {
     	String selectedOption;
     	if (country.contentEquals("rd")) {
-    		try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(500);
     		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(COUNTRY_DROPDOWN_SETUP_SHOP).size());
 
 			selectedOption = commonAction.selectByIndex(COUNTRY_DROPDOWN_SETUP_SHOP, randomNumber);
@@ -180,11 +172,7 @@ public class SignupPage {
     public SignupPage selectCurrency(String currency) {
     	String selectedOption;
     	if (currency.contentEquals("rd")) {
-    		try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(500);
     		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(CURRENCY).size());
         	selectedOption = commonAction.selectByIndex(CURRENCY, randomNumber);
     	} else {
@@ -197,11 +185,7 @@ public class SignupPage {
     public SignupPage selectLanguage(String language) {
     	String selectedOption;
     	if (language.contentEquals("rd")) {
-    		try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(500);
     		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(STORE_LANGUAGE).size());
         	selectedOption = commonAction.selectByIndex(STORE_LANGUAGE, randomNumber);
     	} else {
@@ -256,11 +240,7 @@ public class SignupPage {
     public SignupPage selectProvince(String province) {
     	String selectedOption;
     	if (province.contentEquals("rd")) {
-    		try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(1000);
     		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(PROVINCE_DROPDOWN).size());
         	selectedOption = commonAction.selectByIndex(PROVINCE_DROPDOWN, randomNumber);
     	} else {
@@ -273,11 +253,7 @@ public class SignupPage {
     public SignupPage selectDistrict(String district) {
     	String selectedOption;
     	if (district.contentEquals("rd")) {
-    		try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(1000);
     		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(DISTRICT_DROPDOWN).size());
         	selectedOption = commonAction.selectByIndex(DISTRICT_DROPDOWN, randomNumber);
     	} else {
@@ -290,11 +266,7 @@ public class SignupPage {
     public SignupPage selectWard(String ward) {
     	String selectedOption;
     	if (ward.contentEquals("rd")) {
-    		try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(1000);
     		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(WARD).size());
         	selectedOption = commonAction.selectByIndex(WARD, randomNumber);
     	} else {
