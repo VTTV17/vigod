@@ -14,7 +14,6 @@ import org.testng.asserts.SoftAssert;
 import utilities.UICommonAction;
 
 import java.time.Duration;
-import java.util.Random;
 
 import static utilities.links.Links.*;
 
@@ -41,7 +40,7 @@ public class LoginPage {
     @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
     WebElement LANGUAGE;       
     
-    @FindBy (css = "div.uik-select__valueRenderedWrapper")
+    @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
     WebElement COUNTRY_DROPDOWN;    
     
     @FindBy(css = "input[name='username']")

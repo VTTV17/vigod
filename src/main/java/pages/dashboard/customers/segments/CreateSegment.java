@@ -103,7 +103,6 @@ public class CreateSegment {
 
 	public CreateSegment clickSaveBtn() {
 		commonAction.clickElement(SAVE_BTN);
-//		commonAction.sleepInMiliSecond(2000);
 		new HomePage(driver).waitTillLoadingDotsDisappear();
 		logger.info("Clicked on 'Save' button");
 		return this;

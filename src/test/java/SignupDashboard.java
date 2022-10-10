@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import pages.dashboard.LoginPage;
 import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
+import pages.gomua.headergomua.HeaderGoMua;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
@@ -115,15 +117,12 @@ public class SignupDashboard extends BaseTest {
 			upgradeNowMessage = UPGRADENOW_MESSAGE_EN;
 		}
 		new HomePage(driver).verifyUpgradeNowMessage(upgradeNowMessage).completeVerify();
-		new HomePage(driver).clickUpgradeNow();
 	}
 
 	public void reLogintoShop(String country, String user, String password) throws InterruptedException {
-		new LoginPage(driver).navigate().performLogin(country, user, password);
-//        Thread.sleep(3000);
+		new LoginPage(driver).performLogin(country, user, password);
 		verifyUpgradNowMessage();
-		Thread.sleep(1000);
-		new HomePage(driver).waitTillSpinnerDisappear().clickLogout();
+		new HomePage(driver).clickUpgradeNow();
 	}
 
 	@BeforeMethod
@@ -266,7 +265,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException, InterruptedException {
 
 		String referralCode = "fromthompson";
@@ -291,12 +290,13 @@ public class SignupDashboard extends BaseTest {
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		verifyUpgradNowMessage();
+		new HomePage(driver).clickUpgradeNow();
 
-		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
-		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), referralCode.toUpperCase());
 	}
 
-//	@Test
+	@Test
 	public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException, InterruptedException {
 
 		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
@@ -304,14 +304,21 @@ public class SignupDashboard extends BaseTest {
 		password = data.findValue("seller").findValue("phone").findValue("password").asText();
 		country = data.findValue("seller").findValue("phone").findValue("country").asText();
 
-		String username = storePhone;
+		// Sign up
+		signupPage.navigate().fillOutSignupForm(country, storePhone, password, referralCode);
+		signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();
+		
+		mail = data.findValue("seller").findValue("mail").findValue("username").asText();
+		password = data.findValue("seller").findValue("mail").findValue("password").asText();
+		country = data.findValue("seller").findValue("mail").findValue("country").asText();		
 
 		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode);
-		signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();
+		signupPage.navigate().fillOutSignupForm(country, mail, password, referralCode);
+		signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();		
+		
 	}
 
-//	@Test
+	@Test
 	public void BH_4038_ResendVerificationCodeToPhone() throws SQLException, InterruptedException {
 
 		String username = storePhone;
@@ -340,7 +347,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_4039_ResendVerificationCodeToEmail() throws SQLException, InterruptedException {
 
 		String username = mail;
@@ -369,7 +376,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException, InterruptedException {
 	
 		String username = mail;
@@ -390,7 +397,7 @@ public class SignupDashboard extends BaseTest {
 	
 	}
 
-	//	@Test
+	@Test
 	public void BH_5195_SignUpForShopWithURLInUpperCase() throws SQLException, InterruptedException {
 
 		String username = mail;
@@ -415,10 +422,10 @@ public class SignupDashboard extends BaseTest {
 
 		// Re-login to the shop
 		reLogintoShop(country, username, password);
-		Assert.assertEquals(storeURL.toLowerCase(), new InitConnection().getStoreURL(storeName));
+		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
 
-//	@Test
+	@Test
 	public void BH_1363_SignUpForGoFreeAccountViaEmail() throws SQLException, InterruptedException {
 
 		String referralCode = "fromthompson";
@@ -443,16 +450,17 @@ public class SignupDashboard extends BaseTest {
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		verifyUpgradNowMessage();
+		new HomePage(driver).clickUpgradeNow();
 		new HomePage(driver).clickLogout();
 
 		// Re-login to the shop
 		reLogintoShop(country, username, password);
 
-		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
-		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), referralCode.toUpperCase());
 	}
 	
-	@Test
+//	@Test
 	public void BH_1277A_SignUpForGoFreeAccountViaPhone() throws SQLException, InterruptedException {
 		
 //		String referralCode = "frommark";
@@ -484,6 +492,7 @@ public class SignupDashboard extends BaseTest {
 		
 		// Verify Upgrade Now popup appears on the screen
 		verifyUpgradNowMessage();
+		new HomePage(driver).clickUpgradeNow();
 		new HomePage(driver).clickLogout();
 		
 		// Verify domain and referral code is configured as expected
@@ -517,6 +526,7 @@ public class SignupDashboard extends BaseTest {
 		
 		// Verify Upgrade Now popup appears on the screen
 		verifyUpgradNowMessage();
+		new HomePage(driver).clickUpgradeNow();
 		new HomePage(driver).clickLogout();
 		
 		// Re-login to the shop
@@ -527,4 +537,145 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
 	}
 
+	@Test
+	public void BH_1364_SignUpForShopUsingGomuaMailAccount() throws SQLException, InterruptedException {
+		
+		String domain = "gomua.vn";
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String language = "Tiếng Việt";
+		String username = "gomua-seller"+ randomNumber +"@mailnesia.com";
+		String contact = storePhone;
+		String displayName  = "Gomua Seller " + randomNumber;
+		storeName = displayName;
+		
+		// Signup in Gomua
+		new HeaderGoMua(driver).navigateToGoMua()
+		.clickCreateShop()
+		.clickCreateGomuaAccountBtn()
+		.inputUsername(username)
+		.inputPassWord(password)
+		.inputDisplayName(displayName)
+		.clickContinueBtn()
+		.inputVerificationCode(getVerificationCode(username))
+		.clickVerifyAndLoginBtn()
+		.clickAgreeAndContiueBtn();
+		commonAction.sleepInMiliSecond(1000);
+		
+		// Verify URL is shown as expected
+		String expectedDomain = utilities.links.Links.DOMAIN+utilities.links.Links.LOGIN_PATH+"?domain="+domain;
+		Assert.assertEquals(new UICommonAction(driver).getCurrentURL(), expectedDomain);
+		
+		// Login
+		new LoginPage(driver).performLogin(country, username, password);
+		
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		// Verify upgrade now popup can be closed at home screen
+		verifyUpgradNowMessage();
+		new HomePage(driver).closeUpgradeNowPopUp();
+		new HomePage(driver).skipIntroduction();
+		new HomePage(driver).clickLogout();
+		
+		// Verify upgrade now popup does not appear at several screens
+		new LoginPage(driver).performLogin(country, username, password);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		verifyUpgradNowMessage();
+		new HomePage(driver).closeUpgradeNowPopUp();
+		
+		new HomePage(driver).navigateToPage("Products", "All Products");
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		
+		new HomePage(driver).navigateToPage("Orders", "Order List");
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		
+		new HomePage(driver).navigateToPage("Settings");
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		
+		new HomePage(driver).navigateToPage("Services");
+		Assert.assertTrue(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		new HomePage(driver).clickUpgradeNow();
+		
+		// Verify domain is configured as expected
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+	}
+	
+	@Test
+	public void BH_1365_SignUpForShopUsingGomuaPhoneAccount() throws SQLException, InterruptedException {
+		
+		String domain = "gomua.vn";
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String language = "Tiếng Việt";
+		String username = storePhone;
+		String contact = "gomua-seller"+ randomNumber +"@mailnesia.com";
+		String displayName  = "Gomua Seller " + randomNumber;
+		storeName = displayName;
+		signupPage.countryCode = "+84"; // This is a temporary workaround. Solutions to the problem are being considered.
+		
+		// Signup in Gomua
+		new HeaderGoMua(driver).navigateToGoMua()
+		.clickCreateShop()
+		.clickCreateGomuaAccountBtn()
+		.inputUsername(username)
+		.inputPassWord(password)
+		.inputDisplayName(displayName)
+		.clickContinueBtn()
+		.inputVerificationCode(getVerificationCode(username))
+		.clickVerifyAndLoginBtn()
+		.inputEmail(contact)
+		.clickComplete()
+		.clickAgreeAndContiueBtn();
+		commonAction.sleepInMiliSecond(1000);
+		
+		// Verify URL is shown as expected
+		String expectedDomain = utilities.links.Links.DOMAIN+utilities.links.Links.LOGIN_PATH+"?domain="+domain;
+		Assert.assertEquals(new UICommonAction(driver).getCurrentURL(), expectedDomain);
+		
+		// Login
+		new LoginPage(driver).performLogin(country, username, password);
+		
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		// Verify upgrade now popup can be closed at home screen
+		verifyUpgradNowMessage();
+		new HomePage(driver).closeUpgradeNowPopUp();
+		new HomePage(driver).skipIntroduction();
+		new HomePage(driver).clickLogout();
+		
+		// Verify upgrade now popup does not appear at several screens
+		new LoginPage(driver).performLogin(country, username, password);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		verifyUpgradNowMessage();
+		new HomePage(driver).closeUpgradeNowPopUp();
+		
+		new HomePage(driver).navigateToPage("Products", "All Products");
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		
+		new HomePage(driver).navigateToPage("Orders", "Order List");
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		
+		new HomePage(driver).navigateToPage("Settings");
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		
+		new HomePage(driver).navigateToPage("Services");
+		Assert.assertTrue(new HomePage(driver).checkPresenceOfUpgradeNowPopUp());
+		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
+		new HomePage(driver).clickUpgradeNow();
+		
+		// Verify domain is configured as expected
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+	}	
+	
 }

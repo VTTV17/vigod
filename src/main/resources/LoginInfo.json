@@ -17,6 +17,18 @@
       "facebook" : {
         "username" : "trangthuy9662@gmail.com",
         "password" : "123456aA@"
+      },
+      "forgotMail" : {
+        "username" : "automation0-shop842@mailnesia.com",
+        "password" : "fortesting!1",
+        "country" : "Poland",
+        "countryCode" : "+48"
+      },
+      "forgotPhone" : {
+        "username" : "9123456167",
+        "password" : "fortesting!1",
+        "country" : "Vietnam",
+        "countryCode" : "+84"
       }
     },
     "staff" : {
@@ -62,7 +74,7 @@
         "password" : "fortesting!1",
         "country" : "Vietnam",
         "countryCode" : "+84"
-      }      
+      }
     },
     "emptyUsernameError" : "Hãy nhập số điện thoại hoặc email",
     "emptyPasswordError" : "Hãy nhập mật khẩu",
