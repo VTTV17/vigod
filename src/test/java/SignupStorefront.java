@@ -6,8 +6,8 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pages.storefront.HeaderSF;
-import pages.storefront.LoginPage;
-import pages.storefront.SignupPage;
+import pages.storefront.login.LoginPage;
+import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.MyAddress;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
@@ -233,7 +233,7 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
 		
 		// Verify user info in Dashboard
-		pages.dashboard.LoginPage dashboard = new pages.dashboard.LoginPage(driver);
+		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		new AllCustomers(driver).navigate().selectBranch("None Branch").getPhoneNumber(displayName);
@@ -273,7 +273,7 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
 
 		// Verify user info in Dashboard
-		pages.dashboard.LoginPage dashboard = new pages.dashboard.LoginPage(driver);
+		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);

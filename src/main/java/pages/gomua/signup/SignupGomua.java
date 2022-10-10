@@ -6,10 +6,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import pages.dashboard.SignupPage;
 import utilities.UICommonAction;
 
-import java.sql.SQLException;
 import java.time.Duration;
 
 public class SignupGomua {

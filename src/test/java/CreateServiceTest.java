@@ -1,6 +1,6 @@
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.LoginPage;
+import pages.dashboard.login.LoginPage;
 import pages.dashboard.service.CreateServicePage;
 import pages.dashboard.service.ServiceManagementPage;
 import pages.storefront.CollectionSFPage;
@@ -17,7 +17,7 @@ public class CreateServiceTest extends BaseTest{
     HomePage home;
     ServiceManagementPage serviceManagement;
     CreateServicePage createService;
-    pages.storefront.LoginPage loginSF;
+    pages.storefront.login.LoginPage loginSF;
     HeaderSF headerSF;
     ServiceDetailPage serviceDetailPage;
     CollectionSFPage collectionSFPage;
@@ -62,7 +62,7 @@ public class CreateServiceTest extends BaseTest{
    }
    @Test(priority = 1,dependsOnMethods = "CS01_CreateService")
     public void CS02_VerifyServiceOnSF() throws IOException {
-       loginSF = new pages.storefront.LoginPage(driver);
+       loginSF = new pages.storefront.login.LoginPage(driver);
        loginSF.navigate(SF_ShopVi);
        headerSF = new HeaderSF(driver);
        headerSF.searchWithFullName(serviceName)
@@ -109,7 +109,7 @@ public class CreateServiceTest extends BaseTest{
     }
     @Test(priority = 3, dependsOnMethods = "CS03_CreateListingPriceService")
     public void CS04_VerifyListingPriceServiceOnSF() throws IOException {
-        loginSF = new pages.storefront.LoginPage(driver);
+        loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
         headerSF.searchWithFullName(serviceName)
@@ -152,7 +152,7 @@ public class CreateServiceTest extends BaseTest{
     }
        @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws IOException {
-        loginSF = new pages.storefront.LoginPage(driver);
+        loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
         headerSF.searchWithFullName(serviceName)
@@ -203,7 +203,7 @@ public class CreateServiceTest extends BaseTest{
     }
     @Test(priority = 7, dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
     public void CS08_VerifyServiceWithSEOInfoOnSF() throws IOException {
-        loginSF = new pages.storefront.LoginPage(driver);
+        loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
         headerSF.searchWithFullName(serviceName)

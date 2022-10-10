@@ -14,8 +14,8 @@ import utilities.jsonFileUtility;
 
 public class MembershipInformation extends BaseTest {
 
-	pages.dashboard.LoginPage loginDB;
-	pages.storefront.LoginPage loginSF;
+	pages.dashboard.login.LoginPage loginDB;
+	pages.storefront.login.LoginPage loginSF;
 	HomePage homePage;
 	HeaderSF headerPage;
 
@@ -68,8 +68,8 @@ public class MembershipInformation extends BaseTest {
 	@BeforeMethod
 	public void setup() throws InterruptedException {
 		super.setup();
-		loginDB = new pages.dashboard.LoginPage(driver);
-		loginSF = new pages.storefront.LoginPage(driver);
+		loginDB = new pages.dashboard.login.LoginPage(driver);
+		loginSF = new pages.storefront.login.LoginPage(driver);
 		homePage = new HomePage(driver);
 		headerPage = new HeaderSF(driver);
 	}

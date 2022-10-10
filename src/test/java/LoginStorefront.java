@@ -15,7 +15,7 @@ import pages.dashboard.customers.allcustomers.CustomerDetails;
 import pages.dashboard.home.HomePage;
 import pages.storefront.ChangePasswordDialog;
 import pages.storefront.HeaderSF;
-import pages.storefront.LoginPage;
+import pages.storefront.login.LoginPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
@@ -190,7 +190,7 @@ public class LoginStorefront extends BaseTest {
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Verify user info in Dashboard
-		pages.dashboard.LoginPage dashboard = new pages.dashboard.LoginPage(driver);
+		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		
@@ -232,7 +232,7 @@ public class LoginStorefront extends BaseTest {
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Verify user info in Dashboard
-		pages.dashboard.LoginPage dashboard = new pages.dashboard.LoginPage(driver);
+		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		

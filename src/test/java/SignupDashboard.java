@@ -4,9 +4,9 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pages.dashboard.LoginPage;
-import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.login.LoginPage;
+import pages.dashboard.signup.SignupPage;
 import pages.gomua.headergomua.HeaderGoMua;
 import utilities.UICommonAction;
 import utilities.jsonFileUtility;
