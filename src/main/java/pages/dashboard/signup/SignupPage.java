@@ -1,4 +1,4 @@
-package pages.dashboard;
+package pages.dashboard.signup;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

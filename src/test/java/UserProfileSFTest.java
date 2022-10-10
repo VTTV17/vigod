@@ -3,9 +3,9 @@ import pages.gomua.headergomua.HeaderGoMua;
 import pages.gomua.logingomua.LoginGoMua;
 import pages.gomua.myprofile.MyProfileGoMua;
 import pages.storefront.HeaderSF;
-import pages.storefront.LoginPage;
-import pages.storefront.SignupPage;
 import pages.storefront.detail_product.ProductDetailPage;
+import pages.storefront.login.LoginPage;
+import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.MyAddress;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
@@ -24,7 +24,7 @@ public class UserProfileSFTest extends BaseTest {
     MyProfileGoMua myProfileGoMua;
     SignupPage signupSF;
     ProductDetailPage productDetailSF;
-    pages.dashboard.LoginPage loginDb;
+    pages.dashboard.login.LoginPage loginDb;
     MyAddress myAddress;
     String userName = "qcgosell01@gmail.com";
     String passWord = "Psso12!@";
@@ -333,7 +333,7 @@ public class UserProfileSFTest extends BaseTest {
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .verifyAddressInfo_VN("",address_Edit,cityProvince_Edit,district_Edit,ward_Edit);
-        loginDb = new pages.dashboard.LoginPage(driver);
+        loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi,passWord);
     }
 }

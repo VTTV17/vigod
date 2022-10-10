@@ -1,6 +1,7 @@
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import pages.dashboard.LoginPage;
+
+import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.staff_management.StaffPage;
 import pages.dashboard.settings.staff_management.StaffVerify;
 import utilities.mail.MailPage;

@@ -1,4 +1,4 @@
-package pages.storefront;
+package pages.storefront.signup;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +11,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
 import pages.Mailnesia;
+import pages.storefront.HeaderSF;
+import pages.storefront.login.LoginPage;
 import utilities.UICommonAction;
 import utilities.database.InitConnection;
 

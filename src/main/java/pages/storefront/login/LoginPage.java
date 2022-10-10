@@ -1,4 +1,4 @@
-package pages.storefront;
+package pages.storefront.login;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
+import pages.storefront.HeaderSF;
 import utilities.UICommonAction;
 
 import static utilities.links.Links.*;

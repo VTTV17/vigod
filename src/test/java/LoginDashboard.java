@@ -6,10 +6,10 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import pages.Mailnesia;
-import pages.dashboard.LoginPage;
-import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.account.AccountPage;
+import pages.dashboard.signup.SignupPage;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 
