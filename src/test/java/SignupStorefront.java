@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pages.storefront.HeaderSF;
+import pages.storefront.header.HeaderSF;
 import pages.storefront.login.LoginPage;
 import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;

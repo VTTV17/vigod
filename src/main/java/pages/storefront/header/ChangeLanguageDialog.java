@@ -1,4 +1,4 @@
-package pages.storefront;
+package pages.storefront.header;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

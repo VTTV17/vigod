@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import pages.dashboard.customers.segments.Segments;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.marketing.loyaltyprogram.LoyaltyProgram;
-import pages.storefront.HeaderSF;
+import pages.storefront.header.HeaderSF;
 import pages.storefront.userprofile.MembershipInfo;
 import utilities.jsonFileUtility;
 

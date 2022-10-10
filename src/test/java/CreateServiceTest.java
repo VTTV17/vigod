@@ -3,9 +3,9 @@ import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.service.CreateServicePage;
 import pages.dashboard.service.ServiceManagementPage;
-import pages.storefront.CollectionSFPage;
-import pages.storefront.HeaderSF;
-import pages.storefront.ServiceDetailPage;
+import pages.storefront.header.HeaderSF;
+import pages.storefront.services.CollectionSFPage;
+import pages.storefront.services.ServiceDetailPage;
 
 import java.io.IOException;
 import java.util.List;

@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
-import pages.storefront.HeaderSF;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 
 import static utilities.links.Links.*;
