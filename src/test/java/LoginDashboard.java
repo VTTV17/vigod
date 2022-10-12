@@ -51,7 +51,6 @@ public class LoginDashboard extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			Thread.sleep(8000);
 			commonAction.openNewTab();
 			commonAction.switchToWindow(1);
 			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
@@ -199,7 +198,7 @@ public class LoginDashboard extends BaseTest {
 		homePage.waitTillSpinnerDisappear().clickLogout();
 	}
 
-//	@Test
+	@Test
 	public void BH_1813_StaffForgotPassword() throws InterruptedException, SQLException {
 		String newPassword = STAFF_PASSWORD + generate.generateNumber(4) + "!";
 
@@ -322,18 +321,7 @@ public class LoginDashboard extends BaseTest {
 			.inputPassword(newPassword)
 			.clickContinueOrConfirmBtn();
 
-			// Get verification code
-			String code = null;
-			for (int i = 0; i < 3; i++) {
-				code = getVerificationCode(username);
-				if (code == null) {
-					loginPage.clickResendOTP();
-				} else {
-					break;
-				}
-			}
-			
-			loginPage.inputVerificationCode(code)
+			loginPage.inputVerificationCode(getVerificationCode(username))
 			.clickContinueOrConfirmBtn();
 			
 			// Logout

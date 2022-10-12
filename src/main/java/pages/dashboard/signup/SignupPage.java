@@ -146,7 +146,7 @@ public class SignupPage {
     		int randomNumber = new Random().nextInt(0, COUNTRY_LIST.size());
     		COUNTRY_LIST.get(randomNumber).click();
     	} else {
-    		driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()='%s']".formatted(country))).click();
+    		driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
     	} 
     	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
     	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));

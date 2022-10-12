@@ -2,6 +2,7 @@ package pages;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -11,52 +12,88 @@ import org.testng.asserts.SoftAssert;
 import utilities.UICommonAction;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Mailnesia {
-	
+
 	final static Logger logger = LogManager.getLogger(Mailnesia.class);
-	
-    WebDriver driver;
-    WebDriverWait wait;
-    
-    SoftAssert soft = new SoftAssert();
-    UICommonAction common;
-    public static String MAILNESIA_DOMAIN= "mailnesia.com";
-    public Mailnesia (WebDriver driver) {
-        this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        common = new UICommonAction(driver);
-        PageFactory.initElements(driver, this);
-    }
 
-    @FindBy(xpath = "//tr[@class=\"emailheader\"][1]/td[4]")
-    WebElement EMAIL;
-    
-    public Mailnesia navigate(String mail) {
-    	String name = mail.split("@")[0];
-        driver.get("https://mailnesia.com/mailbox/" + name);
-        return this;
-    }
+	WebDriver driver;
+	WebDriverWait wait;
 
-    public String getVerificationCode() {
-    	String code = null;
-		Pattern p = Pattern.compile("\\d+");
-		Matcher m = p.matcher(EMAIL.getText());
-		if (m.find()) {
-			code = m.group();
+	SoftAssert soft = new SoftAssert();
+	UICommonAction common;
+	public static String MAILNESIA_DOMAIN = "mailnesia.com";
+
+	public Mailnesia(WebDriver driver) {
+		this.driver = driver;
+		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		common = new UICommonAction(driver);
+		PageFactory.initElements(driver, this);
+	}
+
+	@FindBy(css = ".emailheader")
+	List<WebElement> EMAIL_HEADERS;
+
+	public Mailnesia navigate(String mail) {
+		String name = mail.split("@")[0];
+		driver.get("https://mailnesia.com/mailbox/" + name);
+		return this;
+	}
+
+	public String getVerificationCode() {
+		String code = null;
+		// Refresh page till a code is found
+		String [][] mailContent;
+		for (int i = 0; i < 10; i++) {
+			mailContent = getListOfEmailHeaders();
+			if (mailContent.length >0 && mailContent[0][0].contentEquals("a few seconds ago")) {
+				Matcher m = Pattern.compile("\\d+").matcher(mailContent[0][3]); //Element at [0][3] contains the verification code.
+				if (m.find()) {
+					code = m.group();
+				}				
+			}
+			if (code != null) break;
+			common.sleepInMiliSecond(3000);
+			common.refreshPage();
 		}
 		logger.info("Verification Code retrieved: " + code);
 		return code;
-    }    
-    public String navigateToMailAndGetVerifyCode(String userName){
-        common.sleepInMiliSecond(10000);
-        common.openNewTab();
-        common.switchToWindow(1);
-        String verificationCode = navigate(userName).getVerificationCode();
-        common.closeTab();
-        common.switchToWindow(0);
-        return verificationCode;
-    }
+	}
+
+	public String navigateToMailAndGetVerifyCode(String userName) {
+//		common.sleepInMiliSecond(10000);
+		common.openNewTab();
+		common.switchToWindow(1);
+		String verificationCode = navigate(userName).getVerificationCode();
+		common.closeTab();
+		common.switchToWindow(0);
+		return verificationCode;
+	}
+
+	/**
+	 * <p>
+	 * To retrieve headers of mails in mailbox and return them in form of a
+	 * 2-dimensional array
+	 * <p>
+	 * The headers are Date, From, To, Subject
+	 * 
+	 * @return a 2-dimensional array containing headers of mails in mailbox
+	 */
+
+	public String[][] getListOfEmailHeaders() {
+		String[][] headerContent = new String[EMAIL_HEADERS.size()][4]; //The 5th column displays a symbol so we exclude it.
+		for (int row = 0; row < EMAIL_HEADERS.size(); row++) {
+			List<WebElement> headerSegments = EMAIL_HEADERS.get(row).findElements(By.xpath("./td"));
+			for (int column = 0; column < headerSegments.size() - 1; column++) { //The 5th column displays a symbol so we exclude it.
+				headerContent[row][column] = headerSegments.get(column).getText();
+			}
+			logger.info(Arrays.toString(headerContent[row]));
+		}
+		return headerContent;
+	}
+
 }

@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
+import pages.dashboard.settings.plans.PlansPage;
 import pages.dashboard.signup.SignupPage;
 import pages.gomua.headergomua.HeaderGoMua;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
+import pages.InternalTool;
 import pages.Mailnesia;
 
 import java.sql.SQLException;
@@ -72,7 +75,6 @@ public class SignupDashboard extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			Thread.sleep(10000);
 			commonAction.openNewTab();
 			commonAction.switchToWindow(1);
 			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
@@ -360,6 +362,7 @@ public class SignupDashboard extends BaseTest {
 		signupPage.clickResendOTP();
 		signupPage.clickConfirmBtn();
 		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
+		commonAction.sleepInMiliSecond(5000);
 		String resentCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
@@ -538,7 +541,7 @@ public class SignupDashboard extends BaseTest {
 	}
 
 	@Test
-	public void BH_1364_SignUpForShopUsingGomuaMailAccount() throws SQLException, InterruptedException {
+	public void BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount() throws SQLException, InterruptedException {
 		
 		String domain = "gomua.vn";
 		String country = "Vietnam";
@@ -607,7 +610,7 @@ public class SignupDashboard extends BaseTest {
 	}
 	
 	@Test
-	public void BH_1365_SignUpForShopUsingGomuaPhoneAccount() throws SQLException, InterruptedException {
+	public void BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount() throws SQLException, InterruptedException {
 		
 		String domain = "gomua.vn";
 		String country = "Vietnam";
@@ -676,6 +679,194 @@ public class SignupDashboard extends BaseTest {
 		
 		// Verify domain is configured as expected
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+	}	
+	
+	@Test
+	public void BH_1368_SignUpForShopUsingStorefrontEmailAccount() throws SQLException, InterruptedException {
+		
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String language = "Tiếng Việt";
+		String username = mail;
+		String contact = storePhone;
+		String displayName  = storeName;
+		String birthday = "02/02/1990";
+		
+		// Signup in SF
+		new pages.storefront.signup.SignupPage(driver).navigate()
+		.fillOutSignupForm(country, username, password, displayName, birthday)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+
+		// Logout
+		new HeaderSF(driver).clickUserInfoIcon().clickLogout();		
+		
+		
+		// Login
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+		
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		
+		// Re-login to the shop 
+		reLogintoShop(country, username, password);
+		
+		// Verify Upgrade Now popup appears on the screen
+		new HomePage(driver).navigateToPage("Products", "All Products");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Orders", "Order List");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Services");
+		new HomePage(driver).clickUpgradeNow();
+	}	
+	
+	@Test
+	public void BH_1599_SignUpForShopUsingStorefrontPhoneAccount() throws SQLException, InterruptedException {
+		
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String language = "Tiếng Việt";
+		String username = storePhone;
+		String contact = mail;
+		String displayName  = storeName;
+		String birthday = "02/02/1990";
+		
+		// Signup in SF
+		pages.storefront.signup.SignupPage sf = new pages.storefront.signup.SignupPage(driver);
+		sf.navigate()
+		.fillOutSignupForm(country, username, password, displayName, birthday);
+		signupPage.countryCode = sf.countryCode; // This is a temporary workaround. Solutions to the problem are being considered.
+		sf.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		sf.inputEmail(contact)
+		.clickCompleteBtn();
+
+		// Logout
+		new HeaderSF(driver).clickUserInfoIcon().clickLogout();		
+		
+		// Login
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+		
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		
+		// Re-login to the shop 
+		reLogintoShop(country, username, password);
+		
+		// Verify Upgrade Now popup appears on the screen
+		new HomePage(driver).navigateToPage("Products", "All Products");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Orders", "Order List");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Services");
+		new HomePage(driver).clickUpgradeNow();
+		
+		// Buy a package plan and approve the purchase in Internal tool
+		PlansPage plansPage = new PlansPage(driver);
+        plansPage.selectPlan("GoWEB").selectPayment();
+        String orderID = plansPage.getOrderId();
+        InternalTool internalTool = new InternalTool(driver);
+        internalTool.openNewTabAndNavigateToInternalTool()
+        .login()
+        .navigateToPage("GoSell","Packages","Orders list")
+        .approveOrder(orderID);
+	}		
+	
+	@Test
+	public void BH_1631_SignUpForShopUsingGomuaMailAccount() throws SQLException, InterruptedException {
+		
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String language = "Tiếng Việt";
+		String username = mail;
+		String contact = storePhone;
+		String displayName  = storeName;
+		
+		// Signup in Gomua
+		new HeaderGoMua(driver).navigateToGoMua()
+		.clickSignUpBtn()
+		.inputUsername(username)
+		.inputPassWord(password)
+		.inputDisplayName(displayName)
+		.clickContinueBtn()
+		.inputVerificationCode(getVerificationCode(username))
+		.clickVerifyAndLoginBtn();
+		
+		// Login
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+		
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		
+		// Re-login to the shop 
+		reLogintoShop(country, username, password);
+		
+		// Verify Upgrade Now popup appears on the screen
+		new HomePage(driver).navigateToPage("Products", "All Products");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Orders", "Order List");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Services");
+		new HomePage(driver).clickUpgradeNow();
+	}	
+	
+	@Test
+	public void BH_1632_SignUpForShopUsingGomuaPhoneAccount() throws SQLException, InterruptedException {
+		
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String language = "Tiếng Việt";
+		String username = storePhone;
+		String contact = mail;
+		String displayName  = storeName;
+
+		signupPage.countryCode = "+84"; // This is a temporary workaround. Solutions to the problem are being considered.
+		
+		// Signup in Gomua
+		new HeaderGoMua(driver).navigateToGoMua()
+		.clickCreateShop()
+		.clickCreateGomuaAccountBtn()
+		.inputUsername(username)
+		.inputPassWord(password)
+		.inputDisplayName(displayName)
+		.clickContinueBtn()
+		.inputVerificationCode(getVerificationCode(username))
+		.clickVerifyAndLoginBtn()
+		.inputEmail(contact)
+		.clickComplete();
+		
+		// Login
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+		
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		
+		// Re-login to the shop 
+		reLogintoShop(country, username, password);
+		
+		// Verify Upgrade Now popup appears on the screen
+		new HomePage(driver).navigateToPage("Products", "All Products");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Orders", "Order List");
+		new HomePage(driver).clickUpgradeNow();
+		new HomePage(driver).navigateToPage("Services");
+		new HomePage(driver).clickUpgradeNow();
 	}	
 	
 }

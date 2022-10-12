@@ -99,7 +99,7 @@ public class LoginPage {
 
     public LoginPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
-    	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()='%s']".formatted(country))).click();
+    	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
     	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
     	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
     	this.country = selectedOption[0];

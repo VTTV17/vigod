@@ -268,4 +268,9 @@ public class UICommonAction {
 		JavascriptExecutor executor= (JavascriptExecutor)driver;
 		executor.executeScript( "window.scrollBy(0,document.body.scrollHeight)");
 	}
+	
+	public void refreshPage(){
+		driver.navigate().refresh();
+		logger.debug("Refreshed page.");
+	}	
 }

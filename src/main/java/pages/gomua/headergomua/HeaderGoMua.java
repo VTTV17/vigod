@@ -41,6 +41,12 @@ public class HeaderGoMua {
 		return this;
 	}
 
+	public SignupGomua clickSignUpBtn() {
+		commonAction.clickElement(headerUI.SIGNUP_BTN);
+		logger.info("Click on 'Sign Up' button on Header");
+		return new SignupGomua(driver);
+	}	
+	
 	public HeaderGoMua verifyDisplayName(String expected) {
 		Assert.assertEquals(commonAction.getText(headerUI.DISPLAY_NAME), expected);
 		logger.info("Display name on header is updated");
