@@ -15,6 +15,8 @@ public class HeaderGoMuaElement {
 
 	@FindBy(xpath = "//a[@class = 'login']")
 	WebElement LOGIN_BTN;
+	@FindBy(css = "[beetranslate='beecow.action.signup'")
+	WebElement SIGNUP_BTN;
 	@FindBy(xpath = "//div[@class='name']/span[1]")
 	WebElement DISPLAY_NAME;
 	@FindBy(xpath = "//ul[@class='dropdown-menu']//span[@class='name']")
