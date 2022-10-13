@@ -15,7 +15,8 @@ public class InitWebdriver {
 
     private WebDriver driver;
 
-    public WebDriver getDriver(String browser, String headless) {
+    public WebDriver getDriver(String browser, String... headlessMode) {
+        String headless = headlessMode.length == 0 ? "true" : "false";
         if (driver == null) {
             switch (browser) {
                 case "firefox" -> {

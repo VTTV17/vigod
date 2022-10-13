@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="GoSELL-Thang-v1">
+        <classes>
+            <class name="BH_8616">
+                <methods>
+                    <include name="BH_8616_Case1_1_SettingON_InStock_WithoutVariationProduct"/>
+                    <include name="BH_8616_Case1_2_SettingON_InStock_VariationProduct" />
+                    <include name="BH_8616_Case1_3_SettingON_OutOfStock_WithoutVariationProduct" />
+                    <include name="BH_8616_Case1_4_SettingON_OneOfVariationOutOfStock" />
+                    <include name="BH_8616_Case1_5_SettingON_AllVariationsOutOfStock" />
+                    <include name="BH_8616_Case2_1_SettingOFF_InStock_WithoutVariationProduct" />
+                    <include name="BH_8616_Case2_2_SettingOFF_InStock_VariationProduct" />
+                    <include name="BH_8616_Case2_3_SettingOFF_OutOfStock_WithoutVariationProduct" />
+                    <include name="BH_8616_Case2_4_SettingOFF_OneOfVariationOutOfStock" />
+                    <include name="BH_8616_Case2_5_SettingOFF_AllVariationsOutOfStock" />
+                </methods>
+            </class> <!-- BH_8616 -->
+        </classes>
+    </test> <!-- GoSELL-Thang-v1 -->
+</suite> <!-- Default Suite -->

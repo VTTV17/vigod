@@ -5,11 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import pages.dashboard.products.all_products.ProductPage;
+import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
 import java.io.IOException;
@@ -20,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
+import static pages.dashboard.products.all_products.ProductPage.*;
 import static pages.dashboard.products.all_products.ProductVerify.branchInfo;
 import static pages.dashboard.products.all_products.ProductVerify.productID;
+import static utilities.links.Links.STORE_CURRENCY;
 
 public class ProductDetailPage extends ProductDetailElement {
     WebDriverWait wait;
@@ -35,10 +36,21 @@ public class ProductDetailPage extends ProductDetailElement {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    public ProductDetailPage accessToProductDetailPageByURL() throws InterruptedException {
+    /**
+     * Access to product detail on SF by URL
+     */
+    public ProductDetailPage accessToProductDetailPageByURL() {
+        // productID get from dashboard
         driver.get(driver.getCurrentUrl() + "/product/" + productID);
         logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
-        sleep(3000);
+
+        return this;
+    }
+
+    public ProductDetailPage verifyPageLoaded() {
+        // wait page loaded successfully
+        new UICommonAction(driver).verifyPageLoaded(productName, productName);
+
         return this;
     }
 
@@ -47,16 +59,16 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> If have product match condition, hasResult = false</p>
      * <p> Else hasResult = true</p>
      */
-    public ProductDetailPage checkProductIsDisplayOrHideWithoutVariationProduct(Boolean isDisplay, String productName, int stockQuantity) throws IOException, InterruptedException {
+    public ProductDetailPage checkProductIsDisplayOrHideWithoutVariationProduct() throws IOException, InterruptedException {
         wait.until(ExpectedConditions.elementToBeClickable(SEARCH_ICON)).click();
         wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(productName);
 
         // If have product match condition, actDisplay = false
         // Else actDisplay = true
         sleep(1000);
-        boolean inStock = stockQuantity > 0;
+        boolean inStock = withoutVariationStockQuantity > 0;
         boolean actDisplay = LIST_SEARCH_RESULT.size() > 0;
-        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplay || inStock, "[Failed] Product display should be %s but it is %s".formatted(isDisplay, actDisplay));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplayIfOutOfStock || inStock, "[Failed] Product display should be %s but it is %s".formatted(isDisplayIfOutOfStock, actDisplay));
         return this;
     }
 
@@ -65,16 +77,16 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> If have product match condition, hasResult = false</p>
      * <p> Else hasResult = true</p>
      */
-    public ProductDetailPage checkProductIsDisplayOrHideVariationProduct(Boolean isDisplay, String productName, int startQuantity, int increaseStockForNextVariation) throws IOException, InterruptedException {
+    public ProductDetailPage checkProductIsDisplayOrHideVariationProduct() throws IOException, InterruptedException {
         wait.until(ExpectedConditions.elementToBeClickable(SEARCH_ICON)).click();
         wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(productName);
 
         // If have product match condition, actDisplay = false
         // Else actDisplay = true
         sleep(1000);
-        boolean inStock = !((startQuantity == 0) && (increaseStockForNextVariation == 0));
+        boolean inStock = !((variationStockQuantity.get(0) == 0) && (increaseStockForNextVariation == 0));
         boolean actDisplay = LIST_SEARCH_RESULT.size() > 0;
-        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplay || inStock, "[Failed] Product display should be %s but it is %s".formatted(isDisplay, actDisplay));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, actDisplay == isDisplayIfOutOfStock || inStock, "[Failed] Product display should be %s but it is %s".formatted(isDisplayIfOutOfStock, actDisplay));
         return this;
     }
 
@@ -83,11 +95,17 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> Without variation product</p>
      * <p> actHide = true when remaining stock has been hidden</p>
      */
-    public ProductDetailPage checkRemainingStockIsDisplayOrHideWithoutVariationProduct(boolean isHide, int stockQuantity) throws IOException {
-        if (stockQuantity > 0) {
+    public ProductDetailPage checkRemainingStockIsDisplayOrHideWithoutVariationProduct() throws IOException {
+        // if in stock, check show/hide as setting
+        if (withoutVariationStockQuantity > 0) {
+            // actHide = true when stock quantity does not show
             boolean actHide = !(STOCK_QUANTITY_IN_BRANCH.size() > 0);
-            countFail = new AssertCustomize(driver).assertTrue(countFail, actHide == isHide, "[Failed] Remaining stock is hidden: %s but it is %s".formatted(isHide, actHide));
+
+            // compare setting as actual result
+            // isHideRemainingStock: setting on ProductPage.java
+            countFail = new AssertCustomize(driver).assertTrue(countFail, actHide == isHideRemainingStock, "[Failed] Remaining stock is hidden: %s but it is %s".formatted(isDisplayIfOutOfStock, actHide));
         } else {
+            // if out of stock, skip this test
             logger.info("SKIPPED - Out of stock");
         }
         return this;
@@ -97,12 +115,10 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> Without variation product</p>
      * <p> actHide = true when remaining stock has been hidden</p>
      */
-    public ProductDetailPage checkRemainingStockIsDisplayOrHideVariationProduct(boolean isHide, int startQuantity, int increaseStockForNextVariation) throws IOException {
-        if (!((startQuantity == 0) && (increaseStockForNextVariation == 0))) {
+    public ProductDetailPage checkRemainingStockIsDisplayOrHideVariationProduct() throws IOException {
+        if (!((variationStockQuantity.get(0) == 0) && (increaseStockForNextVariation == 0))) {
             boolean actHide = !(STOCK_QUANTITY_IN_BRANCH.size() > 0);
-            countFail = new AssertCustomize(driver).assertTrue(countFail, actHide == isHide, "[Failed] Remaining stock is hidden: %s but it is %s".formatted(isHide, actHide));
-            logger.info("isHide: " + isHide);
-            logger.info("actHide: " + actHide);
+            countFail = new AssertCustomize(driver).assertTrue(countFail, actHide == isHideRemainingStock, "[Failed] Remaining stock is hidden: %s but it is %s".formatted(isHideRemainingStock, actHide));
         } else {
             logger.info("SKIPPED - Out of stock");
         }
@@ -113,7 +129,7 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> In case, setting does not show on SF/Buyer when out of stock</p>
      * <p> Check can not access to product detail page by URL</p>
      */
-    public ProductDetailPage check404PageShouldBeShownWhenProductOutOfStock() throws IOException, InterruptedException {
+    public ProductDetailPage check404PageShouldBeShownWhenProductOutOfStock() throws IOException {
         accessToProductDetailPageByURL();
         countFail = new AssertCustomize(driver).assertTrue(countFail, driver.getCurrentUrl().contains("404"), "[Failed] Can access to product detail page by URL although product has been hidden");
         logger.info(driver.getCurrentUrl());
@@ -124,8 +140,11 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product name on the SF with Dashboard
      */
-    private void checkProductName(String productName) throws IOException {
+    private void checkProductName() throws IOException {
+        // get actual product name
         String actName = wait.until(ExpectedConditions.visibilityOf(PRODUCT_NAME)).getText();
+
+        // compare actual product name with product name has been setting at ProductPage.java
         countFail = new AssertCustomize(driver).assertEquals(countFail, actName, productName, "[Failed] Product Name show %s instead of %s".formatted(actName, productName));
         logger.info("Verify product name show correctly");
     }
@@ -133,29 +152,22 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product price/currency on the SF with Dashboard
      */
-    private void checkProductPrice(int listingPrice, int sellingPrice, String currencySymbol) throws IOException {
+    private void checkProductPrice(int listingPrice, int sellingPrice) throws IOException {
         String actListingPrice = wait.until(ExpectedConditions.visibilityOf(LISTING_PRICE)).getText().replace(",", "");
         String actSellingPrice = wait.until(ExpectedConditions.visibilityOf(SELLING_PRICE)).getText().replace(",", "");
-        countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + currencySymbol, "[Failed] Listing price should be show %s instead of %s".formatted(listingPrice, actListingPrice));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, actSellingPrice, sellingPrice + currencySymbol, "[Failed] Selling price should be show %s instead of %s".formatted(listingPrice, actListingPrice));
+        countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed] Listing price should be show %s instead of %s".formatted(listingPrice, actListingPrice));
+        countFail = new AssertCustomize(driver).assertEquals(countFail, actSellingPrice, sellingPrice + STORE_CURRENCY, "[Failed] Selling price should be show %s instead of %s".formatted(sellingPrice, actSellingPrice));
         logger.info("Verify product price/ store currency show correctly");
     }
 
     /**
      * Compare variation name/value on the SF with Dashboard
      */
-    private void checkVariation(Map<String, List<String>> variation) throws IOException {
-        variation = new ProductPage(driver).getVariationsMap(variation);
+    private void checkVariationName() throws IOException {
         int variationNameID = 0;
-        int variationValueID = 0;
         for (String variationName : variation.keySet()) {
             String actVariationName = wait.until(ExpectedConditions.visibilityOf(LIST_VARIATION_NAME.get(variationNameID))).getText();
             countFail = new AssertCustomize(driver).assertEquals(countFail, actVariationName, variationName.toUpperCase(), "[Failed] Variation name should be show %s instead of %s".formatted(variationName, actVariationName));
-            for (String variationValue : variation.get(variationName)) {
-                String actVariationValue = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent;", LIST_VARIATION_VALUE.get(variationValueID)).toString();
-                countFail = new AssertCustomize(driver).assertEquals(countFail, actVariationValue, variationValue, "[Failed] Variation name should be show %s instead of %s".formatted(variationValue, actVariationValue));
-                variationValueID++;
-            }
             variationNameID++;
         }
         logger.info("Verify product variation show correctly");
@@ -173,15 +185,15 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     private void checkBranchInformation() throws IOException {
-        waitElementList(BRANCH_NAME_LIST);
+        new UICommonAction(driver).waitElementList(BRANCH_NAME_LIST);
         Map<String, String> actBranchInfo = new HashMap<>();
         for (int i = 0; i < BRANCH_NAME_LIST.size(); i++) {
             actBranchInfo.put(wait.until(ExpectedConditions.visibilityOf(BRANCH_NAME_LIST.get(i))).getText(),
                     wait.until(ExpectedConditions.visibilityOf(BRANCH_ADDRESS_LIST.get(i))).getText());
         }
-        System.out.println(actBranchInfo);
-        System.out.println(branchInfo);
         countFail = new AssertCustomize(driver).assertTrue(countFail, actBranchInfo.equals(branchInfo), "[Failed] Branch information does not match.");
+        logger.info("Storefront branch information: " + actBranchInfo);
+        logger.info("Dashboard branch information: " + branchInfo);
     }
 
     /**
@@ -201,78 +213,9 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     /**
-     * convert list string to index
-     */
-    private List<List<Integer>> convert(List<List<String>> stringList) {
-        List<List<Integer>> newList = new ArrayList<>();
-        int index = 0;
-        for (List<String> strList : stringList) {
-            List<Integer> integerList = new ArrayList<>();
-            for (int i = 0; i < strList.size(); i++) {
-                integerList.add(index);
-                index++;
-            }
-            newList.add(integerList);
-        }
-        return newList;
-    }
-
-    /**
-     * mix variation value
-     */
-    private List<List<Integer>> merge(List<Integer> list1, List<Integer> list2) {
-        List<List<Integer>> merge = new ArrayList<>();
-        for (Integer ax : list1) {
-            for (Integer bx : list2) {
-                List<Integer> ab = List.of(ax, bx);
-                merge.add(ab);
-            }
-        }
-        return merge;
-    }
-
-
-    /**
-     * Compare product stock quantity per branch on the SF with Dashboard (variation product)
-     */
-    private void checkStockQuantityForVariationProduct(Map<String, List<String>> variation, int startQuantity, int increaseStockForNextVariation) throws IOException {
-        // if variation size > 2, only keep 2 variations
-        variation = new ProductPage(driver).getVariationsMap(variation);
-
-        // get list variation value
-        List<List<String>> listVariation = new ArrayList<>();
-        for (String variationName : variation.keySet()) {
-            listVariation.add(variation.get(variationName));
-        }
-
-        // convert variation value to index (element list)
-        List<List<Integer>> variationValueIndexList = convert(listVariation);
-
-        // mix variation index
-        List<List<Integer>> variationValueIndexListMerge = new ArrayList<>();
-        List<Integer> orgList = variationValueIndexList.get(0);
-        if (variationValueIndexList.size() > 1) {
-            for (int i = 1; i < variationValueIndexList.size(); i++) {
-                variationValueIndexListMerge = merge(orgList, variationValueIndexList.get(i));
-            }
-        } else {
-            variationValueIndexList.add(orgList);
-        }
-
-        // check stock quantity for each variation
-        for (int i = 0; i < variationValueIndexListMerge.size(); i++) {
-            List<Integer> variationIndex = variationValueIndexListMerge.get(i);
-            for (Integer index : variationIndex) {
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
-            }
-            checkStockQuantity(startQuantity + i * increaseStockForNextVariation);
-        }
-    }
-
-    /**
      * Compare product description on the SF with Dashboard
      */
-    private void checkProductDescription(String productDescription) throws IOException {
+    private void checkProductDescription() throws IOException {
         String actDescriptions = wait.until(ExpectedConditions.visibilityOf(PRODUCT_DESCRIPTION)).getText();
         countFail = new AssertCustomize(driver).assertEquals(countFail, actDescriptions, productDescription, "[Failed] Product Description does not match");
     }
@@ -280,28 +223,104 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Verify all information on the SF is shown correctly (without variation product)
      */
-    public ProductDetailPage checkAllInformationIsDisplayedProperlyWithoutVariationProduct(String productName, int listingPrice, int sellingPrice, String currencySymbol, int stockQuantity, String productDescription) throws IOException {
-        checkProductName(productName);
-        checkProductPrice(listingPrice, sellingPrice, currencySymbol);
-        if (stockQuantity > 0) {
+    public ProductDetailPage checkWithoutVariationProductInformation() throws IOException {
+        checkProductName();
+        checkProductPrice(withoutVariationListingPrice, withoutVariationSellingPrice);
+        if (withoutVariationStockQuantity > 0) {
             checkBranchInformation();
         }
-        checkStockQuantity(stockQuantity);
-        checkProductDescription(productDescription);
+        checkStockQuantity(withoutVariationStockQuantity);
+        checkProductDescription();
         return this;
     }
 
     /**
      * Verify all information on the SF is shown correctly (variation product)
      */
-    public ProductDetailPage checkAllInformationIsDisplayedProperlyVariationProduct(String productName, int listingPrice, int sellingPrice, String currencySymbol, Map<String, List<String>> variation, int startQuantity, int increaseStockForNextVariation, String productDescription) throws IOException {
-        checkProductName(productName);
-        checkProductPrice(listingPrice, sellingPrice, currencySymbol);
-        if (!((startQuantity == 0) && (increaseStockForNextVariation == 0))) {
-            checkVariation(variation);
+    private Map<String, List<Integer>> getVariationValueCoordinates() {
+        // generate coordinates variation in product detail page
+        // example: variationMap = {Size =[S, M, L], Color = [Red]}
+        // coordinates map = { S Red = [0, 3], M Red = [1, 3], L Red =[2, 3]}
+        // on product detail page, corresponding to 2 variations we will have 2 dropdowns are {S, M, L} and {Red}
+        // to select variation S Red, we have to select S on dropdown1 and Red on dropdown2 with its coordinates
+        Map<String, List<Integer>> coordinates = new HashMap<>();
+
+        // init variation value index
+        // example: variationMap = {Size =[S, M, L], Color = [Red]}
+        // variationValueIndex = {S = [0], M = [1], L = [2], Red = [3]}
+        Map<String, Integer> variationValueIndex = new HashMap<>();
+
+        // currentIndex is current variation coordinates
+        int currentIndex = 0;
+
+        // index all variations value
+        for (String variationName: variation.keySet()) {
+            for (String variationValue: variation.get(variationName)) {
+                variationValueIndex.put(variationValue, currentIndex);
+                currentIndex ++;
+            }
         }
-        checkStockQuantityForVariationProduct(variation, startQuantity, increaseStockForNextVariation);
-        checkProductDescription(productDescription);
+
+        // convert variation map from variation value to variation coordinates(index)
+        for (String variationValue: variationValueList) {
+            // if we have multiple variation, they will be separated by space character
+            String[] variation = variationValue.split(" ");
+
+            // get list variation coordinates
+            // with S Red variation, we have listIndex = [0, 3]
+            List<Integer> listIndex = new ArrayList<>();
+            for (String value: variation) {
+                listIndex.add(variationValueIndex.get(value));
+            }
+
+            // add variation and its coordinates
+            coordinates.put(variationValue, listIndex);
+        }
+        logger.debug(variationValueList);
+        logger.debug(coordinates);
+
+        return coordinates;
+    }
+
+
+    public ProductDetailPage checkVariationProductInformation() throws IOException {
+        // get variation coordinates
+        Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
+
+        // check all variation information
+        for (String variationValue: variationValueCoordinates.keySet()) {
+
+            // check product name
+            checkProductName();
+
+            // select variation
+            for (int index : variationValueCoordinates.get(variationValue)) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
+            }
+
+            // get variation value index
+            int varIndex = variationValueList.indexOf(variationValue);
+
+            // check stock quantity
+            if (!isHideRemainingStock) {
+                checkStockQuantity(variationStockQuantity.get(varIndex));
+            }
+
+            // check price
+            checkProductPrice(variationListingPrice.get(varIndex), variationSellingPrice.get(varIndex));
+
+            // check branch name
+            if (variationStockQuantity.get(varIndex) > 0) {
+                checkBranchInformation();
+            }
+
+            // check variation name
+            checkVariationName();
+
+            // check product description
+            checkProductDescription();
+        }
+
         return this;
     }
 
@@ -316,15 +335,5 @@ public class ProductDetailPage extends ProductDetailElement {
             countFail = 0;
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
-    }
-
-    /**
-     * Wait until list element loading successfully
-     */
-    private void waitElementList(List<WebElement> elementList) {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return elementList.size() > 0;
-        });
     }
 }

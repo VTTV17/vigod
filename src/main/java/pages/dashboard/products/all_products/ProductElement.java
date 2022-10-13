@@ -15,10 +15,7 @@ public class ProductElement {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = "iframe[data-testid='dialog_iframe']")
-    WebElement FACEBOOK_BUBBLE;
-
-    @FindBy(css = "div.d-flex > button.gs-button__green > div")
+    @FindBy(css = ".product-list-page > div > div > div >  button.gs-button__green")
     WebElement CREATE_PRODUCT_BTN;
 
     @FindBy(css = "input#productName")
@@ -93,12 +90,12 @@ public class ProductElement {
     List<WebElement> PRICE_TYPE_IN_VARIATION_TABLE;
 
     @FindBy(css = "div.modal-body  .d-flex > button:nth-child(1)")
-    WebElement ADD_STOCK_IN_STOCK_QUANTITY_TABLE;
+    WebElement ADD_STOCK;
 
     @FindBy(css = "div.modal-body  .d-flex > button:nth-child(2)")
-    WebElement CHANGE_STOCK_IN_STOCK_QUANTITY_TABLE;
+    WebElement CHANGE_STOCK;
 
-    @FindBy(css = ".d-flex > div > input")
+    @FindBy(css = ".modal-body .form-group >  div > input")
     WebElement STOCK_VALUE_IN_STOCK_QUANTITY_TABLE;
 
     @FindBy(css = "div:nth-child(4) > div > div > table > tbody > tr")
@@ -109,9 +106,6 @@ public class ProductElement {
 
     @FindBy(css = "[class ^= 'branch-list-stock'] > .font-weight-500")
     List<WebElement> BRANCH_NAME_LIST;
-
-    @FindBy(css = ".h-fit-content tr > th")
-    List<WebElement> BRANCH_TEXT_IN_SKU_TABLE;
 
     @FindBy(css = ".input-code input")
     List<WebElement> INPUT_IMEI_VALUE;
@@ -130,9 +124,6 @@ public class ProductElement {
 
     @FindBy(css = "div.gs-widget__content > div > button")
     WebElement CONFIGURE_WHOLESALE_PRICE_BTN;
-
-    @FindBy(css = ".wholesale-group-header > .gs-fake-link")
-    WebElement GO_BACK_TO_PRODUCT_DETAIL;
 
     @FindBy(css = "div:nth-child(7) > div > span")
     WebElement ADD_DEPOSIT_BTN;
@@ -171,9 +162,6 @@ public class ProductElement {
 
     @FindBy(css = "div.page-toolbar > div > div > div > button.btn-save")
     WebElement SAVE_BTN;
-
-    @FindBy(css = "div.page-toolbar > div > div > div > button.gs-button__gray--outline")
-    WebElement CANCEL_BTN;
 
     @FindBy(css = "div.product-form-collection-selector2 > div:nth-child(1) > div > input")
     WebElement COLLECTION_SEARCH_BOX;
@@ -231,8 +219,6 @@ public class ProductElement {
     @FindBy(css = "div.gs-widget__content > label > input")
     List<WebElement> PRODUCT_PLATFORM_CHECKBOX;
 
-    @FindBy (css = ".modal-content")
-    WebElement CREATE_SUCCESS_POPUP;
     @FindBy(css = ".modal-footer > button")
     WebElement CLOSE_BTN;
 
@@ -247,4 +233,7 @@ public class ProductElement {
 
     @FindBy (css = "div.header-right__ele-left > div > span.store-detail__url > a")
     WebElement SF_URL;
+
+    @FindBy (css = ".Toastify__toast-body")
+    WebElement TOAST_MESSAGE;
 }

@@ -14,13 +14,13 @@ public class ConversionUnitElement {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = ".d-flex > button.gs-button__green--outline")
+    @FindBy(css = ".conversion-unit-page-variation .gs-button__green--outline")
     WebElement SELECT_VARIATION_BTN;
 
-    @FindBy(css = ".uik-container-h__wrapper button.gs-button__green--outline")
+    @FindBy(css = ".conversion-unit-wrapper .gs-button__green--outline")
     WebElement SELECT_UNIT_BTN;
 
-    @FindBy(css = ".uik-container-h__wrapper button.gs-button__green")
+    @FindBy(css = ".conversion-unit-wrapper .gs-button__green")
     WebElement SAVE_BTN;
 
     @FindBy(css = ".variation-name input")
@@ -32,8 +32,8 @@ public class ConversionUnitElement {
     @FindBy(css = ".conversion-configure > button")
     List<WebElement> CONFIGURE_BY_VARIATION_BTN;
 
-    @FindBy(css = ".box-input-unit input")
-    List<WebElement> CONVERSION_UNIT_NAME;
+    @FindBy(css = "#unit-0")
+    WebElement CONVERSION_UNIT_NAME;
 
     @FindBy(css = ".icon_add_unit")
     WebElement ADD_CONVERSION_UNIT_BTN;
@@ -41,12 +41,9 @@ public class ConversionUnitElement {
     @FindBy(css = ".expanded > div > div")
     List<WebElement> MATCH_CONVERSION_RESULT;
 
-    @FindBy(css = "[name^=quantity]")
-    List<WebElement> CONVERSION_UNIT_QUANTITY;
+    @FindBy(css = "[name=quantity-0]")
+    WebElement CONVERSION_UNIT_QUANTITY;
 
     @FindBy(css = "div.Toastify__toast-body")
     WebElement TOAST_MESSAGE;
-
-    @FindBy (css = ".expanded")
-    WebElement CONVERSION_UNIT_RESULT;
 }

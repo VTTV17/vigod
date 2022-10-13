@@ -1,30 +1,15 @@
 package pages.dashboard.home;
 
-import static utilities.links.Links.DOMAIN;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.asserts.SoftAssert;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
@@ -37,14 +22,13 @@ import java.util.Map;
 
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.DOMAIN;
+import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_ENG;
+import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_VIE;
 
 public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
-
-    String pageLoadedTextENG = "We have created a short list of things you should do to complete your store";
-    String pageLoadedTextVIE = "Chúng tôi có chuẩn bị danh sách bạn cần làm để hoàn tất cửa hàng của bạn";
 
     SoftAssert soft = new SoftAssert();
 
@@ -456,10 +440,7 @@ public class HomePage {
     }
 
     public HomePage verifyPageLoaded() {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
-        });
+        commons.verifyPageLoaded(DB_HOME_PAGE_LOADED_TEXT_VIE, DB_HOME_PAGE_LOADED_TEXT_ENG);
         return this;
     }
     

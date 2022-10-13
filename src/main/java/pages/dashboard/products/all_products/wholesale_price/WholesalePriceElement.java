@@ -27,26 +27,25 @@ public class WholesalePriceElement {
     @FindBy(css = ".modal-body .gs-button__green")
     WebElement OK_BTN;
 
-    @FindBy(css = ".border-bottom span:nth-child(1)")
+    @FindBy(css = ".wholesale-group-header > div > .gs-fake-link:nth-child(1)")
     List<WebElement> HAS_VARIATION_LIST_ADD_WHOLESALE_PRICE_BTN;
 
-    // 0: wholesale title
-    // 1: buy from
-    // 2: price per item
-    //(3i, 3i + 1, 3i + 2)
-    @FindBy(css = "div.wholesale-grid-item input:not([readonly])")
-    List<WebElement> WHOLESALE_PRICE_CONFIGURE;
+    @FindBy (css = "[name^='wholesaleTitle']")
+    List<WebElement> WHOLESALE_TITLE;
 
-    @FindBy(css = ".gs-page-content--max")
-    List<WebElement> TOTAL_WHOLESALE_CONFIG;
+    @FindBy (css = "[name^='buyFrom-']")
+    List<WebElement> WHOLESALE_BUY_FROM;
+
+    @FindBy (css = "[name^='pricePerItem-'] input")
+    List<WebElement> WHOLE_SALE_PRICE_PER_ITEM;
 
     @FindBy(css = ".dropdown-search-checkbox-custom")
-    List<WebElement> LIST_SEGMENT_BTN;
+    List<WebElement> SEGMENT_DROPDOWN;
 
-    @FindBy(css = "div.label > input")
+    @FindBy(css = ".select-customer-options .label > input")
     List<WebElement> LIST_SEGMENT_CHECKBOX;
 
-    @FindBy(css = "div.label > label")
+    @FindBy(css = ".select-customer-options .label > label")
     List<WebElement> LIST_SEGMENT_LABEL;
 
     @FindBy(css = ".wholesale-btn-group-header > .gs-button__green")
