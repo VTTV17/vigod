@@ -1,6 +1,6 @@
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pages.dashboard.LoginPage;
+import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
 
