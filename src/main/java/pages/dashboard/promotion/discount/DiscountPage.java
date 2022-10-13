@@ -13,8 +13,8 @@ import java.time.Duration;
 public class DiscountPage extends DiscountElement {
     WebDriverWait wait;
 
-    String pageLoadedTextENG = "Promotion";
-    String pageLoadedTextVIE = "Ưu Đãi";
+    String pageLoadedTextENG = "Search By Promotion Name";
+    String pageLoadedTextVIE = "Tìm theo tên chương trình";
 
     public DiscountPage(WebDriver driver) {
         super(driver);
@@ -29,12 +29,17 @@ public class DiscountPage extends DiscountElement {
         return this;
     }
 
-    public DiscountPage openCreateProductWholesaleCampaignPage() {
+    public void openCreateProductWholesaleCampaignPage() {
         wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRICING_BTN)).click();
         logger.info("Click on the Wholesale pricing button");
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_WHOLESALE_PRICING)).click();
         logger.info("Navigate to create a new product wholesale campaign");
-        return this;
+    }
+
+    public void openCreateProductDiscountCodePage() {
+        wait.until(ExpectedConditions.elementToBeClickable(CREATE_PROMOTION_BTN)).click();
+        logger.info("Click on the Create promotion button");
+        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DISCOUNT_CODE)).click();
     }
 
     public DiscountPage verifyPageLoaded() {

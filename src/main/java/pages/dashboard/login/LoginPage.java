@@ -93,7 +93,7 @@ public class LoginPage {
     
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
-        wait.until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+        new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
         return this;
     }
 

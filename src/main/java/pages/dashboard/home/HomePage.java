@@ -1,42 +1,29 @@
 package pages.dashboard.home;
 
-import static utilities.links.Links.DOMAIN;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.asserts.SoftAssert;
 import org.testng.Assert;
 
+import org.testng.asserts.SoftAssert;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 
 import static java.lang.Thread.sleep;
+import static utilities.links.Links.DOMAIN;
+import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_ENG;
+import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_VIE;
 
 public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
-
-    String pageLoadedTextENG = "We have created a short list of things you should do to complete your store";
-    String pageLoadedTextVIE = "Chúng tôi có chuẩn bị danh sách bạn cần làm để hoàn tất cửa hàng của bạn";
 
     SoftAssert soft = new SoftAssert();
 
@@ -81,10 +68,10 @@ public class HomePage {
 
     @FindBy(css = ".modal-content .gs-button")
     WebElement UPGRADENOW_BTN;
-    
+
     @FindBy(css = ".modal-success.modal-header img")
     List<WebElement> CLOSE_UPGRADENOW_BTN;
-    
+
     @FindBy(css = "button[aria-label='skip-product-tour']")
     List<WebElement> SKIP_INTRODUCTION_BTN;
 
@@ -271,25 +258,25 @@ public class HomePage {
     	boolean flag = (UPGRADENOW_MESSAGE.size() >0) ? true:false;
         logger.info("checkPresenceOfUpgradeNowPopUp: " + flag);
         return flag;
-    }    
-    
+    }
+
     public boolean checkPresenceOfCloseUpgradeNowPopUpIcon() {
     	boolean flag = (CLOSE_UPGRADENOW_BTN.size() >0) ? true:false;
     	logger.info("checkPresenceOfCloseUpgradeNowPopUpIcon: " + flag);
     	return flag;
-    }    
-    
+    }
+
     public void clickUpgradeNow() {
         commons.clickElement(UPGRADENOW_BTN);
         logger.info("Clicked on Upgrade Now button");
         new HomePage(driver).waitTillSpinnerDisappear();
     }
-    
+
     public void closeUpgradeNowPopUp() {
     	commons.clickElement(CLOSE_UPGRADENOW_BTN.get(0));
     	logger.info("Closed Upgrade Now Popup");
     }
-    
+
     public void skipIntroduction() {
     	commons.sleepInMiliSecond(2000); //Temporarily put sleep here.
     	commons.clickElement(SKIP_INTRODUCTION_BTN.get(0));
@@ -478,10 +465,7 @@ public class HomePage {
     }
 
     public HomePage verifyPageLoaded() {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
-        });
+        commons.verifyPageLoaded(DB_HOME_PAGE_LOADED_TEXT_VIE, DB_HOME_PAGE_LOADED_TEXT_ENG);
         return this;
     }
     

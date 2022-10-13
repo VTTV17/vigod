@@ -3,10 +3,12 @@ package utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.Mailnesia;
+import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
 import utilities.database.InitConnection;
 
 import java.io.File;
@@ -259,6 +261,21 @@ public class UICommonAction {
 	public void navigateBack(){
 		driver.navigate().back();
 	}
+
+	public void verifyPageLoaded(String pageLoadedTextVIE, String pageLoadedTextENG) {
+		new WebDriverWait(driver, Duration.ofSeconds(30)).until((ExpectedCondition<Boolean>) driver -> {
+			assert driver != null;
+			return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
+		});
+	}
+
+	public void waitElementList(List<WebElement> elementList) {
+		new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+			assert driver != null;
+			return elementList.size() > 0;
+		});
+	}
+
 	public String getDropDownSelectedValue(WebElement element){
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
@@ -268,9 +285,9 @@ public class UICommonAction {
 		JavascriptExecutor executor= (JavascriptExecutor)driver;
 		executor.executeScript( "window.scrollBy(0,document.body.scrollHeight)");
 	}
-	
+
 	public void refreshPage(){
 		driver.navigate().refresh();
 		logger.debug("Refreshed page.");
-	}	
+	}
 }
