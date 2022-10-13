@@ -8,8 +8,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import utilities.UICommonAction;
-import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.shoppingcart.ShoppingCart;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
@@ -341,15 +339,6 @@ public class ProductDetailPage extends ProductDetailElement {
         }
     }
 
-    /**
-     * Wait until list element loading successfully
-     */
-    private void waitElementList(List<WebElement> elementList) {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return elementList.size() > 0;
-        });
-    }
     public ShoppingCart clickOnBuyNow(){
         common.clickElement(BUY_NOW_BTN);
         logger.info("CLick on Buy Now button");
