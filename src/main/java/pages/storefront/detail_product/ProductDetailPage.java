@@ -9,6 +9,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.UICommonAction;
+import pages.dashboard.products.all_products.ProductPage;
+import pages.storefront.shoppingcart.ShoppingCart;
+import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
 import java.io.IOException;
@@ -30,10 +33,11 @@ public class ProductDetailPage extends ProductDetailElement {
     static int countFail = 0;
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
-
+    UICommonAction common;
     public ProductDetailPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        common = new UICommonAction(driver);
     }
 
     /**
@@ -335,5 +339,26 @@ public class ProductDetailPage extends ProductDetailElement {
             countFail = 0;
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
+    }
+
+    /**
+     * Wait until list element loading successfully
+     */
+    private void waitElementList(List<WebElement> elementList) {
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return elementList.size() > 0;
+        });
+    }
+    public ShoppingCart clickOnBuyNow(){
+        common.clickElement(BUY_NOW_BTN);
+        logger.info("CLick on Buy Now button");
+        return new ShoppingCart(driver);
+    }
+    public ProductDetailPage accessToProductDetailPageByURL(String domain, String productID) {
+        common.navigateToURL(domain+"product/"+productID);
+        logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
+        common.sleepInMiliSecond(3000);
+        return this;
     }
 }

@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
@@ -37,15 +38,13 @@ public class CustomerDetails {
     WebElement PHONE;
     
     public String getEmail() {
-    	commonAction.sleepInMiliSecond(1000);
-    	String value = commonAction.getElementAttribute(EMAIL, "value");
+    	String value = commonAction.getElementAttribute(wait.until(ExpectedConditions.visibilityOf(EMAIL)), "value");
     	logger.info("Retrieved Email: " + value);
         return value;
     }
     
     public String getPhoneNumber() {
-    	commonAction.sleepInMiliSecond(1000);
-    	String value = commonAction.getText(PHONE);
+    	String value = commonAction.getText(wait.until(ExpectedConditions.visibilityOf(PHONE)));
     	logger.info("Retrieved Phone Number: " + value);
     	return value;
     }

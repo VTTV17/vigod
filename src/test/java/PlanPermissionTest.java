@@ -1,10 +1,10 @@
 import org.testng.annotations.Test;
 import pages.InternalTool;
 import pages.Mailnesia;
-import pages.dashboard.LoginPage;
-import pages.dashboard.SignupPage;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
+import pages.dashboard.signup.SignupPage;
 
 import java.io.IOException;
 import java.sql.SQLException;

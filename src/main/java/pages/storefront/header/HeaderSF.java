@@ -1,4 +1,4 @@
-package pages.storefront;
+package pages.storefront.header;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +9,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.storefront.login.LoginPage;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
 
@@ -40,6 +41,9 @@ public class HeaderSF {
 	@FindBy(id = "btn-signup")
 	WebElement SIGNUP_ICON;
 
+	@FindBy(id = "btn-change-pwd")
+	WebElement CHANGE_PASSWORD_LINKTEXT;	
+	
 	@FindBy(css = "[data-target='#modalChangeLanguage']")
 	WebElement CHANGE_LANGUAGE_LINKTEXT;	
 	
@@ -112,12 +116,18 @@ public class HeaderSF {
 		commons.clickElement(LOGOUT_BTN);
 		logger.info("Clicked on Logout linktext");
 	}
-	public HeaderSF navigateToUserProfile(){
+	public UserProfileInfo navigateToUserProfile(){
 		clickUserInfoIcon();
 		clickUserProfile();
-		return this;
+		return new UserProfileInfo(driver);
 	}
 
+	public ChangePasswordDialog clickChangePassword() {
+		commons.clickElement(CHANGE_PASSWORD_LINKTEXT);
+		logger.info("Clicked on 'Change Password' link text.");
+		return new ChangePasswordDialog(driver);
+	}
+	
 	public void clickChangeLanguage() {
 		commons.clickElement(CHANGE_LANGUAGE_LINKTEXT);
 		logger.info("Clicked on 'Change Language' link text.");

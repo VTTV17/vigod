@@ -1,4 +1,4 @@
-package pages.dashboard;
+package pages.dashboard.login;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +14,6 @@ import org.testng.asserts.SoftAssert;
 import utilities.UICommonAction;
 
 import java.time.Duration;
-import java.util.Random;
 
 import static utilities.links.Links.*;
 
@@ -41,7 +40,7 @@ public class LoginPage {
     @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
     WebElement LANGUAGE;       
     
-    @FindBy (css = "div.uik-select__valueRenderedWrapper")
+    @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
     WebElement COUNTRY_DROPDOWN;    
     
     @FindBy(css = "input[name='username']")
@@ -100,7 +99,7 @@ public class LoginPage {
 
     public LoginPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
-    	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()='%s']".formatted(country))).click();
+    	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
     	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
     	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
     	this.country = selectedOption[0];

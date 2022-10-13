@@ -9,16 +9,11 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+
 import org.testng.asserts.SoftAssert;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.DOMAIN;
@@ -72,10 +67,16 @@ public class HomePage {
     WebElement PROMOTION_DISCOUNT_MENU;
 
     @FindBy(css = ".modal-content .gs-button")
-    WebElement UPGRADNOW_BTN;
+    WebElement UPGRADENOW_BTN;
+
+    @FindBy(css = ".modal-success.modal-header img")
+    List<WebElement> CLOSE_UPGRADENOW_BTN;
+
+    @FindBy(css = "button[aria-label='skip-product-tour']")
+    List<WebElement> SKIP_INTRODUCTION_BTN;
 
     @FindBy(css = ".modal-content")
-    WebElement UPGRADNOW_MESSAGE;
+    List<WebElement> UPGRADENOW_MESSAGE;
 
     @FindBy(css = "div.language-selector > button")
     WebElement LANGUAGE;
@@ -253,13 +254,37 @@ public class HomePage {
         return commons.getText(LANGUAGE).replace(" ", "");
     }
 
+    public boolean checkPresenceOfUpgradeNowPopUp() {
+    	boolean flag = (UPGRADENOW_MESSAGE.size() >0) ? true:false;
+        logger.info("checkPresenceOfUpgradeNowPopUp: " + flag);
+        return flag;
+    }
+
+    public boolean checkPresenceOfCloseUpgradeNowPopUpIcon() {
+    	boolean flag = (CLOSE_UPGRADENOW_BTN.size() >0) ? true:false;
+    	logger.info("checkPresenceOfCloseUpgradeNowPopUpIcon: " + flag);
+    	return flag;
+    }
+
     public void clickUpgradeNow() {
-        commons.clickElement(UPGRADNOW_BTN);
+        commons.clickElement(UPGRADENOW_BTN);
         logger.info("Clicked on Upgrade Now button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+    }
+
+    public void closeUpgradeNowPopUp() {
+    	commons.clickElement(CLOSE_UPGRADENOW_BTN.get(0));
+    	logger.info("Closed Upgrade Now Popup");
+    }
+
+    public void skipIntroduction() {
+    	commons.sleepInMiliSecond(2000); //Temporarily put sleep here.
+    	commons.clickElement(SKIP_INTRODUCTION_BTN.get(0));
+    	logger.info("Skipped introduction.");
     }
 
     public HomePage verifyUpgradeNowMessage(String message) {
-    	String text = commons.getText(UPGRADNOW_MESSAGE);
+    	String text = commons.getText(UPGRADENOW_MESSAGE.get(0));
     	soft.assertEquals(text,message, "[Homepage][Upgrade Now Message] Message does not match.");
     	logger.info("verifyUpgradeNowMessage completed");
     	return this;

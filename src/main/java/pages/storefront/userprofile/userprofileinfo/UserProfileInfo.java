@@ -7,8 +7,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import pages.storefront.userprofile.MembershipInfo;
+import pages.storefront.userprofile.MyAddress;
 import utilities.UICommonAction;
 import java.time.Duration;
 
@@ -33,10 +33,10 @@ public class UserProfileInfo {
         logger.info("Clicked on My Account section.");
         return this;
     }
-    public UserProfileInfo clickMyAddressSection() {
+    public MyAddress clickMyAddressSection() {
         commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
         logger.info("Clicked on My Address section.");
-        return this;
+        return new MyAddress(driver);
     }
     
     public MembershipInfo clickMembershipInfoSection() {

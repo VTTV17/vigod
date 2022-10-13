@@ -1,4 +1,4 @@
-package pages.storefront;
+package pages.storefront.login;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.home.HomePage;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 
 import static utilities.links.Links.*;
@@ -82,6 +82,9 @@ public class LoginPage {
 
     @FindBy (id = "login-fail")
     WebElement INVALID_USER_ERROR;	
+
+	@FindBy (id = "forgot-pwd-fail")
+	WebElement FORGOT_PASSWORD_NONEXISTING_ACCOUNT_ERROR;	
     
     public LoginPage navigate() {
         driver.get(DOMAIN1);
@@ -182,6 +185,7 @@ public class LoginPage {
     public LoginPage clickConfirmBtn() {
     	commonAction.clickElement(CONFIRM_BTN);
     	logger.info("Clicked on Confirm button.");
+    	waitTillLoaderDisappear();
     	return this;
     }    
 
@@ -211,6 +215,13 @@ public class LoginPage {
         logger.info("verifyEmailOrPasswordIncorrectError completed");
         return this;
     }    
+    
+    public LoginPage verifyForgetPasswordForNonExistingAccountError(String errMessage) {
+    	String text = commonAction.getText(FORGOT_PASSWORD_NONEXISTING_ACCOUNT_ERROR);
+    	soft.assertEquals(text,errMessage, "[Login][Forgot password] Message does not match.");
+    	logger.info("verifyForgetPasswordForNonExistingAccountError completed");
+    	return this;
+    }      
   
     public void completeVerify() {
         soft.assertAll();
