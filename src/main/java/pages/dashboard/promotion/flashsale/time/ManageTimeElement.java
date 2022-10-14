@@ -14,7 +14,7 @@ public class ManageTimeElement {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = ".gs-button__green")
+    @FindBy(css = ".flash-sale-time-management .gs-button__green")
     WebElement ADD_TIME_BTN;
 
     @FindBy (css = "#start-at div:nth-child(2) > button")

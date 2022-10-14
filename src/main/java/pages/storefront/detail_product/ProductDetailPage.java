@@ -236,9 +236,7 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
-    /**
-     * Verify all information on the SF is shown correctly (variation product)
-     */
+
     private Map<String, List<Integer>> getVariationValueCoordinates() {
         // generate coordinates variation in product detail page
         // example: variationMap = {Size =[S, M, L], Color = [Red]}
@@ -285,6 +283,9 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
 
+    /**
+     * Verify all information on the SF is shown correctly (variation product)
+     */
     public ProductDetailPage checkVariationProductInformation() throws IOException {
         // get variation coordinates
         Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();

@@ -18,6 +18,9 @@ public class PageLoadedText {
     public final static String DB_CONFIGURE_WHOLESALE_PRICE_PAGE_LOADED_TEXT_VIE = "Bạn chưa thiết lập giá sỉ cho phân loại hàng này";
     public final static String DB_CONFIGURE_WHOLESALE_PRICE_PAGE_LOADED_TEXT_ENG = "You don't configure any wholesale price for this variation yet";
 
+    // Flash sale campaign
+    public final static String DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_VIE = "Thông tin sản phẩm";
+    public final static String DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_ENG = "Product information";
 
 
     // Storefront

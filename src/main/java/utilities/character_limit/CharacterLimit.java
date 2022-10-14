@@ -32,4 +32,9 @@ public class CharacterLimit {
 
     public final static int MAX_WHOLESALE_NUM_PER_VAR = 20;
 //    public final static int MAX_WHOLESALE_NUM_PER_VAR = 2000;
+
+
+    // promotion
+    // flash sale
+    public final static int MAX_FLASH_SALE_CAMPAIGN_NAME = 50;
 }

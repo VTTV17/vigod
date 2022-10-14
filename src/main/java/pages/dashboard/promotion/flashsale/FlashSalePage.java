@@ -36,11 +36,11 @@ public class FlashSalePage extends FlashSaleElement {
 
     private List<Integer> checkTime(int Hour, int Min) {
         int incDay = 0;
-        if (Min + 2 > 58) {
+        if (Min + 2 <= 58) {
+            Min = Min + 2;
+        } else {
             Min = 0;
             Hour++;
-        } else {
-            Min = Min + 2;
         }
         if (Hour > 23) {
             Hour = 0;
@@ -61,9 +61,10 @@ public class FlashSalePage extends FlashSaleElement {
             wait.until(ExpectedConditions.visibilityOf(EXPLORE_NOW_BTN)).click();
             logger.info("Skip Flash sale intro");
         }
+
         wait.until(ExpectedConditions.elementToBeClickable(MANAGE_FLASH_SALE_TIME_BTN)).click();
         logger.info("Click on the Manage flash sale time button");
-        new ManageTimePage(driver).verifyPageLoaded().addNewFlashSaleTime(this.startHour, this.startMin);
+        new ManageTimePage(driver).addNewFlashSaleTime();
         return this;
     }
 

@@ -15,6 +15,12 @@ import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.DOMAIN;
 import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_ENG;
@@ -339,7 +345,7 @@ public class HomePage {
         }
     }
 
-    public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
+    public HomePage checkPageHasPermission(String pageName, String path) throws IOException, IOException {
         commons.sleepInMiliSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
