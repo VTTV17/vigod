@@ -3,8 +3,6 @@ package pages.dashboard.promotion.flashsale.time;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
@@ -13,14 +11,9 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 
-import static java.lang.Thread.sleep;
-
 public class ManageTimePage extends ManageTimeElement {
     WebDriverWait wait;
     UICommonAction commonAction;
-
-    String pageLoadedTextENG = "Flash sale time management";
-    String pageLoadedTextVIE = "Quản lý thigh gian Flash sale";
 
     public static int startHour;
     public static int startMin;
@@ -36,15 +29,7 @@ public class ManageTimePage extends ManageTimeElement {
 
     Logger logger = LogManager.getLogger(ManageTimePage.class);
 
-    public ManageTimePage verifyPageLoaded() {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
-        });
-        return this;
-    }
-
-    private void clickAddTimeBtn() throws InterruptedException {
+    private void clickAddTimeBtn() {
         wait.until(ExpectedConditions.urlContains("/flash-sale/time/list"));
         wait.until(ExpectedConditions.visibilityOf(ADD_TIME_BTN)).click();
         logger.info("Click on the Add time button");
@@ -97,6 +82,10 @@ public class ManageTimePage extends ManageTimeElement {
         // + 2: total time for the setting is about 2 minutes
         startMin = (time.length > 1) ? time[1] : LocalTime.now().getMinute();
 
+        // List of (incDay, startHour, startMin)
+        // incDay = flash sale date start - current date
+        // start hour, start min: start time after check more condition
+        // more information, read on getStartTime() function
         List<Integer> startTime = getStartTime(startHour, startMin);
         incDay = startTime.get(0);
         startHour = startTime.get(1);
@@ -141,7 +130,7 @@ public class ManageTimePage extends ManageTimeElement {
         logger.info("Save flash sale time.");
     }
 
-    public void addNewFlashSaleTime() throws InterruptedException {
+    public void addNewFlashSaleTime() {
         clickAddTimeBtn();
         setTime();
         clickOnTheSaveBtn();
