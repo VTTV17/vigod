@@ -101,6 +101,12 @@ public class HeaderGoMua {
 		return this;
 	}
 
+	public ChangePasswordDialog clickChangePassword() {
+		commonAction.clickElement(headerUI.CHANGE_PASSWORD);
+		logger.info("Clicked on 'Change Password' link text.");
+		return new ChangePasswordDialog(driver);
+	}		
+	
 	public HeaderGoMua clickCreateShop() {
 		commonAction.clickElement(headerUI.CREATE_SHOP_LINKTEXT);
 		logger.info("Clicked on 'Create Shop' link text.");

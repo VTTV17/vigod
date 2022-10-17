@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
+import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 
@@ -97,12 +98,6 @@ public class LoginPage {
         return this;
     }
 
-    public LoginPage waitTillLoaderDisappear() {
-    	commonAction.waitForElementInvisible(SPINNER, 15);
-        logger.info("Loader has finished loading");
-        return this;
-    }    
-    
     public LoginPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
     	driver.findElement(By.xpath("//ul[@id='login-country-code-menu']//a[@class='dropdown-item']/span[text()='%s']".formatted(country))).click();
@@ -147,7 +142,7 @@ public class LoginPage {
     public LoginPage clickLoginBtn() {
     	commonAction.clickElement(LOGIN_BTN);
     	logger.info("Clicked on Login button.");
-    	waitTillLoaderDisappear();
+    	new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }
 
@@ -185,7 +180,7 @@ public class LoginPage {
     public LoginPage clickConfirmBtn() {
     	commonAction.clickElement(CONFIRM_BTN);
     	logger.info("Clicked on Confirm button.");
-    	waitTillLoaderDisappear();
+    	new GeneralSF(driver).waitTillLoaderDisappear();
     	return this;
     }    
 

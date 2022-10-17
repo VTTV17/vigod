@@ -7,12 +7,8 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.Mailnesia;
-import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
-import utilities.database.InitConnection;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;

@@ -35,5 +35,8 @@ public class HeaderGoMuaElement {
 	
 	@FindBy(css = "button[beetranslate='beecow.signup.create']")
 	WebElement CREATE_ACCOUNT_BTN;
+	
+	@FindBy(css = ".profile-setting [beetranslate='beecow.action.changepwd']")
+	WebElement CHANGE_PASSWORD;
 
 }
