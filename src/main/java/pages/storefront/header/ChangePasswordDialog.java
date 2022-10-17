@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import pages.storefront.GeneralSF;
 import pages.storefront.login.LoginPage;
 import utilities.UICommonAction;
 
@@ -56,7 +57,7 @@ public class ChangePasswordDialog {
 	public ChangePasswordDialog clickDoneBtn() {
 		commonAction.clickElement(DONE_BTN);
 		logger.info("Clicked on 'Done' button");
-		new LoginPage(driver).waitTillLoaderDisappear();
+		new GeneralSF(driver).waitTillLoaderDisappear();
 		return this;
 	}
 

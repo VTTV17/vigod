@@ -152,7 +152,7 @@ public class HeaderSF extends GeneralSF {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		new LoginPage(driver).waitTillLoaderDisappear();
+		waitTillLoaderDisappear();
 		return this;
 	}	
 	

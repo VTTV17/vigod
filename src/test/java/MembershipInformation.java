@@ -104,8 +104,8 @@ public class MembershipInformation extends BaseTest {
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
 		loginSF.navigate().
-		performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD)
-		.waitTillLoaderDisappear();
+		performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
+		headerPage.waitTillLoaderDisappear();
 		
 		// Verify membership info
 		new HeaderSF(driver)
@@ -165,8 +165,8 @@ public class MembershipInformation extends BaseTest {
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
 		loginSF.navigate().
-		performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD)
-		.waitTillLoaderDisappear();
+		performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
+		headerPage.waitTillLoaderDisappear();
 		
 		// Verify membership info
 		new HeaderSF(driver)

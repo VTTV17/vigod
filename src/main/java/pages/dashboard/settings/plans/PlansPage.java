@@ -40,7 +40,7 @@ public class PlansPage extends HomePage {
     final static Logger logger = LogManager.getLogger(PlansPage.class);
 
     public PlansPage selectPlan(String planName) {
-        commons.waitTillElementDisappear(LOADING, 20);
+        commons.waitForElementInvisible(LOADING, 20);
         String newXpath = PLAN_PRICE_12M.replace("%planName%", planName);
         commons.clickElement(driver.findElement(By.xpath(newXpath)));
         logger.info("Select plan: "+planName);
