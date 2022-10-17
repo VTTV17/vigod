@@ -4,14 +4,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import pages.dashboard.promotion.flashsale.FlashSaleElement;
 
 import java.util.List;
 
-public class CampaignElement {
-    WebDriver driver;
-
-    public CampaignElement(WebDriver driver) {
-        this.driver = driver;
+public class FlashSaleCampaignElement extends FlashSaleElement {
+    public FlashSaleCampaignElement(WebDriver driver) {
+        super(driver);
         PageFactory.initElements(driver, this);
     }
 
@@ -27,7 +26,7 @@ public class CampaignElement {
     @FindBy (css = ".time > div:nth-child(2) > div:nth-child(4) > div  button")
     List<WebElement> TIME_DROPDOWN;
 
-    @FindBy (css = ".gs-fake-link ")
+    @FindBy (css = ".gs-fake-link")
     WebElement ADD_PRODUCT_BTN;
 
     @FindBy (css = ".search-input")
@@ -41,6 +40,13 @@ public class CampaignElement {
 
     @FindBy (css = ".footer-btn .gs-button__green")
     WebElement OK_BTN;
+
+    @FindBy (css = ".row-product-name")
+    List<WebElement> PRODUCT_NAME;
+
+    // variation = PRODUCT_VARIATION.getText().split(PRODUCT_NAME.getText())[1]
+    @FindBy (css = "tbody > tr > td > div >  div:nth-child(2)")
+    List<WebElement> PRODUCT_VARIATION;
 
     @FindBy (css = "tr > td:nth-child(2) > div > span")
     List<WebElement> LIST_PRICE;

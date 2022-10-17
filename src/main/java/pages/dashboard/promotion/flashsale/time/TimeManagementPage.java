@@ -5,13 +5,17 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.dashboard.promotion.flashsale.FlashSalePage;
 import utilities.UICommonAction;
 
+import javax.sql.rowset.serial.SerialStruct;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 
-public class ManageTimePage extends ManageTimeElement {
+import static java.lang.Thread.sleep;
+
+public class TimeManagementPage extends TimeManagementElement {
     WebDriverWait wait;
     UICommonAction commonAction;
 
@@ -21,23 +25,52 @@ public class ManageTimePage extends ManageTimeElement {
     public static int endMin;
     public static int incDay;
 
-    public ManageTimePage(WebDriver driver) {
+    public static String flashSaleURL;
+
+    public TimeManagementPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
     }
 
-    Logger logger = LogManager.getLogger(ManageTimePage.class);
+    Logger logger = LogManager.getLogger(TimeManagementPage.class);
 
-    private void clickAddTimeBtn() {
+    public TimeManagementPage navigateToFlashSaleTimeManagementPage() throws InterruptedException {
+        // wait flash sale intro page loaded, if any
+        sleep(1000);
+
+        // in case, flash sale intro page is shown, click on Explore Now button to skip
+        if (driver.getCurrentUrl().contains("intro")) {
+            // click Explore Now
+            wait.until(ExpectedConditions.visibilityOf(EXPLORE_NOW_BTN)).click();
+            logger.info("Skip Flash sale intro");
+        }
+
+        // get flashSaleURL
+        flashSaleURL = driver.getCurrentUrl();
+
+        // navigate to manage flash sale time page
+        wait.until(ExpectedConditions.elementToBeClickable(MANAGE_FLASH_SALE_TIME_BTN)).click();
+        logger.info("Navigate to manage flash sale time page");
+
+        return this;
+    }
+
+    public TimeManagementPage clickAddTimeBtn() {
         wait.until(ExpectedConditions.urlContains("/flash-sale/time/list"));
         wait.until(ExpectedConditions.visibilityOf(ADD_TIME_BTN)).click();
         logger.info("Click on the Add time button");
+
+        return this;
     }
 
-    private void closeCreateSuccessfullyPopup() {
+    public TimeManagementPage completeAddNewFlashSaleTime() {
+        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        logger.info("Save flash sale time.");
+
         wait.until(ExpectedConditions.elementToBeClickable(CLOSE_BTN)).click();
         logger.info("Close Flash Sale Time created successfully! popup");
+        return this;
     }
 
     private List<Integer> getStartTime(int hour, int min) {
@@ -72,7 +105,7 @@ public class ManageTimePage extends ManageTimeElement {
         }
     }
 
-    private void setTime(int... time) {
+    public TimeManagementPage addNewFlashSaleTime(int... time) {
         // get start hour
         // if no start hour has provided, start hour = current hour
         startHour = (time.length > 0) ? time[0] : LocalTime.now().getHour();
@@ -123,17 +156,7 @@ public class ManageTimePage extends ManageTimeElement {
         wait.until(ExpectedConditions.elementToBeClickable(TIME_DROPDOWN.get(endMin))).click();
         logger.info("Set end min: %s".formatted(endMin));
 
-    }
+        return this;
 
-    private void clickOnTheSaveBtn() {
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
-        logger.info("Save flash sale time.");
-    }
-
-    public void addNewFlashSaleTime() {
-        clickAddTimeBtn();
-        setTime();
-        clickOnTheSaveBtn();
-        closeCreateSuccessfullyPopup();
     }
 }
