@@ -11,11 +11,11 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-import pages.storefront.GeneralSF;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 import java.time.Duration;
 
-public class MyAddress extends GeneralSF {
+public class MyAddress extends HeaderSF {
 	
 	final static Logger logger = LogManager.getLogger(MyAddress.class);
 	

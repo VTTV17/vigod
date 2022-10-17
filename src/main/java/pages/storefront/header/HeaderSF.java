@@ -9,6 +9,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.storefront.GeneralSF;
 import pages.storefront.login.LoginPage;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
@@ -16,13 +17,14 @@ import utilities.UICommonAction;
 import java.time.Duration;
 import java.util.List;
 
-public class HeaderSF {
+public class HeaderSF extends GeneralSF {
 	WebDriver driver;
 	WebDriverWait wait;
 	UICommonAction commons;
 	final static Logger logger = LogManager.getLogger(HeaderSF.class);
 
 	public HeaderSF(WebDriver driver){
+		super(driver);
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		commons = new UICommonAction(driver);
