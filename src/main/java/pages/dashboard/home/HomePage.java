@@ -396,12 +396,14 @@ public class HomePage {
             }
             commons.sleepInMiliSecond(1000);
             countFailed = assertCustomize.assertFalse(countFailed, isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
-            commons.openNewTab();
-            commons.switchToWindow(1);
-            commons.navigateToURL(DOMAIN + path);
-            countFailed = assertCustomize.assertTrue(countFailed, commons.getCurrentURL().contains("/404"),  "Check url 404: " + pageName);
-            commons.closeTab();
-            commons.switchToWindow(0);
+            if (!pageName.equals("Google Shopping")) {
+                commons.openNewTab();
+                commons.switchToWindow(1);
+                commons.navigateToURL(DOMAIN + path);
+                countFailed = assertCustomize.assertTrue(countFailed, commons.getCurrentURL().contains("/404"), "Check url 404: " + pageName);
+                commons.closeTab();
+                commons.switchToWindow(0);
+            }
         }
         logger.info("Check page no permission");
         return this;

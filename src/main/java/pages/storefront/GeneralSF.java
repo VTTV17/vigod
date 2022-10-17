@@ -7,19 +7,19 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.storefront.header.HeaderSF;
 import pages.storefront.login.LoginPage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
 
-public class GeneralSF extends HeaderSF {
+public class GeneralSF  {
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commons;
     final static Logger logger = LogManager.getLogger(GeneralSF.class);
 
     public GeneralSF(WebDriver driver){
-        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         commons = new UICommonAction(driver);
