@@ -7,6 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+import pages.storefront.GeneralSF;
 import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
 import pages.storefront.userprofile.userprofileinfo.UserProfileElement;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
@@ -14,7 +15,7 @@ import utilities.UICommonAction;
 
 import java.time.Duration;
 
-public class CheckOutStep1 {
+public class CheckOutStep1 extends GeneralSF {
     final static Logger logger = LogManager.getLogger(CheckOutStep1.class);
     WebDriver driver;
     WebDriverWait wait;
@@ -22,6 +23,7 @@ public class CheckOutStep1 {
     CheckOutStep1Element checkOutStep1UI;
 
     public CheckOutStep1(WebDriver driver) {
+        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -134,6 +136,7 @@ public class CheckOutStep1 {
     public CheckOutStep2 clickOnNextButton() {
         commonAction.clickElement(checkOutStep1UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
+        waitTillLoaderDisappear();
         return new CheckOutStep2(driver);
     }
 
@@ -220,6 +223,7 @@ public class CheckOutStep1 {
     }
 
     public CheckOutStep1 verifyAddressInfo_VN(String country, String address, String city, String district, String ward) {
+        commonAction.sleepInMiliSecond(2000);
         if (country != "") {
             verifyCountrySelectedValue(country);
         }
@@ -231,12 +235,13 @@ public class CheckOutStep1 {
     }
 
     public CheckOutStep1 verifyAddressInfo_NonVN(String country, String address, String address2, String state, String city, String zipCode) {
+        commonAction.sleepInMiliSecond(2000);
         verifyCountrySelectedValue(country);
-        inputAddres(address);
-        inputAddress2(address2);
-        selectState(state);
-        inputCity(city);
-        inputZipCode(zipCode);
+        verifyAddress(address);
+        verifyAddress2(address2);
+        verifyStateRegionProvince(state);
+        verifyCity_CountryNonVietName(city);
+        verifyZipCode(zipCode);
         return this;
     }
 }

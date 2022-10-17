@@ -342,6 +342,7 @@ public class ProductDetailPage extends ProductDetailElement {
     public ShoppingCart clickOnBuyNow(){
         common.clickElement(BUY_NOW_BTN);
         logger.info("CLick on Buy Now button");
+        common.sleepInMiliSecond(2000);
         return new ShoppingCart(driver);
     }
     public ProductDetailPage accessToProductDetailPageByURL(String domain, String productID) {

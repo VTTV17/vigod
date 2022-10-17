@@ -7,12 +7,13 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+import pages.storefront.GeneralSF;
 import pages.storefront.userprofile.MembershipInfo;
 import pages.storefront.userprofile.MyAddress;
 import utilities.UICommonAction;
 import java.time.Duration;
 
-public class UserProfileInfo {
+public class UserProfileInfo extends GeneralSF {
 
     final static Logger logger = LogManager.getLogger(UserProfileInfo.class);
     WebDriver driver;
@@ -21,6 +22,7 @@ public class UserProfileInfo {
     SoftAssert soft = new SoftAssert();
     UserProfileElement userProfileUI ;
     public UserProfileInfo (WebDriver driver) {
+        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -36,6 +38,7 @@ public class UserProfileInfo {
     public MyAddress clickMyAddressSection() {
         commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
         logger.info("Clicked on My Address section.");
+        waitTillLoaderDisappear();
         return new MyAddress(driver);
     }
     
