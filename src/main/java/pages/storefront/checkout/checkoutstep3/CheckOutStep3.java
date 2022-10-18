@@ -14,7 +14,7 @@ import utilities.UICommonAction;
 import java.time.Duration;
 
 public class CheckOutStep3 extends GeneralSF {
-    final static Logger logger = LogManager.getLogger(CheckOutStep2.class);
+    final static Logger logger = LogManager.getLogger(CheckOutStep3.class);
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;

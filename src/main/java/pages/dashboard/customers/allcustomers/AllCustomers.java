@@ -53,7 +53,6 @@ public class AllCustomers extends HomePage{
 	WebElement DONE_BTN;
 
 	public AllCustomers navigate() {
-		commonAction.sleepInMiliSecond(1000);
 		new HomePage(driver).navigateToPage("Customers");
 		return this;
 	}

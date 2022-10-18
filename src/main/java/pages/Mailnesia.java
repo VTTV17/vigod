@@ -48,7 +48,7 @@ public class Mailnesia {
 		String code = null;
 		// Refresh page till a code is found
 		String [][] mailContent;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 30; i++) {
 			mailContent = getListOfEmailHeaders();
 			if (mailContent.length >0 && mailContent[0][0].contentEquals("a few seconds ago")) {
 				Matcher m = Pattern.compile("\\d+").matcher(mailContent[0][3]); //Element at [0][3] contains the verification code.

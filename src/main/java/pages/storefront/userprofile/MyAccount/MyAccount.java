@@ -12,11 +12,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 
 import java.time.Duration;
 
-public class MyAccount {
+public class MyAccount extends HeaderSF {
 
     final static Logger logger = LogManager.getLogger(MyAccount.class);
 
@@ -28,6 +29,7 @@ public class MyAccount {
     MyAccountElement myAccountUI;
 
     public MyAccount(WebDriver driver) {
+        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);

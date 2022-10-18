@@ -65,6 +65,10 @@ public class HeaderSF extends GeneralSF {
 
 	@FindBy (id = "btn-logout")
 	WebElement LOGOUT_BTN;
+	@FindBy(css = "[onclick=\"gosellUtils.changeLanguage('en')\"]")
+	WebElement ENGLISH_LANGUAGE;
+	@FindBy(css = "[onclick=\"gosellUtils.changeLanguage('vi')\"]")
+	WebElement VIETNAMESE_LANGUAGE;
 
 	public HeaderSF clickUserInfoIcon() {
 		commons.clickElement(USER_INFO_ICON);
@@ -155,5 +159,15 @@ public class HeaderSF extends GeneralSF {
 		waitTillLoaderDisappear();
 		return this;
 	}	
-	
+	public HeaderSF selectLanguage(String lang) throws Exception {
+		if (lang.contentEquals("English")) {
+			commons.clickElementByJS(ENGLISH_LANGUAGE);
+		} else if (lang.contentEquals("Vietnamese")) {
+			commons.clickElementByJS(VIETNAMESE_LANGUAGE);
+		} else {
+			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
+		}
+		logger.info("Selected language '%s'.".formatted(lang));
+		return this;
+	}
 }

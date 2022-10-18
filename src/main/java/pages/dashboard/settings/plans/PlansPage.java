@@ -7,6 +7,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
@@ -42,7 +43,7 @@ public class PlansPage extends HomePage {
     public PlansPage selectPlan(String planName) {
         commons.waitForElementInvisible(LOADING, 20);
         String newXpath = PLAN_PRICE_12M.replace("%planName%", planName);
-        commons.clickElement(driver.findElement(By.xpath(newXpath)));
+        commons.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath))));
         logger.info("Select plan: "+planName);
         return this;
     }

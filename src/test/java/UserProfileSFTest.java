@@ -1,3 +1,5 @@
+import org.testng.ITestResult;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.home.HomePage;
@@ -11,6 +13,8 @@ import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.MyAddress;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
+import testlink.api.java.client.TestLinkAPIException;
+import testlink.api.java.client.TestLinkAPIResults;
 
 import java.sql.SQLException;
 
@@ -82,6 +86,7 @@ public class UserProfileSFTest extends BaseTest {
     String address2_Edit = "address 2 update non VN";
     String cityInput_Edit = "city in non VN checkout";
     String zipCode_Edit = "74747474";
+    String testCaseID = "";
 
     public UserProfileInfo loginAndGoToUserProfile(String userName) {
         loginSF = new LoginPage(driver);
@@ -99,18 +104,7 @@ public class UserProfileSFTest extends BaseTest {
         return new UserProfileInfo(driver);
     }
 
-    @Test
-    public void UP01_BH_4604_ViewAccountInfo() {
-        loginAndGoToUserProfile(userName);
-        userProfileInfo = new UserProfileInfo(driver);
-        userProfileInfo.verifyDisplayName(displayName)
-                .verifyMembershipLevel(membershipLevel)
-                .verifyBarcode(barcodeNumber)
-                .verifyAvatarDisplay();
-    }
-
-    @Test
-    public void UP02_BH_1290_BH_4605_UpdateUserProfile_HasBirthdayBefore_EmailAccount() {
+    public void UpdateUserProfile_HasBirthdayBefore_EmailAccount() {
         loginAndGoToUserProfile(userName_EditInfo_HasBirthday);
         userProfileInfo = new UserProfileInfo(driver);
         userProfileInfo.clickMyAccountSection();
@@ -125,7 +119,8 @@ public class UserProfileSFTest extends BaseTest {
         myAccount.verifyDisplayName(displayName_Edit)
                 .verifyPhoneNumber("+84:" + phoneNumber_Edit)
                 .verifyGender(gender_Edit)
-                .verifyEmailDisabled();
+                .verifyEmailDisabled()
+                .clickUserInfoIcon().clickLogout();
         headerGoMua = new HeaderGoMua(driver);
         headerGoMua.navigateToGoMua()
                 .clickOnLogInBTN();
@@ -141,8 +136,7 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyGender(gender_Edit);
     }
 
-    @Test
-    public void UP03_BH_1290_UpdateUserProfile_NoBirthdayBefore() throws SQLException {
+    public void UpdateUserProfile_NoBirthdayBefore() throws SQLException {
         String generateName = generate.generateString(10);
         buyerAccount_Signup = generateName + "@mailnesia.com";
         buyerDisplayName_Signup = generateName;
@@ -159,34 +153,7 @@ public class UserProfileSFTest extends BaseTest {
         myAccount.verifyBirday(birthday_Edit);
     }
 
-    @Test
-    public void UP04_BH_4606_UpdateUserProfile_NoBirthdayBefore_PhoneAccount() throws SQLException {
-        String generateName = generate.generateString(10);
-        buyerAccount_Signup = "01" + generate.generateNumber(9);
-        email_Edit = generateName + "@mailnesia.com";
-        buyerDisplayName_Signup = generateName;
-        signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
-        headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().clickLogout();
-        loginAndGoToUserProfile(buyerAccount_Signup);
-        userProfileInfo = new UserProfileInfo(driver);
-        userProfileInfo.clickMyAccountSection();
-        myAccount = new MyAccount(driver);
-        displayName_Edit = generate.generateString(10);
-        gender_Edit = myAccount.editGender();
-        myAccount.inputFullName(displayName_Edit)
-                .inputEmail(email_Edit)
-                .inputBirthday(birthday_Edit)
-                .clickOnSaveButton()
-                .verifyBirthdayDisabled()
-                .verifyDisplayName(displayName_Edit)
-                .verifyGender(gender_Edit)
-                .verifyEmail(email_Edit);
-    }
-
-    @Test
-    public void UP_05_BH_7850_CheckUserHasAddressBefore_ExistedAccount_VietNam() {
+    public void CheckUserHasAddressBefore_ExistedAccount_VietNam() {
         myAddress = loginAndGoToUserProfile(userName)
                 .clickMyAddressSection();
         String countryExpected = myAddress.getCountry();
@@ -208,11 +175,11 @@ public class UserProfileSFTest extends BaseTest {
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_VN(countryExpected, addressExpected, cityExpected, districtExpected, wardExpected);
+                .verifyAddressInfo_VN(countryExpected, addressExpected, cityExpected, districtExpected, wardExpected)
+                .clickUserInfoIcon().clickLogout();
+        ;
     }
-
-    @Test
-    public void UP_06_BH_7850_CheckUserHasAddressBefore_ExistedAccount_NonVietNam() {
+    public void CheckUserHasAddressBefore_ExistedAccount_NonVietNam() {
         myAddress = loginAndGoToUserProfile(userName_NonVN)
                 .clickMyAddressSection();
         String countryExpected = myAddress.getCountry();
@@ -235,11 +202,10 @@ public class UserProfileSFTest extends BaseTest {
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_NonVN(countryExpected, addressExpected, address2Expected, cityExpected, stateExpected, zipCodeExpected);
+                .verifyAddressInfo_NonVN(countryExpected, addressExpected, address2Expected, cityExpected, stateExpected, zipCodeExpected)
+                .clickUserInfoIcon().clickLogout();
     }
-
-    @Test
-    public void UP_07_BH_7850_CheckUserHasAddressBefore_NewAccount() throws SQLException {
+    public void CheckUserHasAddressBefore_NewAccount() throws SQLException {
         String generateName = generate.generateString(10);
         buyerAccount_Signup = generateName + "@mailnesia.com";
         buyerDisplayName_Signup = generateName;
@@ -267,85 +233,12 @@ public class UserProfileSFTest extends BaseTest {
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
-    }
-
-    @Test
-    public void UP_08_BH_7851_CheckUserHasNoAddress_NewAccount() throws SQLException {
-        //SignUp
-        String generateName = generate.generateString(10);
-        buyerAccount_Signup = generateName + "@mailnesia.com";
-        buyerDisplayName_Signup = generateName;
-        phoneNumber = "01" + generate.generateNumber(9);
-        signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
-        // first checkout
-        productDetailSF = new ProductDetailPage(driver);
-        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
-                .clickOnBuyNow()
-                .clickOnContinue()
-                .inputPhoneNumber(phoneNumber)
-                .inputAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
-                .selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .clickOnNextButton()
-                .clickOnNextButton()
-                .clickOnBackToMarket();
-        headerSF = new HeaderSF(driver);
-        headerSF.navigateToUserProfile()
-                .clickMyAddressSection()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
-        // second checkout
-        productDetailSF = new ProductDetailPage(driver);
-        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
-                .clickOnBuyNow()
-                .clickOnContinue()
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
-                .inputPhoneNumber(phoneNumber)
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .clickOnNextButton()
-                .clickOnNextButton()
-                .clickOnBackToMarket();
-        headerSF = new HeaderSF(driver);
-        headerSF.navigateToUserProfile()
-                .clickMyAddressSection()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+                .clickUserInfoIcon().clickLogout();
     }
 
-    @Test
-    public void UP_09_BH_7852_CheckUserChangeAddress_ExistedAccount() {
-        myAddress = loginAndGoToUserProfile(userName_ChangeAddress)
-                .clickMyAddressSection();
-        String addressCurrent = myAddress.getAddress();
-        String cityCurrent = myAddress.getCity();
-        String districtCurrent = myAddress.getDistrict();
-        String wardCurrent = myAddress.getWard();
-        myAddress.inputAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
-                .clickOnSave();
-        productDetailSF = new ProductDetailPage(driver);
-        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
-                .clickOnBuyNow()
-                .clickOnContinue()
-                .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .clickOnNextButton()
-                .clickOnNextButton()
-                .clickOnBackToMarket();
-        headerSF = new HeaderSF(driver);
-        headerSF.navigateToUserProfile()
-                .clickMyAddressSection()
-                .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
-                .inputAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
-                .clickOnSave()
-                .verifyAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent);
-    }
 
-    @Test
-    public void UP_10_BH_8273_CheckUserUpdateAddress_ExistedAccount() {
+    public void CheckUserUpdateAddress_ExistedAccount() {
         //Buyer access SF B to get address
         loginSF = new LoginPage(driver);
         loginSF.navigate(shopDomainB)
@@ -391,6 +284,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
+        allCustomers.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit,address2_Edit, state_Edit,cityInput_Edit, zipCode_Edit)
                 .clickLogout();
@@ -420,6 +314,7 @@ public class UserProfileSFTest extends BaseTest {
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit,address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
+        myAddress.clickUserInfoIcon().clickLogout();
         //Update addres in shop B as before
         loginSF = new LoginPage(driver);
         loginSF.navigate(shopDomainB);
@@ -427,10 +322,10 @@ public class UserProfileSFTest extends BaseTest {
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
                 .inputAddressInfo_VN("",addressCurrent,cityCurrent,districtCurrent,wardCurrent)
-                .clickOnSave();
+                .clickOnSave()
+                .clickUserInfoIcon().clickLogout();
     }
-    @Test
-    public void UP_11_BH_8273_CheckUserUpdateAddress_NewAccount() throws SQLException {
+    public void CheckUserUpdateAddress_NewAccount() throws SQLException {
         //SignUp
         String generateName = generate.generateString(10);
         buyerAccount_Signup = generateName + "@mailnesia.com";
@@ -452,9 +347,8 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
-        homePage = new HomePage(driver);
-        homePage.waitTillSpinnerDisappear();
         allCustomers = new AllCustomers(driver);
+        allCustomers.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
                 .clickLogout();
@@ -471,6 +365,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
+        allCustomers.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit,address2_Edit, state_Edit,cityInput_Edit, zipCode_Edit)
                 .clickLogout();
@@ -491,14 +386,165 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyAddressInfo_VN("",addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout);
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
-        homePage = new HomePage(driver);
-        homePage.waitTillSpinnerDisappear();
         allCustomers = new AllCustomers(driver);
-        allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
+        allCustomers.waitTillSpinnerDisappear();
+        allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
                 .clickLogout();
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit,address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
+        myAddress.clickUserInfoIcon().clickLogout();
+
+    }
+    @Test
+    public void UP01_BH_4604_ViewAccountInfo() throws TestLinkAPIException {
+        testCaseID = "BH_4604";
+        loginAndGoToUserProfile(userName);
+        userProfileInfo = new UserProfileInfo(driver);
+        userProfileInfo.verifyDisplayName(displayName)
+                .verifyMembershipLevel(membershipLevel)
+                .verifyBarcode(barcodeNumber)
+                .verifyAvatarDisplay();
+        testCaseID = "BH_4604";
+        reportResult("BH:BEEHIVE","Regression_Gosell",testCaseID,"GoSELL 3.7","Noted", TestLinkAPIResults.TEST_PASSED);
+
+    }
+    @Test
+    public void UP02_BH_1290_UpdateUserProfile() throws SQLException {
+        testCaseID = "BH_1290";
+        UpdateUserProfile_HasBirthdayBefore_EmailAccount();
+        UpdateUserProfile_NoBirthdayBefore();
+    }
+    @Test
+    public void UP03_BH_4605_EditUserInformationForEmailAccount(){
+        testCaseID = "BH_4605";
+        UpdateUserProfile_HasBirthdayBefore_EmailAccount();
+    }
+    @Test
+    public void UP04_BH_4606_UpdateUserProfile_NoBirthdayBefore_PhoneAccount() throws SQLException {
+        testCaseID = "BH_4606";
+        String generateName = generate.generateString(10);
+        buyerAccount_Signup = "01" + generate.generateNumber(9);
+        email_Edit = generateName + "@mailnesia.com";
+        buyerDisplayName_Signup = generateName;
+        signupSF = new SignupPage(driver);
+        signupSF.navigate(shopDomain).signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().clickLogout();
+        loginAndGoToUserProfile(buyerAccount_Signup);
+        userProfileInfo = new UserProfileInfo(driver);
+        userProfileInfo.clickMyAccountSection();
+        myAccount = new MyAccount(driver);
+        displayName_Edit = generate.generateString(10);
+        gender_Edit = myAccount.editGender();
+        myAccount.inputFullName(displayName_Edit)
+                .inputEmail(email_Edit)
+                .inputBirthday(birthday_Edit)
+                .clickOnSaveButton()
+                .verifyBirthdayDisabled()
+                .verifyDisplayName(displayName_Edit)
+                .verifyGender(gender_Edit)
+                .verifyEmail(email_Edit);
+    }
+    @Test
+    public void UP_05_BH_7334_ViewCustomerBarcode(){
+        testCaseID = "BH_7334";
+        loginAndGoToUserProfile(userName);
+        userProfileInfo = new UserProfileInfo(driver);
+        userProfileInfo.verifyBarcode(barcodeNumber);
+    }
+    @Test
+    public void UP_06_BH_7850_CheckUserHasAddressBefore() throws SQLException {
+        testCaseID = "BH_7850";
+        CheckUserHasAddressBefore_ExistedAccount_VietNam();
+        CheckUserHasAddressBefore_ExistedAccount_NonVietNam();
+        CheckUserHasAddressBefore_NewAccount();
+    }
+    @Test
+    public void UP_07_BH_7851_CheckUserHasNoAddress_NewAccount() throws SQLException {
+        testCaseID = "BH_7851";
+        //SignUp
+        String generateName = generate.generateString(10);
+        buyerAccount_Signup = generateName + "@mailnesia.com";
+        buyerDisplayName_Signup = generateName;
+        phoneNumber = "01" + generate.generateNumber(9);
+        signupSF = new SignupPage(driver);
+        signupSF.navigate(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        // first checkout
+        productDetailSF = new ProductDetailPage(driver);
+        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
+                .clickOnBuyNow()
+                .clickOnContinue()
+                .inputPhoneNumber(phoneNumber)
+                .inputAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
+                .selectPaymentMethod("COD")
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .clickOnBackToMarket();
+        headerSF = new HeaderSF(driver);
+        headerSF.navigateToUserProfile()
+                .clickMyAddressSection()
+                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+        // second checkout
+        productDetailSF = new ProductDetailPage(driver);
+        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
+                .clickOnBuyNow()
+                .clickOnContinue()
+                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
+                .inputPhoneNumber(phoneNumber)
+                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .selectPaymentMethod("COD")
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .clickOnBackToMarket();
+        headerSF = new HeaderSF(driver);
+        headerSF.navigateToUserProfile()
+                .clickMyAddressSection()
+                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+    }
+    @Test
+    public void UP_08_BH_7852_CheckUserChangeAddress_ExistedAccount() {
+        testCaseID = "BH_7852";
+        myAddress = loginAndGoToUserProfile(userName_ChangeAddress)
+                .clickMyAddressSection();
+        String addressCurrent = myAddress.getAddress();
+        String cityCurrent = myAddress.getCity();
+        String districtCurrent = myAddress.getDistrict();
+        String wardCurrent = myAddress.getWard();
+        myAddress.inputAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
+                .clickOnSave();
+        productDetailSF = new ProductDetailPage(driver);
+        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
+                .clickOnBuyNow()
+                .clickOnContinue()
+                .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
+                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .selectPaymentMethod("COD")
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .clickOnBackToMarket();
+        headerSF = new HeaderSF(driver);
+        headerSF.navigateToUserProfile()
+                .clickMyAddressSection()
+                .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
+                .inputAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
+                .clickOnSave()
+                .verifyAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent);
+    }
+    @Test
+    public void UP09_BH_8273_CheckUserUpdateAddress() throws SQLException {
+        testCaseID = "BH_8273";
+        CheckUserUpdateAddress_ExistedAccount();
+        CheckUserUpdateAddress_NewAccount();
+    }
+//    @AfterTest
+    public void updateTestLink(ITestResult result){
+//         if (result.getStatus() == ITestResult.SUCCESS){
+//             reportResult("BH:BEEHIVE","Regression_Gosell",);
+//         }
     }
 }
