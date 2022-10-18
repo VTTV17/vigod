@@ -178,8 +178,13 @@ public class UICommonAction {
 	public void waitTillElementDisappear(WebElement element, int timeout) {
 		try {
 			waitForElementVisible(element, timeout);
-		} catch (TimeoutException ex) {
-			logger.debug("Timeout waiting for element to disappear: " + ex);
+		} catch (TimeoutException|StaleElementReferenceException ex) {
+			if (ex instanceof TimeoutException) {
+				logger.debug("Timeout waiting for element to disappear: " + ex);
+			}
+			else {
+				logger.debug("StaleElementReferenceException caught in waitTillElementDisappear: " + ex);
+			}
 		}
 		waitForElementInvisible(element, timeout);
 	}
@@ -289,5 +294,12 @@ public class UICommonAction {
 	public void refreshPage(){
 		driver.navigate().refresh();
 		logger.debug("Refreshed page.");
+	}
+	
+	public String getPageTitle(){
+		String title = driver.getTitle();
+		logger.debug("Retrieved page title: " + title);
+		return title;
+		
 	}
 }
