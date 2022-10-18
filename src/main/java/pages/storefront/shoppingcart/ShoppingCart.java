@@ -31,7 +31,6 @@ public class ShoppingCart extends GeneralSF {
         logger.info("Click on Continue button");
         commonAction.sleepInMiliSecond(2000);
         waitTillLoaderDisappear();
-        commonAction.sleepInMiliSecond(2000);
         return new CheckOutStep1(driver);
     }
 }

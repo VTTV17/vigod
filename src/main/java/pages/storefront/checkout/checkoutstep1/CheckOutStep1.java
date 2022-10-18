@@ -136,6 +136,7 @@ public class CheckOutStep1 extends GeneralSF {
     public CheckOutStep2 clickOnNextButton() {
         commonAction.clickElement(checkOutStep1UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
+        commonAction.sleepInMiliSecond(2000);
         waitTillLoaderDisappear();
         return new CheckOutStep2(driver);
     }

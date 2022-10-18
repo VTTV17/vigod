@@ -36,12 +36,14 @@ public class CreateServiceTest extends BaseTest{
     String userName = "0703618433";
     String passWord = "Psso124@";
     String SF_URL = SF_ShopVi;
+    String languageDB = "VIE";
+    String languageSF = "English";
     @Test (priority = 0)
     public void CS01_CreateService() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().navigateToPage("Services");
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
@@ -61,11 +63,12 @@ public class CreateServiceTest extends BaseTest{
                 .verifyCreateSeviceSuccessfulMessage();
    }
    @Test(priority = 1,dependsOnMethods = "CS01_CreateService")
-    public void CS02_VerifyServiceOnSF() throws IOException {
+    public void CS02_VerifyServiceOnSF() throws Exception {
        loginSF = new pages.storefront.login.LoginPage(driver);
        loginSF.navigate(SF_ShopVi);
        headerSF = new HeaderSF(driver);
-       headerSF.searchWithFullName(serviceName)
+       headerSF.selectLanguage(languageSF)
+               .searchWithFullName(serviceName)
                .verifySearchSuggestion(serviceName,sellingPrice)
                .clickSearchResult();
        serviceDetailPage= new ServiceDetailPage(driver);
@@ -88,7 +91,7 @@ public class CreateServiceTest extends BaseTest{
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().navigateToPage("Services");
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
@@ -108,11 +111,12 @@ public class CreateServiceTest extends BaseTest{
                 .verifyCreateSeviceSuccessfulMessage();
     }
     @Test(priority = 3, dependsOnMethods = "CS03_CreateListingPriceService")
-    public void CS04_VerifyListingPriceServiceOnSF() throws IOException {
+    public void CS04_VerifyListingPriceServiceOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
-        headerSF.searchWithFullName(serviceName)
+        headerSF.selectLanguage(languageSF)
+                .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName,"")
                 .clickSearchResult();
         serviceDetailPage= new ServiceDetailPage(driver);
@@ -131,7 +135,7 @@ public class CreateServiceTest extends BaseTest{
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().navigateToPage("Services");
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
@@ -151,11 +155,12 @@ public class CreateServiceTest extends BaseTest{
                 .verifyCreateSeviceSuccessfulMessage();
     }
        @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
-    public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws IOException {
+    public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
-        headerSF.searchWithFullName(serviceName)
+        headerSF.selectLanguage(languageSF)
+                .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName,sellingPrice)
                 .clickSearchResult();
         serviceDetailPage= new ServiceDetailPage(driver);
@@ -177,7 +182,7 @@ public class CreateServiceTest extends BaseTest{
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().navigateToPage("Services");
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
@@ -202,11 +207,12 @@ public class CreateServiceTest extends BaseTest{
                 .verifyCreateSeviceSuccessfulMessage();
     }
     @Test(priority = 7, dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
-    public void CS08_VerifyServiceWithSEOInfoOnSF() throws IOException {
+    public void CS08_VerifyServiceWithSEOInfoOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
-        headerSF.searchWithFullName(serviceName)
+        headerSF.selectLanguage(languageSF)
+                .searchWithFullName(serviceName)
                 .verifySearchSuggestion(serviceName,sellingPrice)
                 .clickSearchResult();
         serviceDetailPage= new ServiceDetailPage(driver);

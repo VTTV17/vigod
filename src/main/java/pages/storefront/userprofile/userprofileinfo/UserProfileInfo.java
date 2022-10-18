@@ -8,12 +8,13 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 import pages.storefront.GeneralSF;
+import pages.storefront.header.HeaderSF;
 import pages.storefront.userprofile.MembershipInfo;
 import pages.storefront.userprofile.MyAddress;
 import utilities.UICommonAction;
 import java.time.Duration;
 
-public class UserProfileInfo extends GeneralSF {
+public class UserProfileInfo extends HeaderSF {
 
     final static Logger logger = LogManager.getLogger(UserProfileInfo.class);
     WebDriver driver;
