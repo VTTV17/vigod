@@ -5,15 +5,15 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.dashboard.promotion.flashsale.FlashSalePage;
+import pages.dashboard.promotion.flashsale.campaign.FlashSaleCampaignPage;
 import utilities.UICommonAction;
 
-import javax.sql.rowset.serial.SerialStruct;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 
-import static java.lang.Thread.sleep;
+import static pages.dashboard.promotion.flashsale.FlashSaleElement.CREATE_CAMPAIGN_BTN;
+import static pages.dashboard.promotion.flashsale.FlashSalePage.flashSaleURL;
 
 public class TimeManagementPage extends TimeManagementElement {
     WebDriverWait wait;
@@ -25,8 +25,6 @@ public class TimeManagementPage extends TimeManagementElement {
     public static int endMin;
     public static int incDay;
 
-    public static String flashSaleURL;
-
     public TimeManagementPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -34,27 +32,6 @@ public class TimeManagementPage extends TimeManagementElement {
     }
 
     Logger logger = LogManager.getLogger(TimeManagementPage.class);
-
-    public TimeManagementPage navigateToFlashSaleTimeManagementPage() throws InterruptedException {
-        // wait flash sale intro page loaded, if any
-        sleep(1000);
-
-        // in case, flash sale intro page is shown, click on Explore Now button to skip
-        if (driver.getCurrentUrl().contains("intro")) {
-            // click Explore Now
-            wait.until(ExpectedConditions.visibilityOf(EXPLORE_NOW_BTN)).click();
-            logger.info("Skip Flash sale intro");
-        }
-
-        // get flashSaleURL
-        flashSaleURL = driver.getCurrentUrl();
-
-        // navigate to manage flash sale time page
-        wait.until(ExpectedConditions.elementToBeClickable(MANAGE_FLASH_SALE_TIME_BTN)).click();
-        logger.info("Navigate to manage flash sale time page");
-
-        return this;
-    }
 
     public TimeManagementPage clickAddTimeBtn() {
         wait.until(ExpectedConditions.urlContains("/flash-sale/time/list"));
@@ -157,6 +134,15 @@ public class TimeManagementPage extends TimeManagementElement {
         logger.info("Set end min: %s".formatted(endMin));
 
         return this;
+    }
 
+    public FlashSaleCampaignPage navigateToFlashSaleCampaignPage() {
+        // navigate to flash sale again
+        driver.get(flashSaleURL);
+
+        // wait create campaign visible
+        wait.until(ExpectedConditions.elementToBeClickable(CREATE_CAMPAIGN_BTN)).click();
+
+        return new FlashSaleCampaignPage(driver);
     }
 }

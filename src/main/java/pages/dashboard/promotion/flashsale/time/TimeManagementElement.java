@@ -4,14 +4,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import pages.dashboard.promotion.flashsale.campaign.FlashSaleCampaignPage;
 
 import java.util.List;
 
-public class TimeManagementElement extends FlashSaleCampaignPage {
+public class TimeManagementElement {
+    WebDriver driver;
 
     public TimeManagementElement(WebDriver driver) {
-        super(driver);
+        this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 

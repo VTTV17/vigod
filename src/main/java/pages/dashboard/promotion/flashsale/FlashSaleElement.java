@@ -14,11 +14,11 @@ public class FlashSaleElement {
     }
 
     @FindBy(css = ".gs-flash-sale-intro .gs-button__green")
-    public WebElement EXPLORE_NOW_BTN;
+    WebElement EXPLORE_NOW_BTN;
 
     @FindBy(css = ".flash-sale-campaign-management .gs-button__green")
-    public WebElement MANAGE_FLASH_SALE_TIME_BTN;
+    WebElement MANAGE_FLASH_SALE_TIME_BTN;
 
     @FindBy(css = ".gs-button__green--outline")
-    public WebElement CREATE_CAMPAIGN_BTN;
+    public static WebElement CREATE_CAMPAIGN_BTN;
 }

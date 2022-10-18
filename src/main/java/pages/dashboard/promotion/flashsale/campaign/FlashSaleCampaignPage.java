@@ -44,16 +44,6 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         commonAction = new UICommonAction(driver);
     }
 
-    public FlashSaleCampaignPage navigateToFlashSaleCampaignPage() {
-        // navigate to flash sale again
-        driver.get(flashSaleURL);
-
-        // wait create campaign visible
-        wait.until(ExpectedConditions.elementToBeClickable(CREATE_CAMPAIGN_BTN)).click();
-
-        return this;
-    }
-
     /**
      * Wait page loaded successfully
      */

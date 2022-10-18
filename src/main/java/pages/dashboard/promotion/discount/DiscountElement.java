@@ -6,7 +6,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class DiscountElement {
-    WebDriver driver;
+    public WebDriver driver;
 
     public DiscountElement(WebDriver driver) {
         this.driver = driver;
@@ -20,8 +20,8 @@ public class DiscountElement {
     WebElement PRODUCT_DISCOUNT_CODE;
 
     @FindBy(css = "div.second-button-group > button")
-    WebElement WHOLESALE_PRICING_BTN;
+    public WebElement WHOLESALE_PRICING_BTN;
 
     @FindBy (css = "div.second-button-group > div > button:nth-child(1)")
-    WebElement PRODUCT_WHOLESALE_PRICING;
+    public WebElement PRODUCT_WHOLESALE_PRICING;
 }

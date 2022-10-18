@@ -22,6 +22,9 @@ public class PageLoadedText {
     public final static String DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_VIE = "Thông tin sản phẩm";
     public final static String DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_ENG = "Product information";
 
+    // Discount code campaign
+    public final static String DB_DISCOUNT_PAGE_LOADED_TEXT_VIE = "Tìm theo tên chương trình";
+    public final static String DB_DISCOUNT_PAGE_LOADED_TEXT_ENG = "Search By Promotion Name";
 
     // Storefront
 

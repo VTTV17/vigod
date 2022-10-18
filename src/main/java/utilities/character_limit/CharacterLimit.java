@@ -37,4 +37,16 @@ public class CharacterLimit {
     // promotion
     // flash sale
     public final static int MAX_FLASH_SALE_CAMPAIGN_NAME = 50;
+
+    // wholesale campaign
+    public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME = 255;
+    public final static int MAX_PROMOTION_DATE = 365;
+
+    public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE = 2;
+    public final static int MAX_PERCENT_DISCOUNT = 100;
+    public final static int MAX_FIXED_AMOUNT = 1000000000;
+
+    public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE = 2;
+
+
 }
