@@ -19,4 +19,10 @@ public class MyProfileGoMuaElement {
     WebElement PROFILE_PHONE_NUMBER;
     @FindBy(xpath = "//span[@class='icon-gender']/following-sibling::span[1]/span")
     WebElement PROFILE_GENDER;
+    
+    @FindBy(xpath = "//span[@class='icon-email-solid']/following-sibling::span[1]")
+    WebElement PROFILE_EMAIL;
+    
+    @FindBy(xpath = "//span[@class='icon-birthday']/following-sibling::span[1]")
+    WebElement PROFILE_BIRTHDAY;
 }
