@@ -13,7 +13,7 @@ import utilities.UICommonAction;
 import java.time.Duration;
 
 public class OrderComplete {
-    final static Logger logger = LogManager.getLogger(CheckOutStep2.class);
+    final static Logger logger = LogManager.getLogger(OrderComplete.class);
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;

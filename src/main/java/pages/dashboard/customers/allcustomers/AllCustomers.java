@@ -17,7 +17,7 @@ import utilities.UICommonAction;
 
 import java.time.Duration;
 
-public class AllCustomers {
+public class AllCustomers extends HomePage{
 
 	final static Logger logger = LogManager.getLogger(AllCustomers.class);
 
@@ -28,6 +28,7 @@ public class AllCustomers {
 	SoftAssert soft = new SoftAssert();
 
 	public AllCustomers(WebDriver driver) {
+		super(driver);
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
@@ -42,8 +43,6 @@ public class AllCustomers {
 
     @FindBy (css = "div.modal-content")
     WebElement WARNING_POPUP;
-    @FindBy(xpath = "//section[contains(@class,'desktop-flex')]//input[@placeholder='Search keyword']")
-    WebElement SEARCH_INPUT;
 
 	@FindBy(css = ".btn-filter-action")
 	WebElement FILTER_BTN;
@@ -118,4 +117,9 @@ public class AllCustomers {
 		return new CreateCustomerPopup(driver);
 	}
 
+	public CustomerDetails searchAndGoToCustomerDetailByName(String fullName){
+		inputSearchTerm(fullName);
+		clickUser(fullName);
+		return new CustomerDetails(driver);
+	}
 }

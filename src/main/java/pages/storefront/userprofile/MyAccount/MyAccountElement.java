@@ -17,7 +17,7 @@ public class MyAccountElement {
     @FindBy(id = "email")
     WebElement EMAIL;
 
-    @FindBy(id = "country-code")
+    @FindBy(id = "input-country-code")
     WebElement COUNTRY_CODE;
 
     @FindBy(id = "phone")

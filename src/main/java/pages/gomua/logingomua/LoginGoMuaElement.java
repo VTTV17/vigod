@@ -17,4 +17,6 @@ public class LoginGoMuaElement {
     WebElement PASSWORD_INPUT;
     @FindBy(xpath = "//button[@beetranslate='beecow.login.login']")
     WebElement LOGIN_BTN;
+    @FindBy(css = "[beetranslate='beecow.login.forgotpwd']")
+    WebElement FORGOT_PASSWORD_LINKTEXT;
 }

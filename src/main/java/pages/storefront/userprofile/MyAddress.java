@@ -11,10 +11,11 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 import java.time.Duration;
 
-public class MyAddress {
+public class MyAddress extends HeaderSF {
 	
 	final static Logger logger = LogManager.getLogger(MyAddress.class);
 	
@@ -25,6 +26,7 @@ public class MyAddress {
     SoftAssert soft = new SoftAssert();
     
     public MyAddress (WebDriver driver) {
+        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -146,7 +148,7 @@ public class MyAddress {
         return this;
     }
     public MyAddress selectCountry(String country){
-        commonAction.inputText(COUNTRY,country);
+        commonAction.selectByVisibleText(COUNTRY,country);
         logger.info("Input country: %s".formatted(country));
         return this;
     }
@@ -157,7 +159,7 @@ public class MyAddress {
     }
     public MyAddress inputAddress2(String address2){
         commonAction.inputText(ADDRESS2_INPUT,address2);
-        logger.info("Input address: %s".formatted(address2));
+        logger.info("Input address 2: %s".formatted(address2));
         return this;
     }
     public MyAddress inputCity(String city){
@@ -193,6 +195,7 @@ public class MyAddress {
     public MyAddress clickOnSave(){
         commonAction.clickElement(SAVE_BTN);
         logger.info("Click on Save button.");
+        waitTillLoaderDisappear();
         commonAction.sleepInMiliSecond(3000);
         return this;
     }
@@ -212,10 +215,11 @@ public class MyAddress {
         inputAddress2(address2);
         selectState(state);
         inputCity(city);
-        inputCity(zipCode);
+        inputZipCode(zipCode);
         return this;
     }
     public MyAddress verifyAddressInfo_VN(String country, String address, String city, String district, String ward){
+        commonAction.sleepInMiliSecond(2000);
         if(country!="") {
             verifyCountry(country);
         }
@@ -226,6 +230,7 @@ public class MyAddress {
         return this;
     }
     public  MyAddress verifyAddressInfo_NonVN(String country, String address, String address2, String city, String state, String zipCode){
+        commonAction.sleepInMiliSecond(2000);
         verifyCountry(country);
         verifyAddress(address);
         verifyAddress2(address2);
@@ -239,6 +244,11 @@ public class MyAddress {
         int addressLength = address.length();
         Assert.assertEquals(addressLength,maximumChar);
         logger.info("Validate address field: maximum "+maximumChar);
+        return this;
+    }
+    public MyAddress verifyAddressEmpty(){
+        Assert.assertEquals(getAddress(),"");
+        logger.info("Verify address empty");
         return this;
     }
 }

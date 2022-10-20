@@ -7,12 +7,8 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.Mailnesia;
-import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
-import utilities.database.InitConnection;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,6 +131,10 @@ public class UICommonAction {
 		JavascriptExecutor jsExecutor =(JavascriptExecutor) driver;
 		jsExecutor.executeScript("arguments[0].setAttribute('value', '" + value + "')", element);
 	}
+	public void clickElementByJS(WebElement element){
+		JavascriptExecutor jsExecutor =(JavascriptExecutor) driver;
+		jsExecutor.executeScript("arguments[0].click();", element);
+	}
 	public void waitForElementInvisible(WebElement element){
 		try {
 			wait.until(ExpectedConditions.invisibilityOf(element));
@@ -178,8 +178,13 @@ public class UICommonAction {
 	public void waitTillElementDisappear(WebElement element, int timeout) {
 		try {
 			waitForElementVisible(element, timeout);
-		} catch (TimeoutException ex) {
-			logger.debug("Timeout waiting for element to disappear: " + ex);
+		} catch (TimeoutException|StaleElementReferenceException ex) {
+			if (ex instanceof TimeoutException) {
+				logger.debug("Timeout waiting for element to disappear: " + ex);
+			}
+			else {
+				logger.debug("StaleElementReferenceException caught in waitTillElementDisappear: " + ex);
+			}
 		}
 		waitForElementInvisible(element, timeout);
 	}
@@ -203,7 +208,7 @@ public class UICommonAction {
 	}
 
 	public String selectByVisibleText(WebElement element, String visibleText) {
-		sleepInMiliSecond(1000); //Delay 500ms so that API request has some more time to render data onto front end.
+		sleepInMiliSecond(1000); //Delay 1000ms so that API request has some more time to render data onto front end.
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByVisibleText(visibleText);
@@ -289,5 +294,12 @@ public class UICommonAction {
 	public void refreshPage(){
 		driver.navigate().refresh();
 		logger.debug("Refreshed page.");
+	}
+
+	public String getPageTitle(){
+		String title = driver.getTitle();
+		logger.debug("Retrieved page title: " + title);
+		return title;
+
 	}
 }
