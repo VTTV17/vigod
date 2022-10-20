@@ -1,5 +1,7 @@
 package pages.dashboard.customers.segments;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -16,6 +18,9 @@ import utilities.UICommonAction;
 import java.time.Duration;
 import java.util.List;
 
+import static utilities.character_limit.CharacterLimit.MAX_SEGMENT_NAME_LENGTH;
+import static utilities.character_limit.CharacterLimit.MIN_SEGMENT_NAME_LENGTH;
+
 public class CreateSegment {
 
 	final static Logger logger = LogManager.getLogger(CreateSegment.class);
@@ -23,6 +28,8 @@ public class CreateSegment {
 	WebDriver driver;
 	WebDriverWait wait;
 	UICommonAction commonAction;
+
+	public static String segmentName;
 
 	SoftAssert soft = new SoftAssert();
 
@@ -53,9 +60,12 @@ public class CreateSegment {
 	List<WebElement> CONDITION_FRAGMENTS;
 
 	
-	public CreateSegment inputSegmentName(String segmentName) {
-		commonAction.inputText(SEGMENT_NAME, segmentName);
-		logger.info("Input '" + segmentName + "' into Segment Name field.");
+	public CreateSegment inputSegmentName(String... segmentName) {
+		CreateSegment.segmentName = segmentName.length == 0
+				? RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(MAX_SEGMENT_NAME_LENGTH - MIN_SEGMENT_NAME_LENGTH + 1) + MIN_SEGMENT_NAME_LENGTH)
+				: segmentName[0];
+		commonAction.inputText(SEGMENT_NAME, CreateSegment.segmentName);
+		logger.info("Input '" + CreateSegment.segmentName + "' into Segment Name field.");
 		return this;
 	}
 

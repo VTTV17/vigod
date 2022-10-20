@@ -10,13 +10,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.dashboard.promotion.discount.DiscountPage;
 import utilities.UICommonAction;
 
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Thread.sleep;
 import static utilities.character_limit.CharacterLimit.*;
@@ -36,7 +38,9 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
 
     public static int segmentType;
     public static List<String> segmentList;
-
+    public static int appliesType;
+    public static List<String> collectionList;
+    public static List<String> productList;
 
     public ProductWholesaleCampaignPage(WebDriver driver) {
         super(driver);
@@ -167,8 +171,8 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
         // get discount value
         // max percentage value: 100
         // max fixed amount value: 1,000,000,000
-        discountValue = typeOfDiscount.length > 1 ? typeOfDiscount[1]
-                : (int) (discountType == 0 ? RandomUtils.nextInt(MAX_PERCENT_DISCOUNT) : Math.random() * MAX_FIXED_AMOUNT);
+        discountValue = (typeOfDiscount.length > 1) ? typeOfDiscount[1]
+                : ((int) ((discountType == 0) ? (RandomUtils.nextInt(MAX_PERCENT_DISCOUNT) + 1) : (Math.random() * MAX_FIXED_AMOUNT)) + 1);
 
         // wait discount type element visible
         commonAction.waitElementList(TYPE_OF_DISCOUNT_LABEL);
@@ -212,46 +216,102 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
 
     @SafeVarargs
     public final ProductWholesaleCampaignPage setCustomerSegment(List<Object>... segmentCondition) throws InterruptedException {
-        List<Object> segCondition = segmentCondition.length == 0 ? List.of(RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE)) : segmentCondition[0];
-        segmentType = (segCondition.size() > 0) ? (int) segCondition.get(0) : RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE);
+        // get segment condition
+        List<Object> segCondition = segmentCondition.length == 0 ? List.of() : segmentCondition[0];
 
-        segmentList = segCondition.size() > 1 ? (List<String>) segCondition.get(1) : new ArrayList<>();
+        // get segment condition type
+        // 0: All Customers
+        // 1: Specific segments
+        segmentType = (segCondition.size() > 0)
+                ? (int) segCondition.get(0)
+                : RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE);
+
+        // get segment list
+        List<String> segmentList = (segmentType != 0)
+                // segment type = specific segment
+                // check segment is provided or not
+                // in case no segment provide => generate new segment for test
+                ? ((segCondition.size() > 1) ? (List<String>) segCondition.get(1) : new DiscountPage(driver).generateSegmentForTest())
+                // opposite, segment list = null
+                : List.of();
+
+        // wait segment condition element visible
         commonAction.waitElementList(CUSTOMER_SEGMENT_LABEL);
+
+        // select segment condition
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", CUSTOMER_SEGMENT_LABEL.get(segmentType));
 
-        if (segmentType == 0) {
-            logger.info("Customer segment: All customers");
-        } else {
-            logger.info("Customer segment: %s".formatted(segmentList.toArray()));
-
+        // if segment condition is specific segment
+        // select segment from list segment
+        if (segmentType != 0) {
+            // open select segment popup
             wait.until(ExpectedConditions.elementToBeClickable(ADD_SEGMENT_BTN)).click();
             logger.info("Open add segment popup");
 
+            // init segment list and save select segment
+            ProductWholesaleCampaignPage.segmentList = new ArrayList<>();
+
+            // search and select segment
             for (String segment : segmentList) {
-                wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(segment);
+                // input segment name into search box
+                wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).clear();
+                SEARCH_BOX.sendKeys(segment);
+
+                // wait api return result
                 sleep(2000);
+
+                // check if segment is not added => add segment to segment list
+                for (WebElement element : LIST_SEGMENT_NAME) {
+                    if (!ProductWholesaleCampaignPage.segmentList.contains(element.getText())) {
+                        ProductWholesaleCampaignPage.segmentList.add(element.getText());
+                    }
+                }
+
+                // select segment
                 wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL)).click();
                 logger.info("Search and select segment with keyword: %s".formatted(segment));
             }
 
+            // complete select segment
             wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
             logger.info("Close add segment popup");
+
+            System.out.println(ProductWholesaleCampaignPage.segmentList);
+        } else {
+            // debug log
+            logger.info("Customer segment: All customers");
         }
+
         return this;
     }
 
-    public ProductWholesaleCampaignPage setAppliesProduct(int appliesProductTypeID, String... productCollectionsOrName) throws InterruptedException {
-        commonAction.waitElementList(APPLIES_TO_LABEL);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLIES_TO_LABEL.get(appliesProductTypeID));
+    public ProductWholesaleCampaignPage setAppliesProduct(List<Object>... appliesToCondition) throws InterruptedException {
+        // get applies condition
+        List<Object> appliesCondition = appliesToCondition.length == 0 ? List.of() : appliesToCondition[0];
 
-        switch (appliesProductTypeID) {
+        // get applies to condition type:
+        // 0: All products
+        // 1: Specific product collections
+        // 2: Specific products
+        appliesType = appliesCondition.size() > 0
+                ? (int) appliesCondition.get(0)
+                : RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLIES_TO_TYPE);
+
+        collectionList = (appliesType == 1) ? (appliesCondition.size() > 1) ? (List<String>) appliesCondition.get(1) : List.of() : List.of();
+        productList = (appliesType == 2) ? (appliesCondition.size() > 1) ? (List<String>) appliesCondition.get(1) : List.of() : List.of();
+
+
+        commonAction.waitElementList(APPLIES_TO_LABEL);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLIES_TO_LABEL.get(appliesType));
+
+        switch (appliesType) {
             case 1 -> {
                 logger.info("Applies to: Specific product collections");
 
                 wait.until(ExpectedConditions.elementToBeClickable(ADD_COLLECTION_OR_PRODUCT_BTN)).click();
                 logger.info("Open add product collection popup");
 
-                for (String collection : productCollectionsOrName) {
+                for (String collection : collectionList) {
                     wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(collection);
                     sleep(2000);
                     wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL)).click();
@@ -269,11 +329,11 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
                 wait.until(ExpectedConditions.elementToBeClickable(ADD_COLLECTION_OR_PRODUCT_BTN)).click();
                 logger.info("Open add product popup");
 
-                for (String collection : productCollectionsOrName) {
-                    wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(collection);
+                for (String product : productList) {
+                    wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(product);
                     sleep(2000);
                     wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL)).click();
-                    logger.info("Search and select product with keyword: %s".formatted(collection));
+                    logger.info("Search and select product with keyword: %s".formatted(product));
                 }
 
                 wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();

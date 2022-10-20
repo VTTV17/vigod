@@ -56,6 +56,9 @@ public class ProductWholesaleCampaignElement {
     @FindBy(css = "[class^='search'] > div > div > input")
     WebElement SEARCH_BOX;
 
+    @FindBy (css = ".segment-name > span")
+    List<WebElement> LIST_SEGMENT_NAME;
+
     @FindBy(css = "span[class ^= 'check-all'] > label")
     WebElement SELECT_ALL;
 

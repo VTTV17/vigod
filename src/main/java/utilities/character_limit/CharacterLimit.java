@@ -6,7 +6,8 @@ public class CharacterLimit {
     public final static int MAX_PRODUCT_NAME = 100;
     //    final int MAX_PRODUCT_DESCRIPTION = 100000;
     public final static int MAX_PRODUCT_DESCRIPTION = 1000;
-    public final static int MAX_STOCK_QUANTITY = 1000000;
+//    public final static int MAX_STOCK_QUANTITY = 1000000;
+    public final static int MAX_STOCK_QUANTITY = 10;
     public final static int MAX_STOCK_QUANTITY_IMEI = 10;
     public final static Long MAX_PRICE = 99999999999L;
 
@@ -45,8 +46,21 @@ public class CharacterLimit {
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE = 2;
     public final static int MAX_PERCENT_DISCOUNT = 100;
     public final static int MAX_FIXED_AMOUNT = 1000000000;
-
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE = 2;
+    public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLIES_TO_TYPE = 3;
+
+
+    // Customers >> All customers
+    public final static int MAX_CUSTOMER_NAME = 100;
+    public final static int MAX_PHONE_NUMBER = 15;
+    public final static int MIN_PHONE_NUMBER = 8;
+    public final static int MAX_CUSTOMER_TAG_NUM = 20;
+    public final static int MAX_CUSTOMER_TAG_LENGTH = 20;
+
+
+    // Segment
+    public final static int MAX_SEGMENT_NAME_LENGTH = 100;
+    public final static int MIN_SEGMENT_NAME_LENGTH = 1;
 
 
 }

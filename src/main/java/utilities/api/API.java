@@ -33,8 +33,8 @@ public class API {
                 .post(path);
     }
 
-    public void create(String path, String token, String body) {
-        given()
+    public Response create(String path, String token, String body) {
+        return given()
                 .auth()
                 .oauth2(token)
                 .contentType(ContentType.JSON)

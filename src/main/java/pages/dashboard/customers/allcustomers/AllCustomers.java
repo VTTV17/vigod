@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
@@ -49,6 +50,9 @@ public class AllCustomers {
 
 	@FindBy(xpath = "(//div[contains(@class,'filter-title')])[1]/following-sibling::div")
 	WebElement BRANCH_FIELD;
+
+	@FindBy (css = ".gs-content-header-right-el > .gs-button__green")
+	WebElement CREATE_NEW_CUSTOMER_BTN;
 
 	@FindBy(css = ".dropdown-menu-right .gs-button__green")
 	WebElement DONE_BTN;
@@ -106,6 +110,12 @@ public class AllCustomers {
 		String value = commonAction.getText(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
 		logger.info("Retrieved phone number: " + value);
 		return value;
+	}
+
+	public CreateCustomerPopup clickCreateNewCustomerBtn() {
+		// wait and click Create New Customer button
+		wait.until(ExpectedConditions.elementToBeClickable(CREATE_NEW_CUSTOMER_BTN)).click();
+		return new CreateCustomerPopup(driver);
 	}
 
 }
