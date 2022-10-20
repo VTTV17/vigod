@@ -45,4 +45,11 @@ public class LoginGoMua {
         clickOnLoginButton();
         return this;
     }
+    
+    public LoginGoMua clickForgotPassword(){
+        common.clickElement(loginUI.FORGOT_PASSWORD_LINKTEXT);
+        logger.info("Click on 'Forgot Password' link text.");
+        return this;
+    }
+    
 }

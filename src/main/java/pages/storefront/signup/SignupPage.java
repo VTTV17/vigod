@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
 import pages.Mailnesia;
+import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.login.LoginPage;
 import utilities.UICommonAction;
@@ -155,14 +156,14 @@ public class SignupPage {
         commonAction.clickElement(COMPLETE_BTN);
         logger.info("Clicked on Complete button.");
         commonAction.sleepInMiliSecond(2000); //Without this delay, the email can not be sent to back end.
-        new LoginPage(driver).waitTillLoaderDisappear();
+        new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }
 
     public SignupPage clickSignupBtn() {
         commonAction.clickElement(SIGNUP_BTN);
         logger.info("Clicked on Signup button.");
-        new LoginPage(driver).waitTillLoaderDisappear();
+        new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
     }
 
@@ -193,7 +194,7 @@ public class SignupPage {
     public void clickConfirmBtn() {
         commonAction.clickElement(CONFIRM_OTP);
         logger.info("Clicked on Confirm button.");
-        new LoginPage(driver).waitTillLoaderDisappear();
+        new GeneralSF(driver).waitTillLoaderDisappear();
     }
 
     public SignupPage verifyUsernameExistError(String errMessage) {

@@ -23,4 +23,10 @@ public class AccountTest {
     public static String DB_PASS = "R7LHffcgeEh2tpQ0qU2y";
     public static String USERNAME_INTERNALTOOL = "editor@mediastep.com";
     public static String PASSWORD_INTERNALTOOL = "editor.mediastep@1";
+    public static String ADMIN_SHOP_VI_USERNAME = "0703618433";
+    public static String SF_SHOP_VI_PASSWORD = "Psso12!@";
+    public static String ADMIN_SHOP_VI_PASSWORD = "Psso124@";
+    public static String ADMIN_SHOP_COFFEE_PASSWORD = "Psso12!@";
+    public static String ADMIN_SHOP_COFFEE_USERNAME = "qcgosell01@gmail.com";
+
 }

@@ -1,4 +1,4 @@
-package pages.storefront.header;
+package pages.gomua.headergomua;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,8 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import pages.storefront.GeneralSF;
-import pages.storefront.login.LoginPage;
 import utilities.UICommonAction;
 
 public class ChangePasswordDialog {
@@ -24,16 +22,16 @@ public class ChangePasswordDialog {
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "change-pwd-password")
+	@FindBy(id = "pwd")
 	WebElement CURRENT_PASSWORD;
 
-	@FindBy(id = "change-pwd-repassword")
+	@FindBy(id = "new-pwd")
 	WebElement NEW_PASSWORD;
 
-	@FindBy(css = "#frm-change-pwd .btn-submit")
+	@FindBy(css = "[beetranslate='beecow.getemail.button.done']")
 	WebElement DONE_BTN;
 
-	@FindBy(css = "#change-pwd-modal .close")
+	@FindBy(css = "#change-pass .fa-times")
 	WebElement CLOSE_BTN;
 
 	@FindBy (id = "change-pwd-fail")
@@ -57,7 +55,7 @@ public class ChangePasswordDialog {
 	public ChangePasswordDialog clickDoneBtn() {
 		commonAction.clickElement(DONE_BTN);
 		logger.info("Clicked on 'Done' button");
-		new GeneralSF(driver).waitTillLoaderDisappear();
+//		new LoginPage(driver).waitTillLoaderDisappear();
 		return this;
 	}
 
@@ -76,11 +74,11 @@ public class ChangePasswordDialog {
 	 * <p>
 	 * @return an error saying what is wrong
 	 */	
-	public String getErrorForCurrentPasswordField() {
-		String error = commonAction.getText(CURRENT_PASSWORD_ERROR);
-		logger.info("Finished getting error message for 'Current Password' field");
-		return error;
-	}
+//	public String getErrorForCurrentPasswordField() {
+//		String error = commonAction.getText(CURRENT_PASSWORD_ERROR);
+//		logger.info("Finished getting error message for 'Current Password' field");
+//		return error;
+//	}
 
 	/**
 	 * <p>
@@ -90,10 +88,10 @@ public class ChangePasswordDialog {
 	 * <p>
 	 * @return an error saying what is wrong
 	 */
-	public String getErrorForNewPasswordField() {
-		String error = commonAction.getText(NEW_PASSWORD_ERROR);
-		logger.info("Finished getting error message for 'New Password' field");
-		return error;
-	}
+//	public String getErrorForNewPasswordField() {
+//		String error = commonAction.getText(NEW_PASSWORD_ERROR);
+//		logger.info("Finished getting error message for 'New Password' field");
+//		return error;
+//	}
 	
 }

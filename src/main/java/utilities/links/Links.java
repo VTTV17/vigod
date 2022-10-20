@@ -10,6 +10,7 @@ public class Links {
     public static String SETTING_PATH = "/setting";
     public static String DOMAIN1 = "https://myshopvietnam.unisell.vn/";
     public static String SF_ShopVi = "https://fairyshop.unisell.vn/";
+    public static String SF_COFFEE = "https://coffeeshop.unisell.vn/";
     public static String LOGIN_PATH = "/login";
 
     public static String SIGNUP_PATH = "/wizard/1";
