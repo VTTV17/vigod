@@ -345,7 +345,7 @@ public class HomePage {
         }
     }
 
-    public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
+    public HomePage checkPageHasPermission(String pageName, String path) throws IOException, IOException {
         commons.sleepInMiliSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);

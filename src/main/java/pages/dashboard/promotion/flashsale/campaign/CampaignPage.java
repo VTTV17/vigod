@@ -1,25 +1,26 @@
 package pages.dashboard.promotion.flashsale.campaign;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.UICommonAction;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.List;
 
 import static java.lang.Thread.sleep;
+import static utilities.character_limit.CharacterLimit.MAX_FLASH_SALE_CAMPAIGN_NAME;
+import static utilities.page_loaded_text.PageLoadedText.DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_ENG;
+import static utilities.page_loaded_text.PageLoadedText.DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_VIE;
 
 public class CampaignPage extends CampaignElement {
     WebDriverWait wait;
-    String pageLoadedTextVIE = "Thông tin sản phẩm";
-    String pageLoadedTextENG = "Product information";
 
     Logger logger = LogManager.getLogger(CampaignPage.class);
 
@@ -32,10 +33,7 @@ public class CampaignPage extends CampaignElement {
      * Wait page loaded successfully
      */
     public CampaignPage verifyPageLoaded() {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
-        });
+        new UICommonAction(driver).verifyPageLoaded(DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_VIE, DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_ENG);
         logger.info("Wait page loaded");
         return this;
     }
@@ -44,25 +42,40 @@ public class CampaignPage extends CampaignElement {
     /**
      * Input flash sale campaign name
      */
-    private void inputCampaignName(String campaignName) {
-        wait.until(ExpectedConditions.elementToBeClickable(CAMPAIGN_NAME)).sendKeys(campaignName);
-        logger.info("Input flash sale campaign name: %s".formatted(campaignName));
+    private void inputCampaignName(String... campaignName) {
+        // get campaign name
+        String campName = campaignName.length == 0 ? RandomStringUtils.randomAlphanumeric(MAX_FLASH_SALE_CAMPAIGN_NAME) : campaignName[0];
+
+        // input campaign name
+        wait.until(ExpectedConditions.elementToBeClickable(CAMPAIGN_NAME)).sendKeys(campName);
+
+        // log
+        logger.info("Input flash sale campaign name: %s".formatted(campName));
     }
 
     /**
      * Convert date format YYYY-MM-DD to DD/MM/YYYY
      */
     private String convertDateFormat(String date) {
-        String[] s = date.split("-");
-        return "%s/%s/%s".formatted(s[2], s[1], s[0]);
+        // split date = YYYY, MM, DD
+        String[] info = date.split("-");
+
+        // return date with DD/MM/YYYY format
+        return "%s/%s/%s".formatted(info[2], info[1], info[0]);
     }
 
     /**
      * Set flash sale date, if start time ~ 23:59 => setting campaign for the next day
      */
     private void setDate(String date, int incDay) {
+        // convert current date to DD/MM/YYYY format
+        // if start time ~ 23:59, setting flash sale for next day
         date = convertDateFormat(LocalDate.parse(date).plusDays(incDay).toString());
+
+        // clear date text box
         wait.until(ExpectedConditions.elementToBeClickable(DATE_SET)).clear();
+
+        // input date promotion
         DATE_SET.sendKeys(date);
         logger.info("Set flash sale date: %s".formatted(date));
     }
@@ -71,18 +84,11 @@ public class CampaignPage extends CampaignElement {
      * Convert time to string (HH:MM format)
      */
     private String convertTimeToString(int hour, int min) {
-        String time;
-        if (hour < 10) {
-            time = "0" + hour;
-        } else {
-            time = String.valueOf(hour);
-        }
+        // if hour < 10, ex: hour = "01" instead of "1"
+        String time = hour < 10 ? ("0" + hour) : String.valueOf(hour);
 
-        if (min < 10) {
-            time = time + ":" + "0" + min;
-        } else {
-            time = time + ":" + min;
-        }
+        // if min < 10, ex: min = "01" instead of "1"
+        time = min < 10 ? (time + ":" + "0" + min) : (time + ":" + min);
         return time;
     }
 
@@ -90,7 +96,10 @@ public class CampaignPage extends CampaignElement {
      * Set flash sale time
      */
     private void setTime(int startHour, int startMin) {
+        // wait time dropdown can be interactable
         wait.until(ExpectedConditions.elementToBeClickable(TIME_SET)).click();
+
+
         String time = convertTimeToString(startHour, startMin) + " - %s".formatted(convertTimeToString(startHour, startMin + 1));
         for (WebElement element : TIME_DROPDOWN) {
             if (element.getText().equals(time)) {
@@ -140,7 +149,7 @@ public class CampaignPage extends CampaignElement {
      * Remove out of stock product
      */
     private void removeOutOfStockProduct() {
-        waitElementList(LIST_REMAINING_STOCK);
+        new UICommonAction(driver).waitElementList(LIST_REMAINING_STOCK);
         for (int i = 0; i < LIST_REMAINING_STOCK.size(); i++) {
             String stock = wait.until(ExpectedConditions.elementToBeClickable(LIST_REMAINING_STOCK.get(i))).getText();
             if (stock.equals("0")) {
@@ -154,7 +163,7 @@ public class CampaignPage extends CampaignElement {
      * Setting flash sale price for each product
      */
     private void inputFlashSalePrice(int price, String currency) {
-        waitElementList(LIST_FLASH_SALE_PRICE);
+        new UICommonAction(driver).waitElementList(LIST_FLASH_SALE_PRICE);
         for (int i = 0; i < LIST_FLASH_SALE_PRICE.size(); i++) {
             int sellingPrice = Integer.parseInt(LIST_PRICE.get(i).getText().replace(",", "").replace(currency, ""));
             if (sellingPrice > price) {
@@ -170,7 +179,7 @@ public class CampaignPage extends CampaignElement {
      * Setting max purchase limit
      */
     private void inputMaxPurchaseLimit(int quantity) {
-        waitElementList(LIST_MAX_PURCHASE_LIMIT);
+        new UICommonAction(driver).waitElementList(LIST_MAX_PURCHASE_LIMIT);
         for (int i = 0; i < LIST_MAX_PURCHASE_LIMIT.size(); i++) {
             int remainingStock = Integer.parseInt(LIST_REMAINING_STOCK.get(i).getText().replace(",", ""));
             if (remainingStock > quantity) {
@@ -203,15 +212,5 @@ public class CampaignPage extends CampaignElement {
         inputFlashSalePrice(price, currency);
         inputMaxPurchaseLimit(quantity);
         clickOnTheSaveBtn();
-    }
-
-    /**
-     * Wait until list element loading successfully
-     */
-    private void waitElementList(List<WebElement> elementList) {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return elementList.size() > 0;
-        });
     }
 }

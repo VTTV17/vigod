@@ -295,11 +295,11 @@ public class UICommonAction {
 		driver.navigate().refresh();
 		logger.debug("Refreshed page.");
 	}
-	
+
 	public String getPageTitle(){
 		String title = driver.getTitle();
 		logger.debug("Retrieved page title: " + title);
 		return title;
-		
+
 	}
 }

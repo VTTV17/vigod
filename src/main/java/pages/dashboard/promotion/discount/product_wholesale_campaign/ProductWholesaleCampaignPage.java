@@ -1,121 +1,317 @@
 package pages.dashboard.promotion.discount.product_wholesale_campaign;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.dashboard.promotion.discount.DiscountPage;
+import utilities.UICommonAction;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
+import static utilities.character_limit.CharacterLimit.*;
 
 public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElement {
     WebDriverWait wait;
+    UICommonAction commonAction;
+
+    public static String wholesaleCampaignName;
+    public static boolean isNoExpiry;
+    public static int startIn;
+    public static int endIn;
+
+    public static int discountType;
+
+    public static int discountValue;
+
+    public static int segmentType;
+    public static List<String> segmentList;
+    public static int appliesType;
+    public static List<String> collectionList;
+    public static List<String> productList;
 
     public ProductWholesaleCampaignPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commonAction = new UICommonAction(driver);
     }
 
     Logger logger = LogManager.getLogger(ProductWholesaleCampaignPage.class);
 
-    public ProductWholesaleCampaignPage inputCampaignName(String campaignName) {
-        wait.until(ExpectedConditions.elementToBeClickable(CAMPAIGN_NAME)).sendKeys(campaignName);
-        logger.info("Input campaign name: %s".formatted(campaignName));
+    /**
+     * input wholesale campaign name
+     */
+    public ProductWholesaleCampaignPage inputCampaignName(String... campaignName) {
+        // get wholesale campaign name for another test
+        wholesaleCampaignName = campaignName.length == 0
+                ? RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME) + 1)
+                : campaignName[0];
+
+        // input wholesale campaign name
+        wait.until(ExpectedConditions.elementToBeClickable(CAMPAIGN_NAME)).sendKeys(wholesaleCampaignName);
+
+        // log
+        logger.info("Input campaign name: %s".formatted(wholesaleCampaignName));
+
         return this;
     }
 
-    public ProductWholesaleCampaignPage setPromotionDate(boolean isNoExpiry, int startIn) throws InterruptedException {
+
+    /**
+     * get date coordinates
+     */
+    private void selectDate(int numberOfNextDay) {
+        // get will be selected date
+        String date = DateTimeFormatter.ofPattern("dd").format(LocalDate.now().plusDays(numberOfNextDay));
+        String monthAndYear = DateTimeFormatter.ofPattern("MMM yyyy").format(LocalDate.now().plusDays(numberOfNextDay));
+
+        // get current month in calendar
+        String currentMonth = wait.until(ExpectedConditions.visibilityOf(CURRENT_MONTH)).getText();
+
+        // go to selected month and year
+        while (!currentMonth.equals(monthAndYear)) {
+            // go to next month
+            wait.until(ExpectedConditions.elementToBeClickable(NEXT_BTN)).click();
+
+            // get current month
+            currentMonth = wait.until(ExpectedConditions.visibilityOf(CURRENT_MONTH)).getText();
+        }
+
+        // wait list available date in current month visible
+        commonAction.waitElementList(AVAILABLE_DATE);
+
+        // find and select date
+        for (WebElement element : AVAILABLE_DATE) {
+
+            // if date < 10 => add "0"
+            String dateInCalendar = element.getText().length() == 1 ? "0" + element.getText() : element.getText();
+
+            // check and select date
+            if (dateInCalendar.equals(date)) {
+                element.click();
+                logger.info("Select date");
+                break;
+            }
+        }
+
+
+    }
+
+    /**
+     * set campaign time
+     */
+    @SafeVarargs
+    public final ProductWholesaleCampaignPage setPromotionDate(List<Serializable>... timeSetting) {
+        // get time setting:
+        List<Serializable> setting = timeSetting.length == 0
+                ? List.of(RandomUtils.nextBoolean())
+                : timeSetting[0];
+
+        // isNoExpiry: Wholesale campaign has expiry date or not
+        isNoExpiry = (setting.size() > 0) ? (boolean) setting.get(0) : RandomUtils.nextBoolean();
+
+        // startIn: campaign will be started in startIn days
+        startIn = (setting.size() > 1) ? (int) setting.get(1) : RandomUtils.nextInt(MAX_PROMOTION_DATE);
+
+        // endIn: campaign will be ended in endIn day
+        endIn = (setting.size() > 2) ? (int) setting.get(2) : (RandomUtils.nextInt(MAX_PROMOTION_DATE - startIn) + startIn);
+
+        // No Expiry date checkbox has been checked
         if (isNoExpiry) {
+            // check on No Expiry date checkbox
             wait.until(ExpectedConditions.elementToBeClickable(NO_EXPIRY_DATE_CHECKBOX)).click();
             logger.info("No expiry date - checked");
 
+            // open calendar
             wait.until(ExpectedConditions.elementToBeClickable(ACTIVE_DATE)).click();
-            sleep(1000);
-            AVAILABLE_DATE.get(startIn).click();
+            logger.info("Open calendar");
+
+            // select start date
+            selectDate(startIn);
             logger.info("Active date: %s".formatted(LocalDate.now().plusDays(startIn)));
         } else {
+            // log
             logger.info("No expiry date - no checked");
-            wait.until(ExpectedConditions.elementToBeClickable(ACTIVE_DATE)).click();
-            sleep(1000);
-            AVAILABLE_DATE.get(startIn).click();
-            AVAILABLE_DATE.get(startIn).click();
-            APPLY_BTN.click();
-            logger.info("Active date: %s".formatted(LocalDate.now().plusDays(startIn)));
 
+            // open calendar
+            wait.until(ExpectedConditions.elementToBeClickable(ACTIVE_DATE)).click();
+            logger.info("Open calendar");
+
+            // select start date
+            selectDate(startIn);
+
+            // select end date
+            selectDate(endIn);
+
+            // complete select start - end date
+            wait.until(ExpectedConditions.elementToBeClickable(APPLY_BTN)).click();
+            logger.info("Active date: %s - %s".formatted(LocalDate.now().plusDays(startIn), LocalDate.now().plusDays(endIn)));
         }
         return this;
     }
 
-    public ProductWholesaleCampaignPage setDiscountTypeAndValue(int discountTypeID, int value) throws InterruptedException {
-        waitElementList(TYPE_OF_DISCOUNT_LABEL);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", TYPE_OF_DISCOUNT_LABEL.get(discountTypeID));
+    public ProductWholesaleCampaignPage setDiscountTypeAndValue(int... typeOfDiscount) {
+        // get discount type
+        // 0: Percentage
+        // 1: Fixed amount
+        discountType = typeOfDiscount.length > 0 ? typeOfDiscount[0] : RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
 
-        DISCOUNT_VALUE.click();
+        // get discount value
+        // max percentage value: 100
+        // max fixed amount value: 1,000,000,000
+        discountValue = (typeOfDiscount.length > 1) ? typeOfDiscount[1]
+                : ((int) ((discountType == 0) ? (RandomUtils.nextInt(MAX_PERCENT_DISCOUNT) + 1) : (Math.random() * MAX_FIXED_AMOUNT)) + 1);
+
+        // wait discount type element visible
+        commonAction.waitElementList(TYPE_OF_DISCOUNT_LABEL);
+
+        // select discount type
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", TYPE_OF_DISCOUNT_LABEL.get(discountType));
+
+        // clear default discount
+        wait.until(ExpectedConditions.elementToBeClickable(DISCOUNT_VALUE)).click();
         DISCOUNT_VALUE.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-        if (discountTypeID == 0) {
+
+        // input new discount value
+        if (discountType == 0) {
+            // log
             logger.info("Discount type: Percentage");
 
-            if (value > 100) {
-                DISCOUNT_VALUE.sendKeys(String.valueOf(100));
-                logger.info("Percentage: %s".formatted(100));
-            } else {
-                DISCOUNT_VALUE.sendKeys(String.valueOf(value));
-                logger.info("Percentage: %s".formatted(value));
-            }
+            // validate discount value
+            discountValue = Math.min(discountValue, MAX_PERCENT_DISCOUNT);
+
+            // input discount value
+            DISCOUNT_VALUE.sendKeys(String.valueOf(discountValue));
+            logger.info("Percentage: %s".formatted(discountValue));
+
         } else {
+            // log
             logger.info("Discount type: Fixed amount");
 
-            DISCOUNT_VALUE.sendKeys(String.valueOf(value));
-            logger.info("Fixed amount: %s".formatted(value));
+            // validate discount value
+            discountValue = Math.min(discountValue, MAX_FIXED_AMOUNT);
+
+            // input discount value
+            DISCOUNT_VALUE.sendKeys(String.valueOf(discountValue));
+            logger.info("Fixed amount: %s".formatted(discountValue));
         }
+
+        // click around
         PAGE_TITLE.click();
-        sleep(1000);
 
         return this;
     }
 
-    public ProductWholesaleCampaignPage setCustomerSegment(int segmentTypeID, String... segmentName) throws InterruptedException {
-        waitElementList(CUSTOMER_SEGMENT_LABEL);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", CUSTOMER_SEGMENT_LABEL.get(segmentTypeID));
+    @SafeVarargs
+    public final ProductWholesaleCampaignPage setCustomerSegment(List<Object>... segmentCondition) throws InterruptedException {
+        // get segment condition
+        List<Object> segCondition = segmentCondition.length == 0 ? List.of() : segmentCondition[0];
 
-        if (segmentTypeID == 0) {
-            logger.info("Customer segment: All customers");
-        } else {
-            logger.info("Customer segment: %s".formatted((Object) segmentName));
+        // get segment condition type
+        // 0: All Customers
+        // 1: Specific segments
+        segmentType = (segCondition.size() > 0)
+                ? (int) segCondition.get(0)
+                : RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE);
 
+        // get segment list
+        List<String> segmentList = (segmentType != 0)
+                // segment type = specific segment
+                // check segment is provided or not
+                // in case no segment provide => generate new segment for test
+                ? ((segCondition.size() > 1) ? (List<String>) segCondition.get(1) : new DiscountPage(driver).generateSegmentForTest())
+                // opposite, segment list = null
+                : List.of();
+
+        // wait segment condition element visible
+        commonAction.waitElementList(CUSTOMER_SEGMENT_LABEL);
+
+        // select segment condition
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", CUSTOMER_SEGMENT_LABEL.get(segmentType));
+
+        // if segment condition is specific segment
+        // select segment from list segment
+        if (segmentType != 0) {
+            // open select segment popup
             wait.until(ExpectedConditions.elementToBeClickable(ADD_SEGMENT_BTN)).click();
             logger.info("Open add segment popup");
 
-            for (String segment : segmentName) {
-                wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(segment);
+            // init segment list and save select segment
+            ProductWholesaleCampaignPage.segmentList = new ArrayList<>();
+
+            // search and select segment
+            for (String segment : segmentList) {
+                // input segment name into search box
+                wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).clear();
+                SEARCH_BOX.sendKeys(segment);
+
+                // wait api return result
                 sleep(2000);
+
+                // check if segment is not added => add segment to segment list
+                for (WebElement element : LIST_SEGMENT_NAME) {
+                    if (!ProductWholesaleCampaignPage.segmentList.contains(element.getText())) {
+                        ProductWholesaleCampaignPage.segmentList.add(element.getText());
+                    }
+                }
+
+                // select segment
                 wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL)).click();
                 logger.info("Search and select segment with keyword: %s".formatted(segment));
             }
 
+            // complete select segment
             wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
             logger.info("Close add segment popup");
+
+            System.out.println(ProductWholesaleCampaignPage.segmentList);
+        } else {
+            // debug log
+            logger.info("Customer segment: All customers");
         }
+
         return this;
     }
 
-    public ProductWholesaleCampaignPage setAppliesProduct(int appliesProductTypeID, String... productCollectionsOrName) throws InterruptedException {
-        waitElementList(APPLIES_TO_LABEL);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLIES_TO_LABEL.get(appliesProductTypeID));
+    public ProductWholesaleCampaignPage setAppliesProduct(List<Object>... appliesToCondition) throws InterruptedException {
+        // get applies condition
+        List<Object> appliesCondition = appliesToCondition.length == 0 ? List.of() : appliesToCondition[0];
 
-        switch (appliesProductTypeID) {
+        // get applies to condition type:
+        // 0: All products
+        // 1: Specific product collections
+        // 2: Specific products
+        appliesType = appliesCondition.size() > 0
+                ? (int) appliesCondition.get(0)
+                : RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLIES_TO_TYPE);
+
+        collectionList = (appliesType == 1) ? (appliesCondition.size() > 1) ? (List<String>) appliesCondition.get(1) : List.of() : List.of();
+        productList = (appliesType == 2) ? (appliesCondition.size() > 1) ? (List<String>) appliesCondition.get(1) : List.of() : List.of();
+
+
+        commonAction.waitElementList(APPLIES_TO_LABEL);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLIES_TO_LABEL.get(appliesType));
+
+        switch (appliesType) {
             case 1 -> {
                 logger.info("Applies to: Specific product collections");
 
                 wait.until(ExpectedConditions.elementToBeClickable(ADD_COLLECTION_OR_PRODUCT_BTN)).click();
                 logger.info("Open add product collection popup");
 
-                for (String collection : productCollectionsOrName) {
+                for (String collection : collectionList) {
                     wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(collection);
                     sleep(2000);
                     wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL)).click();
@@ -133,11 +329,11 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
                 wait.until(ExpectedConditions.elementToBeClickable(ADD_COLLECTION_OR_PRODUCT_BTN)).click();
                 logger.info("Open add product popup");
 
-                for (String collection : productCollectionsOrName) {
-                    wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(collection);
+                for (String product : productList) {
+                    wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).sendKeys(product);
                     sleep(2000);
                     wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL)).click();
-                    logger.info("Search and select product with keyword: %s".formatted(collection));
+                    logger.info("Search and select product with keyword: %s".formatted(product));
                 }
 
                 wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
@@ -158,7 +354,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
     }
 
     public ProductWholesaleCampaignPage setBranch(int branchTypeID, String... branchList) throws InterruptedException {
-        waitElementList(APPLICABLE_BRANCH_LABEL);
+        commonAction.waitElementList(APPLICABLE_BRANCH_LABEL);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLICABLE_BRANCH_LABEL.get(branchTypeID));
         if (branchTypeID == 0) {
             logger.info("Applicable branch: All branches");
@@ -184,12 +380,5 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
         logger.info("Create a new product wholesale campaign successfully");
-    }
-
-    private void waitElementList(List<WebElement> elementList) {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
-            assert driver != null;
-            return elementList.size() > 0;
-        });
     }
 }
