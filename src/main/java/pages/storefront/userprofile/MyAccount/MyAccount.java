@@ -1,11 +1,11 @@
 package pages.storefront.userprofile.MyAccount;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -14,8 +14,6 @@ import org.testng.asserts.SoftAssert;
 
 import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
-
-import java.time.Duration;
 
 public class MyAccount extends HeaderSF {
 
@@ -50,6 +48,12 @@ public class MyAccount extends HeaderSF {
         return value;
     }
 
+	/**
+	 * <p>
+	 * To retrieve phone number of customers
+	 * <p>
+	 * @return the customer's phone number along with a country code separated by ":". Eg. +84:0841001002
+	 */
     public String getPhoneNumber() {
         String countryCode = commonAction.getElementAttribute(myAccountUI.COUNTRY_CODE, "value");
         String phoneNumber = commonAction.getElementAttribute(myAccountUI.PHONE, "value");
@@ -85,44 +89,57 @@ public class MyAccount extends HeaderSF {
         logger.info("Input birthday: %s".formatted(date));
         return this;
     }
-    public MyAccount selectGender(boolean isSelectMale) {
-        if (isSelectMale) {
-            commonAction.checkTheCheckBoxOrRadio(myAccountUI.MALE_RADIO);
-            logger.info("Select gender: %s".formatted("Male"));
-        } else {
-            commonAction.checkTheCheckBoxOrRadio(myAccountUI.FEMALE_RADIO);
-            logger.info("Select gender: %s".formatted("Female"));
-        }
-        return this;
-    }
+
     public MyAccount inputEmail(String email){
         commonAction.inputText(myAccountUI.EMAIL, email);
         logger.info("Input email value: %s".formatted(email));
         return this;
+    }    
+    
+	/**
+	 * <p>
+	 * To select gender Male/Female
+	 * <p>
+	 * @param isSelectMale :boolean value of true/false. True represents male and false represents female
+	 * @return selected gender - either Male/Female or Nam/Nữ depending on the site's current display language
+	 */
+    public String selectGender(boolean isSelectMale) {
+        if (isSelectMale) {
+            commonAction.checkTheCheckBoxOrRadio(myAccountUI.MALE_RADIO);
+        } else {
+            commonAction.checkTheCheckBoxOrRadio(myAccountUI.FEMALE_RADIO);
+        }
+        String gender = getGender();
+        logger.info("Select gender: %s".formatted(gender));
+        return gender;
     }
+    
+	/**
+	 * <p>
+	 * To retrieve customer's gender
+	 * @return either Male/Female or Nam/Nữ depending on the site's current display language
+	 */    
     public String getGender() {
+    	String gender = "";
         if (myAccountUI.MALE_RADIO.isSelected()) {
-            logger.info("Retrieved gender: Male");
-            return "Male";
+        	gender = commonAction.getText(myAccountUI.MALE_RADIO.findElement(By.xpath("./following-sibling::*")));
         }
         if (myAccountUI.FEMALE_RADIO.isSelected()) {
-            logger.info("Retrieved gender: Female");
-            return "Female";
+        	gender = commonAction.getText(myAccountUI.FEMALE_RADIO.findElement(By.xpath("./following-sibling::*")));  
         }
-        logger.info("Retrieved gender: No selected");
-        return "No Selected";
+        logger.info("Retrieved gender: %s".formatted(gender));
+        return gender;
     }
 
     public String editGender() {
-        if (getGender().equalsIgnoreCase("male")) {
-            selectGender(false);
-            logger.info("Edit gender to Female");
-            return  "Female";
+    	String gender;
+        if (getGender().equalsIgnoreCase("male") || getGender().equalsIgnoreCase("nam")) {
+            gender = selectGender(false);
         } else {
-            selectGender(true);
-            logger.info("Edit gender to Male");
-            return "Male";
+        	gender = selectGender(true);
         }
+        logger.info("Gender is edited to '%s'".formatted(gender));
+        return gender;
     }
     public MyAccount clickOnSaveButton(){
         commonAction.clickElement(myAccountUI.SAVE_BTN);
