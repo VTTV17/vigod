@@ -1,11 +1,9 @@
-package api.dashboard;
+package api.dashboard.products;
 
-import io.restassured.RestAssured;
+import api.dashboard.login.Login;
 import io.restassured.response.Response;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 
 import java.util.ArrayList;
@@ -13,83 +11,69 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static api.dashboard.login.Login.accessToken;
+import static api.dashboard.login.Login.storeID;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 import static utilities.links.Links.STORE_CURRENCY;
 
-public class APICommon {
-    public static String URI_DASHBOARD = "https://api.beecow.info";
-    public static String DASHBOARD_API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
-    public static String DASHBOARD_API_TAX_LIST = "/storeservice/api/tax-settings/store/";
-    public static String DASHBOARD_API_BRANCH_LIST = "/storeservice/api/store-branch/active/";
-    public static String DASHBOARD_API_POST_PRODUCT = "/itemservice/api/items?fromSource=DASHBOARD";
-    public static String accessToken;
-    public static int storeID;
-    public static List<Integer> taxList;
-    public static List<String> taxName;
-    public static List<Double> taxRate;
-    public static List<Integer> branchList;
+public class CreateProduct {
+
+    // api list path
+    String API_TAX_LIST_PATH = "/storeservice/api/tax-settings/store/";
+    String API_BRANCH_LIST_PATH = "/storeservice/api/store-branch/active/";
+    String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
+
+//    String PRODUCT_LIST_PATH = "/itemservice/api/store/dashboard/";
+    String PRODUCT_DETAIL_PATH = "/itemservice/api/beehive-items/";
+
+    // pre-info
+    private List<Integer> taxList;
+    private List<String> taxName;
+    private List<Float> taxRate;
+    private List<Integer> branchIDList;
     public static List<String> branchName;
     public static List<String> branchAddress;
-    public static Integer withoutVariationStock;
+
+    // product info
+    public static int withoutVariationListingPrice;
+    public static int withoutVariationSellingPrice;
+    public static int withoutVariationCostPrice;
+    public static int withoutVariationStock;
     public static Map<String, List<String>> variationMap;
     public static List<String> variationList;
+    public static List<Integer> variationModelID;
     public static List<Integer> variationStockQuantity;
     public static List<Integer> variationListingPrice;
     public static List<Integer> variationSellingPrice;
     public static List<Integer> variationCostPrice;
 
-    Logger logger = LogManager.getLogger(APICommon.class);
-
-
+    public static boolean isVariation;
     public static int productID;
+
     API api = new API();
 
-    public void loginToDashboard(String account, String password) {
-        RestAssured.baseURI = URI_DASHBOARD;
-        String body = """
-                {
-                    "username": "%s",
-                    "password": "%s"
-                }""".formatted(account, password);
-        Response loginResponse = api.login(DASHBOARD_API_LOGIN_PATH, body);
-        accessToken = loginResponse.jsonPath().getString("accessToken");
-        storeID = loginResponse.jsonPath().getInt("store.id");
-    }
-
-    public void getTaxList() {
-        RestAssured.baseURI = URI_DASHBOARD;
-        Response taxResponse = api.list(DASHBOARD_API_TAX_LIST + storeID, accessToken);
+    public CreateProduct getTaxList() {
+        Response taxResponse = api.list(API_TAX_LIST_PATH + storeID, accessToken);
         taxList = taxResponse.jsonPath().getList("id");
         taxName = taxResponse.jsonPath().getList("name");
         taxRate = taxResponse.jsonPath().getList("rate");
+        return this;
     }
 
-    public void getBranchList() {
-        RestAssured.baseURI = URI_DASHBOARD;
-        Response branchResponse = api.list(DASHBOARD_API_BRANCH_LIST + storeID, accessToken);
-        branchList = branchResponse.jsonPath().getList("id");
+    public CreateProduct getBranchList() {
+
+        Response branchResponse = api.list(API_BRANCH_LIST_PATH + storeID, accessToken);
+        branchIDList = branchResponse.jsonPath().getList("id");
         branchName = branchResponse.jsonPath().getList("name");
         branchAddress = branchResponse.jsonPath().getList("address");
-
+        return this;
     }
 
-    String account = "stgauto@nbobd.com";
-    String password = "Abc@12345";
 
-
-    public void createWithoutVariationProduct(boolean isIMEIProduct, Integer... stockQuantity) {
-        // login and get storeID + accessToken
-        loginToDashboard(account, password);
-
-        // get taxName and taxList
-        getTaxList();
-
-        // get branchName and branchList
-        getBranchList();
-
+    public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, Integer... stockQuantity) {
         // random some product information
         // product name
         String name = randomAlphabetic(nextInt(MAX_PRODUCT_NAME) + 1);
@@ -183,7 +167,7 @@ public class APICommon {
         withoutVariationStock = stockQuantity.length == 0 ? nextInt(MAX_STOCK_QUANTITY) : stockQuantity[0];
 
         // set stock quantity for each branch
-        for (int i = 0; i < branchList.size(); i++) {
+        for (int i = 0; i < branchIDList.size(); i++) {
 
             // generate stock object
             String branchStock = """
@@ -193,10 +177,12 @@ public class APICommon {
                                 "inventoryCurrent": 0,
                                 "inventoryStock": %s,
                                 "inventoryType": "SET"
-                            }""".formatted(branchList.get(i), withoutVariationStock);
+                            }""".formatted(branchIDList.get(i), withoutVariationStock);
 
             // add stock object to body
-            body.append(branchStock).append(i < branchList.size() - 1 ? "," : "],");
+            // if is not last branch => add "," and add create new branch stock
+            // else add "]," to close "lstInventory" array
+            body.append(branchStock).append(i < branchIDList.size() - 1 ? "," : "],");
         }
 
         // add serial number for imei product
@@ -208,7 +194,7 @@ public class APICommon {
             body.append("\"inventoryManageType\": \"IMEI_SERIAL_NUMBER\",\"itemModelCodeDTOS\": [");
 
             // add IMEI for each branch
-            for (int branchIndex = 0; branchIndex < branchList.size(); branchIndex++) {
+            for (int branchIndex = 0; branchIndex < branchIDList.size(); branchIndex++) {
                 // get number of IMEI per branch
                 for (int i = 0; i < withoutVariationStock; i++) {
                     // generate IMEI object
@@ -219,46 +205,59 @@ public class APICommon {
                                         "code": "%s",
                                         "status": "AVAILABLE"
                                     }
-                            """.formatted(branchList.get(branchIndex), "%s_IMEI_%s".formatted(branchName.get(branchIndex), i)));
+                            """.formatted(branchIDList.get(branchIndex), "%s_IMEI_%s".formatted(branchName.get(branchIndex), i)));
 
                     // add IMEI object to body
-                    body.append((branchIndex == (branchList.size() - 1)) ? ((i == (withoutVariationStock - 1)) ? "" : ",") : ",");
+                    // add "," if is not last stock
+                    body.append((branchIndex == (branchIDList.size() - 1)) ? ((i == (withoutVariationStock - 1)) ? "" : ",") : ",");
                 }
-                body.append("]}");
             }
 
-            // set API URI
-            RestAssured.baseURI = URI_DASHBOARD;
-
-            // post without variation product
-            Response createProductResponse = api.create(DASHBOARD_API_POST_PRODUCT, accessToken, String.valueOf(body));
-
-            // get productID for another test
-            productID = createProductResponse.jsonPath().getInt("id");
-
-            createProductResponse.prettyPrint();
+            // after add IMEI/Serial Number
+            // add "]" to close itemModelCodeDTOS array
+            // add "}" to close body object
+            body.append("]}");
         }
+
+        // post without variation product
+        Response createProductResponse = api.create(API_POST_PRODUCT_PATH, accessToken, String.valueOf(body));
+
+        // get productID for another test
+        productID = createProductResponse.jsonPath().getInt("id");
+
+        return this;
     }
 
     /**
      * generate Variation value
      */
-    private List<String> generateListString(int size, int length) {
+    private List<String> generateListString(int size) {
         List<String> randomList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            randomList.add(RandomStringUtils.randomAlphanumeric(length));
+            randomList.add(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_VALUE));
         }
         return randomList;
     }
 
     /**
-     * generate variation maps <variation name : list variation value>
+     * generate variation maps (variation name : list variation value)
      */
     public Map<String, List<String>> randomVariationMap() {
+        // init variation map
+        // key: variation name
+        // values: list of variation name
         Map<String, List<String>> map = new HashMap<>();
+
+        // generate number of variation
         int variationNum = RandomUtils.nextInt(MAX_VARIATION_QUANTITY) + 1;
+
+        // init list number of each variation
         List<Integer> numberOfVariationValue = new ArrayList<>();
+
+        // generate number variation value of first variation
         numberOfVariationValue.add(RandomUtils.nextInt(MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION) + 1);
+
+        // get number variation value of other variation
         for (int i = 1; i < variationNum; i++) {
             int prevMulti = 1;
             for (int id = 0; id < i; id++) {
@@ -266,33 +265,34 @@ public class APICommon {
             }
             numberOfVariationValue.add(RandomUtils.nextInt(Math.min((MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS / prevMulti), MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION)) + 1);
         }
+
+        // generate random data for variation map
         for (Integer num : numberOfVariationValue) {
-            map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), generateListString(num, MAX_VARIATION_VALUE));
+            map.put(RandomStringUtils.randomAlphanumeric(MAX_VARIATION_NAME), generateListString(num));
         }
+
+        // return variation map
         return map;
     }
 
+
+    /**
+     * <p> get list variation value after mixed variation</p>
+     * <p> example: var1 = {a, b, c} and var2 = {d}</p>
+     * <p> with above variations, we have 3 variation value {a|d, b|d, c|d}</p>
+     */
     public List<String> mixVariationValue(List<String> variationValueList1, List<String> variationValueList2) {
         List<String> mixedVariationValueList = new ArrayList<>();
         for (String var1 : variationValueList1) {
             for (String var2 : variationValueList2) {
-                mixedVariationValueList.add(var1 + " " + var2);
+                mixedVariationValueList.add(var1 + "|" + var2);
             }
         }
         return mixedVariationValueList;
     }
 
 
-    public void createVariationProduct(boolean isIMEIProduct) {
-        // login and get storeID + accessToken
-        loginToDashboard(account, password);
-
-        // get taxName and taxList
-        getTaxList();
-
-        // get branchName and branchList
-        getBranchList();
-
+    public CreateProduct createVariationProduct(boolean isIMEIProduct) {
         // random some product information
         // product name
         String name = randomAlphabetic(nextInt(MAX_PRODUCT_NAME) + 1);
@@ -369,14 +369,17 @@ public class APICommon {
                     "enabledListing": false,
                     "models": [""".formatted(name, STORE_CURRENCY, description, weight, height, length, width, taxID, showOutOfStock, isHideStock));
 
+        // generate variation map
         variationMap = randomVariationMap();
-        // get variation name
+
+        // get variation name with format varName1|varName2|...
         List<String> varName = new ArrayList<>(variationMap.keySet());
         StringBuilder variationName = new StringBuilder();
         for (int i = 0; i < varName.size(); i++)
             variationName.append(varName.get(i)).append((i < varName.size() - 1) ? "|" : "");
 
         // get variation value list
+        // variationValue format: varValue1|varValue2|...
         List<List<String>> varValueList = new ArrayList<>(variationMap.values());
         variationList = varValueList.get(0);
         if (varValueList.size() > 1) {
@@ -386,32 +389,37 @@ public class APICommon {
         }
 
         // variation price
-
+        // generate listing price
+        // condition: listing price <= MAX_PRICE
         variationListingPrice = new ArrayList<>();
         for (int i = 0; i < variationList.size(); i++) {
             variationListingPrice.add((int) (Math.random() * MAX_PRICE));
         }
 
-
-        variationSellingPrice = new ArrayList<>();
+        // generate selling price
+        // condition: selling price <= listing price
+        variationSellingPrice = new ArrayList<Integer>();
         for (int i = 0; i < variationList.size(); i++) {
             variationSellingPrice.add((int) (Math.random() * variationListingPrice.get(i)));
         }
 
-
+        // generate cost price
+        // condition: cost price <= selling price
         variationCostPrice = new ArrayList<>();
         for (int i = 0; i < variationList.size(); i++) {
             variationCostPrice.add((int) (Math.random() * variationSellingPrice.get(i)));
         }
 
-
+        // generate variation stock for each variation
         variationStockQuantity = new ArrayList<>();
         for (int i = 0; i < variationList.size(); i++) {
             variationStockQuantity.add(nextInt(MAX_STOCK_QUANTITY));
         }
 
-
-        // set variation stock
+        // set variation stock for all variation
+        // stock format:
+        // IMEI product "models": [{"lstInventory": [ {variation1_branch1_Stock}, {variation1_branch2_Stock}, ...], "itemModelCodeDTOS": [ ...]}, {"lstInventory": [...], "itemModelCodeDTOS": [...]}],
+        // Normal product "models" : [{"lstInventory": [ {variation1_branch1_Stock}, {variation1_branch2_Stock}, ...]}, {"lstInventory": [... ]}],
         for (int i = 0; i < variationList.size(); i++) {
             String variationStock = """
                     {
@@ -424,11 +432,11 @@ public class APICommon {
                                 "sku": "",
                                 "newStock": 0,
                                 "costPrice": %s,
-                                "lstInventory": [""".formatted(variationList.get(i).replace(" ", "|"), variationName, variationListingPrice.get(i), variationSellingPrice.get(i), variationCostPrice.get(i));
+                                "lstInventory": [""".formatted(variationList.get(i), variationName, variationListingPrice.get(i), variationSellingPrice.get(i), variationCostPrice.get(i));
             body.append(variationStock);
 
             // set stock quantity for each branch
-            for (int branchId = 0; branchId < branchList.size(); branchId++) {
+            for (int branchId = 0; branchId < branchIDList.size(); branchId++) {
 
                 // generate stock object
                 String branchStock = """
@@ -438,19 +446,24 @@ public class APICommon {
                                     "inventoryCurrent": 0,
                                     "inventoryStock": %s,
                                     "inventoryType": "SET"
-                                }""".formatted(branchList.get(branchId), variationStockQuantity.get(i));
+                                }""".formatted(branchIDList.get(branchId), variationStockQuantity.get(i));
 
                 // add stock object to body
-                body.append(branchStock).append(branchId < branchList.size() - 1 ? "," : "],");
+                body.append(branchStock);
+
+                // if is not last branch => add ","
+                // check is last branch:
+                // IMEI product => add "],"
+                // Normal product => check is not last variation => add "]}," else add "]}],"
+                body.append((branchId < (branchIDList.size() - 1)) ? "," : (isIMEIProduct ? "]," : ((i < (variationList.size() - 1)) ? "]}," : "]}],")));
             }
 
             // add serial number for imei product
             if (isIMEIProduct) {
                 // set inventory manage type: IMEI
                 body.append("\"itemModelCodeDTOS\": [");
-
                 // add IMEI for each branch
-                for (int branchIndex = 0; branchIndex < branchList.size(); branchIndex++) {
+                for (int branchIndex = 0; branchIndex < branchIDList.size(); branchIndex++) {
                     // get number of IMEI per branch
                     for (int id = 0; id < variationStockQuantity.get(i); id++) {
                         // generate IMEI object
@@ -461,26 +474,72 @@ public class APICommon {
                                             "code": "%s",
                                             "status": "AVAILABLE"
                                         }
-                                """.formatted(branchList.get(branchIndex), "%s%s_IMEI_%s".formatted(variationList.get(i), branchName.get(branchIndex), id)));
+                                """.formatted(branchIDList.get(branchIndex), "%s%s_IMEI_%s".formatted(variationList.get(i), branchName.get(branchIndex), id)));
 
                         // add IMEI object to body
-                        body.append(((branchIndex == (branchList.size() - 1)) && (id == (variationStockQuantity.get(i) - 1))) ? "" : ",");
+                        body.append(((branchIndex == (branchIDList.size() - 1)) && (id == (variationStockQuantity.get(i) - 1))) ? "" : ",");
                     }
                 }
+
+                // check is not last variation: add "]}," else add "]}],"
+                body.append(i < variationList.size() - 1 ? "]}," : "]}],");
             }
-            body.append(i < variationList.size() - 1 ? "]}," : "]}],");
         }
 
+        // add inventory by
         body.append(isIMEIProduct ? "\"inventoryManageType\": \"IMEI_SERIAL_NUMBER\"}" : "\"inventoryManageType\": \"PRODUCT\"}");
 
-        // set API URI
-        RestAssured.baseURI = URI_DASHBOARD;
+        // get remaining stock
+        variationStockQuantity.replaceAll(stock -> stock * branchIDList.size());
 
         // post without variation product
-        Response createProductResponse = api.create(DASHBOARD_API_POST_PRODUCT, accessToken, String.valueOf(body));
+        Response createProductResponse = api.create(API_POST_PRODUCT_PATH, accessToken, String.valueOf(body));
 
-         // get productID for another test
+        // get variation modelID
+        variationModelID = createProductResponse.jsonPath().getList("models.id");
+
+        // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
+
+        return this;
     }
 
+    public void getProductInformation(int... productID) {
+        int prodID = productID.length == 0 ? CreateProduct.productID : productID[0];
+
+        Response productDetailResponse = api.list(PRODUCT_DETAIL_PATH + prodID, accessToken);
+
+        isVariation = productDetailResponse.jsonPath().getList("models").size() > 0;
+
+        if (isVariation) {
+            // Variation product
+            // get variation modelID
+            variationModelID = productDetailResponse.jsonPath().getList("models.id");
+
+            // get variation list
+            variationList = productDetailResponse.jsonPath().getList("models.orgName");
+
+            // get variation price
+            variationListingPrice = new ArrayList<>();
+            variationSellingPrice = new ArrayList<>();
+            variationCostPrice = new ArrayList<>();
+            for (int i = 0; i < variationList.size(); i++) {
+                variationListingPrice.add((int) productDetailResponse.jsonPath().getFloat("models.orgPrice[%s]".formatted(i)));
+                variationSellingPrice.add((int) productDetailResponse.jsonPath().getFloat("models.newPrice[%s]".formatted(i)));
+                variationCostPrice.add((int) productDetailResponse.jsonPath().getFloat("models.costPrice[%s]".formatted(i)));
+            }
+
+            // get variation stock
+            variationStockQuantity = productDetailResponse.jsonPath().getList("models.remainingItem");
+        } else {
+            // Without variation product
+            // get price
+            withoutVariationListingPrice = (int) productDetailResponse.jsonPath().getFloat("orgPrice");
+            withoutVariationSellingPrice = (int) productDetailResponse.jsonPath().getFloat("newPrice");
+            withoutVariationCostPrice = (int) productDetailResponse.jsonPath().getFloat("costPrice");
+
+            // get stock quantity
+            withoutVariationStock = productDetailResponse.jsonPath().getInt("branches[0].totalItem");
+        }
+    }
 }
