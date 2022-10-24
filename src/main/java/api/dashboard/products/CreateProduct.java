@@ -26,7 +26,7 @@ public class CreateProduct {
     String API_BRANCH_LIST_PATH = "/storeservice/api/store-branch/active/";
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
 
-//    String PRODUCT_LIST_PATH = "/itemservice/api/store/dashboard/";
+    //    String PRODUCT_LIST_PATH = "/itemservice/api/store/dashboard/";
     String PRODUCT_DETAIL_PATH = "/itemservice/api/beehive-items/";
 
     // pre-info
