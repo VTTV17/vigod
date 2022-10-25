@@ -1,5 +1,7 @@
 package pages.gomua.myprofile;
 
+import java.util.List;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -18,10 +20,10 @@ public class MyProfileGoMuaElement {
     @FindBy(xpath = "//span[@class='icon-call-solid']/following-sibling::span[1]")
     WebElement PROFILE_PHONE_NUMBER;
     @FindBy(xpath = "//span[@class='icon-gender']/following-sibling::span[1]/span")
-    WebElement PROFILE_GENDER;
+    List<WebElement> PROFILE_GENDER;
     
     @FindBy(xpath = "//span[@class='icon-email-solid']/following-sibling::span[1]")
-    WebElement PROFILE_EMAIL;
+    List<WebElement> PROFILE_EMAIL;
     
     @FindBy(xpath = "//span[@class='icon-birthday']/following-sibling::span[1]")
     WebElement PROFILE_BIRTHDAY;

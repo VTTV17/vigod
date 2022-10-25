@@ -38,8 +38,15 @@ public class MyProfileGoMua {
 		return displayname;
 	}
 
+	/**
+	 * <p>
+	 * To retrieve email of customers
+	 * <p>
+	 * @return the customer's email address or "" in case the customers do not obtain an email account
+	 */	
 	public String getEmail() {
-		String email = common.getText(myProfileUI.PROFILE_EMAIL);
+		if (myProfileUI.PROFILE_EMAIL.size() <1) return ""; // The element won't be present in some cases
+		String email = common.getText(myProfileUI.PROFILE_EMAIL.get(0));
 		logger.info("Retrieved email: %s".formatted(email));
 		return email;
 	}
@@ -50,8 +57,15 @@ public class MyProfileGoMua {
 		return phoneNumber;
 	}
 
+	/**
+	 * <p>
+	 * To retrieve gender of customers
+	 * <p>
+	 * @return the customer's gender or "" in case the customers has not selected gender when signing up
+	 */	
 	public String getGender() {
-		String gender = common.getText(myProfileUI.PROFILE_GENDER);
+		if (myProfileUI.PROFILE_GENDER.size() <1) return ""; // The element won't be present in some cases
+		String gender = common.getText(myProfileUI.PROFILE_GENDER.get(0));
 		logger.info("Get gender: %s".formatted(gender));
 		return gender;
 	}
