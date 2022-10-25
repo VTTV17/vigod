@@ -4,22 +4,48 @@ import utilities.api.API;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.storeID;
 import static api.dashboard.products.CreateProduct.*;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static utilities.character_limit.CharacterLimit.MAX_FLASH_SALE_CAMPAIGN_NAME;
-import static utilities.character_limit.CharacterLimit.MIN_FLASH_SALE_CAMPAIGN_NAME;
+import static utilities.character_limit.CharacterLimit.*;
 
 public class CreatePromotion {
     String CREATE_FLASH_SALE_PATH = "/itemservice/api/campaigns/";
+    String CREATE_PRODUCT_DISCOUNT_PATH = "/orderservices2/api/gs-discount-campaigns/coupons";
+    String END_EARLY_FLASH_SALE_PATH = "/itemservice/api/campaigns/end-early/";
+    String FLASH_SALE_LIST_PATH = "/itemservice/api/campaigns/search/";
+    String QUERY = "?status=IN_PROGRESS";
     API api = new API();
-    public void createFlashSale() {
+
+    public static List<String> variationSaleList;
+    public static List<Integer> variationSalePrice;
+    public static List<Integer> variationPurchaseLimit;
+    public static List<Integer> variationSaleStock;
+    public static int withoutVariationSalePrice;
+    public static int withoutVariationPurchaseLimit;
+    public static int withoutVariationSaleStock;
+
+    public CreatePromotion createFlashSale(int... time) {
+        List<Integer> flashSaleID = new API().get(FLASH_SALE_LIST_PATH + storeID + QUERY, accessToken).jsonPath().getList("id");
+        if (flashSaleID.size() > 0) {
+            for (Integer id : flashSaleID) {
+                new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
+            }
+        }
+
         String flashSaleName = randomAlphabetic(nextInt(MAX_FLASH_SALE_CAMPAIGN_NAME - MIN_FLASH_SALE_CAMPAIGN_NAME + 1) + MIN_FLASH_SALE_CAMPAIGN_NAME);
-        String startDate = Instant.now().plus(1, ChronoUnit.MINUTES).toString();
-        String endDate = Instant.now().plus(2, ChronoUnit.MINUTES).toString();
+        int startMin = time.length > 0 ? time[0] : nextInt(60);
+        int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
+        String startDate = Instant.now().plus(startMin, ChronoUnit.MINUTES).toString();
+        String endDate = Instant.now().plus(endMin, ChronoUnit.MINUTES).toString();
         StringBuilder body = new StringBuilder("""
                 {
                     "name": "%s",
@@ -28,12 +54,28 @@ public class CreatePromotion {
                     "items": [""".formatted(flashSaleName, startDate, endDate));
 
         if (isVariation) {
+            variationSalePrice = new ArrayList<>();
+            variationSaleList = new ArrayList<>();
+            variationSaleStock = new ArrayList<>();
+            variationPurchaseLimit = new ArrayList<>();
             for (int i = 0; i < variationList.size(); i++) {
+                // check in-stock
                 if (variationStockQuantity.get(i) > 0) {
+                    // sale stock
                     int saleStock = nextInt(variationStockQuantity.get(i)) + 1;
-                    int limitPurchaseStock = nextInt(saleStock);
+                    variationSaleStock.add(saleStock);
+
+                    // purchase limit
+                    int limitPurchaseStock = nextInt(saleStock) + 1;
+                    variationPurchaseLimit.add(limitPurchaseStock);
+
+                    // variation model
                     int modelID = variationModelID.get(i);
+                    variationSaleList.add(variationList.get(variationModelID.indexOf(modelID)));
+
+                    // variation price
                     int price = nextInt(variationSellingPrice.get(i));
+                    variationSalePrice.add(price);
 
                     String flashSaleProduct = """
                             {
@@ -49,9 +91,18 @@ public class CreatePromotion {
                 }
             }
         } else {
-            int saleStock = nextInt(withoutVariationStock);
-            int limitPurchaseStock = nextInt(saleStock);
+            // sale stock
+            int saleStock = nextInt(withoutVariationStock) + 1;
+            withoutVariationSaleStock = saleStock;
+
+            // purchase limit
+            int limitPurchaseStock = nextInt(saleStock) + 1;
+            withoutVariationPurchaseLimit = limitPurchaseStock;
+
+            // sale price
             int price = nextInt(withoutVariationSellingPrice);
+            withoutVariationSalePrice = price;
+
             String flashSaleProduct = """
                     {
                                 "itemId": "%s",
@@ -64,7 +115,263 @@ public class CreatePromotion {
         }
         body.append("]}");
 
-//       Response createFlashSaleResponse =
-        api.create(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body)).prettyPrint();
+        // post api create new flash sale campaign
+        api.post(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body)).prettyPrint();
+
+        return this;
+    }
+
+    public void createProductWholeSaleCampaign() {
+        // campaign name
+        String name = randomAlphabetic(nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME) + 1);
+
+        // start date
+        String activeDate = Instant.now().plus(1, ChronoUnit.MINUTES).toString();
+
+        // end date
+        String expiredDate = Instant.now().plus(5, ChronoUnit.MINUTES).toString();
+
+        // coupon type
+        // 0: percentage
+        // 1: fixed amount
+        int couponType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
+        String couponTypeLabel = couponType == 0 ? "PERCENTAGE" : "FIXED_AMOUNT";
+        // coupon value
+        int couponValue = couponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(MAX_FIXED_AMOUNT) + 1;
+
+        // init coupon type value
+        StringBuilder body = new StringBuilder("""
+                {
+                    "name": "%s",
+                    "storeId": "%s",
+                    "discounts": [
+                        {
+                            "couponCode": "unused_code",
+                            "activeDate": "%s",
+                            "couponType": "%s",
+                            "couponValue": "%s",
+                            "expiredDate": "%s",
+                            "type": "WHOLE_SALE",
+                            "conditions": [""".formatted(name, storeID, activeDate, couponTypeLabel, couponValue, expiredDate));
+
+        // init segment condition
+        // segment type:
+        // 0: all customers
+        // 1: specific segment
+        int segmentConditionType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE);
+        String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
+        String segmentConditionValue = segmentConditionType == 0 ? "" : """
+                {
+                    "conditionValue": %s
+                }""".formatted(segmentID);
+        String segmentCondition = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "CUSTOMER_SEGMENT",
+                    "values": [ %s ]
+                },""".formatted(segmentConditionLabel, segmentConditionValue);
+
+        // add segment condition into body
+        body.append(segmentCondition);
+
+        // init applies to condition
+        // applies to type:
+        // 0: all products
+        // 1: specific collections
+        // 2: specific products
+        int appliesToType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLIES_TO_TYPE);
+        String appliesToLabel = appliesToType == 0 ? "APPLIES_TO_ALL_PRODUCTS"
+                : (appliesToType == 1) ? "APPLIES_TO_SPECIFIC_COLLECTIONS" : "APPLIES_TO_SPECIFIC_PRODUCTS";
+        String appliesToValue = appliesToType == 0 ? "" : """
+                {
+                    "conditionValue": %s
+                }
+                """.formatted(appliesToType == 1 ? collectionID : productID);
+        String appliesToCondition = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "APPLIES_TO",
+                    "values": [ %s ]
+                },
+                """.formatted(appliesToLabel, appliesToValue);
+        body.append(appliesToCondition);
+
+        // init minimum requirement
+        int min = isVariation ? Collections.min(variationStockQuantity) : withoutVariationStock;
+        String minimumRequirement = """
+                {
+                    "conditionOption": "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS",
+                    "conditionType": "MINIMUM_REQUIREMENTS",
+                    "values": [
+                        {
+                            "conditionValue": "%s"
+                        }
+                    ]
+                },""".formatted(nextInt(min) + 1);
+        body.append(minimumRequirement);
+
+        // init applicable branch
+        int applicableBranchCondition = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
+        String applicableBranchLabel = applicableBranchCondition == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
+        String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
+                {
+                    "conditionValue": "%s"
+                }""".formatted(branchIDList.get(nextInt(branchIDList.size())));
+        String applicableBranch = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "APPLIES_TO_BRANCH",
+                    "values": [ %s ]
+                }""".formatted(applicableBranchLabel, applicableConditionValue);
+        body.append(applicableBranch);
+        body.append("]}]}");
+
+        api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).prettyPrint();
+    }
+
+    public void createProductDiscount() {
+        // coupon name
+        String name = randomAlphabetic(nextInt(MAX_PRODUCT_DISCOUNT_CODE_NAME_LENGTH));
+
+        // start date
+        String activeDate = Instant.now().plus(1, ChronoUnit.MINUTES).toString();
+
+        // end date
+        String expiredDate = Instant.now().plus(5, ChronoUnit.MINUTES).toString();
+
+        // coupon code
+        String couponCode = randomAlphabetic(nextInt(MAX_PRODUCT_DISCOUNT_CODE_LENGTH - MIN_PRODUCT_DISCOUNT_CODE_LENGTH + 1) + MIN_PRODUCT_DISCOUNT_CODE_LENGTH).toUpperCase();
+
+        // usage limit
+        boolean couponLimitToOne = nextBoolean();
+        boolean couponLimitedUsage = nextBoolean();
+        String couponTotal = couponLimitedUsage ? String.valueOf(nextInt(MAX_COUPON_USED_NUM) + 1) : "null";
+
+        // coupon type
+        // 0: percentage
+        // 1: fixed amount
+        // 2: free shipping
+        int couponType = nextInt(MAX_PRODUCT_CODE_DISCOUNT_TYPE);
+        String couponTypeLabel = (couponType == 0) ? "PERCENTAGE" : ((couponType == 1) ? "FIXED_AMOUNT" : "FREE_SHIPPING");
+        // coupon value
+        int couponValue = (couponType == 0) ? (nextInt(MAX_PERCENT_DISCOUNT) + 1) : ((couponType == 1) ? (nextInt(MAX_FIXED_AMOUNT) + 1) : (nextInt(MAX_FREE_SHIPPING) + 1));
+        // free shipping provided
+        String freeShippingProviders = (couponType == 2) ? "giaohangnhanh,giaohangtietkiem,ahamove_bike,selfdelivery,ahamove_truck" : "";
+
+        // apply discount code as a reward
+        boolean enabledRewards = nextBoolean();
+        String rewardsDescription = enabledRewards ? randomAlphabetic(MAX_REWARD_DESCRIPTION_LENGTH) + 1 : "";
+
+        StringBuilder body = new StringBuilder("""
+                {
+                    "name": "%s",
+                    "storeId": "%s",
+                    "discounts": [
+                        {
+                            "activeDate": "%s",
+                            "expiredDate": "%s",
+                            "couponCode": "%s",
+                            "couponLimitToOne": %s,
+                            "couponLimitedUsage": %s,
+                            "couponTotal": %s,
+                            "couponType": "%s",
+                            "couponValue": "%s",
+                            "type": "COUPON",
+                            "freeShippingProviders": "%s",
+                            "feeShippingType": "FIXED_AMOUNT",
+                            "enabledRewards": %s,
+                            "rewardsDescription": "%s",
+                            "conditions": [""".formatted(name, storeID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription));
+
+        // init segment condition
+        // segment type:
+        // 0: all customers
+        // 1: specific segment
+        int segmentConditionType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_SEGMENT_TYPE);
+        String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
+        String segmentConditionValue = segmentConditionType == 0 ? "" : """
+                {
+                    "conditionValue": %s
+                }""".formatted(segmentID);
+        String segmentCondition = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "CUSTOMER_SEGMENT",
+                    "values": [ %s ]
+                },""".formatted(segmentConditionLabel, segmentConditionValue);
+
+        // add segment condition into body
+        body.append(segmentCondition);
+
+        // init applies to condition
+        // applies to type:
+        // 0: all products
+        // 1: specific collections
+        // 2: specific products
+        int appliesToType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_APPLIES_TO_TYPE);
+        String appliesToLabel = appliesToType == 0 ? "APPLIES_TO_ENTIRE_ORDER"
+                : (appliesToType == 1) ? "APPLIES_TO_SPECIFIC_COLLECTIONS" : "APPLIES_TO_SPECIFIC_PRODUCTS";
+        String appliesToValue = appliesToType == 0 ? "" : """
+                {
+                    "conditionValue": %s
+                }
+                """.formatted(appliesToType == 1 ? collectionID : productID);
+        String appliesToCondition = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "APPLIES_TO",
+                    "values": [ %s ]
+                },
+                """.formatted(appliesToLabel, appliesToValue);
+        body.append(appliesToCondition);
+
+        // init minimum requirement
+        // minimum requirement type
+        // 0: None
+        // 1: Minimum purchase amount (Only satisfied products)
+        // 2: Minimum quantity of satisfied products
+        int minimumRequirementType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE);
+        String minimumRequirementLabel = minimumRequirementType == 0 ? "MIN_REQUIREMENTS_NONE" : (minimumRequirementType == 1) ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT" : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
+        int minStock = isVariation ? Collections.min(variationStockQuantity) : withoutVariationStock;
+        int minPurchaseAmount = isVariation ? Collections.min(variationSellingPrice) : withoutVariationSellingPrice;
+        String minimumRequirement = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "MINIMUM_REQUIREMENTS",
+                    "values": [
+                        {
+                            "conditionValue": "%s"
+                        }
+                    ]
+                },""".formatted(minimumRequirementLabel, (minimumRequirementType == 1) ? (nextInt(minStock) + 1) : (nextInt(minStock * minPurchaseAmount) + 1));
+        body.append(minimumRequirement);
+
+        // init applicable branch
+        int applicableBranchCondition = nextInt(MAX_PRODUCT_DISCOUNT_CODE_APPLICABLE_BRANCH_TYPE);
+        String applicableBranchLabel = applicableBranchCondition == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
+        String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
+                {
+                    "conditionValue": "%s"
+                }""".formatted(branchIDList.get(nextInt(branchIDList.size())));
+        String applicableBranch = """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "APPLIES_TO_BRANCH",
+                    "values": [ %s ]
+                },""".formatted(applicableBranchLabel, applicableConditionValue);
+        body.append(applicableBranch);
+
+        // init platform
+        String platform = """
+                {
+                    "conditionOption": "PLATFORMS_APP_WEB_INSTORE",
+                    "conditionType": "PLATFORMS",
+                    "values": []
+                }""";
+        body.append(platform);
+        body.append("]}]}");
+
+        api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).prettyPrint();
+
     }
 }

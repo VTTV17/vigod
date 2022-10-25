@@ -1,5 +1,6 @@
 package api.dashboard.customers;
 
+import io.restassured.response.Response;
 import utilities.api.API;
 
 import static api.dashboard.login.Login.*;
@@ -13,9 +14,13 @@ public class Customers {
     String CREATE_SEGMENT_PATH = "/beehiveservices/api/segments/create/";
     public static String customerName;
     public static String customerTag;
+    public static int buyerId;
+    public static int profileId;
     public static String customerPhone;
 
     public static String segmentName;
+
+    public static int segmentID;
 
     API api = new API();
 
@@ -44,12 +49,14 @@ public class Customers {
                     "langKey": "en"
                 }""".formatted(customerName, customerPhone, customerTag, storeName);
 
-        api.create(CREATE_POS_CUSTOMER_PATH + storeID, accessToken, body);
-
+        Response createCustomerResponse = api.post(CREATE_POS_CUSTOMER_PATH + storeID, accessToken, body);
+        buyerId = createCustomerResponse.jsonPath().getInt("userId");
+        profileId = createCustomerResponse.jsonPath().getInt("id");
         return this;
     }
 
     public void createSegment() {
+        createNewCustomer();
         segmentName = randomAlphabetic(nextInt(MAX_SEGMENT_NAME_LENGTH) + 1);
         String body = """
                 {
@@ -63,6 +70,6 @@ public class Customers {
                     ]
                 }
                 """.formatted(segmentName, customerTag);
-        api.create(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+        segmentID = api.post(CREATE_SEGMENT_PATH + storeID, accessToken, body).jsonPath().getInt("id");
     }
 }
