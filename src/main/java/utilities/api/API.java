@@ -44,7 +44,7 @@ public class API {
                 .post(path);
     }
 
-    public Response update(String path, String token, String body) {
+    public Response put(String path, String token, String body) {
         return given()
                 .auth()
                 .oauth2(token)

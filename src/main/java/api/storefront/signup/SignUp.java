@@ -20,12 +20,13 @@ public class SignUp {
 
     String ACTIVE_PATH = "/api/activate";
 
-    String guestToken;
+    public static String guestToken;
     public static String phoneNumber;
     public static String phoneCode;
     public static String password;
+    public static String customerName;
 
-    private void getGuestToken() {
+    public void getGuestToken() {
         String body = """
                 {
                     "langKey": "vi",
@@ -35,12 +36,12 @@ public class SignUp {
                 .header("Authorization", "Basic aW50ZXJuYWw6TUtQZDVkUG1MZXg3b2hXcmxHeEpQR3htZ2ZTSFF0MXU=")
                 .when()
                 .body(body)
-                .post(GUEST_TOKEN_PATH).jsonPath().getString("accessToken");;
+                .post(GUEST_TOKEN_PATH).jsonPath().getString("accessToken");
     }
 
     public void signUpByPhoneNumber(String... phone) throws SQLException {
         getGuestToken();
-        String displayName = randomAlphabetic(nextInt(MAX_BUYER_NAME_LENGTH) + 1);
+        customerName = randomAlphabetic(nextInt(MAX_BUYER_NAME_LENGTH) + 1);
         phoneNumber = (phone.length > 0) ? phone[0] : random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + 1) + MIN_PHONE_NUMBER, false, true);
         phoneCode = (phone.length > 1) ? phone[1] : "+84";
         password = "Abc@12345";
@@ -52,7 +53,7 @@ public class SignUp {
                         "countryCode": "%s",
                         "phoneNumber": "%s"
                     }
-                }""".formatted(displayName, password, phoneCode, phoneNumber);
+                }""".formatted(customerName, password, phoneCode, phoneNumber);
         Response signUpResponse = new API().post(SIGN_UP_PHONE_PATH, guestToken, signupBody);
 
         String loginText = signUpResponse.jsonPath().getString("login");

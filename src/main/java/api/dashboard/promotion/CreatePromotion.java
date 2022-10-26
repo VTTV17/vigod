@@ -1,5 +1,6 @@
 package api.dashboard.promotion;
 
+import api.dashboard.products.CreateProduct;
 import utilities.api.API;
 
 import java.time.Instant;
@@ -32,34 +33,44 @@ public class CreatePromotion {
     public static int withoutVariationSalePrice;
     public static int withoutVariationPurchaseLimit;
     public static int withoutVariationSaleStock;
+    public static Instant startFlashSaleTime;
 
-    public CreatePromotion createFlashSale(int... time) {
-
+    public void endEarlyFlashSale() {
         // get in progress flash sale
-        List<Integer> flashSaleID = new API().get(FLASH_SALE_LIST_PATH + storeID + QUERY, accessToken).jsonPath().getList("id");
+        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
+        // get schedule flash sale list
+        List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
 
-        // end early all in progress flash sale
+        List<Integer> flashSaleID = new ArrayList<>();
+        flashSaleID.addAll(inProgressList);
+        flashSaleID.addAll(scheduleList);
+
+        // end early all in progress and schedule flash sale
         if (flashSaleID.size() > 0) {
             for (Integer id : flashSaleID) {
                 new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
             }
         }
+    }
+
+    public CreatePromotion createFlashSale(int... time) {
+        endEarlyFlashSale();
 
         // flash sale name
         String flashSaleName = randomAlphabetic(nextInt(MAX_FLASH_SALE_CAMPAIGN_NAME - MIN_FLASH_SALE_CAMPAIGN_NAME + 1) + MIN_FLASH_SALE_CAMPAIGN_NAME);
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
-        String startDate = Instant.now().plus(startMin, ChronoUnit.MINUTES).toString();
+        startFlashSaleTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
         int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
-        String endDate = Instant.now().plus(endMin, ChronoUnit.MINUTES).toString();
+        Instant endDate = Instant.now().plus(endMin, ChronoUnit.MINUTES);
         StringBuilder body = new StringBuilder("""
                 {
                     "name": "%s",
                     "startDate": "%s",
                     "endDate": "%s",
-                    "items": [""".formatted(flashSaleName, startDate, endDate));
+                    "items": [""".formatted(flashSaleName, startFlashSaleTime, endDate));
 
         if (isVariation) {
             variationSalePrice = new ArrayList<>();
@@ -129,7 +140,7 @@ public class CreatePromotion {
         return this;
     }
 
-    public void createProductWholeSaleCampaign(int... time) {
+    public CreatePromotion createProductWholeSaleCampaign(int... time) {
         // campaign name
         String name = randomAlphabetic(nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME) + 1);
 
@@ -237,6 +248,7 @@ public class CreatePromotion {
         body.append("]}]}");
 
         api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).prettyPrint();
+        return this;
     }
 
     public void createProductDiscount() {

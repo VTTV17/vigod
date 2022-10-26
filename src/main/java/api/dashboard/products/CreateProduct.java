@@ -55,7 +55,7 @@ public class CreateProduct {
     public static boolean isVariation;
     public static boolean isIMEIProduct;
     public static int productID;
-    private String productName;
+    public static String productName;
 
     public static int collectionID;
 

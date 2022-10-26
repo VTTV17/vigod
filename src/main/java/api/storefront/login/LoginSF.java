@@ -1,11 +1,13 @@
 package api.storefront.login;
 
 import api.storefront.signup.SignUp;
-import utilities.api.API;
+import io.restassured.http.ContentType;
 
+import static api.dashboard.login.Login.storeID;
 import static api.dashboard.login.Login.storeName;
+import static io.restassured.RestAssured.given;
 
-public class Login {
+public class LoginSF {
     public static String sfToken;
 
     public void LoginByPhoneNumber(String... loginInfo) {
@@ -18,6 +20,11 @@ public class Login {
                     "password": "%s",
                     "phoneCode": "%s"
                 }""".formatted(username, password, phoneCode);
-        sfToken = new API().login("https://%s.unisell.vn/api/login".formatted(storeName), body).jsonPath().getString("id_token");
+        sfToken = given().contentType(ContentType.JSON)
+                .cookie("StoreId=%s".formatted(storeID))
+                .when()
+                .body(body)
+                .post("https://%s.unisell.vn/api/login".formatted(storeName)).jsonPath().getString("id_token");
+
     }
 }

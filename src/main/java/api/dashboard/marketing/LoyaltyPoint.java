@@ -43,6 +43,6 @@ public class LoyaltyPoint {
                     }
                 }""".formatted(loyaltyPointID, storeID, ratePoint, rateAmount, exchangeAmount);
 
-        new API().update(LOYALTY_POINT_PATH + storeID, accessToken, body);
+        new API().put(LOYALTY_POINT_PATH + storeID, accessToken, body);
     }
 }

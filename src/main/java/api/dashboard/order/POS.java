@@ -72,6 +72,6 @@ public class POS {
                     "directDiscount": null,
                     "customerId": %s
                 }""".formatted(buyerId, profileId, productID, modelId, quantity, imeiSerial, branchIDList.get(0), customerName, customerPhone, storeID, branchIDList.get(0), profileId);
-        new API().post(CREATE_POS_ORDER_PATH, accessToken, body).prettyPrint();
+        new API().post(CREATE_POS_ORDER_PATH, accessToken, body);
     }
 }
