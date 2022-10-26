@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
+import static utilities.links.Links.URI;
 
 public class Login {
-    String URI = "https://api.beecow.info";
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     public static String accessToken;

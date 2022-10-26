@@ -34,17 +34,25 @@ public class CreatePromotion {
     public static int withoutVariationSaleStock;
 
     public CreatePromotion createFlashSale(int... time) {
+
+        // get in progress flash sale
         List<Integer> flashSaleID = new API().get(FLASH_SALE_LIST_PATH + storeID + QUERY, accessToken).jsonPath().getList("id");
+
+        // end early all in progress flash sale
         if (flashSaleID.size() > 0) {
             for (Integer id : flashSaleID) {
                 new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
             }
         }
 
+        // flash sale name
         String flashSaleName = randomAlphabetic(nextInt(MAX_FLASH_SALE_CAMPAIGN_NAME - MIN_FLASH_SALE_CAMPAIGN_NAME + 1) + MIN_FLASH_SALE_CAMPAIGN_NAME);
+        // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
-        int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
         String startDate = Instant.now().plus(startMin, ChronoUnit.MINUTES).toString();
+
+        // end date
+        int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
         String endDate = Instant.now().plus(endMin, ChronoUnit.MINUTES).toString();
         StringBuilder body = new StringBuilder("""
                 {
@@ -121,15 +129,17 @@ public class CreatePromotion {
         return this;
     }
 
-    public void createProductWholeSaleCampaign() {
+    public void createProductWholeSaleCampaign(int... time) {
         // campaign name
         String name = randomAlphabetic(nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME) + 1);
 
         // start date
-        String activeDate = Instant.now().plus(1, ChronoUnit.MINUTES).toString();
+        int startMin = time.length > 0 ? time[0] : nextInt(60);
+        String activeDate = Instant.now().plus(startMin, ChronoUnit.MINUTES).toString();
 
         // end date
-        String expiredDate = Instant.now().plus(5, ChronoUnit.MINUTES).toString();
+        int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
+        String expiredDate = Instant.now().plus(endMin, ChronoUnit.MINUTES).toString();
 
         // coupon type
         // 0: percentage

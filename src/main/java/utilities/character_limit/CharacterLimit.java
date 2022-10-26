@@ -89,4 +89,11 @@ public class CharacterLimit {
     // Loyalty Program
     public final static int MAX_MEMBERSHIP_NAME = 150;
     public final static int MAX_MEMBERSHIP_DESCRIPTION_LENGTH = 100000;
+
+    // SF
+    // Sign up
+    public final static int MAX_BUYER_NAME_LENGTH = 128;
+    public final static int MAX_BUYER_PASSWORD_LENGTH = 16;
+    public final static int MIN_BUYER_PASSWORD_LENGTH = 8;
+
 }

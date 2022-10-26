@@ -22,4 +22,6 @@ public class Links {
 
     public static String STORE_CURRENCY = "đ";
     public static String ALL_PRODUCT_PATH = "product";
+
+    public final static String URI = "https://api.beecow.info";
 }
