@@ -43,6 +43,7 @@ public class LoginGoMua {
         inputUsername(userName);
         inputPassWord(password);
         clickOnLoginButton();
+        common.sleepInMiliSecond(500);
         return this;
     }
     

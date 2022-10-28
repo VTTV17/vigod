@@ -36,7 +36,7 @@ public class HomePage {
     Excel excel;
     int countFailed = 0;
     AssertCustomize assertCustomize;
-    String planPermissionFileName = "PlanPermission.xlsx";
+    public String planPermissionFileName = "PlanPermission.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
@@ -194,8 +194,8 @@ public class HomePage {
         }
     }
 
-    public void navigateToPage(String pageName, String... subMenus) {
-        navigateToPage(pageName);
+    public void navigateToPage(String... subMenus) {
+    	if (subMenus.length == 0) subMenus[0] = "Home"; // If no input is provided, by default we navigate to Home screen
         for (String subMenu : subMenus) {
             navigateToPage(subMenu);
         }
@@ -257,7 +257,17 @@ public class HomePage {
     }
 
     public String getDashboardLanguage() {
-        return commons.getText(LANGUAGE).replace(" ", "");
+    	String language = "";
+    	// Sometimes it takes longer for the API to fill the element with text
+    	for (int i=0; i<5; i++) {
+    		language = commons.getText(LANGUAGE).trim();
+    		if (language.length() >0) {
+    			break;
+    		} else {
+    			commons.sleepInMiliSecond(500);
+    		}
+    	}
+        return language;
     }
 
     public boolean checkPresenceOfUpgradeNowPopUp() {
