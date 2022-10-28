@@ -45,14 +45,29 @@ public class MyProfileGoMua {
 	 * @return the customer's email address or "" in case the customers do not obtain an email account
 	 */	
 	public String getEmail() {
-		if (myProfileUI.PROFILE_EMAIL.size() <1) return ""; // The element won't be present in some cases
-		String email = common.getText(myProfileUI.PROFILE_EMAIL.get(0));
+		String email;
+		if (myProfileUI.PROFILE_EMAIL.size() <1) { // The element won't be present in some cases
+			email = "";
+		} else {
+			email = common.getText(myProfileUI.PROFILE_EMAIL.get(0));
+		}
 		logger.info("Retrieved email: %s".formatted(email));
 		return email;
 	}
 
+	/**
+	 * <p>
+	 * To retrieve phone of customers
+	 * <p>
+	 * @return a phone number with a country code or "" in case the customers do not obtain one. 
+	 */	
 	public String getPhoneNumber() {
-		String phoneNumber = common.getText(myProfileUI.PROFILE_PHONE_NUMBER);
+		String phoneNumber;
+		if (myProfileUI.PROFILE_PHONE_NUMBER.size() <1) { // The element won't be present in some cases
+			phoneNumber = "";
+		} else {
+			phoneNumber = common.getText(myProfileUI.PROFILE_PHONE_NUMBER.get(0));
+		}
 		logger.info("Get phone number: %s".formatted(phoneNumber));
 		return phoneNumber;
 	}
@@ -61,17 +76,32 @@ public class MyProfileGoMua {
 	 * <p>
 	 * To retrieve gender of customers
 	 * <p>
-	 * @return the customer's gender or "" in case the customers has not selected gender when signing up
+	 * @return the customer's gender or "" in case the customers have not selected gender when signing up
 	 */	
 	public String getGender() {
-		if (myProfileUI.PROFILE_GENDER.size() <1) return ""; // The element won't be present in some cases
-		String gender = common.getText(myProfileUI.PROFILE_GENDER.get(0));
+		String gender;
+		if (myProfileUI.PROFILE_GENDER.size() <1) { // The element won't be present in some cases
+			gender = "";
+		} else {
+			gender = common.getText(myProfileUI.PROFILE_GENDER.get(0));
+		}
 		logger.info("Get gender: %s".formatted(gender));
 		return gender;
 	}
-	
+
+	/**
+	 * <p>
+	 * To retrieve birthday of customers
+	 * <p>
+	 * @return the customer's birthday or "" in case birthday field is left empty during sign-up procedure
+	 */	
 	public String getBirthday() {
-		String birthday = common.getText(myProfileUI.PROFILE_BIRTHDAY);
+		String birthday;
+		if (myProfileUI.PROFILE_BIRTHDAY.size() <1) { // The element won't be present in some cases
+			birthday = "";
+		} else {
+			birthday = common.getText(myProfileUI.PROFILE_BIRTHDAY.get(0));
+		}
 		logger.info("Retrieved birthday: %s".formatted(birthday));
 		return birthday;
 	}

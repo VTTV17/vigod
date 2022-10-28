@@ -60,6 +60,9 @@ public class SignupPage {
     @FindBy(css = "#signup-password")
     WebElement PASSWORD;
 
+    @FindBy(id = "get-email-skip")
+    WebElement LATER_LINKTEXT;    
+    
     @FindBy(css = "#frm-get-email .btn-submit")
     WebElement COMPLETE_BTN;
 
@@ -104,11 +107,7 @@ public class SignupPage {
     public SignupPage selectCountry(String country) {
         commonAction.clickElement(COUNTRY_DROPDOWN);
         if (country.contentEquals("rd")) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        	commonAction.sleepInMiliSecond(500);
             int randomNumber = new Random().nextInt(0, COUNTRY_LIST.size());
             COUNTRY_LIST.get(randomNumber).click();
         } else {
@@ -152,6 +151,13 @@ public class SignupPage {
         return this;
     }
 
+    public SignupPage clickLater() {
+        commonAction.clickElement(LATER_LINKTEXT);
+        logger.info("Clicked on 'Later' link text to skip inputing email.");
+        new GeneralSF(driver).waitTillLoaderDisappear();
+        return this;
+    }    
+    
     public SignupPage clickCompleteBtn() {
         commonAction.clickElement(COMPLETE_BTN);
         logger.info("Clicked on Complete button.");

@@ -1,5 +1,14 @@
 package pages.dashboard.signup;
 
+import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.SIGNUP_PAGE_TITLE;
+import static utilities.links.Links.SIGNUP_PATH;
+
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Random;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -13,19 +22,13 @@ import org.testng.asserts.SoftAssert;
 
 import utilities.UICommonAction;
 
-import java.sql.SQLException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Random;
-
-import static utilities.links.Links.*;
-
 public class SignupPage {
 
 	final static Logger logger = LogManager.getLogger(SignupPage.class);
 	
 	public String country;
 	public String countryCode;
+	public String currency;
 	
     WebDriver driver;
     WebDriverWait wait;
@@ -40,6 +43,15 @@ public class SignupPage {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy(css = ".sign-up-widget__changeLanguage-selected")
+    WebElement CURRENT_DISPLAY_LANGUAGE;    
+
+    @FindBy(css = ".sign-up-widget__changeLanguage-english")
+    WebElement ENGLISH_LANGUAGE;    
+
+    @FindBy(css = ".sign-up-widget__changeLanguage:nth-of-type(2)")
+    WebElement VIETNAMESE_LANGUAGE;
+    
     @FindBy(css = "#username")
     WebElement USERNAME;
 
@@ -128,16 +140,54 @@ public class SignupPage {
     WebElement WRONG_CODE_ERROR;
     
     public SignupPage navigate() {
-        driver.get(DOMAIN + SIGNUP_PATH);
+    	String url = DOMAIN + SIGNUP_PATH;
+        driver.get(url);
         wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
+        logger.info("Navigated to '%s'.".formatted(url));
         return this;
     }
     
     public SignupPage navigate(String link) {
-    	driver.get(DOMAIN + link);
-    	wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
+    	String url = DOMAIN + link;
+        driver.get(url);
+//        wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
+        logger.info("Navigated to '%s'.".formatted(url));
     	return this;
     }
+
+	/**
+	 * <p>
+	 * Get current display language of Dashboard at Sign-up screen
+	 * <p>
+	 * @return Dashboard's current display language
+	 * It can be one of the following: Tiếng anh/English/Tiếng việt/Tiếng Việt
+	 */
+	public String getDisplayLanguage() {
+		String displayLanguage = commonAction.getText(CURRENT_DISPLAY_LANGUAGE);
+		logger.info("Retrieved current display language '%s'.".formatted(displayLanguage));
+		return displayLanguage;
+	}      
+    
+	/**
+	 * <p>
+	 * Change language of Dashboard at Sign-up screen
+	 * <p>
+	 * Example: selectDisplayLanguage("English")
+	 * 
+	 * @param language the desired language - either Vietnamese or English
+	 * 
+	 */	
+	public SignupPage selectDisplayLanguage(String language) throws Exception {
+		if (language.contentEquals("English")) {
+			commonAction.clickElement(ENGLISH_LANGUAGE);
+		} else if (language.contentEquals("Vietnamese")) {
+			commonAction.clickElement(VIETNAMESE_LANGUAGE);
+		} else {
+			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
+		}
+		logger.info("Selected display language '%s'.".formatted(language));
+		return this;
+	}    
     
     public SignupPage selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
@@ -169,7 +219,7 @@ public class SignupPage {
     	return this;
     }
     
-    public SignupPage selectCurrency(String currency) {
+    public String selectCurrency(String currency) {
     	String selectedOption;
     	if (currency.contentEquals("rd")) {
     		commonAction.sleepInMiliSecond(500);
@@ -179,7 +229,8 @@ public class SignupPage {
     		selectedOption = commonAction.selectByVisibleText(CURRENCY, currency);
     	}        	
     	logger.info("Selected currency: " + selectedOption);
-    	return this;
+    	this.currency = selectedOption;
+    	return selectedOption;
     }
     
     public SignupPage selectLanguage(String language) {

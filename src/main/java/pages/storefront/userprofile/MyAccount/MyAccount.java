@@ -117,7 +117,7 @@ public class MyAccount extends HeaderSF {
 	/**
 	 * <p>
 	 * To retrieve customer's gender
-	 * @return either Male/Female or Nam/Nữ depending on the site's current display language
+	 * @return either Male/Female or Nam/Nữ depending on the site's display language or "" if the gender has not been selected
 	 */    
     public String getGender() {
     	String gender = "";
