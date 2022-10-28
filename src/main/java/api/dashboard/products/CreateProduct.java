@@ -1,5 +1,6 @@
 package api.dashboard.products;
 
+import api.dashboard.customers.Customers;
 import io.restassured.response.Response;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -585,7 +586,7 @@ public class CreateProduct {
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 int price = nextInt(variationSellingPrice.get(i)) + 1;
                 int minQuantity = nextInt(variationStockQuantity.get(i)) + 1;
-                String segmentIDs = nextInt(2) == 0 ? "ALL" : String.valueOf(segmentID);
+                String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(segmentID);
                 String variationWholesaleConfig = """
                         {
                             "id": null,
@@ -597,20 +598,36 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, minQuantity, "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, productID);
+                        }""".formatted(title, minQuantity, "%s_%s".formatted(CreateProduct.productID, CreateProduct.variationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, CreateProduct.productID);
                 body.append(variationWholesaleConfig);
-                body.append((i == (variationList.size() - 1)) ? "" : ",");
+                body.append((i == (CreateProduct.variationList.size() - 1)) ? "" : ",");
             }
+        } else {
+            String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
+            int price = nextInt(CreateProduct.withoutVariationSellingPrice) + 1;
+            int minQuantity = nextInt(CreateProduct.withoutVariationStock) + 1;
+            String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
+            String variationWholesaleConfig = """
+                        {
+                            "id": null,
+                            "title": "%s",
+                            "minQuatity": %s,
+                            "itemModelIds": "%s",
+                            "currency": "%s",
+                            "price": %s,
+                            "segmentIds": "%s",
+                            "itemId": "%s",
+                            "action": null
+                        }""".formatted(title, minQuantity, CreateProduct.productID, STORE_CURRENCY, price, segmentIDs, CreateProduct.productID);
+            body.append(variationWholesaleConfig);
         }
         body.append("]}");
 
-        System.out.println(body);
-
-        api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body)).prettyPrint();
+        api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body));
         return this;
     }
 
-    public CreateProduct createCollection() {
+    public void createCollection() {
         String collectionName = randomAlphabetic(nextInt(MAX_PRODUCT_COLLECTION_NAME_LENGTH - MIN_PRODUCT_COLLECTION_NAME_LENGTH) + MIN_PRODUCT_COLLECTION_NAME_LENGTH);
         String body = """
                 {
@@ -633,8 +650,9 @@ public class CreateProduct {
                     "itemType": "BUSINESS_PRODUCT",
                     "bcStoreId": "%s"
                 }""".formatted(collectionName, productName, storeID);
-        collectionID = api.post(CREATE_PRODUCT_COLLECTION_PATH + storeID, accessToken, body).jsonPath().getInt("id");
-        return this;
+        Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + storeID, accessToken, body);
+
+        collectionID = createCollection.jsonPath().getInt("id");
     }
 
 

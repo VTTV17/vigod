@@ -42,7 +42,7 @@ public class SignUp {
     public void signUpByPhoneNumber(String... phone) throws SQLException {
         getGuestToken();
         customerName = randomAlphabetic(nextInt(MAX_BUYER_NAME_LENGTH) + 1);
-        phoneNumber = (phone.length > 0) ? phone[0] : random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + 1) + MIN_PHONE_NUMBER, false, true);
+        phoneNumber = (phone.length > 0) ? phone[0] : random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER) + MIN_PHONE_NUMBER, false, true);
         phoneCode = (phone.length > 1) ? phone[1] : "+84";
         password = "Abc@12345";
         String signupBody = """

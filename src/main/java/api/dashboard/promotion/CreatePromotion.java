@@ -1,6 +1,8 @@
 package api.dashboard.promotion;
 
-import api.dashboard.products.CreateProduct;
+import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 
 import java.time.Instant;
@@ -22,9 +24,14 @@ public class CreatePromotion {
     String CREATE_FLASH_SALE_PATH = "/itemservice/api/campaigns/";
     String CREATE_PRODUCT_DISCOUNT_PATH = "/orderservices2/api/gs-discount-campaigns/coupons";
     String END_EARLY_FLASH_SALE_PATH = "/itemservice/api/campaigns/end-early/";
+    String DELETE_FLASH_SALE_PATH = "/itemservice/api/campaigns/delete/";
     String FLASH_SALE_LIST_PATH = "/itemservice/api/campaigns/search/";
-    String QUERY = "?status=IN_PROGRESS";
+    String WHOLESALE_CAMPAIGN_SCHEDULE_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=SCHEDULED";
+    String WHOLESALE_CAMPAIGN_IN_PROGRESS_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=IN_PROGRESS";
+    String DELETE_DISCOUNT_PATH = "/orderservices2/api/gs-discount-campaigns/";
+    String END_EARLY_DISCOUNT_PATH = "/orderservices2/api/gs-discount?id=%s&storeId=%s";
     API api = new API();
+    Logger logger = LogManager.getLogger(CreatePromotion.class);
 
     public static List<String> variationSaleList;
     public static List<Integer> variationSalePrice;
@@ -34,23 +41,37 @@ public class CreatePromotion {
     public static int withoutVariationPurchaseLimit;
     public static int withoutVariationSaleStock;
     public static Instant startFlashSaleTime;
+    public static Instant startWholesaleCampaignTime;
+    public static int productWholesaleCouponType;
+    public static int productWholesaleCouponValue;
 
-    public void endEarlyFlashSale() {
-        // get in progress flash sale
-        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
+    public static int productWholesaleCampaignBranchType;
+    public static int productWholesaleCampaignBranchID;
+
+    public CreatePromotion endEarlyFlashSale() {
         // get schedule flash sale list
         List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
-
-        List<Integer> flashSaleID = new ArrayList<>();
-        flashSaleID.addAll(inProgressList);
-        flashSaleID.addAll(scheduleList);
-
-        // end early all in progress and schedule flash sale
-        if (flashSaleID.size() > 0) {
-            for (Integer id : flashSaleID) {
-                new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
+        logger.debug("schedule flash sale list: %s".formatted(scheduleList));
+        if (scheduleList.size() > 0) {
+            for (Integer id : scheduleList) {
+                Response delete = new API().delete("%s%s?storeId=%s".formatted(DELETE_FLASH_SALE_PATH, id, storeID), accessToken);
+                logger.debug("delete flash sale id: %s".formatted(id));
+                logger.debug(delete.asPrettyString());
             }
         }
+
+        // get in progress flash sale
+        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
+        logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
+        if (inProgressList.size() > 0) {
+            for (Integer id : inProgressList) {
+                Response endEarly = new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
+                logger.debug("end early flash sale id: %s".formatted(id));
+                logger.debug(endEarly.asPrettyString());
+            }
+        }
+
+        return this;
     }
 
     public CreatePromotion createFlashSale(int... time) {
@@ -90,7 +111,8 @@ public class CreatePromotion {
 
                     // variation model
                     int modelID = variationModelID.get(i);
-                    variationSaleList.add(variationList.get(variationModelID.indexOf(modelID)));
+
+                    variationSaleList.add(variationList.get(i));
 
                     // variation price
                     int price = nextInt(variationSellingPrice.get(i));
@@ -119,8 +141,8 @@ public class CreatePromotion {
             withoutVariationPurchaseLimit = limitPurchaseStock;
 
             // sale price
-            int price = nextInt(withoutVariationSellingPrice);
-            withoutVariationSalePrice = price;
+            withoutVariationSalePrice = nextInt(withoutVariationSellingPrice);
+
 
             String flashSaleProduct = """
                     {
@@ -129,14 +151,30 @@ public class CreatePromotion {
                                 "price": "%s",
                                 "saleStock": "%s"
                             }
-                    """.formatted(productID, limitPurchaseStock, price, saleStock);
+                    """.formatted(productID, limitPurchaseStock, withoutVariationSalePrice, saleStock);
             body.append(flashSaleProduct);
         }
         body.append("]}");
 
         // post api create new flash sale campaign
-        api.post(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body)).prettyPrint();
+        Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body));
 
+        logger.debug("create flash sale");
+        logger.debug(createFlashSale.asPrettyString());
+
+        return this;
+    }
+
+    public CreatePromotion endEarlyWholesaleCampaign() {
+        List<Integer> scheduleList = new API().get(WHOLESALE_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(storeID), accessToken).jsonPath().getList("id");
+        for (int campaignID : scheduleList) {
+            new API().delete(DELETE_DISCOUNT_PATH + campaignID, accessToken);
+        }
+
+        List<Integer> inProgressList = new API().get(WHOLESALE_CAMPAIGN_IN_PROGRESS_LIST_PATH.formatted(storeID), accessToken).jsonPath().getList("id");
+        for (int campaignID : inProgressList) {
+            new API().delete(DELETE_DISCOUNT_PATH + campaignID, accessToken);
+        }
         return this;
     }
 
@@ -146,19 +184,19 @@ public class CreatePromotion {
 
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
-        String activeDate = Instant.now().plus(startMin, ChronoUnit.MINUTES).toString();
+        startWholesaleCampaignTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
         int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
-        String expiredDate = Instant.now().plus(endMin, ChronoUnit.MINUTES).toString();
+        Instant expiredDate = Instant.now().plus(endMin, ChronoUnit.MINUTES);
 
         // coupon type
         // 0: percentage
         // 1: fixed amount
-        int couponType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
-        String couponTypeLabel = couponType == 0 ? "PERCENTAGE" : "FIXED_AMOUNT";
+        productWholesaleCouponType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
+        String couponTypeLabel = productWholesaleCouponType == 0 ? "PERCENTAGE" : "FIXED_AMOUNT";
         // coupon value
-        int couponValue = couponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(MAX_FIXED_AMOUNT) + 1;
+        productWholesaleCouponValue = productWholesaleCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(MAX_FIXED_AMOUNT) + 1;
 
         // init coupon type value
         StringBuilder body = new StringBuilder("""
@@ -173,7 +211,7 @@ public class CreatePromotion {
                             "couponValue": "%s",
                             "expiredDate": "%s",
                             "type": "WHOLE_SALE",
-                            "conditions": [""".formatted(name, storeID, activeDate, couponTypeLabel, couponValue, expiredDate));
+                            "conditions": [""".formatted(name, storeID, startWholesaleCampaignTime, couponTypeLabel, productWholesaleCouponValue, expiredDate));
 
         // init segment condition
         // segment type:
@@ -232,12 +270,13 @@ public class CreatePromotion {
         body.append(minimumRequirement);
 
         // init applicable branch
-        int applicableBranchCondition = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
-        String applicableBranchLabel = applicableBranchCondition == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
-        String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
+        productWholesaleCampaignBranchType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
+        productWholesaleCampaignBranchID = branchIDList.get(nextInt(branchIDList.size()));
+        String applicableBranchLabel = productWholesaleCampaignBranchType == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
+        String applicableConditionValue = productWholesaleCampaignBranchType == 0 ? "" : """
                 {
                     "conditionValue": "%s"
-                }""".formatted(branchIDList.get(nextInt(branchIDList.size())));
+                }""".formatted(productWholesaleCampaignBranchID);
         String applicableBranch = """
                 {
                     "conditionOption": "%s",
@@ -247,7 +286,11 @@ public class CreatePromotion {
         body.append(applicableBranch);
         body.append("]}]}");
 
-        api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).prettyPrint();
+        Response createProductWholesaleCampaign = api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body));
+
+        // debug log
+        logger.debug("create product wholesale campaign");
+        logger.debug(createProductWholesaleCampaign.asPrettyString());
         return this;
     }
 
@@ -393,7 +436,7 @@ public class CreatePromotion {
         body.append(platform);
         body.append("]}]}");
 
-        api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).prettyPrint();
+        api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body));
 
     }
 }
