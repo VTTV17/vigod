@@ -11,7 +11,7 @@ public class APIProductCollection {
     API api = new API();
     public static String DASHBOARD_PRODUCT_COLLECTION_LIST_PATH = "itemservice/api/collections/list/%s?page=0&size=100&itemType=BUSINESS_PRODUCT&search=";
     public int getNewestCollectionID(String storeId,String token){
-        Response listCollectionRes = api.list(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(storeId),token);
+        Response listCollectionRes = api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(storeId),token);
         System.out.println("listCollectionRes"+listCollectionRes.jsonPath().getList("lstCollection"));
         return (int) listCollectionRes.jsonPath().getList("lstCollection.id").get(0);
     }

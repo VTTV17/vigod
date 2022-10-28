@@ -401,16 +401,16 @@ public class UserProfileSFTest extends BaseTest {
     }
     @Test
     public void UP01_BH_4604_ViewAccountInfo() throws TestLinkAPIException {
-//        testCaseID = "BH_4604";
-//        loginAndGoToUserProfile(userName);
-//        userProfileInfo = new UserProfileInfo(driver);
-//        userProfileInfo.verifyDisplayName(displayName)
-//                .verifyMembershipLevel(membershipLevel)
-//                .verifyBarcode(barcodeNumber)
-//                .verifyAvatarDisplay();
-        Assert.assertTrue(true);
         testCaseID = "BH_4604";
-        reportResult("BH:BEEHIVE","Regression_Gosell",testCaseID,"GoSELL 3.7","Noted", TestLinkAPIResults.TEST_PASSED);
+        loginAndGoToUserProfile(userName);
+        userProfileInfo = new UserProfileInfo(driver);
+        userProfileInfo.verifyDisplayName(displayName)
+                .verifyMembershipLevel(membershipLevel)
+                .verifyBarcode(barcodeNumber)
+                .verifyAvatarDisplay();
+//        Assert.assertTrue(true);
+//        testCaseID = "BH_4604";
+//        reportResult("BH:BEEHIVE","Regression_Gosell",testCaseID,"GoSELL 3.7","Noted", TestLinkAPIResults.TEST_PASSED);
 
     }
 //    @Test
@@ -538,7 +538,7 @@ public class UserProfileSFTest extends BaseTest {
                 .clickOnSave()
                 .verifyAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent);
     }
-//    @Test
+    @Test
     public void UP09_BH_8273_CheckUserUpdateAddress() throws SQLException {
         testCaseID = "BH_8273";
         CheckUserUpdateAddress_ExistedAccount();
