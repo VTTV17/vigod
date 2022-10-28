@@ -15,7 +15,7 @@ public class APIAllProducts {
     API api = new API();
     public static String DASHBOARD_PRODUCT_LIST_PATH = "itemservice/api/store/dashboard/%s/items-v2?langKey=vi&searchType=PRODUCT_NAME&searchSortItemEnum=null&searchItemName=&sort=&page=-1&size=100&inStock=false&saleChannel=&bhStatus=&branchIds=&shopeeId=&collectionId=%s&platform=&itemType=BUSINESS_PRODUCT";
     public List<String> getProductListInCollectionByLatest(String storeID, String token, int collectionID) throws ParseException {
-        Response response = api.list(DASHBOARD_PRODUCT_LIST_PATH.formatted(storeID,collectionID),token);
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.formatted(storeID,collectionID),token);
         List<String> createdDateList = response.jsonPath().getList("createdDate");
         SimpleDateFormat  formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         List<String> productNameList = response.jsonPath().getList("name");
