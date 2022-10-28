@@ -1,3 +1,4 @@
+import org.apache.poi.ss.usermodel.Sheet;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -9,15 +10,23 @@ import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
 import pages.dashboard.signup.SignupPage;
 import pages.gomua.headergomua.HeaderGoMua;
+import pages.gomua.logingomua.LoginGoMua;
+import pages.gomua.signup.SignupGomua;
 import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
+import utilities.excel.Excel;
 import pages.InternalTool;
 import pages.Mailnesia;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +41,8 @@ public class SignupDashboard extends BaseTest {
 	String country;
 	String countryCode;
 	String currency;
-	String language;
+	String signupLanguage;
+	String storeLanguage;
 	String storeName;
 	String storeURL;
 	String storePhone;
@@ -51,16 +61,17 @@ public class SignupDashboard extends BaseTest {
 	String UPGRADENOW_MESSAGE_EN = "Confirmation\nAdmin Staging - Online & Offline sales platform. Build your e-commerce Website/App in few minutes, connect multi-channel sales platform Shopee, Lazada, manage customer data, create promotional emails, send notifications to customers via mobile applications, create landing pages ….\nUpgrade today to experience more great features from Admin Staging.\nUpgrade Now";
 
 	public void generateTestData() throws InterruptedException {
-		randomNumber = generate.generateNumber(4);
-		mail = "automation0-shop" + randomNumber + "@mailnesia.com";
-		storePhone = "912345" + randomNumber;
+		randomNumber = generate.generateNumber(2);
+		storePhone = "81234567" + randomNumber;
+		mail = "automation0-shop" + storePhone + "@mailnesia.com";
 		password = "fortesting!1";
 		referralCode = "";
 		country = "rd";
 		countryCode = "+84";
 		currency = "rd";
-		language = "rd";
-		storeName = "Automation Shop " + randomNumber;
+		signupLanguage = "Vietnamese";
+		storeLanguage = "rd";
+		storeName = "Automation Shop " + storePhone;
 		storeURL = "";
 		pickupAddress = "12 Quang Trung";
 		secondPickupAddress = "16 Wall Street";
@@ -71,7 +82,7 @@ public class SignupDashboard extends BaseTest {
 		zipCode = generate.generateNumber(6);
 	}
 
-	public String getVerificationCode(String username) throws InterruptedException, SQLException {
+	public String getVerificationCode(String username) throws SQLException {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
@@ -85,15 +96,39 @@ public class SignupDashboard extends BaseTest {
 		}
 		return verificationCode;
 	}
+	
+	public String getResetCode(String username) throws SQLException {
+		String verificationCode;
+		if (!username.matches("\\d+")) {
+			// Get verification code from Mailnesia
+			commonAction.openNewTab();
+			commonAction.switchToWindow(1);
+			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
+			commonAction.closeTab();
+			commonAction.switchToWindow(0);
+		} else {
+			verificationCode = new InitConnection().getResetKey(signupPage.countryCode + ":" + username);
+		}
+		return verificationCode;
+	}
 
 	public void setupShop(String username, String storeName, String url, String country, String currency,
-			String language, String contact, String pickupAddress, String secondPickupAddress, String province,
+			String storeLanguage, String contact, String pickupAddress, String secondPickupAddress, String province,
 			String district, String ward, String city, String zipCode) {
 		signupPage.inputStoreName(storeName);
 		if (url != "") {
 			signupPage.inputStoreURL(url);
 		}
-		signupPage.selectCountryToSetUpShop(country).selectCurrency(currency).selectLanguage(language);
+		if (country.length()>0) {
+			signupPage.selectCountryToSetUpShop(country);
+		}
+		if (currency.length()>0) {
+			signupPage.selectCurrency(currency);
+		}
+		if (storeLanguage.length()>0) {
+			signupPage.selectLanguage(storeLanguage);
+		}
+		
 		if (!username.matches("\\d+")) {
 			signupPage.inputStorePhone(contact);
 		} else {
@@ -110,9 +145,8 @@ public class SignupDashboard extends BaseTest {
 		signupPage.clickCompleteBtn();
 	}
 
-	public void verifyUpgradNowMessage() throws InterruptedException {
+	public void verifyUpgradNowMessage() {
 		String upgradeNowMessage;
-		Thread.sleep(1000);
 		if (new HomePage(driver).getDashboardLanguage().contentEquals("VIE")) {
 			upgradeNowMessage = UPGRADENOW_MESSAGE_VI;
 		} else {
@@ -121,12 +155,82 @@ public class SignupDashboard extends BaseTest {
 		new HomePage(driver).verifyUpgradeNowMessage(upgradeNowMessage).completeVerify();
 	}
 
-	public void reLogintoShop(String country, String user, String password) throws InterruptedException {
+	public void reLogintoShop(String country, String user, String password) {
 		new LoginPage(driver).performLogin(country, user, password);
 		verifyUpgradNowMessage();
 		new HomePage(driver).clickUpgradeNow();
 	}
 
+	// This function checks if an email is sent to the user saying the user has signed up for an account successfully
+	public void verifyEmailUponSuccessfulSignup(String username) {
+		commonAction.sleepInMiliSecond(3000);
+		commonAction.openNewTab();
+		commonAction.switchToWindow(1);
+		
+		String expectedWelcomeMessage;
+		String expectedVerificationCodeMessage;
+		String expectedSuccessfulSignupMessage;
+		if (signupLanguage.contentEquals("Vietnamese")) {
+			expectedWelcomeMessage = "Chào mừng bạn đến với GoSell";
+			expectedSuccessfulSignupMessage = "Đăng ký thành công tài khoản GoSell";
+			expectedVerificationCodeMessage = "là mã xác minh tài khoản GoSell của bạn";
+		} else {
+			expectedWelcomeMessage = "Welcome to GoSell";
+			expectedSuccessfulSignupMessage = "Successful GoSell registration";
+			expectedVerificationCodeMessage = "is your GoSell's verification code";
+		}
+		
+		String [][] mailContent = new Mailnesia(driver).navigate(username).getListOfEmailHeaders();
+		
+		commonAction.closeTab();
+		commonAction.switchToWindow(0);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
+	}	
+	
+	// This function returns a list of menus we will navigate to
+	public List<String> getParentMenuList() {
+        Excel excel = new Excel();
+        Sheet planPermissionSheet = null;
+		try {
+			planPermissionSheet = excel.getSheet(new HomePage(driver).planPermissionFileName, 0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        List<String> menuList = new ArrayList<>();
+        
+        int lastRowIndex = planPermissionSheet.getLastRowNum();
+        for (int row = 1; row <= lastRowIndex; row++) {
+            int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet.getRow(0), "GoFree");
+            int menuColIndex = excel.getCellIndexByCellValue(planPermissionSheet.getRow(0), "MenuItem");
+            String permission = planPermissionSheet.getRow(row).getCell(packageColIndex).getStringCellValue();
+            
+            if (!permission.contentEquals("D")) continue;
+            String menuItem = planPermissionSheet.getRow(row).getCell(menuColIndex).getStringCellValue();
+            
+            String parentMenu = menuItem.split("-")[0];
+            if (parentMenu.contains("GoMua") || parentMenu.contains("Lazada")) {
+                if (!currency.contains("VND")) continue; // If shop does not use VND, remove this menu item from the list
+                if (!country.contentEquals("Vietnam")) continue; // If shop is not in VN, remove this menu item from the list
+            }
+            menuList.add(parentMenu);
+        }
+		return new ArrayList<>(new HashSet<>(menuList)); // Duplicated values is filtered out
+	}
+
+	// This function check if Upgrade Now pop-up appears at 3 random screens
+	public void verifyUpgradNowMessageAppearEverywhere() {
+		List<String> menus = getParentMenuList();
+		for (int i=0; i<3; i++) {
+        	String randomMenu = menus.get(new Random().nextInt(menus.size()));
+    		new HomePage(driver).navigateToPage(randomMenu);
+    		new HomePage(driver).clickUpgradeNow();	
+		}
+	}	
+	
 	@BeforeMethod
 	public void setup() throws InterruptedException {
 		super.setup();
@@ -135,7 +239,7 @@ public class SignupDashboard extends BaseTest {
 	}
 
 //	@Test
-	public void SignUpForShopWithRandomData() throws SQLException, InterruptedException {
+	public void SignUpForShopWithRandomData() throws SQLException {
 
 		String username = storePhone;
 		String contact = mail;
@@ -147,7 +251,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		signupPage.clickLogout();
 
@@ -155,127 +259,15 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-//    @Test
-	public void SignUpForForeignShopWithPhone() throws SQLException, InterruptedException {
-
-		String country = "United Kingdom";
-		String currency = "Pound Sterling - GBP(£)";
-		String language = "Tiếng Anh";
-		String pickupAddress = "12 HighWay Revenue";
-		String secondPickupAddress = "16 Wall Street";
-		String city = "East London";
-		String province = "England";
-
-		String username = storePhone;
-		String contact = mail;
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-
-		country = signupPage.country;
-
-		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		signupPage.clickLogout();
-
-		// Re-login to the shop
-		reLogintoShop(country, username, password);
-	}
-
-//    @Test
-	public void SignUpForForeignShopWithEmail() throws SQLException, InterruptedException {
-
-		String country = "United Kingdom";
-		String currency = "Pound Sterling - GBP(£)";
-		String language = "Tiếng Anh";
-		String pickupAddress = "12 HighWay Revenue";
-		String secondPickupAddress = "16 Wall Street";
-		String city = "Cockney";
-		String province = "England";
-
-		String username = mail;
-		String contact = storePhone;
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-
-		country = signupPage.country;
-
-		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		signupPage.clickLogout();
-
-		// Re-login to the shop
-		reLogintoShop(country, username, password);
-	}
-
-//    @Test
-	public void SignUpForVNShopWithPhone() throws SQLException, InterruptedException {
-
-		String country = "Vietnam";
-		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
-		String pickupAddress = "12 Quang Trung";
-
-		String username = storePhone;
-		String contact = mail;
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-
-		country = signupPage.country;
-
-		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		signupPage.clickLogout();
-
-		// Re-login to the shop
-		reLogintoShop(country, username, password);
-	}
-
-//    @Test
-	public void SignUpForVNShopWithEmail() throws SQLException, InterruptedException {
-
-		String country = "Vietnam";
-		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
-		String province = "Hồ Chí Minh";
-		String district = "Quận 8";
-		String ward = "Phường 2";
-
-		String username = mail;
-		String contact = storePhone;
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-
-		country = signupPage.country;
-
-		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
-				secondPickupAddress, province, district, ward, city, zipCode);
-		signupPage.clickLogout();
-
-		// Re-login to the shop
-		reLogintoShop(country, username, password);
-	}
-
-	@Test
-	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException {
 
 		String referralCode = "fromthompson";
 		String domain = "abcdefgh";
 
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 
 		String username = storePhone;
 		String contact = mail;
@@ -288,7 +280,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		verifyUpgradNowMessage();
@@ -298,8 +290,8 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), referralCode.toUpperCase());
 	}
 
-	@Test
-	public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException {
 
 		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
 		storePhone = data.findValue("seller").findValue("phone").findValue("username").asText();
@@ -320,8 +312,8 @@ public class SignupDashboard extends BaseTest {
 		
 	}
 
-	@Test
-	public void BH_4038_ResendVerificationCodeToPhone() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_4038_ResendVerificationCodeToPhone() throws SQLException {
 
 		String username = storePhone;
 		String contact = mail;
@@ -341,7 +333,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		signupPage.clickLogout();
 
@@ -349,8 +341,8 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-	@Test
-	public void BH_4039_ResendVerificationCodeToEmail() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_4039_ResendVerificationCodeToEmail() throws SQLException {
 
 		String username = mail;
 		String contact = storePhone;
@@ -371,7 +363,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		signupPage.clickLogout();
 
@@ -379,8 +371,44 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-	@Test
-	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException, InterruptedException {
+	//This TC also covers BH_4054_ContinueSignupWizardAfterExitingSession()
+//	@Test
+	public void BH_4049_ExitWizard_EmailAccount() throws SQLException {
+	
+		String username = mail;
+		String contact = storePhone;
+	
+		// Sign up
+		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
+				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
+		country = signupPage.country;
+		signupPage.inputStoreName(storeName);
+	
+		// Exit current session
+		driver.quit();
+	
+		// Re-signup
+		driver = new InitWebdriver().getDriver("chrome", "false");
+		signupPage = new SignupPage(driver);
+		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
+		.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();
+		
+		// Login
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		
+		// Re-login to the shop 
+		reLogintoShop(country, username, password);
+	}		
+	
+//	@Test
+	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException {
 	
 		String username = mail;
 	
@@ -400,8 +428,8 @@ public class SignupDashboard extends BaseTest {
 	
 	}
 
-	@Test
-	public void BH_5195_SignUpForShopWithURLInUpperCase() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_5195_SignUpForShopWithURLInUpperCase() throws SQLException {
 
 		String username = mail;
 		String contact = storePhone;
@@ -419,7 +447,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		signupPage.clickLogout();
 
@@ -428,15 +456,15 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
 
-	@Test
-	public void BH_1363_SignUpForGoFreeAccountViaEmail() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1363_SignUpForGoFreeAccountViaEmail() throws SQLException {
 
 		String referralCode = "fromthompson";
 		String domain = "abcdefgh";
 
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 
 		String username = mail;
 		String contact = storePhone;
@@ -449,7 +477,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		verifyUpgradNowMessage();
@@ -464,14 +492,14 @@ public class SignupDashboard extends BaseTest {
 	}
 	
 //	@Test
-	public void BH_1277A_SignUpForGoFreeAccountViaPhone() throws SQLException, InterruptedException {
+	public void BH_1277A_SignUpForGoFreeAccountViaPhone() throws SQLException {
 		
 //		String referralCode = "frommark";
 		String domain = "null";
 		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		
 		String username = storePhone;
 		String contact = mail;
@@ -484,7 +512,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Check if user is redirected to package registration screen
@@ -504,14 +532,14 @@ public class SignupDashboard extends BaseTest {
 	}
 	
 //	@Test
-	public void BH_1277B_SignUpForGoFreeAccountViaPhone() throws SQLException, InterruptedException {
+	public void BH_1277B_SignUpForGoFreeAccountViaPhone() throws SQLException {
 		
 		String referralCode = "frommark";
 		String domain = "abcdefgh";
 		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		
 		String username = storePhone;
 		String contact = mail;
@@ -524,7 +552,7 @@ public class SignupDashboard extends BaseTest {
 		country = signupPage.country;
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Verify Upgrade Now popup appears on the screen
@@ -540,13 +568,13 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
 	}
 
-	@Test
-	public void BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount() throws SQLException {
 		
 		String domain = "gomua.vn";
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		String username = "gomua-seller"+ randomNumber +"@mailnesia.com";
 		String contact = storePhone;
 		String displayName  = "Gomua Seller " + randomNumber;
@@ -573,7 +601,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Verify upgrade now popup can be closed at home screen
@@ -609,13 +637,13 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
 	}
 	
-	@Test
-	public void BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount() throws SQLException {
 		
 		String domain = "gomua.vn";
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		String username = storePhone;
 		String contact = "gomua-seller"+ randomNumber +"@mailnesia.com";
 		String displayName  = "Gomua Seller " + randomNumber;
@@ -645,7 +673,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Verify upgrade now popup can be closed at home screen
@@ -681,12 +709,12 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
 	}	
 	
-	@Test
-	public void BH_1368_SignUpForShopUsingStorefrontEmailAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1368_SignUpForShopUsingStorefrontEmailAccount() throws SQLException {
 		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		String username = mail;
 		String contact = storePhone;
 		String displayName  = storeName;
@@ -706,7 +734,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		// Check if user is redirected to package registration screen
@@ -724,12 +752,12 @@ public class SignupDashboard extends BaseTest {
 		new HomePage(driver).clickUpgradeNow();
 	}	
 	
-	@Test
-	public void BH_1599_SignUpForShopUsingStorefrontPhoneAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1599_SignUpForShopUsingStorefrontPhoneAccount() throws SQLException {
 		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		String username = storePhone;
 		String contact = mail;
 		String displayName  = storeName;
@@ -752,7 +780,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		// Check if user is redirected to package registration screen
@@ -780,12 +808,12 @@ public class SignupDashboard extends BaseTest {
         .approveOrder(orderID);
 	}		
 	
-	@Test
-	public void BH_1631_SignUpForShopUsingGomuaMailAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1631_SignUpForShopUsingGomuaMailAccount() throws SQLException {
 		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		String username = mail;
 		String contact = storePhone;
 		String displayName  = storeName;
@@ -804,7 +832,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Check if user is redirected to package registration screen
@@ -822,12 +850,12 @@ public class SignupDashboard extends BaseTest {
 		new HomePage(driver).clickUpgradeNow();
 	}	
 	
-	@Test
-	public void BH_1632_SignUpForShopUsingGomuaPhoneAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1632_SignUpForShopUsingGomuaPhoneAccount() throws SQLException {
 		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
-		String language = "Tiếng Việt";
+		String storeLanguage = "Tiếng Việt";
 		String username = storePhone;
 		String contact = mail;
 		String displayName  = storeName;
@@ -851,7 +879,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, language, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Check if user is redirected to package registration screen
@@ -868,5 +896,142 @@ public class SignupDashboard extends BaseTest {
 		new HomePage(driver).navigateToPage("Services");
 		new HomePage(driver).clickUpgradeNow();
 	}	
+
+	// BH-18726: Email field is missing at shop setup wizard screen
+//	@Test
+	public void BH_4052_SignUpForShopUsingGomuaPhoneAccount() throws SQLException {
+		
+		country = "Vietnam";
+		currency = "Dong - VND(đ)";
+		storeLanguage = "Tiếng Việt";
+		String username = storePhone;
+		String contact = mail;
+		String displayName  = storeName;
+		
+		String newPassword = "fortesting!4";
+
+		signupPage.countryCode = "+84"; // This is a temporary workaround. Solutions to the problem are being considered.
+		
+		// Signup in Gomua
+		new HeaderGoMua(driver).navigateToGoMua()
+		.clickSignUpBtn()
+		.inputUsername(username)
+		.inputPassWord(password)
+		.inputDisplayName(displayName)
+		.clickContinueBtn()
+		.inputVerificationCode(getVerificationCode(username))
+		.clickVerifyAndLoginBtn()
+		.inputEmail(contact)
+		.clickComplete();
+		commonAction.sleepInMiliSecond(3000); // Temporarily put sleep here
+		
+		
+		// Login
+		new LoginPage(driver).navigate()
+		.clickForgotPassword()
+		.selectCountry(country)
+		.inputEmailOrPhoneNumber(username)
+		.inputPassword(newPassword)
+		.clickContinueOrConfirmBtn();
+
+		new LoginPage(driver).inputVerificationCode(getResetCode(username))
+		.clickContinueOrConfirmBtn();
+
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		
+		// Re-login to the shop 
+		reLogintoShop(country, username, password);
+		
+	}			
 	
+	//Not done as test case description is in processing of updating
+//	@Test
+	public void BH_4053_ForgotPasswordForGomuaPhoneAccount() throws SQLException {
+		
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String storeLanguage = "Tiếng Việt";
+		String username = storePhone;
+		String contact = mail;
+		String displayName  = storeName;
+		
+		signupPage.countryCode = "+84"; // This is a temporary workaround. Solutions to the problem are being considered.
+		
+		username = "9123455780";
+		String currentPass = "fortesting!8";
+		String newPass = "fortesting!9";
+		
+		new HeaderGoMua(driver).navigateToGoMua()
+		.clickOnLogInBTN();
+		new LoginGoMua(driver).clickForgotPassword()
+		.inputUsername(username)
+		.inputPassWord(currentPass);
+		new SignupGomua(driver).clickContinueBtn()
+		.inputVerificationCode(getResetCode(username))
+		.clickVerifyAndLoginBtn();
+		new HeaderGoMua(driver).clickOnDisplayName()
+		.clickChangePassword()
+		.inputCurrentPassword(currentPass)
+		.inputNewPassword(newPass)
+		.clickDoneBtn();
+	}	
+
+	@Test
+	public void BH_7668_SignUpForGoFreeEmailAccountViaPromotionLink() throws Exception {
+		
+		String domain = "abcdefgh";
+		String [] referralCodePool = {"frommark", ""}; 
+		String referralCode = referralCodePool[new Random().nextInt(referralCodePool.length)];
+		
+		String username = storePhone;
+		String contact = mail;
+		
+		// Workaround to decide display language at Signup screen
+		country = signupPage.navigate().selectCountry(country).country;
+		signupLanguage = (country.contentEquals("Vietnam")) ? "Vietnamese" : "English";
+		
+		// Sign up
+		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
+		.selectDisplayLanguage(signupLanguage) // Select display language at Signup screen
+		.fillOutSignupForm(country, username, password, referralCode)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		
+		// Setup store
+		storeLanguage = ""; // This is to select the default value
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		currency = signupPage.currency;
+		
+		// Upgrade now dialog pops up immediately
+		verifyUpgradNowMessage();
+		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+		new HomePage(driver).clickUpgradeNow();
+		PlansPage plansPage = new PlansPage(driver);
+        plansPage.selectPlan("GoWEB");
+
+		// Verify sign-up mails are sent to users
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);        
+        
+		// Verify Upgrade Now popup appears on the screen
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Verify Upgrade Now popup appears on the screen when re-logging into dashboard
+		new HomePage(driver).clickLogout();
+		reLogintoShop(country, username, password);
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
+		
+	}	
 }
