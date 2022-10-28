@@ -1,3 +1,11 @@
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -5,22 +13,26 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pages.storefront.header.HeaderSF;
-import pages.storefront.login.LoginPage;
-import pages.storefront.signup.SignupPage;
-import pages.storefront.userprofile.MyAccount.MyAccount;
-import pages.storefront.userprofile.MyAddress;
-import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
-import utilities.jsonFileUtility;
-import utilities.database.InitConnection;
 import pages.Mailnesia;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
 import pages.dashboard.home.HomePage;
-
-import java.sql.SQLException;
+import pages.gomua.headergomua.HeaderGoMua;
+import pages.gomua.logingomua.LoginGoMua;
+import pages.gomua.myprofile.MyProfileGoMua;
+import pages.storefront.GeneralSF;
+import pages.storefront.header.HeaderSF;
+import pages.storefront.login.LoginPage;
+import pages.storefront.signup.SignupPage;
+import pages.storefront.userprofile.MyAddress;
+import pages.storefront.userprofile.MyAccount.MyAccount;
+import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
+import utilities.jsonFileUtility;
+import utilities.database.InitConnection;
 
 public class SignupStorefront extends BaseTest {
+	
+	final static Logger logger = LogManager.getLogger(SignupStorefront.class);
 
 	SignupPage signupPage;
 
@@ -55,22 +67,23 @@ public class SignupStorefront extends BaseTest {
 	String INVALID_CODE_ERROR_VI = "Mã xác thực không đúng";
 	String INVALID_CODE_ERROR_EN = "Incorrect confirmation code!";
 
-	public void generateTestData() throws InterruptedException {
-		randomNumber = generate.generateNumber(3);
-		mail = "automation0-buyer" + randomNumber + "@mailnesia.com";
-		phone = "9123456" + randomNumber;
+	// This function generate test data for each test case
+	public void generateTestData() {
+		randomNumber = generate.generateNumber(2);
+		phone = "8123456" + randomNumber;
+		mail = "automation0-buyer-test" + phone + "@mailnesia.com";
 		password = "fortesting!1";
 		country = "rd";
-		displayName = "Automation Buyer " + randomNumber;
-		birthday = "02/02/1990";
+		displayName = "Automation Buyer Test" + phone;
+		birthday = "21/02/1990";
 		language = "rd";
 	}
-
-	public String getVerificationCode(String username) throws InterruptedException, SQLException {
+	
+	// This function returns a verification code needed for sign-up procedure. It works for both phone and email account
+	public String getVerificationCode(String username) throws SQLException {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			Thread.sleep(10000);
 			commonAction.openNewTab();
 			commonAction.switchToWindow(1);
 			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
@@ -80,6 +93,26 @@ public class SignupStorefront extends BaseTest {
 			verificationCode = new InitConnection().getActivationKey(signupPage.countryCode + ":" + username);
 		}
 		return verificationCode;
+	}
+	
+	// This function checks if an email is sent to the user saying the user has signed up for an account successfully
+	public void verifyEmailUponSuccessfulSignup(String username) {
+		String language = new GeneralSF(driver).getDisplayLanguage();
+		String title = commonAction.getPageTitle();
+		commonAction.openNewTab();
+		commonAction.switchToWindow(1);
+		String expectedVerificationCodeMessage;
+		String expectedSuccessfulSignupMessage;
+		if (language.contentEquals("vi")) {
+			expectedSuccessfulSignupMessage = "Đăng kí thành công tài khoản trên %s".formatted(title);
+			expectedVerificationCodeMessage = "là mã xác minh tài khoản trên %s của bạn".formatted(title);
+		} else {
+			expectedSuccessfulSignupMessage = "Successfully register acount on %s".formatted(title);
+			expectedVerificationCodeMessage = "is code to verify your e-mail address on %s".formatted(title);
+		}
+		String [][] mailContent = new Mailnesia(driver).navigate(username).getListOfEmailHeaders();
+		Assert.assertEquals(mailContent[0][3], expectedSuccessfulSignupMessage);
+		Assert.assertTrue(mailContent[1][3].contains(expectedVerificationCodeMessage));
 	}
 
 	@BeforeClass
@@ -104,10 +137,8 @@ public class SignupStorefront extends BaseTest {
 		generateTestData();
 	}
 
-	@Test
-	public void BH_4588_SignUpWithInvalidCredential() throws SQLException, InterruptedException {
-
-		String country = "Philippines";
+//	@Test
+	public void BH_4588_SignUpWithInvalidCredential() {
 
 		signupPage.navigate().fillOutSignupForm(country, "", password, displayName, birthday);
 		signupPage.verifyEmailOrPhoneNumberError(EMPTY_USERNAME_ERROR_VI).completeVerify();
@@ -125,62 +156,66 @@ public class SignupStorefront extends BaseTest {
 
 	}
 
-	@Test
-	public void BH_4589_ResendVerificationCodeToEmail() throws SQLException, InterruptedException {
-
-		String country = "Philippines";
-
+//	@Test
+	public void BH_4589_ResendVerificationCodeToEmail() throws SQLException {
+		
+		username = mail;
+		
 		// Signup
-		signupPage.navigate().fillOutSignupForm(country, mail, password, displayName, birthday);
+		signupPage.navigate().fillOutSignupForm(country, username, password, displayName, birthday);
 		country = signupPage.country;
 
 		// Verify if new code has been sent to users when they click on Resend button
-		String firstCode = getVerificationCode(mail);
-		signupPage.inputVerificationCode(firstCode);
-		signupPage.clickResendOTP();
-
-		String resentCode = getVerificationCode(mail);
-		signupPage.inputVerificationCode(resentCode);
+		String firstCode = getVerificationCode(username);
+		signupPage.inputVerificationCode(firstCode).clickResendOTP();
+		
+		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(8000); //If that's a mail account, wait for 5s
+		
+		String resentCode = getVerificationCode(username);
+		signupPage.inputVerificationCode(resentCode).clickConfirmBtn();
 		
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
 		
-		signupPage.clickConfirmBtn();
-
+		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn(); //If that's a phone account, input email info
+		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, mail, password);
+		new LoginPage(driver).navigate().performLogin(country, username, password);
 	}
 
-	@Test
-	public void BH_1625_ResendVerificationCodeToPhone() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1625_ResendVerificationCodeToPhone() throws SQLException {
 
-		String country = "Philippines";
+		username = phone;
 
 		// Signup
-		signupPage.navigate().fillOutSignupForm(country, phone, password, displayName, birthday);
+		signupPage.navigate().fillOutSignupForm(country, username, password, displayName, birthday);
 		country = signupPage.country;
 
-		String firstCode = getVerificationCode(phone);
-		signupPage.inputVerificationCode(firstCode)
-		.clickResendOTP();
-
-		String resentCode = getVerificationCode(phone);
-		signupPage.inputVerificationCode(resentCode);
+		// Verify if new code has been sent to users when they click on Resend button
+		String firstCode = getVerificationCode(username);
+		signupPage.inputVerificationCode(firstCode).clickResendOTP();
+		
+		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(8000); //If that's a mail account, wait for 5s
+		
+		String resentCode = getVerificationCode(username);
+		signupPage.inputVerificationCode(resentCode).clickConfirmBtn();
+		
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
-		signupPage.clickConfirmBtn();
-		signupPage.inputEmail(mail).clickCompleteBtn();
-
+		
+		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn(); //If that's a phone account, input email info
+		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, phone, password);
+		new LoginPage(driver).navigate().performLogin(country, username, password);
 	}
 
-	@Test
-	public void BH_1593_SignUpWithUsedEmailAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1593_SignUpWithUsedEmailAccount() {
 		// Signup
 		signupPage.navigate()
 		.fillOutSignupForm(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD, displayName, birthday)
@@ -188,8 +223,8 @@ public class SignupStorefront extends BaseTest {
 		.completeVerify();
 	}
 
-	@Test
-	public void BH_1279_SignUpWithUsedPhoneAccount() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_1279_SignUpWithUsedPhoneAccount() {
 		// Signup
 		signupPage.navigate()
 		.fillOutSignupForm(BUYER_PHONE_COUNTRY, BUYER_PHONE_USERNAME, BUYER_PHONE_PASSWORD, displayName, birthday)
@@ -197,55 +232,67 @@ public class SignupStorefront extends BaseTest {
 		.completeVerify();
 	}
 
-	@Test
-	public void BH_1278_SignupWithPhone() throws SQLException, InterruptedException {
-		String country = "Philippines";
-
+//	@Test
+	public void BH_1278_SignupWithPhone() throws SQLException {
+		username = phone;
+		country = "Philippines";
+		
+//		signupPage.navigate();
+//		new HeaderSF(driver).clickUserInfoIcon().changeLanguage("English");
+		
 		// Signup
 		signupPage.navigate()
-		.fillOutSignupForm(country, phone, password, displayName, birthday)
-		.inputVerificationCode(getVerificationCode(phone))
+		.fillOutSignupForm(country, username, password, displayName, birthday)
+		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
 		countryCode = signupPage.countryCode;
-		signupPage.inputEmail(mail)
-		.clickCompleteBtn();
+		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn();
 
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, phone, password);
+		new LoginPage(driver).navigate().performLogin(country, username, password);
 
-		// Check user profile
+		// Verify user info in SF
 		new HeaderSF(driver)
 		.clickUserInfoIcon()
 		.clickUserProfile()
 		.clickMyAccountSection();
-
-		// Verify user info in SF
+		
 		Assert.assertEquals(new MyAccount(driver).getDisplayName(), displayName);
 		Assert.assertEquals(new MyAccount(driver).getEmail(), mail);
-		// Bug: Phone number is always prefixed with number 0
-//    	Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode + ":" + phone);
 		Assert.assertEquals(new MyAccount(driver).getBirthday(), birthday);
-
+		// BH-18570: Phone number is always prefixed with number 0
+//		if (username.matches("\\d+")) Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode+":"+username);
+		
 		new UserProfileInfo(driver).clickMyAddressSection();
 		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
 		
-		// Verify user info in Dashboard
+		// Log into Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
 		new HomePage(driver).waitTillSpinnerDisappear();
-		new AllCustomers(driver).navigate().selectBranch("None Branch").getPhoneNumber(displayName);
-		new AllCustomers(driver).clickUser(displayName);
-		new CustomerDetails(driver).getPhoneNumber();
-		// Bug: Email is missing
+		
+		// Verify user info in Dashboard
+		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
+		
+		// BH-18563: Mail is not shown in Dashboard while it is shown in SF when it's a phone account
 //		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
+		// Bug: Phone number is shown differently between SF and Dashboard
+//		String expectedPhone = (username.matches("\\d+")) ? countryCode+username : "";
+//		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), expectedPhone);
+		
+		// Verify mails sent to the user saying the sign-up is successful
+		signupPage.navigate();
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);
 	}
 
-	@Test
-	public void BH_1594_SignupWithEmail() throws SQLException, InterruptedException {
-		String country = "Philippines";
+//	@Test
+	public void BH_1594_SignupWithEmail() throws SQLException {
+		username = mail;
+		country = "Philippines";
+		
 		// Signup
 		signupPage.navigate()
 		.fillOutSignupForm(country, mail, password, displayName, birthday)
@@ -280,53 +327,142 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}
 
-	@Test
-	public void BH_4590_SignupForEmailWithWrongVerificationCode() throws SQLException, InterruptedException {
+//	@Test
+	public void BH_4590_SignupForEmailWithWrongVerificationCode() throws SQLException {
 
-		String country = "Philippines";
+		username = mail;
+		country = "Philippines";
 
 		// Signup
-		signupPage.navigate().fillOutSignupForm(country, mail, password, displayName, birthday);
+		signupPage.navigate().fillOutSignupForm(country, username, password, displayName, birthday);
 		country = signupPage.country;
 		
-		String code = getVerificationCode(mail);
-
-		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1))
-		.clickConfirmBtn();
-
+		// Get verification code
+		String code = getVerificationCode(username);
+		
+		// Input wrong verification code
+		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickConfirmBtn();
 		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
-
-		signupPage.inputVerificationCode(code)
-		.clickConfirmBtn();
+		
+		// Input correct verification code
+		signupPage.inputVerificationCode(code).clickConfirmBtn();
+		
+		// Input mail info if this is a phone account
+		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn();
 
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, mail, password);
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+		
+		// Logout
+		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+
+		generateTestData();
+		username = phone;
+		country = "Philippines";
+
+		// Signup
+		signupPage.navigate().fillOutSignupForm(country, username, password, displayName, birthday);
+		country = signupPage.country;
+		
+		// Get verification code
+		code = getVerificationCode(username);
+		
+		// Input wrong verification code
+		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickConfirmBtn();
+		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
+		
+		// Input correct verification code
+		signupPage.inputVerificationCode(code).clickConfirmBtn();
+
+		// Input mail info if this is a phone account
+		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn();
+
+		// Logout
+		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+
+		// Re-login with new password
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+		
 	}
 
 	@Test
-	public void BH_4590_SignupForPhoneWithWrongVerificationCode() throws SQLException, InterruptedException {
-
-		String country = "Philippines";
-
+	public void BH_1288_LogIntoGomuaWithAccountCreatedOnStorefront() throws SQLException {
+		
+		boolean mailProvided = true;
+		boolean birthdayProvided = true;
+		username = phone;
+		country = "Vietnam";
+		birthday = (birthdayProvided) ? birthday : "";
+		
 		// Signup
-		signupPage.navigate().fillOutSignupForm(country, phone, password, displayName, birthday);
-		country = signupPage.country;
-
-		String code = getVerificationCode(phone);
-
-		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickConfirmBtn();
-		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
-		signupPage.inputVerificationCode(code).clickConfirmBtn();
-		signupPage.inputEmail(mail).clickCompleteBtn();
-
+		signupPage.navigate()
+		.fillOutSignupForm(country, username, password, displayName, birthday)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		countryCode = signupPage.countryCode;
+		if (username.matches("\\d+")) { // Check if this is a phone account
+			if (mailProvided) { // Decide whether to provide an email account or not
+				signupPage.inputEmail(mail).clickCompleteBtn();
+			} else {
+				signupPage.clickLater();
+			}
+		}
+			
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, phone, password);
+		new LoginPage(driver).navigate().performLogin(country, username, password);
+
+		// Get user info in SF
+		new HeaderSF(driver)
+		.clickUserInfoIcon()
+		.clickUserProfile()
+		.clickMyAccountSection();
+		
+		String SF_DisplayName = new MyAccount(driver).getDisplayName();
+		String SF_Gender = new MyAccount(driver).getGender();
+		String SF_Email = new MyAccount(driver).getEmail();
+		String SF_Birthday = new MyAccount(driver).getBirthday();
+		String SF_Phone = (username.matches("\\d+")) ? new MyAccount(driver).getPhoneNumber() : "";
+		
+		// Log into Gomua
+		new HeaderGoMua(driver).navigateToGoMua().clickOnLogInBTN();
+		new LoginGoMua(driver).loginWithUserName(username, password);
+		
+		// Get user info in Gomua
+		new HeaderGoMua(driver).goToMyProfile();
+		new MyProfileGoMua(driver).clickOnEditProfile();
+		
+		String Gomua_DisplayName = new MyProfileGoMua(driver).getDisplayName();
+		String Gomua_Email = new MyProfileGoMua(driver).getEmail();
+		String Gomua_Phone = new MyProfileGoMua(driver).getPhoneNumber();
+		String Gomua_Gender = new MyProfileGoMua(driver).getGender();
+		String Gomua_Birthday = new MyProfileGoMua(driver).getBirthday();
+		
+		// Format birthday as dd/mm/yyyy
+		String formattedBirthday = birthday;
+		if (birthdayProvided) {
+			Matcher m = Pattern.compile("\\d+").matcher(Gomua_Birthday);
+			List<String> code=new ArrayList<String>(); 
+			while (m.find()) {
+				code.add(m.group());
+			}
+			formattedBirthday = String.join("/", code.get(2), code.get(1), code.get(0));
+		}
+		
+		// Verify user info in SF and Gomua match
+		Assert.assertEquals(Gomua_DisplayName, SF_DisplayName);
+		// BH-18609: Gomua buyers have wrong gender
+		Assert.assertEquals(Gomua_Gender, SF_Gender);
+		Assert.assertEquals(Gomua_Email, SF_Email);
+		// BH-18570: Phone number is not prefixed with number 0 for VN buyers
+		Assert.assertEquals(Gomua_Phone.replace(" ", ":"), SF_Phone);
+		Assert.assertEquals(formattedBirthday, SF_Birthday);
+
 	}
 
 }
