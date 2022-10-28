@@ -394,6 +394,5 @@ public class CreatePromotion {
         body.append("]}]}");
 
         api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).prettyPrint();
-
     }
 }
