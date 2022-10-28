@@ -26,8 +26,7 @@ import java.util.Map;
 
 import static api.dashboard.login.Login.storeName;
 import static api.dashboard.products.CreateProduct.withoutVariationSellingPrice;
-import static api.dashboard.promotion.CreatePromotion.productWholesaleCouponType;
-import static api.dashboard.promotion.CreatePromotion.variationSaleList;
+import static api.dashboard.promotion.CreatePromotion.*;
 import static java.lang.Thread.sleep;
 import static pages.dashboard.products.all_products.ProductPage.*;
 import static pages.dashboard.products.all_products.ProductVerify.branchInfo;
@@ -39,11 +38,11 @@ public class ProductDetailPage extends ProductDetailElement {
     static int countFail = 0;
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
-    UICommonAction common;
+    UICommonAction commonAction;
     public ProductDetailPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        common = new UICommonAction(driver);
+        commonAction = new UICommonAction(driver);
     }
 
     /**
@@ -138,6 +137,17 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public ProductDetailPage checkWholesaleCampaignShouldBeShown() throws IOException, InterruptedException {
+        commonAction.waitElementList(BRANCH_NAME_LIST);
+
+        if (productWholesaleCampaignBranchType == 0) {
+            for (WebElement element: BRANCH_NAME_LIST) {
+                if (element.getText().equals(CreateProduct.branchName.get(CreateProduct.branchIDList.indexOf(CreatePromotion.productWholesaleCampaignBranchID)))) {
+                    element.click();
+                    break;
+                }
+            }
+        }
+
         boolean check = true;
         try {
             sleep(1000);
@@ -475,15 +485,15 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public ShoppingCart clickOnBuyNow(){
-        common.clickElement(BUY_NOW_BTN);
+        commonAction.clickElement(BUY_NOW_BTN);
         logger.info("CLick on Buy Now button");
-        common.sleepInMiliSecond(2000);
+        commonAction.sleepInMiliSecond(2000);
         return new ShoppingCart(driver);
     }
     public ProductDetailPage accessToProductDetailPageByURL(String domain, String productID) {
-        common.navigateToURL(domain+"product/"+productID);
+        commonAction.navigateToURL(domain+"product/"+productID);
         logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
-        common.sleepInMiliSecond(3000);
+        commonAction.sleepInMiliSecond(3000);
         return this;
     }
 }
