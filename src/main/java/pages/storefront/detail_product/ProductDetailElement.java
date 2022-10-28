@@ -55,6 +55,10 @@ public class ProductDetailElement {
 
     @FindBy (css = ".flash-sale")
     WebElement FLASH_SALE_BADGE;
+
+    @FindBy (css = ".buy-in-bulk__checkbox")
+    WebElement WHOLESALE_CAMPAIGN_CHECKBOX;
+
     @FindBy(css = "#button-buy-now")
     WebElement BUY_NOW_BTN;
 }

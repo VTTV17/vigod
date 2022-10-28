@@ -88,6 +88,7 @@ public class ProductPage extends ProductVerify {
     public List<String> productPlatform;
 
     public static List<String>[] wholesaleMap;
+    public static boolean isCreateByUI;
 
     /**
      * Set language to determine the expected page title or something that we need
@@ -122,6 +123,9 @@ public class ProductPage extends ProductVerify {
      * On the "All Products" page, click on the "Create Product" button to open the "Create Product" page
      */
     public ProductPage clickOnTheCreateProductBtn() {
+        // set control var
+        isCreateByUI = true;
+
         // click create product button
         wait.until(ExpectedConditions.elementToBeClickable(CREATE_PRODUCT_BTN)).click();
 

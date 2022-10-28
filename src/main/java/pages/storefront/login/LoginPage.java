@@ -147,6 +147,7 @@ public class LoginPage {
     }
 
     public LoginPage performLogin(String username, String password) {
+        new GeneralSF(driver).waitTillLoaderDisappear();
     	new HeaderSF(driver).clickUserInfoIcon()
     	.clickLoginIcon();
     	inputEmailOrPhoneNumber(username);

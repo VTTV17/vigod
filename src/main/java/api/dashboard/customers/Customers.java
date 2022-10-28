@@ -1,14 +1,17 @@
 package api.dashboard.customers;
 
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 
 import static api.dashboard.login.Login.*;
-import static java.lang.Thread.sleep;
+import static io.restassured.RestAssured.baseURI;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static utilities.character_limit.CharacterLimit.*;
+import static utilities.links.Links.URI;
 
 public class Customers {
     String CREATE_POS_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/POS/";
@@ -28,9 +31,11 @@ public class Customers {
 
     API api = new API();
 
+    Logger logger = LogManager.getLogger(Customers.class);
+
     public Customers createNewCustomer() {
         customerName = randomAlphabetic(nextInt(MAX_CUSTOMER_NAME) + 1);
-        customerPhone = random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + 1) + MIN_PHONE_NUMBER, false, true);
+        customerPhone = random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + MIN_PHONE_NUMBER), false, true);
         customerTag = randomAlphabetic(nextInt(MAX_CUSTOMER_TAG_LENGTH) + 1);
         String body = """
                 {
@@ -62,8 +67,8 @@ public class Customers {
     public Customers addCustomerTag(String customerName) {
         Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, storeID, customerName), accessToken);
         buyerId = Integer.parseInt(searchCustomerByName.jsonPath().getString("userId").replace("[","").replace("]", ""));
-        profileId = Integer.parseInt(searchCustomerByName.jsonPath().getString("id").replace("[","").replace("]", ""));
-        String phoneBackup = searchCustomerByName.jsonPath().getString("phoneBackup").replace("[","").replace("]", "");
+        profileId = Integer.parseInt(searchCustomerByName.jsonPath().getString("id").replace("[", "").replace("]", ""));
+        customerPhone = searchCustomerByName.jsonPath().getString("phoneBackup").replace("[", "").replace("]", "");
         customerTag = randomAlphabetic(nextInt(MAX_CUSTOMER_TAG_LENGTH) + 1);
 
         String body = """
@@ -88,14 +93,15 @@ public class Customers {
                     "partnerId": null,
                     "companyName": "",
                     "taxCode": ""
-                }""".formatted(profileId, customerName, phoneBackup, customerTag);
-
-        new API().put(UPDATE_CUSTOMER_PROFILE_PATH + storeID, accessToken, body).prettyPrint();
+                }""".formatted(profileId, customerName, customerPhone, customerTag);
+        baseURI = URI;
+        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, storeID), accessToken, body);
+        logger.debug(body);
+        logger.debug("add customer tags: " + updateCustomerProfile.asPrettyString());
         return this;
     }
 
     public void createSegment() {
-        createNewCustomer();
         segmentName = randomAlphabetic(nextInt(MAX_SEGMENT_NAME_LENGTH) + 1);
         String body = """
                 {
@@ -109,6 +115,8 @@ public class Customers {
                     ]
                 }
                 """.formatted(segmentName, customerTag);
-        segmentID = api.post(CREATE_SEGMENT_PATH + storeID, accessToken, body).jsonPath().getInt("id");
+        Response createSegment = api.post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+        logger.info("create segment :" + createSegment.asPrettyString());
+        segmentID = createSegment.jsonPath().getInt("id");
     }
 }
