@@ -62,4 +62,42 @@ public class API {
                 .when()
                 .delete(path);
     }
+
+    public Response putRequest(String path, String token, String body) {
+        return given()
+                .auth()
+                .oauth2(token)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .put(path);
+    }
+    public Response deleteRequest(String path, String token, String body) {
+        return given()
+                .auth()
+                .oauth2(token)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .delete(path);
+    }
+
+    public Response putRequest(String path, String token, String body) {
+        return given()
+                .auth()
+                .oauth2(token)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .put(path);
+    }
+    public Response deleteRequest(String path, String token, String body) {
+        return given()
+                .auth()
+                .oauth2(token)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .delete(path);
+    }
 }

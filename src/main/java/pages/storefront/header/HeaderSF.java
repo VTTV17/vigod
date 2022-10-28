@@ -69,7 +69,7 @@ public class HeaderSF extends GeneralSF {
 	WebElement ENGLISH_LANGUAGE;
 	@FindBy(css = "[onclick=\"gosellUtils.changeLanguage('vi')\"]")
 	WebElement VIETNAMESE_LANGUAGE;
-
+	String MENU_ITEM_BY_TEXT = "//button[@class='d-btn']//a[text()='%s']";
 	public HeaderSF clickUserInfoIcon() {
 		commons.clickElement(USER_INFO_ICON);
 		logger.info("Clicked on User Info icon.");
@@ -170,4 +170,11 @@ public class HeaderSF extends GeneralSF {
 		logger.info("Selected language '%s'.".formatted(lang));
 		return this;
 	}
+	public HeaderSF clickOnMenuItemByText(String menuItemByText){
+		String menuItemNewXpath = MENU_ITEM_BY_TEXT.formatted(menuItemByText);
+		commons.clickElement(commons.getElementByXpath(menuItemNewXpath));
+		logger.info("Click on menu: "+menuItemByText);
+		return this;
+	}
+
 }

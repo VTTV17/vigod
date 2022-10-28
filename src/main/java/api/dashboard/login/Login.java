@@ -31,6 +31,14 @@ public class Login {
         storeID = loginResponse.jsonPath().getInt("store.id");
         storeName = loginResponse.jsonPath().getString("store.name");
     }
+
+    /**
+     *
+     * @param countryCode: example: "+84"
+     * @param phoneNumber
+     * @param password
+     * @return Map with keys: accessToken, storeID
+     */
     public Map<String,String> loginToDashboardWithPhone(String countryCode, String phoneNumber, String password) {
         RestAssured.baseURI = URI;
         String body = """
@@ -50,6 +58,7 @@ public class Login {
         Map<String, String> map = new HashMap<>();
         map.put("accessToken",accessToken);
         map.put("storeID",String.valueOf(storeID));
+        System.out.println(map);
         return map;
     }
 
