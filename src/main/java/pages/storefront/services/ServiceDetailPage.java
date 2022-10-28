@@ -146,11 +146,11 @@ public class ServiceDetailPage {
         }else {
             Assert.assertEquals(titleActual,SEOTitle);
         }
-        String SEOTitleActual = commons.getElementAttribute(META_DESCRIPTION,"content");
+        String SEODescActual = commons.getElementAttribute(META_DESCRIPTION,"content");
         if (SEODescription == "") {
-            Assert.assertEquals(SEOTitleActual,serviceDescription);
+            Assert.assertEquals(SEODescActual,serviceDescription);
         }else {
-            Assert.assertEquals(SEOTitleActual,SEODescription);
+            Assert.assertEquals(SEODescActual,SEODescription);
         }
         String SEOKeywordActual = commons.getElementAttribute(META_KEYWORD,"content");
         if (SEOKeyword==""){
