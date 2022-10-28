@@ -52,7 +52,8 @@ public class CharacterLimit {
 
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE = 2;
     public final static int MAX_PERCENT_DISCOUNT = 100;
-    public final static int MAX_FIXED_AMOUNT = 1000000000;
+    //    public final static int MAX_FIXED_AMOUNT = 1000000000;
+    public final static int MAX_FIXED_AMOUNT = 10000000;
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE = 2;
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLIES_TO_TYPE = 3;
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE = 2;

@@ -17,7 +17,7 @@ public class BH_8616 extends BaseTest {
                 .inputPassword(sellerPassword)
                 .clickLoginBtn();
 
-        new ProductPage(driver).setLanguage(language)
+        new ProductPage(driver).setLanguage()
                 .navigate();
     }
 

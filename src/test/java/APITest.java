@@ -35,7 +35,7 @@ public class APITest {
     @Test(priority = 1)
     public void getListProducts() {
         RestAssured.baseURI = URI_DASHBOARD;
-        listID = new API().list("/itemservice/api/store/dashboard/86488/items-v2?langKey=vi&searchType=SKU&searchSortItemEnum=null&searchItemName=&sort=priority,desc&sort=lastModifiedDate,desc&page=0&size=300&inStock=false&saleChannel=&bhStatus=ACTIVE&branchIds=86499&shopeeId=&collectionId=&platform=&itemType=BUSINESS_PRODUCT", accessToken).jsonPath().get("id");
+        listID = new API().get("/itemservice/api/store/dashboard/86488/items-v2?langKey=vi&searchType=SKU&searchSortItemEnum=null&searchItemName=&sort=priority,desc&sort=lastModifiedDate,desc&page=0&size=300&inStock=false&saleChannel=&bhStatus=ACTIVE&branchIds=86499&shopeeId=&collectionId=&platform=&itemType=BUSINESS_PRODUCT", accessToken).jsonPath().get("id");
         System.out.println(listID);
     }
 
@@ -78,7 +78,7 @@ public class APITest {
                         "langKey": "en"
                     }
                     """.formatted(id, 1, BRANCH_ID);
-            new API().create("/orderservices2/api/shop-carts/add-to-cart/domain/gosell",token, body);
+            new API().post("/orderservices2/api/shop-carts/add-to-cart/domain/gosell",token, body);
         }
     }
 }
