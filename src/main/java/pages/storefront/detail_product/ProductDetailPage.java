@@ -4,10 +4,7 @@ import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -72,6 +69,8 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
+
+    // check flash sale
     public ProductDetailPage checkFlashSaleShouldBeShown() throws IOException {
         boolean check = true;
         try {
@@ -80,7 +79,7 @@ public class ProductDetailPage extends ProductDetailElement {
             check = false;
         }
         countFail = new AssertCustomize(driver).assertTrue(countFail, check, "Flash sale badge does not show");
-        logger.info("Check flash sale badge should be shown");
+        logger.info("Check flash sale badge");
         return this;
     }
 
@@ -136,12 +135,16 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
+
+    // check wholesale campaign
     public ProductDetailPage checkWholesaleCampaignShouldBeShown() throws IOException, InterruptedException {
         commonAction.waitElementList(BRANCH_NAME_LIST);
 
         if (productWholesaleCampaignBranchType == 0) {
             for (WebElement element: BRANCH_NAME_LIST) {
+                sleep(1000);
                 if (element.getText().equals(CreateProduct.branchName.get(CreateProduct.branchIDList.indexOf(CreatePromotion.productWholesaleCampaignBranchID)))) {
+                    sleep(1000);
                     element.click();
                     break;
                 }
@@ -163,6 +166,10 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public ProductDetailPage checkWholesaleCampaignPriceWithoutVariationProduct() throws IOException {
+        wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
+        QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+        QUANTITY.sendKeys(String.valueOf(CreatePromotion.withoutVariationSaleStock));
+
         int salePrice = (productWholesaleCouponType == 0)
                 ? Math.round(CreateProduct.withoutVariationSellingPrice * (1 - ((float)CreatePromotion.productWholesaleCouponValue / 100)))
                 : (Math.max(0, CreateProduct.withoutVariationSellingPrice - CreatePromotion.productWholesaleCouponValue));
@@ -181,10 +188,14 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
+                wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
+                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+                QUANTITY.sendKeys(CreatePromotion.variationSaleStock.get(CreateProduct.variationList.indexOf(variationValue)).toString());
+
                 sleep(500);
 
                 int salePrice = (productWholesaleCouponType == 0)
-                        ? (Math.round(CreateProduct.variationSellingPrice.get(CreateProduct.variationList.indexOf(variationValue)) * (1 - ((float)CreatePromotion.productWholesaleCouponValue / 100))))
+                        ? (Math.round(CreateProduct.variationSellingPrice.get(CreateProduct.variationList.indexOf(variationValue)) * (1 - ((float) CreatePromotion.productWholesaleCouponValue / 100))))
                         : (Math.max(0, CreateProduct.variationSellingPrice.get(CreateProduct.variationList.indexOf(variationValue)) - CreatePromotion.productWholesaleCouponValue));
 
                 // check price
@@ -194,6 +205,57 @@ public class ProductDetailPage extends ProductDetailElement {
         }
         return this;
     }
+
+    // check wholesale product price
+    public ProductDetailPage checkWholesaleProductShouldBeShown() throws IOException {
+        boolean check = true;
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRODUCT_INFO));
+        } catch (TimeoutException ex) {
+            check = false;
+        }
+        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "Whole sale product information does not show");
+        logger.info("Check whole sale product information");
+        return this;
+    }
+
+    public ProductDetailPage checkWholesaleProductPriceWithoutVariationProduct() throws IOException {
+
+        wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
+        QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+        QUANTITY.sendKeys(String.valueOf(CreateProduct.withoutVariationSaleStock));
+
+        checkProductPrice(CreateProduct.withoutVariationListingPrice, CreateProduct.withoutVariationSalePrice);
+        return this;
+    }
+
+    public ProductDetailPage checkWholesaleProductPriceVariationProduct() throws IOException, InterruptedException {
+        // get variation coordinates
+        Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
+
+        for (String variationValue: variationValueCoordinates.keySet()) {
+            if (CreateProduct.variationSaleList.contains(variationValue)) {
+                // select variation
+                for (int index : variationValueCoordinates.get(variationValue)) {
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
+                }
+
+                sleep(500);
+                System.out.println(CreateProduct.variationSaleStock.get(CreateProduct.variationSaleList.indexOf(variationValue)).toString());
+                wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
+                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+                QUANTITY.sendKeys(CreateProduct.variationSaleStock.get(CreateProduct.variationSaleList.indexOf(variationValue)).toString());
+
+                sleep(500);
+
+                // check price
+                checkProductPrice(CreateProduct.variationListingPrice.get(CreateProduct.variationList.indexOf(variationValue)),
+                        CreateProduct.variationSalePrice.get(CreateProduct.variationSaleList.indexOf(variationValue)));
+            }
+        }
+        return this;
+    }
+
 
     /**
      * <p> Without variation product</p>

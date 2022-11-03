@@ -14,18 +14,22 @@ public class BaseTest {
     DataGenerator generate;
 	UICommonAction commonAction;
 
+    String sellerAccount = "stgauto@nbobd.com";
+    String sellerPassword = "Abc@12345";
+    String imgFileName = "img.jpg";
+
     @BeforeMethod
     public void setup() throws InterruptedException {
-        driver = new InitWebdriver().getDriver("chrome", "false");
+        driver = new InitWebdriver().getDriver("chrome");
         generate = new DataGenerator();
         commonAction = new UICommonAction(driver);
     }
 
     @AfterMethod
     public void tearDown() throws IOException {
-//        new Screenshot().takeScreenshot(driver);
+        new Screenshot().takeScreenshot(driver);
         if (driver != null) {
-//            driver.quit();
+            driver.quit();
         }
     }
 }

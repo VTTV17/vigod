@@ -50,6 +50,9 @@ public class ProductDetailElement {
     @FindBy (css = ".info > div:nth-child(1)")
     List<WebElement> BRANCH_NAME_LIST;
 
+    @FindBy (css = "[name = 'quantity']")
+    WebElement QUANTITY;
+
     @FindBy (css = ".info > div:nth-child(2)")
     List<WebElement> BRANCH_ADDRESS_LIST;
 
@@ -58,6 +61,9 @@ public class ProductDetailElement {
 
     @FindBy (css = ".buy-in-bulk__checkbox")
     WebElement WHOLESALE_CAMPAIGN_CHECKBOX;
+
+    @FindBy (css = ".product-wholesale-pricing")
+    WebElement WHOLESALE_PRODUCT_INFO;
 
     @FindBy(css = "#button-buy-now")
     WebElement BUY_NOW_BTN;

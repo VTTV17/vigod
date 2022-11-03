@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -257,6 +258,14 @@ public class CreatePromotion {
 
         // init minimum requirement
         int min = isVariation ? Collections.min(variationStockQuantity) : withoutVariationStock;
+        int minQuantity = nextInt(min) + 1;
+
+        if (isVariation) {
+            variationSaleStock = new ArrayList<>();
+            IntStream.range(0, variationList.size()).forEachOrdered(i -> variationSaleStock.add(minQuantity));
+        }
+        else withoutVariationStock = minQuantity;
+
         String minimumRequirement = """
                 {
                     "conditionOption": "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS",
@@ -266,7 +275,7 @@ public class CreatePromotion {
                             "conditionValue": "%s"
                         }
                     ]
-                },""".formatted(nextInt(min) + 1);
+                },""".formatted(minQuantity);
         body.append(minimumRequirement);
 
         // init applicable branch
@@ -437,6 +446,5 @@ public class CreatePromotion {
         body.append("]}]}");
 
         api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body));
-
     }
 }
