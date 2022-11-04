@@ -88,7 +88,7 @@ public class CreatePromotion {
         startFlashSaleTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
-        int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
+        int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
         Instant endDate = Instant.now().plus(endMin, ChronoUnit.MINUTES);
         StringBuilder body = new StringBuilder("""
                 {
@@ -191,7 +191,7 @@ public class CreatePromotion {
         startWholesaleCampaignTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
-        int endMin = time.length > 2 ? time[1] : startMin + nextInt(60);
+        int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
         Instant expiredDate = Instant.now().plus(endMin, ChronoUnit.MINUTES);
 
         // coupon type
