@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+  <test thread-count="5" name="GoSELL-Automation-Thang-Mad">
+    <classes>
+      <class name="BH_8887">
+        <methods>
+          <include name="preCondition_G1"/>
+          <include name="BH_8887_Case1_1_G1_FlashSaleIsInProgress"/>
+          <include name="BH_8887_Case1_2_G1_FlashSaleIsExpired" />
+          <include name="BH_8887_Case1_3_G1_FlashSaleIsSchedule" />
+          <include name="BH_8887_Case2_1_G1_WholesaleCampaignIsInProgress" />
+          <include name="BH_8887_Case2_2_G1_WholesaleCampaignIsExpired" />
+          <include name="BH_8887_Case2_3_G1_WholesaleCampaignIsSchedule" />
+
+          <include name="preCondition_G2"/>
+          <include name="BH_8887_Case1_1_G2_FlashSaleIsInProgress"/>
+          <include name="BH_8887_Case1_2_G2_FlashSaleIsExpired" />
+          <include name="BH_8887_Case1_3_G2_FlashSaleIsSchedule" />
+          <include name="BH_8887_Case2_1_G2_WholesaleCampaignIsInProgress" />
+          <include name="BH_8887_Case2_2_G2_WholesaleCampaignIsExpired" />
+          <include name="BH_8887_Case2_3_G2_WholesaleCampaignIsSchedule" />
+
+          <include name="preCondition_G3"/>
+          <include name="BH_8887_Case1_1_G3_FlashSaleIsInProgress"/>
+          <include name="BH_8887_Case1_2_G3_FlashSaleIsExpired" />
+          <include name="BH_8887_Case1_3_G3_FlashSaleIsSchedule" />
+          <include name="BH_8887_Case2_1_G3_WholesaleCampaignIsInProgress" />
+          <include name="BH_8887_Case2_2_G3_WholesaleCampaignIsExpired" />
+          <include name="BH_8887_Case2_3_G3_WholesaleCampaignIsSchedule" />
+
+          <include name="preCondition_G4"/>
+          <include name="BH_8887_Case1_1_G4_FlashSaleIsInProgress"/>
+          <include name="BH_8887_Case1_2_G4_FlashSaleIsExpired" />
+          <include name="BH_8887_Case1_3_G4_FlashSaleIsSchedule" />
+          <include name="BH_8887_Case2_1_G4_WholesaleCampaignIsInProgress" />
+          <include name="BH_8887_Case2_2_G4_WholesaleCampaignIsExpired" />
+          <include name="BH_8887_Case2_3_G4_WholesaleCampaignIsSchedule" />
+        </methods>
+      </class> <!-- BH_8887 -->
+    </classes>
+  </test> <!-- GoSELL-Automation-Thang-Mad -->
+</suite> <!-- Default Suite -->
