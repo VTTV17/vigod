@@ -1,7 +1,6 @@
 package pages.storefront.detail_product;
 
 import api.dashboard.products.CreateProduct;
-import api.dashboard.promotion.CreatePromotion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -30,6 +29,7 @@ import static api.dashboard.promotion.CreatePromotion.*;
 import static java.lang.Thread.sleep;
 import static pages.dashboard.products.all_products.ProductPage.*;
 import static pages.dashboard.products.all_products.ProductVerify.branchInfo;
+import static utilities.links.Links.SF_DOMAIN;
 import static utilities.links.Links.STORE_CURRENCY;
 
 public class ProductDetailPage extends ProductDetailElement {
@@ -57,7 +57,7 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public ProductDetailPage accessToProductDetailPageByProductID() {
-        driver.get("https://%s.unisell.vn/vi/product/%s".formatted(storeName, CreateProduct.productID));
+        driver.get("https://%s%s/vi/product/%s".formatted(storeName.replace(" ", "").toLowerCase(), SF_DOMAIN, CreateProduct.productID));
         logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(CreateProduct.productID));
         verifyPageLoaded(CreateProduct.productName);
         return this;
@@ -107,7 +107,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                sleep(500);
+                sleep(1000);
 
                 // check price
                 checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
@@ -128,7 +128,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                sleep(500);
+                sleep(1000);
 
                 // check price
                 checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
@@ -171,7 +171,7 @@ public class ProductDetailPage extends ProductDetailElement {
     public ProductDetailPage checkWholesaleCampaignPriceWithoutVariationProduct() throws IOException {
         wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
         QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-        QUANTITY.sendKeys(String.valueOf(productWholesaleCampaignWithoutVariationSaleStock));
+        QUANTITY.sendKeys(String.valueOf(productWholesaleCampaignSaleStock));
 
         int salePrice = (productWholesaleCouponType == 0)
                 ? Math.round(withoutVariationSellingPrice * (1 - ((float) productWholesaleCouponValue / 100)))
@@ -184,6 +184,12 @@ public class ProductDetailPage extends ProductDetailElement {
         // get variation coordinates
         Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
 
+        sleep(1000);
+
+        wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
+        QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+        QUANTITY.sendKeys(String.valueOf(productWholesaleCampaignSaleStock));
+
         for (String variationValue: variationValueCoordinates.keySet()) {
             if (variationList.contains(variationValue)) {
                 // select variation
@@ -191,19 +197,14 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
-                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-                QUANTITY.sendKeys(productWholesaleCampaignVariationSaleStock.get(variationList.indexOf(variationValue)).toString());
-
-                sleep(500);
+                sleep(1000);
 
                 int salePrice = (productWholesaleCouponType == 0)
                         ? (Math.round(CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)) * (1 - ((float) productWholesaleCouponValue / 100))))
                         : (Math.max(0, CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)) - productWholesaleCouponValue));
 
                 // check price
-                checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
-                        salePrice);
+                checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)), salePrice);
             }
         }
         return this;
@@ -237,23 +238,22 @@ public class ProductDetailPage extends ProductDetailElement {
         Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
 
         for (String variationValue: variationValueCoordinates.keySet()) {
-            if (productWholesaleProductVariationSaleList.contains(variationValue)) {
+            if (variationList.contains(variationValue)) {
                 // select variation
                 for (int index : variationValueCoordinates.get(variationValue)) {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                sleep(500);
-                System.out.println(productWholesaleProductVariationSaleStock.get(productWholesaleProductVariationSaleList.indexOf(variationValue)).toString());
+                sleep(1000);
                 wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
                 QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-                QUANTITY.sendKeys(productWholesaleProductVariationSaleStock.get(productWholesaleProductVariationSaleList.indexOf(variationValue)).toString());
+                QUANTITY.sendKeys(productWholesaleProductVariationSaleStock.get(variationList.indexOf(variationValue)).toString());
 
-                sleep(500);
+                sleep(1000);
 
                 // check price
                 checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
-                        productWholesaleProductVariationSalePrice.get(productWholesaleProductVariationSaleList.indexOf(variationValue)));
+                        productWholesaleProductVariationSalePrice.get(variationList.indexOf(variationValue)));
             }
         }
         return this;

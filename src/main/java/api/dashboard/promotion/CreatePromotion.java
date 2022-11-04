@@ -10,7 +10,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -44,13 +43,7 @@ public class CreatePromotion {
     public static int flashSaleWithoutVariationSaleStock;
 
     // product wholesale campaign
-    public static List<String> productWholesaleCampaignVariationSaleList;
-    public static List<Integer> productWholesaleCampaignVariationSalePrice;
-    public static List<Integer> productWholesaleCampaignVariationPurchaseLimit;
-    public static List<Integer> productWholesaleCampaignVariationSaleStock;
-    public static int productWholesaleCampaignWithoutVariationSalePrice;
-    public static int productWholesaleCampaignWithoutVariationPurchaseLimit;
-    public static int productWholesaleCampaignWithoutVariationSaleStock;
+    public static int productWholesaleCampaignSaleStock;
     public static Instant startFlashSaleTime;
     public static Instant startWholesaleCampaignTime;
     public static int productWholesaleCouponType;
@@ -63,7 +56,7 @@ public class CreatePromotion {
         // get schedule flash sale list
         List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
         logger.debug("schedule flash sale list: %s".formatted(scheduleList));
-        if (scheduleList.size() > 0) {
+        if (scheduleList != null) {
             for (Integer id : scheduleList) {
                 Response delete = new API().delete("%s%s?storeId=%s".formatted(DELETE_FLASH_SALE_PATH, id, storeID), accessToken);
                 logger.debug("delete flash sale id: %s".formatted(id));
@@ -74,7 +67,7 @@ public class CreatePromotion {
         // get in progress flash sale
         List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
         logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
-        if (inProgressList.size() > 0) {
+        if (inProgressList != null) {
             for (Integer id : inProgressList) {
                 Response endEarly = new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
                 logger.debug("end early flash sale id: %s".formatted(id));
@@ -267,14 +260,8 @@ public class CreatePromotion {
         body.append(appliesToCondition);
 
         // init minimum requirement
-        int min = isVariation ? Collections.min(variationStockQuantity) : withoutVariationStock;
-        int minQuantity = nextInt(min) + 1;
-
-        if (isVariation) {
-            productWholesaleCampaignVariationSaleStock = new ArrayList<>();
-            IntStream.range(0, variationList.size()).forEachOrdered(i -> productWholesaleCampaignVariationSaleStock.add(minQuantity));
-        }
-        else productWholesaleCampaignWithoutVariationSaleStock = minQuantity;
+        int min = isVariation ? Collections.min(variationStockQuantity) / branchIDList.size() : withoutVariationStock / branchIDList.size();
+        productWholesaleCampaignSaleStock = nextInt(min) + 1;
 
         String minimumRequirement = """
                 {
@@ -285,7 +272,7 @@ public class CreatePromotion {
                             "conditionValue": "%s"
                         }
                     ]
-                },""".formatted(minQuantity);
+                },""".formatted(productWholesaleCampaignSaleStock);
         body.append(minimumRequirement);
 
         // init applicable branch

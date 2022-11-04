@@ -6,6 +6,7 @@ import io.restassured.http.ContentType;
 import static api.dashboard.login.Login.storeID;
 import static api.dashboard.login.Login.storeName;
 import static io.restassured.RestAssured.given;
+import static utilities.links.Links.SF_DOMAIN;
 
 public class LoginSF {
     public static String sfToken;
@@ -24,7 +25,7 @@ public class LoginSF {
                 .cookie("StoreId=%s".formatted(storeID))
                 .when()
                 .body(body)
-                .post("https://%s.unisell.vn/api/login".formatted(storeName)).jsonPath().getString("id_token");
+                .post("https://%s%s/api/login".formatted(storeName.replace(" ", "").toLowerCase(), SF_DOMAIN)).jsonPath().getString("id_token");
 
     }
 }

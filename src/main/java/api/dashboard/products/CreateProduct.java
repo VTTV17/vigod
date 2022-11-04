@@ -56,7 +56,6 @@ public class CreateProduct {
     public static List<Integer> variationCostPrice;
 
     // wholesale product price
-    public static List<String> productWholesaleProductVariationSaleList;
     public static List<Integer> productWholesaleProductVariationSalePrice;
     public static List<Integer> productWholesaleProductVariationSaleStock;
     public static int productWholesaleProductWithoutVariationSalePrice;
@@ -593,11 +592,10 @@ public class CreateProduct {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productID));
         if (isVariation) {
-            productWholesaleProductVariationSaleList = new ArrayList<>();
+
             productWholesaleProductVariationSalePrice = new ArrayList<>();
             productWholesaleProductVariationSaleStock = new ArrayList<>();
             for (int i = 0; i < variationList.size(); i++) {
-                productWholesaleProductVariationSaleList.add(variationList.get(i));
                 productWholesaleProductVariationSalePrice.add(nextInt(variationSellingPrice.get(i)) + 1);
                 productWholesaleProductVariationSaleStock.add(nextInt(variationStockQuantity.get(i)) + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
