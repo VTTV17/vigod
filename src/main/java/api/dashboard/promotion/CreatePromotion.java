@@ -34,13 +34,23 @@ public class CreatePromotion {
     API api = new API();
     Logger logger = LogManager.getLogger(CreatePromotion.class);
 
-    public static List<String> variationSaleList;
-    public static List<Integer> variationSalePrice;
-    public static List<Integer> variationPurchaseLimit;
-    public static List<Integer> variationSaleStock;
-    public static int withoutVariationSalePrice;
-    public static int withoutVariationPurchaseLimit;
-    public static int withoutVariationSaleStock;
+    // flash sale
+    public static List<String> flashSaleVariationSaleList;
+    public static List<Integer> flashSaleVariationSalePrice;
+    public static List<Integer> flashSaleVariationPurchaseLimit;
+    public static List<Integer> flashSaleVariationSaleStock;
+    public static int flashSaleWithoutVariationSalePrice;
+    public static int flashSaleWithoutVariationPurchaseLimit;
+    public static int flashSaleWithoutVariationSaleStock;
+
+    // product wholesale campaign
+    public static List<String> productWholesaleCampaignVariationSaleList;
+    public static List<Integer> productWholesaleCampaignVariationSalePrice;
+    public static List<Integer> productWholesaleCampaignVariationPurchaseLimit;
+    public static List<Integer> productWholesaleCampaignVariationSaleStock;
+    public static int productWholesaleCampaignWithoutVariationSalePrice;
+    public static int productWholesaleCampaignWithoutVariationPurchaseLimit;
+    public static int productWholesaleCampaignWithoutVariationSaleStock;
     public static Instant startFlashSaleTime;
     public static Instant startWholesaleCampaignTime;
     public static int productWholesaleCouponType;
@@ -95,29 +105,29 @@ public class CreatePromotion {
                     "items": [""".formatted(flashSaleName, startFlashSaleTime, endDate));
 
         if (isVariation) {
-            variationSalePrice = new ArrayList<>();
-            variationSaleList = new ArrayList<>();
-            variationSaleStock = new ArrayList<>();
-            variationPurchaseLimit = new ArrayList<>();
+            flashSaleVariationSalePrice = new ArrayList<>();
+            flashSaleVariationSaleList = new ArrayList<>();
+            flashSaleVariationSaleStock = new ArrayList<>();
+            flashSaleVariationPurchaseLimit = new ArrayList<>();
             for (int i = 0; i < variationList.size(); i++) {
                 // check in-stock
                 if (variationStockQuantity.get(i) > 0) {
                     // sale stock
                     int saleStock = nextInt(variationStockQuantity.get(i)) + 1;
-                    variationSaleStock.add(saleStock);
+                    flashSaleVariationSaleStock.add(saleStock);
 
                     // purchase limit
                     int limitPurchaseStock = nextInt(saleStock) + 1;
-                    variationPurchaseLimit.add(limitPurchaseStock);
+                    flashSaleVariationPurchaseLimit.add(limitPurchaseStock);
 
                     // variation model
                     int modelID = variationModelID.get(i);
 
-                    variationSaleList.add(variationList.get(i));
+                    flashSaleVariationSaleList.add(variationList.get(i));
 
                     // variation price
                     int price = nextInt(variationSellingPrice.get(i));
-                    variationSalePrice.add(price);
+                    flashSaleVariationSalePrice.add(price);
 
                     String flashSaleProduct = """
                             {
@@ -135,14 +145,14 @@ public class CreatePromotion {
         } else {
             // sale stock
             int saleStock = nextInt(withoutVariationStock) + 1;
-            withoutVariationSaleStock = saleStock;
+            flashSaleWithoutVariationSaleStock = saleStock;
 
             // purchase limit
             int limitPurchaseStock = nextInt(saleStock) + 1;
-            withoutVariationPurchaseLimit = limitPurchaseStock;
+            flashSaleWithoutVariationPurchaseLimit = limitPurchaseStock;
 
             // sale price
-            withoutVariationSalePrice = nextInt(withoutVariationSellingPrice);
+            flashSaleWithoutVariationSalePrice = nextInt(withoutVariationSellingPrice);
 
 
             String flashSaleProduct = """
@@ -152,7 +162,7 @@ public class CreatePromotion {
                                 "price": "%s",
                                 "saleStock": "%s"
                             }
-                    """.formatted(productID, limitPurchaseStock, withoutVariationSalePrice, saleStock);
+                    """.formatted(productID, limitPurchaseStock, flashSaleWithoutVariationSalePrice, saleStock);
             body.append(flashSaleProduct);
         }
         body.append("]}");
@@ -261,10 +271,10 @@ public class CreatePromotion {
         int minQuantity = nextInt(min) + 1;
 
         if (isVariation) {
-            variationSaleStock = new ArrayList<>();
-            IntStream.range(0, variationList.size()).forEachOrdered(i -> variationSaleStock.add(minQuantity));
+            productWholesaleCampaignVariationSaleStock = new ArrayList<>();
+            IntStream.range(0, variationList.size()).forEachOrdered(i -> productWholesaleCampaignVariationSaleStock.add(minQuantity));
         }
-        else withoutVariationStock = minQuantity;
+        else productWholesaleCampaignWithoutVariationSaleStock = minQuantity;
 
         String minimumRequirement = """
                 {

@@ -1,7 +1,6 @@
 package api.dashboard.products;
 
 import api.dashboard.customers.Customers;
-import api.dashboard.promotion.CreatePromotion;
 import io.restassured.response.Response;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -17,7 +16,6 @@ import java.util.Map;
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.storeID;
-import static api.dashboard.promotion.CreatePromotion.*;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -58,11 +56,11 @@ public class CreateProduct {
     public static List<Integer> variationCostPrice;
 
     // wholesale product price
-    public static List<String> variationSaleList;
-    public static List<Integer> variationSalePrice;
-    public static List<Integer> variationSaleStock;
-    public static int withoutVariationSalePrice;
-    public static int withoutVariationSaleStock;
+    public static List<String> productWholesaleProductVariationSaleList;
+    public static List<Integer> productWholesaleProductVariationSalePrice;
+    public static List<Integer> productWholesaleProductVariationSaleStock;
+    public static int productWholesaleProductWithoutVariationSalePrice;
+    public static int productWholesaleProductWithoutVariationSaleStock;
 
     public static boolean isVariation;
     public static boolean isIMEIProduct;
@@ -595,13 +593,13 @@ public class CreateProduct {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productID));
         if (isVariation) {
-            CreateProduct.variationSaleList = new ArrayList<>();
-            CreateProduct.variationSalePrice = new ArrayList<>();
-            CreateProduct.variationSaleStock = new ArrayList<>();
+            productWholesaleProductVariationSaleList = new ArrayList<>();
+            productWholesaleProductVariationSalePrice = new ArrayList<>();
+            productWholesaleProductVariationSaleStock = new ArrayList<>();
             for (int i = 0; i < variationList.size(); i++) {
-                CreateProduct.variationSaleList.add(variationList.get(i));
-                CreateProduct.variationSalePrice.add(nextInt(variationSellingPrice.get(i)) + 1);
-                CreateProduct.variationSaleStock.add(nextInt(variationStockQuantity.get(i)) + 1);
+                productWholesaleProductVariationSaleList.add(variationList.get(i));
+                productWholesaleProductVariationSalePrice.add(nextInt(variationSellingPrice.get(i)) + 1);
+                productWholesaleProductVariationSaleStock.add(nextInt(variationStockQuantity.get(i)) + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(segmentID);
                 String variationWholesaleConfig = """
@@ -615,14 +613,14 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, CreateProduct.variationSaleStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, CreateProduct.variationSalePrice.get(i), segmentIDs, productID);
+                        }""".formatted(title, productWholesaleProductVariationSaleStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, productWholesaleProductVariationSalePrice.get(i), segmentIDs, productID);
                 body.append(variationWholesaleConfig);
                 body.append((i == (variationList.size() - 1)) ? "" : ",");
             }
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            CreateProduct.withoutVariationSalePrice = nextInt(withoutVariationSellingPrice) + 1;
-            CreateProduct.withoutVariationSaleStock = nextInt(withoutVariationStock) + 1;
+            productWholesaleProductWithoutVariationSalePrice = nextInt(withoutVariationSellingPrice) + 1;
+            productWholesaleProductWithoutVariationSaleStock = nextInt(withoutVariationStock) + 1;
             String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
             String variationWholesaleConfig = """
                         {
@@ -635,7 +633,7 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, CreateProduct.withoutVariationSaleStock, productID, STORE_CURRENCY, CreateProduct.withoutVariationSalePrice, segmentIDs, productID);
+                        }""".formatted(title, productWholesaleProductWithoutVariationSaleStock, productID, STORE_CURRENCY, productWholesaleProductWithoutVariationSalePrice, segmentIDs, productID);
             body.append(variationWholesaleConfig);
         }
         body.append("]}");
