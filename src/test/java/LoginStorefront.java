@@ -66,12 +66,7 @@ public class LoginStorefront extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			Thread.sleep(10000);
-			commonAction.openNewTab();
-			commonAction.switchToWindow(1);
-			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
-			commonAction.closeTab();
-			commonAction.switchToWindow(0);
+			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
 			verificationCode = new InitConnection().getResetKey(loginPage.countryCode + ":" + username);
 		}
