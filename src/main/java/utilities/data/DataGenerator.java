@@ -1,9 +1,10 @@
 package utilities.data;
 
-import net.bytebuddy.utility.RandomString;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DataGenerator {
     public String generateString(int length) {
@@ -49,4 +50,17 @@ public class DataGenerator {
         }
         return list;
     }
+    
+	public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
+		long time = System.currentTimeMillis();
+		System.out.println("Current Epoch time is: " + time);
+		Matcher m = Pattern.compile("\\d{%d}$".formatted(numberOfDigits)).matcher(String.valueOf(time));
+		String randomNumber = null;
+		if (m.find()) {
+			randomNumber = m.group();
+		}	
+		System.out.println("Random number generated is: " + randomNumber);
+		return randomNumber;
+	}
+    
 }

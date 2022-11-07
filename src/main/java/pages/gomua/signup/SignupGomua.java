@@ -13,6 +13,14 @@ import java.time.Duration;
 public class SignupGomua {
 	final static Logger logger = LogManager.getLogger(SignupGomua.class);
 
+	/* Message headers of mails sent to seller's mailbox */
+	public String SUCCESSFUL_SIGNUP_MESSAGE_VI = "Đăng ký thành công tài khoản GoMua";
+	public String SUCCESSFUL_SIGNUP_MESSAGE_EN = "Successful GoMua registration";
+	
+	public String VERIFICATION_CODE_MESSAGE_VI = "là mã xác minh tài khoản GoMua của bạn";
+	public String VERIFICATION_CODE_MESSAGE_EN = "is your GoMua's verification code";
+	/* ================================================== */
+	
 	WebDriver driver;
 	WebDriverWait wait;
 	UICommonAction common;

@@ -13,7 +13,6 @@ import org.testng.asserts.SoftAssert;
 import pages.Mailnesia;
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
-import pages.storefront.login.LoginPage;
 import utilities.UICommonAction;
 import utilities.database.InitConnection;
 
@@ -30,7 +29,15 @@ public class SignupPage {
 
     public String country;
     public String countryCode;
-
+    
+	/* Message headers of mails sent to user's mailbox, '%s' should be replaced with shop's name */
+	public String SUCCESSFUL_SIGNUP_MESSAGE_VI = "Đăng kí thành công tài khoản trên %s";
+	public String SUCCESSFUL_SIGNUP_MESSAGE_EN = "Successfully register acount on %s";
+	
+	public String VERIFICATION_CODE_MESSAGE_VI = "là mã xác minh tài khoản trên %s của bạn";
+	public String VERIFICATION_CODE_MESSAGE_EN = "is code to verify your e-mail address on %s";
+	/* ================================================== */
+    
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;

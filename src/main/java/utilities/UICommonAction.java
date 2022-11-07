@@ -207,8 +207,23 @@ public class UICommonAction {
 		return driver.getCurrentUrl();
 	}
 
+	public int waitTillSelectDropdownHasData(WebElement element) {
+		List<WebElement> options;
+		int optionCount =0;
+		for (int i =0; i <30; i++) {
+			options = getAllOptionInDropDown(element);
+			optionCount = options.size();
+			logger.debug("Number of dropdown options: " + optionCount);
+			if (optionCount >0) {
+				if (options.get(optionCount-1).getAttribute("value").length() >0) return optionCount;
+			}
+			sleepInMiliSecond(100);
+		}
+		return optionCount;
+	}	
+	
 	public String selectByVisibleText(WebElement element, String visibleText) {
-		sleepInMiliSecond(1000); //Delay 1000ms so that API request has some more time to render data onto front end.
+		waitTillSelectDropdownHasData(element);
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByVisibleText(visibleText);
@@ -222,6 +237,7 @@ public class UICommonAction {
 	}
 
 	public String selectByIndex(WebElement element, int index) {
+		waitTillSelectDropdownHasData(element);
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByIndex(index);

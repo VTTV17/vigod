@@ -26,9 +26,21 @@ public class SignupPage {
 
 	final static Logger logger = LogManager.getLogger(SignupPage.class);
 	
+	
 	public String country;
 	public String countryCode;
 	public String currency;
+	
+	/* Message headers of mails sent to seller's mailbox */
+	public String WELCOME_MESSAGE_VI = "Chào mừng bạn đến với GoSell";
+	public String WELCOME_MESSAGE_EN = "Welcome to GoSell";
+	
+	public String SUCCESSFUL_SIGNUP_MESSAGE_VI = "Đăng ký thành công tài khoản GoSell";
+	public String SUCCESSFUL_SIGNUP_MESSAGE_EN = "Successful GoSell registration";
+	
+	public String VERIFICATION_CODE_MESSAGE_VI = "là mã xác minh tài khoản GoSell của bạn";
+	public String VERIFICATION_CODE_MESSAGE_EN = "is your GoSell's verification code";
+	/* ================================================== */
 	
     WebDriver driver;
     WebDriverWait wait;
@@ -208,9 +220,8 @@ public class SignupPage {
     public SignupPage selectCountryToSetUpShop(String country) {
     	String selectedOption;
     	if (country.contentEquals("rd")) {
-    		commonAction.sleepInMiliSecond(500);
-    		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(COUNTRY_DROPDOWN_SETUP_SHOP).size());
-
+    		int optionCount = commonAction.waitTillSelectDropdownHasData(COUNTRY_DROPDOWN_SETUP_SHOP);
+    		int randomNumber = new Random().nextInt(1, optionCount);
 			selectedOption = commonAction.selectByIndex(COUNTRY_DROPDOWN_SETUP_SHOP, randomNumber);
     	} else {
     		selectedOption = commonAction.selectByVisibleText(COUNTRY_DROPDOWN_SETUP_SHOP, country);
@@ -222,8 +233,8 @@ public class SignupPage {
     public String selectCurrency(String currency) {
     	String selectedOption;
     	if (currency.contentEquals("rd")) {
-    		commonAction.sleepInMiliSecond(500);
-    		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(CURRENCY).size());
+    		int optionCount = commonAction.waitTillSelectDropdownHasData(CURRENCY);
+    		int randomNumber = new Random().nextInt(1, optionCount);
         	selectedOption = commonAction.selectByIndex(CURRENCY, randomNumber);
     	} else {
     		selectedOption = commonAction.selectByVisibleText(CURRENCY, currency);
@@ -236,8 +247,8 @@ public class SignupPage {
     public SignupPage selectLanguage(String language) {
     	String selectedOption;
     	if (language.contentEquals("rd")) {
-    		commonAction.sleepInMiliSecond(500);
-    		int randomNumber = new Random().nextInt(0, commonAction.getAllOptionInDropDown(STORE_LANGUAGE).size());
+    		int optionCount = commonAction.waitTillSelectDropdownHasData(STORE_LANGUAGE);
+    		int randomNumber = new Random().nextInt(1, optionCount);
         	selectedOption = commonAction.selectByIndex(STORE_LANGUAGE, randomNumber);
     	} else {
     		selectedOption = commonAction.selectByVisibleText(STORE_LANGUAGE, language);
@@ -291,8 +302,8 @@ public class SignupPage {
     public SignupPage selectProvince(String province) {
     	String selectedOption;
     	if (province.contentEquals("rd")) {
-    		commonAction.sleepInMiliSecond(1000);
-    		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(PROVINCE_DROPDOWN).size());
+    		int optionCount = commonAction.waitTillSelectDropdownHasData(PROVINCE_DROPDOWN);
+    		int randomNumber = new Random().nextInt(1, optionCount);
         	selectedOption = commonAction.selectByIndex(PROVINCE_DROPDOWN, randomNumber);
     	} else {
     		selectedOption = commonAction.selectByVisibleText(PROVINCE_DROPDOWN, province);
@@ -304,8 +315,8 @@ public class SignupPage {
     public SignupPage selectDistrict(String district) {
     	String selectedOption;
     	if (district.contentEquals("rd")) {
-    		commonAction.sleepInMiliSecond(1000);
-    		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(DISTRICT_DROPDOWN).size());
+    		int optionCount = commonAction.waitTillSelectDropdownHasData(DISTRICT_DROPDOWN);
+    		int randomNumber = new Random().nextInt(1, optionCount);
         	selectedOption = commonAction.selectByIndex(DISTRICT_DROPDOWN, randomNumber);
     	} else {
     		selectedOption = commonAction.selectByVisibleText(DISTRICT_DROPDOWN, district);
@@ -317,8 +328,8 @@ public class SignupPage {
     public SignupPage selectWard(String ward) {
     	String selectedOption;
     	if (ward.contentEquals("rd")) {
-    		commonAction.sleepInMiliSecond(1000);
-    		int randomNumber = new Random().nextInt(1, commonAction.getAllOptionInDropDown(WARD).size());
+    		int optionCount = commonAction.waitTillSelectDropdownHasData(WARD);
+    		int randomNumber = new Random().nextInt(1, optionCount);
         	selectedOption = commonAction.selectByIndex(WARD, randomNumber);
     	} else {
     		selectedOption = commonAction.selectByVisibleText(WARD, ward);

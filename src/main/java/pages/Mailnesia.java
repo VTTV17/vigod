@@ -65,7 +65,6 @@ public class Mailnesia {
 	}
 
 	public String navigateToMailAndGetVerifyCode(String userName) {
-//		common.sleepInMiliSecond(10000);
 		common.openNewTab();
 		common.switchToWindow(1);
 		String verificationCode = navigate(userName).getVerificationCode();
