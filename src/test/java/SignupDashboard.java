@@ -1,3 +1,12 @@
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -5,6 +14,8 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import pages.InternalTool;
+import pages.Mailnesia;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
@@ -18,17 +29,6 @@ import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
 import utilities.excel.Excel;
-import pages.InternalTool;
-import pages.Mailnesia;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SignupDashboard extends BaseTest {
 
@@ -60,9 +60,8 @@ public class SignupDashboard extends BaseTest {
 	String UPGRADENOW_MESSAGE_VI = "Xác nhận\nAdmin Staging - Nền tảng bán hàng Online & Offline chuyên nghiệp. Tạo website/ứng dụng bán hàng chỉ trong vài phút. Hỗ trợ kết nối các sàn TMĐT Shopee, Lazada, quản lý bán hàng đa kênh, quản lý danh sách khách hàng, tạo email quảng cáo, gửi thông báo cho khách hàng qua ứng dụng di động, tạo landing page ….\nNâng cấp ngay hôm nay để trải nghiệm thêm nhiều tính năng tuyệt vời từ Admin Staging.\nNâng cấp ngay";
 	String UPGRADENOW_MESSAGE_EN = "Confirmation\nAdmin Staging - Online & Offline sales platform. Build your e-commerce Website/App in few minutes, connect multi-channel sales platform Shopee, Lazada, manage customer data, create promotional emails, send notifications to customers via mobile applications, create landing pages ….\nUpgrade today to experience more great features from Admin Staging.\nUpgrade Now";
 
-	public void generateTestData() throws InterruptedException {
-		randomNumber = generate.generateNumber(2);
-		storePhone = "81234567" + randomNumber;
+	public void generateTestData() {
+		storePhone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits
 		mail = "automation0-shop" + storePhone + "@mailnesia.com";
 		password = "fortesting!1";
 		referralCode = "";
@@ -86,11 +85,7 @@ public class SignupDashboard extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			commonAction.openNewTab();
-			commonAction.switchToWindow(1);
-			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
-			commonAction.closeTab();
-			commonAction.switchToWindow(0);
+			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
 			verificationCode = new InitConnection().getActivationKey(signupPage.countryCode + ":" + username);
 		}
@@ -101,11 +96,7 @@ public class SignupDashboard extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			commonAction.openNewTab();
-			commonAction.switchToWindow(1);
-			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
-			commonAction.closeTab();
-			commonAction.switchToWindow(0);
+			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
 			verificationCode = new InitConnection().getResetKey(signupPage.countryCode + ":" + username);
 		}
@@ -161,29 +152,33 @@ public class SignupDashboard extends BaseTest {
 		new HomePage(driver).clickUpgradeNow();
 	}
 
-	// This function checks if an email is sent to the user saying the user has signed up for an account successfully
-	public void verifyEmailUponSuccessfulSignup(String username) {
+	// This function opens a new tab then looks for new mails in the mailbox.
+	public String[][] getMailHeaders(String username) {
 		commonAction.sleepInMiliSecond(3000);
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
-		
+		String [][] mailContent = new Mailnesia(driver).navigate(username).getListOfEmailHeaders();
+		commonAction.closeTab();
+		commonAction.switchToWindow(0);
+		return mailContent;
+	}		
+	
+	// This function checks if an email is sent to the user saying the user has signed up for an account successfully
+	public void verifyEmailUponSuccessfulSignup(String username) {
 		String expectedWelcomeMessage;
 		String expectedVerificationCodeMessage;
 		String expectedSuccessfulSignupMessage;
 		if (signupLanguage.contentEquals("Vietnamese")) {
-			expectedWelcomeMessage = "Chào mừng bạn đến với GoSell";
-			expectedSuccessfulSignupMessage = "Đăng ký thành công tài khoản GoSell";
-			expectedVerificationCodeMessage = "là mã xác minh tài khoản GoSell của bạn";
+			expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+			expectedSuccessfulSignupMessage = signupPage.SUCCESSFUL_SIGNUP_MESSAGE_VI;
+			expectedVerificationCodeMessage = signupPage.VERIFICATION_CODE_MESSAGE_VI;
 		} else {
-			expectedWelcomeMessage = "Welcome to GoSell";
-			expectedSuccessfulSignupMessage = "Successful GoSell registration";
-			expectedVerificationCodeMessage = "is your GoSell's verification code";
+			expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_EN;
+			expectedSuccessfulSignupMessage = signupPage.SUCCESSFUL_SIGNUP_MESSAGE_EN;
+			expectedVerificationCodeMessage = signupPage.VERIFICATION_CODE_MESSAGE_EN;
 		}
 		
-		String [][] mailContent = new Mailnesia(driver).navigate(username).getListOfEmailHeaders();
-		
-		commonAction.closeTab();
-		commonAction.switchToWindow(0);
+		String [][] mailContent = getMailHeaders(username);
 		
 		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
 		Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
@@ -259,60 +254,59 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException {
 
-		String referralCode = "fromthompson";
 		String domain = "abcdefgh";
-
+		String [] referralCodePool = {"fromthompson", ""}; 
+		String referralCode = referralCodePool[new Random().nextInt(referralCodePool.length)];
+		
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
 		String storeLanguage = "Tiếng Việt";
 
 		String username = storePhone;
 		String contact = mail;
-
+		
+		
 		// Sign up
 		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
-				.fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-
-		country = signupPage.country;
-
+		.fillOutSignupForm(country, username, password, referralCode)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		
 		// Setup store
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
-
+		new HomePage(driver).waitTillSpinnerDisappear();
+		
+		// Upgrade now dialog pops up immediately
 		verifyUpgradNowMessage();
-		new HomePage(driver).clickUpgradeNow();
-
+		
+		// Logout
+		new HomePage(driver).clickLogout();
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
-		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), referralCode.toUpperCase());
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);		
 	}
 
-//	@Test
+	@Test
 	public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException {
-
+		
+		// Getting data from json file
 		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
 		storePhone = data.findValue("seller").findValue("phone").findValue("username").asText();
 		password = data.findValue("seller").findValue("phone").findValue("password").asText();
 		country = data.findValue("seller").findValue("phone").findValue("country").asText();
 
-		// Sign up
+		// Sign up for phone account
 		signupPage.navigate().fillOutSignupForm(country, storePhone, password, referralCode);
 		signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();
-		
-		mail = data.findValue("seller").findValue("mail").findValue("username").asText();
-		password = data.findValue("seller").findValue("mail").findValue("password").asText();
-		country = data.findValue("seller").findValue("mail").findValue("country").asText();		
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, mail, password, referralCode);
-		signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();		
-		
 	}
 
-//	@Test
+	@Test
 	public void BH_4038_ResendVerificationCodeToPhone() throws SQLException {
 
 		String username = storePhone;
@@ -320,17 +314,17 @@ public class SignupDashboard extends BaseTest {
 
 		// Sign up
 		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode);
+		country = signupPage.country;
 		String firstCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
 		signupPage.clickConfirmBtn();
 		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
+		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(5000);
 		String resentCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
 		signupPage.clickConfirmBtn();
-
-		country = signupPage.country;
 
 		// Setup store
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -341,7 +335,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_4039_ResendVerificationCodeToEmail() throws SQLException {
 
 		String username = mail;
@@ -349,18 +343,17 @@ public class SignupDashboard extends BaseTest {
 
 		// Sign up
 		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode);
+		country = signupPage.country;
 		String firstCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
 		signupPage.clickConfirmBtn();
 		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
-		commonAction.sleepInMiliSecond(5000);
+		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(5000);
 		String resentCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
 		signupPage.clickConfirmBtn();
-
-		country = signupPage.country;
 
 		// Setup store
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -372,7 +365,7 @@ public class SignupDashboard extends BaseTest {
 	}
 
 	//This TC also covers BH_4054_ContinueSignupWizardAfterExitingSession()
-//	@Test
+	@Test
 	public void BH_4049_ExitWizard_EmailAccount() throws SQLException {
 	
 		String username = mail;
@@ -407,7 +400,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}		
 	
-//	@Test
+	//Test case description is in processing of updating
 	public void BH_4054_ContinueSignupWizardAfterExitingSession() throws SQLException {
 	
 		String username = mail;
@@ -428,8 +421,8 @@ public class SignupDashboard extends BaseTest {
 	
 	}
 
-//	@Test
-	public void BH_5195_SignUpForShopWithURLInUpperCase() throws SQLException {
+	@Test
+	public void BH_5195_SignUpForEmailAccountWithURLInUpperCase() throws SQLException {
 
 		String username = mail;
 		String contact = storePhone;
@@ -455,129 +448,247 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
-
-//	@Test
-	public void BH_1363_SignUpForGoFreeAccountViaEmail() throws SQLException {
-
-		String referralCode = "fromthompson";
-		String domain = "abcdefgh";
-
-		String country = "Vietnam";
-		String currency = "Dong - VND(đ)";
-		String storeLanguage = "Tiếng Việt";
-
+	
+	@Test
+	public void BH_5195_SignUpForPhoneAccountWithURLInUpperCase() throws SQLException {
+		
 		String username = mail;
 		String contact = storePhone;
-
+		
+		Pattern p = Pattern.compile("[A-Za-z0-9]+");
+		Matcher m = p.matcher(storeName + generate.generateString(10));
+		while (m.find()) {
+			storeURL += m.group();
+		}
+		
 		// Sign up
-		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
-		.fillOutSignupForm(country, username, password, referralCode)
+		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
 		.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-
+		
 		country = signupPage.country;
-
+		
 		// Setup store
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
-
-		verifyUpgradNowMessage();
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).clickLogout();
-
+		signupPage.clickLogout();
+		
 		// Re-login to the shop
 		reLogintoShop(country, username, password);
-
-		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
-		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), referralCode.toUpperCase());
+		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
-	
-//	@Test
-	public void BH_1277A_SignUpForGoFreeAccountViaPhone() throws SQLException {
+
+	@Test
+	public void BH_1363_SignUpForGoFreeEmailAccountWithoutPromotionLink() throws Exception {
+
+		String username = mail;
+		String contact = storePhone;
+		String domain = null;
 		
-//		String referralCode = "frommark";
-		String domain = "null";
-		
-		String country = "Vietnam";
-		String currency = "Dong - VND(đ)";
-		String storeLanguage = "Tiếng Việt";
-		
-		String username = storePhone;
-		String contact = mail;
+		// Workaround to decide display language at Signup screen
+		country = signupPage.navigate().selectCountry(country).country;
+		signupLanguage = (country.contentEquals("Vietnam")) ? "Vietnamese" : "English";
 		
 		// Sign up
-		signupPage.navigate()
+		signupPage
+		.selectDisplayLanguage(signupLanguage) // Select display language at Signup screen
 		.fillOutSignupForm(country, username, password, referralCode)
-		.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-		
-		country = signupPage.country;
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
 		
 		// Setup store
+		storeLanguage = ""; // This is to select the default value
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Check if user is redirected to package registration screen
 		signupPage.clickLogout();
 		
-		// Re-login to the shop
+		// Re-log into shop and verify Upgrade now dialog appears immediately
 		reLogintoShop(country, username, password);
 		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+		PlansPage plansPage = new PlansPage(driver);
+		plansPage.selectPlan("GoWEB");
+
 		// Verify Upgrade Now popup appears on the screen
-		verifyUpgradNowMessage();
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).clickLogout();
+		verifyUpgradNowMessageAppearEverywhere();	
 		
-		// Verify domain and referral code is configured as expected
-		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
-		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
+		// Verify sign-up mails are sent to users
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);        
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
+		
 	}
 	
-//	@Test
-	public void BH_1277B_SignUpForGoFreeAccountViaPhone() throws SQLException {
-		
-		String referralCode = "frommark";
+	@Test
+	public void BH_1363_SignUpForGoFreeEmailAccountWithPromotionLink() throws Exception {
+
+		String username = mail;
+		String contact = storePhone;
 		String domain = "abcdefgh";
+		referralCode = "fromtrangnguyen";
 		
-		String country = "Vietnam";
-		String currency = "Dong - VND(đ)";
-		String storeLanguage = "Tiếng Việt";
-		
-		String username = storePhone;
-		String contact = mail;
+		// Workaround to decide display language at Signup screen
+		country = signupPage.navigate().selectCountry(country).country;
+		signupLanguage = (country.contentEquals("Vietnam")) ? "Vietnamese" : "English";
 		
 		// Sign up
 		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
+		.selectDisplayLanguage(signupLanguage) // Select display language at Signup screen
 		.fillOutSignupForm(country, username, password, referralCode)
-		.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
-		
-		country = signupPage.country;
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
 		
 		// Setup store
+		storeLanguage = ""; // This is to select the default value
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		
+		/*
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		*/
+		
+		// Upgrade now dialog pops up immediately
+		verifyUpgradNowMessage();
+		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+		new HomePage(driver).clickUpgradeNow();
+		PlansPage plansPage = new PlansPage(driver);
+        plansPage.selectPlan("GoWEB");
+
+		// Verify sign-up mails are sent to users
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);        
+        
+		// Verify Upgrade Now popup appears on the screen
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Verify Upgrade Now popup appears on the screen when re-logging into dashboard
+		new HomePage(driver).clickLogout();
+		reLogintoShop(country, username, password);
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
+	}	
+
+	@Test
+	public void BH_1277_SignUpForGoFreePhoneAccountWithoutPromotionLink() throws Exception {
+
+		String username = storePhone;
+		String contact = mail;
+		String domain = null;
+		
+		// Workaround to decide display language at Signup screen
+		country = signupPage.navigate().selectCountry(country).country;
+		signupLanguage = (country.contentEquals("Vietnam")) ? "Vietnamese" : "English";
+		
+		// Sign up
+		signupPage
+		.selectDisplayLanguage(signupLanguage) // Select display language at Signup screen
+		.fillOutSignupForm(country, username, password, referralCode)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		
+		// Setup store
+		storeLanguage = ""; // This is to select the default value
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
-		// Verify Upgrade Now popup appears on the screen
-		verifyUpgradNowMessage();
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).clickLogout();
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
 		
-		// Re-login to the shop
+		// Re-log into shop and verify Upgrade now dialog appears immediately
 		reLogintoShop(country, username, password);
 		
-		// Verify domain and referral code is configured as expected
-		Assert.assertEquals(domain, new InitConnection().getStoreDomain(storeName));
-		Assert.assertEquals(referralCode.toUpperCase(), new InitConnection().getStoreGiftCode(storeName));
-	}
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+		PlansPage plansPage = new PlansPage(driver);
+		plansPage.selectPlan("GoWEB");
 
-//	@Test
+		// Verify Upgrade Now popup appears on the screen
+		verifyUpgradNowMessageAppearEverywhere();	
+		
+		// Verify sign-up mails are sent to users
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);        
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
+		
+	}
+	
+	@Test
+	public void BH_1277_SignUpForGoFreePhoneAccountWithPromotionLink() throws Exception {
+
+		String username = storePhone;
+		String contact = mail;
+		String domain = "abcdefgh";
+		referralCode = "fromtrangnguyen";
+		
+		// Workaround to decide display language at Signup screen
+		country = signupPage.navigate().selectCountry(country).country;
+		signupLanguage = (country.contentEquals("Vietnam")) ? "Vietnamese" : "English";
+		
+		// Sign up
+		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
+		.selectDisplayLanguage(signupLanguage) // Select display language at Signup screen
+		.fillOutSignupForm(country, username, password, referralCode)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		
+		// Setup store
+		storeLanguage = ""; // This is to select the default value
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		
+		/*
+		// Check if user is redirected to package registration screen
+		signupPage.clickLogout();
+		*/
+		
+		// Upgrade now dialog pops up immediately
+		verifyUpgradNowMessage();
+		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+		new HomePage(driver).clickUpgradeNow();
+		PlansPage plansPage = new PlansPage(driver);
+        plansPage.selectPlan("GoWEB");
+
+		// Verify sign-up mails are sent to users
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);        
+        
+		// Verify Upgrade Now popup appears on the screen
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Verify Upgrade Now popup appears on the screen when re-logging into dashboard
+		new HomePage(driver).clickLogout();
+		reLogintoShop(country, username, password);
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
+	}		
+	
+	//Don't run this TC. It's covered in BH_7669
 	public void BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount() throws SQLException {
 		
 		String domain = "gomua.vn";
 		String country = "Vietnam";
 		String currency = "Dong - VND(đ)";
 		String storeLanguage = "Tiếng Việt";
-		String username = "gomua-seller"+ randomNumber +"@mailnesia.com";
+		String username = "gomua-seller"+ storePhone +"@mailnesia.com";
 		String contact = storePhone;
-		String displayName  = "Gomua Seller " + randomNumber;
+		String displayName  = "Gomua Seller " + storePhone;
 		storeName = displayName;
 		
 		// Signup in Gomua
@@ -591,7 +702,7 @@ public class SignupDashboard extends BaseTest {
 		.inputVerificationCode(getVerificationCode(username))
 		.clickVerifyAndLoginBtn()
 		.clickAgreeAndContiueBtn();
-		commonAction.sleepInMiliSecond(1000);
+		commonAction.sleepInMiliSecond(1000); //At times it takes <1s for the URL to change
 		
 		// Verify URL is shown as expected
 		String expectedDomain = utilities.links.Links.DOMAIN+utilities.links.Links.LOGIN_PATH+"?domain="+domain;
@@ -633,11 +744,24 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
 		new HomePage(driver).clickUpgradeNow();
 		
+		// Verify sign-up mails are sent to users
+		String expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+		String expectedSuccessfulSignupMessage = new SignupGomua(driver).SUCCESSFUL_SIGNUP_MESSAGE_VI;
+		String expectedVerificationCodeMessage = new SignupGomua(driver).VERIFICATION_CODE_MESSAGE_VI;
+		
+		String [][] mailContent = getMailHeaders(username);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		// If that's a mail account, check for presence of mail about successful registration on GoMua.
+		if (!username.matches("\\d+")) Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
+		
 		// Verify domain is configured as expected
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
 	}
 	
-//	@Test
+	//Don't run this TC. It's covered in BH_7669
 	public void BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount() throws SQLException {
 		
 		String domain = "gomua.vn";
@@ -645,8 +769,8 @@ public class SignupDashboard extends BaseTest {
 		String currency = "Dong - VND(đ)";
 		String storeLanguage = "Tiếng Việt";
 		String username = storePhone;
-		String contact = "gomua-seller"+ randomNumber +"@mailnesia.com";
-		String displayName  = "Gomua Seller " + randomNumber;
+		String contact = "gomua-seller"+ storePhone +"@mailnesia.com";
+		String displayName  = "Gomua Seller " + storePhone;
 		storeName = displayName;
 		signupPage.countryCode = "+84"; // This is a temporary workaround. Solutions to the problem are being considered.
 		
@@ -705,11 +829,24 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertFalse(new HomePage(driver).checkPresenceOfCloseUpgradeNowPopUpIcon());
 		new HomePage(driver).clickUpgradeNow();
 		
+		// Verify sign-up mails are sent to users
+		String expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+		String expectedSuccessfulSignupMessage = new SignupGomua(driver).SUCCESSFUL_SIGNUP_MESSAGE_VI;
+		String expectedVerificationCodeMessage = new SignupGomua(driver).VERIFICATION_CODE_MESSAGE_VI;
+		
+		String [][] mailContent = getMailHeaders(contact);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		// If that's a mail account, check for presence of mail about successful registration on GoMua.
+		if (!username.matches("\\d+")) Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
+		
 		// Verify domain is configured as expected
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
 	}	
 	
-//	@Test
+	@Test
 	public void BH_1368_SignUpForShopUsingStorefrontEmailAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -718,17 +855,20 @@ public class SignupDashboard extends BaseTest {
 		String username = mail;
 		String contact = storePhone;
 		String displayName  = storeName;
-		String birthday = "02/02/1990";
+		String birthday = "21/02/1990";
 		
 		// Signup in SF
-		new pages.storefront.signup.SignupPage(driver).navigate()
+		pages.storefront.signup.SignupPage signupSF = new pages.storefront.signup.SignupPage(driver);
+		signupSF.navigate()
 		.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
-
+		
+		// Get shop's name in SF
+		String title = commonAction.getPageTitle();
+		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();		
-		
 		
 		// Login
 		new LoginPage(driver).navigate().performLogin(country, username, password);
@@ -742,17 +882,29 @@ public class SignupDashboard extends BaseTest {
 		
 		// Re-login to the shop 
 		reLogintoShop(country, username, password);
+
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+//		PlansPage plansPage = new PlansPage(driver);
+//		plansPage.selectPlan("GoWEB");		
 		
 		// Verify Upgrade Now popup appears on the screen
-		new HomePage(driver).navigateToPage("Products", "All Products");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Orders", "Order List");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Services");
-		new HomePage(driver).clickUpgradeNow();
+		verifyUpgradNowMessageAppearEverywhere();
+
+		// Verify sign-up mails are sent to users
+		String expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+		String expectedSuccessfulSignupMessage = signupSF.SUCCESSFUL_SIGNUP_MESSAGE_VI.formatted(title);
+		String expectedVerificationCodeMessage = signupSF.VERIFICATION_CODE_MESSAGE_VI.formatted(title);
+		
+		String [][] mailContent = getMailHeaders(username);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		// If that's a mail account, check for presence of mail about successful registration on SF.
+		if (!username.matches("\\d+")) Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));		
 	}	
 	
-//	@Test
+	@Test
 	public void BH_1599_SignUpForShopUsingStorefrontPhoneAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -761,7 +913,7 @@ public class SignupDashboard extends BaseTest {
 		String username = storePhone;
 		String contact = mail;
 		String displayName  = storeName;
-		String birthday = "02/02/1990";
+		String birthday = "21/02/1990";
 		
 		// Signup in SF
 		pages.storefront.signup.SignupPage sf = new pages.storefront.signup.SignupPage(driver);
@@ -773,6 +925,9 @@ public class SignupDashboard extends BaseTest {
 		sf.inputEmail(contact)
 		.clickCompleteBtn();
 
+		// Get shop's name in SF
+		String title = commonAction.getPageTitle();
+		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();		
 		
@@ -790,25 +945,33 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 		
 		// Verify Upgrade Now popup appears on the screen
-		new HomePage(driver).navigateToPage("Products", "All Products");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Orders", "Order List");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Services");
-		new HomePage(driver).clickUpgradeNow();
+		verifyUpgradNowMessageAppearEverywhere();
 		
 		// Buy a package plan and approve the purchase in Internal tool
-		PlansPage plansPage = new PlansPage(driver);
-        plansPage.selectPlan("GoWEB").selectPayment();
-        String orderID = plansPage.getOrderId();
-        InternalTool internalTool = new InternalTool(driver);
-        internalTool.openNewTabAndNavigateToInternalTool()
-        .login()
-        .navigateToPage("GoSell","Packages","Orders list")
-        .approveOrder(orderID);
+//		PlansPage plansPage = new PlansPage(driver);
+//        plansPage.selectPlan("GoWEB").selectPayment();
+//        String orderID = plansPage.getOrderId();
+//        InternalTool internalTool = new InternalTool(driver);
+//        internalTool.openNewTabAndNavigateToInternalTool()
+//        .login()
+//        .navigateToPage("GoSell","Packages","Orders list")
+//        .approveOrder(orderID);
+        
+		// Verify sign-up mails are sent to users
+		String expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+		String expectedSuccessfulSignupMessage = sf.SUCCESSFUL_SIGNUP_MESSAGE_VI.formatted(title);
+		String expectedVerificationCodeMessage = sf.VERIFICATION_CODE_MESSAGE_VI.formatted(title);
+		
+		String [][] mailContent = getMailHeaders(contact);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		// If that's a mail account, check for presence of mail about successful registration on SF.
+		if (!username.matches("\\d+")) Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));        
 	}		
 	
-//	@Test
+	@Test
 	public void BH_1631_SignUpForShopUsingGomuaMailAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -841,16 +1004,28 @@ public class SignupDashboard extends BaseTest {
 		// Re-login to the shop 
 		reLogintoShop(country, username, password);
 		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+//		PlansPage plansPage = new PlansPage(driver);
+//		plansPage.selectPlan("GoWEB");		
+		
 		// Verify Upgrade Now popup appears on the screen
-		new HomePage(driver).navigateToPage("Products", "All Products");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Orders", "Order List");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Services");
-		new HomePage(driver).clickUpgradeNow();
+		verifyUpgradNowMessageAppearEverywhere();
+
+		// Verify sign-up mails are sent to users
+		String expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+		String expectedSuccessfulSignupMessage = new SignupGomua(driver).SUCCESSFUL_SIGNUP_MESSAGE_VI;
+		String expectedVerificationCodeMessage = new SignupGomua(driver).VERIFICATION_CODE_MESSAGE_VI;
+		
+		String [][] mailContent = getMailHeaders(username);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		// If that's a mail account, check for presence of mail about successful registration on SF.
+		if (!username.matches("\\d+")) Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
 	}	
 	
-//	@Test
+	@Test
 	public void BH_1632_SignUpForShopUsingGomuaPhoneAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -888,13 +1063,25 @@ public class SignupDashboard extends BaseTest {
 		// Re-login to the shop 
 		reLogintoShop(country, username, password);
 		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+//		PlansPage plansPage = new PlansPage(driver);
+//		plansPage.selectPlan("GoWEB");		
+		
 		// Verify Upgrade Now popup appears on the screen
-		new HomePage(driver).navigateToPage("Products", "All Products");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Orders", "Order List");
-		new HomePage(driver).clickUpgradeNow();
-		new HomePage(driver).navigateToPage("Services");
-		new HomePage(driver).clickUpgradeNow();
+		verifyUpgradNowMessageAppearEverywhere();
+
+		// Verify sign-up mails are sent to users
+		String expectedWelcomeMessage = signupPage.WELCOME_MESSAGE_VI;
+		String expectedSuccessfulSignupMessage = new SignupGomua(driver).SUCCESSFUL_SIGNUP_MESSAGE_VI;
+		String expectedVerificationCodeMessage = new SignupGomua(driver).VERIFICATION_CODE_MESSAGE_VI;
+		
+		String [][] mailContent = getMailHeaders(contact);
+		
+		Assert.assertEquals(mailContent[0][3], expectedWelcomeMessage);
+		// If that's a mail account, check for presence of mail about successful registration on SF.
+		if (!username.matches("\\d+")) Assert.assertEquals(mailContent[1][3], expectedSuccessfulSignupMessage);
+		// If that's a mail account, check further for presence of verification code mail.
+		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
 	}	
 
 	// BH-18726: Email field is missing at shop setup wizard screen
@@ -988,8 +1175,8 @@ public class SignupDashboard extends BaseTest {
 		String [] referralCodePool = {"frommark", ""}; 
 		String referralCode = referralCodePool[new Random().nextInt(referralCodePool.length)];
 		
-		String username = storePhone;
-		String contact = mail;
+		String username = mail;
+		String contact = storePhone;
 		
 		// Workaround to decide display language at Signup screen
 		country = signupPage.navigate().selectCountry(country).country;
@@ -1032,6 +1219,69 @@ public class SignupDashboard extends BaseTest {
 		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
-		
 	}	
+	
+	@Test
+	public void BH_7668_SignUpForGoFreePhoneAccountViaPromotionLink() throws Exception {
+		
+		String domain = "abcdefgh";
+		String [] referralCodePool = {"frommark", ""}; 
+		String referralCode = referralCodePool[new Random().nextInt(referralCodePool.length)];
+		
+		String username = storePhone;
+		String contact = mail;
+		
+		// Workaround to decide display language at Signup screen
+		country = signupPage.navigate().selectCountry(country).country;
+		signupLanguage = (country.contentEquals("Vietnam")) ? "Vietnamese" : "English";
+		
+		// Sign up
+		signupPage.navigate("/redirect/signup?domain=%s".formatted(domain))
+		.selectDisplayLanguage(signupLanguage) // Select display language at Signup screen
+		.fillOutSignupForm(country, username, password, referralCode)
+		.inputVerificationCode(getVerificationCode(username))
+		.clickConfirmBtn();
+		
+		// Setup store
+		storeLanguage = ""; // This is to select the default value
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		currency = signupPage.currency;
+		
+		// Upgrade now dialog pops up immediately
+		verifyUpgradNowMessage();
+		
+		// Verify users are redirected to plan purchase screen when clicking on Upgrade Now button
+		new HomePage(driver).clickUpgradeNow();
+		PlansPage plansPage = new PlansPage(driver);
+		plansPage.selectPlan("GoWEB");
+		
+		// Verify sign-up mails are sent to users
+		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);        
+		
+		// Verify Upgrade Now popup appears on the screen
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Verify Upgrade Now popup appears on the screen when re-logging into dashboard
+		new HomePage(driver).clickLogout();
+		reLogintoShop(country, username, password);
+		verifyUpgradNowMessageAppearEverywhere();
+		
+		// Check store's data in database
+		String expectedReferralCode = (referralCode.length()>1) ? referralCode.toUpperCase():null;
+		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
+		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
+	}	
+
+	@Test
+	public void BH_7669_SignUpForShơpWithGoFreePackageUsingGomuaMailAccount() throws Exception {
+		BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount();
+	}	
+	
+	@Test
+	public void BH_7669_SignUpForShơpWithGoFreePackageUsingGomuaPhoneAccount() throws Exception {
+		BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount();
+	}	
+	
 }
