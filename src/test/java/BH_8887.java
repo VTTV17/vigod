@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import static api.dashboard.login.Login.storeName;
+import static api.dashboard.products.CreateProduct.*;
 import static api.storefront.signup.SignUp.*;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -21,10 +22,15 @@ import static utilities.links.Links.SF_DOMAIN;
 public class BH_8887 extends BaseTest {
 
     String sfDomain;
+    CreateProduct createProduct;
 
     @BeforeSuite
     void createCustomerAndSegment() throws SQLException, InterruptedException {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+
+        createProduct = new CreateProduct();
+
+        createProduct.getTaxList().getBranchList();
 
         new SignUp().signUpByPhoneNumber();
 
@@ -42,9 +48,7 @@ public class BH_8887 extends BaseTest {
     void preCondition_G1() {
         boolean isIMEIProduct = false;
         int stockQuantity = 5;
-        new CreateProduct()
-                .getTaxList()
-                .getBranchList()
+        createProduct
                 .createWithoutVariationProduct(isIMEIProduct, stockQuantity)
                 .addWholeSalePriceProduct()
                 .createCollection();
@@ -54,8 +58,7 @@ public class BH_8887 extends BaseTest {
     void preCondition_G2() {
         boolean isIMEIProduct = true;
         int stockQuantity = 5;
-        new CreateProduct().getTaxList()
-                .getBranchList()
+        createProduct
                 .createWithoutVariationProduct(isIMEIProduct, stockQuantity)
                 .addWholeSalePriceProduct()
                 .createCollection();
@@ -66,8 +69,7 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = false;
         int stockQuantity = 2;
         int increaseStock = 1;
-        new CreateProduct().getTaxList()
-                .getBranchList()
+        createProduct
                 .createVariationProduct(isIMEIProduct, stockQuantity, increaseStock)
                 .addWholeSalePriceProduct()
                 .createCollection();
@@ -78,8 +80,7 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = true;
         int stockQuantity = 2;
         int increaseStock = 1;
-        new CreateProduct().getTaxList()
-                .getBranchList()
+        createProduct
                 .createVariationProduct(isIMEIProduct, stockQuantity, increaseStock)
                 .addWholeSalePriceProduct()
                 .createCollection();
@@ -88,7 +89,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -103,7 +104,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkFlashSalePriceWithoutVariationProduct()
                 .completeVerify();
     }
@@ -111,7 +111,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -136,7 +136,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -152,7 +152,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
                 .completeVerify();
     }
@@ -160,7 +159,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -183,7 +182,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -206,7 +205,7 @@ public class BH_8887 extends BaseTest {
 
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case2_3_WholesaleCampaignIsSchedule() throws IOException {
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -228,7 +227,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Without variation")
     void BH_8887_G2_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -243,7 +242,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkFlashSalePriceWithoutVariationProduct()
                 .completeVerify();
     }
@@ -251,7 +249,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Without variation")
     void BH_8887_G2_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -275,7 +273,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Without variation")
     void BH_8887_G2_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -291,7 +289,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
                 .completeVerify();
     }
@@ -299,7 +296,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Without variation")
     void BH_8887_G2_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -322,7 +319,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Without variation")
     void BH_8887_G2_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -345,7 +342,7 @@ public class BH_8887 extends BaseTest {
 
     @Test(groups = "IMEI product - Without variation")
     void BH_8887_G2_Case2_3_WholesaleCampaignIsSchedule() throws IOException {
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -366,7 +363,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Variation")
     void BH_8887_G3_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -381,7 +378,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkFlashSalePriceVariationProduct()
                 .completeVerify();
     }
@@ -389,7 +385,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Variation")
     void BH_8887_G3_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -413,7 +409,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Variation")
     void BH_8887_G3_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -428,7 +424,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkProductPriceWhenFlashSaleIsScheduleVariationProduct()
                 .completeVerify();
     }
@@ -436,7 +431,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Variation")
     void BH_8887_G3_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -460,7 +455,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "Normal product - Variation")
     void BH_8887_G3_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -483,7 +478,7 @@ public class BH_8887 extends BaseTest {
 
     @Test(groups = "Normal product - Variation")
     void BH_8887_G3_Case2_3_WholesaleCampaignIsSchedule() throws IOException, InterruptedException {
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -505,7 +500,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Variation")
     void BH_8887_G4_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -520,7 +515,6 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
                 .checkFlashSalePriceVariationProduct()
                 .completeVerify();
     }
@@ -528,7 +522,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Variation")
     void BH_8887_G4_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -552,7 +546,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Variation")
     void BH_8887_G4_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -567,7 +561,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSaleShouldBeShown()
+                
                 .checkProductPriceWhenFlashSaleIsScheduleVariationProduct()
                 .completeVerify();
     }
@@ -575,7 +569,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Variation")
     void BH_8887_G4_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -599,7 +593,7 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "IMEI product - Variation")
     void BH_8887_G4_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -622,7 +616,7 @@ public class BH_8887 extends BaseTest {
 
     @Test(groups = "IMEI product - Variation")
     void BH_8887_G4_Case2_3_WholesaleCampaignIsSchedule() throws IOException, InterruptedException {
-        int endMin = 2880;
+        int endMin = 60;
 
         new CreatePromotion()
                 .endEarlyFlashSale()

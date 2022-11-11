@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -102,9 +103,10 @@ public class CreatePromotion {
             flashSaleVariationSaleList = new ArrayList<>();
             flashSaleVariationSaleStock = new ArrayList<>();
             flashSaleVariationPurchaseLimit = new ArrayList<>();
-            for (int i = 0; i < variationList.size(); i++) {
+            int numberOfSaleVariation = nextInt(variationList.size()) + 1;
+            for (int i = 0; i < numberOfSaleVariation; i++) {
                 // check in-stock
-                if (variationStockQuantity.get(i) > 0) {
+                if ((variationStockQuantity.get(i) > 0)) {
                     // sale stock
                     int saleStock = nextInt(variationStockQuantity.get(i)) + 1;
                     flashSaleVariationSaleStock.add(saleStock);
@@ -132,7 +134,7 @@ public class CreatePromotion {
                                     }
                             """.formatted(productID, limitPurchaseStock, modelID, price, saleStock);
                     body.append(flashSaleProduct);
-                    body.append(i < variationList.size() - 1 ? "," : "");
+                    body.append(i == numberOfSaleVariation - 1? "" : ",");
                 }
             }
         } else {
@@ -159,6 +161,8 @@ public class CreatePromotion {
             body.append(flashSaleProduct);
         }
         body.append("]}");
+
+        logger.debug(body.toString());
 
         // post api create new flash sale campaign
         Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body));

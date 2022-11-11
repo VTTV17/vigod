@@ -2,6 +2,8 @@ package api.dashboard.login;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import utilities.api.API;
 
@@ -19,6 +21,8 @@ public class Login {
     public static String storeName;
     API api = new API();
 
+    Logger logger = LogManager.getLogger(Login.class);
+
     public void loginToDashboardByMail(String account, String password) {
         baseURI = URI;
         String body = """
@@ -27,6 +31,14 @@ public class Login {
                     "password": "%s"
                 }""".formatted(account, password);
         Response loginResponse = api.login(API_LOGIN_PATH, body);
+
+        // log
+        logger.debug("Login response: %s".formatted(loginResponse.asPrettyString()));
+
+        // if pre-condition can not complete -> skip test
+        loginResponse.then().statusCode(200);
+
+        // else get accessToken, storeID, storeName
         accessToken = loginResponse.jsonPath().getString("accessToken");
         storeID = loginResponse.jsonPath().getInt("store.id");
         storeName = loginResponse.jsonPath().getString("store.name");
