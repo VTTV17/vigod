@@ -4,13 +4,14 @@ import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 
+import javax.xml.crypto.Data;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -83,7 +84,7 @@ public class CreatePromotion {
         endEarlyFlashSale();
 
         // flash sale name
-        String flashSaleName = randomAlphabetic(nextInt(MAX_FLASH_SALE_CAMPAIGN_NAME - MIN_FLASH_SALE_CAMPAIGN_NAME + 1) + MIN_FLASH_SALE_CAMPAIGN_NAME);
+        String flashSaleName = "Auto - Flash sale campaign - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
         startFlashSaleTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
@@ -106,9 +107,9 @@ public class CreatePromotion {
             int numberOfSaleVariation = nextInt(variationList.size()) + 1;
             for (int i = 0; i < numberOfSaleVariation; i++) {
                 // check in-stock
-                if ((variationStockQuantity.get(i) > 0)) {
+                if (Collections.max(variationStockQuantity.get(variationList.get(i))) > 0) {
                     // sale stock
-                    int saleStock = nextInt(variationStockQuantity.get(i)) + 1;
+                    int saleStock = nextInt(Collections.max(variationStockQuantity.get(variationList.get(i)))) + 1;
                     flashSaleVariationSaleStock.add(saleStock);
 
                     // purchase limit
@@ -139,7 +140,7 @@ public class CreatePromotion {
             }
         } else {
             // sale stock
-            int saleStock = nextInt(withoutVariationStock) + 1;
+            int saleStock = nextInt(Collections.max(withoutVariationStock)) + 1;
             flashSaleWithoutVariationSaleStock = saleStock;
 
             // purchase limit
@@ -186,9 +187,9 @@ public class CreatePromotion {
         return this;
     }
 
-    public CreatePromotion createProductWholeSaleCampaign(int... time) {
+    public CreatePromotion createProductWholesaleCampaign(int... time) {
         // campaign name
-        String name = randomAlphabetic(nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME) + 1);
+        String name = "Auto - [Product] Wholesale campaign - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
@@ -264,8 +265,13 @@ public class CreatePromotion {
         body.append(appliesToCondition);
 
         // init minimum requirement
-        int min = isVariation ? Collections.min(variationStockQuantity) / branchIDList.size() : withoutVariationStock / branchIDList.size();
-        productWholesaleCampaignSaleStock = nextInt(min) + 1;
+        int min = 1;
+        if (isVariation) {
+            for (String key : variationStockQuantity.keySet()) {
+                min = Math.min(min, Collections.min(variationStockQuantity.get(key)));
+            }
+        } else min = Collections.min(withoutVariationStock);
+        productWholesaleCampaignSaleStock = nextInt(Math.max(1, min)) + 1;
 
         String minimumRequirement = """
                 {
@@ -407,7 +413,12 @@ public class CreatePromotion {
         // 2: Minimum quantity of satisfied products
         int minimumRequirementType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE);
         String minimumRequirementLabel = minimumRequirementType == 0 ? "MIN_REQUIREMENTS_NONE" : (minimumRequirementType == 1) ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT" : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
-        int minStock = isVariation ? Collections.min(variationStockQuantity) : withoutVariationStock;
+        int minStock = 1;
+        if (isVariation) {
+            for (String key : variationStockQuantity.keySet()) {
+                minStock = Math.min(minStock, Collections.min(variationStockQuantity.get(key)));
+            }
+        } else minStock = Collections.min(withoutVariationStock);
         int minPurchaseAmount = isVariation ? Collections.min(variationSellingPrice) : withoutVariationSellingPrice;
         String minimumRequirement = """
                 {

@@ -286,7 +286,7 @@ public class ProductPage extends ProductVerify {
         Map<String, List<String>> map = new HashMap<>();
         int variationNum = RandomUtils.nextInt(MAX_VARIATION_QUANTITY) + 1;
         List<Integer> numberOfVariationValue = new ArrayList<>();
-        numberOfVariationValue.add(RandomUtils.nextInt(MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION) + 1);
+        numberOfVariationValue.add(variationNum);
         for (int i = 1; i < variationNum; i++) {
             int prevMulti = 1;
             for (int id = 0; id < i; id++) {

@@ -23,6 +23,11 @@ public class Links {
     public static String STORE_CURRENCY = "đ";
     public static String ALL_PRODUCT_PATH = "product";
 
+    // PROD config
+//    public final static String URI = "https://api.beecow.com";
+//    public final static String SF_DOMAIN = ".gosell.vn";
+
+    // STG config
     public final static String URI = "https://api.beecow.info";
 
     public final static String SF_DOMAIN = ".unisell.vn";

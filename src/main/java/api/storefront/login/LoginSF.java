@@ -3,8 +3,7 @@ package api.storefront.login;
 import api.storefront.signup.SignUp;
 import io.restassured.http.ContentType;
 
-import static api.dashboard.login.Login.storeID;
-import static api.dashboard.login.Login.storeName;
+import static api.dashboard.login.Login.*;
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
 
@@ -25,7 +24,7 @@ public class LoginSF {
                 .cookie("StoreId=%s".formatted(storeID))
                 .when()
                 .body(body)
-                .post("https://%s%s/api/login".formatted(storeName.replace(" ", "").toLowerCase(), SF_DOMAIN)).jsonPath().getString("id_token");
+                .post("https://%s%s/api/login".formatted(storeURL, SF_DOMAIN)).jsonPath().getString("id_token");
 
     }
 }

@@ -16,13 +16,15 @@ import utilities.assert_customize.AssertCustomize;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static api.dashboard.login.Login.storeName;
-import static api.dashboard.products.CreateProduct.*;
-import static api.dashboard.products.CreateProduct.variationList;
+import static api.dashboard.login.Login.storeURL;
 import static api.dashboard.products.CreateProduct.variationListingPrice;
 import static api.dashboard.products.CreateProduct.withoutVariationSellingPrice;
+import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static java.lang.Thread.sleep;
 import static pages.dashboard.products.all_products.ProductPage.*;
@@ -33,7 +35,7 @@ import static utilities.links.Links.STORE_CURRENCY;
 public class ProductDetailPage extends ProductDetailElement {
     WebDriverWait wait;
 
-    static int countFail = 0;
+    private int countFail = 0;
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
@@ -55,7 +57,7 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public ProductDetailPage accessToProductDetailPageByProductID() {
-        driver.get("https://%s%s/vi/product/%s".formatted(storeName.replace(" ", "").toLowerCase(), SF_DOMAIN, CreateProduct.productID));
+        driver.get("https://%s%s/vi/product/%s".formatted(storeURL, SF_DOMAIN, CreateProduct.productID));
         logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(CreateProduct.productID));
         verifyPageLoaded();
         return this;
@@ -137,11 +139,15 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                sleep(2000);
+                if (SPINNER.isDisplayed()) {
+                    commonAction.waitForElementInvisible(SPINNER, 15);
+                }
 
                 for (WebElement webElement : BRANCH_NAME_LIST) {
                     webElement.click();
-                    sleep(2000);
+                    if (SPINNER.isDisplayed()) {
+                        commonAction.waitForElementInvisible(SPINNER, 15);
+                    }
 
                     // check price
                     checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
@@ -156,12 +162,16 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                sleep(2000);
+                if (SPINNER.isDisplayed()) {
+                    commonAction.waitForElementInvisible(SPINNER, 15);
+                }
 
                 // check price
                 for (WebElement webElement : BRANCH_NAME_LIST) {
                     webElement.click();
-                    sleep(2000);
+                    if (SPINNER.isDisplayed()) {
+                        commonAction.waitForElementInvisible(SPINNER, 15);
+                    }
 
                     // check price
                     checkProductPrice(CreateProduct.variationListingPrice.get(variationList.indexOf(variationValue)),
@@ -187,12 +197,16 @@ public class ProductDetailPage extends ProductDetailElement {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                sleep(2000);
+                if (SPINNER.isDisplayed()) {
+                    commonAction.waitForElementInvisible(SPINNER, 15);
+                }
 
                 // check price
                 for (WebElement webElement : BRANCH_NAME_LIST) {
                     webElement.click();
-                    sleep(2000);
+                    if (SPINNER.isDisplayed()) {
+                        commonAction.waitForElementInvisible(SPINNER, 15);
+                    }
 
                     // check price
                     checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
@@ -552,8 +566,6 @@ public class ProductDetailPage extends ProductDetailElement {
             // add variation and its coordinates
             coordinates.put(variationValue, listIndex);
         }
-        logger.debug(variationValueList);
-        logger.debug(coordinates);
 
         return coordinates;
     }

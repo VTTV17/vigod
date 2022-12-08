@@ -68,6 +68,6 @@ public class ProductDetailElement {
     @FindBy(css = "#button-buy-now")
     WebElement BUY_NOW_BTN;
 
-    @FindBy (css = "#loading-template-1")
-    WebElement LOADING_SPINNER;
+    @FindBy(css = ".loader")
+    WebElement SPINNER;
 }

@@ -3,16 +3,19 @@ package api.storefront.signup;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 
 import java.sql.SQLException;
 
 import static api.dashboard.login.Login.storeName;
+import static api.dashboard.login.Login.storeURL;
 import static io.restassured.RestAssured.given;
 import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
+import static utilities.links.Links.SF_DOMAIN;
 
 public class SignUp {
     String SIGN_UP_PHONE_PATH = "/api/register2/mobile/phone";
@@ -41,7 +44,7 @@ public class SignUp {
 
     public void signUpByPhoneNumber(String... phone) throws SQLException {
         getGuestToken();
-        customerName = randomAlphabetic(nextInt(MAX_BUYER_NAME_LENGTH) + 1);
+        customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
         phoneNumber = (phone.length > 0) ? phone[0] : random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER) + MIN_PHONE_NUMBER, false, true);
         phoneCode = (phone.length > 1) ? phone[1] : "+84";
         password = "Abc@12345";
@@ -67,6 +70,6 @@ public class SignUp {
                     "userId": %s
                 }""".formatted(activeCode, userID);
 
-        new API().login("https://%s.unisell.vn%s".formatted(storeName, ACTIVE_PATH), activeBody);
+        new API().login("https://%s%s%s".formatted(storeURL, SF_DOMAIN, ACTIVE_PATH), activeBody);
     }
 }

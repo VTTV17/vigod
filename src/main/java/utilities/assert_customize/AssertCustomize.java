@@ -1,5 +1,7 @@
 package utilities.assert_customize;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import utilities.screenshot.Screenshot;
@@ -11,8 +13,9 @@ public class AssertCustomize {
 
     public AssertCustomize(WebDriver driver) {
         this.driver = driver;
-
     }
+
+    Logger logger = LogManager.getLogger(AssertCustomize.class);
 
     public Integer assertEquals(int countFalse, String actual, String expected, String mess) throws IOException {
         try {
@@ -20,6 +23,7 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
+            logger.error(ex);
         }
         return countFalse;
     }
@@ -30,6 +34,7 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
+            logger.error(ex);
         }
         return countFalse;
     }
@@ -40,6 +45,7 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
+            logger.error(ex);
         }
         return countFalse;
     }
@@ -50,6 +56,7 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
+            logger.error(ex);
         }
         return countFalse;
     }
