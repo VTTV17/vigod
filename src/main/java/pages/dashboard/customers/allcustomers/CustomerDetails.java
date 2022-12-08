@@ -13,7 +13,6 @@ import org.testng.asserts.SoftAssert;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 public class CustomerDetails extends HomePage {
 	
@@ -38,6 +37,8 @@ public class CustomerDetails extends HomePage {
     
     @FindBy (id = "phone")
     WebElement PHONE;
+    @FindBy (css = ".row.phone-email .phone-code")
+    WebElement COUNTRY_CODE;
     @FindBy(id = "country")
     WebElement COUNTRY_DROPDOWN;
     @FindBy (id = "address")
@@ -62,7 +63,9 @@ public class CustomerDetails extends HomePage {
     }
     
     public String getPhoneNumber() {
-    	String value = commonAction.getText(wait.until(ExpectedConditions.visibilityOf(PHONE)));
+        String countryCode = commonAction.getText(wait.until(ExpectedConditions.visibilityOf(COUNTRY_CODE)));
+        String phoneNumber = commonAction.getElementAttribute(PHONE, "value");
+        String value = countryCode + ":" + phoneNumber;
     	logger.info("Retrieved Phone Number: " + value);
     	return value;
     }

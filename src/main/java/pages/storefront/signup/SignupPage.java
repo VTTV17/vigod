@@ -102,6 +102,9 @@ public class SignupPage {
 
     @FindBy(id = "signup-password-error")
     WebElement PASSWORD_ERROR;
+    
+    @FindBy(id = "signup-displayName-error")
+    WebElement DISPLAYNAME_ERROR;
 
     @FindBy(id = "activate-fail")
     WebElement WRONG_CODE_ERROR;
@@ -154,7 +157,6 @@ public class SignupPage {
     public SignupPage inputEmail(String mail) {
         commonAction.inputText(EMAIL_TEXTBOX, mail);
         logger.info("Input '" + mail + "' into Email field.");
-        commonAction.sleepInMiliSecond(5000); //Without this delay, the email can not be sent to back end.
         return this;
     }
 
@@ -229,6 +231,13 @@ public class SignupPage {
         soft.assertEquals(text, errMessage, "[Signup][Password] Message does not match.");
         logger.info("verifyPasswordError completed");
         return this;
+    }
+    
+    public SignupPage verifyDisplayNameError(String errMessage) {
+    	String text = commonAction.getText(DISPLAYNAME_ERROR);
+    	soft.assertEquals(text, errMessage, "[Signup][Display Name] Message does not match.");
+    	logger.info("verifyDisplayNameError completed");
+    	return this;
     }
 
     public SignupPage verifyVerificationCodeError(String errMessage) {
