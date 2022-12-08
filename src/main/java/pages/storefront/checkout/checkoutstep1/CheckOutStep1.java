@@ -136,7 +136,6 @@ public class CheckOutStep1 extends GeneralSF {
     public CheckOutStep2 clickOnNextButton() {
         commonAction.clickElement(checkOutStep1UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
-        commonAction.sleepInMiliSecond(2000);
         waitTillLoaderDisappear();
         return new CheckOutStep2(driver);
     }
@@ -160,12 +159,14 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 selectDistrict(String district) {
+        commonAction.sleepInMiliSecond(500);
         commonAction.selectByVisibleText(checkOutStep1UI.DISTRICT_DROPDOWN, district);
         logger.info("Select district: %s".formatted(district));
         return this;
     }
 
     public CheckOutStep1 selectWard(String ward) {
+        commonAction.sleepInMiliSecond(500);
         commonAction.selectByVisibleText(checkOutStep1UI.WARD_DROPDOWN, ward);
         logger.info("Select ward: %s".formatted(ward));
         return this;
@@ -184,6 +185,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 selectState(String state) {
+        commonAction.sleepInMiliSecond(500);
         commonAction.selectByVisibleText(checkOutStep1UI.STATE_REGION_PROVICE_DROPDOWN, state);
         logger.info("Select state/region/province: %s".formatted(state));
         return this;
@@ -198,7 +200,7 @@ public class CheckOutStep1 extends GeneralSF {
     public CheckOutStep1 inputPhoneNumber(String phone) {
         commonAction.inputText(checkOutStep1UI.PHONE_NUMBER_INPUT, phone);
         logger.info("Input phone number: %s".formatted(phone));
-        commonAction.sleepInMiliSecond(2000);
+        commonAction.sleepInMiliSecond(1000);
         return this;
     }
 

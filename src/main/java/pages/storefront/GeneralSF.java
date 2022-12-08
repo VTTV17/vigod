@@ -31,7 +31,7 @@ public class GeneralSF {
     WebElement LANGUAGE;	
 	
 	public GeneralSF waitTillLoaderDisappear() {
-		commons.waitForElementInvisible(SPINNER, 15);
+		commons.waitForElementInvisible(SPINNER, 20);
 		logger.info("Loader has finished loading");
 		return this;
 	}
@@ -47,4 +47,5 @@ public class GeneralSF {
 		logger.info("Retrieved Storefront's display language: " + language);
 		return language;
 	}
+
 }

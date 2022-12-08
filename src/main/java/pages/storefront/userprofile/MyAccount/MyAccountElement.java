@@ -34,5 +34,7 @@ public class MyAccountElement {
     WebElement SAVE_BTN;
     @FindBy(id = "dob-picker")
     WebElement PICKER;
+    @FindBy(css = ".toast-message")
+    WebElement TOAST_MESSAGE;
 
 }

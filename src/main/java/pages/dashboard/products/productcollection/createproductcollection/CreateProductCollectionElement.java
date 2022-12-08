@@ -18,9 +18,13 @@ public class CreateProductCollectionElement {
     @FindBy(css = ".image-drop-zone input")
     WebElement IMAGE_INPUT;
     @FindBy(id = "radio-collectionType-MANUAL")
-    WebElement MANUAL_RADIO_BTN;
+    WebElement MANUAL_RADIO_VALUE;
+    @FindBy(xpath = "//input[@id='radio-collectionType-MANUAL']/following-sibling::label")
+    WebElement MANUAL_RADIO_ACTION;
     @FindBy(id = "radio-collectionType-AUTOMATED")
-    WebElement AUTOMATED_RADIO_BTN;
+    WebElement AUTOMATED_RADIO_VALUE;
+    @FindBy(xpath = "//input[@id='radio-collectionType-AUTOMATED']/following-sibling::label")
+    WebElement AUTOMATED_RADIO_ACTION;
     @FindBy(id = "radio-conditionType-ALL")
     WebElement ALL_CONDITION_RADIO_BTN;
     @FindBy(id = "radio-conditionType-ANY")

@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
@@ -172,7 +173,7 @@ public class HeaderSF extends GeneralSF {
 	}
 	public HeaderSF clickOnMenuItemByText(String menuItemByText){
 		String menuItemNewXpath = MENU_ITEM_BY_TEXT.formatted(menuItemByText);
-		commons.clickElement(commons.getElementByXpath(menuItemNewXpath));
+		commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));
 		logger.info("Click on menu: "+menuItemByText);
 		return this;
 	}
