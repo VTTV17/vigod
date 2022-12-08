@@ -30,8 +30,18 @@ public class CheckOutStep2 extends GeneralSF {
     public CheckOutStep3 clickOnNextButton(){
         commonAction.clickElement(checkOutStep2UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
-        commonAction.sleepInMiliSecond(1000);
         waitTillLoaderDisappear();
         return new CheckOutStep3(driver);
+    }
+
+    /**
+     *
+     * @param shippingOtion:Giao Hang Nhanh, Shop self delivery,..
+     * @return CheckOutStep2
+     */
+    public CheckOutStep2 selectShippingMethod(String shippingOtion){
+        commonAction.selectByVisibleText(checkOutStep2UI.SELECT_SHIPPING_METHOD,shippingOtion);
+        logger.info("Select shipping method: "+shippingOtion);
+        return this;
     }
 }

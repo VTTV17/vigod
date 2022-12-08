@@ -1,21 +1,18 @@
 package api.dashboard.onlineshop;
-
-import api.dashboard.login.Login;
-
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import utilities.api.API;
 
 import java.util.List;
-import java.util.Map;
 
 public class APIMenus {
-    Login apiLogin = new Login();
     public static String ADD_MENU_ITEM_PATH = "itemservice/api/menu-items/items";
     public static String GET_ALL_MENU_ITEM_PATH = "itemservice/api/menus/%s/menu-items?type=ALL";
     public static String DELETE_MENU_ITEM_PATH = "itemservice/api/menu-items?sellerId=%s&ids=%s";
     API api = new API();
+    final static Logger logger = LogManager.getLogger(APIMenus.class);
 
     /**
      * Create menuitem with level = 0
@@ -41,6 +38,7 @@ public class APIMenus {
                 """.formatted(menuID,menuItemName,collectionID,collectionID);
         Response menuItemRespone = api.putRequest(ADD_MENU_ITEM_PATH,token,body);
         Assert.assertEquals(200, menuItemRespone.statusCode());
+        logger.info("Create menuItem successful.");
     }
     public int getMenuItemIDByName(String token, String menuId, String menuItemName) throws Exception {
         Response response = api.get(GET_ALL_MENU_ITEM_PATH.formatted(menuId),token);

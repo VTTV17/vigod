@@ -45,7 +45,7 @@ public class MyAccount extends HeaderSF {
     public String getEmail() {
         String value = commonAction.getElementAttribute(myAccountUI.EMAIL, "value");
         logger.info("Retrieved Mail: " + value);
-        return value;
+        return value.toLowerCase();
     }
 
 	/**
@@ -85,7 +85,7 @@ public class MyAccount extends HeaderSF {
      * @param date: format dd/mm/yyyy
      */
     public MyAccount inputBirthday(String date){
-        commonAction.inputText(myAccountUI.birthday, date);
+        commonAction.inputText(myAccountUI.birthday, date+"\n");
         logger.info("Input birthday: %s".formatted(date));
         return this;
     }
@@ -144,6 +144,7 @@ public class MyAccount extends HeaderSF {
     public MyAccount clickOnSaveButton(){
         commonAction.clickElement(myAccountUI.SAVE_BTN);
         logger.info("Click on Save button");
+        wait.until(ExpectedConditions.visibilityOf(myAccountUI.TOAST_MESSAGE));
         return this;
     }
 

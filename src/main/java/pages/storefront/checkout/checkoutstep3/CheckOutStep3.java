@@ -30,7 +30,6 @@ public class CheckOutStep3 extends GeneralSF {
     public OrderComplete clickOnNextButton(){
         commonAction.clickElement(checkOutStep3UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
-        commonAction.sleepInMiliSecond(1000);
         waitTillLoaderDisappear();
         return new OrderComplete(driver);
     }
