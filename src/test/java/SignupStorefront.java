@@ -69,12 +69,11 @@ public class SignupStorefront extends BaseTest {
 
 	// This function generate test data for each test case
 	public void generateTestData() {
-		randomNumber = generate.generateNumber(2);
-		phone = "8123456" + randomNumber;
-		mail = "automation0-buyer-test" + phone + "@mailnesia.com";
+		phone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits;
+		mail = "automation0-buyer" + phone + "@mailnesia.com";
 		password = "fortesting!1";
 		country = "rd";
-		displayName = "Automation Buyer Test" + phone;
+		displayName = "Automation Buyer " + phone;
 		birthday = "21/02/1990";
 		language = "rd";
 	}
@@ -84,11 +83,7 @@ public class SignupStorefront extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			commonAction.openNewTab();
-			commonAction.switchToWindow(1);
-			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
-			commonAction.closeTab();
-			commonAction.switchToWindow(0);
+			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
 			verificationCode = new InitConnection().getActivationKey(signupPage.countryCode + ":" + username);
 		}
@@ -104,11 +99,11 @@ public class SignupStorefront extends BaseTest {
 		String expectedVerificationCodeMessage;
 		String expectedSuccessfulSignupMessage;
 		if (language.contentEquals("vi")) {
-			expectedSuccessfulSignupMessage = "Đăng kí thành công tài khoản trên %s".formatted(title);
-			expectedVerificationCodeMessage = "là mã xác minh tài khoản trên %s của bạn".formatted(title);
+			expectedSuccessfulSignupMessage = signupPage.SUCCESSFUL_SIGNUP_MESSAGE_VI.formatted(title);
+			expectedVerificationCodeMessage = signupPage.VERIFICATION_CODE_MESSAGE_VI.formatted(title);
 		} else {
-			expectedSuccessfulSignupMessage = "Successfully register acount on %s".formatted(title);
-			expectedVerificationCodeMessage = "is code to verify your e-mail address on %s".formatted(title);
+			expectedSuccessfulSignupMessage = signupPage.SUCCESSFUL_SIGNUP_MESSAGE_EN.formatted(title);
+			expectedVerificationCodeMessage = signupPage.VERIFICATION_CODE_MESSAGE_VI.formatted(title);
 		}
 		String [][] mailContent = new Mailnesia(driver).navigate(username).getListOfEmailHeaders();
 		Assert.assertEquals(mailContent[0][3], expectedSuccessfulSignupMessage);
@@ -327,7 +322,7 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}
 
-//	@Test
+	@Test
 	public void BH_4590_SignupForEmailWithWrongVerificationCode() throws SQLException {
 
 		username = mail;
@@ -388,7 +383,7 @@ public class SignupStorefront extends BaseTest {
 		
 	}
 
-	@Test
+//	@Test
 	public void BH_1288_LogIntoGomuaWithAccountCreatedOnStorefront() throws SQLException {
 		
 		boolean mailProvided = true;

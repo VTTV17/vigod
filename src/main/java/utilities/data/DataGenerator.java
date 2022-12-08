@@ -1,15 +1,15 @@
 package utilities.data;
 
-import net.bytebuddy.utility.RandomString;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static utilities.character_limit.CharacterLimit.*;
-import static utilities.character_limit.CharacterLimit.MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION;
 
 public class DataGenerator {
     public String generateString(int length) {
@@ -45,16 +45,31 @@ public class DataGenerator {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            return numbers.remove(0);        }
+            return numbers.remove(0);
+        }
     }
-    public List<Integer> randomListNumberWithNoDulicate (int maximum){
+
+    public List<Integer> randomListNumberWithNoDulicate(int maximum) {
         UniqueRng rng = new UniqueRng(maximum);
         List<Integer> list = new ArrayList<>();
         while (rng.hasNext()) {
-           list.add(rng.next());
+            list.add(rng.next());
         }
         return list;
     }
+
+    public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
+        long time = System.currentTimeMillis();
+        System.out.println("Current Epoch time is: " + time);
+        Matcher m = Pattern.compile("\\d{%d}$".formatted(numberOfDigits)).matcher(String.valueOf(time));
+        String randomNumber = null;
+        if (m.find()) {
+            randomNumber = m.group();
+        }
+        System.out.println("Random number generated is: " + randomNumber);
+        return randomNumber;
+    }
+
 
     public String generateDateTime(String dateFormat) {
         return DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now());

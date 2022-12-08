@@ -51,11 +51,7 @@ public class LoginDashboard extends BaseTest {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
-			commonAction.openNewTab();
-			commonAction.switchToWindow(1);
-			verificationCode = new Mailnesia(driver).navigate(username).getVerificationCode();
-			commonAction.closeTab();
-			commonAction.switchToWindow(0);
+			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
 			verificationCode = new InitConnection().getResetKey(loginPage.countryCode + ":" + username);
 		}
@@ -288,7 +284,7 @@ public class LoginDashboard extends BaseTest {
 
 				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
 				
-				if (i == 0) homePage.navigateToPage("Settings");
+				if (i == 0) homePage.waitTillSpinnerDisappear().navigateToPage("Settings");
 				new AccountPage(driver).navigate().changePassword(currentPassword, newPassword, newPassword);
 				homePage.getToastMessage();
 			}
