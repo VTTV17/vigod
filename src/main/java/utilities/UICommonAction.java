@@ -8,6 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -26,19 +27,16 @@ public class UICommonAction {
 	}
 
 	public void clickElement(WebElement element) {
-		int count = 0;
-		int maxTries = 3;
-		while(true) {
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-				break;
-			} catch (StaleElementReferenceException ex) {
-				logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
-				if (++count == maxTries) throw ex;
-			} catch (ElementNotInteractableException ex) {
-				logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
-				if (++count == maxTries) throw ex;
-			}
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
+			List<WebElement> listOfElements = refreshElement(element);
+			if (listOfElements.size() ==1) element = listOfElements.get(0);
+			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+		} catch (ElementNotInteractableException ex) {
+			logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
+			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
 		}
 	}
 	
@@ -46,8 +44,14 @@ public class UICommonAction {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
 			element.sendKeys(text);
-		} catch (StaleElementReferenceException ex) {
-			logger.debug("StaleElementReferenceException caught in inputText");
+		} catch (StaleElementReferenceException|TimeoutException ex) {
+			if (ex instanceof StaleElementReferenceException) {
+				logger.debug("StaleElementReferenceException caught in inputText");
+			} else {
+				logger.debug("TimeoutException caught in inputText");
+			}
+			List<WebElement> listOfElements = refreshElement(element);
+			if (listOfElements.size() ==1) element = listOfElements.get(0);
 			wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
 			element.sendKeys(text);
 		}
@@ -58,13 +62,44 @@ public class UICommonAction {
 		try {
 			text = wait.until(ExpectedConditions.visibilityOf(element)).getText();
 		} catch (StaleElementReferenceException ex) {
-			logger.debug("Catch StaleElementReferenceException caught in getText");
+			logger.debug("StaleElementReferenceException caught in getText");
+			List<WebElement> listOfElements = refreshElement(element);
+			if (listOfElements.size() ==1) element = listOfElements.get(0);
 			text = wait.until(ExpectedConditions.visibilityOf(element)).getText();
 		}
 		logger.info("Text get: " + text);
 		return text;
 	}	
+	
+    public List<WebElement> refreshElement(WebElement element) {
+        String elementInfo = element.toString();
+        elementInfo = elementInfo.substring(elementInfo.indexOf("->"));
+        String extractedLocator = elementInfo.substring(elementInfo.indexOf(": "));
+        extractedLocator = extractedLocator.substring(2, extractedLocator.length() - 1);
+        logger.debug("Refreshing element " + elementInfo);
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        List<WebElement> newElement = null;
+        if (elementInfo.contains("-> link text:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.linkText(extractedLocator)));
+        } else if (elementInfo.contains("-> name:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.name(extractedLocator)));
+        } else if (elementInfo.contains("-> id:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id(extractedLocator)));
+        } else if (elementInfo.contains("-> xpath:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(extractedLocator)));
+        } else if (elementInfo.contains("-> class name:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(extractedLocator)));
+        } else if (elementInfo.contains("-> css selector:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(extractedLocator)));
+        } else if (elementInfo.contains("-> partial link text:")) {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.partialLinkText(extractedLocator)));
+        } else {
+        	newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName(extractedLocator)));
+        }
+        return newElement;
+    }
+	
 	public void uploadMultipleFile(WebElement element,String folder, String...fileNames){
 		String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator +"uploadfile"+ File.separator + folder + File.separator;
 		String fullName = "";
@@ -138,8 +173,13 @@ public class UICommonAction {
 	public void waitForElementInvisible(WebElement element){
 		try {
 			wait.until(ExpectedConditions.invisibilityOf(element));
+			// Some elements sometimes disappear and appear again after milliseconds.
+			sleepInMiliSecond(200);
+			wait.until(ExpectedConditions.invisibilityOf(element));
 		} catch (StaleElementReferenceException ex) {
 			logger.debug("Catch StaleElementReferenceException caught in waitForElementInvisible");
+			wait.until(ExpectedConditions.invisibilityOf(element));
+			sleepInMiliSecond(200);
 			wait.until(ExpectedConditions.invisibilityOf(element));
 		}
 	}
