@@ -21,7 +21,7 @@ public class Screenshot {
 
     public void takeScreenshot(WebDriver driver) throws IOException {
         String path = Paths.get(getProperty("user.dir") + "/debug/%s_%s.jpg").toString()
-                .formatted("debug", generateDateTime("yyyy_MM_dd-hh_mm_ss")).replace("/", File.separator);
+                .formatted("debug", generateDateTime("yyyy_MM_dd-HH_mm_ss")).replace("/", File.separator);
         FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
     }
 }

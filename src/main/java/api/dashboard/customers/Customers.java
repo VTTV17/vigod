@@ -60,6 +60,7 @@ public class Customers {
                 }""".formatted(customerName, customerPhoneNum, customerTag, storeName);
 
         Response createCustomerResponse = api.post(CREATE_POS_CUSTOMER_PATH + storeID, accessToken, body);
+        createCustomerResponse.then().statusCode(200);
         buyerId = createCustomerResponse.jsonPath().getInt("userId");
         profileId = createCustomerResponse.jsonPath().getInt("id");
         return this;
@@ -125,6 +126,7 @@ public class Customers {
                 }
                 """.formatted(segmentName, customerTag);
         Response createSegment = api.post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+        createSegment.then().statusCode(200);
         logger.info("create segment :" + createSegment.asPrettyString());
         segmentID = createSegment.jsonPath().getInt("id");
     }

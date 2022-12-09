@@ -46,7 +46,7 @@ public class CharacterLimit {
     public final static int MAX_FLASH_SALE_CAMPAIGN_NAME = 50;
     public final static int MIN_FLASH_SALE_CAMPAIGN_NAME = 3;
 
-    // wholesale campaign
+    // discount campaign
     public final static int MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME = 255;
     public final static int MAX_PROMOTION_DATE = 365;
 

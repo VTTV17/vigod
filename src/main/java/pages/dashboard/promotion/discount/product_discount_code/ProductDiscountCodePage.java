@@ -309,7 +309,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
 
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
-        logger.info("Create a new product wholesale campaign successfully");
+        logger.info("Create a new product discount campaign successfully");
     }
 
     private void waitElementList(List<WebElement> elementList) {

@@ -4,20 +4,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.segments.Segments;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
-import pages.dashboard.promotion.discount.product_wholesale_campaign.ProductWholesaleCampaignPage;
+import pages.dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static java.lang.Thread.sleep;
 import static pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
@@ -57,17 +55,17 @@ public class DiscountPage extends DiscountElement {
     }
 
     /**
-     * navigate to create product wholesale campaign page
+     * navigate to create product discount campaign page
      */
-    public ProductWholesaleCampaignPage openCreateProductWholesaleCampaignPage() {
+    public ProductDiscountCampaignPage openCreateProductDiscountCampaignPage() {
         // on Discount page:
         // 1: Click on wholesale pricing button
         // 2: Then click product wholesale pricing button
         wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRICING_BTN)).click();
         logger.info("Click on the Wholesale pricing button");
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_WHOLESALE_PRICING)).click();
-        logger.info("Navigate to create a new product wholesale campaign");
-        return new ProductWholesaleCampaignPage(driver);
+        logger.info("Navigate to create a new product discount campaign");
+        return new ProductDiscountCampaignPage(driver);
     }
 
     public ProductDiscountCodePage openCreateProductDiscountCodePage() {

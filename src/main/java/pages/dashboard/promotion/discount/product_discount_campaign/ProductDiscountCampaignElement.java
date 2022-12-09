@@ -1,4 +1,4 @@
-package pages.dashboard.promotion.discount.product_wholesale_campaign;
+package pages.dashboard.promotion.discount.product_discount_campaign;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -7,10 +7,10 @@ import org.openqa.selenium.support.PageFactory;
 
 import java.util.List;
 
-public class ProductWholesaleCampaignElement {
+public class ProductDiscountCampaignElement {
     WebDriver driver;
 
-    public ProductWholesaleCampaignElement(WebDriver driver) {
+    public ProductDiscountCampaignElement(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }

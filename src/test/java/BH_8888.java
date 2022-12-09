@@ -59,13 +59,6 @@ public class BH_8888 extends BaseTest {
         int branchStock = 5;
         createProduct
                 .createWithoutVariationProduct(isIMEIProduct,
-                        true,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true,
-                        true,
                         branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
@@ -78,13 +71,6 @@ public class BH_8888 extends BaseTest {
         int branchStock = 5;
         createProduct
                 .createWithoutVariationProduct(isIMEIProduct,
-                        true,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true,
-                        true,
                         branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
@@ -98,13 +84,6 @@ public class BH_8888 extends BaseTest {
         int increaseNum = 1;
         createProduct
                 .createVariationProduct(isIMEIProduct,
-                        true,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true,
-                        true,
                         increaseNum,
                         branchStock,
                         branchStock)
@@ -119,13 +98,6 @@ public class BH_8888 extends BaseTest {
         int increaseNum = 1;
         createProduct
                 .createVariationProduct(isIMEIProduct,
-                        true,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true,
-                        true,
                         increaseNum,
                         branchStock,
                         branchStock)
@@ -168,7 +140,6 @@ public class BH_8888 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceWithoutVariationProduct()
                 .completeVerify();
     }
@@ -191,7 +162,7 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
+    void BH_8888_G1_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -201,20 +172,19 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleCampaignShouldBeShown()
-                .checkWholesaleCampaignPriceWithoutVariationProduct()
+                .checkDiscountCampaignPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
+    void BH_8888_G1_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -224,21 +194,20 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin)
-                .endEarlyWholesaleCampaign();
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case2_3_WholesaleCampaignIsSchedule() throws IOException {
+    void BH_8888_G1_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -247,12 +216,11 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(endMin - 1, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceWithoutVariationProduct()
                 .completeVerify();
     }
@@ -269,8 +237,8 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -292,15 +260,14 @@ public class BH_8888 extends BaseTest {
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleCampaignShouldBeShown()
-                .checkWholesaleCampaignPriceWithoutVariationProduct()
+                .checkDiscountCampaignPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
@@ -315,8 +282,8 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -327,7 +294,7 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
+    void BH_8888_G2_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -337,20 +304,19 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleCampaignShouldBeShown()
-                .checkWholesaleCampaignPriceWithoutVariationProduct()
+                .checkDiscountCampaignPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
+    void BH_8888_G2_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -360,21 +326,20 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin)
-                .endEarlyWholesaleCampaign();
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case2_3_WholesaleCampaignIsSchedule() throws IOException {
+    void BH_8888_G2_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -383,12 +348,11 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(endMin - 1, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceWithoutVariationProduct()
                 .completeVerify();
     }
@@ -404,8 +368,8 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -427,15 +391,14 @@ public class BH_8888 extends BaseTest {
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleCampaignShouldBeShown()
-                .checkWholesaleCampaignPriceVariationProduct()
+                .checkDiscountCampaignPriceVariationProduct()
                 .completeVerify();
     }
 
@@ -450,8 +413,8 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -462,7 +425,7 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
+    void BH_8888_G3_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -472,20 +435,19 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
+    void BH_8888_G3_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -495,21 +457,20 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin)
-                .endEarlyWholesaleCampaign();
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case2_3_WholesaleCampaignIsSchedule() throws IOException, InterruptedException {
+    void BH_8888_G3_Case2_3_DiscountCampaignIsSchedule() throws IOException, InterruptedException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -518,12 +479,11 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(endMin - 1, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceVariationProduct()
                 .completeVerify();
     }
@@ -540,8 +500,8 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -563,15 +523,14 @@ public class BH_8888 extends BaseTest {
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleCampaignShouldBeShown()
-                .checkWholesaleCampaignPriceVariationProduct()
+                .checkDiscountCampaignPriceVariationProduct()
                 .completeVerify();
     }
 
@@ -586,8 +545,8 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -598,7 +557,7 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case2_1_WholesaleCampaignIsInProgress() throws IOException, InterruptedException {
+    void BH_8888_G4_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -608,20 +567,19 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case2_2_WholesaleCampaignIsExpired() throws IOException, InterruptedException {
+    void BH_8888_G4_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -631,21 +589,20 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(startMin, endMin)
-                .endEarlyWholesaleCampaign();
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case2_3_WholesaleCampaignIsSchedule() throws IOException, InterruptedException {
+    void BH_8888_G4_Case2_3_DiscountCampaignIsSchedule() throws IOException, InterruptedException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -654,12 +611,11 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyWholesaleCampaign()
-                .createProductWholesaleCampaign(endMin - 1, endMin);
+                .endEarlyDiscountCampaign()
+                .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductShouldBeShown()
                 .checkWholesaleProductPriceVariationProduct()
                 .completeVerify();
     }

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import static api.dashboard.login.Login.storeURL;
 import static api.dashboard.products.CreateProduct.variationListingPrice;
+import static api.dashboard.products.CreateProduct.withoutVariationListingPrice;
 import static api.dashboard.products.CreateProduct.withoutVariationSellingPrice;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
@@ -39,6 +40,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
+
     public ProductDetailPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -84,261 +86,432 @@ public class ProductDetailPage extends ProductDetailElement {
 
 
     // check flash sale
-    public void checkFlashSaleShouldBeShown() throws IOException {
-        countFail = new AssertCustomize(driver).assertTrue(countFail, checkElementVisible(FLASH_SALE_BADGE), "Flash sale badge does not show");
-        logger.info("Check flash sale badge");
+    private void checkFlashSaleShouldBeShown(String... branchName) throws IOException {
+        String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
+        countFail = new AssertCustomize(driver).assertTrue(countFail, checkElementVisible(FLASH_SALE_BADGE), "%s Flash sale badge does not show".formatted(branch));
+        logger.info("%s Check flash sale badge is shown".formatted(branch));
     }
 
-    public void checkFlashSaleShouldBeHidden() throws IOException {
-        countFail = new AssertCustomize(driver).assertFalse(countFail, checkElementVisible(FLASH_SALE_BADGE), "Flash sale badge does not hide");
-        logger.info("Check flash sale badge");
+    private void checkFlashSaleShouldBeHidden(String... branchName) throws IOException {
+        String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
+        countFail = new AssertCustomize(driver).assertFalse(countFail, checkElementVisible(FLASH_SALE_BADGE), "%s Flash sale badge does not hide".formatted(branch));
+        logger.info("%s Check flash sale badge is hidden".formatted(branch));
     }
 
     public ProductDetailPage checkFlashSalePriceWithoutVariationProduct() throws IOException {
         // wait list branch visible
         commonAction.waitElementList(BRANCH_NAME_LIST);
 
-        for (int i = 0; i < branchName.size(); i++) {
+        // check flash sale for each branch
+        for (WebElement element : BRANCH_NAME_LIST) {
             // switch branch
-            BRANCH_NAME_LIST.get(i).click();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 
             // check flash sale badge is shown
-            checkFlashSaleShouldBeShown();
+            checkFlashSaleShouldBeShown(element.getText());
 
-            //
-            checkProductPrice(CreateProduct.withoutVariationListingPrice,
-                    CreatePromotion.flashSaleWithoutVariationSalePrice,
-                    BRANCH_NAME_LIST.get(i).getText());
+            // check flash sale price
+            checkProductPrice(withoutVariationListingPrice,
+                    CreatePromotion.flashSaleWithoutVariationPrice,
+                    element.getText());
         }
         return this;
     }
 
     public ProductDetailPage checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct() throws IOException {
-        checkFlashSaleShouldBeShown();
+        // wait list branch visible
         commonAction.waitElementList(BRANCH_NAME_LIST);
-        for (int i = 0; i < branchName.size(); i++) {
-            BRANCH_NAME_LIST.get(i).click();
-            checkProductPrice(CreateProduct.withoutVariationListingPrice,
-                    CreateProduct.withoutVariationSellingPrice,
-                    BRANCH_NAME_LIST.get(i).getText());
+
+        // check flash sale for each branch
+        for (WebElement element : BRANCH_NAME_LIST) {
+            // switch branch
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+            // check flash sale badge is shown
+            checkFlashSaleShouldBeShown(element.getText());
+
+            // check selling price should be shown
+            checkProductPrice(withoutVariationListingPrice,
+                    withoutVariationSellingPrice,
+                    element.getText());
         }
         return this;
     }
 
-    public ProductDetailPage checkFlashSalePriceVariationProduct() throws IOException, InterruptedException {
+    public ProductDetailPage checkFlashSalePriceVariationProduct() throws IOException {
         // get variation coordinates
         Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
+
+        // wait branch list visible
         commonAction.waitElementList(BRANCH_NAME_LIST);
 
-        for (String variationValue: variationValueCoordinates.keySet()) {
-            if (flashSaleVariationSaleList.contains(variationValue)) {
-                checkFlashSaleShouldBeShown();
+        // check product price for each variation
+        for (String variationValue : variationValueCoordinates.keySet()) {
+            // check flash sale price if variation in flash sale campaign
+            if (flashSaleVariationList.contains(variationValue)) {
 
                 // select variation
                 for (int index : variationValueCoordinates.get(variationValue)) {
                     ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                if (SPINNER.isDisplayed()) {
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
+
+                // check for each branch
+                for (WebElement element : BRANCH_NAME_LIST) {
+                    // check flash sale badge is shown
+                    checkFlashSaleShouldBeShown(element.getText());
+
+                    // switch branch
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+                    // wait spinner loading if any
                     commonAction.waitForElementInvisible(SPINNER, 15);
+
+                    // check flash sale price for each branch
+                    try {
+                        checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
+                                flashSaleVariationPrice.get(flashSaleVariationList.indexOf(variationValue)),
+                                element.getText());
+                    } catch (TimeoutException ex) {
+                        logger.info("[Branch %s] Listing price does not show, refresh page and check again.".formatted(element.getText()));
+
+                        // refresh page
+                        driver.navigate().refresh();
+
+                        // wait page loaded
+                        verifyPageLoaded();
+
+                        // select variation again
+                        for (int index : variationValueCoordinates.get(variationValue)) {
+                            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
+                        }
+
+                        // wait spinner loading if any
+                        commonAction.waitForElementInvisible(SPINNER, 15);
+
+                        // check flash sale badge is shown
+                        checkFlashSaleShouldBeShown(element.getText());
+
+                        // switch branch
+                        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+                        // wait spinner loading if any
+                        commonAction.waitForElementInvisible(SPINNER, 15);
+
+                        // check flash sale price
+                        checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
+                                flashSaleVariationPrice.get(flashSaleVariationList.indexOf(variationValue)),
+                                element.getText());
+                    }
+                }
+            } else { // if variation is not in flash sale campaign
+                // check selling price for each variation
+                for (int index : variationValueCoordinates.get(variationValue)) {
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
                 }
 
-                for (WebElement webElement : BRANCH_NAME_LIST) {
-                    webElement.click();
-                    if (SPINNER.isDisplayed()) {
-                        commonAction.waitForElementInvisible(SPINNER, 15);
-                    }
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
 
-                    // check price
+                // check selling price for each branch
+                for (WebElement element : BRANCH_NAME_LIST) {
+
+                    // check flash sale badge is not shown
+                    checkFlashSaleShouldBeHidden(element.getText());
+
+                    // switch branch
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+                    // wait spinner loading if any
+                    commonAction.waitForElementInvisible(SPINNER, 15);
+
+                    // check selling price
                     checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
-                            flashSaleVariationSalePrice.get(flashSaleVariationSaleList.indexOf(variationValue)),
-                            webElement.getText());
-                }
-            } else {
-                checkFlashSaleShouldBeHidden();
-
-                // select variation
-                for (int index : variationValueCoordinates.get(variationValue)) {
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
-                }
-
-                if (SPINNER.isDisplayed()) {
-                    commonAction.waitForElementInvisible(SPINNER, 15);
-                }
-
-                // check price
-                for (WebElement webElement : BRANCH_NAME_LIST) {
-                    webElement.click();
-                    if (SPINNER.isDisplayed()) {
-                        commonAction.waitForElementInvisible(SPINNER, 15);
-                    }
-
-                    // check price
-                    checkProductPrice(CreateProduct.variationListingPrice.get(variationList.indexOf(variationValue)),
                             CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)),
-                            webElement.getText());
+                            element.getText());
                 }
             }
         }
         return this;
     }
 
-    public ProductDetailPage checkProductPriceWhenFlashSaleIsScheduleVariationProduct() throws IOException, InterruptedException {
+    public ProductDetailPage checkProductPriceWhenFlashSaleIsScheduleVariationProduct() throws IOException {
         // get variation coordinates
         Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
+
+        // wait list branch is visible
         commonAction.waitElementList(BRANCH_NAME_LIST);
 
-        for (String variationValue: variationValueCoordinates.keySet()) {
-            if (flashSaleVariationSaleList.contains(variationValue)) {
-                checkFlashSaleShouldBeShown();
+        // check flash sale badge
+        for (String variationValue : variationValueCoordinates.keySet()) {
+            // select variation
+            for (int index : variationValueCoordinates.get(variationValue)) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
+            }
 
-                // select variation
-                for (int index : variationValueCoordinates.get(variationValue)) {
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
+            // wait spinner loading if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // check selling price for each branch
+            for (WebElement element : BRANCH_NAME_LIST) {
+                // switch branch
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
+
+                // check flash sale for each variation
+                if (flashSaleVariationList.contains(variationValue)) {
+                    // check flash sale badge is shown if in variation in flash sale campaign
+                    checkFlashSaleShouldBeShown(element.getText());
+
+                } else {
+                    // if flash sale is not available, check flash sale badge should be hidden
+                    checkFlashSaleShouldBeHidden(element.getText());
                 }
 
-                if (SPINNER.isDisplayed()) {
-                    commonAction.waitForElementInvisible(SPINNER, 15);
-                }
-
-                // check price
-                for (WebElement webElement : BRANCH_NAME_LIST) {
-                    webElement.click();
-                    if (SPINNER.isDisplayed()) {
-                        commonAction.waitForElementInvisible(SPINNER, 15);
-                    }
-
-                    // check price
-                    checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
-                            CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)),
-                            webElement.getText());
-                }
+                // check selling price
+                checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
+                        CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)),
+                        element.getText());
             }
         }
         return this;
     }
 
 
-    // check wholesale campaign
-    public ProductDetailPage checkWholesaleCampaignShouldBeShown() throws IOException, InterruptedException {
-        commonAction.waitElementList(BRANCH_NAME_LIST);
-
-        if (productWholesaleCampaignBranchType != 0) {
-            for (WebElement element: BRANCH_NAME_LIST) {
-                sleep(1000);
-                if (element.getText().equals(branchName.get(branchIDList.indexOf(productWholesaleCampaignBranchID)))) {
-                    sleep(1000);
-                    element.click();
-                    break;
-                }
-            }
-        }
-
+    // check discount campaign
+    private void checkDiscountCampaignShouldBeShown(String... branchName) throws IOException {
+        String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
         boolean check = true;
         try {
-            sleep(1000);
-            wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_CAMPAIGN_CHECKBOX)).click();
-        } catch (TimeoutException ex) {
+            if (WHOLESALE_CAMPAIGN_CHECKBOX.getAttribute("class").contains("unchecked")) {
+                WHOLESALE_CAMPAIGN_CHECKBOX.click();
+            } else {
+                // uncheck
+                WHOLESALE_CAMPAIGN_CHECKBOX.click();
+
+                // check again
+                WHOLESALE_CAMPAIGN_CHECKBOX.click();
+            }
+        } catch (NoSuchElementException ex) {
             check = false;
         }
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "Wholesale campaign does not show");
-        logger.info("Check wholesale campaign should be shown");
+        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "%s Discount campaign does not show".formatted(branch));
+        logger.info("%s Check discount campaign is shown".formatted(branch));
+    }
 
+    private void checkDiscountCampaignShouldBeHidden(String... branchName) throws IOException {
+        String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
+        boolean check = true;
+        try {
+            if (WHOLESALE_CAMPAIGN_CHECKBOX.getAttribute("class").contains("unchecked")) {
+                WHOLESALE_CAMPAIGN_CHECKBOX.click();
+            }
+        } catch (NoSuchElementException ex) {
+            check = false;
+        }
+
+        countFail = new AssertCustomize(driver).assertFalse(countFail, check, "%s Discount campaign does not hide".formatted(branch));
+        logger.info("%s Check discount campaign is hidden".formatted(branch));
+    }
+
+    private void checkDiscountCampaignPrice(int listingPrice, int sellingPrice, int discountCampaignCouponValue, int wholesaleProductStock, int wholesaleProductPrice) throws IOException {
+        // check product price for each branch
+        for (WebElement element : BRANCH_NAME_LIST) {
+            // switch branch
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+            // wait spinner loading if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // check branch has discount campaign or not
+            // check product price
+            if (productDiscountCampaignApplicableBranch.contains(element.getText())) {
+                // check Buy in bulk checkbox is shown
+                checkDiscountCampaignShouldBeShown(element.getText());
+
+                // get campaign price
+                int salePrice = (productWholesaleCouponType == 0)
+                        ? Math.round(sellingPrice * (1 - ((float) discountCampaignCouponValue / 100)))
+                        : (Math.max(0, sellingPrice - discountCampaignCouponValue));
+
+                // check product price
+                checkProductPrice(listingPrice,
+                        salePrice,
+                        element.getText());
+            } else {
+                // check Buy in bulk checkbox is hidden
+                checkDiscountCampaignShouldBeHidden(element.getText());
+
+                // check wholesale product price if any
+                checkWholesaleProductPrice(listingPrice,
+                        sellingPrice,
+                        wholesaleProductStock,
+                        wholesaleProductPrice,
+                        element.getText());
+            }
+        }
+    }
+
+    public ProductDetailPage checkDiscountCampaignPriceWithoutVariationProduct() throws IOException {
+        // wait branch list visible
+        commonAction.waitElementList(BRANCH_NAME_LIST);
+
+        // check discount campaign price
+        checkDiscountCampaignPrice(withoutVariationListingPrice,
+                withoutVariationSellingPrice,
+                productWholesaleCouponValue,
+                withoutVariationWholesaleProductStock,
+                withoutVariationWholesaleProductPrice);
         return this;
     }
 
-    public ProductDetailPage checkWholesaleCampaignPriceWithoutVariationProduct() throws IOException {
-        wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
-        QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-        QUANTITY.sendKeys(String.valueOf(productWholesaleCampaignSaleStock));
+    public ProductDetailPage checkDiscountCampaignPriceVariationProduct() throws IOException {
+        // wait branch list visible
+        commonAction.waitElementList(BRANCH_NAME_LIST);
 
-        int salePrice = (productWholesaleCouponType == 0)
-                ? Math.round(withoutVariationSellingPrice * (1 - ((float) productWholesaleCouponValue / 100)))
-                : (Math.max(0, withoutVariationSellingPrice - productWholesaleCouponValue));
-        checkProductPrice(CreateProduct.withoutVariationListingPrice, salePrice);
-        return this;
-    }
-
-    public ProductDetailPage checkWholesaleCampaignPriceVariationProduct() throws InterruptedException, IOException {
         // get variation coordinates
         Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
 
-        sleep(1000);
-
-        wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
-        QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-        QUANTITY.sendKeys(String.valueOf(productWholesaleCampaignSaleStock));
-
-        for (String variationValue: variationValueCoordinates.keySet()) {
-            if (variationList.contains(variationValue)) {
-                // select variation
-                for (int index : variationValueCoordinates.get(variationValue)) {
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
-                }
-
-                sleep(1000);
-
-                int salePrice = (productWholesaleCouponType == 0)
-                        ? (Math.round(CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)) * (1 - ((float) productWholesaleCouponValue / 100))))
-                        : (Math.max(0, CreateProduct.variationSellingPrice.get(variationList.indexOf(variationValue)) - productWholesaleCouponValue));
-
-                // check price
-                checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)), salePrice);
+        for (String variationValue : variationValueCoordinates.keySet()) {
+            // select variation
+            for (int index : variationValueCoordinates.get(variationValue)) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
             }
+
+            // wait spinner loading if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // get variation index
+            int varIndex = variationList.indexOf(variationValue);
+
+            // check discount campaign price
+            checkDiscountCampaignPrice(variationListingPrice.get(varIndex),
+                    CreateProduct.variationSellingPrice.get(varIndex),
+                    productWholesaleCouponValue,
+                    variationWholesaleProductStock.get(varIndex),
+                    variationWholesaleProductPrice.get(varIndex));
         }
         return this;
     }
 
     // check wholesale product price
-    public ProductDetailPage checkWholesaleProductShouldBeShown() throws IOException {
+    private void checkWholesaleProductShouldBeShown(String... branchName) throws IOException {
+        String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
         boolean check = true;
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(WHOLESALE_PRODUCT_INFO));
-        } catch (TimeoutException ex) {
+            WHOLESALE_PRODUCT_INFO.getText();
+        } catch (NoSuchElementException ex) {
             check = false;
         }
-        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "Whole sale product information does not show");
-        logger.info("Check whole sale product information");
-        return this;
+        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "[Failed]%s Wholesale product information is not shown".formatted(branch));
+        logger.info("%s Check wholesale product information is shown".formatted(branch));
+    }
+
+    private void checkWholesaleProductShouldBeHidden(String... branchName) throws IOException {
+        String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
+        boolean check = true;
+        try {
+            WHOLESALE_PRODUCT_INFO.getText();
+        } catch (NoSuchElementException ex) {
+            check = false;
+        }
+        countFail = new AssertCustomize(driver).assertFalse(countFail, check, "[Failed]%s Wholesale product information is not hidden".formatted(branch));
+        logger.info("%s Check wholesale product information is hidden".formatted(branch));
+    }
+
+    private void checkWholesaleProductPrice(int listingPrice, int sellingPrice, int wholesaleProductStock, int wholesaleProductPrice, String branchName) throws IOException {
+        // check wholesale product price if any
+        if (wholesaleProductStock > 0) {
+            // increase quantity to minimum requirement
+            wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
+            QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+            QUANTITY.sendKeys(String.valueOf(wholesaleProductStock));
+
+            // wait spinner loading if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // check wholesale product is shown
+            checkWholesaleProductShouldBeShown(branchName);
+
+            // check product wholesale product price
+            checkProductPrice(listingPrice,
+                    wholesaleProductPrice,
+                    branchName);
+        } else {
+            // check wholesale product is hidden
+            checkWholesaleProductShouldBeHidden(branchName);
+
+            // check product selling price
+            checkProductPrice(listingPrice,
+                    sellingPrice,
+                    branchName);
+        }
     }
 
     public ProductDetailPage checkWholesaleProductPriceWithoutVariationProduct() throws IOException {
+        // wait branch list visible
+        commonAction.waitElementList(BRANCH_NAME_LIST);
 
-        wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
-        QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-        QUANTITY.sendKeys(String.valueOf(wholesaleProductWithoutVariationSaleStock));
+        // check product price for each branch
+        for (WebElement element : BRANCH_NAME_LIST) {
 
-        checkProductPrice(CreateProduct.withoutVariationListingPrice, wholesaleProductWithoutVariationSalePrice);
-        return this;
-    }
+            // switch branch
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 
-    public ProductDetailPage checkWholesaleProductPriceVariationProduct() throws IOException, InterruptedException {
-        // get variation coordinates
-        Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
+            // wait spinner loading if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
 
-        for (String variationValue: variationValueCoordinates.keySet()) {
-            if (variationList.contains(variationValue)) {
-                // select variation
-                for (int index : variationValueCoordinates.get(variationValue)) {
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
-                }
-
-                sleep(1000);
-                wait.until(ExpectedConditions.elementToBeClickable(QUANTITY)).click();
-                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
-                QUANTITY.sendKeys(wholesaleProductVariationSaleStock.get(variationList.indexOf(variationValue)).toString());
-
-                sleep(1000);
-
-                // check price
-                checkProductPrice(variationListingPrice.get(variationList.indexOf(variationValue)),
-                        wholesaleProductVariationSalePrice.get(variationList.indexOf(variationValue)));
-            }
+            // check wholesale product price
+            checkWholesaleProductPrice(withoutVariationListingPrice,
+                    withoutVariationSellingPrice,
+                    withoutVariationWholesaleProductStock,
+                    withoutVariationWholesaleProductPrice,
+                    element.getText());
         }
         return this;
     }
 
+    public ProductDetailPage checkWholesaleProductPriceVariationProduct() throws IOException {
+        // get variation coordinates
+        Map<String, List<Integer>> variationValueCoordinates = getVariationValueCoordinates();
+
+        for (String variationValue : variationValueCoordinates.keySet()) {
+            // select variation
+            for (int index : variationValueCoordinates.get(variationValue)) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_VARIATION_VALUE.get(index));
+            }
+
+            // wait spinner loading if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // check product price for each branch
+            for (WebElement element : BRANCH_NAME_LIST) {
+
+                // switch branch
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
+
+                // get variation index
+                int varIndex = variationList.indexOf(variationValue);
+
+                // check wholesale product price, if
+                checkWholesaleProductPrice(variationListingPrice.get(varIndex),
+                        CreateProduct.variationSellingPrice.get(varIndex),
+                        variationWholesaleProductStock.get(varIndex),
+                        variationWholesaleProductPrice.get(varIndex),
+                        element.getText());
+            }
+        }
+
+        return this;
+    }
 
     /**
      * <p> Without variation product</p>
@@ -440,11 +613,15 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     private void checkProductPrice(int listingPrice, int sellingPrice, String... branchName) throws IOException {
         String branch = branchName.length > 0 ? "[Branch name: %s]".formatted(branchName[0]) : "";
-        String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
+        if (listingPrice != sellingPrice) {
+            String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
+            countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
+        }
+
         String actSellingPrice = new UICommonAction(driver).getText(SELLING_PRICE).replace(",", "");
         int actSellingPriceValue = Integer.parseInt(actSellingPrice.replace(STORE_CURRENCY, ""));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed] Listing price should be show %s instead of %s".formatted(listingPrice, actListingPrice));
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed] Selling price should be show %s ±1 instead of %s".formatted(sellingPrice, actSellingPrice));
+
+        countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, actSellingPrice));
         logger.info("%s Verify product price/ store currency show correctly".formatted(branch));
     }
 
@@ -505,7 +682,7 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     private void checkProductDescription() throws IOException {
         String actDescriptions = wait.until(ExpectedConditions.visibilityOf(PRODUCT_DESCRIPTION)).getText();
-        countFail = new AssertCustomize(driver).assertEquals(countFail, actDescriptions, productDescription, "[Failed] Product Description does not match");
+        countFail = new AssertCustomize(driver).assertEquals(countFail, actDescriptions, ProductPage.productDescription, "[Failed] Product Description does not match");
     }
 
     /**
@@ -513,11 +690,11 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     public ProductDetailPage checkWithoutVariationProductInformation() throws IOException {
         checkProductName();
-        checkProductPrice(ProductPage.withoutVariationListingPrice, withoutVariationSellingPrice);
+        checkProductPrice(ProductPage.withoutVariationListingPrice, ProductPage.withoutVariationSellingPrice);
         if (withoutVariationStockQuantity > 0) {
             checkBranchInformation();
         }
-        checkStockQuantity(withoutVariationStockQuantity);
+        checkStockQuantity(ProductPage.withoutVariationStockQuantity);
         checkProductDescription();
         return this;
     }

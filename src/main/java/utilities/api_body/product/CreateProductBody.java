@@ -21,9 +21,15 @@ public class CreateProductBody {
     public List<Integer> withoutVariationStock = new ArrayList<>();
     public int withoutVariationListingPrice;
     public int withoutVariationSellingPrice;
+    public static boolean isDisplayOutOfStock = true;
+    public static boolean isHideStock = false;
+    public static boolean isEnableListing = true;
+    public static boolean isShowOnApp = true;
+    public static boolean isShowOnWeb = true;
+    public static boolean isShowInStore = true;
+    public static boolean isShowInGosocial = true;
 
-
-    public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID, boolean showOutOfStock, boolean isHideStock, boolean enabledListing, boolean onApp, boolean onWeb, boolean inStore, boolean inGosocial) {
+    public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID) {
         return """
                 {
                     "name": "%s",
@@ -73,7 +79,7 @@ public class CreateProductBody {
                         "length": 10,
                         "width": 10
                     },
-                """.formatted(name, currency, description, taxID, showOutOfStock, isHideStock, enabledListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", onApp, onWeb, inStore, inGosocial);
+                """.formatted(name, currency, description, taxID, isDisplayOutOfStock, isHideStock, isEnableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", isShowOnApp, isShowOnWeb, isShowInStore, isShowInGosocial);
     }
 
     public String variationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int increaseNum, int... branchStockQuantity) {

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -50,10 +51,10 @@ public class CreateProduct {
     public static List<Integer> variationSellingPrice;
 
     // wholesale product price
-    public static List<Integer> wholesaleProductVariationSalePrice;
-    public static List<Integer> wholesaleProductVariationSaleStock;
-    public static int wholesaleProductWithoutVariationSalePrice;
-    public static int wholesaleProductWithoutVariationSaleStock;
+    public static List<Integer> variationWholesaleProductPrice;
+    public static List<Integer> variationWholesaleProductStock;
+    public static int withoutVariationWholesaleProductPrice;
+    public static int withoutVariationWholesaleProductStock;
 
     public static boolean isVariation;
     public static boolean isIMEIProduct;
@@ -68,19 +69,21 @@ public class CreateProduct {
 
     public CreateProduct getTaxList() {
         Response taxResponse = api.get(API_TAX_LIST_PATH + storeID, accessToken);
+        taxResponse.then().statusCode(200);
         taxList = taxResponse.jsonPath().getList("id");
         return this;
     }
 
     public void getBranchList() {
         Response branchResponse = api.get(API_BRANCH_LIST_PATH + storeID, accessToken);
+        branchResponse.then().statusCode(200);
         branchIDList = branchResponse.jsonPath().getList("id");
         branchName = branchResponse.jsonPath().getList("name");
         branchAddress = branchResponse.jsonPath().getList("address");
     }
 
 
-    public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, boolean isDisplayOutOfStock, boolean isHideStock, boolean isEnableListing, boolean isShowOnApp, boolean isShowOnWeb, boolean isShowInStore, boolean isShowInGosocial, int... branchStock) {
+    public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
         CreateProduct.isIMEIProduct = isIMEIProduct;
 
         // is not variation product
@@ -99,7 +102,7 @@ public class CreateProduct {
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, description, taxID, isDisplayOutOfStock, isHideStock, isEnableListing, isShowOnApp, isShowOnWeb, isShowInStore, isShowInGosocial),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, description, taxID),
                 productBody.withoutVariationInfo(isIMEIProduct, branchIDList, branchName, branchStock),
                 productBody.withoutVariationBranchConfig(branchIDList));
 
@@ -111,13 +114,15 @@ public class CreateProduct {
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, String.valueOf(body));
 
+        createProductResponse.then().statusCode(201);
+
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
 
         return this;
     }
 
-    public CreateProduct createVariationProduct(boolean isIMEIProduct, boolean isDisplayOutOfStock, boolean isHideStock, boolean isEnableListing, boolean isShowOnApp, boolean isShowOnWeb, boolean isShowInStore, boolean isShowInGosocial, int increaseNum, int... branchStock) {
+    public CreateProduct createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
         CreateProduct.isIMEIProduct = isIMEIProduct;
 
         // is variation product
@@ -136,7 +141,7 @@ public class CreateProduct {
 
         // create body
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, description, taxID, isDisplayOutOfStock, isHideStock, isEnableListing, isShowOnApp, isShowOnWeb, isShowInStore, isShowInGosocial),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, description, taxID),
                 productBody.variationInfo(isIMEIProduct, branchIDList, branchName, increaseNum, branchStock),
                 productBody.variationBranchConfig(branchIDList));
 
@@ -150,6 +155,7 @@ public class CreateProduct {
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
+        createProductResponse.then().statusCode(201);
 
         // log
         logger.debug("Create product response: %s".formatted(createProductResponse.asPrettyString()));
@@ -172,11 +178,12 @@ public class CreateProduct {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productID));
         if (isVariation) {
-            wholesaleProductVariationSalePrice = new ArrayList<>();
-            wholesaleProductVariationSaleStock = new ArrayList<>();
-            for (int i = 0; i < variationList.size(); i++) {
-                wholesaleProductVariationSalePrice.add(nextInt(variationSellingPrice.get(i)) + 1);
-                wholesaleProductVariationSaleStock.add(nextInt(Collections.max(variationStockQuantity.get(variationList.get(i)))) + 1);
+            variationWholesaleProductPrice = new ArrayList<>();
+            variationWholesaleProductStock = new ArrayList<>();
+            int numberOfSaleVariation = nextInt(variationList.size()) + 1;
+            for (int i = 0; i < numberOfSaleVariation; i++) {
+                variationWholesaleProductPrice.add(nextInt(variationSellingPrice.get(i)) + 1);
+                variationWholesaleProductStock.add(nextInt(Collections.max(variationStockQuantity.get(variationList.get(i))))  + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(segmentID);
                 String variationWholesaleConfig = """
@@ -190,14 +197,20 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, wholesaleProductVariationSaleStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, wholesaleProductVariationSalePrice.get(i), segmentIDs, productID);
+                        }""".formatted(title, variationWholesaleProductStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, variationWholesaleProductPrice.get(i), segmentIDs, productID);
                 body.append(variationWholesaleConfig);
-                body.append((i == (variationList.size() - 1)) ? "" : ",");
+                body.append((i == (numberOfSaleVariation - 1)) ? "" : ",");
             }
+
+            // set wholesale product stock = 0 if variations have not wholesale product price
+            IntStream.range(numberOfSaleVariation, variationList.size()).forEach(i -> variationWholesaleProductStock.add(0));
+
+            // set wholesale product price = selling price if variations have not wholesale product price
+            IntStream.range(numberOfSaleVariation, variationList.size()).forEach(i -> variationWholesaleProductPrice.add(variationSellingPrice.get(i)));
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            wholesaleProductWithoutVariationSalePrice = nextInt(withoutVariationSellingPrice) + 1;
-            wholesaleProductWithoutVariationSaleStock = nextInt(Collections.max(withoutVariationStock)) + 1;
+            withoutVariationWholesaleProductPrice = nextInt(withoutVariationSellingPrice) + 1;
+            withoutVariationWholesaleProductStock = nextInt(Collections.max(withoutVariationStock)) + 1;
             String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
             String variationWholesaleConfig = """
                     {
@@ -210,12 +223,13 @@ public class CreateProduct {
                         "segmentIds": "%s",
                         "itemId": "%s",
                         "action": null
-                    }""".formatted(title, wholesaleProductWithoutVariationSaleStock, productID, STORE_CURRENCY, wholesaleProductWithoutVariationSalePrice, segmentIDs, productID);
+                    }""".formatted(title, withoutVariationWholesaleProductStock, productID, STORE_CURRENCY, withoutVariationWholesaleProductPrice, segmentIDs, productID);
             body.append(variationWholesaleConfig);
         }
         body.append("]}");
 
         Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body));
+        addWholesale.then().statusCode(200);
         logger.debug("add wholesale price for product: %s".formatted(addWholesale.asPrettyString()));
 
         return this;
@@ -245,6 +259,8 @@ public class CreateProduct {
                     "bcStoreId": "%s"
                 }""".formatted(collectionName, productName, storeID);
         Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + storeID, accessToken, body);
+
+        createCollection.then().statusCode(200);
 
         collectionID = createCollection.jsonPath().getInt("id");
     }

@@ -1,4 +1,4 @@
-package pages.dashboard.promotion.discount.product_wholesale_campaign;
+package pages.dashboard.promotion.discount.product_discount_campaign;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -23,7 +23,7 @@ import java.util.List;
 import static java.lang.Thread.sleep;
 import static utilities.character_limit.CharacterLimit.*;
 
-public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElement {
+public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement {
     WebDriverWait wait;
     UICommonAction commonAction;
 
@@ -42,24 +42,24 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
     public static List<String> collectionList;
     public static List<String> productList;
 
-    public ProductWholesaleCampaignPage(WebDriver driver) {
+    public ProductDiscountCampaignPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
     }
 
-    Logger logger = LogManager.getLogger(ProductWholesaleCampaignPage.class);
+    Logger logger = LogManager.getLogger(ProductDiscountCampaignPage.class);
 
     /**
-     * input wholesale campaign name
+     * input discount campaign name
      */
-    public ProductWholesaleCampaignPage inputCampaignName(String... campaignName) {
-        // get wholesale campaign name for another test
+    public ProductDiscountCampaignPage inputCampaignName(String... campaignName) {
+        // get discount campaign name for another test
         wholesaleCampaignName = campaignName.length == 0
                 ? RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_NAME) + 1)
                 : campaignName[0];
 
-        // input wholesale campaign name
+        // input discount campaign name
         wait.until(ExpectedConditions.elementToBeClickable(CAMPAIGN_NAME)).sendKeys(wholesaleCampaignName);
 
         // log
@@ -113,13 +113,13 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
      * set campaign time
      */
     @SafeVarargs
-    public final ProductWholesaleCampaignPage setPromotionDate(List<Serializable>... timeSetting) {
+    public final ProductDiscountCampaignPage setPromotionDate(List<Serializable>... timeSetting) {
         // get time setting:
         List<Serializable> setting = timeSetting.length == 0
                 ? List.of(RandomUtils.nextBoolean())
                 : timeSetting[0];
 
-        // isNoExpiry: Wholesale campaign has expiry date or not
+        // isNoExpiry: Discount campaign has expiry date or not
         isNoExpiry = (setting.size() > 0) ? (boolean) setting.get(0) : RandomUtils.nextBoolean();
 
         // startIn: campaign will be started in startIn days
@@ -162,7 +162,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
         return this;
     }
 
-    public ProductWholesaleCampaignPage setDiscountTypeAndValue(int... typeOfDiscount) {
+    public ProductDiscountCampaignPage setDiscountTypeAndValue(int... typeOfDiscount) {
         // get discount type
         // 0: Percentage
         // 1: Fixed amount
@@ -215,7 +215,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
     }
 
     @SafeVarargs
-    public final ProductWholesaleCampaignPage setCustomerSegment(List<Object>... segmentCondition) throws InterruptedException {
+    public final ProductDiscountCampaignPage setCustomerSegment(List<Object>... segmentCondition) throws InterruptedException {
         // get segment condition
         List<Object> segCondition = segmentCondition.length == 0 ? List.of() : segmentCondition[0];
 
@@ -249,7 +249,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
             logger.info("Open add segment popup");
 
             // init segment list and save select segment
-            ProductWholesaleCampaignPage.segmentList = new ArrayList<>();
+            ProductDiscountCampaignPage.segmentList = new ArrayList<>();
 
             // search and select segment
             for (String segment : segmentList) {
@@ -262,8 +262,8 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
 
                 // check if segment is not added => add segment to segment list
                 for (WebElement element : LIST_SEGMENT_NAME) {
-                    if (!ProductWholesaleCampaignPage.segmentList.contains(element.getText())) {
-                        ProductWholesaleCampaignPage.segmentList.add(element.getText());
+                    if (!ProductDiscountCampaignPage.segmentList.contains(element.getText())) {
+                        ProductDiscountCampaignPage.segmentList.add(element.getText());
                     }
                 }
 
@@ -276,7 +276,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
             wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
             logger.info("Close add segment popup");
 
-            System.out.println(ProductWholesaleCampaignPage.segmentList);
+            System.out.println(ProductDiscountCampaignPage.segmentList);
         } else {
             // debug log
             logger.info("Customer segment: All customers");
@@ -285,7 +285,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
         return this;
     }
 
-    public ProductWholesaleCampaignPage setAppliesProduct(List<Object>... appliesToCondition) throws InterruptedException {
+    public ProductDiscountCampaignPage setAppliesProduct(List<Object>... appliesToCondition) throws InterruptedException {
         // get applies condition
         List<Object> appliesCondition = appliesToCondition.length == 0 ? List.of() : appliesToCondition[0];
 
@@ -344,7 +344,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
         return this;
     }
 
-    public ProductWholesaleCampaignPage setMinimumQuantityOfProducts(int quantity) {
+    public ProductDiscountCampaignPage setMinimumQuantityOfProducts(int quantity) {
         MINIMUM_REQUIREMENTS.click();
         MINIMUM_REQUIREMENTS.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
         MINIMUM_REQUIREMENTS.sendKeys(String.valueOf(quantity));
@@ -353,7 +353,7 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
         return this;
     }
 
-    public ProductWholesaleCampaignPage setBranch(int branchTypeID, String... branchList) throws InterruptedException {
+    public ProductDiscountCampaignPage setBranch(int branchTypeID, String... branchList) throws InterruptedException {
         commonAction.waitElementList(APPLICABLE_BRANCH_LABEL);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLICABLE_BRANCH_LABEL.get(branchTypeID));
         if (branchTypeID == 0) {
@@ -379,6 +379,6 @@ public class ProductWholesaleCampaignPage extends ProductWholesaleCampaignElemen
 
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
-        logger.info("Create a new product wholesale campaign successfully");
+        logger.info("Create a new product discount campaign successfully");
     }
 }
