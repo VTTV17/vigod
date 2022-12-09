@@ -46,6 +46,7 @@ public class AddCollectionDialog {
 	public AddCollectionDialog inputSearchTerm(String customerSegment) {
 		commonAction.inputText(SEARCH_BOX, customerSegment);
 		logger.info("Input '" + customerSegment + "' into Search box.");
+		commonAction.sleepInMiliSecond(1000);
 		return this;
 	}
 

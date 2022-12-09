@@ -63,6 +63,7 @@ public class SignupStorefront extends BaseTest {
 	String PHONE_EXIST_ERROR_VI = "Số điện thoại đã tồn tại";
 	String EMPTY_USERNAME_ERROR_VI = "Hãy nhập số điện thoại hoặc email";
 	String EMPTY_PASSWORD_ERROR_VI = "Hãy nhập mật khẩu";
+	String EMPTY_DISPLAYNAME_ERROR_VI = "Vui lòng nhập tên của bạn";
 	String INVALID_FORMAT_ERROR_VI = "Số điện thoại hoặc email không đúng";
 	String INVALID_CODE_ERROR_VI = "Mã xác thực không đúng";
 	String INVALID_CODE_ERROR_EN = "Incorrect confirmation code!";
@@ -70,7 +71,7 @@ public class SignupStorefront extends BaseTest {
 	// This function generate test data for each test case
 	public void generateTestData() {
 		phone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits;
-		mail = "automation0-buyer" + phone + "@mailnesia.com";
+		mail = "auto0-buyer" + phone + "@mailnesia.com";
 		password = "fortesting!1";
 		country = "rd";
 		displayName = "Automation Buyer " + phone;
@@ -132,7 +133,7 @@ public class SignupStorefront extends BaseTest {
 		generateTestData();
 	}
 
-//	@Test
+	@Test
 	public void BH_4588_SignUpWithInvalidCredential() {
 
 		signupPage.navigate().fillOutSignupForm(country, "", password, displayName, birthday);
@@ -141,6 +142,9 @@ public class SignupStorefront extends BaseTest {
 		signupPage.navigate().fillOutSignupForm(country, phone, "", displayName, birthday);
 		signupPage.verifyPasswordError(EMPTY_PASSWORD_ERROR_VI).completeVerify();
 
+		signupPage.navigate().fillOutSignupForm(country, phone, password, "", birthday);
+		signupPage.verifyDisplayNameError(EMPTY_DISPLAYNAME_ERROR_VI).completeVerify();		
+		
 		mail = "automation_mail.com";
 		signupPage.navigate().fillOutSignupForm(country, mail, password, displayName, birthday);
 		signupPage.verifyEmailOrPhoneNumberError(INVALID_FORMAT_ERROR_VI).completeVerify();
@@ -151,7 +155,7 @@ public class SignupStorefront extends BaseTest {
 
 	}
 
-//	@Test
+	@Test
 	public void BH_4589_ResendVerificationCodeToEmail() throws SQLException {
 		
 		username = mail;
@@ -164,14 +168,18 @@ public class SignupStorefront extends BaseTest {
 		String firstCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(firstCode).clickResendOTP();
 		
-		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(8000); //If that's a mail account, wait for 5s
+		if (!username.matches("\\d+")) { //If that's a mail account, wait for 8s
+			commonAction.sleepInMiliSecond(8000); 
+		}
 		
 		String resentCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(resentCode).clickConfirmBtn();
 		
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
 		
-		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn(); //If that's a phone account, input email info
+		if (username.matches("\\d+")) {
+			signupPage.inputEmail(mail).clickCompleteBtn(); //If that's a phone account, input email info
+		}
 		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
@@ -180,7 +188,7 @@ public class SignupStorefront extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_1625_ResendVerificationCodeToPhone() throws SQLException {
 
 		username = phone;
@@ -193,14 +201,18 @@ public class SignupStorefront extends BaseTest {
 		String firstCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(firstCode).clickResendOTP();
 		
-		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(8000); //If that's a mail account, wait for 5s
+		if (!username.matches("\\d+")) { //If that's a mail account, wait for 8s
+			commonAction.sleepInMiliSecond(8000); 
+		}
 		
 		String resentCode = getVerificationCode(username);
 		signupPage.inputVerificationCode(resentCode).clickConfirmBtn();
 		
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code has not been sent to user");
 		
-		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn(); //If that's a phone account, input email info
+		if (username.matches("\\d+")) {
+			signupPage.inputEmail(mail).clickCompleteBtn(); //If that's a phone account, input email info
+		}
 		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
@@ -209,7 +221,7 @@ public class SignupStorefront extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 	}
 
-//	@Test
+	@Test
 	public void BH_1593_SignUpWithUsedEmailAccount() {
 		// Signup
 		signupPage.navigate()
@@ -218,7 +230,7 @@ public class SignupStorefront extends BaseTest {
 		.completeVerify();
 	}
 
-//	@Test
+	@Test
 	public void BH_1279_SignUpWithUsedPhoneAccount() {
 		// Signup
 		signupPage.navigate()
@@ -227,10 +239,10 @@ public class SignupStorefront extends BaseTest {
 		.completeVerify();
 	}
 
-//	@Test
+	@Test
 	public void BH_1278_SignupWithPhone() throws SQLException {
 		username = phone;
-		country = "Philippines";
+		country = "Vietnam";
 		
 //		signupPage.navigate();
 //		new HeaderSF(driver).clickUserInfoIcon().changeLanguage("English");
@@ -241,7 +253,9 @@ public class SignupStorefront extends BaseTest {
 		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
 		countryCode = signupPage.countryCode;
-		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn();
+		if (username.matches("\\d+")) {
+			signupPage.inputEmail(mail).clickCompleteBtn();
+		}
 
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
@@ -258,8 +272,9 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(new MyAccount(driver).getDisplayName(), displayName);
 		Assert.assertEquals(new MyAccount(driver).getEmail(), mail);
 		Assert.assertEquals(new MyAccount(driver).getBirthday(), birthday);
-		// BH-18570: Phone number is always prefixed with number 0
-//		if (username.matches("\\d+")) Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode+":"+username);
+		if (username.matches("\\d+")) {
+			Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode+":"+username);
+		}
 		
 		new UserProfileInfo(driver).clickMyAddressSection();
 		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
@@ -272,54 +287,76 @@ public class SignupStorefront extends BaseTest {
 		// Verify user info in Dashboard
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
 		
-		// BH-18563: Mail is not shown in Dashboard while it is shown in SF when it's a phone account
-//		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
-		// Bug: Phone number is shown differently between SF and Dashboard
-//		String expectedPhone = (username.matches("\\d+")) ? countryCode+username : "";
-//		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), expectedPhone);
+		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
+		if (username.matches("\\d+")) {
+			Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), countryCode+":"+username);
+		}
 		
 		// Verify mails sent to the user saying the sign-up is successful
-		signupPage.navigate();
-		if (!username.matches("\\d+")) verifyEmailUponSuccessfulSignup(username);
+		if (!username.matches("\\d+")) {
+			signupPage.navigate();
+			verifyEmailUponSuccessfulSignup(username);			
+		}
 	}
 
-//	@Test
+	@Test
 	public void BH_1594_SignupWithEmail() throws SQLException {
 		username = mail;
 		country = "Philippines";
 		
+//		signupPage.navigate();
+//		new HeaderSF(driver).clickUserInfoIcon().changeLanguage("English");
+		
 		// Signup
 		signupPage.navigate()
-		.fillOutSignupForm(country, mail, password, displayName, birthday)
-		.inputVerificationCode(getVerificationCode(mail))
+		.fillOutSignupForm(country, username, password, displayName, birthday)
+		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
+		countryCode = signupPage.countryCode;
+		if (username.matches("\\d+")) {
+			signupPage.inputEmail(mail).clickCompleteBtn();
+		}
 
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, mail, password);
+		new LoginPage(driver).navigate().performLogin(country, username, password);
 
-		// Check user profile
+		// Verify user info in SF
 		new HeaderSF(driver)
 		.clickUserInfoIcon()
 		.clickUserProfile()
 		.clickMyAccountSection();
-
-		// Verify user info in SF
+		
 		Assert.assertEquals(new MyAccount(driver).getDisplayName(), displayName);
 		Assert.assertEquals(new MyAccount(driver).getEmail(), mail);
 		Assert.assertEquals(new MyAccount(driver).getBirthday(), birthday);
-
+		if (username.matches("\\d+")) {
+			Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode+":"+username);
+		}
+		
 		new UserProfileInfo(driver).clickMyAddressSection();
 		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
-
-		// Verify user info in Dashboard
+		
+		// Log into Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
 		new HomePage(driver).waitTillSpinnerDisappear();
+		
+		// Verify user info in Dashboard
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
+		
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
+		if (username.matches("\\d+")) {
+			Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), countryCode+":"+username);
+		}
+		
+		// Verify mails sent to the user saying the sign-up is successful
+		if (!username.matches("\\d+")) {
+			signupPage.navigate();
+			verifyEmailUponSuccessfulSignup(username);			
+		}
 	}
 
 	@Test
@@ -343,7 +380,9 @@ public class SignupStorefront extends BaseTest {
 		signupPage.inputVerificationCode(code).clickConfirmBtn();
 		
 		// Input mail info if this is a phone account
-		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn();
+		if (username.matches("\\d+")) {
+			signupPage.inputEmail(mail).clickCompleteBtn();
+		}
 
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
@@ -353,41 +392,14 @@ public class SignupStorefront extends BaseTest {
 		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
-
-		generateTestData();
-		username = phone;
-		country = "Philippines";
-
-		// Signup
-		signupPage.navigate().fillOutSignupForm(country, username, password, displayName, birthday);
-		country = signupPage.country;
-		
-		// Get verification code
-		code = getVerificationCode(username);
-		
-		// Input wrong verification code
-		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickConfirmBtn();
-		signupPage.verifyVerificationCodeError(INVALID_CODE_ERROR_VI).completeVerify();
-		
-		// Input correct verification code
-		signupPage.inputVerificationCode(code).clickConfirmBtn();
-
-		// Input mail info if this is a phone account
-		if (username.matches("\\d+")) signupPage.inputEmail(mail).clickCompleteBtn();
-
-		// Logout
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
-
-		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 	}
 
-//	@Test
+	@Test
 	public void BH_1288_LogIntoGomuaWithAccountCreatedOnStorefront() throws SQLException {
 		
-		boolean mailProvided = true;
-		boolean birthdayProvided = true;
+		boolean mailProvided = false;
+		boolean birthdayProvided = false;
 		username = phone;
 		country = "Vietnam";
 		birthday = (birthdayProvided) ? birthday : "";
@@ -451,13 +463,12 @@ public class SignupStorefront extends BaseTest {
 		
 		// Verify user info in SF and Gomua match
 		Assert.assertEquals(Gomua_DisplayName, SF_DisplayName);
-		// BH-18609: Gomua buyers have wrong gender
 		Assert.assertEquals(Gomua_Gender, SF_Gender);
 		Assert.assertEquals(Gomua_Email, SF_Email);
-		// BH-18570: Phone number is not prefixed with number 0 for VN buyers
-		Assert.assertEquals(Gomua_Phone.replace(" ", ":"), SF_Phone);
+		if (username.matches("\\d+")) {
+			Assert.assertEquals(Gomua_Phone.replace(" ", ":"), SF_Phone);
+		}
 		Assert.assertEquals(formattedBirthday, SF_Birthday);
-
 	}
 
 }

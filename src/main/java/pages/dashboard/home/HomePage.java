@@ -174,22 +174,17 @@ public class HomePage {
     }
 
     public void navigateToPage(String pageName) {
-        commons.sleepInMiliSecond(1000);
+    	commons.waitForElementInvisible(SPINNER);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
-        Boolean flag = !driver.findElement(By.xpath(newXpath)).getAttribute("active").contentEquals("active");
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
+        Boolean flag = !element.getAttribute("active").contentEquals("active");
         if (flag) {
-            try {
-                commons.clickElement(driver.findElement(By.xpath(newXpath)));
-            } catch (StaleElementReferenceException ex) {
-                logger.debug("StaleElementReferenceException caught in navigateToPage");
-                commons.clickElement(driver.findElement(By.xpath(newXpath)));
-            }
+        	commons.clickElement(element);
             logger.info("Click on %s item on menu".formatted(pageName));
-            commons.sleepInMiliSecond(1000);
             commons.waitForElementInvisible(SPINNER);
         }
     }

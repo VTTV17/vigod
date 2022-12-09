@@ -173,16 +173,19 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public MyAddress selectDistrict(String district){
+        commonAction.sleepInMiliSecond(500);
         commonAction.selectByVisibleText(DISTRICT_DROPDOWN,district);
         logger.info("Select district: %s".formatted(district));
         return this;
     }
     public MyAddress selectWard(String ward){
+        commonAction.sleepInMiliSecond(500);
         commonAction.selectByVisibleText(WARD_DROPDOWN,ward);
         logger.info("Select ward: %s".formatted(ward));
         return this;
     }
     public MyAddress selectState(String state){
+        commonAction.sleepInMiliSecond(500);
         commonAction.selectByVisibleText(STATE_DROPDOWN,state);
         logger.info("Select ward: %s".formatted(state));
         return this;

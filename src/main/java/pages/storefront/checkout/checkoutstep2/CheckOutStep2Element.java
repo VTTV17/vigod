@@ -13,4 +13,7 @@ public class CheckOutStep2Element {
     }
     @FindBy(css = ".summary #checkout-footer-btn-continue")
     WebElement NEXT_BUTTON;
+    @FindBy(xpath = "//select[contains(@id,'select-shipping-plan')]")
+    WebElement SELECT_SHIPPING_METHOD;
+
 }

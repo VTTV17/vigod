@@ -1,6 +1,4 @@
-import org.testng.Assert;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.home.HomePage;
@@ -14,15 +12,9 @@ import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.MyAddress;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
-import testlink.api.java.client.TestLinkAPIException;
-import testlink.api.java.client.TestLinkAPIResults;
-
-
 import java.sql.SQLException;
-
 import static utilities.account.AccountTest.*;
 import static utilities.links.Links.*;
-
 public class UserProfileSFTest extends BaseTest {
     LoginPage loginSF;
     UserProfileInfo userProfileInfo;
@@ -106,7 +98,7 @@ public class UserProfileSFTest extends BaseTest {
         return new UserProfileInfo(driver);
     }
 
-    public void UpdateUserProfile_HasBirthdayBefore_EmailAccount() {
+    public void UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount() {
         loginAndGoToUserProfile(userName_EditInfo_HasBirthday);
         userProfileInfo = new UserProfileInfo(driver);
         userProfileInfo.clickMyAccountSection();
@@ -121,21 +113,21 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyDisplayName(displayName_Edit)
                 .verifyPhoneNumber("+84:" + phoneNumber_Edit)
                 .verifyGender(gender_Edit)
-                .verifyEmailDisabled()
-                .clickUserInfoIcon().clickLogout();
-        headerGoMua = new HeaderGoMua(driver);
-        headerGoMua.navigateToGoMua()
-                .clickOnLogInBTN();
-        loginGoMua = new LoginGoMua(driver);
-        loginGoMua.loginWithUserName(userName_EditInfo_HasBirthday, passWordSF);
-        headerGoMua = new HeaderGoMua(driver);
-        headerGoMua.changeLanguage("English")
-                .goToMyProfile();
-        myProfileGoMua = new MyProfileGoMua(driver);
-        myProfileGoMua.clickOnEditProfile()
-                .verifyDisplayName(displayName_Edit)
-                .verifyPhoneNumber("+84 " + phoneNumber_Edit)
-                .verifyGender(gender_Edit);
+                .verifyEmailDisabled();
+//                .clickUserInfoIcon().clickLogout();
+//        headerGoMua = new HeaderGoMua(driver);
+//        headerGoMua.navigateToGoMua()
+//                .clickOnLogInBTN();
+//        loginGoMua = new LoginGoMua(driver);
+//        loginGoMua.loginWithUserName(userName_EditInfo_HasBirthday, passWordSF);
+//        headerGoMua = new HeaderGoMua(driver);
+//        headerGoMua.changeLanguage("English")
+//                .goToMyProfile();
+//        myProfileGoMua = new MyProfileGoMua(driver);
+//        myProfileGoMua.clickOnEditProfile()
+//                .verifyDisplayName(displayName_Edit)
+//                .verifyPhoneNumber("+84 " + phoneNumber_Edit)
+//                .verifyGender(gender_Edit);
     }
 
     public void UpdateUserProfile_NoBirthdayBefore() throws SQLException {
@@ -400,7 +392,7 @@ public class UserProfileSFTest extends BaseTest {
 
     }
     @Test
-    public void UP01_BH_4604_ViewAccountInfo() throws TestLinkAPIException {
+    public void UP01_BH_4604_ViewAccountInfo() {
         testCaseID = "BH_4604";
         loginAndGoToUserProfile(userName);
         userProfileInfo = new UserProfileInfo(driver);
@@ -413,18 +405,18 @@ public class UserProfileSFTest extends BaseTest {
 //        reportResult("BH:BEEHIVE","Regression_Gosell",testCaseID,"GoSELL 3.7","Noted", TestLinkAPIResults.TEST_PASSED);
 
     }
-//    @Test
+    @Test
     public void UP02_BH_1290_UpdateUserProfile() throws SQLException {
         testCaseID = "BH_1290";
-        UpdateUserProfile_HasBirthdayBefore_EmailAccount();
+        UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount();
         UpdateUserProfile_NoBirthdayBefore();
     }
-//    @Test
+    @Test
     public void UP03_BH_4605_EditUserInformationForEmailAccount(){
         testCaseID = "BH_4605";
-        UpdateUserProfile_HasBirthdayBefore_EmailAccount();
+        UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount();
     }
-//    @Test
+    @Test
     public void UP04_BH_4606_UpdateUserProfile_NoBirthdayBefore_PhoneAccount() throws SQLException {
         testCaseID = "BH_4606";
         String generateName = generate.generateString(10);
@@ -450,21 +442,21 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyGender(gender_Edit)
                 .verifyEmail(email_Edit);
     }
-//    @Test
+    @Test
     public void UP_05_BH_7334_ViewCustomerBarcode(){
         testCaseID = "BH_7334";
         loginAndGoToUserProfile(userName);
         userProfileInfo = new UserProfileInfo(driver);
         userProfileInfo.verifyBarcode(barcodeNumber);
     }
-//    @Test
+    @Test
     public void UP_06_BH_7850_CheckUserHasAddressBefore() throws SQLException {
         testCaseID = "BH_7850";
         CheckUserHasAddressBefore_ExistedAccount_VietNam();
         CheckUserHasAddressBefore_ExistedAccount_NonVietNam();
         CheckUserHasAddressBefore_NewAccount();
     }
-//    @Test
+    @Test
     public void UP_07_BH_7851_CheckUserHasNoAddress_NewAccount() throws SQLException {
         testCaseID = "BH_7851";
         //SignUp
@@ -483,6 +475,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
                 .selectPaymentMethod("COD")
                 .clickOnNextButton()
+                .selectShippingMethod("Shop self delivery")
                 .clickOnNextButton()
                 .clickOnNextButton()
                 .clickOnBackToMarket();
@@ -508,7 +501,7 @@ public class UserProfileSFTest extends BaseTest {
                 .clickMyAddressSection()
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
     }
-//    @Test
+    @Test
     public void UP_08_BH_7852_CheckUserChangeAddress_ExistedAccount() {
         testCaseID = "BH_7852";
         myAddress = loginAndGoToUserProfile(userName_ChangeAddress)

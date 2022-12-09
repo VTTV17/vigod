@@ -29,7 +29,6 @@ public class ShoppingCart extends GeneralSF {
     public CheckOutStep1 clickOnContinue(){
         commonAction.clickElement(shoppingCartUI.CONTINUE_BTN);
         logger.info("Click on Continue button");
-        commonAction.sleepInMiliSecond(2000);
         waitTillLoaderDisappear();
         return new CheckOutStep1(driver);
     }

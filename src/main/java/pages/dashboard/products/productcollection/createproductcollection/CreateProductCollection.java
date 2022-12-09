@@ -2,6 +2,8 @@ package pages.dashboard.products.productcollection.createproductcollection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -36,9 +38,11 @@ public class CreateProductCollection extends HomePage {
         PageFactory.initElements(driver, this);
     }
 
-    public CreateProductCollection navigate() {
+    public CreateProductCollection navigate(String languageDashboard) {
         waitTillSpinnerDisappear();
         navigateToPage("Products", "Product Collections");
+        HomePage home = new HomePage(driver);
+        home.selectLanguage(languageDashboard);
         productCollectionManagement = new ProductCollectionManagement(driver);
         return productCollectionManagement.clickOnCreateCollection();
     }
@@ -62,12 +66,13 @@ public class CreateProductCollection extends HomePage {
      */
     public CreateProductCollection selectCollectionType(String collectionType) throws Exception {
         if (collectionType.equalsIgnoreCase("Manual")) {
-            common.checkTheCheckBoxOrRadio(createCollectionUI.MANUAL_RADIO_BTN);
+            common.checkTheCheckBoxOrRadio(createCollectionUI.MANUAL_RADIO_VALUE, createCollectionUI.MANUAL_RADIO_ACTION);
         } else if (collectionType.equalsIgnoreCase("Automated")) {
-            common.checkTheCheckBoxOrRadio(createCollectionUI.AUTOMATED_RADIO_BTN);
+            common.checkTheCheckBoxOrRadio(createCollectionUI.AUTOMATED_RADIO_VALUE, createCollectionUI.AUTOMATED_RADIO_ACTION);
         } else {
             throw new Exception("Input value does not match any of the accepted values: Manual/Automated");
         }
+        logger.info("Select collection type: "+collectionType);
         return this;
     }
 
@@ -142,23 +147,58 @@ public class CreateProductCollection extends HomePage {
     }
 
     /**
-     * @param conditions: fortmat: condition-operator-value. Example: Product title-contains-coffee
-     * @return
+     * @param conditions: fortmat: condition-operator-value.
+     * @param: condition:"Product title","Product price".
+     * @param:operator for product title: "starts with", "ends with", "is equal to")
+     * @param:operator for product price: "is greater than", "is less than", "is equal to"
+     * @param:Example: Product title-contains-coffee
      */
+//    public CreateProductCollection selectCondition(String... conditions) {
+//        for (int i = 0; i < conditions.length; i++) {
+//            System.out.println();
+//            String[] conditionContent = conditions[i].split("-");
+//            String operaXpath = "//select[@id='conditionOperand']";
+//            String valueXpath = "//input[contains(@class,'uik-input__input')]";
+//            common.selectDropdownByText(createCollectionUI.CONDITION_DROPDOWN.get(i), conditionContent[0].trim());
+//            common.selectDropdownByText(createCollectionUI.OPERATOR_DROPDOWN.get(i), conditionContent[1].trim());
+//            common.inputText(createCollectionUI.CONDITION_VALUE_INPUT.get(i), conditionContent[2].trim());
+//            if (i < conditions.length - 1) {
+//                common.clickElement(createCollectionUI.ADD_MORE_CONDITION_BTN);
+//            }
+//            common.clickElement(createCollectionUI.AUTOMATED_RADIO_ACTION);//click outside
+//            logger.info("Input condition: %s".formatted(conditions[i]));
+//        }
+//        return this;
+//    }
     public CreateProductCollection selectCondition(String... conditions) {
         for (int i = 0; i < conditions.length; i++) {
             String[] conditionContent = conditions[i].split("-");
-            common.selectByVisibleText(createCollectionUI.CONDITION_DROPDOWN.get(i), conditionContent[0].trim());
-            common.selectByVisibleText(createCollectionUI.OPERATOR_DROPDOWN.get(i), conditionContent[1].trim());
+            for (int j =0; j <5; j++) {
+                try {
+                    common.selectByVisibleText(new CreateProductCollectionElement(driver).CONDITION_DROPDOWN.get(i), conditionContent[0].trim());
+                    break;
+                } catch (StaleElementReferenceException ex) {
+                    logger.debug("StaleElementReferenceException caught when selecting condition \n" + ex);
+                }
+            }
+            for (int j =0; j <5; j++) {
+                try {
+                    common.selectByVisibleText(new CreateProductCollectionElement(driver).OPERATOR_DROPDOWN.get(i), conditionContent[1].trim());
+                    break;
+                } catch (StaleElementReferenceException ex) {
+                    logger.debug("StaleElementReferenceException caught when selecting operator \n" + ex);
+                }
+            }
+
             common.inputText(createCollectionUI.CONDITION_VALUE_INPUT.get(i), conditionContent[2].trim());
             if (i < conditions.length - 1) {
                 common.clickElement(createCollectionUI.ADD_MORE_CONDITION_BTN);
             }
             logger.info("Input condition: %s".formatted(conditions[i]));
         }
+        common.clickElement(createCollectionUI.AUTOMATED_RADIO_ACTION);//click outside
         return this;
     }
-
     public CreateProductCollection clickOnSaveBTN() {
         common.clickElement(createCollectionUI.SAVE_BTN);
         logger.info("Click on Save button");
@@ -235,4 +275,24 @@ public class CreateProductCollection extends HomePage {
         inputSEOUrl(SEOUrl);
         return this;
     }
+
+    /**
+     *
+     * @param collectionName
+     * @param conditionType: "All conditions" or "Any condition
+     * @param conditions
+     * @return
+     * @throws Exception
+     */
+    public ProductCollectionManagement CreateProductAutomationCollectionWithoutSEO(String collectionName,String conditionType, String...conditions) throws Exception {
+        inputCollectionName(collectionName);
+        uploadImages("AoG.png");
+        selectCollectionType("Automated");
+        selectConditionType(conditionType);
+        selectCondition(conditions);
+        clickOnSaveBTN();
+        logger.info("Create manual collection without SEO info successfully.");
+        return clickOnClose();
+    }
+
 }
