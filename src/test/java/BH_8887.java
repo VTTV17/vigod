@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import static api.dashboard.login.Login.storeURL;
+import static api.dashboard.promotion.CreatePromotion.productDiscountCampaignBranchConditionType;
 import static api.storefront.signup.SignUp.*;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -49,6 +50,7 @@ public class BH_8887 extends BaseTest {
 //        segmentID = 3502908;
 //        phoneNumber = "stgbuyer@nbobd.com";
 //        password = "Abc@12345";
+//        productDiscountCampaignBranchConditionType = 1;
 
         sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
     }
@@ -103,6 +105,22 @@ public class BH_8887 extends BaseTest {
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
+    }
+
+    @Test(groups = "Normal product - Without variation")
+    public void setup() throws InterruptedException {
+        CreatePromotion createPromotion = new CreatePromotion();
+        int startMin = 1;
+        int endMin = 60;
+        createPromotion
+                .createFlashSale(startMin, endMin)
+                .createProductDiscountCampaign(startMin, endMin);
+
+        System.out.println(createPromotion.getFlashSaleStatus());
+        System.out.println(createPromotion.getProductDiscountCampaignStatus());
+        sleep(61000);
+        System.out.println(createPromotion.getFlashSaleStatus());
+        System.out.println(createPromotion.getProductDiscountCampaignStatus());
     }
 
     @Test(groups = "Normal product - Without variation")
@@ -464,7 +482,7 @@ public class BH_8887 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws IOException, InterruptedException {
+    void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -590,7 +608,7 @@ public class BH_8887 extends BaseTest {
     }
 
     @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case2_3_DiscountCampaignIsSchedule() throws IOException, InterruptedException {
+    void BH_8887_G4_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)

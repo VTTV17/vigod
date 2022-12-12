@@ -177,6 +177,7 @@ public class CreateProduct {
                 {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productID));
+        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
         if (isVariation) {
             variationWholesaleProductPrice = new ArrayList<>();
             variationWholesaleProductStock = new ArrayList<>();
@@ -185,7 +186,6 @@ public class CreateProduct {
                 variationWholesaleProductPrice.add(nextInt(variationSellingPrice.get(i)) + 1);
                 variationWholesaleProductStock.add(nextInt(Collections.max(variationStockQuantity.get(variationList.get(i))))  + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-                String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(segmentID);
                 String variationWholesaleConfig = """
                         {
                             "id": null,
@@ -211,7 +211,6 @@ public class CreateProduct {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
             withoutVariationWholesaleProductPrice = nextInt(withoutVariationSellingPrice) + 1;
             withoutVariationWholesaleProductStock = nextInt(Collections.max(withoutVariationStock)) + 1;
-            String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
             String variationWholesaleConfig = """
                     {
                         "id": null,

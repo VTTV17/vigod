@@ -31,7 +31,6 @@ public class CreatePromotion {
     String WHOLESALE_CAMPAIGN_SCHEDULE_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=SCHEDULED";
     String WHOLESALE_CAMPAIGN_IN_PROGRESS_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=IN_PROGRESS";
     String DELETE_DISCOUNT_PATH = "/orderservices2/api/gs-discount-campaigns/";
-    String END_EARLY_DISCOUNT_PATH = "/orderservices2/api/gs-discount?id=%s&storeId=%s";
     API api = new API();
     Logger logger = LogManager.getLogger(CreatePromotion.class);
 
@@ -43,15 +42,27 @@ public class CreatePromotion {
     public static int flashSaleWithoutVariationPrice;
     public static int flashSaleWithoutVariationPurchaseLimit;
     public static int flashSaleWithoutVariationStock;
+    public static String flashSaleStatus;
+    public static Instant flashSaleStartTime;
+    public static Instant flashSaleEndTime;
 
     // product discount campaign
     public static int productDiscountCampaignStock;
-    public static Instant startFlashSaleTime;
-    public static Instant startDiscountCampaignTime;
+    public static Instant productDiscountCampaignStartTime;
+    public static Instant productDiscountCampaignEndTime;
+    public static String productDiscountCampaignStatus;
     public static int productWholesaleCouponType;
     public static int productWholesaleCouponValue;
 
     public static List<String> productDiscountCampaignApplicableBranch;
+
+    /**
+     * set branch condition
+     * <p> DEFAULT value = - 1, no condition is provided, random condition should be generated</p>
+     * <p> SET value = 0: ALL BRANCH</p>
+     * <p> SET value = 1: SPECIFIC BRANCH</p>
+     */
+    public static int productDiscountCampaignBranchConditionType = -1;
 
     public CreatePromotion endEarlyFlashSale() {
         // get schedule flash sale list
@@ -76,6 +87,9 @@ public class CreatePromotion {
             }
         }
 
+        // update flash sale status
+        flashSaleStatus = "EXPIRED";
+
         return this;
     }
 
@@ -86,17 +100,17 @@ public class CreatePromotion {
         String flashSaleName = "Auto - Flash sale campaign - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
-        startFlashSaleTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
+        flashSaleStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
         int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
-        Instant endDate = Instant.now().plus(endMin, ChronoUnit.MINUTES);
+        flashSaleEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
         StringBuilder body = new StringBuilder("""
                 {
                     "name": "%s",
                     "startDate": "%s",
                     "endDate": "%s",
-                    "items": [""".formatted(flashSaleName, startFlashSaleTime, endDate));
+                    "items": [""".formatted(flashSaleName, flashSaleStartTime, flashSaleEndTime));
 
         if (isVariation) {
             flashSaleVariationPrice = new ArrayList<>();
@@ -171,7 +185,23 @@ public class CreatePromotion {
         logger.debug("create flash sale");
         logger.debug(createFlashSale.asPrettyString());
 
+        // update flash sale status
+        flashSaleStatus = "SCHEDULE";
+
         return this;
+    }
+
+    public String getFlashSaleStatus() {
+        if (flashSaleStatus.equals("SCHEDULE")) {
+            boolean checkStart = flashSaleStartTime.getEpochSecond() - Instant.now().getEpochSecond() <= 0;
+            boolean checkEnd = flashSaleEndTime.getEpochSecond() - Instant.now().getEpochSecond() > 0;
+            if (checkStart && checkEnd) {
+                return flashSaleStatus = "IN-PROGRESS";
+            } else {
+                return flashSaleStatus = "SCHEDULE";
+            }
+        }
+        return flashSaleStatus = "EXPIRED";
     }
 
     public CreatePromotion endEarlyDiscountCampaign() {
@@ -184,6 +214,10 @@ public class CreatePromotion {
         for (int campaignID : inProgressList) {
             new API().delete(DELETE_DISCOUNT_PATH + campaignID, accessToken).then().statusCode(200);
         }
+
+        //update product discount campaign status
+        productDiscountCampaignStatus = "EXPIRED";
+
         return this;
     }
 
@@ -196,11 +230,11 @@ public class CreatePromotion {
 
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
-        startDiscountCampaignTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
+        productDiscountCampaignStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
         int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
-        Instant expiredDate = Instant.now().plus(endMin, ChronoUnit.MINUTES);
+        productDiscountCampaignEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
 
         // coupon type
         // 0: percentage
@@ -225,7 +259,7 @@ public class CreatePromotion {
                             "couponValue": "%s",
                             "expiredDate": "%s",
                             "type": "WHOLE_SALE",
-                            "conditions": [""".formatted(name, storeID, startDiscountCampaignTime, couponTypeLabel, productWholesaleCouponValue, expiredDate));
+                            "conditions": [""".formatted(name, storeID, productDiscountCampaignStartTime, couponTypeLabel, productWholesaleCouponValue, productDiscountCampaignEndTime));
 
         // init segment condition
         // segment type:
@@ -291,19 +325,24 @@ public class CreatePromotion {
         body.append(minimumRequirement);
 
         // init applicable branch
-        int branchConditionType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
-        int branchID = branchIDList.get(nextInt(branchIDList.size()));
-        if (branchConditionType == 0) {
+        // if no branch condition is provided, generate random branch condition
+        if (productDiscountCampaignBranchConditionType == -1)
+            nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
+        String applicableCondition;
+        String applicableConditionValue = "";
+        if (productDiscountCampaignBranchConditionType == 0) {
             productDiscountCampaignApplicableBranch = CreateProduct.branchName;
+            applicableCondition = "APPLIES_TO_BRANCH_ALL_BRANCHES";
         } else {
             productDiscountCampaignApplicableBranch = new ArrayList<>();
+            int branchID = branchIDList.get(nextInt(branchIDList.size()));
             productDiscountCampaignApplicableBranch.add(CreateProduct.branchName.get(branchIDList.indexOf(branchID)));
+            applicableCondition = "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
+            applicableConditionValue = """
+                    {
+                        "conditionValue": "%s"
+                    }""".formatted(branchID);
         }
-        String applicableCondition = branchConditionType == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
-        String applicableConditionValue = branchConditionType == 0 ? "" : """
-                {
-                    "conditionValue": "%s"
-                }""".formatted(branchID);
         String applicableBranch = """
                 {
                     "conditionOption": "%s",
@@ -319,7 +358,24 @@ public class CreatePromotion {
         // debug log
         logger.debug("create product discount campaign");
         logger.debug(createProductDiscountCampaign.asPrettyString());
+
+        // update product discount campaign status
+        productDiscountCampaignStatus = "SCHEDULE";
+
         return this;
+    }
+
+    public String getProductDiscountCampaignStatus() {
+        if (productDiscountCampaignStatus.equals("SCHEDULE")) {
+            boolean checkStart = productDiscountCampaignStartTime.getEpochSecond() - Instant.now().getEpochSecond() <= 0;
+            boolean checkEnd = productDiscountCampaignEndTime.getEpochSecond() - Instant.now().getEpochSecond() > 0;
+            if (checkStart && checkEnd) {
+                return productDiscountCampaignStatus = "IN-PROGRESS";
+            } else {
+                return productDiscountCampaignStatus = "SCHEDULE";
+            }
+        }
+        return productDiscountCampaignStatus = "EXPIRED";
     }
 
     public void createProductDiscount() {
