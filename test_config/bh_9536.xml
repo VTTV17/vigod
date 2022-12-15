@@ -5,16 +5,29 @@
         <classes>
             <class name="BH_9536">
                 <methods>
-                    <include name="BH_9536_Case1_1_SettingON_InStock_WithoutVariationProduct"/>
-                    <include name="BH_9536_Case1_2_SettingON_InStock_VariationProduct" />
-                    <include name="BH_9536_Case2_1_SettingON_OutOfStock_WithoutVariationProduct" />
-                    <include name="BH_9536_Case2_2_SettingON_OneOfVariationOutOfStock" />
-                    <include name="BH_9536_Case2_3_SettingON_AllVariationsOutOfStock" />
-                    <include name="BH_9536_Case3_1_SettingOFF_InStock_WithoutVariationProduct" />
-                    <include name="BH_9536_Case3_2_SettingOFF_InStock_VariationProduct" />
-                    <include name="BH_9536_Case3_3_SettingOFF_OutOfStock_WithoutVariationProduct" />
-                    <include name="BH_9536_Case3_4_SettingOFF_OneOfVariationOutOfStock" />
-                    <include name="BH_9536_Case3_5_SettingOFF_AllVariationsOutOfStock" />
+                    <include name="BH_9536_G1_Case1_1_SettingDisplayAndProductInStock"/>
+                    <include name="BH_9536_G1_Case2_1_SettingDisplayAndProductOutOfStock" />
+                    <include name="BH_9536_G1_Case3_1_SettingHiddenAndProductInStock" />
+                    <include name="BH_9536_G1_Case3_2_SettingHiddenAndProductOutOfStock" />
+
+                    <include name="BH_9536_G2_Case1_1_SettingDisplayAndProductInStock"/>
+                    <include name="BH_9536_G2_Case2_1_SettingDisplayAndProductOutOfStock" />
+                    <include name="BH_9536_G2_Case3_1_SettingHiddenAndProductInStock" />
+                    <include name="BH_9536_G2_Case3_2_SettingHiddenAndProductOutOfStock" />
+
+                    <include name="BH_9536_G3_Case1_1_SettingDisplayAndProductInStock"/>
+                    <include name="BH_9536_G3_Case2_1_SettingDisplayAndOneOfVariationOutOfStock"/>
+                    <include name="BH_9536_G3_Case2_2_SettingDisplayAndAllVariationsOutOfStock"/>
+                    <include name="BH_9536_G3_Case3_1_SettingHiddenAndAllVariationsInStock"/>
+                    <include name="BH_9536_G3_Case3_2_SettingHiddenAndOneOfVariationOutOfStock"/>
+                    <include name="BH_9536_G3_Case3_3_SettingHiddenAndAllVariationsOutOfStock"/>
+
+                    <include name="BH_9536_G4_Case1_1_SettingDisplayAndProductInStock"/>
+                    <include name="BH_9536_G4_Case2_1_SettingDisplayAndOneOfVariationOutOfStock"/>
+                    <include name="BH_9536_G4_Case2_2_SettingDisplayAndAllVariationsOutOfStock"/>
+                    <include name="BH_9536_G4_Case3_1_SettingHiddenAndAllVariationsInStock"/>
+                    <include name="BH_9536_G4_Case3_2_SettingHiddenAndOneOfVariationOutOfStock"/>
+                    <include name="BH_9536_G4_Case3_3_SettingHiddenAndAllVariationsOutOfStock"/>
                 </methods>
             </class> <!-- BH_9536 -->
         </classes>

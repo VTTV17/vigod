@@ -9,9 +9,9 @@ import utilities.data.DataGenerator;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -42,7 +42,7 @@ public class CreatePromotion {
     public static int flashSaleWithoutVariationPrice;
     public static int flashSaleWithoutVariationPurchaseLimit;
     public static int flashSaleWithoutVariationStock;
-    public static String flashSaleStatus;
+    public static List<String> flashSaleStatus = new ArrayList<>();
     public static Instant flashSaleStartTime;
     public static Instant flashSaleEndTime;
 
@@ -50,9 +50,9 @@ public class CreatePromotion {
     public static int productDiscountCampaignStock;
     public static Instant productDiscountCampaignStartTime;
     public static Instant productDiscountCampaignEndTime;
-    public static String productDiscountCampaignStatus;
-    public static int productWholesaleCouponType;
-    public static int productWholesaleCouponValue;
+    public static Map<String, List<String>> productDiscountCampaignStatus = new HashMap<>();
+    public static int productDiscountCouponType;
+    public static int productDiscountCouponValue;
 
     public static List<String> productDiscountCampaignApplicableBranch;
 
@@ -64,31 +64,28 @@ public class CreatePromotion {
      */
     public static int productDiscountCampaignBranchConditionType = -1;
 
+    public CreatePromotion() {
+        // init flash sale/discount campaign status
+        IntStream.range(0, isVariation ? variationList.size() : 1).forEachOrdered(i -> flashSaleStatus.add("EXPIRED"));
+        branchName.forEach(branch -> productDiscountCampaignStatus.put(branch, flashSaleStatus));
+    }
+
     public CreatePromotion endEarlyFlashSale() {
         // get schedule flash sale list
         List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
         logger.debug("schedule flash sale list: %s".formatted(scheduleList));
-        if (scheduleList != null) {
-            for (Integer id : scheduleList) {
-                Response delete = new API().delete("%s%s?storeId=%s".formatted(DELETE_FLASH_SALE_PATH, id, storeID), accessToken);
-                logger.debug("delete flash sale id: %s".formatted(id));
-                logger.debug(delete.asPrettyString());
-            }
-        }
+        if (scheduleList != null)
+            scheduleList.forEach(id -> new API().delete("%s%s?storeId=%s".formatted(DELETE_FLASH_SALE_PATH, id, storeID), accessToken).then().statusCode(200));
 
         // get in progress flash sale
         List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, storeID), accessToken).jsonPath().getList("id");
         logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
-        if (inProgressList != null) {
-            for (Integer id : inProgressList) {
-                Response endEarly = new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken);
-                logger.debug("end early flash sale id: %s".formatted(id));
-                logger.debug(endEarly.asPrettyString());
-            }
-        }
+        if (inProgressList != null)
+            inProgressList.forEach(id -> new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, storeID), accessToken).then().statusCode(200));
 
         // update flash sale status
-        flashSaleStatus = "EXPIRED";
+        Collections.fill(flashSaleStatus, "EXPIRED");
+
 
         return this;
     }
@@ -151,6 +148,9 @@ public class CreatePromotion {
                     body.append(i == numberOfSaleVariation - 1? "" : ",");
                 }
             }
+
+            // variation not in flash sale campaign => set flash sale price = selling price.
+            IntStream.range(numberOfSaleVariation, variationList.size()).forEachOrdered(i -> flashSaleVariationPrice.add(variationSellingPrice.get(i)));
         } else {
             // sale stock
             int saleStock = nextInt(Collections.max(withoutVariationStock)) + 1;
@@ -176,35 +176,23 @@ public class CreatePromotion {
         }
         body.append("]}");
 
-        logger.debug(body.toString());
-
         // post api create new flash sale campaign
         Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body));
-        createFlashSale.then().statusCode(200);
 
         logger.debug("create flash sale");
         logger.debug(createFlashSale.asPrettyString());
 
+        createFlashSale.then().statusCode(200);
+
         // update flash sale status
-        flashSaleStatus = "SCHEDULE";
+        if (isVariation)
+            IntStream.range(0, flashSaleVariationList.size()).forEach(i -> flashSaleStatus.set(i, "SCHEDULE"));
+        else Collections.fill(flashSaleStatus, "SCHEDULE");
 
         return this;
     }
 
-    public String getFlashSaleStatus() {
-        if (flashSaleStatus.equals("SCHEDULE")) {
-            boolean checkStart = flashSaleStartTime.getEpochSecond() - Instant.now().getEpochSecond() <= 0;
-            boolean checkEnd = flashSaleEndTime.getEpochSecond() - Instant.now().getEpochSecond() > 0;
-            if (checkStart && checkEnd) {
-                return flashSaleStatus = "IN-PROGRESS";
-            } else {
-                return flashSaleStatus = "SCHEDULE";
-            }
-        }
-        return flashSaleStatus = "EXPIRED";
-    }
-
-    public CreatePromotion endEarlyDiscountCampaign() {
+    public void endEarlyDiscountCampaign() {
         List<Integer> scheduleList = new API().get(WHOLESALE_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(storeID), accessToken).jsonPath().getList("id");
         for (int campaignID : scheduleList) {
             new API().delete(DELETE_DISCOUNT_PATH + campaignID, accessToken).then().statusCode(200);
@@ -216,9 +204,7 @@ public class CreatePromotion {
         }
 
         //update product discount campaign status
-        productDiscountCampaignStatus = "EXPIRED";
-
-        return this;
+        branchName.forEach(branch -> productDiscountCampaignStatus.put(branch, IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
     }
 
     public CreatePromotion createProductDiscountCampaign(int... time) {
@@ -239,12 +225,12 @@ public class CreatePromotion {
         // coupon type
         // 0: percentage
         // 1: fixed amount
-        productWholesaleCouponType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
-        String couponTypeLabel = productWholesaleCouponType == 0 ? "PERCENTAGE" : "FIXED_AMOUNT";
+        productDiscountCouponType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_DISCOUNT_TYPE);
+        String couponTypeLabel = productDiscountCouponType == 0 ? "PERCENTAGE" : "FIXED_AMOUNT";
 
         // coupon value
         int minFixAmount = isVariation ? Collections.min(variationSellingPrice) : withoutVariationSellingPrice;
-        productWholesaleCouponValue = productWholesaleCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(minFixAmount) + 1;
+        productDiscountCouponValue = productDiscountCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(minFixAmount) + 1;
 
         // init coupon type value
         StringBuilder body = new StringBuilder("""
@@ -259,7 +245,7 @@ public class CreatePromotion {
                             "couponValue": "%s",
                             "expiredDate": "%s",
                             "type": "WHOLE_SALE",
-                            "conditions": [""".formatted(name, storeID, productDiscountCampaignStartTime, couponTypeLabel, productWholesaleCouponValue, productDiscountCampaignEndTime));
+                            "conditions": [""".formatted(name, storeID, productDiscountCampaignStartTime, couponTypeLabel, productDiscountCouponValue, productDiscountCampaignEndTime));
 
         // init segment condition
         // segment type:
@@ -360,22 +346,12 @@ public class CreatePromotion {
         logger.debug(createProductDiscountCampaign.asPrettyString());
 
         // update product discount campaign status
-        productDiscountCampaignStatus = "SCHEDULE";
+        branchName.forEach(branch -> productDiscountCampaignStatus.put(branch, productDiscountCampaignApplicableBranch.contains(branch)
+                ? IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "SCHEDULE").collect(Collectors.toList())
+                : IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
+
 
         return this;
-    }
-
-    public String getProductDiscountCampaignStatus() {
-        if (productDiscountCampaignStatus.equals("SCHEDULE")) {
-            boolean checkStart = productDiscountCampaignStartTime.getEpochSecond() - Instant.now().getEpochSecond() <= 0;
-            boolean checkEnd = productDiscountCampaignEndTime.getEpochSecond() - Instant.now().getEpochSecond() > 0;
-            if (checkStart && checkEnd) {
-                return productDiscountCampaignStatus = "IN-PROGRESS";
-            } else {
-                return productDiscountCampaignStatus = "SCHEDULE";
-            }
-        }
-        return productDiscountCampaignStatus = "EXPIRED";
     }
 
     public void createProductDiscount() {

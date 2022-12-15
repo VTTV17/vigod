@@ -266,7 +266,7 @@ public class WholesalePricePage extends WholesalePriceElement {
                 int buyFrom = wholeMap[id].size() > 2 ? getInt(wholeMap[id].get(2), variationStockQuantity.get(variationValueList.indexOf(variation))) : RandomUtils.nextInt(Math.max(variationStockQuantity.get(variationValueList.indexOf(variation)), 1)) + 1;
 
                 // get price per item. if no price has been provided, price per item has been dummy by random function
-                int pricePerItem = wholeMap[id].size() > 3 ? getInt(wholeMap[id].get(3), variationSellingPrice.get(variationValueList.indexOf(variation))) : RandomUtils.nextInt(Math.max(variationSellingPrice.get(variationValueList.indexOf(variation)), 1)) + 1;
+                int pricePerItem = wholeMap[id].size() > 3 ? getInt(wholeMap[id].get(3), variationSellingPrice1.get(variationValueList.indexOf(variation))) : RandomUtils.nextInt(Math.max(variationSellingPrice1.get(variationValueList.indexOf(variation)), 1)) + 1;
 
                 // get segment list. if no segment has provided, default segment - All customer has been selected
                 List<String> segment = wholeMap[id].size() > 4 ? getList(wholeMap[id], 4) : List.of("All Customer");

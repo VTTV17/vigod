@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.storeID;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -55,11 +54,13 @@ public class CreateProduct {
     public static List<Integer> variationWholesaleProductStock;
     public static int withoutVariationWholesaleProductPrice;
     public static int withoutVariationWholesaleProductStock;
+    public static List<Boolean> wholesaleProductStatus = new ArrayList<>();
 
     public static boolean isVariation;
     public static boolean isIMEIProduct;
     public static int productID;
     public static String productName;
+    public static String productDescription;
 
     public static int collectionID;
 
@@ -95,14 +96,14 @@ public class CreateProduct {
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
-        String description = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
 
         // product tax
         int taxID = taxList.get(nextInt(taxList.size()));
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, description, taxID),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
                 productBody.withoutVariationInfo(isIMEIProduct, branchIDList, branchName, branchStock),
                 productBody.withoutVariationBranchConfig(branchIDList));
 
@@ -113,11 +114,16 @@ public class CreateProduct {
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, String.valueOf(body));
-
+        if (createProductResponse.getStatusCode() != 201) {
+            logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
+        }
         createProductResponse.then().statusCode(201);
 
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
+
+        // update wholesale product status
+        IntStream.range(0, 1).forEachOrdered(i -> wholesaleProductStatus.add(false));
 
         return this;
     }
@@ -134,14 +140,14 @@ public class CreateProduct {
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
-        String description = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
 
         // product tax
         int taxID = taxList.get(nextInt(taxList.size()));
 
         // create body
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, description, taxID),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
                 productBody.variationInfo(isIMEIProduct, branchIDList, branchName, increaseNum, branchStock),
                 productBody.variationBranchConfig(branchIDList));
 
@@ -155,7 +161,8 @@ public class CreateProduct {
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
-        createProductResponse.then().statusCode(201);
+
+        logger.debug(body);
 
         // log
         logger.debug("Create product response: %s".formatted(createProductResponse.asPrettyString()));
@@ -169,6 +176,9 @@ public class CreateProduct {
         // get variation modelID
         variationModelID = createProductResponse.jsonPath().getList("models.id");
 
+        // update wholesale product status
+        IntStream.range(0, variationList.size()).forEachOrdered(i -> wholesaleProductStatus.add(false));
+
         return this;
     }
 
@@ -178,11 +188,11 @@ public class CreateProduct {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productID));
         String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
+        int num = isVariation ? nextInt(variationList.size()) + 1 : 1;
         if (isVariation) {
             variationWholesaleProductPrice = new ArrayList<>();
             variationWholesaleProductStock = new ArrayList<>();
-            int numberOfSaleVariation = nextInt(variationList.size()) + 1;
-            for (int i = 0; i < numberOfSaleVariation; i++) {
+            for (int i = 0; i < num; i++) {
                 variationWholesaleProductPrice.add(nextInt(variationSellingPrice.get(i)) + 1);
                 variationWholesaleProductStock.add(nextInt(Collections.max(variationStockQuantity.get(variationList.get(i))))  + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
@@ -199,14 +209,14 @@ public class CreateProduct {
                             "action": null
                         }""".formatted(title, variationWholesaleProductStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, variationWholesaleProductPrice.get(i), segmentIDs, productID);
                 body.append(variationWholesaleConfig);
-                body.append((i == (numberOfSaleVariation - 1)) ? "" : ",");
+                body.append((i == (num - 1)) ? "" : ",");
             }
 
             // set wholesale product stock = 0 if variations have not wholesale product price
-            IntStream.range(numberOfSaleVariation, variationList.size()).forEach(i -> variationWholesaleProductStock.add(0));
+            IntStream.range(num, variationList.size()).forEach(i -> variationWholesaleProductStock.add(0));
 
             // set wholesale product price = selling price if variations have not wholesale product price
-            IntStream.range(numberOfSaleVariation, variationList.size()).forEach(i -> variationWholesaleProductPrice.add(variationSellingPrice.get(i)));
+            IntStream.range(num, variationList.size()).forEach(i -> variationWholesaleProductPrice.add(variationSellingPrice.get(i)));
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
             withoutVariationWholesaleProductPrice = nextInt(withoutVariationSellingPrice) + 1;
@@ -230,6 +240,9 @@ public class CreateProduct {
         Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body));
         addWholesale.then().statusCode(200);
         logger.debug("add wholesale price for product: %s".formatted(addWholesale.asPrettyString()));
+
+        // update wholesale product status
+        IntStream.range(0, num).forEachOrdered(i -> wholesaleProductStatus.set(i, true));
 
         return this;
     }

@@ -330,10 +330,10 @@ public class UICommonAction {
 		});
 	}
 
-	public void waitElementList(List<WebElement> elementList) {
+	public void waitElementList(List<WebElement> elementList, int... listSize) {
 		new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
 			assert driver != null;
-			return elementList.size() > 0;
+			return elementList.size() > ((listSize.length > 0) ? (listSize[0] - 1) : 0);
 		});
 	}
 

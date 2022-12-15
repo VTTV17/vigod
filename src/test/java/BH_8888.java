@@ -106,27 +106,7 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkFlashSalePriceWithoutVariationProduct()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case1_2_FlashSaleIsExpired() throws IOException {
+    void BH_8887_G1_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -136,120 +116,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyFlashSale();
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceWithoutVariationProduct()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case1_3_FlashSaleIsSchedule() throws IOException {
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(endMin - 1, endMin);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkDiscountCampaignPriceWithoutVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
-                .createProductDiscountCampaign(startMin, endMin)
-                .endEarlyDiscountCampaign();
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceWithoutVariationProduct()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Without variation")
-    void BH_8888_G1_Case2_3_DiscountCampaignIsSchedule() throws IOException {
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
-                .createProductDiscountCampaign(endMin - 1, endMin);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceWithoutVariationProduct()
-                .completeVerify();
-    }
-
-
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(startMin, endMin)
-                .endEarlyDiscountCampaign()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkFlashSalePriceWithoutVariationProduct()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
+    void BH_8887_G1_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -260,19 +138,18 @@ public class BH_8888 extends BaseTest {
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkDiscountCampaignPriceWithoutVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Without variation")
+    void BH_8887_G1_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -282,19 +159,19 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
+                .checkPriceWithoutVariationProduct()
+//                .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Without variation")
+    void BH_8887_G1_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -304,19 +181,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkDiscountCampaignPriceWithoutVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Without variation")
+    void BH_8887_G1_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -326,7 +202,6 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
@@ -334,12 +209,12 @@ public class BH_8888 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceWithoutVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8888_G2_Case2_3_DiscountCampaignIsSchedule() throws IOException {
+    @Test(groups = "Normal product - Without variation")
+    void BH_8887_G1_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -348,17 +223,17 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceWithoutVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
+
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8887_G2_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -368,19 +243,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSalePriceVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8887_G2_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -391,19 +265,18 @@ public class BH_8888 extends BaseTest {
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkDiscountCampaignPriceVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8887_G2_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -413,19 +286,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkProductPriceWhenFlashSaleIsScheduleVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8887_G2_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -435,19 +307,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8887_G2_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -457,7 +328,6 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
@@ -465,12 +335,12 @@ public class BH_8888 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "Normal product - Variation")
-    void BH_8888_G3_Case2_3_DiscountCampaignIsSchedule() throws IOException, InterruptedException {
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8887_G2_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -479,18 +349,16 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceVariationProduct()
+                .checkPriceWithoutVariationProduct()
                 .completeVerify();
     }
 
-
-    @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Variation")
+    void BH_8887_G3_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -500,19 +368,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkFlashSalePriceVariationProduct()
+                .checkPriceVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Variation")
+    void BH_8887_G3_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -523,19 +390,18 @@ public class BH_8888 extends BaseTest {
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkDiscountCampaignPriceVariationProduct()
+                .checkPriceVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Variation")
+    void BH_8887_G3_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -545,19 +411,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkProductPriceWhenFlashSaleIsScheduleVariationProduct()
+                .checkPriceVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Variation")
+    void BH_8887_G3_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -567,19 +432,18 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceVariationProduct()
+                .checkPriceVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Variation")
+    void BH_8887_G3_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
         int startMin = 1;
         int endMin = 60;
 
@@ -589,7 +453,6 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
@@ -597,12 +460,12 @@ public class BH_8888 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceVariationProduct()
+                .checkPriceVariationProduct()
                 .completeVerify();
     }
 
-    @Test(groups = "IMEI product - Variation")
-    void BH_8888_G4_Case2_3_DiscountCampaignIsSchedule() throws IOException, InterruptedException {
+    @Test(groups = "Normal product - Variation")
+    void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws IOException {
         int endMin = 60;
 
         new LoginPage(driver)
@@ -611,12 +474,137 @@ public class BH_8888 extends BaseTest {
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .endEarlyDiscountCampaign()
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkWholesaleProductPriceVariationProduct()
+                .checkPriceVariationProduct()
+                .completeVerify();
+    }
+
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8887_G4_Case1_1_FlashSaleIsInProgress() throws IOException, InterruptedException {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(startMin, endMin)
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkPriceVariationProduct()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8887_G4_Case1_2_FlashSaleIsExpired() throws IOException, InterruptedException {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(startMin, endMin)
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkPriceVariationProduct()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8887_G4_Case1_3_FlashSaleIsSchedule() throws IOException, InterruptedException {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(endMin - 1, endMin)
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkPriceVariationProduct()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8887_G4_Case2_1_DiscountCampaignIsInProgress() throws IOException, InterruptedException {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkPriceVariationProduct()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8887_G4_Case2_2_DiscountCampaignIsExpired() throws IOException, InterruptedException {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkPriceVariationProduct()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8887_G4_Case2_3_DiscountCampaignIsSchedule() throws IOException {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(endMin - 1, endMin);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkPriceVariationProduct()
                 .completeVerify();
     }
 }

@@ -1,287 +1,394 @@
-import org.testng.annotations.BeforeMethod;
+import api.dashboard.login.Login;
+import api.dashboard.products.CreateProduct;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import pages.dashboard.login.LoginPage;
-import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
 
 import java.io.IOException;
 
+import static api.dashboard.login.Login.storeURL;
+import static utilities.api_body.product.CreateProductBody.isDisplayOutOfStock;
+import static utilities.links.Links.SF_DOMAIN;
+
 // BH_9536:Check to display/hide if out of stock at product detail
 public class BH_9536 extends BaseTest {
 
-    @BeforeMethod
-    public void setup() throws InterruptedException {
-        super.setup();
-        new LoginPage(driver).navigate()
-                .inputEmailOrPhoneNumber(sellerAccount)
-                .inputPassword(sellerPassword)
-                .clickLoginBtn();
+    String sfDomain;
+    CreateProduct createProduct;
 
-        new ProductPage(driver).setLanguage()
-                .navigate();
+    @BeforeSuite
+    void createCustomerAndSegment() {
+        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+
+        createProduct = new CreateProduct();
+
+        createProduct.getTaxList().getBranchList();
+
+        sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
+
     }
 
+    // G1: Normal product - without variation
     @Test
-    public void BH_9536_Case1_1_SettingON_InStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean displayIfOutOfStockCheckbox = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct()
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // stockQuantity > 0
+    public void BH_9536_G1_Case1_1_SettingDisplayAndProductInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
 
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideWithoutVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // stock quantity = 0
+    public void BH_9536_G1_Case2_1_SettingDisplayAndProductOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
                 .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
     @Test
-    public void BH_9536_Case1_2_SettingON_InStock_VariationProduct() throws InterruptedException, IOException {
-        int startQuantity = 1;
-        boolean displayIfOutOfStockCheckbox = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // stock quantity > 0
+    public void BH_9536_G1_Case3_1_SettingHiddenAndProductInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
 
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test
-    public void BH_9536_Case2_1_SettingON_OutOfStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean displayIfOutOfStockCheckbox = true;
-        int stockQuantity = 0;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct(stockQuantity)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
-
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideWithoutVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
-    }
-
-
-    @Test
-    public void BH_9536_Case2_2_SettingON_OneOfVariationOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        int increaseStockForNextVariation = 1;
-        boolean displayIfOutOfStockCheckbox = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity, increaseStockForNextVariation)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
-
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test
-    public void BH_9536_Case2_3_SettingON_AllVariationsOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        boolean displayIfOutOfStockCheckbox = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
-
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test
-    public void BH_9536_Case3_1_SettingOFF_InStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean displayIfOutOfStockCheckbox = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct()
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
-
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideWithoutVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
                 .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
     @Test
-    public void BH_9536_Case3_2_SettingOFF_InStock_VariationProduct() throws InterruptedException, IOException {
-        int startQuantity = 1;
-        boolean displayIfOutOfStockCheckbox = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // stock quantity = 0
+    public void BH_9536_G1_Case3_2_SettingHiddenAndProductOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int branchStock = 0;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
 
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    // G2: IMEI product - without variation
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // stockQuantity > 0
+    public void BH_9536_G2_Case1_1_SettingDisplayAndProductInStock() throws IOException {
+        boolean isIMEIProduct = true;
+        isDisplayOutOfStock = true;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // stock quantity = 0
+    public void BH_9536_G2_Case2_1_SettingDisplayAndProductOutOfStock() throws IOException {
+        boolean isIMEIProduct = true;
+        isDisplayOutOfStock = true;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // stock quantity > 0
+    public void BH_9536_G2_Case3_1_SettingHiddenAndProductInStock() throws IOException {
+        boolean isIMEIProduct = true;
+        isDisplayOutOfStock = false;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // stock quantity = 0
+    public void BH_9536_G2_Case3_2_SettingHiddenAndProductOutOfStock() throws IOException {
+        boolean isIMEIProduct = true;
+        isDisplayOutOfStock = false;
+        int branchStock = 0;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    // G3: Normal product - Variation
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // all variations stock quantity > 0
+    public void BH_9536_G3_Case1_1_SettingDisplayAndProductInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
                 .checkVariationProductInformation()
                 .completeVerify();
     }
 
     @Test
-    public void BH_9536_Case3_3_SettingOFF_OutOfStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean displayIfOutOfStockCheckbox = false;
-        int stockQuantity = 0;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct(stockQuantity)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // one of variation stock quantity = 0
+    public void BH_9536_G3_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideWithoutVariationProduct()
-                .check404PageShouldBeShownWhenProductOutOfStock()
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
-
-
     @Test
-    public void BH_9536_Case3_4_SettingOFF_OneOfVariationOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        int increaseStockForNextVariation = 1;
-        boolean displayIfOutOfStockCheckbox = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity, increaseStockForNextVariation)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // all variations stock quantity = 0
+    public void BH_9536_G3_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int increaseNum = 0;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideVariationProduct()
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
                 .checkVariationProductInformation()
                 .completeVerify();
     }
 
     @Test
-    public void BH_9536_Case3_5_SettingOFF_AllVariationsOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        boolean displayIfOutOfStockCheckbox = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheDisplayIfOutOfStockCheckbox(displayIfOutOfStockCheckbox)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // all variations stock quantity > 0
+    public void BH_9536_G3_Case3_1_SettingHiddenAndAllVariationsInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
-        new ProductDetailPage(driver).checkProductIsDisplayOrHideVariationProduct()
-                .check404PageShouldBeShownWhenProductOutOfStock()
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // one of variation stock quantity = 0
+    public void BH_9536_G3_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // all variations stock quantity = 0
+    public void BH_9536_G3_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int increaseNum = 0;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    // G4: IMEI product - Variation
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // all variations stock quantity > 0
+    public void BH_9536_G4_Case1_1_SettingDisplayAndProductInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // one of variation stock quantity = 0
+    public void BH_9536_G4_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+    @Test
+    // Pre-condition:
+    // setting: check Display if out of stock checkbox
+    // all variations stock quantity = 0
+    public void BH_9536_G4_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = true;
+        int increaseNum = 0;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // all variations stock quantity > 0
+    public void BH_9536_G4_Case3_1_SettingHiddenAndAllVariationsInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // one of variation stock quantity = 0
+    public void BH_9536_G4_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: uncheck Display if out of stock checkbox
+    // all variations stock quantity = 0
+    public void BH_9536_G4_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isDisplayOutOfStock = false;
+        int increaseNum = 0;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 }

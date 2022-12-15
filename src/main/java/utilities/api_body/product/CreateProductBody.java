@@ -163,19 +163,23 @@ public class CreateProductBody {
                 // add IMEI for each branch
                 for (int branchIndex = 0; branchIndex < branchIDList.size(); branchIndex++) {
                     // get number of IMEI per branch
-                    for (int id = 0; id < variationStockQuantity.get(variationList.get(i)).get(branchIndex); id++) {
+                    List<Integer> branchStock = variationStockQuantity.get(variationList.get(i));
+                    // get number of IMEI per branch
+                    for (int id = 0; id < branchStock.get(branchIndex); id++) {
                         // generate IMEI object
                         // IMEI format: branchName_IMEI_Index
                         models.append("""
-                                {
-                                            "branchId": %s,
-                                            "code": "%s",
-                                            "status": "AVAILABLE"
-                                        }
-                                """.formatted(branchIDList.get(branchIndex), "%s%s_IMEI_%s".formatted(variationList.get(i), branchNameList.get(branchIndex), id)));
+                            {
+                                        "branchId": %s,
+                                        "code": "%s",
+                                        "status": "AVAILABLE"
+                                    }
+                            """.formatted(branchIDList.get(branchIndex), "%s%s_IMEI_%s".formatted(variationList.get(i), branchNameList.get(branchIndex), id)));
 
                         // add IMEI object to body
-                        models.append(((branchIndex == (branchIDList.size() - 1)) && (id == (variationStockQuantity.get(variationList.get(i)).get(branchIndex) - 1))) ? "" : ",");
+                        // add "," if is not last stock
+                        // check if next branched in-stock => add new IMEI object
+                        models.append(branchIndex < branchIDList.size() - 1 ? (branchStock.get(branchIndex + 1) == 0) && (id == (branchStock.get(branchIndex) - 1)) ? "" : "," : id < (branchStock.get(branchIndex) - 1) ? "," : "");
                     }
                 }
 
@@ -213,9 +217,7 @@ public class CreateProductBody {
         withoutVariationSellingPrice = (int) (Math.random() * withoutVariationListingPrice);
 
         // set branch stock
-        for (int i = 0; i < branchIDList.size(); i++) {
-            withoutVariationStock.add((branchStockQuantity.length > i) ? (branchStockQuantity[i]) : 0);
-        }
+        IntStream.range(0, branchIDList.size()).forEachOrdered(i -> withoutVariationStock.add((branchStockQuantity.length > i) ? (branchStockQuantity[i]) : 0));
 
         StringBuilder itemModelCodeDTOS = new StringBuilder("""
                 "itemModelCodeDTOS": [""");
@@ -236,7 +238,8 @@ public class CreateProductBody {
 
                     // add IMEI object to body
                     // add "," if is not last stock
-                    itemModelCodeDTOS.append((index == (branchIDList.size() - 1)) ? ((i == (withoutVariationStock.get(index) - 1)) ? "" : ",") : ",");
+                    // check if next branched in-stock => add new IMEI object
+                    itemModelCodeDTOS.append(index < branchIDList.size() - 1 ? (withoutVariationStock.get(index + 1) == 0) && (i == (withoutVariationStock.get(index) - 1)) ? "" : "," : i < (withoutVariationStock.get(index) - 1) ? "," : "");
                 }
             }
         }

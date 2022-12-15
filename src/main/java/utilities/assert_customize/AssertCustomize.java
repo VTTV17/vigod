@@ -17,24 +17,24 @@ public class AssertCustomize {
 
     Logger logger = LogManager.getLogger(AssertCustomize.class);
 
-    public Integer assertEquals(int countFalse, String actual, String expected, String mess) throws IOException {
+    public Integer assertEquals(int countFalse, Object actual, Object expected, String mess) throws IOException {
         try {
             Assert.assertEquals(actual, expected, mess);
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
-            logger.error(ex);
+            logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
         return countFalse;
     }
 
-    public Integer assertNotEquals(int countFalse, String actual, String expected, String mess) throws IOException {
+    public Integer assertNotEquals(int countFalse, Object actual, Object expected, String mess) throws IOException {
         try {
             Assert.assertNotEquals(actual, expected, mess);
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
-            logger.error(ex);
+            logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
         return countFalse;
     }
@@ -45,7 +45,7 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
-            logger.error(ex);
+            logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
         return countFalse;
     }
@@ -56,7 +56,7 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             new Screenshot().takeScreenshot(driver);
             countFalse += 1;
-            logger.error(ex);
+            logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
         return countFalse;
     }

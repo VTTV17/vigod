@@ -1,302 +1,255 @@
-import org.testng.annotations.BeforeMethod;
+import api.dashboard.login.Login;
+import api.dashboard.products.CreateProduct;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
 
 import java.io.IOException;
 
+import static api.dashboard.login.Login.storeURL;
+import static java.lang.Thread.sleep;
+import static utilities.api_body.product.CreateProductBody.isHideStock;
+import static utilities.links.Links.SF_DOMAIN;
+
 // BH_8616:Check to display/hide if out of stock at product detail
 public class BH_8616 extends BaseTest {
 
-    @BeforeMethod
-    public void setup() throws InterruptedException {
-        super.setup();
-        new LoginPage(driver).navigate()
-                .inputEmailOrPhoneNumber(sellerAccount)
-                .inputPassword(sellerPassword)
-                .clickLoginBtn();
+    String sfDomain;
+    CreateProduct createProduct;
 
-        new ProductPage(driver).setLanguage()
-                .navigate();
+    @BeforeSuite
+    void initPreCondition() {
+        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+
+        createProduct = new CreateProduct();
+
+        createProduct.getTaxList().getBranchList();
+
+        sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
+
     }
 
+    // G1: Normal product - without variation
     @Test
-    public void BH_8616_Case1_1_SettingON_InStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean hideRemainingStock = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct()
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // stock quantity > 0
+    public void BH_8616_G1_Case1_1_HideStockAndInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isHideStock = true;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                        branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideWithoutVariationProduct()
-                .checkWithoutVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test
-    public void BH_8616_Case1_2_SettingON_InStock_VariationProduct() throws InterruptedException, IOException {
-        boolean hideRemainingStock = true;
-        int startQuantity = 1;
-        int increaseStockForNextVariation = 1;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity, increaseStockForNextVariation)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // stock quantity > 0
+    public void BH_8616_G1_Case2_1_ShowStockAndInStock() throws IOException {
+        boolean isIMEIProduct = false;
+        isHideStock = false;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideVariationProduct()
-                .checkVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenWithoutVariationProduct()
+                .completeVerify();
+    }
+
+    // G2: IMEI product - without variation
+    @Test
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // stock quantity > 0
+    public void BH_8616_G2_Case1_1_HideStockAndInStock() throws IOException {
+        boolean isIMEIProduct = true;
+        isHideStock = true;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                        branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test
-    public void BH_8616_Case1_3_SettingON_OutOfStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean hideRemainingStock = true;
-        int stockQuantity = 0;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct(stockQuantity)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // stock quantity > 0
+    public void BH_8616_G2_Case2_1_ShowStockAndInStock() throws IOException {
+        boolean isIMEIProduct = true;
+        isHideStock = false;
+        int branchStock = 5;
+        createProduct.createWithoutVariationProduct(isIMEIProduct,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideWithoutVariationProduct()
-                .checkWithoutVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenWithoutVariationProduct()
                 .completeVerify();
     }
 
-
+    // G3: Normal product - Variation
     @Test
-    public void BH_8616_Case1_4_SettingON_OneOfVariationOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        int increaseStockForNextVariation = 1;
-        boolean hideRemainingStock = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity, increaseStockForNextVariation)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // all variation stock quantity > 0
+    public void BH_8616_G3_Case1_1_HideStockAndInStock_AllVariations() throws IOException {
+        boolean isIMEIProduct = false;
+        isHideStock = true;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideVariationProduct()
-                .checkVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
                 .completeVerify();
     }
 
     @Test
-    public void BH_8616_Case1_5_SettingON_AllVariationsOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        boolean hideRemainingStock = true;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // some variations stock quantity > 0
+    public void BH_8616_G3_Case1_2_HideStockAndInStock_SomeVariations() throws IOException {
+        boolean isIMEIProduct = false;
+        isHideStock = true;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideVariationProduct()
-                .checkVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
                 .completeVerify();
     }
 
     @Test
-    public void BH_8616_Case2_1_SettingOFF_InStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean hideRemainingStock = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct()
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // all variations stock quantity > 0
+    public void BH_8616_G3_Case2_1_ShowStockAndInStock_AllVariations() throws IOException {
+        boolean isIMEIProduct = false;
+        isHideStock = false;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideWithoutVariationProduct()
-                .checkWithoutVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
                 .completeVerify();
     }
-
     @Test
-    public void BH_8616_Case2_2_SettingOFF_InStock_VariationProduct() throws InterruptedException, IOException {
-        int startQuantity = 1;
-        boolean hideRemainingStock = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // some variations stock quantity > 0
+    public void BH_8616_G3_Case2_2_ShowStockAndInStock_SomeVariations() throws IOException {
+        boolean isIMEIProduct = false;
+        isHideStock = false;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideVariationProduct()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test
-    public void BH_8616_Case2_3_SettingOFF_OutOfStock_WithoutVariationProduct() throws InterruptedException, IOException {
-        boolean hideRemainingStock = false;
-        int stockQuantity = 0;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .changePriceForWithoutVariationProduct()
-                .selectProductVAT()
-                .selectCollections()
-                .changeStockQuantityWithoutVariationNormalProduct(stockQuantity)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideWithoutVariationProduct()
-                .checkWithoutVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
                 .completeVerify();
     }
 
 
+    // G4: IMEI product - Variation
     @Test
-    public void BH_8616_Case2_4_SettingOFF_OneOfVariationOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        int increaseStockForNextVariation = 1;
-        boolean hideRemainingStock = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity, increaseStockForNextVariation)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // all variation stock quantity > 0
+    public void BH_8616_G4_Case1_1_HideStockAndInStock_AllVariations() throws IOException {
+        boolean isIMEIProduct = true;
+        isHideStock = true;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideVariationProduct()
-                .checkVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
                 .completeVerify();
     }
 
     @Test
-    public void BH_8616_Case2_5_SettingOFF_AllVariationsOutOfStock() throws InterruptedException, IOException {
-        int startQuantity = 0;
-        boolean hideRemainingStock = false;
-        new ProductPage(driver).clickOnTheCreateProductBtn()
-                .inputProductName()
-                .inputProductDescription()
-                .uploadProductImage(imgFileName)
-                .selectProductVAT()
-                .selectCollections()
-                .addVariations()
-                .changePriceForEachVariation()
-                .changeStockQuantityForEachVariationNormalProduct(startQuantity)
-                .setDimension()
-                .checkOnTheHideRemainingStockOnOnlineStoreCheckbox(hideRemainingStock)
-                .setPlatForm()
-                .clickOnTheSaveBtn()
-                .closeNotificationPopup()
-                .getURLAndNavigateToStoreFront();
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // some variations stock quantity > 0
+    public void BH_8616_G4_Case1_2_HideStockAndInStock_SomeVariations() throws IOException {
+        boolean isIMEIProduct = true;
+        isHideStock = true;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByURL()
-                .verifyPageLoaded()
-                .checkRemainingStockIsDisplayOrHideVariationProduct()
-                .checkVariationProductInformation()
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
+                .completeVerify();
+    }
+
+    @Test
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // all variations stock quantity > 0
+    public void BH_8616_G4_Case2_1_ShowStockAndInStock_AllVariations() throws IOException {
+        boolean isIMEIProduct = true;
+        isHideStock = false;
+        int increaseNum = 1;
+        int branchStock = 2;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
+                .completeVerify();
+    }
+    @Test
+    // Pre-condition:
+    // setting: Hide remaining stock on online store
+    // some variations stock quantity > 0
+    public void BH_8616_G4_Case2_2_ShowStockAndInStock_SomeVariations() throws IOException {
+        boolean isIMEIProduct = true;
+        isHideStock = false;
+        int increaseNum = 1;
+        int branchStock = 0;
+        createProduct.createVariationProduct(isIMEIProduct,
+                increaseNum,
+                branchStock);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkStockIsHiddenVariationProduct()
                 .completeVerify();
     }
 }
