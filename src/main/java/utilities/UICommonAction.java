@@ -3,6 +3,8 @@ package utilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -11,8 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class UICommonAction {
 	
@@ -43,6 +44,7 @@ public class UICommonAction {
 	public void inputText(WebElement element, String text) {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
+			doubleClickElement(element);
 			element.sendKeys(text);
 		} catch (StaleElementReferenceException|TimeoutException ex) {
 			if (ex instanceof StaleElementReferenceException) {
@@ -53,6 +55,7 @@ public class UICommonAction {
 			List<WebElement> listOfElements = refreshElement(element);
 			if (listOfElements.size() ==1) element = listOfElements.get(0);
 			wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
+			doubleClickElement(element);
 			element.sendKeys(text);
 		}
 	}
@@ -267,15 +270,22 @@ public class UICommonAction {
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		Select select = new Select(element);
 		select.selectByVisibleText(visibleText);
-		
+
 		// Reduces time taken to get selected option by using javascript.
 		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
-		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+		WebElement selectedOption;
+		try {
+			selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in selectByVisibleText");
+			selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, element);
+
+		}
+
 		if (selectedOption == null)
 			throw new NoSuchElementException("No options are selected");
 		return selectedOption.getText();
 	}
-
 	public String selectByIndex(WebElement element, int index) {
 		waitTillSelectDropdownHasData(element);
 		wait.until(ExpectedConditions.elementToBeClickable(element));
@@ -301,7 +311,9 @@ public class UICommonAction {
 	public WebElement getElementByXpath(String xpath) {
 		return driver.findElement(By.xpath(xpath));
 	}
-
+	public List<WebElement> getListElementByXpath(String xpath) {
+		return driver.findElements(By.xpath(xpath));
+	}
 	public void sleepInMiliSecond(long miliSecond) {
 		try {
 			Thread.sleep(miliSecond);
@@ -346,7 +358,6 @@ public class UICommonAction {
 		JavascriptExecutor executor= (JavascriptExecutor)driver;
 		executor.executeScript( "window.scrollBy(0,document.body.scrollHeight)");
 	}
-
 	public void refreshPage(){
 		driver.navigate().refresh();
 		logger.debug("Refreshed page.");
@@ -356,6 +367,9 @@ public class UICommonAction {
 		String title = driver.getTitle();
 		logger.debug("Retrieved page title: " + title);
 		return title;
-
+	}
+	public void doubleClickElement(WebElement el){
+		Actions actionObj = new Actions(driver);
+		actionObj.doubleClick(el).build().perform();
 	}
 }
