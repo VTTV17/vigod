@@ -49,7 +49,7 @@ public class DataGenerator {
         }
     }
 
-    public List<Integer> randomListNumberWithNoDulicate(int maximum) {
+    public List<Integer> randomListNumberWithNoDuplicate(int maximum) {
         UniqueRng rng = new UniqueRng(maximum);
         List<Integer> list = new ArrayList<>();
         while (rng.hasNext()) {
@@ -57,7 +57,13 @@ public class DataGenerator {
         }
         return list;
     }
-
+    public List<Integer> randomListNumberCanDuplicate(int maximum){
+        List<Integer> listNumber = new ArrayList<>();
+        for (int i=0; i<maximum ; i++){
+            listNumber.add(generatNumberInBound(1,maximum));
+        }
+        return listNumber;
+    }
     public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
         long time = System.currentTimeMillis();
         System.out.println("Current Epoch time is: " + time);

@@ -33,52 +33,99 @@ public class APIAllProducts {
         List<String> reverseView = Lists.newReversedArrayList(productSorted);
         return reverseView;
     }
+    public Map<String,Date> getProductCreatedDateMapByProductName(String storeID, String token, int collectionID,String productName) throws ParseException {
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%",String.valueOf(collectionID)).replaceAll("%sort%",""),token);
+        List<String> createdDateList = response.jsonPath().getList("createdDate");
+        SimpleDateFormat  formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        List<String> productNameList = response.jsonPath().getList("name");
+        Map<String,Date> productCreatedDateMap = new HashMap<>();
+        for(int i = 0; i<productNameList.size();i++){
+            if(productNameList.get(i).equalsIgnoreCase(productName)){
+                Date date = formatter.parse(createdDateList.get(i).replaceAll("Z$", "+0000"));
+                productCreatedDateMap.put(productNameList.get(i).toLowerCase(),date);
+                break;
+            }
+        }
+        return productCreatedDateMap;
+    }
+
+    /**
+     *
+     * @param token
+     * @param storeID
+     * @param operator: contains, is equal to, starts with, ends with.
+     * @param value
+     * @return Map with keys: productCreatedDateMap, CountItem, productCountItemMap
+     * @throws ParseException
+     */
     public Map getMapOfProductCreateDateMatchTitleCondition(String token, String storeID, String operator, String value) throws ParseException {
         Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%","").replaceAll("%sort%","lastModifiedDate,desc"),token);
         List<String> productNameList = response.jsonPath().getList("name");
         List<String> createdDateList = response.jsonPath().getList("createdDate");
+        List<Integer> productIDList = response.jsonPath().getList("id");
         SimpleDateFormat formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         Map<String,Date> productCreatedDateMap = new HashMap<>();
+        List<Boolean> hasConversionList = response.jsonPath().getList("hasConversion");
+        Map<String,Integer> productCountItemMap = new HashMap();
+        int count =0;
         for (int i=0; i<productNameList.size();i++){
             switch (operator){
                 case "contains":
                     if (productNameList.get(i).contains(value)){
                         String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                         Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                        productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
+                        String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                        productCreatedDateMap.put(productName,date);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        count = count + countConversionItem;
+                        productCountItemMap.put(productName,countConversionItem);
                     }
                     break;
                 case "is equal to":
                     if (productNameList.get(i).equals(value)){
                         String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                         Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                        productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
-                    }
+                        String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                        productCreatedDateMap.put(productName,date);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        count = count + countConversionItem;
+                        productCountItemMap.put(productName,countConversionItem);                    }
                     break;
                 case "starts with":
                     if (productNameList.get(i).startsWith(value)){
                         String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                         Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                        productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
-                    }
+                        String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                        productCreatedDateMap.put(productName,date);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        count = count + countConversionItem;
+                        productCountItemMap.put(productName,countConversionItem);                    }
                     break;
                 case "ends with":
                     if (productNameList.get(i).endsWith(value)){
                         String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                         Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                        productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
-                    }
+                        String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                        productCreatedDateMap.put(productName,date);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        count = count + countConversionItem;
+                        productCountItemMap.put(productName,countConversionItem);                    }
                     break;
             }
         }
-        return productCreatedDateMap;
+        Map productCollectionInfo = new HashMap<>();
+        productCollectionInfo.put("productCreatedDateMap",productCreatedDateMap);
+        productCollectionInfo.put("CountItem",count);
+        productCollectionInfo.put("productCountItemMap",productCountItemMap);
+        System.out.println("productCollectionInfo: "+productCollectionInfo);
+        return productCollectionInfo;
     }
-    public List<String> getListProductMatchCondition_SortNewest(Map<String,Date> productCreatedDateMap) {
-        Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
-        List<String> productSorted = sortedMap.keySet().stream().toList();
-        List<String> reverseView = Lists.newReversedArrayList(productSorted);
-        return reverseView;
-    }
+//    public List<String> getListProductMatchCondition_SortNewest(Map<String,Date> productCreatedDateMap) {
+//        Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
+//        List<String> productSorted = sortedMap.keySet().stream().toList();
+//        List<String> reverseView = Lists.newReversedArrayList(productSorted);
+//        return reverseView;
+//    }
     public String fortmatIfCreateDateMissMiliSecond(String time){
         Matcher m = Pattern.compile("\\d+").matcher(time);
         List<String> aa = new ArrayList<>();
@@ -106,6 +153,7 @@ public class APIAllProducts {
         List<Integer> variationNumberList = response.jsonPath().getList("variationNumber");
         SimpleDateFormat formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         Map<String,Date> productCreatedDateMap = new HashMap<>();
+        Map<String,Integer> productCountItemMap = new HashMap();
         int count =0;
         for (int i=0; i<productNameList.size();i++){
             List<Long> productPriceList = new ArrayList<>();
@@ -128,8 +176,11 @@ public class APIAllProducts {
                             isChecked = true;
                             String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                             Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                            productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
-                            count= count + countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            String productName= productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                            productCreatedDateMap.put(productName,date);
+                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            count = count + countConversionItem;
+                            productCountItemMap.put(productName,countConversionItem);
                         }
                         break;
                     case "is less than":
@@ -137,8 +188,11 @@ public class APIAllProducts {
                             isChecked = true;
                             String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                             Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                            productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
-                            count= count + countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            String productName= productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                            productCreatedDateMap.put(productName,date);
+                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            count = count + countConversionItem;
+                            productCountItemMap.put(productName,countConversionItem);
                         }
                         break;
                     case "is equal to":
@@ -147,8 +201,11 @@ public class APIAllProducts {
                             System.out.println(i+"--"+productPrice);
                             String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                             Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
-                            productCreatedDateMap.put(productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim(),date);
-                            count= count + countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            String productName= productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
+                            productCreatedDateMap.put(productName,date);
+                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            count = count + countConversionItem;
+                            productCountItemMap.put(productName,countConversionItem);
                         }
                         break;
                 }
@@ -161,18 +218,22 @@ public class APIAllProducts {
         Map productCollectionInfo = new HashMap<>();
         productCollectionInfo.put("productCreatedDateMap",productCreatedDateMap);
         productCollectionInfo.put("CountItem",count);
+        productCollectionInfo.put("productCountItemMap",productCountItemMap);
         return productCollectionInfo;
     }
-    public Map getMapProductAndCountItemMatchPriceCondition_SortNewest(Map productCollectionInfo){
-        Map<String, Date> productCreatedDateMap = (Map<String, Date>) productCollectionInfo.get("productCreatedDateMap");
-        Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
+    /**
+     *
+     * @param productCollectionInfo Map with keys: productCreatedDateMap... --- Get from function: getProductMatchPriceCondition, getMapOfProductCreateDateMatchTitleCondition
+     * @return product list sorted
+     */
+    public List<String> getProductListCollection_SortNewest(Map productCollectionInfo){
+//        Map<String, Date> productCreatedDateMap = (Map<String, Date>) productCollectionInfo.get("productCreatedDateMap");
+        Map<String, Date> sortedMap = SortData.sortMapByValue(productCollectionInfo);
         List<String> productSorted = sortedMap.keySet().stream().toList();
         List<String> reverseView = Lists.newReversedArrayList(productSorted);
-        Map productCollection = new HashMap<>();
-        productCollection.put("sortedProductList",reverseView);
-        productCollection.put("CountItem",productCollectionInfo.get("CountItem"));
-        return productCollection;
+        return reverseView;
     }
+
     public int countProductItem(boolean hasConversionUnit, String productId, String token){
         int count;
         if(hasConversionUnit == true){
@@ -185,5 +246,95 @@ public class APIAllProducts {
         }
         return count;
     }
+    public Map productsBelongCollectionExpected_MultipleCondition(String token, String storeId,String conditionType, String... conditions) throws ParseException {
+        APIAllProducts apiAllProducts = new APIAllProducts();
+        int countItemExpected = 0;
+        Map mergeProductMap = new HashMap<>();
+        Map mergeProductMap_SortByNewest = new HashMap<>();
 
+        Map mergeProductCountItemMap = new HashMap<>();
+        Map compareProductMap = new HashMap<>();
+        Map compareCountItemMap = new HashMap<>();
+        for (String condition : conditions) {
+            String conditionField = condition.split("-")[0];
+            String operater = condition.split("-")[1];
+            String value = condition.split("-")[2];
+            Map productCreatedDateMap = new HashMap();
+            Map productCountItemMap = new HashMap();
+            if (conditionField.equalsIgnoreCase("Product title")) {
+                Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(token, storeId, operater, value);
+                productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
+                productCountItemMap = (Map) productCollection.get("productCountItemMap");
+            } else if (conditionField.equalsIgnoreCase("Product price")) {
+                Map productCollection = apiAllProducts.getProductMatchPriceCondition(token, storeId, operater, Long.parseLong(value));
+                productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
+                productCountItemMap = (Map) productCollection.get("productCountItemMap");
+            }
+            if (conditionType.equalsIgnoreCase("Any condition")) {
+                mergeProductMap.putAll(productCreatedDateMap);
+                mergeProductCountItemMap.putAll(productCountItemMap);
+            } else if (conditionType.equalsIgnoreCase("All conditions")) {
+                if (compareProductMap.isEmpty()) {
+                    compareProductMap.putAll(productCreatedDateMap);
+                    compareCountItemMap.putAll(productCountItemMap);
+                } else {
+                    for (Object key : productCreatedDateMap.keySet()) {
+                        if (compareProductMap.containsKey(key)) {
+                            mergeProductMap.put(key, productCreatedDateMap.get(key));
+                            mergeProductCountItemMap.put(key, productCountItemMap.get(key));
+                        }
+                    }
+                }
+            }
+        }
+        Collection<Integer> values = mergeProductCountItemMap.values();
+        System.out.println("values: "+values);
+        for (int v : values) {
+            countItemExpected = countItemExpected + v;
+        }
+//        mergeProductMap_SortByNewest.put("productCreatedDateMap",mergeProductMap);
+        System.out.println("mergeProductMap_SortByNewest: "+mergeProductMap_SortByNewest);
+        List<String> productExpectedList =  apiAllProducts.getProductListCollection_SortNewest(mergeProductMap);
+        System.out.println("productExpectedList1: "+productExpectedList);
+        Map productCollectInfoMap = new HashMap<>();
+        productCollectInfoMap.put("productExpectedList", productExpectedList);
+        productCollectInfoMap.put("CountItem", countItemExpected);
+        return productCollectInfoMap;
+    }
+    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, String storeID, String token, int collectionID) throws ParseException {
+        Map<String, Integer> sortedMap = SortData.sortMapByValue(productPriorityMap);
+        List<String> sortedList = new ArrayList<>();
+        List<Integer> values = sortedMap.values().stream().toList();
+        Map<String, Date> productUpdatedMap = new HashMap<>();
+        APIAllProducts apiAllProducts = new APIAllProducts();
+        for (int i = 0; i < values.size(); i++) {
+            String productKey1 = sortedMap.keySet().toArray()[i].toString();
+            String productKey2 ;
+
+            int value1 = values.get(i);
+            int value2;
+            if (i == values.size() - 1) {
+                value2 = values.get(i - 1);
+                productKey2 = sortedMap.keySet().toArray()[i-1].toString();
+            } else {
+                value2 = values.get(i + 1);
+                productKey2 = sortedMap.keySet().toArray()[i+1].toString();
+            }
+            if (value1 == value2) {
+                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey1));
+                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey2));
+                if(i == values.size()-1){
+                    sortedList.addAll(apiAllProducts.getProductListCollection_SortNewest(productUpdatedMap));
+                }
+            }else if (productUpdatedMap.isEmpty()) {
+                sortedList.add(productKey1);
+            } else {
+                sortedList.addAll(apiAllProducts.getProductListCollection_SortNewest(productUpdatedMap));
+                productUpdatedMap = new HashMap<>();
+            }
+
+        }
+        System.out.println("sortedList: " + sortedList);
+        return sortedList;
+    }
 }

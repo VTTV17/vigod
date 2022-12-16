@@ -4,7 +4,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import pages.dashboard.products.productcollection.createproductcollection.CreateProductCollection;
 
 import java.util.List;
 
@@ -28,4 +27,6 @@ public class ProductCollectionManagementElement {
     List<WebElement> EDIT_BTN;
     @FindBy(css = ".actions .lastest-button")
     List<WebElement> DELETE_BTN;
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement OK_BTN_ON_MODAL;
 }

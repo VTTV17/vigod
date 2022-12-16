@@ -8,17 +8,18 @@ import pages.dashboard.signup.SignupPage;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import static utilities.account.AccountTest.*;
 
 public class PlanPermissionTest extends BaseTest {
     LoginPage loginPage;
     HomePage homePage;
     PlansPage plansPage;
     InternalTool internalTool;
-    String userName_goWeb = "automation0-shop92717@mailnesia.com";
-    String userName_goApp = "automation0-shop39577@mailnesia.com";
-    String userName_goPOS = "automation0-shop32362@mailnesia.com";
-    String userName_goSocial = "automation0-shop76064@mailnesia.com";
-    String userName_GoLead = "automation0-shop96482@mailnesia.com";
+    String userName_goWeb = ADMIN_USERNAME_GOWEB;
+    String userName_goApp = ADMIN_USERNAME_GOAPP;
+    String userName_goPOS = ADMIN_USERNAME_GOPOS;
+    String userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
+    String userName_GoLead = ADMIN_USERNAME_GOLEAD;
     String password = "fortesting!1";
     String orderID;
     SignupPage signupPage;
@@ -105,7 +106,7 @@ public class PlanPermissionTest extends BaseTest {
         loginPage.navigate().performLogin(userName,password);
         homePage = new HomePage(driver);
         homePage.waitTillSpinnerDisappear()
-                .checkPermissionAllPageByPackage(packageType)
+                .checkPermissionAllPageByPackage("ALL",packageType)
                 .completeVerifyPermissionByPackage();
     }
     @Test

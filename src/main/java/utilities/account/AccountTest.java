@@ -28,5 +28,11 @@ public class AccountTest {
     public static String ADMIN_SHOP_VI_PASSWORD = "Psso124@";
     public static String ADMIN_SHOP_COFFEE_PASSWORD = "Psso12!@";
     public static String ADMIN_SHOP_COFFEE_USERNAME = "qcgosell01@gmail.com";
+    public static String ADMIN_CREATE_NEW_SHOP_PASSWORD = "fortesting!1";
+    public static String ADMIN_USERNAME_GOWEB = "automation0-shop92717@mailnesia.com";
+    public static String ADMIN_USERNAME_GOAPP = "automation0-shop39577@mailnesia.com";
+    public static String ADMIN_USERNAME_GOPOS = "automation0-shop32362@mailnesia.com";
+    public static String ADMIN_USERNAME_GOSOCIAL = "automation0-shop76064@mailnesia.com";
+    public static String ADMIN_USERNAME_GOLEAD = "automation0-shop96482@mailnesia.com";
 
 }
