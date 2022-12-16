@@ -403,7 +403,6 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test(dependsOnMethods = "PC_01_BH_4783_CreateManualProductCollection_V2")
     public void PC_16_BH_4796_AddProductToExistingManualCollection() throws Exception {
-//        collectionNameEditManual="Manually collection has product and priority eYfwz";
         productList = new String[]{"Cà phê pha phin King coffee Expert Blend 2- Túi 500g 65KCF KCF00002", "Quần Nhung Tăm - Quần Ống Xuông Hai Màu Be Đen Siêu Đẹp"};
         loginAndNavigateToEditCollection(collectionNameEditManual)
                 .editProductListInManualCollection(productList, false, false);
@@ -415,7 +414,6 @@ public class ProductCollectionTest extends BaseTest {
     @Test(dependsOnMethods = "PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword")
     public void PC_17_BH_4797_UpdateAutomationCollection_AndCondition() throws Exception {
         condition = "Product title-contains-nam";
-//        collectionNameEditAutomationWithAndCondition="Jvoby - Product title-starts with-Áo thun";
         editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithAndCondition);
     }

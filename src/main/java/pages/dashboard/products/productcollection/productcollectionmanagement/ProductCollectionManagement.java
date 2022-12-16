@@ -31,6 +31,7 @@ public class ProductCollectionManagement extends HomePage {
     public ProductCollectionManagement navigateToProductCollectionManagement(){
         waitTillSpinnerDisappear();
         navigateToPage("Products", "Product Collections");
+        logger.info("Go to product collection management page.");
         return this;
     }
     public CreateProductCollection clickOnCreateCollection(){
@@ -70,6 +71,7 @@ public class ProductCollectionManagement extends HomePage {
         verifyType(type,0);
         verifyMode(mode,0);
         verifyItem(items,0);
+        logger.info("Verify collection info after created.");
         return this;
     }
     public ProductCollectionManagement verifyCollectionInfoAfterUpdated(String collectionName, String type, String mode, String items) throws Exception {
@@ -89,6 +91,7 @@ public class ProductCollectionManagement extends HomePage {
         if(!isSelected){
             throw new Exception("Collection not found! Check collection name again!");
         }
+        logger.info("Verify collection info after updated.");
         return this;
     }
     public EditProductCollection goToEditProductCollection(String collectionName) throws Exception {
@@ -105,6 +108,7 @@ public class ProductCollectionManagement extends HomePage {
         if(!isSelected){
             throw new Exception("Collection not found! Check collection name again!");
         }
+        logger.info("Go to edit product collection: "+collectionName);
         return new EditProductCollection(driver);
     }
     public String getTheFirstCollectionName(){
@@ -113,15 +117,13 @@ public class ProductCollectionManagement extends HomePage {
         return name;
     }
     public void verifyCollectNameNotDisplayInList(String collectionName){
-        waitTillSpinnerDisappear();
-        commonAction.sleepInMiliSecond(2000);
-        boolean isSelected = false;
         for (int i=0 ; i< collectionManagementUI.COLLECTION_NAMES.size();i++) {
             String collectionNameInList = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(i));
             if (collectionNameInList.equalsIgnoreCase(collectionName)){
                 Assert.assertTrue(false,collectionName+": still display in position "+i);
             }
         }
+        logger.info("Verify collection: %s - not show in list after deleted".formatted(collectionName));
         Assert.assertTrue(true,collectionName+": not show in collection list");
     }
     public void deleteTheFirstCollection(){
