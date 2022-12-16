@@ -1,4 +1,4 @@
-package pages.dashboard.products.productcollection.createproductcollection;
+package pages.dashboard.products.productcollection.createeditproductcollection;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,9 +26,13 @@ public class CreateProductCollectionElement {
     @FindBy(xpath = "//input[@id='radio-collectionType-AUTOMATED']/following-sibling::label")
     WebElement AUTOMATED_RADIO_ACTION;
     @FindBy(id = "radio-conditionType-ALL")
-    WebElement ALL_CONDITION_RADIO_BTN;
+    WebElement ALL_CONDITION_RADIO_VALUE;
+    @FindBy(xpath = "//input[@id='radio-conditionType-ALL']/parent::div")
+    WebElement ALL_CONDITION_RADIO_ACTION;
     @FindBy(id = "radio-conditionType-ANY")
-    WebElement ANY_CONDITION_RADIO_BTN;
+    WebElement ANY_CONDITION_RADIO_VALUE;
+    @FindBy(xpath = "//input[@id='radio-conditionType-ANY']/parent::div")
+    WebElement ANY_CONDITION_RADIO_ACTION;
     @FindBy(id = "conditionField")
     List<WebElement> CONDITION_DROPDOWN;
     @FindBy(id = "conditionOperand")
@@ -45,7 +49,7 @@ public class CreateProductCollectionElement {
     WebElement SEARCH_FOR_PRODUCT_INPUT;
     @FindBy(css = ".footer-btn .gs-button__green")
     WebElement OK_BTN;
-    @FindBy(css = ".automated-config__header button")
+    @FindBy(css = ".automated-config__header button > div")
     WebElement ADD_MORE_CONDITION_BTN;
     @FindBy(id = "seoTitle")
     WebElement SEO_TITLE;
@@ -63,5 +67,9 @@ public class CreateProductCollectionElement {
     List<WebElement> PRIORITIES_INPUT;
     @FindBy(xpath = "//td[contains(@class,gs-table-body-item)][2]//b")
     List<WebElement> PRODUCT_NAME_LIST;
+    @FindBy(css = ".btn-remove__row")
+    List<WebElement> DELETE_BTN_LIST;
 
+    @FindBy(css = ".btn-remove__row")
+    WebElement DELETE_BTN_1;
 }

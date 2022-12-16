@@ -197,7 +197,7 @@ public class HomePage {
     }
 
     public HomePage waitTillSpinnerDisappear() {
-        commons.waitTillElementDisappear(SPINNER, 15);
+        commons.waitTillElementDisappear(SPINNER, 20);
         logger.info("Spinner has finished loading");
         return this;
     }
@@ -350,7 +350,7 @@ public class HomePage {
         }
     }
 
-    public HomePage checkPageHasPermission(String pageName, String path) throws IOException, IOException {
+    public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
         commons.sleepInMiliSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
@@ -429,20 +429,23 @@ public class HomePage {
         return this;
     }
     /**
-     *
+     * @param page ALL: check all page, menuItemName: to check a page
      * @param packageType Input value: GoWeb, GoApp, GoPos, GoSocial, GoLead (ignore case)
      * @throws IOException
      */
-    public HomePage checkPermissionAllPageByPackage(String packageType) throws IOException {
+    public HomePage checkPermissionAllPageByPackage(String page, String packageType) throws IOException {
         excel = new Excel();
         Sheet planPermissionSheet = excel.getSheet(planPermissionFileName, 0);
         int rowNumber = planPermissionSheet.getLastRowNum();
         String permissionParentMenu = "";
         for (int i = 1; i <= rowNumber; i++) {
+            String menuItemExcel = planPermissionSheet.getRow(i).getCell(0).getStringCellValue();
+            if(!page.equalsIgnoreCase("ALL")&& !menuItemExcel.equalsIgnoreCase(page)){
+                continue;
+            }
             int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet.getRow(0), packageType);
             logger.debug("packageColIndex: " + packageColIndex);
             String permissionFromExcel = planPermissionSheet.getRow(i).getCell(packageColIndex).getStringCellValue();
-            String menuItemExcel = planPermissionSheet.getRow(i).getCell(0).getStringCellValue();
             logger.debug("PagesExcel: " + menuItemExcel);
             String pathExcel = planPermissionSheet.getRow(i).getCell(1).getStringCellValue();
             String hasSalePitch = planPermissionSheet.getRow(i).getCell(2).getStringCellValue();
@@ -464,10 +467,12 @@ public class HomePage {
                     }
                 }
             }
+            if(!page.equalsIgnoreCase("All")&& menuItemExcel.equalsIgnoreCase(page)){
+                break;
+            }
         }
         return this;
     }
-
     public HomePage completeVerifyPermissionByPackage() {
         logger.info("countFail = %s".formatted(countFailed));
         if (countFailed > 0) {
