@@ -17,12 +17,12 @@ public class BH_9536 extends BaseTest {
     CreateProduct createProduct;
 
     @BeforeSuite
-    void createCustomerAndSegment() {
+    void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         createProduct = new CreateProduct();
 
-        createProduct.getTaxList().getBranchList();
+        createProduct.getTaxList().getActiveBranchList();
 
         sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
 

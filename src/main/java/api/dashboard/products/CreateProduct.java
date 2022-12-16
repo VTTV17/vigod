@@ -27,16 +27,15 @@ public class CreateProduct {
 
     // api get path
     String API_TAX_LIST_PATH = "/storeservice/api/tax-settings/store/";
-    String API_BRANCH_LIST_PATH = "/storeservice/api/store-branch/active/";
+    String API_ACTIVE_BRANCH_LIST_PATH = "/storeservice/api/store-branch/active/%s";
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
 
     // pre-info
     private List<Integer> taxList;
-    public static List<Integer> branchIDList;
-    public static List<String> branchName;
-    public static List<String> branchAddress;
+    public static List<Integer> activeBranchIDList;
+    public static List<String> activeBranchName;
 
     // product info
     public static int withoutVariationListingPrice;
@@ -75,12 +74,11 @@ public class CreateProduct {
         return this;
     }
 
-    public void getBranchList() {
-        Response branchResponse = api.get(API_BRANCH_LIST_PATH + storeID, accessToken);
+    public void getActiveBranchList() {
+        Response branchResponse = api.get(API_ACTIVE_BRANCH_LIST_PATH.formatted(storeID), accessToken);
         branchResponse.then().statusCode(200);
-        branchIDList = branchResponse.jsonPath().getList("id");
-        branchName = branchResponse.jsonPath().getList("name");
-        branchAddress = branchResponse.jsonPath().getList("address");
+        activeBranchIDList = branchResponse.jsonPath().getList("id");
+        activeBranchName = branchResponse.jsonPath().getList("name");
     }
 
 
@@ -104,8 +102,8 @@ public class CreateProduct {
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
         String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
-                productBody.withoutVariationInfo(isIMEIProduct, branchIDList, branchName, branchStock),
-                productBody.withoutVariationBranchConfig(branchIDList));
+                productBody.withoutVariationInfo(isIMEIProduct, activeBranchIDList, activeBranchName, branchStock),
+                productBody.withoutVariationBranchConfig(activeBranchIDList));
 
         // get product stock and price
         withoutVariationSellingPrice = productBody.withoutVariationSellingPrice;
@@ -148,8 +146,8 @@ public class CreateProduct {
         // create body
         CreateProductBody productBody = new CreateProductBody();
         String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
-                productBody.variationInfo(isIMEIProduct, branchIDList, branchName, increaseNum, branchStock),
-                productBody.variationBranchConfig(branchIDList));
+                productBody.variationInfo(isIMEIProduct, activeBranchIDList, activeBranchName, increaseNum, branchStock),
+                productBody.variationBranchConfig(activeBranchIDList));
 
         // get product stock and price
         variationMap = productBody.variationMap;

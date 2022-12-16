@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import static api.dashboard.login.Login.storeURL;
-import static api.dashboard.promotion.CreatePromotion.productDiscountCampaignBranchConditionType;
 import static api.storefront.signup.SignUp.*;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -30,7 +29,7 @@ public class BH_8887 extends BaseTest {
 
         createProduct = new CreateProduct();
 
-        createProduct.getTaxList().getBranchList();
+        createProduct.getTaxList().getActiveBranchList();
 
         new SignUp().signUpByPhoneNumber();
 

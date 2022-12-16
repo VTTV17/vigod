@@ -67,7 +67,7 @@ public class CreatePromotion {
     public CreatePromotion() {
         // init flash sale/discount campaign status
         IntStream.range(0, isVariation ? variationList.size() : 1).forEachOrdered(i -> flashSaleStatus.add("EXPIRED"));
-        branchName.forEach(branch -> productDiscountCampaignStatus.put(branch, flashSaleStatus));
+        activeBranchName.forEach(branch -> productDiscountCampaignStatus.put(branch, flashSaleStatus));
     }
 
     public CreatePromotion endEarlyFlashSale() {
@@ -204,7 +204,7 @@ public class CreatePromotion {
         }
 
         //update product discount campaign status
-        branchName.forEach(branch -> productDiscountCampaignStatus.put(branch, IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
+        activeBranchName.forEach(branch -> productDiscountCampaignStatus.put(branch, IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
     }
 
     public CreatePromotion createProductDiscountCampaign(int... time) {
@@ -317,12 +317,12 @@ public class CreatePromotion {
         String applicableCondition;
         String applicableConditionValue = "";
         if (productDiscountCampaignBranchConditionType == 0) {
-            productDiscountCampaignApplicableBranch = CreateProduct.branchName;
+            productDiscountCampaignApplicableBranch = CreateProduct.activeBranchName;
             applicableCondition = "APPLIES_TO_BRANCH_ALL_BRANCHES";
         } else {
             productDiscountCampaignApplicableBranch = new ArrayList<>();
-            int branchID = branchIDList.get(nextInt(branchIDList.size()));
-            productDiscountCampaignApplicableBranch.add(CreateProduct.branchName.get(branchIDList.indexOf(branchID)));
+            int branchID = activeBranchIDList.get(nextInt(activeBranchIDList.size()));
+            productDiscountCampaignApplicableBranch.add(CreateProduct.activeBranchName.get(activeBranchIDList.indexOf(branchID)));
             applicableCondition = "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
             applicableConditionValue = """
                     {
@@ -346,7 +346,7 @@ public class CreatePromotion {
         logger.debug(createProductDiscountCampaign.asPrettyString());
 
         // update product discount campaign status
-        branchName.forEach(branch -> productDiscountCampaignStatus.put(branch, productDiscountCampaignApplicableBranch.contains(branch)
+        activeBranchName.forEach(branch -> productDiscountCampaignStatus.put(branch, productDiscountCampaignApplicableBranch.contains(branch)
                 ? IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "SCHEDULE").collect(Collectors.toList())
                 : IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
 
@@ -482,7 +482,7 @@ public class CreatePromotion {
         String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
                 {
                     "conditionValue": "%s"
-                }""".formatted(branchIDList.get(nextInt(branchIDList.size())));
+                }""".formatted(activeBranchIDList.get(nextInt(activeBranchIDList.size())));
         String applicableBranch = """
                 {
                     "conditionOption": "%s",

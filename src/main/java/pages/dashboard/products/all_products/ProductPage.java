@@ -49,7 +49,7 @@ public class ProductPage extends ProductVerify {
     public static int withoutVariationListingPrice;
     public static List<Integer> variationListingPrice;
     public static int withoutVariationSellingPrice;
-    public static List<Integer> variationSellingPrice;
+    public static List<Integer> variationSellingPrice1;
     public int withoutVariationCostPrice;
     public List<Integer> variationCostPrice;
 
@@ -555,14 +555,14 @@ public class ProductPage extends ProductVerify {
     public ProductPage changePriceForEachVariation(int... price) {
         // init variation price
         variationListingPrice = new ArrayList<>();
-        variationSellingPrice = new ArrayList<>();
+        variationSellingPrice1 = new ArrayList<>();
         variationCostPrice = new ArrayList<>();
 
         // get listing, selling and cost price for each variation
         for (int variationID = 0; variationID < variationValueList.size(); variationID++) {
             variationListingPrice.add(price.length > 0 ? price[0] : (int) (Math.random() * MAX_PRICE));
-            variationSellingPrice.add(price.length > 1 ? price[1] : (int) (Math.random() * variationListingPrice.get(variationID)));
-            this.variationCostPrice.add(price.length > 2 ? price[2] : (int) (Math.random() * variationSellingPrice.get(variationID)));
+            variationSellingPrice1.add(price.length > 1 ? price[1] : (int) (Math.random() * variationListingPrice.get(variationID)));
+            this.variationCostPrice.add(price.length > 2 ? price[2] : (int) (Math.random() * variationSellingPrice1.get(variationID)));
         }
 
         // input product price for each variation
@@ -570,7 +570,7 @@ public class ProductPage extends ProductVerify {
         for (int i = 0; i < VARIATION_TABLE.size(); i = i + 5) {
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE.get(i))).click();
             logger.info("Open variation price table");
-            changeVariationPriceInTable(variationListingPrice.get(variationID), variationSellingPrice.get(variationID), this.variationCostPrice.get(variationID));
+            changeVariationPriceInTable(variationListingPrice.get(variationID), variationSellingPrice1.get(variationID), this.variationCostPrice.get(variationID));
             variationID++;
         }
         return this;
@@ -593,17 +593,17 @@ public class ProductPage extends ProductVerify {
     public ProductPage changePriceForAllVariations(int... price) throws InterruptedException {
         // init variation price
         variationListingPrice = new ArrayList<>();
-        variationSellingPrice = new ArrayList<>();
+        variationSellingPrice1 = new ArrayList<>();
         variationCostPrice = new ArrayList<>();
 
         // get listing, selling and cost price for each variation
         variationListingPrice.add(price.length > 0 ? price[0] : (int) (Math.random() * MAX_PRICE));
-        variationSellingPrice.add(price.length > 1 ? price[1] : (int) (Math.random() * variationListingPrice.get(0)));
-        this.variationCostPrice.add(price.length > 2 ? price[2] : (int) (Math.random() * variationSellingPrice.get(0)));
+        variationSellingPrice1.add(price.length > 1 ? price[1] : (int) (Math.random() * variationListingPrice.get(0)));
+        this.variationCostPrice.add(price.length > 2 ? price[2] : (int) (Math.random() * variationSellingPrice1.get(0)));
 
         for (int variationID = 1; variationID < variationValueList.size(); variationID++) {
             variationListingPrice.add(variationListingPrice.get(variationID - 1));
-            variationSellingPrice.add(variationSellingPrice.get(variationID - 1));
+            variationSellingPrice1.add(variationSellingPrice1.get(variationID - 1));
             this.variationCostPrice.add(this.variationCostPrice.get(variationID - 1));
         }
 
@@ -614,7 +614,7 @@ public class ProductPage extends ProductVerify {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SELECT_ACTIONS_IN_VARIATION_TABLE);
         wait.until(ExpectedConditions.elementToBeClickable(LIST_ACTIONS.get(0))).click();
         logger.info("Open variation price table");
-        changeVariationPriceInTable(variationListingPrice.get(0), variationSellingPrice.get(0), this.variationCostPrice.get(0));
+        changeVariationPriceInTable(variationListingPrice.get(0), variationSellingPrice1.get(0), this.variationCostPrice.get(0));
 
         return this;
     }

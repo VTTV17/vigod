@@ -2,7 +2,6 @@ import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class BH_8616 extends BaseTest {
 
         createProduct = new CreateProduct();
 
-        createProduct.getTaxList().getBranchList();
+        createProduct.getTaxList().getActiveBranchList();
 
         sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
 
@@ -44,7 +43,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -61,7 +60,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -79,7 +78,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -96,7 +95,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -116,7 +115,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -135,7 +134,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -154,7 +153,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
     @Test
@@ -172,7 +171,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -193,7 +192,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -212,7 +211,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -231,7 +230,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
     @Test
@@ -249,7 +248,7 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkStockIsHiddenVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 }

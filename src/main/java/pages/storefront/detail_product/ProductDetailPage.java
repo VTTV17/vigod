@@ -1,6 +1,7 @@
 package pages.storefront.detail_product;
 
 import api.dashboard.products.CreateProduct;
+import api.dashboard.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -23,6 +24,8 @@ import java.util.stream.IntStream;
 import static api.dashboard.login.Login.storeURL;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
+import static api.dashboard.setting.BranchManagement.branchID;
+import static api.dashboard.setting.BranchManagement.isHideOnStoreFront;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.api_body.product.CreateProductBody.isDisplayOutOfStock;
@@ -34,6 +37,8 @@ public class ProductDetailPage extends ProductDetailElement {
     WebDriverWait wait;
 
     private int countFail = 0;
+
+    List<String> branchStatus;
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
@@ -120,7 +125,7 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("%s Check product price/ store currency show correctly".formatted(branch));
     }
 
-    public List<String> getFlashSaleStatus() {
+    private List<String> getFlashSaleStatus() {
         // get flash sale status
         if (flashSaleStatus.get(0).equals("SCHEDULE")) {
             boolean checkStart = flashSaleStartTime.getEpochSecond() - Instant.now().getEpochSecond() <= 0;
@@ -132,9 +137,9 @@ public class ProductDetailPage extends ProductDetailElement {
         return flashSaleStatus;
     }
 
-    public Map<String, List<String>> getProductDiscountCampaignStatus() {
+    private Map<String, List<String>> getProductDiscountCampaignStatus() {
         // get flash sale status
-        for (String branch : branchName) {
+        for (String branch : activeBranchName) {
             if (productDiscountCampaignStatus.get(branch).get(0).equals("SCHEDULE")) {
                 boolean checkStart = productDiscountCampaignStartTime.getEpochSecond() - Instant.now().getEpochSecond() <= 0;
                 boolean checkEnd = productDiscountCampaignEndTime.getEpochSecond() - Instant.now().getEpochSecond() > 0;
@@ -340,7 +345,7 @@ public class ProductDetailPage extends ProductDetailElement {
     private void checkStock(List<Integer> branchStock, String... variationName) throws IOException {
         String varName = variationName.length > 0 ? "[Variation: %s]".formatted(variationName[0]) : "";
         // if in stock, check show/hide as setting
-        if (Collections.max(branchStock) > 0) {
+        if (Collections.max(branchStock) > 0 && branchListIsShownOnSF()) {
             // actHide = true when stock quantity does not show
             boolean isHideOnSF = !(STOCK_QUANTITY_IN_BRANCH.size() > 0);
 
@@ -352,7 +357,10 @@ public class ProductDetailPage extends ProductDetailElement {
 
     private void checkBranch(List<Integer> branchStock, String... variationName) throws IOException {
         String varName = variationName.length > 0 ? "[Variation: %s]".formatted(variationName[0]) : "";
-        if (Collections.max(branchStock) > 0) {
+
+        // check branch on online shop
+        if ((Collections.max(branchStock) > 0) && branchListIsShownOnSF()) {
+
             // wait list branch visible
             commonAction.waitElementList(BRANCH_NAME_LIST);
 
@@ -360,8 +368,8 @@ public class ProductDetailPage extends ProductDetailElement {
             List<String> sfBranchList = BRANCH_NAME_LIST.stream().map(WebElement::getText).toList();
 
             for (int i = 0; i < branchStock.size(); i++) {
-                String branch = branchName.get(i);
-                if (branchStock.get(i) > 0) {
+                String branch = activeBranchName.get(i);
+                if ((branchStock.get(i) > 0) && branchStatus.get(i).equals("SHOW")) {
                     countFail = new AssertCustomize(driver).assertTrue(countFail, sfBranchList.contains(branch), "[Failed][Branch name: %s] Branch in-stock but is not shown.".formatted(branch));
                     logger.info("%s Check branch '%s' is shown.".formatted(varName, branch));
                 } else {
@@ -437,21 +445,23 @@ public class ProductDetailPage extends ProductDetailElement {
      * Compare product stock quantity per branch on the SF with Dashboard (without variation product)
      */
     private void checkStockQuantity(int index, int stockQuantity) throws IOException {
-        // wait list branch stock visible
-        commonAction.waitElementList(STOCK_QUANTITY_IN_BRANCH);
+        if (!isHideStock) {
+            // wait list branch stock visible
+            commonAction.waitElementList(STOCK_QUANTITY_IN_BRANCH);
 
-        // get stock on shop online
-        String sfStock = wait.until(visibilityOf(STOCK_QUANTITY_IN_BRANCH.get(index)))
-                .getText()
-                .replace("Còn hàng ", "")
-                .replace(" in stock", "").replace(",", "");
-        countFail = new AssertCustomize(driver).assertEquals(countFail,
-                sfStock,
-                String.valueOf(stockQuantity),
-                "[Failed][Branch name: %s] Stock quantity should be %s, but found %s"
-                        .formatted(BRANCH_NAME_LIST.get(index).getText(), stockQuantity, sfStock));
+            // get stock on shop online
+            String sfStock = wait.until(visibilityOf(STOCK_QUANTITY_IN_BRANCH.get(index)))
+                    .getText()
+                    .replace("Còn hàng ", "")
+                    .replace(" in stock", "").replace(",", "");
+            countFail = new AssertCustomize(driver).assertEquals(countFail,
+                    sfStock,
+                    String.valueOf(stockQuantity),
+                    "[Failed][Branch name: %s] Stock quantity should be %s, but found %s"
+                            .formatted(BRANCH_NAME_LIST.get(index).getText(), stockQuantity, sfStock));
 
-        logger.info("[Branch name: %s] Check current stock quantity".formatted(BRANCH_NAME_LIST.get(index).getText()));
+            logger.info("[Branch name: %s] Check current stock quantity".formatted(BRANCH_NAME_LIST.get(index).getText()));
+        } else logger.info("[Check stock] Setting hide stock on StoreFront.");
     }
 
     /**
@@ -488,7 +498,7 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     private void checkProductInformation(List<Integer> branchStock, int listingPrice, int sellingPrice) throws IOException {
-        if (Collections.max(branchStock) > 0) {
+        if ((Collections.max(branchStock) > 0) && branchListIsShownOnSF()) {
             // wait list branch visible
             commonAction.waitElementList(BRANCH_NAME_LIST);
 
@@ -516,7 +526,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
                 // check branch stock quantity
                 int index = BRANCH_NAME_LIST.indexOf(element);
-                checkStockQuantity(index, branchStock.get(branchName.indexOf(branch)));
+                checkStockQuantity(index, branchStock.get(activeBranchName.indexOf(branch)));
 
                 // check description
                 checkProductDescription(branch);
@@ -575,5 +585,28 @@ public class ProductDetailPage extends ProductDetailElement {
             }
         } else check404Page();
         return this;
+    }
+
+    public boolean branchListIsShownOnSF() {
+        // Call API and get Branch setting info
+        new BranchManagement().getBranchInformation();
+
+        // get branch status
+        branchStatus = activeBranchIDList.stream().mapToInt(brID -> brID).mapToObj(id -> (isHideOnStoreFront.get(branchID.indexOf(id)) != null)
+                && isHideOnStoreFront.get(branchID.indexOf(id)) ? "HIDE" : "SHOW").collect(Collectors.toList());
+
+        // check = false: hide all branches
+        // check = true: show at least 1 branch
+        boolean check = false;
+        if (isVariation) {
+            for (String var : variationStockQuantity.keySet()) {
+                List<Integer> branchStock = variationStockQuantity.get(var);
+                check = IntStream.range(0, branchStock.size()).anyMatch(i -> (branchStock.get(i) > 0) && branchStatus.get(i).equals("SHOW"));
+                break;
+            }
+        } else {
+            check = IntStream.range(0, withoutVariationStock.size()).anyMatch(i -> (withoutVariationStock.get(i) > 0) && branchStatus.get(i).equals("SHOW"));
+        }
+        return check;
     }
 }

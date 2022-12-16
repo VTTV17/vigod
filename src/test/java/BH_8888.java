@@ -29,7 +29,7 @@ public class BH_8888 extends BaseTest {
 
         createProduct = new CreateProduct();
 
-        createProduct.getTaxList().getBranchList();
+        createProduct.getTaxList().getActiveBranchList();
 
         new SignUp().signUpByPhoneNumber();
 

@@ -94,30 +94,32 @@ public class CreateProductBody {
         // get variation value
         List<List<String>> varValue = new ArrayList<>(variationMap.values());
         variationList = varValue.get(0);
-        if (varValue.size() > 1) {
-            for (int i = 1; i < varValue.size(); i++) {
-                variationList = new DataGenerator().mixVariationValue(variationList, varValue.get(i));
-            }
-        }
+        if (varValue.size() > 1)
+            IntStream.range(1, varValue.size())
+                    .forEachOrdered(i -> variationList = new DataGenerator()
+                            .mixVariationValue(variationList, varValue.get(i)));
 
-        // generate listing/selling price and stock
+        // random variation listing price
+        IntStream.range(0, variationList.size())
+                .map(i -> (int) (Math.random() * MAX_PRICE))
+                .forEachOrdered(orgPrice -> variationListingPrice.add(orgPrice));
+
+        // random variation selling price
+        variationListingPrice.stream()
+                .mapToInt(listingPrice -> (int) (Math.random() * listingPrice))
+                .forEachOrdered(newPrice -> variationSellingPrice.add(newPrice));
+
+
+        // random variation stock per branch
         for (int i = 0; i < variationList.size(); i++) {
-            // random variation listing price
-            int orgPrice = (int) (Math.random() * MAX_PRICE);
-            variationListingPrice.add(orgPrice);
-
-            // random variation selling price
-            int newPrice = (int) (Math.random() * orgPrice);
-            variationSellingPrice.add(newPrice);
-
-            // random variation stock per branch
             List<Integer> variationStock = new ArrayList<>();
-            for (int index = 0; index < branchIDList.size(); index++) {
-                // set branch stock
-                variationStock.add((branchStockQuantity.length > index) ? (branchStockQuantity[index] + (i * increaseNum)) : 0);
+            // set branch stock
+            for (int branchIndex = 0; branchIndex < branchIDList.size(); branchIndex++) {
+                variationStock.add((branchStockQuantity.length > branchIndex) ? (branchStockQuantity[branchIndex] + (i * increaseNum)) : 0);
             }
             variationStockQuantity.put(variationList.get(i), variationStock);
         }
+
 
         StringBuilder models = new StringBuilder("""
                 "models": [""");
