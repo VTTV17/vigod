@@ -120,12 +120,6 @@ public class APIAllProducts {
         System.out.println("productCollectionInfo: "+productCollectionInfo);
         return productCollectionInfo;
     }
-//    public List<String> getListProductMatchCondition_SortNewest(Map<String,Date> productCreatedDateMap) {
-//        Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
-//        List<String> productSorted = sortedMap.keySet().stream().toList();
-//        List<String> reverseView = Lists.newReversedArrayList(productSorted);
-//        return reverseView;
-//    }
     public String fortmatIfCreateDateMissMiliSecond(String time){
         Matcher m = Pattern.compile("\\d+").matcher(time);
         List<String> aa = new ArrayList<>();
@@ -227,7 +221,6 @@ public class APIAllProducts {
      * @return product list sorted
      */
     public List<String> getProductListCollection_SortNewest(Map productCollectionInfo){
-//        Map<String, Date> productCreatedDateMap = (Map<String, Date>) productCollectionInfo.get("productCreatedDateMap");
         Map<String, Date> sortedMap = SortData.sortMapByValue(productCollectionInfo);
         List<String> productSorted = sortedMap.keySet().stream().toList();
         List<String> reverseView = Lists.newReversedArrayList(productSorted);
@@ -245,96 +238,5 @@ public class APIAllProducts {
             count =1;
         }
         return count;
-    }
-    public Map productsBelongCollectionExpected_MultipleCondition(String token, String storeId,String conditionType, String... conditions) throws ParseException {
-        APIAllProducts apiAllProducts = new APIAllProducts();
-        int countItemExpected = 0;
-        Map mergeProductMap = new HashMap<>();
-        Map mergeProductMap_SortByNewest = new HashMap<>();
-
-        Map mergeProductCountItemMap = new HashMap<>();
-        Map compareProductMap = new HashMap<>();
-        Map compareCountItemMap = new HashMap<>();
-        for (String condition : conditions) {
-            String conditionField = condition.split("-")[0];
-            String operater = condition.split("-")[1];
-            String value = condition.split("-")[2];
-            Map productCreatedDateMap = new HashMap();
-            Map productCountItemMap = new HashMap();
-            if (conditionField.equalsIgnoreCase("Product title")) {
-                Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(token, storeId, operater, value);
-                productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
-                productCountItemMap = (Map) productCollection.get("productCountItemMap");
-            } else if (conditionField.equalsIgnoreCase("Product price")) {
-                Map productCollection = apiAllProducts.getProductMatchPriceCondition(token, storeId, operater, Long.parseLong(value));
-                productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
-                productCountItemMap = (Map) productCollection.get("productCountItemMap");
-            }
-            if (conditionType.equalsIgnoreCase("Any condition")) {
-                mergeProductMap.putAll(productCreatedDateMap);
-                mergeProductCountItemMap.putAll(productCountItemMap);
-            } else if (conditionType.equalsIgnoreCase("All conditions")) {
-                if (compareProductMap.isEmpty()) {
-                    compareProductMap.putAll(productCreatedDateMap);
-                    compareCountItemMap.putAll(productCountItemMap);
-                } else {
-                    for (Object key : productCreatedDateMap.keySet()) {
-                        if (compareProductMap.containsKey(key)) {
-                            mergeProductMap.put(key, productCreatedDateMap.get(key));
-                            mergeProductCountItemMap.put(key, productCountItemMap.get(key));
-                        }
-                    }
-                }
-            }
-        }
-        Collection<Integer> values = mergeProductCountItemMap.values();
-        System.out.println("values: "+values);
-        for (int v : values) {
-            countItemExpected = countItemExpected + v;
-        }
-//        mergeProductMap_SortByNewest.put("productCreatedDateMap",mergeProductMap);
-        System.out.println("mergeProductMap_SortByNewest: "+mergeProductMap_SortByNewest);
-        List<String> productExpectedList =  apiAllProducts.getProductListCollection_SortNewest(mergeProductMap);
-        System.out.println("productExpectedList1: "+productExpectedList);
-        Map productCollectInfoMap = new HashMap<>();
-        productCollectInfoMap.put("productExpectedList", productExpectedList);
-        productCollectInfoMap.put("CountItem", countItemExpected);
-        return productCollectInfoMap;
-    }
-    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, String storeID, String token, int collectionID) throws ParseException {
-        Map<String, Integer> sortedMap = SortData.sortMapByValue(productPriorityMap);
-        List<String> sortedList = new ArrayList<>();
-        List<Integer> values = sortedMap.values().stream().toList();
-        Map<String, Date> productUpdatedMap = new HashMap<>();
-        APIAllProducts apiAllProducts = new APIAllProducts();
-        for (int i = 0; i < values.size(); i++) {
-            String productKey1 = sortedMap.keySet().toArray()[i].toString();
-            String productKey2 ;
-
-            int value1 = values.get(i);
-            int value2;
-            if (i == values.size() - 1) {
-                value2 = values.get(i - 1);
-                productKey2 = sortedMap.keySet().toArray()[i-1].toString();
-            } else {
-                value2 = values.get(i + 1);
-                productKey2 = sortedMap.keySet().toArray()[i+1].toString();
-            }
-            if (value1 == value2) {
-                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey1));
-                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey2));
-                if(i == values.size()-1){
-                    sortedList.addAll(apiAllProducts.getProductListCollection_SortNewest(productUpdatedMap));
-                }
-            }else if (productUpdatedMap.isEmpty()) {
-                sortedList.add(productKey1);
-            } else {
-                sortedList.addAll(apiAllProducts.getProductListCollection_SortNewest(productUpdatedMap));
-                productUpdatedMap = new HashMap<>();
-            }
-
-        }
-        System.out.println("sortedList: " + sortedList);
-        return sortedList;
     }
 }

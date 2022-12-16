@@ -26,7 +26,6 @@ public class CreateProductCollection extends HomePage {
     CreateProductCollectionElement createCollectionUI;
     ProductCollectionManagement productCollectionManagement;
     DataGenerator generator;
-//    public static List<String> productSortByPriority = new ArrayList<>();
     public static Map<String, Integer> productPriorityMap = new HashMap<>();
     public static int productSelectedNumber = 0;
 
@@ -123,8 +122,8 @@ public class CreateProductCollection extends HomePage {
 
     /**
      * @param conditionType: All conditions, Any condition (ignore case)
-     * @return
-     * @throws Exception
+     * @return CreateProductCollection
+     * @throws Exception if conditionType not match
      */
     public CreateProductCollection selectConditionType(String conditionType) throws Exception {
         if (conditionType.equalsIgnoreCase("All conditions")) {
@@ -137,19 +136,25 @@ public class CreateProductCollection extends HomePage {
         return this;
     }
 
-    public Map<String, Integer> inputPriority(boolean isInputAllProduct, boolean isInputDuplicate) {
+    /**
+     *
+     * @param isInputAllProduct input priority for all product
+     * @param canInputDuplicate can input same priority
+     * @return
+     */
+    public Map<String, Integer> inputPriority(boolean isInputAllProduct, boolean canInputDuplicate) {
         Map<String, Integer> productPriorityMap = new HashMap<>();
         common.sleepInMiliSecond(1000);
         int productListSize = createCollectionUI.PRODUCT_NAME_LIST.size();
         List<Integer> priorityList;
         if (isInputAllProduct) {
-            if (isInputDuplicate) {
+            if (canInputDuplicate) {
                 priorityList = generator.randomListNumberCanDuplicate(productListSize);
             } else {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize);
             }
         } else {
-            if (isInputDuplicate) {
+            if (canInputDuplicate) {
                 priorityList = generator.randomListNumberCanDuplicate(productListSize - 2);
             } else {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize - 2);
@@ -174,7 +179,7 @@ public class CreateProductCollection extends HomePage {
         for (int i = 0; i < productListSize; i++) {
             String priority = common.getElementAttribute(createCollectionUI.PRIORITIES_INPUT.get(i),"value");
             if (priority!="") {
-                productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority ));
+                productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority));
             } else {
                 productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(), productListSize);
             }
@@ -184,8 +189,8 @@ public class CreateProductCollection extends HomePage {
     /**
      * @param conditions: fortmat: condition-operator-value.
      * @param: condition:"Product title","Product price".
-     * @param:operator for product title: "starts with", "ends with", "is equal to")
-     * @param:operator for product price: "is greater than", "is less than", "is equal to"
+     * @param:operator for product title: "starts with", "ends with", "is equal to".
+     * Operator for product price: "is greater than", "is less than", "is equal to"
      * @param:Example: Product title-contains-coffee
      * @param hasAvailable: has condition before, then add more condition
      */
@@ -285,7 +290,6 @@ public class CreateProductCollection extends HomePage {
         for (int i = 0; i < values.size(); i++) {
             String productKey1 = sortedMap.keySet().toArray()[i].toString();
             String productKey2 ;
-
             int value1 = values.get(i);
             int value2;
             if (i == values.size() - 1) {
@@ -309,7 +313,7 @@ public class CreateProductCollection extends HomePage {
             }
 
         }
-        System.out.println("sortedList: " + sortedList);
+        logger.info("Get sorted list by priority and created date: " + sortedList);
         return sortedList;
     }
 
@@ -362,7 +366,13 @@ public class CreateProductCollection extends HomePage {
         logger.info("Create Automated collection without SEO info successfully.");
         return clickOnClose();
     }
-
+    /**
+     * @param token
+     * @param storeId
+     * @param condition: (Product price/Product title)-(is greater than/less than/is equal to/starts with/ends with/contains)-(value)
+     * @return Map: productExpectedList, CountItem
+     * @throws ParseException
+     */
     public Map productsBelongCollectionExpected_OneCondition(String token, String storeId, String condition) throws ParseException {
         APIAllProducts apiAllProducts = new APIAllProducts();
         String conditionField = condition.split("-")[0];
@@ -382,6 +392,7 @@ public class CreateProductCollection extends HomePage {
         }
         productCollectionExpected.put("ExpectedList", productExpectedList);
         productCollectionExpected.put("CountItem", countItemExpected);
+        logger.info("Get product match 1 condition: "+productCollectionExpected);
         return productCollectionExpected;
     }
 
@@ -390,15 +401,13 @@ public class CreateProductCollection extends HomePage {
      * @param storeId
      * @param conditionType: All conditions, Any condition
      * @param conditions:    (Product price/Product title)-(is greater than/less than/is equal to/starts with/ends with/contains)-(value)
-     * @return Map: productExpectedList, CountItem
+     * @return Map with keys: productExpectedList, CountItem
      * @throws ParseException
      */
     public Map productsBelongCollectionExpected_MultipleCondition(String token, String storeId, String conditionType, String... conditions) throws ParseException {
         APIAllProducts apiAllProducts = new APIAllProducts();
         int countItemExpected = 0;
         Map mergeProductMap = new HashMap<>();
-        Map mergeProductMap_SortByNewest = new HashMap<>();
-
         Map mergeProductCountItemMap = new HashMap<>();
         Map compareProductMap = new HashMap<>();
         Map compareCountItemMap = new HashMap<>();
@@ -439,12 +448,11 @@ public class CreateProductCollection extends HomePage {
         for (int v : values) {
             countItemExpected = countItemExpected + v;
         }
-        System.out.println("mergeProductMap_SortByNewest: " + mergeProductMap_SortByNewest);
         List<String> productExpectedList = apiAllProducts.getProductListCollection_SortNewest(mergeProductMap);
-        System.out.println("productExpectedList1: " + productExpectedList);
         Map productCollectInfoMap = new HashMap<>();
         productCollectInfoMap.put("productExpectedList", productExpectedList);
         productCollectInfoMap.put("CountItem", countItemExpected);
+        logger.info("Get product match multiple condition: "+productCollectInfoMap);
         return productCollectInfoMap;
     }
 }

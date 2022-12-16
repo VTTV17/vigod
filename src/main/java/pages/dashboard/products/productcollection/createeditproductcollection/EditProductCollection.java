@@ -1,11 +1,11 @@
 package pages.dashboard.products.productcollection.createeditproductcollection;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
@@ -18,6 +18,7 @@ import java.util.List;
 public class EditProductCollection extends CreateProductCollection {
     WebDriver driver;
     ProductCollectionManagement productCollectionManagement;
+    final static Logger logger = LogManager.getLogger(EditProductCollection.class);
 
     public EditProductCollection(WebDriver driver) {
         super(driver);
@@ -49,7 +50,6 @@ public class EditProductCollection extends CreateProductCollection {
     }
     public ProductCollectionManagement editProductListInManualCollection(String[] newProductList, boolean hasDeleteProduct, boolean hasInputPriority){
         waitTillSpinnerDisappear();
-        common.sleepInMiliSecond(1000);
         int productSize = createCollectionUI.DELETE_BTN_LIST.size();
         System.out.println("productSize: "+productSize);
         if(hasDeleteProduct) {
@@ -60,7 +60,6 @@ public class EditProductCollection extends CreateProductCollection {
            }
        }
        selectProductWithKeyword(newProductList);
-        common.sleepInMiliSecond(1000);
         if(hasInputPriority){
            CreateProductCollection.productPriorityMap = inputPriority(false,true);
            clickOnSaveBTN();//Click outside
@@ -98,8 +97,8 @@ public class EditProductCollection extends CreateProductCollection {
         allList.toArray(allConditionArr);
         selectCondition(true,allList.toArray(allConditionArr));
         clickOnSaveBTN();
-        logger.info("Update Automated collection successfully.");
         clickOnClose();
+        logger.info("Update Automated collection successfully.");
         return allConditionArr;
     }
 }
