@@ -68,6 +68,15 @@ public class ProductDetailElement {
     @FindBy(css = "#button-buy-now")
     WebElement BUY_NOW_BTN;
 
+    @FindBy (css = "#button-add-to-cart")
+    WebElement ADD_TO_CART_BTN;
+
     @FindBy(css = ".loader")
     WebElement SPINNER;
+
+    @FindBy (css = "#locationCode")
+    WebElement FILTER_BRANCH_BY_LOCATION;
+
+    @FindBy (css = ".input-search-branch")
+    WebElement SEARCH_BRANCH_BY_ADDRESS;
 }

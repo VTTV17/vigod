@@ -5,11 +5,11 @@
         <classes>
             <class name="BH_8616">
                 <methods>
-<!--                    <include name="BH_8616_G1_Case1_1_HideStockAndInStock"/>-->
-<!--                    <include name="BH_8616_G1_Case2_1_ShowStockAndInStock" />-->
+                    <include name="BH_8616_G1_Case1_1_HideStockAndInStock"/>
+                    <include name="BH_8616_G1_Case2_1_ShowStockAndInStock" />
 
-<!--                    <include name="BH_8616_G2_Case1_1_HideStockAndInStock"/>-->
-<!--                    <include name="BH_8616_G2_Case2_1_ShowStockAndInStock" />-->
+                    <include name="BH_8616_G2_Case1_1_HideStockAndInStock"/>
+                    <include name="BH_8616_G2_Case2_1_ShowStockAndInStock" />
 
                     <include name="BH_8616_G3_Case1_1_HideStockAndInStock_AllVariations"/>
                     <include name="BH_8616_G3_Case1_2_HideStockAndInStock_SomeVariations"/>

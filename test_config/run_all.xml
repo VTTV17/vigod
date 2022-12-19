@@ -2,8 +2,11 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="All suite">
     <suite-files>
-        <suite-file path="bh_8616.xml"/>
-        <suite-file path="bh_9536.xml"/>
+        <suite-file path="BH_8616.xml"/>
+        <suite-file path="BH_9536.xml"/>
+        <suite-file path="BH_9753.xml"/>
+<!--        <suite-file path="BH_8888.xml"/>-->
+<!--        <suite-file path="BH_8887.xml"/>-->
         <!--        <suite-file path="" />-->
     </suite-files>
 </suite>

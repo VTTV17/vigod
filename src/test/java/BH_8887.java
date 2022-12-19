@@ -2,6 +2,8 @@ import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
+import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.VAT;
 import api.storefront.login.LoginSF;
 import api.storefront.signup.SignUp;
 import org.testng.annotations.BeforeGroups;
@@ -29,7 +31,9 @@ public class BH_8887 extends BaseTest {
 
         createProduct = new CreateProduct();
 
-        createProduct.getTaxList().getActiveBranchList();
+        new BranchManagement().getBranchInformation();
+
+        new VAT().getTaxList();
 
         new SignUp().signUpByPhoneNumber();
 

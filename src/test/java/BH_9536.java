@@ -1,19 +1,18 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
+import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.VAT;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 
 import java.io.IOException;
 
-import static api.dashboard.login.Login.storeURL;
 import static utilities.api_body.product.CreateProductBody.isDisplayOutOfStock;
-import static utilities.links.Links.SF_DOMAIN;
 
 // BH_9536:Check to display/hide if out of stock at product detail
 public class BH_9536 extends BaseTest {
 
-    String sfDomain;
     CreateProduct createProduct;
 
     @BeforeSuite
@@ -22,10 +21,9 @@ public class BH_9536 extends BaseTest {
 
         createProduct = new CreateProduct();
 
-        createProduct.getTaxList().getActiveBranchList();
+        new BranchManagement().getBranchInformation();
 
-        sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
-
+        new VAT().getTaxList();
     }
 
     // G1: Normal product - without variation

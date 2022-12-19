@@ -16,6 +16,9 @@ import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.storeID;
+import static api.dashboard.setting.BranchManagement.branchID;
+import static api.dashboard.setting.BranchManagement.branchName;
+import static api.dashboard.setting.VAT.taxList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -26,16 +29,9 @@ import static utilities.links.Links.STORE_CURRENCY;
 public class CreateProduct {
 
     // api get path
-    String API_TAX_LIST_PATH = "/storeservice/api/tax-settings/store/";
-    String API_ACTIVE_BRANCH_LIST_PATH = "/storeservice/api/store-branch/active/%s";
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
-
-    // pre-info
-    private List<Integer> taxList;
-    public static List<Integer> activeBranchIDList;
-    public static List<String> activeBranchName;
 
     // product info
     public static int withoutVariationListingPrice;
@@ -67,20 +63,6 @@ public class CreateProduct {
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
 
-    public CreateProduct getTaxList() {
-        Response taxResponse = api.get(API_TAX_LIST_PATH + storeID, accessToken);
-        taxResponse.then().statusCode(200);
-        taxList = taxResponse.jsonPath().getList("id");
-        return this;
-    }
-
-    public void getActiveBranchList() {
-        Response branchResponse = api.get(API_ACTIVE_BRANCH_LIST_PATH.formatted(storeID), accessToken);
-        branchResponse.then().statusCode(200);
-        activeBranchIDList = branchResponse.jsonPath().getList("id");
-        activeBranchName = branchResponse.jsonPath().getList("name");
-    }
-
 
     public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
         CreateProduct.isIMEIProduct = isIMEIProduct;
@@ -102,8 +84,8 @@ public class CreateProduct {
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
         String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
-                productBody.withoutVariationInfo(isIMEIProduct, activeBranchIDList, activeBranchName, branchStock),
-                productBody.withoutVariationBranchConfig(activeBranchIDList));
+                productBody.withoutVariationInfo(isIMEIProduct, branchID, branchName, branchStock),
+                productBody.withoutVariationBranchConfig(branchID));
 
         // get product stock and price
         withoutVariationSellingPrice = productBody.withoutVariationSellingPrice;
@@ -111,7 +93,7 @@ public class CreateProduct {
         withoutVariationStock = productBody.withoutVariationStock;
 
         // post without variation product
-        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, String.valueOf(body));
+        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
         if (createProductResponse.getStatusCode() != 201) {
             logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
         }
@@ -146,8 +128,8 @@ public class CreateProduct {
         // create body
         CreateProductBody productBody = new CreateProductBody();
         String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
-                productBody.variationInfo(isIMEIProduct, activeBranchIDList, activeBranchName, increaseNum, branchStock),
-                productBody.variationBranchConfig(activeBranchIDList));
+                productBody.variationInfo(isIMEIProduct, branchID, branchName, increaseNum, branchStock),
+                productBody.variationBranchConfig(branchID));
 
         // get product stock and price
         variationMap = productBody.variationMap;
@@ -159,11 +141,9 @@ public class CreateProduct {
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
-
-        logger.debug(body);
-
-        // log
-        logger.debug("Create product response: %s".formatted(createProductResponse.asPrettyString()));
+        if (createProductResponse.getStatusCode() != 201) {
+            logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
+        }
 
         // if pre-condition can not complete -> skip test
         createProductResponse.then().statusCode(201);
