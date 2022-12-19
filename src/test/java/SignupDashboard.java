@@ -14,8 +14,6 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pages.InternalTool;
-import pages.Mailnesia;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
@@ -24,6 +22,7 @@ import pages.gomua.headergomua.HeaderGoMua;
 import pages.gomua.logingomua.LoginGoMua;
 import pages.gomua.signup.SignupGomua;
 import pages.storefront.header.HeaderSF;
+import pages.thirdparty.Mailnesia;
 import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
@@ -62,7 +61,7 @@ public class SignupDashboard extends BaseTest {
 
 	public void generateTestData() {
 		storePhone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits
-		mail = "automation0-shop" + storePhone + "@mailnesia.com";
+		mail = "auto0-shop" + storePhone + "@mailnesia.com";
 		password = "fortesting!1";
 		referralCode = "";
 		country = "rd";
@@ -120,10 +119,12 @@ public class SignupDashboard extends BaseTest {
 			signupPage.selectLanguage(storeLanguage);
 		}
 		
-		if (!username.matches("\\d+")) {
-			signupPage.inputStorePhone(contact);
-		} else {
-			signupPage.inputStoreMail(contact);
+		if (contact.length() >1) {
+			if (!username.matches("\\d+")) {
+				signupPage.inputStorePhone(contact);
+			} else {
+				signupPage.inputStoreMail(contact);
+			}			
 		}
 
 		signupPage.inputPickupAddress(pickupAddress).selectProvince(province);
@@ -138,6 +139,7 @@ public class SignupDashboard extends BaseTest {
 
 	public void verifyUpgradNowMessage() {
 		String upgradeNowMessage;
+		new HomePage(driver).waitTillSpinnerDisappear1();
 		if (new HomePage(driver).getDashboardLanguage().contentEquals("VIE")) {
 			upgradeNowMessage = UPGRADENOW_MESSAGE_VI;
 		} else {
@@ -148,6 +150,7 @@ public class SignupDashboard extends BaseTest {
 
 	public void reLogintoShop(String country, String user, String password) {
 		new LoginPage(driver).performLogin(country, user, password);
+		new HomePage(driver).waitTillSpinnerDisappear();
 		verifyUpgradNowMessage();
 		new HomePage(driver).clickUpgradeNow();
 	}
@@ -233,9 +236,13 @@ public class SignupDashboard extends BaseTest {
 		generateTestData();
 	}
 
-//	@Test
+	@Test
 	public void SignUpForShopWithRandomData() throws SQLException {
 
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String storeLanguage = "Tiếng Việt";
+		
 		String username = storePhone;
 		String contact = mail;
 
@@ -452,8 +459,8 @@ public class SignupDashboard extends BaseTest {
 	@Test
 	public void BH_5195_SignUpForPhoneAccountWithURLInUpperCase() throws SQLException {
 		
-		String username = mail;
-		String contact = storePhone;
+		String username = storePhone;
+		String contact = mail;
 		
 		Pattern p = Pattern.compile("[A-Za-z0-9]+");
 		Matcher m = p.matcher(storeName + generate.generateString(10));
@@ -714,7 +721,7 @@ public class SignupDashboard extends BaseTest {
 		// Setup store
 		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
-		
+		new HomePage(driver).waitTillSpinnerDisappear();
 		// Verify upgrade now popup can be closed at home screen
 		verifyUpgradNowMessage();
 		new HomePage(driver).closeUpgradeNowPopUp();
@@ -797,7 +804,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, "", pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Verify upgrade now popup can be closed at home screen
@@ -935,7 +942,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, "", pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 
 		// Check if user is redirected to package registration screen
@@ -1054,7 +1061,7 @@ public class SignupDashboard extends BaseTest {
 		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, "", pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Check if user is redirected to package registration screen
@@ -1084,8 +1091,7 @@ public class SignupDashboard extends BaseTest {
 		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
 	}	
 
-	// BH-18726: Email field is missing at shop setup wizard screen
-//	@Test
+	@Test
 	public void BH_4052_SignUpForShopUsingGomuaPhoneAccount() throws SQLException {
 		
 		country = "Vietnam";
@@ -1125,7 +1131,7 @@ public class SignupDashboard extends BaseTest {
 		.clickContinueOrConfirmBtn();
 
 		// Setup store
-		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, "", pickupAddress,
 				secondPickupAddress, province, district, ward, city, zipCode);
 		
 		// Check if user is redirected to package registration screen

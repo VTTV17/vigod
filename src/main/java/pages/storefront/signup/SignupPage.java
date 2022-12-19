@@ -10,9 +10,10 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
-import pages.Mailnesia;
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
+import pages.storefront.login.LoginPage;
+import pages.thirdparty.Mailnesia;
 import utilities.UICommonAction;
 import utilities.database.InitConnection;
 
@@ -66,6 +67,9 @@ public class SignupPage {
 
     @FindBy(css = "#signup-password")
     WebElement PASSWORD;
+    
+    @FindBy(css = "#signup-modal [data-target='#login-modal']")
+    WebElement LOGIN_NOW_LINKTEXT;
 
     @FindBy(id = "get-email-skip")
     WebElement LATER_LINKTEXT;    
@@ -180,6 +184,12 @@ public class SignupPage {
         logger.info("Clicked on Signup button.");
         new GeneralSF(driver).waitTillLoaderDisappear();
         return this;
+    }
+    
+    public LoginPage clickLoginNow() {
+    	commonAction.clickElement(LOGIN_NOW_LINKTEXT);
+    	logger.info("Clicked on 'Login Now' link text.");
+    	return new LoginPage(driver);
     }
 
     public SignupPage fillOutSignupForm(String country, String user, String password, String displayName, String birthday) {

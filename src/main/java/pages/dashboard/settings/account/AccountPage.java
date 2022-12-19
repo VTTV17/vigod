@@ -8,6 +8,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
+
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -32,6 +34,8 @@ public class AccountPage {
     @FindBy(css = "li:nth-child(1) > a.nav-link")
     WebElement ACCOUNT_TAB;
     
+    @FindBy(css = ".see-plan button")
+    WebElement SEEPLAN_BTN;
     
     @FindBy (id = "currentPassword")
     WebElement CURRENT_PASSWORD;
@@ -62,6 +66,13 @@ public class AccountPage {
     	commonAction.clickElement(ACCOUNT_TAB);
     	logger.info("Clicked on Account tab.");
         return this;
+    }
+    
+    public AccountPage clickSeePlans() {
+    	commonAction.clickElement(SEEPLAN_BTN);
+    	logger.info("Clicked on 'See Plans' button.");
+    	new HomePage(driver).waitTillSpinnerDisappear();
+    	return this;
     }
 
     public AccountPage inputCurrentPassword(String password) {

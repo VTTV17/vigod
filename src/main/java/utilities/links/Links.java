@@ -13,7 +13,7 @@ public class Links {
     public static String SF_COFFEE = "https://coffeeshop.unisell.vn/";
     public static String LOGIN_PATH = "/login";
 
-    public static String SIGNUP_PATH = "/wizard/1";
+    public static String SIGNUP_PATH = "/signup";
     public static String SIGNUP_PATH1 = "/wizard/1";
     public static String INTERNAL_TOOL = "http://internal.beecow.info/";
 
