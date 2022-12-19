@@ -13,6 +13,7 @@ import org.testng.asserts.SoftAssert;
 
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
+import pages.storefront.signup.SignupPage;
 import utilities.UICommonAction;
 
 import static utilities.links.Links.*;
@@ -60,6 +61,15 @@ public class LoginPage {
     @FindBy(id = "verify-password")
     WebElement PASSWORD_FORGOT_TXTBOX;
 
+    @FindBy (css = "#forgot-pwd-modal [data-target='#login-modal']")
+    WebElement BACK_TO_LOGIN_LINKTEXT;  
+    
+    @FindBy (css = "#login-modal .facebook-login-button")
+    WebElement FACEBOOK_LOGIN_ICON;  
+    
+    @FindBy (css = "#login-modal [data-target='#signup-modal']")
+    WebElement CREATE_NEW_ACCOUNT_LINKTEXT;  
+    
     @FindBy (css = "#frm-forgot-pwd .btn-submit")
     WebElement CONTINUE_BTN;    
     
@@ -170,6 +180,25 @@ public class LoginPage {
     	commonAction.clickElement(FORGOT_PASSWORD);
     	logger.info("Clicked on Forgot Password linktext.");
     	return this;
+    }   
+    
+    public LoginPage clickFacebookIcon() {
+    	commonAction.clickElement(FACEBOOK_LOGIN_ICON);
+    	logger.info("Clicked on Facebook login icon.");
+    	commonAction.sleepInMiliSecond(1000);
+    	return this;
+    }  
+    
+    public LoginPage clickBackToLogin() {
+    	commonAction.clickElement(BACK_TO_LOGIN_LINKTEXT);
+    	logger.info("Clicked on 'Back To Login' linktext.");
+    	return this;
+    }  
+    
+    public SignupPage clickCreateNewAccount() {
+    	commonAction.clickElement(CREATE_NEW_ACCOUNT_LINKTEXT);
+    	logger.info("Clicked on 'Create New Account' linktext.");
+    	return new SignupPage(driver);
     }    
 
     public LoginPage clickContinueBtn() {

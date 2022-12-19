@@ -20,6 +20,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class SignupPage {
@@ -79,7 +80,7 @@ public class SignupPage {
     @FindBy (css = ".btn-next")
     WebElement COMPLETE_BTN;
     
-    @FindBy (css = ".wizard-layout__content a")
+    @FindBy (xpath = "//div[contains(@class,'package-steps')]/following-sibling::*/a")
     WebElement LOGOUT;
 
     @FindBy (css = "div.uik-select__valueWrapper>div>div:nth-child(2)")
@@ -190,6 +191,7 @@ public class SignupPage {
 	 * 
 	 */	
 	public SignupPage selectDisplayLanguage(String language) throws Exception {
+		commonAction.sleepInMiliSecond(500);
 		if (language.contentEquals("English")) {
 			commonAction.clickElement(ENGLISH_LANGUAGE);
 		} else if (language.contentEquals("Vietnamese")) {
@@ -208,6 +210,7 @@ public class SignupPage {
     		int randomNumber = new Random().nextInt(0, COUNTRY_LIST.size());
     		COUNTRY_LIST.get(randomNumber).click();
     	} else {
+    		commonAction.sleepInMiliSecond(500);
     		driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
     	} 
     	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");

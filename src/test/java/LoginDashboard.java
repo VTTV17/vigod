@@ -5,11 +5,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import pages.Mailnesia;
+
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.account.AccountPage;
 import pages.dashboard.signup.SignupPage;
+import pages.thirdparty.Mailnesia;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 

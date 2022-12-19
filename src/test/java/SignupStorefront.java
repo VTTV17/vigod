@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pages.Mailnesia;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
 import pages.dashboard.home.HomePage;
@@ -27,6 +26,7 @@ import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAddress;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
+import pages.thirdparty.Mailnesia;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 

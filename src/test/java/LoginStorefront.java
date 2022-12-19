@@ -1,3 +1,5 @@
+import static org.testng.Assert.assertFalse;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +11,16 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pages.Mailnesia;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
 import pages.dashboard.home.HomePage;
 import pages.storefront.header.ChangePasswordDialog;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.login.LoginPage;
+import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
+import pages.thirdparty.Facebook;
+import pages.thirdparty.Mailnesia;
 import utilities.jsonFileUtility;
 import utilities.database.InitConnection;
 
@@ -28,6 +32,9 @@ public class LoginStorefront extends BaseTest {
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
 	String STORE_COUNTRY;
+	
+	String FACEBOOK;
+	String FACEBOOK_PASSWORD;
 	
 	String BUYER_MAIL_USERNAME;
 	String BUYER_MAIL_PASSWORD;
@@ -81,6 +88,8 @@ public class LoginStorefront extends BaseTest {
 		STORE_USERNAME = db.findValue("seller").findValue("mail").findValue("username").asText();
 		STORE_PASSWORD = db.findValue("seller").findValue("mail").findValue("password").asText();
 		STORE_COUNTRY = db.findValue("seller").findValue("mail").findValue("country").asText();
+		FACEBOOK = db.findValue("seller").findValue("facebook").findValue("username").asText();
+		FACEBOOK_PASSWORD = db.findValue("seller").findValue("facebook").findValue("password").asText();
 		BUYER_MAIL_USERNAME = sf.findValue("buyer").findValue("mail").findValue("username").asText();
 		BUYER_MAIL_PASSWORD = sf.findValue("buyer").findValue("mail").findValue("password").asText();
 		BUYER_MAIL_COUNTRY = sf.findValue("buyer").findValue("mail").findValue("country").asText();
@@ -147,6 +156,40 @@ public class LoginStorefront extends BaseTest {
 	}
 
 	@Test
+	public void BH_1335_UnableToChangePasswordForFacebookAccount() {
+		loginPage.navigate(utilities.links.Links.SF_ShopVi);
+		headerPage.clickUserInfoIcon().clickLoginIcon();
+		loginPage.clickFacebookIcon();
+		
+		commonAction.switchToWindow(1);
+		new Facebook(driver).performLogin("trangthuy9662@gmail.com", "Password2@");
+		commonAction.switchToWindow(0);
+		
+		commonAction.sleepInMiliSecond(5000);
+		headerPage.clickUserInfoIcon();
+		
+		headerPage.clickUserInfoIcon();
+		commonAction.sleepInMiliSecond(1000);
+		
+		assertFalse(headerPage.checkForPresenceOfChangePasswordLink());
+	}
+	
+	@Test
+	public void BH_4592_NavigateBetweenLoginAndSignupForm() {
+		loginPage.navigate();
+		headerPage.clickUserInfoIcon()
+		.clickSignupIcon();
+		
+		new SignupPage(driver)
+		.inputBirthday("02/02/1990")
+		.clickLoginNow()
+		.clickForgotPassword()
+		.clickBackToLogin()
+		.clickCreateNewAccount()
+		.inputBirthday("01/02/1990");
+	}
+	
+	@Test
 	public void BH_1334_LoginWithNonExistingAccount() {
 		loginPage.navigate()
 				.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
@@ -155,7 +198,25 @@ public class LoginStorefront extends BaseTest {
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
 	}
 	
-	// Run again once new code is deployed onto STAG
+	@Test
+	public void BH_1609_LogoutAccount() {
+		loginPage.navigate()
+		.performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
+		
+		commonAction.openNewTab();
+		commonAction.switchToWindow(1);
+		
+		loginPage.navigate(utilities.links.Links.SF_ShopVi)
+		.performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
+		
+		commonAction.switchToWindow(0);
+		headerPage.clickUserInfoIcon().clickLogout();
+		
+		commonAction.switchToWindow(1);
+		commonAction.refreshPage();
+		headerPage.clickUserInfoIcon().clickLogout();
+	}
+	
 	@Test
 	public void BH_1282_LoginWithCorrectAccount() throws InterruptedException {
 		// Login
@@ -190,14 +251,13 @@ public class LoginStorefront extends BaseTest {
 		new HomePage(driver).waitTillSpinnerDisappear();
 		
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName).clickUser(displayName);
-		Assert.assertTrue((new CustomerDetails(driver).getPhoneNumber()).contains(phone.split(":")[1]));
+		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), phone);
 		
 		commonAction.navigateBack();
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName1).clickUser(displayName1);
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}
 
-	// Run again once new code is deployed onto STAG
 	@Test
 	public void BH_1595_LoginWithExistingGomuaAccount() throws InterruptedException {
 		// Login
@@ -232,7 +292,7 @@ public class LoginStorefront extends BaseTest {
 		new HomePage(driver).waitTillSpinnerDisappear();
 		
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName).clickUser(displayName);
-		Assert.assertTrue((new CustomerDetails(driver).getPhoneNumber()).contains(phone.split(":")[1]));
+		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), phone);
 		
 		commonAction.navigateBack();
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName1).clickUser(displayName1);
