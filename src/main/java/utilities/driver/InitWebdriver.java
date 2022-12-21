@@ -2,7 +2,6 @@ package utilities.driver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -42,7 +41,6 @@ public class InitWebdriver {
                     chromeOptions.setHeadless(headless.equals("true"));
                     // fix org.openqa.selenium.WebDriverException: unknown error: cannot determine loading status from no such window
                     chromeOptions.addArguments("--disable-site-isolation-trials");
-//                    chromeOptions.setExperimentalOption("debuggerAddress","localhost:4343");
                     driver = new ChromeDriver(chromeOptions);
                 }
             }
@@ -50,7 +48,6 @@ public class InitWebdriver {
         if (headless.equals("true")) {
             driver.manage().window().setSize(new Dimension(1920, 1080));
         } else {
-//        	driver.manage().window().setPosition(new Point(0, -1080));
             driver.manage().window().maximize();
         }
         return driver;
