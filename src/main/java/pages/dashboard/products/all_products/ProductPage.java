@@ -4,6 +4,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -12,6 +13,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.onlineshop.Domains;
 import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
 import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 import utilities.UICommonAction;
@@ -137,7 +139,68 @@ public class ProductPage extends ProductVerify {
 
         return this;
     }
+    
+    public ProductPage clickPrintBarcode() {
+    	if (commonAction.isElementVisiblyDisabled(PRINT_BARCODE_BTN.findElement(By.xpath("./parent::*")))) {
+    		new HomePage(driver).isMenuClicked(PRINT_BARCODE_BTN);
+    		return this;
+    	}
+    	commonAction.clickElement(PRINT_BARCODE_BTN);
+    	logger.info("Clicked on 'Print Barcode' button.");
+    	return this;
+    }
+    
+    public ProductPage clickAddVariation() {
+    	if (commonAction.isElementVisiblyDisabled(ADD_VARIATION_BTN.findElement(By.xpath("./ancestor::div[@class='uik-widget__wrapper gs-widget gs-widget ']/parent::*")))) {
+    		new HomePage(driver).isMenuClicked(ADD_VARIATION_BTN);
+    		return this;
+    	}
+    	commonAction.clickElement(ADD_VARIATION_BTN);
+    	logger.info("Clicked on 'Add Deposit' button.");
+    	return this;
+    }
+    
+    public ProductPage clickAddDepositBtn() {
+    	if (commonAction.isElementVisiblyDisabled(ADD_DEPOSIT_BTN.findElement(By.xpath("./ancestor::div[@class='uik-widget__wrapper gs-widget gs-widget ']/parent::*")))) {
+    		new HomePage(driver).isMenuClicked(ADD_DEPOSIT_BTN);
+    		return this;
+    	}
+    	commonAction.clickElement(ADD_DEPOSIT_BTN);
+    	logger.info("Clicked on 'Add Deposit' button.");
+    	return this;
+    }
 
+    public ProductPage inputSEOTitle(String seoTitle) {
+    	if (commonAction.isElementVisiblyDisabled(SEO_TITLE.findElement(By.xpath("./ancestor::div[contains(@class,'gs-widget  seo-editor')]/descendant::*[1]")))) {
+    		new HomePage(driver).isMenuClicked(SEO_TITLE);
+    		return this;
+    	}
+    	commonAction.inputText(SEO_TITLE, seoTitle);
+    	logger.info("Input '" + seoTitle + "' into SEO Title field.");
+    	return this;
+    }  
+    
+    public String getSEOTitle() {
+    	String title = commonAction.getElementAttribute(SEO_TITLE, "value");
+		logger.info("Retrieved SEO Title: %s".formatted(title));
+		return title;
+    }    
+    
+    public boolean isPrintBarcodeDialogDisplayed() {
+    	commonAction.sleepInMiliSecond(1000);
+    	return !commonAction.isElementNotDisplay(driver.findElements(PRINT_BARCODE_MODAL));
+    }   
+    
+    public boolean isDeleteVariationBtnDisplayed() {
+    	commonAction.sleepInMiliSecond(500);
+    	return !commonAction.isElementNotDisplay(DELETE_VARIATION_BTN);
+    }   
+    
+    public boolean isDeleteDepositBtnDisplayed() {
+    	commonAction.sleepInMiliSecond(500);
+    	return !commonAction.isElementNotDisplay(DELETE_DEPOSIT_BTN);
+    }     
+    
     /**
      * On the "Create Product"/"Product Detail" page, input product name
      */
@@ -271,7 +334,7 @@ public class ProductPage extends ProductVerify {
     /**
      * generate Variation value
      */
-    private List<String> generateListString(int size, int length) {
+    public List<String> generateListString(int size, int length) {
         List<String> randomList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             randomList.add(RandomStringUtils.randomAlphanumeric(length));

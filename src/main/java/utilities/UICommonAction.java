@@ -283,7 +283,7 @@ public class UICommonAction {
         action.moveToElement(element).build().perform();     
 	}	
 	
-	public boolean isButtonVisiblyDisabled(WebElement element) {
+	public boolean isElementVisiblyDisabled(WebElement element) {
     	if (element.getAttribute("class").contains("gs-atm--disable")) {
     		return true;
     	}

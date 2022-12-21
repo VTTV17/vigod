@@ -1,5 +1,6 @@
 package pages.dashboard.products.all_products;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -17,6 +18,9 @@ public class ProductElement {
 
     @FindBy(css = ".product-list-page > div > div > div >  button.gs-button__green")
     WebElement CREATE_PRODUCT_BTN;
+    
+    @FindBy(xpath = "(//div[@class='gs-content-header-right-el d-flex']//button)[4]")
+    WebElement PRINT_BARCODE_BTN;
 
     @FindBy(css = "input#productName")
     WebElement PRODUCT_NAME;
@@ -125,7 +129,7 @@ public class ProductElement {
     @FindBy(css = "div.gs-widget__content > div > button")
     WebElement CONFIGURE_WHOLESALE_PRICE_BTN;
 
-    @FindBy(css = "div:nth-child(7) > div > span")
+    @FindBy(xpath = "//input[@class='uik-checkbox__checkbox' and @name='enabledListing']/ancestor::div[contains(@class,'uik-widget__wrapper')]/following-sibling::*/div[1]//span")
     WebElement ADD_DEPOSIT_BTN;
 
     @FindBy(css = "div.d-md-block > div > div > div > div.css-1hwfws3")
@@ -236,4 +240,13 @@ public class ProductElement {
 
     @FindBy (css = ".Toastify__toast-body")
     WebElement TOAST_MESSAGE;
+    
+    @FindBy (xpath = "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/following-sibling::*/button")
+    List<WebElement> DELETE_VARIATION_BTN;
+    
+    @FindBy (xpath = "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/parent::*/following-sibling::*/button")
+    List<WebElement> DELETE_DEPOSIT_BTN;
+    
+    By PRINT_BARCODE_MODAL = By.cssSelector(".modal-content.product-list-barcode-printer");
+    
 }

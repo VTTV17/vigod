@@ -50,7 +50,7 @@ public class Themes {
     
     public Themes clickEditTheme() {
     	commonAction.hoverOverElement(EDIT_THEME_BTN);
-    	if (commonAction.isButtonVisiblyDisabled(EDIT_THEME_BTN)) {
+    	if (commonAction.isElementVisiblyDisabled(EDIT_THEME_BTN)) {
     		new HomePage(driver).isMenuClicked(EDIT_THEME_BTN);
     		return this;
     	}
