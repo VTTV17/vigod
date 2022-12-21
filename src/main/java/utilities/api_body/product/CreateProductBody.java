@@ -15,12 +15,9 @@ import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 public class CreateProductBody {
     public Map<String, List<String>> variationMap;
     public List<String> variationList;
-    public List<Integer> variationListingPrice = new ArrayList<>();
-    public List<Integer> variationSellingPrice = new ArrayList<>();
-    public Map<String, List<Integer>> variationStockQuantity = new HashMap<>();
-    public List<Integer> withoutVariationStock = new ArrayList<>();
-    public int withoutVariationListingPrice;
-    public int withoutVariationSellingPrice;
+    public List<Integer> productListingPrice = new ArrayList<>();
+    public List<Integer> productSellingPrice = new ArrayList<>();
+    public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
     public static boolean isDisplayOutOfStock = true;
     public static boolean isHideStock = false;
     public static boolean isEnableListing = true;
@@ -102,12 +99,12 @@ public class CreateProductBody {
         // random variation listing price
         IntStream.range(0, variationList.size())
                 .map(i -> (int) (Math.random() * MAX_PRICE))
-                .forEachOrdered(orgPrice -> variationListingPrice.add(orgPrice));
+                .forEachOrdered(orgPrice -> productListingPrice.add(orgPrice));
 
         // random variation selling price
-        variationListingPrice.stream()
+        productListingPrice.stream()
                 .mapToInt(listingPrice -> (int) (Math.random() * listingPrice))
-                .forEachOrdered(newPrice -> variationSellingPrice.add(newPrice));
+                .forEachOrdered(newPrice -> productSellingPrice.add(newPrice));
 
 
         // random variation stock per branch
@@ -117,7 +114,7 @@ public class CreateProductBody {
             for (int branchIndex = 0; branchIndex < branchIDList.size(); branchIndex++) {
                 variationStock.add((branchStockQuantity.length > branchIndex) ? (branchStockQuantity[branchIndex] + (i * increaseNum)) : 0);
             }
-            variationStockQuantity.put(variationList.get(i), variationStock);
+            productStockQuantity.put(variationList.get(i), variationStock);
         }
 
 
@@ -136,7 +133,7 @@ public class CreateProductBody {
                                 "newStock": 0,
                                 "costPrice": 0,
                                 "lstInventory": [
-                        """.formatted(variationList.get(i), variationListingPrice.get(i), variationSellingPrice.get(i), variationName));
+                        """.formatted(variationList.get(i), productListingPrice.get(i), productSellingPrice.get(i), variationName));
             for (int index = 0; index < branchIDList.size(); index++) {
                 // generate stock object
                 String setStock = """
@@ -146,7 +143,7 @@ public class CreateProductBody {
                                     "inventoryCurrent": 0,
                                     "inventoryStock": %s,
                                     "inventoryType": "SET"
-                                }""".formatted(branchIDList.get(index), variationStockQuantity.get(variationList.get(i)).get(index));
+                                }""".formatted(branchIDList.get(index), productStockQuantity.get(variationList.get(i)).get(index));
 
                 // add stock object to body
                 models.append(setStock);
@@ -165,7 +162,7 @@ public class CreateProductBody {
                 // add IMEI for each branch
                 for (int branchIndex = 0; branchIndex < branchIDList.size(); branchIndex++) {
                     // get number of IMEI per branch
-                    List<Integer> branchStock = variationStockQuantity.get(variationList.get(i));
+                    List<Integer> branchStock = productStockQuantity.get(variationList.get(i));
                     // get number of IMEI per branch
                     for (int id = 0; id < branchStock.get(branchIndex); id++) {
                         // generate IMEI object
@@ -213,13 +210,13 @@ public class CreateProductBody {
     public String withoutVariationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int... branchStockQuantity) {
 
         // random listing price
-        withoutVariationListingPrice = (int) (Math.random() * MAX_PRICE);
+        productListingPrice.add((int) (Math.random() * MAX_PRICE));
 
         // random selling price
-        withoutVariationSellingPrice = (int) (Math.random() * withoutVariationListingPrice);
+        productSellingPrice.add((int) (Math.random() * productListingPrice.get(0)));
 
         // set branch stock
-        IntStream.range(0, branchIDList.size()).forEachOrdered(i -> withoutVariationStock.add((branchStockQuantity.length > i) ? (branchStockQuantity[i]) : 0));
+        productStockQuantity.put(null, IntStream.range(0, branchIDList.size()).mapToObj(i -> branchStockQuantity.length > i ? branchStockQuantity[i] : 0).toList());
 
         StringBuilder itemModelCodeDTOS = new StringBuilder("""
                 "itemModelCodeDTOS": [""");
@@ -227,7 +224,7 @@ public class CreateProductBody {
             // add IMEI for each branch
             for (int index = 0; index < branchIDList.size(); index++) {
                 // get number of IMEI per branch
-                for (int i = 0; i < withoutVariationStock.get(index); i++) {
+                for (int i = 0; i < productStockQuantity.get(null).get(index); i++) {
                     // generate IMEI object
                     // IMEI format: branchName_IMEI_Index
                     itemModelCodeDTOS.append("""
@@ -241,7 +238,7 @@ public class CreateProductBody {
                     // add IMEI object to body
                     // add "," if is not last stock
                     // check if next branched in-stock => add new IMEI object
-                    itemModelCodeDTOS.append(index < branchIDList.size() - 1 ? (withoutVariationStock.get(index + 1) == 0) && (i == (withoutVariationStock.get(index) - 1)) ? "" : "," : i < (withoutVariationStock.get(index) - 1) ? "," : "");
+                    itemModelCodeDTOS.append(index < branchIDList.size() - 1 ? (productStockQuantity.get(null).get(index + 1) == 0) && (i == (productStockQuantity.get(null).get(index) - 1)) ? "" : "," : i < (productStockQuantity.get(null).get(index) - 1) ? "," : "");
                 }
             }
         }
@@ -250,7 +247,7 @@ public class CreateProductBody {
                 "costPrice": 0,
                 "orgPrice": %s,
                 "newPrice": %s,
-                "totalItem": 0,""".formatted(withoutVariationListingPrice, withoutVariationSellingPrice));
+                "totalItem": 0,""".formatted(productListingPrice.get(0), productSellingPrice.get(0)));
         return itemModelCodeDTOS.toString();
     }
 
@@ -265,7 +262,7 @@ public class CreateProductBody {
                                 "inventoryCurrent": 0,
                                 "inventoryStock": %s,
                                 "inventoryType": "SET"
-                            }""".formatted(branchIDList.get(i), withoutVariationStock.get(i)));
+                            }""".formatted(branchIDList.get(i), productStockQuantity.get(null).get(i)));
             lstInventory.append(i < branchIDList.size() - 1 ? "," : "");
         }
         lstInventory.append("]}");

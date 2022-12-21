@@ -45,7 +45,7 @@ public class SignUp {
     public void signUpByPhoneNumber(String... phone) throws SQLException {
         getGuestToken();
         customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
-        phoneNumber = (phone.length > 0) ? phone[0] : random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER) + MIN_PHONE_NUMBER, false, true);
+        phoneNumber = (phone.length > 0) ? phone[0] : random(10, false, true).replace("00","0");
         phoneCode = (phone.length > 1) ? phone[1] : "+84";
         password = "Abc@12345";
         String signupBody = """

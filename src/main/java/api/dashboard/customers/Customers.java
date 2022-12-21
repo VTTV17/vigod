@@ -107,7 +107,6 @@ public class Customers {
                 }""".formatted(profileId, customerName, customerPhoneCode, customerName, customerPhoneNum, customerTag);
         Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, storeID), accessToken, body);
         updateCustomerProfile.then().statusCode(200);
-        logger.debug("add customer tags: " + updateCustomerProfile.asPrettyString());
         return this;
     }
 
@@ -127,7 +126,6 @@ public class Customers {
                 """.formatted(segmentName, customerTag);
         Response createSegment = api.post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
         createSegment.then().statusCode(200);
-        logger.info("create segment :" + createSegment.asPrettyString());
         segmentID = createSegment.jsonPath().getInt("id");
     }
 }

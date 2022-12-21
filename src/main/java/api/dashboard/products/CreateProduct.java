@@ -8,14 +8,12 @@ import utilities.api.API;
 import utilities.api_body.product.CreateProductBody;
 import utilities.data.DataGenerator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.storeID;
+import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.branchID;
 import static api.dashboard.setting.BranchManagement.branchName;
 import static api.dashboard.setting.VAT.taxList;
@@ -34,22 +32,17 @@ public class CreateProduct {
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
 
     // product info
-    public static int withoutVariationListingPrice;
-    public static int withoutVariationSellingPrice;
-    public static List<Integer> withoutVariationStock;
     public static Map<String, List<String>> variationMap;
     public static List<String> variationList;
     public static List<Integer> variationModelID;
-    public static Map<String, List<Integer>> variationStockQuantity;
-    public static List<Integer> variationListingPrice;
-    public static List<Integer> variationSellingPrice;
+    public static Map<String, List<Integer>> productStockQuantity;
+    public static List<Integer> productListingPrice;
+    public static List<Integer> productSellingPrice;
 
     // wholesale product price
-    public static List<Integer> variationWholesaleProductPrice;
-    public static List<Integer> variationWholesaleProductStock;
-    public static int withoutVariationWholesaleProductPrice;
-    public static int withoutVariationWholesaleProductStock;
-    public static List<Boolean> wholesaleProductStatus = new ArrayList<>();
+    public static List<Integer> wholesaleProductPrice = new ArrayList<>();
+    public static List<Integer> wholesaleProductStock = new ArrayList<>();
+    public static Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
 
     public static boolean isVariation;
     public static boolean isIMEIProduct;
@@ -88,9 +81,9 @@ public class CreateProduct {
                 productBody.withoutVariationBranchConfig(branchID));
 
         // get product stock and price
-        withoutVariationSellingPrice = productBody.withoutVariationSellingPrice;
-        withoutVariationListingPrice = productBody.withoutVariationListingPrice;
-        withoutVariationStock = productBody.withoutVariationStock;
+        productSellingPrice = productBody.productSellingPrice;
+        productListingPrice = productBody.productListingPrice;
+        productStockQuantity = productBody.productStockQuantity;
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
@@ -102,8 +95,35 @@ public class CreateProduct {
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
 
-        // update wholesale product status
-        IntStream.range(0, 1).forEachOrdered(i -> wholesaleProductStatus.add(false));
+        // init wholesale product status
+        branchName.forEach(brName -> wholesaleProductStatus
+                .put(brName, IntStream.range(0, 1)
+                        .mapToObj(i -> false).toList()));
+
+        // init flash sale status
+        branchName.forEach(brName -> flashSaleStatus
+                .put(brName, IntStream.range(0, 1)
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // init discount campaign status
+        branchName.forEach(brName -> discountCampaignStatus
+                .put(brName, IntStream.range(0, 1)
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // init flash sale price
+        flashSalePrice = new ArrayList<>();
+        flashSalePrice.addAll(productSellingPrice);
+
+        // init flash sale stock
+        flashSaleStock = new ArrayList<>();
+        productStockQuantity.keySet().forEach(i -> flashSaleStock.add(Collections.max(productStockQuantity.get(i))));
+
+        // init product discount campaign price
+        discountCampaignPrice.addAll(productSellingPrice);
+
+        // init wholesale product price and stock
+        wholesaleProductPrice = productSellingPrice;
+        productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
 
         return this;
     }
@@ -134,9 +154,9 @@ public class CreateProduct {
         // get product stock and price
         variationMap = productBody.variationMap;
         variationList = productBody.variationList;
-        variationSellingPrice = productBody.variationSellingPrice;
-        variationListingPrice = productBody.variationListingPrice;
-        variationStockQuantity = productBody.variationStockQuantity;
+        productSellingPrice = productBody.productSellingPrice;
+        productListingPrice = productBody.productListingPrice;
+        productStockQuantity = productBody.productStockQuantity;
 
 
         // post without variation product
@@ -154,8 +174,35 @@ public class CreateProduct {
         // get variation modelID
         variationModelID = createProductResponse.jsonPath().getList("models.id");
 
-        // update wholesale product status
-        IntStream.range(0, variationList.size()).forEachOrdered(i -> wholesaleProductStatus.add(false));
+        // init wholesale product status
+        branchName.forEach(brName -> wholesaleProductStatus
+                .put(brName, IntStream.range(0, variationList.size())
+                        .mapToObj(i -> false).toList()));
+
+        // init flash sale status
+        branchName.forEach(brName -> flashSaleStatus
+                .put(brName, IntStream.range(0, variationList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // init discount campaign status
+        branchName.forEach(brName -> discountCampaignStatus
+                .put(brName, IntStream.range(0, variationList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // init flash sale price
+        flashSalePrice = new ArrayList<>();
+        flashSalePrice.addAll(productSellingPrice);
+
+        // init flash sale stock
+        flashSaleStock = new ArrayList<>();
+        productStockQuantity.keySet().forEach(i -> flashSaleStock.add(Collections.max(productStockQuantity.get(i))));
+
+        // init product discount campaign price
+        discountCampaignPrice.addAll(productSellingPrice);
+
+        // init wholesale product price and stock
+        wholesaleProductPrice = productSellingPrice;
+        productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
 
         return this;
     }
@@ -168,11 +215,9 @@ public class CreateProduct {
         String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
         int num = isVariation ? nextInt(variationList.size()) + 1 : 1;
         if (isVariation) {
-            variationWholesaleProductPrice = new ArrayList<>();
-            variationWholesaleProductStock = new ArrayList<>();
             for (int i = 0; i < num; i++) {
-                variationWholesaleProductPrice.add(nextInt(variationSellingPrice.get(i)) + 1);
-                variationWholesaleProductStock.add(nextInt(Collections.max(variationStockQuantity.get(variationList.get(i))))  + 1);
+                wholesaleProductPrice.set(i, nextInt(productSellingPrice.get(i)) + 1);
+                wholesaleProductStock.set(i, nextInt(Collections.max(productStockQuantity.get(variationList.get(i)))) + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
                         {
@@ -185,20 +230,20 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, variationWholesaleProductStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, variationWholesaleProductPrice.get(i), segmentIDs, productID);
+                        }""".formatted(title, wholesaleProductStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, wholesaleProductPrice.get(i), segmentIDs, productID);
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
 
             // set wholesale product stock = 0 if variations have not wholesale product price
-            IntStream.range(num, variationList.size()).forEach(i -> variationWholesaleProductStock.add(0));
+            IntStream.range(num, variationList.size()).forEach(i -> wholesaleProductStock.add(0));
 
             // set wholesale product price = selling price if variations have not wholesale product price
-            IntStream.range(num, variationList.size()).forEach(i -> variationWholesaleProductPrice.add(variationSellingPrice.get(i)));
+            IntStream.range(num, variationList.size()).forEach(i -> wholesaleProductPrice.add(productSellingPrice.get(i)));
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            withoutVariationWholesaleProductPrice = nextInt(withoutVariationSellingPrice) + 1;
-            withoutVariationWholesaleProductStock = nextInt(Collections.max(withoutVariationStock)) + 1;
+            wholesaleProductPrice.set(0, nextInt(productSellingPrice.get(0)) + 1);
+            wholesaleProductStock.set(0, nextInt(Collections.max(productStockQuantity.get(null))) + 1);
             String variationWholesaleConfig = """
                     {
                         "id": null,
@@ -210,18 +255,16 @@ public class CreateProduct {
                         "segmentIds": "%s",
                         "itemId": "%s",
                         "action": null
-                    }""".formatted(title, withoutVariationWholesaleProductStock, productID, STORE_CURRENCY, withoutVariationWholesaleProductPrice, segmentIDs, productID);
+                    }""".formatted(title, wholesaleProductStock.get(0), productID, STORE_CURRENCY, wholesaleProductPrice.get(0), segmentIDs, productID);
             body.append(variationWholesaleConfig);
         }
         body.append("]}");
 
         Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body));
         addWholesale.then().statusCode(200);
-        logger.debug("add wholesale price for product: %s".formatted(addWholesale.asPrettyString()));
 
         // update wholesale product status
-        IntStream.range(0, num).forEachOrdered(i -> wholesaleProductStatus.set(i, true));
-
+        branchName.forEach(brName -> wholesaleProductStatus.put(brName, IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> i < num).toList()));
         return this;
     }
 

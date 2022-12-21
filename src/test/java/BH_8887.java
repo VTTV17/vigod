@@ -23,13 +23,10 @@ import static utilities.links.Links.SF_DOMAIN;
 public class BH_8887 extends BaseTest {
 
     String sfDomain;
-    CreateProduct createProduct;
 
     @BeforeSuite
     void createCustomerAndSegment() throws SQLException, InterruptedException {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
-
-        createProduct = new CreateProduct();
 
         new BranchManagement().getBranchInformation();
 
@@ -64,9 +61,7 @@ public class BH_8887 extends BaseTest {
     void preCondition_G1() {
         boolean isIMEIProduct = false;
         int branchStock = 5;
-        createProduct
-                .createWithoutVariationProduct(isIMEIProduct,
-                        branchStock,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -76,9 +71,7 @@ public class BH_8887 extends BaseTest {
     void preCondition_G2() {
         boolean isIMEIProduct = true;
         int branchStock = 5;
-        createProduct
-                .createWithoutVariationProduct(isIMEIProduct,
-                        branchStock,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -89,10 +82,8 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        createProduct
-                .createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                         increaseNum,
-                        branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -103,10 +94,8 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = true;
         int branchStock = 2;
         int increaseNum = 1;
-        createProduct
-                .createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                         increaseNum,
-                        branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -129,7 +118,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -151,7 +140,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -172,8 +161,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
-//                .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -194,7 +182,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -216,7 +204,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -234,7 +222,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -256,7 +244,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -278,7 +266,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -299,7 +287,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -320,7 +308,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -342,7 +330,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -360,7 +348,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceWithoutVariationProduct()
+                .checkWithoutVariationProductInformation()
                 .completeVerify();
     }
 
@@ -381,7 +369,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -403,7 +391,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -424,7 +412,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -445,7 +433,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -467,7 +455,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -485,7 +473,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -507,7 +495,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -529,7 +517,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -550,7 +538,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -571,7 +559,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -593,7 +581,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 
@@ -611,7 +599,7 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
-                .checkPriceVariationProduct()
+                .checkVariationProductInformation()
                 .completeVerify();
     }
 }

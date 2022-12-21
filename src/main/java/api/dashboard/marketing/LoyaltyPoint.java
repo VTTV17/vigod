@@ -18,8 +18,8 @@ public class LoyaltyPoint {
     public void changeLoyaltyPointSetting(int... setting) {
         int loyaltyPointID = new API().get(LOYALTY_POINT_PATH + storeID, accessToken).jsonPath().getInt("id");
         ratePoint = setting.length > 0 ? setting[0] : nextInt(10) + 1;
-        rateAmount = setting.length > 1 ? setting[1] : (isVariation ? Collections.max(variationSellingPrice)/2 : withoutVariationSellingPrice/2);
-        exchangeAmount = setting.length > 2 ? setting[2] : (isVariation ? Collections.max(variationSellingPrice)/2 : withoutVariationSellingPrice/2);
+        rateAmount = setting.length > 1 ? setting[1] : (isVariation ? Collections.max(productSellingPrice)/2 : productSellingPrice.get(0)/2);
+        exchangeAmount = setting.length > 2 ? setting[2] : (isVariation ? Collections.max(productSellingPrice)/2 : productSellingPrice.get(0)/2);
         String body = """
                 {
                     "clearPoint": false,
