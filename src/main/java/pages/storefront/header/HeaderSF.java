@@ -44,7 +44,7 @@ public class HeaderSF extends GeneralSF {
 	@FindBy(id = "btn-signup")
 	WebElement SIGNUP_ICON;
 
-	@FindBy(id = "btn-change-pwd")
+	@FindBy(css = "#dropdown-menu-profile #btn-change-pwd")
 	WebElement CHANGE_PASSWORD_LINKTEXT;	
 	
 	@FindBy(css = "[data-target='#modalChangeLanguage']")
@@ -129,6 +129,16 @@ public class HeaderSF extends GeneralSF {
 		return new UserProfileInfo(driver);
 	}
 
+	public boolean checkForPresenceOfChangePasswordLink() {
+		boolean isDisplayed = commons.isElementDisplay(CHANGE_PASSWORD_LINKTEXT);
+		if (isDisplayed) {
+			logger.info("'Change Password' link text is displayed.");
+		} else {
+			logger.info("'Change Password' link text is not displayed.");
+		}
+		return isDisplayed;
+	}
+	
 	public ChangePasswordDialog clickChangePassword() {
 		commons.clickElement(CHANGE_PASSWORD_LINKTEXT);
 		logger.info("Clicked on 'Change Password' link text.");

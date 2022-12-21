@@ -11,6 +11,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+
+import pages.thirdparty.Facebook;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -130,28 +132,10 @@ public class LoginPage {
     	logger.info("Input '" + password + "' into Password field.");
         return this;
     }
-
-    public LoginPage inputFacebookUsername(String username) {
-    	commonAction.inputText(FACEBOOK_USERNAME, username);
-    	logger.info("Input '" + username + "' into Facebook Username field.");
-        return this;
-    }
-
-    public LoginPage inputFacebookPassword(String password) {
-    	commonAction.inputText(FACEBOOK_PASSWORD, password);
-    	logger.info("Input '" + password + "' into Facebook Password field.");
-        return this;
-    }    
     
     public LoginPage clickLoginBtn() {
     	commonAction.clickElement(LOGIN_BTN);
     	logger.info("Clicked on Login button.");
-        return this;
-    }
-
-    public LoginPage clickFacebookLoginBtn() {
-    	commonAction.clickElement(FACEBOOK_LOGIN_BTN);
-    	logger.info("Clicked on Facebook Login button.");
         return this;
     }
     
@@ -206,9 +190,8 @@ public class LoginPage {
     	    }
     	}
     	
-    	inputFacebookUsername(username);
-    	inputFacebookPassword(password);
-    	clickFacebookLoginBtn();
+    	new Facebook(driver).performLogin(username, password);
+    	
     	commonAction.switchToWindow(originalWindow);
         return this;
     }      

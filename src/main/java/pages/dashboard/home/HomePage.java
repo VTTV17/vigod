@@ -72,7 +72,7 @@ public class HomePage {
     @FindBy (css = "a[name='component.navigation.promotion.discount'] > span > span")
     WebElement PROMOTION_DISCOUNT_MENU;
 
-    @FindBy(css = ".modal-content .gs-button")
+    @FindBy(css = ".alert-modal .modal-content .gs-button__green")
     WebElement UPGRADENOW_BTN;
 
     @FindBy(css = ".modal-success.modal-header img")
@@ -101,7 +101,36 @@ public class HomePage {
 	@FindBy (id = "fb-root")
 	WebElement FACEBOOK_BUBBLE;
 	
+	@FindBy (xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+	WebElement CREATE_PRODUCT_BTN;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[2]")
+	WebElement IMPORT_FROM_SHOPEE_BTN;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[3]")
+	WebElement IMPORT_FROM_LAZADA_BTN;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]")
+	WebElement CUSTOMIZE_APPEARANCE_ICON;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+	WebElement CHANGE_DESIGN_BTN;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]")
+	WebElement ADD_YOUR_DOMAIN_ICON;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+	WebElement ADD_DOMAIN_BTN;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-AddBank.svg')]")
+	WebElement ADD_BANK_ACCOUNT_ICON;
+	
+	@FindBy (xpath = "//img[contains(@src,'/icon-AddBank.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+	WebElement BANK_INFORMATION_BTN;
+	
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
+    
+    By STATISTICS = By.cssSelector(".statistic");
 
     public Map<String, String> pageMap() {
         Map<String, String> map = new HashMap<>();
@@ -181,11 +210,16 @@ public class HomePage {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
-        Boolean flag = !element.getAttribute("active").contentEquals("active");
-        if (flag) {
-        	commons.clickElement(element);
-            logger.info("Click on %s item on menu".formatted(pageName));
-            commons.waitForElementInvisible(SPINNER);
+        boolean isMenuAlreadyOpened = !element.getAttribute("active").contentEquals("active");
+        
+        if (isMenuComponentVisiblyDisabled(element)) {
+        	Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
+        } else {
+            if (isMenuAlreadyOpened) {
+            	commons.clickElement(element);
+                logger.info("Click on %s item on menu".formatted(pageName));
+                commons.waitForElementInvisible(SPINNER);
+            }
         }
     }
 
@@ -196,10 +230,27 @@ public class HomePage {
         }
     }
 
+    public boolean isMenuComponentVisiblyDisabled(WebElement element) {
+    	if (element.findElement(By.xpath("./parent::*")).getAttribute("class").contains("gs-atm-must-disabled")) {
+    		return true;
+    	}
+    	if (element.findElement(By.xpath("./parent::*/parent::*")).getAttribute("class").contains("gs-atm-must-disabled")) {
+    		return true;
+    	}
+    	return false;
+    }    
+    
+    
     public HomePage waitTillSpinnerDisappear() {
         commons.waitTillElementDisappear(SPINNER, 20);
         logger.info("Spinner has finished loading");
         return this;
+    }
+    
+    public HomePage waitTillSpinnerDisappear1() {
+    	commons.waitForElementInvisible(SPINNER, 15);
+    	logger.info("Spinner1 has finished loading");
+    	return this;
     }
 
 	public HomePage waitTillLoadingDotsDisappear() {
@@ -295,6 +346,7 @@ public class HomePage {
     }
 
     public HomePage verifyUpgradeNowMessage(String message) {
+    	commons.sleepInMiliSecond(2000); //Handle race condition
     	String text = commons.getText(UPGRADENOW_MESSAGE.get(0));
     	soft.assertEquals(text,message, "[Homepage][Upgrade Now Message] Message does not match.");
     	logger.info("verifyUpgradeNowMessage completed");
@@ -337,7 +389,7 @@ public class HomePage {
         return countFailed;
     }
     public boolean isMenuClicked(WebElement element) {
-        commons.sleepInMiliSecond(1000);
+//        commons.sleepInMiliSecond(1000);
         wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         try {
             wait.until(ExpectedConditions.visibilityOf(element)).click();
@@ -348,6 +400,10 @@ public class HomePage {
             logger.debug(e.getMessage());
             return false;
         }
+    }
+    
+    public boolean isStatisticsDisplayed() {
+    	return !commons.isElementNotDisplay(driver.findElements(STATISTICS));
     }
 
     public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
@@ -491,6 +547,46 @@ public class HomePage {
     	commons.hideElement(FACEBOOK_BUBBLE);
     	logger.info("Hid Facebook bubble."); 
         return this;
+    }    
+    
+    public void clickCreateProduct() {
+        commons.clickElement(CREATE_PRODUCT_BTN);
+        logger.info("Clicked on 'Create Products' button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+    }    
+    
+    public void clickImportFromShopee() {
+    	commons.clickElement(IMPORT_FROM_SHOPEE_BTN);
+    	logger.info("Clicked on 'Import From Shopee' button");
+    	new HomePage(driver).waitTillSpinnerDisappear();
+    	commons.sleepInMiliSecond(2000);
+    }    
+    
+    public void clickImportFromLazada() {
+    	commons.clickElement(IMPORT_FROM_LAZADA_BTN);
+    	logger.info("Clicked on 'Import From Lazada' button");
+    	new HomePage(driver).waitTillSpinnerDisappear();
+    }    
+    
+    public void clickChangeDesign() {
+    	commons.clickElement(CUSTOMIZE_APPEARANCE_ICON);
+    	commons.clickElement(CHANGE_DESIGN_BTN);
+    	logger.info("Clicked on 'Change Design' button");
+    	new HomePage(driver).waitTillSpinnerDisappear();
+    }    
+    
+    public void clickDomain() {
+    	commons.clickElement(ADD_YOUR_DOMAIN_ICON);
+    	commons.clickElement(ADD_DOMAIN_BTN);
+    	logger.info("Clicked on 'Add Domain' button");
+    	new HomePage(driver).waitTillSpinnerDisappear();
+    }    
+    
+    public void clickBankInformation() {
+    	commons.clickElement(ADD_BANK_ACCOUNT_ICON);
+    	commons.clickElement(BANK_INFORMATION_BTN);
+    	logger.info("Clicked on 'Bank Information' button");
+    	new HomePage(driver).waitTillSpinnerDisappear();
     }    
     
 }

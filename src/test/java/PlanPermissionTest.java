@@ -1,6 +1,6 @@
 import org.testng.annotations.Test;
 import pages.InternalTool;
-import pages.Mailnesia;
+import pages.thirdparty.Mailnesia;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;

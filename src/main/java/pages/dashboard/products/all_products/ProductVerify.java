@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.settings.branch_management.BranchPage;
+import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import static utilities.links.Links.PRODUCT_DETAIL_PATH;
 
 public class ProductVerify extends ProductElement {
     WebDriverWait wait;
+    UICommonAction commonAction;
 
     static int countFail = 0;
 
@@ -33,6 +35,7 @@ public class ProductVerify extends ProductElement {
     public ProductVerify(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commonAction = new UICommonAction(driver);
     }
 
     public String getNewestProductID() {

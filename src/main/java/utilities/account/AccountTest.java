@@ -34,5 +34,25 @@ public class AccountTest {
     public static String ADMIN_USERNAME_GOPOS = "automation0-shop32362@mailnesia.com";
     public static String ADMIN_USERNAME_GOSOCIAL = "automation0-shop76064@mailnesia.com";
     public static String ADMIN_USERNAME_GOLEAD = "automation0-shop96482@mailnesia.com";
+    
+    //ATM Credentials
+    public static String ATM_BANK = "NCB";
+    public static String ATM_CARDNUMBER = "9704198526191432198";
+    public static String ATM_CARDHOLDER = "NGUYEN VAN A";
+    public static String ATM_ISSUINGDATE = "07/15";
+    public static String ATM_OTP = "123456";
+    //VISA Credentials
+    public static String VISA_CARDNUMBER = "4456530000001096";
+    public static String VISA_EXPIRYDATE = "12/23";
+    public static String VISA_CCV = "123";
+    public static String VISA_CARDHOLDER = "NGUYEN VAN A";
+    public static String VISA_EMAIL = "test@gmail.com";
+    public static String VISA_COUNTRY = "Viet Nam";
+    public static String VISA_CITY = "Ha Noi";
+    public static String VISA_ADDRESS = "22 Lang Ha";
+    public static String VISA_OTP = "1234";
+    //PAYPAL Credentials
+    public static String PAYPAL_USERNAME = "Bonguyen11397@gmail.com";
+    public static String PAYPAL_PASSWORD = "Abc@110113";
 
 }

@@ -1,19 +1,25 @@
 package utilities;
 
+import java.io.File;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotInteractableException;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-
-import java.io.File;
-import java.time.Duration;
-import java.util.*;
 
 public class UICommonAction {
 	
@@ -164,6 +170,21 @@ public class UICommonAction {
 		driver.switchTo().window(handle);
 		logger.info("Switched to window/tab whose handle is: "+handle);
 	}
+	
+	public void switchToFrameByIndex(int frameIndex) {
+		driver.switchTo().frame(frameIndex);
+		logger.info("Switched to frame indexed: "+ frameIndex);
+	}
+	
+	public void switchToFrameByNameOrId(String nameID) {
+		driver.switchTo().frame(nameID);
+		logger.info("Switched to frame whose name/id is: "+nameID);
+	}
+	
+	public void switchToFrameByElement(WebElement element) {
+		driver.switchTo().frame(element);
+		logger.info("Switched to frame whose name/id is: "+element);
+	}
 
 	public void sendKeyToElementByJS(WebElement element, String value){
 		JavascriptExecutor jsExecutor =(JavascriptExecutor) driver;
@@ -198,8 +219,13 @@ public class UICommonAction {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
 		try {
 			wait.until(ExpectedConditions.invisibilityOf(element));
+			// Some elements sometimes disappear and appear again after milliseconds.
+			sleepInMiliSecond(200);
+			wait.until(ExpectedConditions.invisibilityOf(element));
 		} catch (StaleElementReferenceException ex) {
 			logger.debug("Catch StaleElementReferenceException caught in waitForElementInvisible");
+			wait.until(ExpectedConditions.invisibilityOf(element));
+			sleepInMiliSecond(200);
 			wait.until(ExpectedConditions.invisibilityOf(element));
 		}
 	}
@@ -247,9 +273,23 @@ public class UICommonAction {
 		return value;
 	}
 	public String getCurrentURL(){
-		return driver.getCurrentUrl();
+		String url = driver.getCurrentUrl();
+		logger.info("Current URL: " + url);
+		return url;
 	}
 
+	public void hoverOverElement(WebElement element) {
+        Actions action = new Actions(driver);
+        action.moveToElement(element).build().perform();     
+	}	
+	
+	public boolean isElementVisiblyDisabled(WebElement element) {
+    	if (element.getAttribute("class").contains("gs-atm--disable")) {
+    		return true;
+    	}
+    	return false;
+	}	
+	
 	public int waitTillSelectDropdownHasData(WebElement element) {
 		List<WebElement> options;
 		int optionCount =0;

@@ -7,6 +7,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -29,6 +31,9 @@ public class GeneralSF {
 
     @FindBy(id = "current-lang")
     WebElement LANGUAGE;	
+    
+	@FindBy (id = "fb-root")
+	WebElement FACEBOOK_BUBBLE;
 	
 	public GeneralSF waitTillLoaderDisappear() {
 		commons.waitForElementInvisible(SPINNER, 20);
@@ -48,4 +53,10 @@ public class GeneralSF {
 		return language;
 	}
 
+    public GeneralSF hideFacebookBubble() {
+    	commons.hideElement(FACEBOOK_BUBBLE);
+    	logger.info("Hid Facebook bubble."); 
+        return this;
+    } 	
+	
 }

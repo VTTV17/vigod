@@ -12,14 +12,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.UICommonAction;
 
-public class Facebook {
+public class Zalo {
 	WebDriver driver;
 	UICommonAction commons;
 	WebDriverWait wait;
 
-	final static Logger logger = LogManager.getLogger(Facebook.class);
+	final static Logger logger = LogManager.getLogger(Zalo.class);
 
-	public Facebook(WebDriver driver) {
+	public Zalo(WebDriver driver) {
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commons = new UICommonAction(driver);
@@ -27,11 +27,11 @@ public class Facebook {
 	}
 
 	@FindBy(css = ".btn-connect")
-	WebElement CONNECT_FB_BTN;
+	WebElement CONNECT_ZALO_BTN;
 
-	public Facebook clickConnectFacebook() {
-		commons.clickElement(CONNECT_FB_BTN);
-		logger.info("Clicked on 'Connect Facebook' button.");
+	public Zalo clickConnectZalo() {
+		commons.clickElement(CONNECT_ZALO_BTN);
+		logger.info("Clicked on 'Connect Zalo' button.");
 		return this;
 	}
 }
