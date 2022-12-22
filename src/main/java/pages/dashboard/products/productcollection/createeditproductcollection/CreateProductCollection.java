@@ -249,7 +249,9 @@ public class CreateProductCollection extends HomePage {
         selectProductWithKeyword(productList);
         clickOnSaveBTN();
         logger.info("Create manual collection without SEO, no priority successfully.");
-        return clickOnClose();
+        clickOnClose();
+        waitTillSpinnerDisappear();
+        return new ProductCollectionManagement(driver);
     }
 
     public ProductCollectionManagement createManualCollectionWithoutSEO_HasPriority(String collectionName, String[] productList, boolean isSetPriorityForAll, boolean canSetDuplicatePriority) throws Exception {
@@ -261,7 +263,9 @@ public class CreateProductCollection extends HomePage {
         clickOnSaveBTN(); //click outside
         clickOnSaveBTN();
         logger.info("Create manual collection without SEO, has priority successfully.");
-        return clickOnClose();
+        clickOnClose();
+        waitTillSpinnerDisappear();
+        return new ProductCollectionManagement(driver);
     }
 
     public ProductCollectionManagement createManualCollectionWithSEO(String collectionName, String[] productList, String SEOTitle, String SEODescription, String SEOKeyword, String SEOUrl) throws Exception {
@@ -272,7 +276,9 @@ public class CreateProductCollection extends HomePage {
         inputSEOInfo(SEOTitle, SEODescription, SEOKeyword, SEOUrl);
         clickOnSaveBTN();
         logger.info("Create manual collection with SEO info successfully.");
-        return clickOnClose();
+        clickOnClose();
+        waitTillSpinnerDisappear();
+        return new ProductCollectionManagement(driver);
     }
 
     public List<String> sortProductListByPriority(Map<String, Integer> productPriorityMap) {
@@ -282,6 +288,7 @@ public class CreateProductCollection extends HomePage {
     }
 
     public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, String storeID, String token, int collectionID) throws ParseException {
+        logger.debug("Sort start.");
         Map<String, Integer> sortedMap = SortData.sortMapByValue(productPriorityMap);
         List<String> sortedList = new ArrayList<>();
         List<Integer> values = sortedMap.values().stream().toList();
@@ -313,7 +320,7 @@ public class CreateProductCollection extends HomePage {
             }
 
         }
-        logger.info("Get sorted list by priority and created date: " + sortedList);
+        logger.debug("Get sorted list by priority and created date: " + sortedList);
         return sortedList;
     }
 
@@ -364,7 +371,9 @@ public class CreateProductCollection extends HomePage {
         selectCondition(false,conditions);
         clickOnSaveBTN();
         logger.info("Create Automated collection without SEO info successfully.");
-        return clickOnClose();
+        clickOnClose();
+        waitTillSpinnerDisappear();
+        return new ProductCollectionManagement(driver);
     }
     /**
      * @param token

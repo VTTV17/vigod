@@ -27,7 +27,7 @@ public class CollectionSFPage {
         commons = new UICommonAction(driver);
         PageFactory.initElements(driver,this);
     }
-    @FindBy(xpath = "(//div[@class='product-infomation']//h3)[1]")
+    @FindBy(xpath = "(//div[@class='product-infomation']//p)[1]")
     WebElement NEWEST_SERVICE_NAME;
     @FindBy(xpath = "(//span[contains(@class,'price')])[1]")
     WebElement NEWEST_SERVICE_SELLING_PRICE;

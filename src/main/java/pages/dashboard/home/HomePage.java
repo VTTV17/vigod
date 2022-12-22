@@ -11,6 +11,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import org.testng.asserts.SoftAssert;
+import pages.dashboard.marketing.landingpage.LandingPage;
+import pages.dashboard.marketing.landingpage.LandingPageElement;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
@@ -30,6 +32,7 @@ public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
+    LandingPage landingPage;
 
     SoftAssert soft = new SoftAssert();
 
@@ -441,6 +444,14 @@ public class HomePage {
                 logger.debug("Page show 404");
             }
         }
+        LandingPage landingPage = new LandingPage(driver);
+        if(pageName.equals("Marketing")){
+            waitTillSpinnerDisappear1();
+            commons.sleepInMiliSecond(1000);
+            if(landingPage.isPermissionModalDisplay()){
+                landingPage.closeModal();
+            }
+        }
         logger.info("Check page has permission");
         return this;
     }
@@ -457,13 +468,18 @@ public class HomePage {
             }
             commons.sleepInMiliSecond(1000);
             countFailed = assertCustomize.assertFalse(countFailed, isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
-            if (!pageName.equals("Google Shopping")) {
+            if (!pageName.equals("Landing Page")||!pageName.equals("Marketing")) {
                 commons.openNewTab();
                 commons.switchToWindow(1);
                 commons.navigateToURL(DOMAIN + path);
                 countFailed = assertCustomize.assertTrue(countFailed, commons.getCurrentURL().contains("/404"), "Check url 404: " + pageName);
                 commons.closeTab();
                 commons.switchToWindow(0);
+            }else {
+                landingPage = new LandingPage(driver);
+                if(landingPage.isPermissionModalDisplay()){
+                    landingPage.closeModal();
+                }
             }
         }
         logger.info("Check page no permission");
@@ -497,6 +513,7 @@ public class HomePage {
         for (int i = 1; i <= rowNumber; i++) {
             String menuItemExcel = planPermissionSheet.getRow(i).getCell(0).getStringCellValue();
             if(!page.equalsIgnoreCase("ALL")&& !menuItemExcel.equalsIgnoreCase(page)){
+                logger.debug("Skip page: "+page);
                 continue;
             }
             int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet.getRow(0), packageType);
@@ -511,7 +528,7 @@ public class HomePage {
                 permissionParentMenu = permissionFromExcel;
             } else {
                 if (permissionParentMenu.equalsIgnoreCase("D") && hasSalePitch.equalsIgnoreCase("N")) {
-                    logger.debug("Parent menu is disable");
+                    logger.info("Parent menu is disable");
                     continue;
                 }
                 for (int j = 0; j < pageNames.length; j++) {

@@ -179,6 +179,7 @@ public class HeaderSF extends GeneralSF {
 			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
 		}
 		logger.info("Selected language '%s'.".formatted(lang));
+		waitTillLoaderDisappear();
 		return this;
 	}
 	public HeaderSF clickOnMenuItemByText(String menuItemByText){

@@ -23,4 +23,9 @@ public class ProductCollectionSFElement {
     WebElement META_KEYWORD;
     @FindBy(xpath = "//div[@class='title-view']//div[contains(@class,'title')]//a[last()]")
     WebElement PRODUCT_COLLECTION_NAME;
+    @FindBy(css = ".list-item .page-item")
+    List<WebElement> PAGING_PAGE_LIST;
+    @FindBy(xpath = "//li[@class='page-item active']")
+    WebElement PAGE_ACTIVE;
+    String PAGE_IN_PAGINATION_DYNAMIC_XP = "//li[@class='page-item']/a[text()='%s']";
 }

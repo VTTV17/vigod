@@ -152,7 +152,6 @@ public class ProductCollectionTest extends BaseTest {
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductCollectionName(collectionName)
                 .verifyProductNameList(productExpectedList);
-//        callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     public void editAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
@@ -230,14 +229,13 @@ public class ProductCollectionTest extends BaseTest {
                 .verifySEOInfo("", "", "", collectionName);
         //Delete menuItem (Clear data)
         callDeleteMenuItemAndCollectionAPI(collectionName);
-//        product list: add some product, input priority
+        //product list: add some product, input priority
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
         productList = new String[]{"Quần jeans nữ ống rộng", "Vỏ bưởi", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, true, true)
                 .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(productList.length));
         callCreateMenuItemParentAPI(collectionName);
-
         productCollectAPI = new APIProductCollection();
         collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         navigateSFAndGoToCollectionPage(collectionName);
@@ -317,7 +315,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_08_BH_4791_CreateAutomationProductCollectionWithPriceLessThanNumber() throws Exception {
-        condition = "Product price-is less than-20000";
+        condition = "Product price-is less than-50000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -400,7 +398,6 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectionNameEditManual);
 
     }
-
     @Test(dependsOnMethods = "PC_01_BH_4783_CreateManualProductCollection_V2")
     public void PC_16_BH_4796_AddProductToExistingManualCollection() throws Exception {
         productList = new String[]{"Cà phê pha phin King coffee Expert Blend 2- Túi 500g 65KCF KCF00002", "Quần Nhung Tăm - Quần Ống Xuông Hai Màu Be Đen Siêu Đẹp"};
@@ -424,9 +421,8 @@ public class ProductCollectionTest extends BaseTest {
         editAutomationCollectionAndVerify(collectionNameEditAutomationWithOrCondition, "Any condition", condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithOrCondition);
     }
-
     @Test
-    public void PC19_BH_4795_DeleteAProductCollection() {
+    public void PC_19_BH_4795_DeleteAProductCollection() {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userNameDb, passwordDb);
         ProductCollectionManagement productCollectionManagement = new ProductCollectionManagement(driver);
