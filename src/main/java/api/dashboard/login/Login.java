@@ -68,7 +68,7 @@ public class Login {
                 "rememberMe":true
                 }""".formatted(countryCode, phoneNumber, password);
         Response loginResponse = api.login(DASHBOARD_LOGIN_PHONE_PATH, body);
-        Assert.assertEquals(200,loginResponse.statusCode());
+        loginResponse.then().statusCode(200);
         accessToken = loginResponse.jsonPath().getString("accessToken");
         storeID = loginResponse.jsonPath().getInt("store.id");
         Map<String, String> map = new HashMap<>();

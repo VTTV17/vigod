@@ -65,8 +65,8 @@ public class ProductCollectionManagement extends HomePage {
         return this;
     }
     public ProductCollectionManagement verifyCollectionInfoAfterCreated(String collectionName, String type, String mode, String items){
-        waitTillSpinnerDisappear();
-        commonAction.sleepInMiliSecond(2000);
+//        waitTillSpinnerDisappear();
+//        commonAction.sleepInMiliSecond(2000);
         verifyCollectionName(collectionName,0);
         verifyType(type,0);
         verifyMode(mode,0);
@@ -75,8 +75,8 @@ public class ProductCollectionManagement extends HomePage {
         return this;
     }
     public ProductCollectionManagement verifyCollectionInfoAfterUpdated(String collectionName, String type, String mode, String items) throws Exception {
-        waitTillSpinnerDisappear();
-        commonAction.sleepInMiliSecond(2000);
+//        waitTillSpinnerDisappear();
+//        commonAction.sleepInMiliSecond(2000);
         boolean isSelected = false;
         for (int i=0 ; i< collectionManagementUI.COLLECTION_NAMES.size();i++) {
             String collectionNameInList = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(i));

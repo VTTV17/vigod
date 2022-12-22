@@ -31,7 +31,7 @@ public class ServiceDetailPage {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(xpath = "//h3[@rv-text='models.serviceName']")
+    @FindBy(xpath = "//p[@rv-text='models.serviceName']")
     WebElement SERVICE_NAME;
 
     @FindBy(css = ".price-box .old-price")

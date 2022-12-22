@@ -68,8 +68,7 @@ public class CreateServicePage {
     WebElement SEO_URL;
     @FindBy(css = ".modal-body")
     WebElement POPUP_MESSAGE;
-    @FindBy(css = ".loading-screen .loading")
-    WebElement LOADING;
+
     public CreateServicePage inputServiceName(String serviceName){
         commons.inputText(SERVICE_NAME,serviceName);
         logger.info("Input "+serviceName+ " into Service name field");
@@ -86,7 +85,7 @@ public class CreateServicePage {
         int listingPricePars = Integer.parseInt(listingPrice);
         int sellingPrice = listingPricePars - listingPricePars * Integer.parseInt(discountPercent)/100;
         commons.inputText(SELLING_PRICE,  String.valueOf(sellingPrice));
-        logger.info("Input "+ String.valueOf(sellingPrice)+ " into Selling price field");
+        logger.info("Input "+ sellingPrice+ " into Selling price field");
         return String.valueOf(sellingPrice+"đ");
     }
     public CreateServicePage checkOnShowAsListingService(){

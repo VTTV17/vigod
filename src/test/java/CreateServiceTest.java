@@ -154,7 +154,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-       @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
+    @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
