@@ -3,6 +3,7 @@ package pages.dashboard.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.framework.qual.FromStubFile;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -141,6 +142,10 @@ public class CreateServicePage {
         return this;
     }
     public CreateServicePage inputSEOTitle (String SEOTitle){
+    	if (commons.isElementVisiblyDisabled(SEO_TITLE.findElement(By.xpath("./ancestor::div[contains(@class,'gs-widget  seo-editor')]/descendant::*[1]")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(SEO_TITLE));
+    		return this;
+    	}
         commons.inputText(SEO_TITLE, SEOTitle);
         logger.info("Input "+SEOTitle+" into SEO title field");
         return this;
@@ -165,6 +170,12 @@ public class CreateServicePage {
         logger.info("Click on Save button");
         return this;
     }
+
+	public String getSEOTitle() {
+		String title = commons.getElementAttribute(SEO_TITLE, "value");
+		logger.info("Retrieved SEO Title: %s".formatted(title));
+		return title;
+	}
 
     public void verifyCreateSeviceSuccessfulMessage() {
         String message= commons.getText(POPUP_MESSAGE);

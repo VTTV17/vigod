@@ -12,6 +12,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
 import pages.dashboard.home.HomePage;
 import pages.dashboard.onlineshop.Domains;
 import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
@@ -172,7 +174,7 @@ public class ProductPage extends ProductVerify {
 
     public ProductPage inputSEOTitle(String seoTitle) {
     	if (commonAction.isElementVisiblyDisabled(SEO_TITLE.findElement(By.xpath("./ancestor::div[contains(@class,'gs-widget  seo-editor')]/descendant::*[1]")))) {
-    		new HomePage(driver).isMenuClicked(SEO_TITLE);
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(SEO_TITLE));
     		return this;
     	}
     	commonAction.inputText(SEO_TITLE, seoTitle);
