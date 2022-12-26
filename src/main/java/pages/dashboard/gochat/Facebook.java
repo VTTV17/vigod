@@ -34,4 +34,10 @@ public class Facebook {
 		logger.info("Clicked on 'Connect Facebook' button.");
 		return this;
 	}
+	
+	public Facebook clickConnectFacebook1() {
+		commons.clickElement(CONNECT_FB_BTN);
+		logger.info("Clicked on 'Connect Facebook' button.");
+		return this;
+	}
 }
