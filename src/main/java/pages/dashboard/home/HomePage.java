@@ -320,13 +320,13 @@ public class HomePage {
     }
 
     public boolean checkPresenceOfUpgradeNowPopUp() {
-    	boolean flag = (UPGRADENOW_MESSAGE.size() >0) ? true:false;
+    	boolean flag = (UPGRADENOW_MESSAGE.size() >0);
         logger.info("checkPresenceOfUpgradeNowPopUp: " + flag);
         return flag;
     }
 
     public boolean checkPresenceOfCloseUpgradeNowPopUpIcon() {
-    	boolean flag = (CLOSE_UPGRADENOW_BTN.size() >0) ? true:false;
+    	boolean flag = (CLOSE_UPGRADENOW_BTN.size() >0);
     	logger.info("checkPresenceOfCloseUpgradeNowPopUpIcon: " + flag);
     	return flag;
     }
