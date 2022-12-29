@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Default Suite">
-  <test thread-count="5" name="GoSELL-Automation-Thang-Mad">
+  <test thread-count="5" name="GoSELL-Thang">
     <classes>
       <class name="BH_8887">
         <methods>
@@ -35,5 +35,5 @@
         </methods>
       </class> <!-- BH_8887 -->
     </classes>
-  </test> <!-- GoSELL-Automation-Thang-Mad -->
+  </test> <!-- GoSELL-Thang -->
 </suite> <!-- Default Suite -->

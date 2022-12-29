@@ -1,30 +1,23 @@
 package utilities;
 
-import java.io.File;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.ElementNotInteractableException;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
 public class UICommonAction {
-	
+
 	final static Logger logger = LogManager.getLogger(UICommonAction.class);
-	
+
 	WebDriver driver;
 	WebDriverWait wait;
 
@@ -33,13 +26,60 @@ public class UICommonAction {
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	}
 
+
+	public void clickElement(List<WebElement> element, int index) {
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).click();
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
+			element = refreshElement(element.get(index));
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).click();
+		} catch (ElementNotInteractableException ex) {
+			logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).click();
+		}
+	}
+
+	public void inputText(List<WebElement> element, int index, String text) {
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			doubleClickElement(element.get(index));
+			element.get(index).sendKeys(text);
+		} catch (StaleElementReferenceException | TimeoutException ex) {
+			if (ex instanceof StaleElementReferenceException) {
+				logger.debug("StaleElementReferenceException caught in inputText");
+			} else {
+				logger.debug("TimeoutException caught in inputText");
+			}
+			element = refreshElement(element.get(index));
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			doubleClickElement(element.get(index));
+			element.get(index).sendKeys(text);
+		}
+	}
+
+
+	public String getText(List<WebElement> element, int index) {
+		String text;
+		try {
+			text = wait.until(ExpectedConditions.visibilityOf(element.get(index))).getText();
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in getText");
+			element = refreshElement(element.get(index));
+			text = wait.until(ExpectedConditions.visibilityOf(element.get(index))).getText();
+		}
+		logger.info("Text get: " + text);
+		return text;
+	}
+
+
 	public void clickElement(WebElement element) {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
 		} catch (StaleElementReferenceException ex) {
 			logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
 			List<WebElement> listOfElements = refreshElement(element);
-			if (listOfElements.size() ==1) element = listOfElements.get(0);
+			if (listOfElements.size() == 1) element = listOfElements.get(0);
 			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
 		} catch (ElementNotInteractableException ex) {
 			logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);

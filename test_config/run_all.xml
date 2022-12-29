@@ -5,7 +5,7 @@
         <suite-file path="BH_8616.xml"/>
         <suite-file path="BH_9536.xml"/>
         <suite-file path="BH_9753.xml"/>
-<!--        <suite-file path="BH_8888.xml"/>-->
+        <suite-file path="BH_8888.xml"/>
         <suite-file path="BH_8887.xml"/>
         <!--        <suite-file path="" />-->
     </suite-files>

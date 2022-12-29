@@ -15,8 +15,9 @@ import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 public class CreateProductBody {
     public Map<String, List<String>> variationMap;
     public List<String> variationList;
-    public List<Integer> productListingPrice = new ArrayList<>();
-    public List<Integer> productSellingPrice = new ArrayList<>();
+    public List<Integer> productListingPrice;
+    public List<Integer> productSellingPrice;
+    // String: variation name, List: stock quantity per each branch
     public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
     public static boolean isDisplayOutOfStock = true;
     public static boolean isHideStock = false;
@@ -97,17 +98,20 @@ public class CreateProductBody {
                             .mixVariationValue(variationList, varValue.get(i)));
 
         // random variation listing price
+        productListingPrice = new ArrayList<>();
         IntStream.range(0, variationList.size())
                 .map(i -> (int) (Math.random() * MAX_PRICE))
                 .forEachOrdered(orgPrice -> productListingPrice.add(orgPrice));
 
         // random variation selling price
+        productSellingPrice = new ArrayList<>();
         productListingPrice.stream()
                 .mapToInt(listingPrice -> (int) (Math.random() * listingPrice))
                 .forEachOrdered(newPrice -> productSellingPrice.add(newPrice));
 
 
         // random variation stock per branch
+        productStockQuantity = new HashMap<>();
         for (int i = 0; i < variationList.size(); i++) {
             List<Integer> variationStock = new ArrayList<>();
             // set branch stock
@@ -134,6 +138,7 @@ public class CreateProductBody {
                                 "costPrice": 0,
                                 "lstInventory": [
                         """.formatted(variationList.get(i), productListingPrice.get(i), productSellingPrice.get(i), variationName));
+
             for (int index = 0; index < branchIDList.size(); index++) {
                 // generate stock object
                 String setStock = """
@@ -208,14 +213,20 @@ public class CreateProductBody {
     }
 
     public String withoutVariationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int... branchStockQuantity) {
+        // set variation list
+        variationList = new ArrayList<>();
+        variationList.add(null);
 
         // random listing price
+        productListingPrice = new ArrayList<>();
         productListingPrice.add((int) (Math.random() * MAX_PRICE));
 
         // random selling price
+        productSellingPrice = new ArrayList<>();
         productSellingPrice.add((int) (Math.random() * productListingPrice.get(0)));
 
         // set branch stock
+        productStockQuantity = new HashMap<>();
         productStockQuantity.put(null, IntStream.range(0, branchIDList.size()).mapToObj(i -> branchStockQuantity.length > i ? branchStockQuantity[i] : 0).toList());
 
         StringBuilder itemModelCodeDTOS = new StringBuilder("""

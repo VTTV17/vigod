@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+  <test thread-count="5" name="GoSELL-Automation-Thang-Mad">
+    <classes>
+      <class name="ShoppingTest">
+        <methods>
+          <include name="BH_SPC_G1_Case1_2_FlashSaleIsInProgress"/>
+<!--          <include name="BH_SPC_G3_Case1_2_FlashSaleIsInProgress"/>-->
+        </methods>
+      </class> <!-- ShoppingTest -->
+    </classes>
+  </test> <!-- GoSELL-Automation-Thang-Mad -->
+</suite> <!-- Default Suite -->

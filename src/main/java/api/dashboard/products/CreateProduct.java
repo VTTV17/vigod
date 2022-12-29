@@ -40,12 +40,11 @@ public class CreateProduct {
     public static List<Integer> productSellingPrice;
 
     // wholesale product price
-    public static List<Integer> wholesaleProductPrice = new ArrayList<>();
-    public static List<Integer> wholesaleProductStock = new ArrayList<>();
-    public static Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
+    public static List<Integer> wholesaleProductPrice;
+    public static List<Integer> wholesaleProductStock;
+    public static Map<String, List<Boolean>> wholesaleProductStatus;
 
     public static boolean isVariation;
-    public static boolean isIMEIProduct;
     public static int productID;
     public static String productName;
     public static String productDescription;
@@ -58,8 +57,6 @@ public class CreateProduct {
 
 
     public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
-        CreateProduct.isIMEIProduct = isIMEIProduct;
-
         // is not variation product
         isVariation = false;
 
@@ -81,13 +78,22 @@ public class CreateProduct {
                 productBody.withoutVariationBranchConfig(branchID));
 
         // get product stock and price
-        productSellingPrice = productBody.productSellingPrice;
-        productListingPrice = productBody.productListingPrice;
-        productStockQuantity = productBody.productStockQuantity;
+        variationList = new ArrayList<>();
+        variationList.addAll(productBody.variationList);
+
+        productSellingPrice = new ArrayList<>();
+        productSellingPrice.addAll(productBody.productSellingPrice);
+
+        productListingPrice = new ArrayList<>();
+        productListingPrice.addAll(productBody.productListingPrice);
+
+        productStockQuantity = new HashMap<>();
+        productBody.productStockQuantity.keySet().forEach(key -> productStockQuantity.put(key, productBody.productStockQuantity.get(key)));
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
         if (createProductResponse.getStatusCode() != 201) {
+            logger.error(body);
             logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
         }
         createProductResponse.then().statusCode(201);
@@ -96,16 +102,19 @@ public class CreateProduct {
         productID = createProductResponse.jsonPath().getInt("id");
 
         // init wholesale product status
+        wholesaleProductStatus = new HashMap<>();
         branchName.forEach(brName -> wholesaleProductStatus
                 .put(brName, IntStream.range(0, 1)
                         .mapToObj(i -> false).toList()));
 
         // init flash sale status
+        flashSaleStatus = new HashMap<>();
         branchName.forEach(brName -> flashSaleStatus
                 .put(brName, IntStream.range(0, 1)
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // init discount campaign status
+        discountCampaignStatus = new HashMap<>();
         branchName.forEach(brName -> discountCampaignStatus
                 .put(brName, IntStream.range(0, 1)
                         .mapToObj(i -> "EXPIRED").toList()));
@@ -119,18 +128,19 @@ public class CreateProduct {
         productStockQuantity.keySet().forEach(i -> flashSaleStock.add(Collections.max(productStockQuantity.get(i))));
 
         // init product discount campaign price
+        discountCampaignPrice = new ArrayList<>();
         discountCampaignPrice.addAll(productSellingPrice);
 
         // init wholesale product price and stock
-        wholesaleProductPrice = productSellingPrice;
-        productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
+        wholesaleProductPrice = new ArrayList<>();
+        wholesaleProductPrice.addAll(productSellingPrice);
 
+        wholesaleProductStock = new ArrayList<>();
+        productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
         return this;
     }
 
     public CreateProduct createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
-        CreateProduct.isIMEIProduct = isIMEIProduct;
-
         // is variation product
         isVariation = true;
 
@@ -152,16 +162,26 @@ public class CreateProduct {
                 productBody.variationBranchConfig(branchID));
 
         // get product stock and price
-        variationMap = productBody.variationMap;
-        variationList = productBody.variationList;
-        productSellingPrice = productBody.productSellingPrice;
-        productListingPrice = productBody.productListingPrice;
-        productStockQuantity = productBody.productStockQuantity;
+        variationMap = new HashMap<>();
+        productBody.variationMap.keySet().forEach(key -> variationMap.put(key, productBody.variationMap.get(key)));
+
+        variationList = new ArrayList<>();
+        variationList.addAll(productBody.variationList);
+
+        productSellingPrice = new ArrayList<>();
+        productSellingPrice.addAll(productBody.productSellingPrice);
+
+        productListingPrice = new ArrayList<>();
+        productListingPrice.addAll(productBody.productListingPrice);
+
+        productStockQuantity = new HashMap<>();
+        productBody.productStockQuantity.keySet().forEach(key -> productStockQuantity.put(key, productBody.productStockQuantity.get(key)));
 
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
         if (createProductResponse.getStatusCode() != 201) {
+            logger.error(body);
             logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
         }
 
@@ -175,16 +195,19 @@ public class CreateProduct {
         variationModelID = createProductResponse.jsonPath().getList("models.id");
 
         // init wholesale product status
+        wholesaleProductStatus = new HashMap<>();
         branchName.forEach(brName -> wholesaleProductStatus
                 .put(brName, IntStream.range(0, variationList.size())
                         .mapToObj(i -> false).toList()));
 
         // init flash sale status
+        flashSaleStatus = new HashMap<>();
         branchName.forEach(brName -> flashSaleStatus
                 .put(brName, IntStream.range(0, variationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // init discount campaign status
+        discountCampaignStatus = new HashMap<>();
         branchName.forEach(brName -> discountCampaignStatus
                 .put(brName, IntStream.range(0, variationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
@@ -198,10 +221,14 @@ public class CreateProduct {
         productStockQuantity.keySet().forEach(i -> flashSaleStock.add(Collections.max(productStockQuantity.get(i))));
 
         // init product discount campaign price
+        discountCampaignPrice = new ArrayList<>();
         discountCampaignPrice.addAll(productSellingPrice);
 
         // init wholesale product price and stock
-        wholesaleProductPrice = productSellingPrice;
+        wholesaleProductPrice = new ArrayList<>();
+        wholesaleProductPrice.addAll(productSellingPrice);
+
+        wholesaleProductStock = new ArrayList<>();
         productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
 
         return this;

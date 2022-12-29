@@ -44,10 +44,10 @@ public class CreatePromotion {
 
     // product discount campaign
     public static int discountCampaignStock;
-    public static List<Integer> discountCampaignPrice = new ArrayList<>();
+    public static List<Integer> discountCampaignPrice;
     public static Instant discountCampaignStartTime;
     public static Instant discountCampaignEndTime;
-    public static Map<String, List<String>> discountCampaignStatus = new HashMap<>();
+    public static Map<String, List<String>> discountCampaignStatus;
 
     /**
      * set branch condition
@@ -72,7 +72,7 @@ public class CreatePromotion {
 
         // update flash sale status
         branchName.forEach(brName -> flashSaleStatus
-                .put(brName, IntStream.range(0, isVariation ? variationList.size() : 1)
+                .put(brName, IntStream.range(0, variationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
 
@@ -159,13 +159,13 @@ public class CreatePromotion {
         // post api create new flash sale campaign
         Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + storeID, accessToken, String.valueOf(body));
 
-        logger.debug("create flash sale");
+        logger.debug("create flash sale %s".formatted(createFlashSale.asPrettyString()));
 
         createFlashSale.then().statusCode(200);
 
         // update flash sale status
         branchName.forEach(brName -> flashSaleStatus
-                .put(brName, IntStream.range(0, isVariation ? variationList.size() : 1)
+                .put(brName, IntStream.range(0, variationList.size())
                         .mapToObj(i -> i < num ? "SCHEDULE" : "EXPIRED").toList()));
 
         return this;
@@ -184,7 +184,7 @@ public class CreatePromotion {
 
         //update product discount campaign status
         branchName.forEach(brName -> discountCampaignStatus
-                .put(brName, IntStream.range(0, isVariation ? variationList.size() : 1)
+                .put(brName, IntStream.range(0, variationList.size())
                         .mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
     }
 
@@ -307,7 +307,7 @@ public class CreatePromotion {
             productDiscountCampaignApplicableBranch = branchName;
             applicableCondition = "APPLIES_TO_BRANCH_ALL_BRANCHES";
         } else {
-            List<Integer> activeBranchList = IntStream.range(0, branchID.size()).filter(i -> allBranchStatus.get(i).equals("ACTIVE")).mapToObj(i -> branchID.get(i)).collect(Collectors.toList());
+            List<Integer> activeBranchList = IntStream.range(0, branchID.size()).filter(i -> allBranchStatus.get(i).equals("ACTIVE")).mapToObj(i -> branchID.get(i)).toList();
             int brID = activeBranchList.get(nextInt(activeBranchList.size()));
 
             productDiscountCampaignApplicableBranch = new ArrayList<>();

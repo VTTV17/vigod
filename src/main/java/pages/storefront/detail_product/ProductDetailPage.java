@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.storefront.shoppingcart.ShoppingCart;
@@ -253,12 +254,11 @@ public class ProductDetailPage extends ProductDetailElement {
      * Compare variation name/value on the SF with Dashboard
      */
     private void checkVariationName() throws IOException {
-        List<String> variationNameList = LIST_VARIATION_NAME.stream().map(element -> element.getText().toLowerCase()).toList();
+        List<String> variationNameList = LIST_VARIATION_NAME.stream().map(element -> element.getText().toLowerCase()).toList().stream().sorted().toList();
 
-        countFail = new AssertCustomize(driver).assertEquals(countFail,
-                variationNameList.toString(),
-                variationMap.keySet().toString(),
-                "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationMap.keySet(), variationNameList));
+        countFail = new AssertCustomize(driver).assertTrue(countFail,
+                variationNameList.toString().equals(variationMap.keySet().toString()),
+                "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationMap.keySet().stream().sorted().toList(), variationNameList));
         logger.info("[Check variation name] Check product variation show correctly");
     }
 
@@ -567,9 +567,71 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p>Branch B = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN} </p>
      * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
      */
-    private Map<String, List<String>> getSalePriceMap() {
+    public Map<String, List<String>> getSalePriceMap() {
         getFlashSaleStatusMap();
         getProductDiscountCampaignStatus();
         return branchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleStatus.get(brName).size()).mapToObj(i -> flashSaleStatus.get(brName).get(i).equals("IN-PROGRESS") ? "FLASH SALE" : discountCampaignStatus.get(brName).get(i).equals("IN-PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
+    }
+
+    private void addToCart(List<Integer> branchStock, String... variationName) throws IOException {
+        if ((Collections.max(branchStock) > 0) && branchListIsShownOnSF(branchStock)) {
+            // wait list branch visible
+            commonAction.waitElementList(BRANCH_NAME_LIST);
+
+            // check flash sale for each branch
+            for (WebElement element : BRANCH_NAME_LIST) {
+                // switch branch
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 30);
+
+                // Add product to cart
+                wait.until(ExpectedConditions.elementToBeClickable(ADD_TO_CART_BTN)).click();
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 30);
+            }
+        } else {
+            checkSoldOutMark(variationName);
+            checkBuyNowAndAddToCartBtnIsHidden(variationName);
+        }
+    }
+
+    public void addProductToCart() throws IOException {
+        int maxStock = Collections.max(productStockQuantity.values().stream().map(Collections::max).toList());
+
+        if ((maxStock > 0) || isDisplayOutOfStock) {
+            if (isVariation) {
+                // verify on each variation
+                for (String variationValue : variationList) {
+                    // get variation value
+                    String[] varName = variationValue.replace("|", " ").split(" ");
+
+                    // wait list variation value is visible
+                    int varNum = variationMap.values().stream().map(List::size).toList()
+                            .stream().mapToInt(Integer::intValue).sum();
+                    commonAction.waitElementList(LIST_VARIATION_VALUE, varNum);
+
+                    // select variation
+                    Arrays.stream(varName).forEachOrdered(var -> LIST_VARIATION_VALUE.stream()
+                            .filter(element -> ((JavascriptExecutor) driver)
+                                    .executeScript("return arguments[0].textContent", element)
+                                    .toString().equals(var))
+                            .findFirst().ifPresent(element -> ((JavascriptExecutor) driver)
+                                    .executeScript("arguments[0].click()", element)));
+
+                    // wait spinner loading if any
+                    commonAction.waitForElementInvisible(SPINNER, 30);
+
+                    // Add product to cart
+                    addToCart(productStockQuantity.get(variationValue), variationValue);
+                }
+            } else {
+                // Add product to cart
+                addToCart(productStockQuantity.get(null));
+            }
+        } else check404Page();
+        new ShoppingCart(driver);
     }
 }
