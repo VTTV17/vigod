@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.promotion.discount.DiscountPage;
+import pages.dashboard.promotion.discount.servicediscountcode.ServiceDiscountCodePage;
 import utilities.UICommonAction;
 
 import java.io.Serializable;
@@ -377,6 +378,24 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
         return this;
     }
 
+	public ProductDiscountCampaignPage tickAppliesTo(int optionIndex) {
+		commonAction.waitElementList(APPLIES_TO_LABEL);
+		if (optionIndex ==0) {
+			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
+			logger.info("Ticked 'All Products' radio button.");
+		} else if (optionIndex ==1) {
+			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
+			logger.info("Ticked 'Specific Product Collections' radio button.");
+		} else if (optionIndex ==2) {
+			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
+			logger.info("Ticked 'Specific Products' radio button.");
+		} else {
+			logger.info("Input value is not in range (0:2). By default, 'All Products' radio button is ticked.");
+			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(0));
+		}
+		return this;
+	}    
+    
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
         logger.info("Create a new product discount campaign successfully");

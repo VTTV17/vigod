@@ -1,27 +1,30 @@
 package pages.dashboard.promotion.discount;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.dashboard.customers.allcustomers.AllCustomers;
-import pages.dashboard.customers.segments.Segments;
-import pages.dashboard.home.HomePage;
-import pages.dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
-import pages.dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
-import utilities.UICommonAction;
+import static pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
+import static pages.dashboard.customers.segments.CreateSegment.segmentName;
+import static utilities.links.Links.DOMAIN;
+import static utilities.page_loaded_text.PageLoadedText.DB_DISCOUNT_PAGE_LOADED_TEXT_ENG;
+import static utilities.page_loaded_text.PageLoadedText.DB_DISCOUNT_PAGE_LOADED_TEXT_VIE;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Thread.sleep;
-import static pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
-import static pages.dashboard.customers.segments.CreateSegment.segmentName;
-import static utilities.links.Links.DOMAIN;
-import static utilities.page_loaded_text.PageLoadedText.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import pages.dashboard.customers.allcustomers.AllCustomers;
+import pages.dashboard.customers.segments.Segments;
+import pages.dashboard.home.HomePage;
+import pages.dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
+import pages.dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
+import utilities.UICommonAction;
 
 public class DiscountPage extends DiscountElement {
     WebDriverWait wait;
@@ -121,4 +124,58 @@ public class DiscountPage extends DiscountElement {
         return List.of(segmentName);
     }
 
+    public DiscountPage clickDiscountCode() {
+    	commonAction.clickElement(CREATE_PROMOTION_BTN);
+    	logger.info("Clicked on 'Discount Code' button.");
+    	return this;
+    }
+    
+    public DiscountPage clickProductDiscountCode() {
+    	if (commonAction.isElementVisiblyDisabled(PRODUCT_DISCOUNT_CODE.findElement(By.xpath("./parent::*")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(PRODUCT_DISCOUNT_CODE));
+    		return this;
+    	}
+    	commonAction.clickElement(PRODUCT_DISCOUNT_CODE);
+    	logger.info("Clicked on 'Product Discount Code' button.");
+    	return this;
+    }    
+    
+    public DiscountPage clickServiceDiscountCode() {
+    	if (commonAction.isElementVisiblyDisabled(SERVICE_DISCOUNT_CODE.findElement(By.xpath("./parent::*")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(SERVICE_DISCOUNT_CODE));
+    		return this;
+    	}
+    	commonAction.clickElement(SERVICE_DISCOUNT_CODE);
+    	logger.info("Clicked on 'Service Discount Code' button.");
+    	return this;
+    }    
+
+    public DiscountPage clickDiscountCampaign() {
+    	commonAction.clickElement(WHOLESALE_PRICING_BTN);
+    	logger.info("Clicked on 'Discount Campaign' button.");
+    	return this;
+    }    
+
+    public DiscountPage clickProductDiscountCampaign() {
+    	if (commonAction.isElementVisiblyDisabled(PRODUCT_DISCOUNT_CODE.findElement(By.xpath("./parent::*")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(PRODUCT_DISCOUNT_CODE));
+    		return this;
+    	}
+    	commonAction.clickElement(PRODUCT_DISCOUNT_CODE);
+    	logger.info("Clicked on 'Product Discount Campaign' button.");
+    	return this;
+    }       
+    
+    public DiscountPage clickServiceDiscountCampaign() {
+    	if (commonAction.isElementVisiblyDisabled(SERVICE_DISCOUNT_CODE.findElement(By.xpath("./parent::*")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(SERVICE_DISCOUNT_CODE));
+    		return this;
+    	}
+    	commonAction.clickElement(SERVICE_DISCOUNT_CODE);
+    	logger.info("Clicked on 'Service Discount Campaign' button.");
+    	return this;
+    }    
+    
+  
+    
 }
