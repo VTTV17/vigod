@@ -39,7 +39,7 @@ public class HomePage {
     Excel excel;
     int countFailed = 0;
     AssertCustomize assertCustomize;
-    public String planPermissionFileName = "Features1.xlsx";
+    public String planPermissionFileName = "PlanPermission.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
