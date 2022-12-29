@@ -38,10 +38,10 @@ public class CollectionSFPage {
         Assert.assertEquals(commons.getText(NEWEST_SERVICE_NAME),serviceName);
         logger.info("Service name show correct");
         String sellingPriceActual = String.join("",commons.getText(NEWEST_SERVICE_SELLING_PRICE).split(","));
-        Assert.assertEquals(sellingPriceActual,sellingPrice);
+        Assert.assertEquals(sellingPriceActual.subSequence(0,sellingPriceActual.length()-1),sellingPrice);
         logger.info("Selling price show correct");
         String listingPriceActual = String.join("",commons.getText(NEWEST_SERVICE_LISTING_PRICE).split(","));
-        Assert.assertEquals(listingPriceActual,listingPrice+"đ");
+        Assert.assertEquals(listingPriceActual.subSequence(0,listingPriceActual.length()-1),listingPrice);
         logger.info("Listing Price show correct");
     }
     public void verifyListingServiceDisplayInList(String serviceName){

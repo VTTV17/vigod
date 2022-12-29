@@ -21,8 +21,6 @@ public class UserProfileSFTest extends BaseTest {
     HeaderGoMua headerGoMua;
     HeaderSF headerSF;
     MyAccount myAccount;
-    LoginGoMua loginGoMua;
-    MyProfileGoMua myProfileGoMua;
     SignupPage signupSF;
     ProductDetailPage productDetailSF;
     pages.dashboard.login.LoginPage loginDb;
@@ -87,6 +85,8 @@ public class UserProfileSFTest extends BaseTest {
         loginSF.navigate(shopDomain)
                 .performLogin(userName, passWordSF);
         headerSF = new HeaderSF(driver);
+        headerSF.waitTillLoaderDisappear();
+        headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile();
         return new UserProfileInfo(driver);
     }
@@ -113,21 +113,8 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyDisplayName(displayName_Edit)
                 .verifyPhoneNumber("+84:" + phoneNumber_Edit)
                 .verifyGender(gender_Edit)
-                .verifyEmailDisabled();
-//                .clickUserInfoIcon().clickLogout();
-//        headerGoMua = new HeaderGoMua(driver);
-//        headerGoMua.navigateToGoMua()
-//                .clickOnLogInBTN();
-//        loginGoMua = new LoginGoMua(driver);
-//        loginGoMua.loginWithUserName(userName_EditInfo_HasBirthday, passWordSF);
-//        headerGoMua = new HeaderGoMua(driver);
-//        headerGoMua.changeLanguage("English")
-//                .goToMyProfile();
-//        myProfileGoMua = new MyProfileGoMua(driver);
-//        myProfileGoMua.clickOnEditProfile()
-//                .verifyDisplayName(displayName_Edit)
-//                .verifyPhoneNumber("+84 " + phoneNumber_Edit)
-//                .verifyGender(gender_Edit);
+                .verifyEmailDisabled()
+                .clickUserInfoIcon().clickLogout();
     }
 
     public void UpdateUserProfile_NoBirthdayBefore() throws SQLException {
@@ -135,7 +122,9 @@ public class UserProfileSFTest extends BaseTest {
         buyerAccount_Signup = generateName + "@mailnesia.com";
         buyerDisplayName_Signup = generateName;
         signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        signupSF.navigate(shopDomain).waitTillLoaderDisappear();
+        signupSF = new SignupPage(driver);
+        signupSF.signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().clickLogout();
         loginAndGoToUserProfile(buyerAccount_Signup);
@@ -406,18 +395,26 @@ public class UserProfileSFTest extends BaseTest {
 
     }
     @Test
-    public void UP02_BH_1290_UpdateUserProfile() throws SQLException {
-        testCaseID = "BH_1290";
+    public void UP_02_BH_1290_UpdateUserProfile() throws Exception {
+//        testCaseID = "BH_1290";
         UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount();
         UpdateUserProfile_NoBirthdayBefore();
+        myAccount = new MyAccount(driver);
+        int originQuantityOtherPhone = myAccount.getQuantityOfOtherPhone();
+        int originQuantityOtherEmail = myAccount.getQuantityOfOtherEmail();
+        myAccount.addOtherPhones("Other phone","+84","01"+generate.generateNumber(8),"01"+generate.generateNumber(8));
+        myAccount.addOneOtherEmails("Other mail",generate.generateString(5)+"@mailnesia.com",generate.generateString(5)+"@mailnesia.com");
+        myAccount.clickOnSaveButton();
+        myAccount.verifyOtherPhoneListSize(originQuantityOtherPhone+2);
+        myAccount.verifyOtherEmailListSize(originQuantityOtherEmail+2);
     }
     @Test
-    public void UP03_BH_4605_EditUserInformationForEmailAccount(){
+    public void UP_03_BH_4605_EditUserInformationForEmailAccount(){
         testCaseID = "BH_4605";
         UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount();
     }
     @Test
-    public void UP04_BH_4606_UpdateUserProfile_NoBirthdayBefore_PhoneAccount() throws SQLException {
+    public void UP_04_BH_4606_UpdateUserProfile_NoBirthdayBefore_PhoneAccount() throws SQLException {
         testCaseID = "BH_4606";
         String generateName = generate.generateString(10);
         buyerAccount_Signup = "01" + generate.generateNumber(9);
@@ -434,6 +431,7 @@ public class UserProfileSFTest extends BaseTest {
         displayName_Edit = generate.generateString(10);
         gender_Edit = myAccount.editGender();
         myAccount.inputFullName(displayName_Edit)
+                .verifyPhoneDisabled()
                 .inputEmail(email_Edit)
                 .inputBirthday(birthday_Edit)
                 .clickOnSaveButton()

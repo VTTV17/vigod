@@ -71,14 +71,16 @@ public class ServiceDetailPage {
 
     public ServiceDetailPage verifyListingPrice(String listingPriceExpected) throws IOException {
         String listingPriceActual = commons.getText(LISTING_PRICE.get(0));
-        Assert.assertEquals(String.join("", listingPriceActual.split(",")), listingPriceExpected + "đ");
+        listingPriceActual=String.join("", listingPriceActual.split(","));
+        Assert.assertEquals(listingPriceActual.subSequence(0,listingPriceActual.length()-1), listingPriceExpected);
         logger.info("Verify service listing price on detail page");
         return this;
     }
 
     public ServiceDetailPage verifySellingPrice(String sellingPriceExpected) throws IOException {
         String sellingPriceActual = commons.getText(SELLING_PRICE.get(0));
-        Assert.assertEquals(String.join("", sellingPriceActual.split(",")), sellingPriceExpected);
+        sellingPriceActual=String.join("", sellingPriceActual.split(","));
+        Assert.assertEquals(sellingPriceActual.subSequence(0,sellingPriceActual.length()-1), sellingPriceExpected);
         logger.info("Verify service selling price on detail page");
         return this;
     }
