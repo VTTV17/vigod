@@ -28,7 +28,7 @@ public class Links {
 //    public final static String SF_DOMAIN = ".gosell.vn";
 
     // STG config
-    public final static String URI = "https://api.beecow.info";
+    public static String URI = "https://api.beecow.info";
 
     public final static String SF_DOMAIN = ".unisell.vn";
 }
