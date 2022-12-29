@@ -7,6 +7,6 @@ public class TestDiscountCode {
     @Test
     void TestCode() {
         URI = "https://api.beecow.info";
-        new DiscountCode().createDiscountCode("stgaboned@nbobd.com", "Abc@12345");
+        new DiscountCode().createDiscountCode("bigdata_per@yopmail.com", "H123456@");
     }
 }
