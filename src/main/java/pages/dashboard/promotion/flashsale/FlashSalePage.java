@@ -1,25 +1,29 @@
 package pages.dashboard.promotion.flashsale;
 
+import static java.lang.Thread.sleep;
+
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import pages.dashboard.home.HomePage;
 import pages.dashboard.promotion.flashsale.time.TimeManagementPage;
-
-import java.time.Duration;
-
-import static java.lang.Thread.sleep;
+import utilities.UICommonAction;
 
 public class FlashSalePage extends FlashSaleElement {
     WebDriverWait wait;
-
+    UICommonAction commonAction;
+    
     public static String flashSaleURL;
 
     public FlashSalePage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commonAction = new UICommonAction(driver);
     }
 
     Logger logger = LogManager.getLogger(FlashSalePage.class);
@@ -61,4 +65,17 @@ public class FlashSalePage extends FlashSaleElement {
 
         return new TimeManagementPage(driver);
     }
+    
+    public FlashSalePage clickCreateCampaign() {
+    	commonAction.clickElement(CREATE_CAMPAIGN_BTN);
+    	logger.info("Clicked on 'Create Campaign' button.");
+    	return this;
+    } 
+    
+    public FlashSalePage clickExploreNow() {
+    	commonAction.clickElement(EXPLORE_NOW_BTN);
+    	logger.info("Clicked on 'Explore Now' button.");
+    	return this;
+    }     
+    
 }

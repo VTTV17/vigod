@@ -1,23 +1,32 @@
 package pages.dashboard.promotion.discount.product_discount_code;
 
-import org.apache.commons.lang.math.RandomUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import static java.lang.Thread.sleep;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
-import static java.lang.Thread.sleep;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import pages.dashboard.home.HomePage;
+import utilities.UICommonAction;
 
 public class ProductDiscountCodePage extends ProductDiscountCodeElement {
     WebDriverWait wait;
+    UICommonAction commons;
     public String discountCode;
     public int numberOfUsedTimes;
     public boolean isReward;
@@ -42,6 +51,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
     public ProductDiscountCodePage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commons = new UICommonAction(driver);
     }
 
     Logger logger = LogManager.getLogger(ProductDiscountCodePage.class);
@@ -306,7 +316,28 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
         }
         return this;
     }
-
+    
+    public boolean isPlatformDisabled(String platform) {
+    	waitElementList(PLATFORM);
+    	WebElement element = null;
+    	switch (platform) {
+    	case "Web":
+    		element = PLATFORM.get(0);
+    		break;
+    	case "App":
+    		element = PLATFORM.get(1);
+    		break;
+    	case "In-store":
+    		element = PLATFORM.get(2);
+    		break;
+    	}
+    	
+    	if (commons.isElementVisiblyDisabled(element.findElement(By.xpath("./parent::*/parent::*")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(element));
+    		return true;
+    	}
+		return false;
+    }
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
         logger.info("Create a new product discount campaign successfully");

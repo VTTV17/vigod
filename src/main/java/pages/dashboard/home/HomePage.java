@@ -39,7 +39,7 @@ public class HomePage {
     Excel excel;
     int countFailed = 0;
     AssertCustomize assertCustomize;
-    public String planPermissionFileName = "PlanPermission.xlsx";
+    public String planPermissionFileName = "Features1.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
 
@@ -206,19 +206,19 @@ public class HomePage {
     }
 
     public void navigateToPage(String pageName) {
-    	commons.waitForElementInvisible(SPINNER);
+    	commons.waitForElementInvisible(SPINNER, 20);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
-        boolean isMenuAlreadyOpened = !element.getAttribute("active").contentEquals("active");
+        boolean isMenuAlreadyOpened = element.getAttribute("class").contains("active");
         
         if (isMenuComponentVisiblyDisabled(element)) {
         	Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
         } else {
-            if (isMenuAlreadyOpened) {
+            if (!isMenuAlreadyOpened) {
             	commons.clickElement(element);
                 logger.info("Click on %s item on menu".formatted(pageName));
                 commons.waitForElementInvisible(SPINNER);
@@ -251,7 +251,7 @@ public class HomePage {
     }
     
     public HomePage waitTillSpinnerDisappear1() {
-    	commons.waitForElementInvisible(SPINNER, 15);
+    	commons.waitForElementInvisible(SPINNER, 30);
     	logger.info("Spinner1 has finished loading");
     	return this;
     }
