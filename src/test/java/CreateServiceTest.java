@@ -1,3 +1,4 @@
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
@@ -6,6 +7,7 @@ import pages.dashboard.service.ServiceManagementPage;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.services.CollectionSFPage;
 import pages.storefront.services.ServiceDetailPage;
+import utilities.PropertiesUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,14 +38,21 @@ public class CreateServiceTest extends BaseTest{
     String userName = "0703618433";
     String passWord = "Psso124@";
     String SF_URL = SF_ShopVi;
-    String languageDB = "VIE";
-    String languageSF = "English";
+    String  languageDB;
+    String languageSF;
+    String sfAllServicesTxt;
+    @BeforeClass
+    public void beforeClass() throws Exception {
+        languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
+        languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
+        sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("sf.serviceDetail.allServicesTxt");
+    }
     @Test (priority = 0)
-    public void CS01_CreateService() {
+    public void CS01_CreateService() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
@@ -67,6 +76,7 @@ public class CreateServiceTest extends BaseTest{
        loginSF = new pages.storefront.login.LoginPage(driver);
        loginSF.navigate(SF_ShopVi);
        headerSF = new HeaderSF(driver);
+       System.out.println("sellingPrice: "+sellingPrice);
        headerSF.selectLanguage(languageSF)
                .searchWithFullName(serviceName)
                .verifySearchSuggestion(serviceName,sellingPrice)
@@ -87,11 +97,11 @@ public class CreateServiceTest extends BaseTest{
                .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
    }
     @Test(priority = 2)
-    public void CS03_CreateListingPriceService() {
+    public void CS03_CreateListingPriceService() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
+        home.waitTillSpinnerDisappear().hideFacebookBubble().selectLanguage(languageDB).navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         createService = new CreateServicePage(driver);
@@ -131,7 +141,7 @@ public class CreateServiceTest extends BaseTest{
                 .verifyListingServiceDisplayInList(serviceName);
     }
     @Test (priority = 4)
-    public void CS05_CreateServiceBelongToMultipleCollections() {
+    public void CS05_CreateServiceBelongToMultipleCollections() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
@@ -158,6 +168,8 @@ public class CreateServiceTest extends BaseTest{
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
+        System.out.println("sfAllServicesTxt: "+sfAllServicesTxt);
+
         headerSF = new HeaderSF(driver);
         headerSF.selectLanguage(languageSF)
                 .searchWithFullName(serviceName)
@@ -174,11 +186,11 @@ public class CreateServiceTest extends BaseTest{
                 .verifyCollectionLink(selectedCollection.size(),selectedCollection)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
-        collectionSFPage.verifyCollectionPageTitle("All Services")
+        collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
     }
     @Test (priority = 6)
-    public void CS07_CreateServiceWithSEOInfo() {
+    public void CS07_CreateServiceWithSEOInfo() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
@@ -230,5 +242,16 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage = new CollectionSFPage(driver);
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
+    }
+    @Test
+    public void CS09_VerifyText() throws Exception {
+        login = new LoginPage(driver);
+        login.navigate().performLogin(userName,passWord);
+        home =  new HomePage(driver);
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
+        serviceManagement = new ServiceManagementPage(driver);
+        serviceManagement.goToCreateServicePage();
+        createService = new CreateServicePage(driver);
+        createService.verifyTextOfPage();
     }
 }

@@ -55,7 +55,7 @@ public class MyAccount extends HeaderSF {
 	 * @return the customer's phone number along with a country code separated by ":". Eg. +84:0841001002
 	 */
     public String getPhoneNumber() {
-        String countryCode = commonAction.getElementAttribute(myAccountUI.COUNTRY_CODE, "value");
+        String countryCode = commonAction.getElementAttribute(myAccountUI.COUNTRY_CODE_INPUT, "value");
         String phoneNumber = commonAction.getElementAttribute(myAccountUI.PHONE, "value");
         String value = countryCode + ":" + phoneNumber;
         logger.info("Retrieved phone number prefixed with country code: " + value);
@@ -145,6 +145,7 @@ public class MyAccount extends HeaderSF {
         commonAction.clickElement(myAccountUI.SAVE_BTN);
         logger.info("Click on Save button");
         wait.until(ExpectedConditions.visibilityOf(myAccountUI.TOAST_MESSAGE));
+        waitTillLoaderDisappear();
         return this;
     }
 
@@ -157,6 +158,7 @@ public class MyAccount extends HeaderSF {
         }
     }
     public MyAccount verifyBirthdayDisabled(){
+        commonAction.sleepInMiliSecond(1000);
         Assert.assertTrue(isBirthdayDisabled(),"Actual: birthday is enabled");
         logger.info("Birthday field is disabled");
         return this;
@@ -188,13 +190,58 @@ public class MyAccount extends HeaderSF {
     }
     public MyAccount verifyPhoneDisabled(){
         Assert.assertFalse(myAccountUI.PHONE.isEnabled(),"Actual: Phone number field is not disabled");
-        Assert.assertFalse(myAccountUI.COUNTRY_CODE.isEnabled(),"Actual: Country code field is not disabled");
+        Assert.assertFalse(myAccountUI.COUNTRY_CODE_SELECT.isEnabled(),"Actual: Country code field is not disabled");
         logger.info("Verify phone number is disabled");
         return this;
     }
     public MyAccount verifyEmail(String expected){
         Assert.assertEquals(getEmail(),expected.toLowerCase());
         logger.info("Verify email after updated");
+        return this;
+    }
+
+    public MyAccount addOtherPhones(String name, String countryPhoneCode, String...phones) throws Exception {
+        if(phones.length==0){
+            throw new  Exception("Phones are empty!");
+        }
+        for (String phone: phones) {
+            commonAction.sleepInMiliSecond(1000);
+            waitTillLoaderDisappear();
+            commonAction.clickElement(myAccountUI.ADD_OTHER_PHONE_BTN);
+            commonAction.inputText(myAccountUI.PHONE_NAME_ADD_OTHER_PHONE, name);
+            commonAction.sleepInMiliSecond(2000);
+            commonAction.selectByVisibleText(myAccountUI.PHONE_CODE_ADD_OTHER_PHONE, countryPhoneCode);
+            commonAction.inputText(myAccountUI.PHONE_NUMBER_ADD_OTHER_PHONE, phone);
+            commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_PHONE);
+        }
+        logger.info("Add other phones.");
+        return this;
+    }
+    public MyAccount addOneOtherEmails(String name, String...emails) throws Exception {
+        if(emails.length==0){
+            throw new  Exception("Email are empty!");
+        }
+        for (String email: emails) {
+            commonAction.clickElement(myAccountUI.ADD_OTHER_EMAIL_BTN);
+            commonAction.inputText(myAccountUI.EMAIL_NAME_ADD_OTHER_EMAIL, name);
+            commonAction.inputText(myAccountUI.EMAIL_ADD_OTHER_EMAIL, email);
+            commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_EMAIL);
+        }
+        logger.info("Add other emails.");
+        return this;
+    }
+    public int getQuantityOfOtherPhone(){
+        return myAccountUI.OTHER_PHONE_LIST.size();
+    }
+    public int getQuantityOfOtherEmail(){
+        return myAccountUI.OTHER_EMAIL_LIST.size();
+    }
+    public MyAccount verifyOtherPhoneListSize(int expected){
+        Assert.assertEquals(getQuantityOfOtherPhone(),expected,"Verify Other phone list size");
+        return this;
+    }
+    public MyAccount verifyOtherEmailListSize(int expected){
+        Assert.assertEquals(getQuantityOfOtherEmail(),expected,"Verify Other email list size");
         return this;
     }
 }

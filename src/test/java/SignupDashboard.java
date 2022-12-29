@@ -1281,12 +1281,12 @@ public class SignupDashboard extends BaseTest {
 	}	
 
 	@Test
-	public void BH_7669_SignUpForShơpWithGoFreePackageUsingGomuaMailAccount() throws Exception {
+	public void BH_7669_SignUpForShopWithGoFreePackageUsingGomuaMailAccount() throws Exception {
 		BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount();
 	}	
 	
 	@Test
-	public void BH_7669_SignUpForShơpWithGoFreePackageUsingGomuaPhoneAccount() throws Exception {
+	public void BH_7669_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount() throws Exception {
 		BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount();
 	}	
 	
