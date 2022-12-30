@@ -49,24 +49,23 @@ public class PropertiesUtil {
                 break;
             default: throw new Exception("Can't detect web type to get language from properties file.");
         }
-        System.out.println("language: "+language);
         return language;
     }
 
     public static String getPropertiesValueByDBLang(String propertyName) throws Exception {
         String language = getLanguageFromConfig("Dashboard");
         if (language.equalsIgnoreCase("ENG")) {
-            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + FILE_EN_TEXT), propertyName);
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_EN_TEXT), propertyName);
         } else if (language.equalsIgnoreCase("VIE")) {
-            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + FILE_VI_TEXT), propertyName);
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_VI_TEXT), propertyName);
         }else throw new Exception("Can't detect language.");
     }
     public static String getPropertiesValueBySFLang(String propertyName) throws Exception {
         String language = getLanguageFromConfig("Storefront");
         if (language.equalsIgnoreCase("ENG")) {
-            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") +getDirectorySlash("resources") + FILE_EN_TEXT), propertyName);
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") +getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_EN_TEXT), propertyName);
         } else if (language.equalsIgnoreCase("VIE")) {
-            return getPropertyValue(initProperties(projectLocation  + getDirectorySlash("src") +getDirectorySlash("main") +getDirectorySlash("resources") + FILE_VI_TEXT), propertyName);
+            return getPropertyValue(initProperties(projectLocation  + getDirectorySlash("src") +getDirectorySlash("main") +getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_VI_TEXT), propertyName);
         }else throw new Exception("Can't detect language.");
     }
 }

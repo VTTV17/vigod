@@ -2,6 +2,7 @@ import api.dashboard.login.Login;
 import api.dashboard.onlineshop.APIMenus;
 import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.APIProductCollection;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
@@ -10,6 +11,7 @@ import pages.dashboard.products.productcollection.createeditproductcollection.Ed
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.productcollection.ProductCollectionSF;
+import utilities.PropertiesUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,8 +43,6 @@ public class ProductCollectionTest extends BaseTest {
     APIMenus menu;
     APIProductCollection productCollectAPI;
     String condition = "";
-    String languageSF = "Vietnamese";
-    String languageDashboard = "ENG";
     HomePage home;
     String userName_goWeb = ADMIN_USERNAME_GOWEB;
     String userName_goApp = ADMIN_USERNAME_GOAPP;
@@ -54,6 +54,13 @@ public class ProductCollectionTest extends BaseTest {
     String collectionNameEditManual = "";
     static String collectionNameEditAutomationWithAndCondition = "";
     static String collectionNameEditAutomationWithOrCondition = "";
+    String languageSF;
+    String languageDashboard;
+    @BeforeClass
+    public void getData() throws Exception {
+        languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
+        languageDashboard = PropertiesUtil.getLanguageFromConfig("Dashboard");
+    }
 
     public void callLoginAPI() {
         loginAPI = new Login();
@@ -431,4 +438,10 @@ public class ProductCollectionTest extends BaseTest {
         productCollectionManagement.deleteTheFirstCollection();
         productCollectionManagement.verifyCollectNameNotDisplayInList(firstCollection);
     }
+    @Test
+    public void PC_20_VerifyText() throws Exception {
+        loginAndNavigateToCreateProductCollection()
+                .verifyTextOfPage();
+    }
+
 }

@@ -4,8 +4,8 @@ public class FileNameAndPath {
     public static String projectLocation= System.getProperty("user.dir");
     static String osName= System.getProperty("os.name");
     public static final String FILE_CONFIG = "config.properties";
-    public static final String FILE_EN_TEXT = "EN.properties";
-    public static final String FILE_VI_TEXT = "VI.properties";
+    public static final String FILE_EN_TEXT = "en.properties";
+    public static final String FILE_VI_TEXT = "vi.properties";
 
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;

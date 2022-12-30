@@ -5,11 +5,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.sort.SortData;
@@ -28,7 +32,6 @@ public class CreateProductCollection extends HomePage {
     DataGenerator generator;
     public static Map<String, Integer> productPriorityMap = new HashMap<>();
     public static int productSelectedNumber = 0;
-
     public CreateProductCollection(WebDriver driver) {
         super(driver);
         this.driver = driver;
@@ -101,7 +104,11 @@ public class CreateProductCollection extends HomePage {
         logger.info("Click on OK button");
         return this;
     }
-
+    public CreateProductCollection clickOnCancelBTNONSelectProductModal() {
+        common.clickElement(createCollectionUI.MODAL_CANCEL_BTN);
+        logger.info("Click on Cancel button on select product modal.");
+        return this;
+    }
     public CreateProductCollection selectProductWithKeyword(String... keywords) {
         if (keywords.length == 0) {
             logger.info("No select product.");
@@ -463,5 +470,90 @@ public class CreateProductCollection extends HomePage {
         productCollectInfoMap.put("CountItem", countItemExpected);
         logger.info("Get product match multiple condition: "+productCollectInfoMap);
         return productCollectInfoMap;
+    }
+    public void verifyTextOfPage() throws Exception {
+        Assert.assertEquals(common.getText(createCollectionUI.CREATE_PRODUCT_COLLECTION_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.pageTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.SAVE_BTN), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.saveBtn"));
+        Assert.assertEquals(common.getText(createCollectionUI.CANCEL_BTN), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.cancelBtn"));
+        Assert.assertEquals(common.getText(createCollectionUI.GENERAL_INFOMATION_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.generalInformationTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.COLLECTION_NAME_LBL), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.collectionNameLbl"));
+        Assert.assertEquals(common.getText(createCollectionUI.IMAGES_LBL), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.imagesLbl"));
+        Assert.assertEquals(common.getText(createCollectionUI.DRAG_DROP_PHOTO_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.drapAndDropTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.COLLECTION_TYPE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.collectionTypeTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.MANUAL_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.manualOptionTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.MANUAL_TYPE_DESCRIPTION), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.manualDescription"));
+        Assert.assertEquals(common.getText(createCollectionUI.AUTOMATED_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automatedOptionTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.AUTOMATED_TYPE_DESCRIPTION), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automatedDescription"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_SORT_OPTION_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.filterSortOptionTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_OPTION_LBL), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.filterOptionLbl"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_OPTION_PRICE_RANGE_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.priceRangeTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_OPTION_VARIATION_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.variationTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_OPTION_PROMOTION_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.promotionTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_OPTION_UNIT_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.unitTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.FILTER_OPTION_BRANCH_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.branchTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_LBL), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortOptionLbl"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_PRICE_ASC_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByPriceAscTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_PRICE_DESC_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortBypriceDescTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_NAME_A_Z_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByNameAZTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_NAME_Z_A_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByNameZATxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_OLDEST_TO_NEWEST_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByOldestToNewestTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_NEWEST_TO_OLDEST_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByNewestToOldestTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_BEST_SELLING_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByBestSellingTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_RATING_ASC_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByRatingAscTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SORT_OPTION_RATING_DESC_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.sortByRatingDescTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.PRODUCT_LIST_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.productListTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.SELECT_PRODUCT_BTN), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.NO_PRODUCT_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.noProductTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.NO_PRODUCT_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.noProductTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SEO_SETTINGS_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoSettingsTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.LIVE_PREVIEW_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.livePreviewLbl"));
+        Assert.assertEquals(common.getElementAttribute(createCollectionUI.LIVE_PREVIEW_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.livePreviewTooltipTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SEO_TITLE_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoTitleLbl"));
+        Assert.assertEquals(common.getElementAttribute(createCollectionUI.SEO_TITLE_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoTitleTooltipTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SEO_DESCRIPTION_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoDescriptionLbl"));
+        Assert.assertEquals(common.getElementAttribute(createCollectionUI.SEO_DESCRIPTION_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoDescriptionTooltipTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.SEO_KEYWORDS_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoKeywordsLbl"));
+        Assert.assertEquals(common.getElementAttribute(createCollectionUI.SEO_KEYWORD_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.seoKeywordsTooltipTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.URL_LINK_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.urlLinkLbl"));
+        clickOnSelectProduct();
+        waitTillLoadingDotsDisappear();
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_SELECT_PRODUCT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.selectProductTitle"));
+        Assert.assertEquals(common.getElementAttribute(createCollectionUI.SEARCH_FOR_PRODUCT_INPUT,"placeholder"),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.searchProductHintTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_PRODUCT_NAME_COLUMN_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.productNameTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_UNIT_COLUMN_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.unitTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_COST_PRICE_COLUMN_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.costPriceTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_LISTING_PRICE_COLUMN_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.listingPriceTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_SELLING_PRICE_COLUMN_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.sellingPriceTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.OK_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.okBtn"));
+        Assert.assertEquals(common.getText(createCollectionUI.MODAL_CANCEL_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.selectProductModal.cancelBtn"));
+        clickOnCancelBTNONSelectProductModal();
+        selectCollectionType("Automated");
+        Assert.assertEquals(common.getText(createCollectionUI.CONDITIONS_TILE),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.condtionTitle"));
+        Assert.assertEquals(common.getText(createCollectionUI.PRODUCT_MUST_MATCH_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.productMusMatchTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.ALL_CONDITION_RADIO_ACTION),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.allConditionsTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.ANY_CONDITION_RADIO_ACTION),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.anyConditionTxt"));
+        Assert.assertEquals(common.getText(createCollectionUI.ADD_MORE_CONDITION_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.addMoreConditionBtn"));
+
+        List<WebElement> conditionOptions = common.getAllOptionInDropDown(createCollectionUI.CONDITION_DROPDOWN.get(0));
+        Assert.assertEquals(common.getText(conditionOptions.get(0)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.conditionOptions.productTitleTxt"));
+        Assert.assertEquals(common.getText(conditionOptions.get(1)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.conditionOptions.productPriceTxt"));
+        List<WebElement> operateOptions = common.getAllOptionInDropDown(createCollectionUI.OPERATOR_DROPDOWN.get(0));
+        Assert.assertEquals(common.getText(operateOptions.get(0)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.containsTxt"));
+        Assert.assertEquals(common.getText(operateOptions.get(1)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.productTitleIsEqualToTxt"));
+        Assert.assertEquals(common.getText(operateOptions.get(2)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.startsWithTxt"));
+        Assert.assertEquals(common.getText(operateOptions.get(3)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.endsWithTxt"));
+        for (int j = 0; j < 5; j++) {
+            try {
+                common.selectByIndex(new CreateProductCollectionElement(driver).CONDITION_DROPDOWN.get(0),1);
+                break;
+            } catch (StaleElementReferenceException ex) {
+                logger.debug("StaleElementReferenceException caught when selecting condition \n" + ex);
+            }
+        }
+        operateOptions = common.getAllOptionInDropDown(createCollectionUI.OPERATOR_DROPDOWN.get(0));
+        Assert.assertEquals(common.getText(operateOptions.get(0)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.isGeaterThanTxt"));
+        Assert.assertEquals(common.getText(operateOptions.get(1)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.isLessThanTxt"));
+        Assert.assertEquals(common.getText(operateOptions.get(2)),PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt"));
+
     }
 }
