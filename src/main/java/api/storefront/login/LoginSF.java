@@ -2,6 +2,7 @@ package api.storefront.login;
 
 import api.storefront.signup.SignUp;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
 import static api.dashboard.login.Login.*;
 import static io.restassured.RestAssured.given;
@@ -20,11 +21,12 @@ public class LoginSF {
                     "password": "%s",
                     "phoneCode": "%s"
                 }""".formatted(username, password, phoneCode);
-        sfToken = given().contentType(ContentType.JSON)
+        Response loginSF = given().contentType(ContentType.JSON)
                 .cookie("StoreId=%s".formatted(storeID))
                 .when()
                 .body(body)
-                .post("https://%s%s/api/login".formatted(storeURL, SF_DOMAIN)).jsonPath().getString("id_token");
-
+                .post("https://%s%s/api/login".formatted(storeURL, SF_DOMAIN));
+        loginSF.then().statusCode(200);
+        sfToken = loginSF.jsonPath().getString("id_token");
     }
 }
