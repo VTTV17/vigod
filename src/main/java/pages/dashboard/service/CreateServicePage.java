@@ -151,8 +151,8 @@ public class CreateServicePage extends HomePage{
     }
     public void verifyTextOfPage() throws Exception {
         Assert.assertEquals(commons.getText(createServiceUI.CREATE_NEW_SERVICE_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.pageTitle"));
-        Assert.assertEquals(commons.getText(createServiceUI.SAVE_BTN),propertiesUtil.getPropertiesValueByDBLang("page.services.create.saveBTN"));
-        Assert.assertEquals(commons.getText(createServiceUI.CANCEL_BTN),propertiesUtil.getPropertiesValueByDBLang("page.services.create.cancelBTN"));
+        Assert.assertEquals(commons.getText(createServiceUI.SAVE_BTN),propertiesUtil.getPropertiesValueByDBLang("page.services.create.saveBtn"));
+        Assert.assertEquals(commons.getText(createServiceUI.CANCEL_BTN),propertiesUtil.getPropertiesValueByDBLang("page.services.create.cancelBtn"));
         Assert.assertEquals(commons.getText(createServiceUI.BASIC_INFOMATION_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.basicInformationTitle"));
         Assert.assertEquals(commons.getText(createServiceUI.SERVICE_NAME_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.serviceNameLbl"));
         Assert.assertEquals(commons.getText(createServiceUI.LISTING_PRICE_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.listingPriceLbl"));
@@ -183,6 +183,5 @@ public class CreateServicePage extends HomePage{
         Assert.assertEquals(commons.getText(createServiceUI.SEO_KEYWORDS_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoKeywordsLbl"));
         Assert.assertEquals(commons.getElementAttribute(createServiceUI.SEO_KEYWORD_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoKeywordsTooltipTxt"));
         Assert.assertEquals(commons.getText(createServiceUI.URL_LINK_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.urlLinkLbl"));
-
     }
 }
