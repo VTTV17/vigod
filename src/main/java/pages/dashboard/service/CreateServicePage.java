@@ -143,6 +143,12 @@ public class CreateServicePage extends HomePage{
         return this;
     }
 
+	public String getSEOTitle() {
+		String title = commons.getElementAttribute(createServiceUI.SEO_TITLE, "value");
+		logger.info("Retrieved SEO Title: %s".formatted(title));
+		return title;
+	}    
+    
     public void verifyCreateSeviceSuccessfulMessage() {
         commons.sleepInMiliSecond(2000);//wait loading
         String message= commons.getText(createServiceUI.POPUP_MESSAGE);
