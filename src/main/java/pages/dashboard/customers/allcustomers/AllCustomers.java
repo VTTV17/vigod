@@ -1,5 +1,7 @@
 package pages.dashboard.customers.allcustomers;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -14,8 +16,6 @@ import org.testng.asserts.SoftAssert;
 import pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
-
-import java.time.Duration;
 
 public class AllCustomers extends HomePage{
 
@@ -35,6 +35,18 @@ public class AllCustomers extends HomePage{
 		PageFactory.initElements(driver, this);
 	}
 
+	@FindBy(xpath = "(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[2]")
+	WebElement EXPORT_BTN;
+
+	@FindBy(xpath = "(//div[contains(@class,'uik-menuDrop__list')]//button)[1]")
+	WebElement EXPORT_CUSTOMER_BTN;	
+	
+	@FindBy(xpath = "(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[3]")
+	WebElement IMPORT_CUSTOMER_BTN;	
+
+    @FindBy(xpath = "(//div[contains(@class,'customer-list')]//button)[4]")
+    WebElement PRINT_BARCODE_BTN;	
+	
 	@FindBy(css = ".customer-list__filter-container .gs-search-box__wrapper .uik-input__input")
 	WebElement SEARCH_BOX;
 
@@ -56,11 +68,60 @@ public class AllCustomers extends HomePage{
 	@FindBy(css = ".dropdown-menu-right .gs-button__green")
 	WebElement DONE_BTN;
 
+	By IMPORT_CUSTOMER_MODAL = By.cssSelector(".customer-list-import-modal");	
+	By PRINT_BARCODE_MODAL = By.cssSelector(".customer-list-barcode-printer");
+	
 	public AllCustomers navigate() {
 		new HomePage(driver).navigateToPage("Customers");
 		return this;
 	}
 
+	public AllCustomers clickExport() {
+		commonAction.clickElement(EXPORT_BTN);
+		logger.info("Clicked on 'Export' button.");
+		return this;
+	}
+
+	public AllCustomers clickExportCustomer() {
+		if (commonAction.isElementVisiblyDisabled(EXPORT_CUSTOMER_BTN.findElement(By.xpath("./parent::*")))) {
+			new HomePage(driver).isMenuClicked(EXPORT_CUSTOMER_BTN);
+			return this;
+		}
+		commonAction.clickElement(EXPORT_CUSTOMER_BTN);
+		logger.info("Clicked on 'Export Customer' button.");
+		return this;
+	}	
+	
+	public AllCustomers clickImportCustomer() {
+		if (commonAction.isElementVisiblyDisabled(IMPORT_CUSTOMER_BTN.findElement(By.xpath("./parent::*")))) {
+			new HomePage(driver).isMenuClicked(IMPORT_CUSTOMER_BTN);
+			return this;
+		}
+		commonAction.clickElement(IMPORT_CUSTOMER_BTN);
+		logger.info("Clicked on 'Import Customer' button.");
+		return this;
+	}	
+
+    public AllCustomers clickPrintBarcode() {
+    	if (commonAction.isElementVisiblyDisabled(PRINT_BARCODE_BTN.findElement(By.xpath("./parent::*")))) {
+    		new HomePage(driver).isMenuClicked(PRINT_BARCODE_BTN);
+    		return this;
+    	}
+    	commonAction.clickElement(PRINT_BARCODE_BTN);
+    	logger.info("Clicked on 'Print Barcode' button.");
+    	return this;
+    }	
+	
+    public boolean isImportCustomerDialogDisplayed() {
+    	commonAction.sleepInMiliSecond(1000);
+    	return !commonAction.isElementNotDisplay(driver.findElements(IMPORT_CUSTOMER_MODAL));
+    }   	
+
+    public boolean isPrintBarcodeDialogDisplayed() {
+    	commonAction.sleepInMiliSecond(1000);
+    	return !commonAction.isElementNotDisplay(driver.findElements(PRINT_BARCODE_MODAL));
+    }       
+    
 	public AllCustomers inputSearchTerm(String searchTerm) {
 		commonAction.inputText(SEARCH_BOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
