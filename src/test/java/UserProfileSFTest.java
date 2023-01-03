@@ -18,7 +18,6 @@ import static utilities.links.Links.*;
 public class UserProfileSFTest extends BaseTest {
     LoginPage loginSF;
     UserProfileInfo userProfileInfo;
-    HeaderGoMua headerGoMua;
     HeaderSF headerSF;
     MyAccount myAccount;
     SignupPage signupSF;
