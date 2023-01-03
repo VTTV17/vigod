@@ -37,12 +37,12 @@ public class APIMenus {
                 "collectionId":%s}]
                 """.formatted(menuID,menuItemName,collectionID,collectionID);
         Response menuItemRespone = api.putRequest(ADD_MENU_ITEM_PATH,token,body);
-        Assert.assertEquals(200, menuItemRespone.statusCode());
+        menuItemRespone.then().statusCode(200);
         logger.info("Create menuItem successful.");
     }
     public int getMenuItemIDByName(String token, String menuId, String menuItemName) throws Exception {
         Response response = api.get(GET_ALL_MENU_ITEM_PATH.formatted(menuId),token);
-        Assert.assertEquals(response.statusCode(),200);
+        response.then().statusCode(200);
         List<String> nameList = response.jsonPath().getList("name");
         System.out.println("getMenuItemIDByName: "+nameList);
         List<Integer> idList = response.jsonPath().getList("id");
@@ -68,5 +68,6 @@ public class APIMenus {
                 {}
                 """;
         Response response = api.deleteRequest(DELETE_MENU_ITEM_PATH.formatted(storeID,menuItemId),token,body);
+        response.then().statusCode(200);
     }
 }

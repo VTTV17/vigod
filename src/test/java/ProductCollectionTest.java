@@ -432,6 +432,8 @@ public class ProductCollectionTest extends BaseTest {
     public void PC_19_BH_4795_DeleteAProductCollection() {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        home = new HomePage(driver);
+        home.waitTillSpinnerDisappear();
         ProductCollectionManagement productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.navigateToProductCollectionManagement();
         String firstCollection = productCollectionManagement.getTheFirstCollectionName();
