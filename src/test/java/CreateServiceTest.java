@@ -8,6 +8,7 @@ import pages.storefront.header.HeaderSF;
 import pages.storefront.services.CollectionSFPage;
 import pages.storefront.services.ServiceDetailPage;
 import utilities.PropertiesUtil;
+import utilities.account.AccountTest;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,14 +36,16 @@ public class CreateServiceTest extends BaseTest{
     String SEODesctiption="SEO description service";
     String SEOKeyword="seo keyword";
     String SEOUrl="";
-    String userName = "0703618433";
-    String passWord = "Psso124@";
+    String userName;
+    String passWord;
     String SF_URL = SF_ShopVi;
     String  languageDB;
     String languageSF;
     String sfAllServicesTxt;
     @BeforeClass
     public void beforeClass() throws Exception {
+        userName = AccountTest.ADMIN_SHOP_VI_USERNAME;
+        passWord = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
         sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("sf.serviceDetail.allServicesTxt");
@@ -169,7 +172,6 @@ public class CreateServiceTest extends BaseTest{
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         System.out.println("sfAllServicesTxt: "+sfAllServicesTxt);
-
         headerSF = new HeaderSF(driver);
         headerSF.selectLanguage(languageSF)
                 .searchWithFullName(serviceName)
