@@ -52,7 +52,7 @@ public class Shopee {
 
     public Shopee selectCountry(String country) {
     	commonAction.clickElement(COUNTRY_DROPDOWN);
-		commonAction.sleepInMiliSecond(500);
+    	commonAction.sleepInMiliSecond(500);
 		driver.findElement(By.xpath("//span[@class='region-label-option' and text()='%s']".formatted(country))).click();
     	logger.info("Selected country with country code '%s'.".formatted(country));
     	return this;
