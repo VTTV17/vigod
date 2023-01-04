@@ -27,12 +27,12 @@ public class ProductCollectionTest extends BaseTest {
     ProductCollectionManagement productCollectionManagement;
     ProductCollectionSF productCollectionSF;
     EditProductCollection editProductCollection;
-    String userNameDb = ADMIN_SHOP_VI_USERNAME;
-    String passwordDb = ADMIN_SHOP_VI_PASSWORD;
+    String userNameDb;
+    String passwordDb;
     String collectionName = "";
     String[] productList = {};
-    String domainSF = SF_ShopVi;
-    String menuID = "1174";
+    String domainSF;
+    String menuID;
     Login loginAPI;
     String token = "";
     String storeId = "";
@@ -44,22 +44,38 @@ public class ProductCollectionTest extends BaseTest {
     APIProductCollection productCollectAPI;
     String condition = "";
     HomePage home;
-    String userName_goWeb = ADMIN_USERNAME_GOWEB;
-    String userName_goApp = ADMIN_USERNAME_GOAPP;
-    String userName_goPOS = ADMIN_USERNAME_GOPOS;
-    String userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
-    String userName_GoLead = ADMIN_USERNAME_GOLEAD;
-    String passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
+    String userName_goWeb;
+    String userName_goApp;
+    String userName_goPOS;
+    String userName_goSocial;
+    String userName_GoLead;
+    String passwordCheckPermission;
     String collectNameEditPriority = "";
     String collectionNameEditManual = "";
     static String collectionNameEditAutomationWithAndCondition = "";
     static String collectionNameEditAutomationWithOrCondition = "";
     String languageSF;
     String languageDashboard;
+    String automatedMode;
+    String manuallyMode;
+    String productType;
     @BeforeClass
     public void getData() throws Exception {
+        userNameDb = ADMIN_SHOP_VI_USERNAME;
+        passwordDb = ADMIN_SHOP_VI_PASSWORD;
+        domainSF = SF_ShopVi;
+        menuID = "1174";
+        userName_goWeb = ADMIN_USERNAME_GOWEB;
+        userName_goApp = ADMIN_USERNAME_GOAPP;
+        userName_goPOS = ADMIN_USERNAME_GOPOS;
+        userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
+        userName_GoLead = ADMIN_USERNAME_GOLEAD;
+        passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
         languageDashboard = PropertiesUtil.getLanguageFromConfig("Dashboard");
+        automatedMode = PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.automatedModeTxt");
+        manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.manuallyModeTxt");
+        productType = PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.productTypeTxt");
     }
 
     public void callLoginAPI() {
@@ -152,7 +168,7 @@ public class ProductCollectionTest extends BaseTest {
 
         loginAndNavigateToCreateProductCollection()
                 .createProductAutomationCollectionWithoutSEO(collectionName, conditionType, conditions)
-                .verifyCollectionInfoAfterCreated(collectionName, "Product", "Automated", String.valueOf(countItemExpected));
+                .verifyCollectionInfoAfterCreated(collectionName, productType, automatedMode, String.valueOf(countItemExpected));
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);
@@ -183,7 +199,7 @@ public class ProductCollectionTest extends BaseTest {
         }
         System.out.println("Product: " + productExpectedList);
         productCollectionManagement = new ProductCollectionManagement(driver);
-        productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, "Product", "Automated", String.valueOf(countItemExpected));
+        productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, productType, automatedMode, String.valueOf(countItemExpected));
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);
@@ -214,14 +230,14 @@ public class ProductCollectionTest extends BaseTest {
         collectionName = "Manually: has no product " + generate.generateString(10);
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_NoPriority(collectionName, productList)
-                .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", "0");
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, "0");
         //product list: add some product, no input priority
         collectionName = "Manually collection has product " + generate.generateString(10);
         productList = new String[]{"Quần jeans nữ ống rộng", "Vỏ bưởi", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
         productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.clickOnCreateCollection()
                 .createManualCollectionWithoutSEO_NoPriority(collectionName, productList)
-                .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(CreateProductCollection.productSelectedNumber))
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(CreateProductCollection.productSelectedNumber))
                 .clickLogout();
         callCreateMenuItemParentAPI(collectionName);
         //Check product collection on SF
@@ -241,7 +257,7 @@ public class ProductCollectionTest extends BaseTest {
         productList = new String[]{"Quần jeans nữ ống rộng", "Vỏ bưởi", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, true, true)
-                .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(productList.length));
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
         callCreateMenuItemParentAPI(collectionName);
         productCollectAPI = new APIProductCollection();
         collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
@@ -264,7 +280,7 @@ public class ProductCollectionTest extends BaseTest {
         SEOUrl = "collectionseourl" + radomText;
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithSEO(collectionName, productList, SEOTitle, SEODescription, SEOKeyword, SEOUrl)
-                .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(CreateProductCollection.productSelectedNumber));
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(CreateProductCollection.productSelectedNumber));
         callCreateMenuItemParentAPI(collectionName);
         //Check product collection on SF
         callLoginAPI();
