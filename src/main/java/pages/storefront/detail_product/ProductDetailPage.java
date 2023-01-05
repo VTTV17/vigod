@@ -1,11 +1,9 @@
 package pages.storefront.detail_product;
 
-import api.dashboard.products.CreateProduct;
 import api.dashboard.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -16,7 +14,10 @@ import utilities.assert_customize.AssertCustomize;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -51,9 +52,9 @@ public class ProductDetailPage extends ProductDetailElement {
      * Access to product detail on SF by URL
      */
     public ProductDetailPage accessToProductDetailPageByProductID() {
-        driver.get("https://%s%s/vi/product/%s".formatted(storeURL, SF_DOMAIN, CreateProduct.productID));
+        driver.get("https://%s%s/vi/product/%s".formatted(storeURL, SF_DOMAIN, productID));
         driver.navigate().refresh();
-        logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(CreateProduct.productID));
+        logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
         commonAction.waitForElementInvisible(SPINNER, 15);
 
         // get max stock
@@ -573,7 +574,7 @@ public class ProductDetailPage extends ProductDetailElement {
         return branchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleStatus.get(brName).size()).mapToObj(i -> flashSaleStatus.get(brName).get(i).equals("IN-PROGRESS") ? "FLASH SALE" : discountCampaignStatus.get(brName).get(i).equals("IN-PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
     }
 
-    private void addToCart(List<Integer> branchStock, String... variationName) throws IOException {
+    private void addToCart(List<Integer> branchStock, String variationName) throws IOException {
         if ((Collections.max(branchStock) > 0) && branchListIsShownOnSF(branchStock)) {
             // wait list branch visible
             commonAction.waitElementList(BRANCH_NAME_LIST);
@@ -586,8 +587,10 @@ public class ProductDetailPage extends ProductDetailElement {
                 // wait spinner loading if any
                 commonAction.waitForElementInvisible(SPINNER, 30);
 
+                int varIndex = variationList.indexOf(variationName);
+
                 // Add product to cart
-                wait.until(ExpectedConditions.elementToBeClickable(ADD_TO_CART_BTN)).click();
+                addProductToCart(varIndex, discountCampaignStock, wholesaleProductStock.get(varIndex), element.getText() );
 
                 // wait spinner loading if any
                 commonAction.waitForElementInvisible(SPINNER, 30);
@@ -629,9 +632,61 @@ public class ProductDetailPage extends ProductDetailElement {
                 }
             } else {
                 // Add product to cart
-                addToCart(productStockQuantity.get(null));
+                addToCart(productStockQuantity.get(null), null);
             }
         } else check404Page();
         new ShoppingCart(driver);
+    }
+
+
+    private void addProductToCart(int indexOfVariation, int discountCampaignStock, int wholesaleProductStock, String branchName) {
+        String priceType = getSalePriceMap().get(branchName).get(indexOfVariation);
+        switch (priceType) {
+            case "DISCOUNT CAMPAIGN" -> {
+                // set minimum discount campaign stock
+                wait.until(elementToBeClickable(QUANTITY)).click();
+                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+                QUANTITY.sendKeys(String.valueOf(discountCampaignStock));
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
+
+                // Add product to cart
+                wait.until(ExpectedConditions.elementToBeClickable(ADD_TO_CART_BTN)).click();
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 30);
+            }
+            case "WHOLESALE PRODUCT" -> {
+                // set minimum wholesale product stock
+                wait.until(elementToBeClickable(QUANTITY)).click();
+                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+                QUANTITY.sendKeys(String.valueOf(wholesaleProductStock));
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
+
+                // Add product to cart
+                wait.until(ExpectedConditions.elementToBeClickable(ADD_TO_CART_BTN)).click();
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 30);
+            }
+            default -> {
+                // set stock quantity = 1 for flash sale or no promotion product
+                wait.until(elementToBeClickable(QUANTITY)).click();
+                QUANTITY.sendKeys(Keys.CONTROL + "a" + Keys.DELETE);
+                QUANTITY.sendKeys(String.valueOf(1));
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
+
+                // Add product to cart
+                wait.until(ExpectedConditions.elementToBeClickable(ADD_TO_CART_BTN)).click();
+
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 30);
+            }
+        }
     }
 }

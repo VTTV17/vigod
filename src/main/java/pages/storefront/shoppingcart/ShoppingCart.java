@@ -3,13 +3,14 @@ package pages.storefront.shoppingcart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.storefront.GeneralSF;
 import pages.storefront.checkout.checkoutstep1.CheckOutStep1;
-import pages.storefront.detail_product.ProductDetailPage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -17,15 +18,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.storeURL;
-import static api.dashboard.products.CreateProduct.*;
-import static api.dashboard.promotion.CreatePromotion.*;
-import static api.dashboard.setting.BranchManagement.branchName;
+import static api.dashboard.products.CreateProduct.productName;
+import static api.dashboard.products.CreateProduct.wholesaleProductRate;
 import static java.lang.Thread.sleep;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.links.Links.SF_DOMAIN;
 
 public class ShoppingCart extends ShoppingCartElement {
@@ -63,8 +60,11 @@ public class ShoppingCart extends ShoppingCartElement {
 
     public ShoppingCart navigateToShoppingCartByURL() {
         driver.get("https://%s%s/shopping-cart".formatted(storeURL, SF_DOMAIN));
+
+        commonAction.verifyPageLoaded(productName, productName);
+
         try {
-            sleep(5000);
+            sleep(3000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -72,31 +72,111 @@ public class ShoppingCart extends ShoppingCartElement {
     }
 
     public ShoppingCart getShoppingCartInfo() {
-        BRANCH_INFO.forEach(branchInfo -> {
-            String branchName = commonAction.getText(branchInfo.findElement(BRANCH_NAME));
-            List<WebElement> productDetail = branchInfo.findElements(PRODUCT_INFO);
+        List<WebElement> branchInfo = driver.findElements(BRANCH_INFO);
+        for (int i = 0; i < branchInfo.size(); i++) {
+
+            String branchName = branchInfo.get(i).findElement(BRANCH_NAME).getText();
+
             List<String> productName = new ArrayList<>();
             List<String> variationValue = new ArrayList<>();
             List<String> unitPrice = new ArrayList<>();
             List<String> couponCode = new ArrayList<>();
             List<String> conversionUnit = new ArrayList<>();
             List<String> totalPrice = new ArrayList<>();
-            productDetail.forEach(prodDetail -> {
-                productName.add(commonAction.getText(prodDetail.findElement(PRODUCT_NAME)));
+
+            for (int id = 0; id < branchInfo.get(i).findElements(PRODUCT_INFO).size(); id++) {
+                // product name
+                branchInfo = driver.findElements(BRANCH_INFO);
+                commonAction.waitElementList(branchInfo, i + 1);
                 try {
-                    variationValue.add(commonAction.getText(prodDetail.findElement(VARIATION_VALUE)));
-                } catch (NoSuchElementException ex) {
-                    variationValue.add(null);
+                    productName.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(PRODUCT_NAME))).getText());
+                } catch (StaleElementReferenceException ex) {
+                    logger.info(ex);
+                    branchInfo = driver.findElements(BRANCH_INFO);
+                    commonAction.waitElementList(branchInfo, i + 1);
+                    productName.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(PRODUCT_NAME))).getText());
                 }
-                unitPrice.add(commonAction.getText(prodDetail.findElement(UNIT_PRICE)).replaceAll("\\D", ""));
+
+                // variation
+                branchInfo = driver.findElements(BRANCH_INFO);
+                commonAction.waitElementList(branchInfo, i + 1);
                 try {
-                    couponCode.add(commonAction.getText(prodDetail.findElement(COUPON_CODE)));
-                } catch (NoSuchElementException ex) {
-                    couponCode.add(null);
+                    try {
+                        variationValue.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(VARIATION_VALUE))).getText());
+                    } catch (NoSuchElementException e) {
+                        variationValue.add(null);
+                    }
+                } catch (StaleElementReferenceException ex) {
+                    logger.info(ex);
+                    branchInfo = driver.findElements(BRANCH_INFO);
+                    commonAction.waitElementList(branchInfo, i + 1);
+                    try {
+                        variationValue.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(VARIATION_VALUE))).getText());
+                    } catch (NoSuchElementException e) {
+                        variationValue.add(null);
+                    }
                 }
-                conversionUnit.add(commonAction.getText(prodDetail.findElement(CONVERSION_UNIT)));
-                totalPrice.add(commonAction.getText(prodDetail.findElement(TOTAL_PRICE)).replaceAll("\\D", ""));
-            });
+
+                // unit price
+                branchInfo = driver.findElements(BRANCH_INFO);
+                commonAction.waitElementList(branchInfo, i + 1);
+
+                try {
+                    unitPrice.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(UNIT_PRICE))).getText().replaceAll("\\D", ""));
+                } catch (StaleElementReferenceException ex) {
+                    logger.info(ex);
+                    branchInfo = driver.findElements(BRANCH_INFO);
+                    commonAction.waitElementList(branchInfo, i + 1);
+                    unitPrice.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(UNIT_PRICE))).getText().replaceAll("\\D", ""));
+                }
+
+                // coupon code
+                branchInfo = driver.findElements(BRANCH_INFO);
+                commonAction.waitElementList(branchInfo, i + 1);
+                try {
+                    try {
+                        couponCode.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(COUPON_CODE))).getText());
+                    } catch (NoSuchElementException e) {
+                        couponCode.add(null);
+                    }
+                } catch (StaleElementReferenceException ex) {
+                    logger.info(ex);
+                    branchInfo = driver.findElements(BRANCH_INFO);
+                    commonAction.waitElementList(branchInfo, i + 1);
+                    try {
+                        couponCode.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(COUPON_CODE))).getText());
+                    } catch (NoSuchElementException e) {
+                        couponCode.add(null);
+                    }
+                }
+
+                // conversion unit
+                branchInfo = driver.findElements(BRANCH_INFO);
+                commonAction.waitElementList(branchInfo, i + 1);
+
+                try {
+                    conversionUnit.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(CONVERSION_UNIT))).getText());
+                } catch (StaleElementReferenceException ex) {
+                    logger.info(ex);
+                    branchInfo = driver.findElements(BRANCH_INFO);
+                    commonAction.waitElementList(branchInfo, i + 1);
+                    conversionUnit.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(CONVERSION_UNIT))).getText());
+
+                }
+                // total price
+                branchInfo = driver.findElements(BRANCH_INFO);
+                commonAction.waitElementList(branchInfo, i + 1);
+
+                try {
+                    totalPrice.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(TOTAL_PRICE))).getText().replaceAll("\\D", ""));
+                } catch (StaleElementReferenceException ex) {
+                    logger.info(ex);
+                    branchInfo = driver.findElements(BRANCH_INFO);
+                    commonAction.waitElementList(branchInfo, i + 1);
+                    totalPrice.add(wait.until(ExpectedConditions.visibilityOf(branchInfo.get(i).findElements(PRODUCT_INFO).get(id).findElement(TOTAL_PRICE))).getText().replaceAll("\\D", ""));
+                }
+            }
+
             cartInfo.put(branchName,
                     List.of(productName,
                             variationValue,
@@ -104,36 +184,14 @@ public class ShoppingCart extends ShoppingCartElement {
                             couponCode,
                             conversionUnit,
                             totalPrice));
-        });
-        return this;
-    }
-
-    public void checkPrice() {
-        Map<String, List<String>> salePriceMap = new ProductDetailPage(driver).getSalePriceMap();
-
-        // set all cart stock = 1
-        Map<String, List<Integer>> cartStock = productStockQuantity.keySet().stream()
-                .collect(Collectors.toMap(varName -> varName, varName -> IntStream.range(0, productStockQuantity.get(varName).size()).mapToObj(i -> 1).toList(), (a, b) -> b));
-        int id = 0;
-        for (String brName : cartInfo.keySet()) {
-            int branchIndex = branchName.indexOf(brName);
-            for (int i = 0; i < cartInfo.get(brName).get(0).size(); i++) {
-                String varName = cartInfo.get(brName).get(1).get(i);
-                int varIndex = variationList.indexOf(varName);
-                WebElement stockElement = BRANCH_INFO.get(id).findElement(PRODUCT_INFO).findElement(STOCK_QUANTITY);
-                int stock;
-                switch (salePriceMap.get(brName).get(varIndex)) {
-                    case "FLASH SALE" -> stock = nextInt(flashSalePurchaseLimit.get(varIndex)) + 1;
-                    case "DISCOUNT CAMPAIGN" -> stock = discountCampaignStock + nextInt(productStockQuantity.get(varName).get(branchIndex) - discountCampaignStock);
-                    case "WHOLESALE PRODUCT" -> stock = wholesaleProductStock.get(varIndex) + nextInt(productStockQuantity.get(varName).get(branchIndex) - wholesaleProductStock.get(varIndex));
-                    default -> stock = nextInt(productStockQuantity.get(varName).get(branchIndex)) + 1;
-                }
-                stockElement.clear();
-                stockElement.sendKeys(String.valueOf(stock));
-//                cartStock.get(varName).set(varIndex, stock);
-            }
+            cartInfo.keySet().forEach(key -> {
+                System.out.println(key);
+                cartInfo.get(key).forEach(System.out::println);
+            });
         }
 
+        System.out.println(wholesaleProductRate);
+        return this;
     }
 
 }

@@ -8,6 +8,7 @@ import utilities.api.API;
 import utilities.api_body.product.CreateProductBody;
 import utilities.data.DataGenerator;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -41,6 +42,7 @@ public class CreateProduct {
 
     // wholesale product price
     public static List<Integer> wholesaleProductPrice;
+    public static List<Float> wholesaleProductRate;
     public static List<Integer> wholesaleProductStock;
     public static Map<String, List<Boolean>> wholesaleProductStatus;
 
@@ -125,18 +127,21 @@ public class CreateProduct {
 
         // init flash sale stock
         flashSaleStock = new ArrayList<>();
-        productStockQuantity.keySet().forEach(i -> flashSaleStock.add(Collections.max(productStockQuantity.get(i))));
+        variationList.forEach(varName -> flashSaleStock.add(Collections.max(productStockQuantity.get(varName))));
 
         // init product discount campaign price
         discountCampaignPrice = new ArrayList<>();
         discountCampaignPrice.addAll(productSellingPrice);
 
-        // init wholesale product price and stock
+        // init wholesale product price, rate and stock
         wholesaleProductPrice = new ArrayList<>();
         wholesaleProductPrice.addAll(productSellingPrice);
 
+        wholesaleProductRate = new ArrayList<>();
+        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
+
         wholesaleProductStock = new ArrayList<>();
-        productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
+        variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
         return this;
     }
 
@@ -218,18 +223,21 @@ public class CreateProduct {
 
         // init flash sale stock
         flashSaleStock = new ArrayList<>();
-        productStockQuantity.keySet().forEach(i -> flashSaleStock.add(Collections.max(productStockQuantity.get(i))));
+        variationList.forEach(varName -> flashSaleStock.add(Collections.max(productStockQuantity.get(varName))));
 
         // init product discount campaign price
         discountCampaignPrice = new ArrayList<>();
         discountCampaignPrice.addAll(productSellingPrice);
 
-        // init wholesale product price and stock
+        // init wholesale product price, rate and stock
         wholesaleProductPrice = new ArrayList<>();
         wholesaleProductPrice.addAll(productSellingPrice);
 
+        wholesaleProductRate = new ArrayList<>();
+        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
+
         wholesaleProductStock = new ArrayList<>();
-        productStockQuantity.keySet().forEach(i -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(i))));
+        variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
 
         return this;
     }
@@ -261,12 +269,6 @@ public class CreateProduct {
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
-
-            // set wholesale product stock = 0 if variations have not wholesale product price
-            IntStream.range(num, variationList.size()).forEach(i -> wholesaleProductStock.add(0));
-
-            // set wholesale product price = selling price if variations have not wholesale product price
-            IntStream.range(num, variationList.size()).forEach(i -> wholesaleProductPrice.add(productSellingPrice.get(i)));
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
             wholesaleProductPrice.set(0, nextInt(productSellingPrice.get(0)) + 1);
@@ -289,6 +291,10 @@ public class CreateProduct {
 
         Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body));
         addWholesale.then().statusCode(200);
+
+        // update wholesale product rate
+        wholesaleProductRate = new ArrayList<>();
+        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
 
         // update wholesale product status
         branchName.forEach(brName -> wholesaleProductStatus.put(brName, IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> i < num).toList()));
