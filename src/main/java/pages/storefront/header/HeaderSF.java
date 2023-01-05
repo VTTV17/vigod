@@ -109,7 +109,13 @@ public class HeaderSF extends GeneralSF {
 		Assert.assertEquals(searchSuggestionItem1_Title,fullName);
 		logger.info("Verify name: %s display on search suggestion".formatted(fullName));
 		String searchSuggestionItem1_Price = commons.getText(SEARCH_SUGGESTION_RESULT_PRICE.get(0));
-		Assert.assertEquals(String.join("",searchSuggestionItem1_Price.split(",")), price);
+		if(price!="") {
+			searchSuggestionItem1_Price = String.join("", searchSuggestionItem1_Price.split(",")).trim();
+			System.out.println("searchSuggestionItem1_Price:" + searchSuggestionItem1_Price);
+			Assert.assertEquals(searchSuggestionItem1_Price.subSequence(0, searchSuggestionItem1_Price.length() - 1), price.trim());
+		}else {
+			Assert.assertEquals(searchSuggestionItem1_Price,price);
+		}
 		logger.info("Verify price: %s display on search suggestion".formatted(price));
 		return this;
 	}
@@ -171,14 +177,15 @@ public class HeaderSF extends GeneralSF {
 		return this;
 	}	
 	public HeaderSF selectLanguage(String lang) throws Exception {
-		if (lang.contentEquals("English")) {
+		if (lang.contentEquals("ENG")) {
 			commons.clickElementByJS(ENGLISH_LANGUAGE);
-		} else if (lang.contentEquals("Vietnamese")) {
+		} else if (lang.contentEquals("VIE")) {
 			commons.clickElementByJS(VIETNAMESE_LANGUAGE);
 		} else {
 			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
 		}
 		logger.info("Selected language '%s'.".formatted(lang));
+		waitTillLoaderDisappear();
 		return this;
 	}
 	public HeaderSF clickOnMenuItemByText(String menuItemByText){

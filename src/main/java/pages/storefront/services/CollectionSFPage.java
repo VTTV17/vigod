@@ -27,7 +27,7 @@ public class CollectionSFPage {
         commons = new UICommonAction(driver);
         PageFactory.initElements(driver,this);
     }
-    @FindBy(xpath = "(//div[@class='product-infomation']//h3)[1]")
+    @FindBy(xpath = "(//div[@class='product-infomation']//p)[1]")
     WebElement NEWEST_SERVICE_NAME;
     @FindBy(xpath = "(//span[contains(@class,'price')])[1]")
     WebElement NEWEST_SERVICE_SELLING_PRICE;
@@ -38,10 +38,10 @@ public class CollectionSFPage {
         Assert.assertEquals(commons.getText(NEWEST_SERVICE_NAME),serviceName);
         logger.info("Service name show correct");
         String sellingPriceActual = String.join("",commons.getText(NEWEST_SERVICE_SELLING_PRICE).split(","));
-        Assert.assertEquals(sellingPriceActual,sellingPrice);
+        Assert.assertEquals(sellingPriceActual.subSequence(0,sellingPriceActual.length()-1),sellingPrice);
         logger.info("Selling price show correct");
         String listingPriceActual = String.join("",commons.getText(NEWEST_SERVICE_LISTING_PRICE).split(","));
-        Assert.assertEquals(listingPriceActual,listingPrice+"đ");
+        Assert.assertEquals(listingPriceActual.subSequence(0,listingPriceActual.length()-1),listingPrice);
         logger.info("Listing Price show correct");
     }
     public void verifyListingServiceDisplayInList(String serviceName){

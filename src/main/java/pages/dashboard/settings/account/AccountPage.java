@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
@@ -36,6 +37,24 @@ public class AccountPage {
     
     @FindBy(css = ".see-plan button")
     WebElement SEEPLAN_BTN;
+    
+    @FindBy(css = ".current__plan_information .gs-button__green")
+    WebElement RENEW_BTN;
+    
+    @FindBy (id = "firstName")
+    WebElement FIRST_NAME;
+    
+    @FindBy (id = "lastName")
+    WebElement LAST_NAME;
+    
+    @FindBy (id = "email")
+    WebElement EMAIL;
+    
+    @FindBy (id = "phoneNumber")
+    WebElement PHONE;
+    
+    @FindBy (css = ".account__information .setting_btn_save")
+    WebElement ACCOUNT_INFO_SAVE_BTN;    
     
     @FindBy (id = "currentPassword")
     WebElement CURRENT_PASSWORD;
@@ -68,6 +87,13 @@ public class AccountPage {
         return this;
     }
     
+    public AccountPage clickRenew() {
+    	commonAction.clickElement(SEEPLAN_BTN);
+    	logger.info("Clicked on 'See Plans' button.");
+    	new HomePage(driver).waitTillSpinnerDisappear();
+    	return this;
+    }
+    
     public AccountPage clickSeePlans() {
     	commonAction.clickElement(SEEPLAN_BTN);
     	logger.info("Clicked on 'See Plans' button.");
@@ -75,6 +101,42 @@ public class AccountPage {
     	return this;
     }
 
+    /* ***************** Account Info ***************** */
+    public AccountPage inputFirstName(String firstName) {
+    	commonAction.inputText(FIRST_NAME, firstName);
+    	logger.info("Input '" + firstName + "' into First Name field.");
+        return this;
+    }
+    
+    public AccountPage inputLastName(String lastName) {
+    	commonAction.inputText(LAST_NAME, lastName);
+    	logger.info("Input '" + lastName + "' into Last Name field.");
+    	return this;
+    }
+    
+    public AccountPage inputEmail(String email) {
+    	if (commonAction.isElementVisiblyDisabled(EMAIL)) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(EMAIL));
+    		return this;
+    	}
+    	commonAction.inputText(EMAIL, email);
+    	logger.info("Input '" + email + "' into Email field.");
+    	return this;
+    }
+    
+    public AccountPage inputPhone(String phone) {
+    	commonAction.inputText(PHONE, phone);
+    	logger.info("Input '" + phone + "' into Phone field.");
+    	return this;
+    }
+
+    public AccountPage clickAccountInfoSaveBtn() {
+    	commonAction.clickElement(ACCOUNT_INFO_SAVE_BTN);
+    	logger.info("Clicked on Account Info Save button.");
+        return this;
+    }       
+    
+    /* ***************** Reset Password ***************** */
     public AccountPage inputCurrentPassword(String password) {
     	commonAction.inputText(CURRENT_PASSWORD, password);
     	logger.info("Input '" + password + "' into Current Password field.");
@@ -106,6 +168,7 @@ public class AccountPage {
     	clickResetPasswordSaveBtn();
     	return this;
     }
+    /* ***************** */    
     
     public void completeVerify() {
         soft.assertAll();

@@ -24,7 +24,7 @@ import java.util.Random;
 
 import static utilities.links.Links.*;
 
-public class SignupPage {
+public class SignupPage extends GeneralSF {
 
     final static Logger logger = LogManager.getLogger(SignupPage.class);
 
@@ -47,6 +47,7 @@ public class SignupPage {
     SoftAssert soft = new SoftAssert();
 
     public SignupPage(WebDriver driver) {
+        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);

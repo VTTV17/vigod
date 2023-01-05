@@ -16,8 +16,11 @@ public class DiscountElement {
     @FindBy (css = ".d-flex > div:not(.second-button-group)")
     WebElement CREATE_PROMOTION_BTN;
 
-    @FindBy (css = ".d-flex > div:not(.second-button-group) > div > button:nth-child(1)")
+    @FindBy (xpath = "(//div[contains(@class,'discount-header')]//div[contains(@class,'uik-menuDrop__list')]//button)[1]")
     WebElement PRODUCT_DISCOUNT_CODE;
+    
+    @FindBy (xpath = "(//div[contains(@class,'discount-header')]//div[contains(@class,'uik-menuDrop__list')]//button)[2]")
+    WebElement SERVICE_DISCOUNT_CODE;
 
     @FindBy(css = "div.second-button-group > button")
     public WebElement WHOLESALE_PRICING_BTN;

@@ -21,7 +21,7 @@ public class ProductDiscountCodeElement {
     @FindBy(css = "div.col-xl-12 > div[class = ' '] > label:nth-child(1)")
     WebElement APPLY_DISCOUNT_CODE_AS_REWARD_CHECKBOX;
 
-    @FindBy(css = "[name = 'rewardsDescription'] .show-placeholder > div")
+    @FindBy(css = ".show-placeholder > div")
     WebElement DISCOUNT_DESCRIPTION;
 
     @FindBy(css = "[novalidate] span > span.gs-fake-link")

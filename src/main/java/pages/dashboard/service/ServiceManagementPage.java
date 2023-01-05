@@ -5,6 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -24,6 +26,7 @@ public class ServiceManagementPage {
 
     public ServiceManagementPage goToCreateServicePage(){
         commons.clickElement(CREATE_SERVICE_BTN);
+        new HomePage(driver).waitTillSpinnerDisappear();
         return this;
     }
 }

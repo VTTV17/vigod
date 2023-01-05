@@ -29,4 +29,27 @@ public class ProductCollectionManagementElement {
     List<WebElement> DELETE_BTN;
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement OK_BTN_ON_MODAL;
+    @FindBy(xpath = "//h5[@class='gs-page-title']/div")
+    WebElement PAGE_TITLE_AND_TOTAL_NUMBER;
+    @FindBy(css = ".gs-search-box__wrapper input")
+    WebElement SEARCH_COLLECTION_INPUT;
+    @FindBy(xpath = "(//section[@class='gs-table-header-item']/span)[1]")
+    WebElement THUMBNAIL_COL_TXT;
+    @FindBy(xpath = "(//section[@class='gs-table-header-item']/span)[2]")
+    WebElement COLLECTION_NAME_COL_TXT;
+    @FindBy(xpath = "(//section[@class='gs-table-header-item']/span)[3]")
+    WebElement TYPE_COL_TXT;
+    @FindBy(xpath = "(//section[@class='gs-table-header-item']/span)[4]")
+    WebElement MODE_COL_TXT;
+    @FindBy(xpath = "(//section[@class='gs-table-header-item']/span)[5]")
+    WebElement ITEMS_COL_TXT;
+    @FindBy(xpath = "(//section[@class='gs-table-header-item']/span)[6]")
+    WebElement ACTIONS_COL_TXT;
+    @FindBy(css = ".modal-body")
+    WebElement MODAL_CONTENT;
+    @FindBy(css = ".modal-title")
+    WebElement MODAL_TITLE;
+    @FindBy(css = ".modal-footer .gs-button__gray--outline")
+    WebElement MODAL_CANCEL_BTN;
+
 }

@@ -1,19 +1,9 @@
 package pages.dashboard.home;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-
-import org.testng.asserts.SoftAssert;
-import utilities.UICommonAction;
-import utilities.assert_customize.AssertCustomize;
-import utilities.excel.Excel;
+import static java.lang.Thread.sleep;
+import static utilities.links.Links.DOMAIN;
+import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_ENG;
+import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_VIE;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -21,15 +11,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Thread.sleep;
-import static utilities.links.Links.DOMAIN;
-import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_ENG;
-import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_VIE;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
+
+import pages.dashboard.marketing.landingpage.LandingPage;
+import utilities.PropertiesUtil;
+import utilities.UICommonAction;
+import utilities.assert_customize.AssertCustomize;
+import utilities.excel.Excel;
 
 public class HomePage {
     WebDriver driver;
     UICommonAction commons;
     WebDriverWait wait;
+    LandingPage landingPage;
 
     SoftAssert soft = new SoftAssert();
 
@@ -39,12 +46,14 @@ public class HomePage {
     public String planPermissionFileName = "PlanPermission.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
+    HomePageElement homeUI;
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         commons = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
+        homeUI = new HomePageElement(driver);
         PageFactory.initElements(driver, this);
     }
 
@@ -54,8 +63,8 @@ public class HomePage {
     @FindBy(css = ".loading .lds-dual-ring-grey")
     WebElement SPINNER;
 
-	@FindBy(css = ".loading-screen")
-	WebElement LOADING_DOTS;
+    @FindBy(css = ".loading-screen")
+    WebElement LOADING_DOTS;
 
     @FindBy(css = "a[name $=settings]")
     WebElement SETTINGS_MENU;
@@ -63,13 +72,13 @@ public class HomePage {
     @FindBy(css = "a[name='component.navigation.products'] > span > span")
     WebElement PRODUCTS_MENU;
 
-    @FindBy (css = "a[name='component.navigation.promotion'] > span > span")
+    @FindBy(css = "a[name='component.navigation.promotion'] > span > span")
     WebElement PROMOTION_MENU;
 
-    @FindBy (css = "a[name='component.navigation.promotion.flashsale'] > span > span")
+    @FindBy(css = "a[name='component.navigation.promotion.flashsale'] > span > span")
     WebElement PROMOTION_FLASH_SALE_MENU;
 
-    @FindBy (css = "a[name='component.navigation.promotion.discount'] > span > span")
+    @FindBy(css = "a[name='component.navigation.promotion.discount'] > span > span")
     WebElement PROMOTION_DISCOUNT_MENU;
 
     @FindBy(css = ".alert-modal .modal-content .gs-button__green")
@@ -92,44 +101,44 @@ public class HomePage {
     @FindBy(css = ".gs-sale-pitch_content")
     WebElement SALE_PITCH_POPUP;
 
-	@FindBy(css = ".Toastify__toast-body")
-	WebElement TOAST_MESSAGE;
+    @FindBy(css = ".Toastify__toast-body")
+    WebElement TOAST_MESSAGE;
 
-	@FindBy(css = ".Toastify__close-button")
-	WebElement TOAST_MESSAGE_CLOSE_BTN;
+    @FindBy(css = ".Toastify__close-button")
+    WebElement TOAST_MESSAGE_CLOSE_BTN;
 
-	@FindBy (id = "fb-root")
-	WebElement FACEBOOK_BUBBLE;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-	WebElement CREATE_PRODUCT_BTN;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[2]")
-	WebElement IMPORT_FROM_SHOPEE_BTN;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[3]")
-	WebElement IMPORT_FROM_LAZADA_BTN;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]")
-	WebElement CUSTOMIZE_APPEARANCE_ICON;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-	WebElement CHANGE_DESIGN_BTN;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]")
-	WebElement ADD_YOUR_DOMAIN_ICON;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-	WebElement ADD_DOMAIN_BTN;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-AddBank.svg')]")
-	WebElement ADD_BANK_ACCOUNT_ICON;
-	
-	@FindBy (xpath = "//img[contains(@src,'/icon-AddBank.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-	WebElement BANK_INFORMATION_BTN;
-	
+    @FindBy(id = "fb-root")
+    WebElement FACEBOOK_BUBBLE;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+    WebElement CREATE_PRODUCT_BTN;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[2]")
+    WebElement IMPORT_FROM_SHOPEE_BTN;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[3]")
+    WebElement IMPORT_FROM_LAZADA_BTN;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]")
+    WebElement CUSTOMIZE_APPEARANCE_ICON;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+    WebElement CHANGE_DESIGN_BTN;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]")
+    WebElement ADD_YOUR_DOMAIN_ICON;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+    WebElement ADD_DOMAIN_BTN;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-AddBank.svg')]")
+    WebElement ADD_BANK_ACCOUNT_ICON;
+
+    @FindBy(xpath = "//img[contains(@src,'/icon-AddBank.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
+    WebElement BANK_INFORMATION_BTN;
+
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
-    
+
     By STATISTICS = By.cssSelector(".statistic");
 
     public Map<String, String> pageMap() {
@@ -203,20 +212,20 @@ public class HomePage {
     }
 
     public void navigateToPage(String pageName) {
-    	commons.waitForElementInvisible(SPINNER);
+        commons.waitForElementInvisible(SPINNER, 20);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
-        boolean isMenuAlreadyOpened = !element.getAttribute("active").contentEquals("active");
-        
+        boolean isMenuAlreadyOpened = element.getAttribute("class").contains("active");
+
         if (isMenuComponentVisiblyDisabled(element)) {
-        	Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
+            Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
         } else {
-            if (isMenuAlreadyOpened) {
-            	commons.clickElement(element);
+            if (!isMenuAlreadyOpened) {
+                commons.clickElement(element);
                 logger.info("Click on %s item on menu".formatted(pageName));
                 commons.waitForElementInvisible(SPINNER);
             }
@@ -224,40 +233,41 @@ public class HomePage {
     }
 
     public void navigateToPage(String... subMenus) {
-    	if (subMenus.length == 0) subMenus[0] = "Home"; // If no input is provided, by default we navigate to Home screen
+        if (subMenus.length == 0)
+            subMenus[0] = "Home"; // If no input is provided, by default we navigate to Home screen
         for (String subMenu : subMenus) {
             navigateToPage(subMenu);
         }
     }
 
     public boolean isMenuComponentVisiblyDisabled(WebElement element) {
-    	if (element.findElement(By.xpath("./parent::*")).getAttribute("class").contains("gs-atm-must-disabled")) {
-    		return true;
-    	}
-    	if (element.findElement(By.xpath("./parent::*/parent::*")).getAttribute("class").contains("gs-atm-must-disabled")) {
-    		return true;
-    	}
-    	return false;
-    }    
-    
-    
+        if (element.findElement(By.xpath("./parent::*")).getAttribute("class").contains("gs-atm-must-disabled")) {
+            return true;
+        }
+        if (element.findElement(By.xpath("./parent::*/parent::*")).getAttribute("class").contains("gs-atm-must-disabled")) {
+            return true;
+        }
+        return false;
+    }
+
+
     public HomePage waitTillSpinnerDisappear() {
         commons.waitTillElementDisappear(SPINNER, 20);
         logger.info("Spinner has finished loading");
         return this;
     }
-    
+
     public HomePage waitTillSpinnerDisappear1() {
-    	commons.waitForElementInvisible(SPINNER, 15);
-    	logger.info("Spinner1 has finished loading");
-    	return this;
+        commons.waitForElementInvisible(SPINNER, 30);
+        logger.info("Spinner1 has finished loading");
+        return this;
     }
 
-	public HomePage waitTillLoadingDotsDisappear() {
-		commons.waitForElementInvisible(LOADING_DOTS, 15);
-		logger.info("Loading dots have disappeared");
-		return this;
-	}
+    public HomePage waitTillLoadingDotsDisappear() {
+        commons.waitForElementInvisible(LOADING_DOTS, 15);
+        logger.info("Loading dots have disappeared");
+        return this;
+    }
 
     public void clickLogout() {
         commons.clickElement(LOGOUT_BTN);
@@ -295,7 +305,6 @@ public class HomePage {
     }
 
 
-
     public void navigateToSettingsPage() {
         wait.until(ExpectedConditions.visibilityOf(SETTINGS_MENU));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SETTINGS_MENU);
@@ -303,29 +312,29 @@ public class HomePage {
     }
 
     public String getDashboardLanguage() {
-    	String language = "";
-    	// Sometimes it takes longer for the API to fill the element with text
-    	for (int i=0; i<5; i++) {
-    		language = commons.getText(LANGUAGE).trim();
-    		if (language.length() >0) {
-    			break;
-    		} else {
-    			commons.sleepInMiliSecond(500);
-    		}
-    	}
+        String language = "";
+        // Sometimes it takes longer for the API to fill the element with text
+        for (int i = 0; i < 5; i++) {
+            language = commons.getText(LANGUAGE).trim();
+            if (language.length() > 0) {
+                break;
+            } else {
+                commons.sleepInMiliSecond(500);
+            }
+        }
         return language;
     }
 
     public boolean checkPresenceOfUpgradeNowPopUp() {
-    	boolean flag = (UPGRADENOW_MESSAGE.size() >0) ? true:false;
+        boolean flag = (UPGRADENOW_MESSAGE.size() > 0);
         logger.info("checkPresenceOfUpgradeNowPopUp: " + flag);
         return flag;
     }
 
     public boolean checkPresenceOfCloseUpgradeNowPopUpIcon() {
-    	boolean flag = (CLOSE_UPGRADENOW_BTN.size() >0) ? true:false;
-    	logger.info("checkPresenceOfCloseUpgradeNowPopUpIcon: " + flag);
-    	return flag;
+        boolean flag = (CLOSE_UPGRADENOW_BTN.size() > 0);
+        logger.info("checkPresenceOfCloseUpgradeNowPopUpIcon: " + flag);
+        return flag;
     }
 
     public void clickUpgradeNow() {
@@ -335,22 +344,22 @@ public class HomePage {
     }
 
     public void closeUpgradeNowPopUp() {
-    	commons.clickElement(CLOSE_UPGRADENOW_BTN.get(0));
-    	logger.info("Closed Upgrade Now Popup");
+        commons.clickElement(CLOSE_UPGRADENOW_BTN.get(0));
+        logger.info("Closed Upgrade Now Popup");
     }
 
     public void skipIntroduction() {
-    	commons.sleepInMiliSecond(2000); //Temporarily put sleep here.
-    	commons.clickElement(SKIP_INTRODUCTION_BTN.get(0));
-    	logger.info("Skipped introduction.");
+        commons.sleepInMiliSecond(2000); //Temporarily put sleep here.
+        commons.clickElement(SKIP_INTRODUCTION_BTN.get(0));
+        logger.info("Skipped introduction.");
     }
 
     public HomePage verifyUpgradeNowMessage(String message) {
-    	commons.sleepInMiliSecond(2000); //Handle race condition
-    	String text = commons.getText(UPGRADENOW_MESSAGE.get(0));
-    	soft.assertEquals(text,message, "[Homepage][Upgrade Now Message] Message does not match.");
-    	logger.info("verifyUpgradeNowMessage completed");
-    	return this;
+        commons.sleepInMiliSecond(2000); //Handle race condition
+        String text = commons.getText(UPGRADENOW_MESSAGE.get(0));
+        soft.assertEquals(text, message, "[Homepage][Upgrade Now Message] Message does not match.");
+        logger.info("verifyUpgradeNowMessage completed");
+        return this;
     }
 
     public HomePage selectLanguage(String language) {
@@ -368,26 +377,29 @@ public class HomePage {
     }
 
 
-	public String getToastMessage() {
-		logger.info("Finished getting toast message.");
-		String message = commons.getText(TOAST_MESSAGE);
-		commons.clickElement(TOAST_MESSAGE_CLOSE_BTN);
-		return message;
-	}
+    public String getToastMessage() {
+        logger.info("Getting toast message.");
+        String message = commons.getText(TOAST_MESSAGE);
+        commons.clickElement(TOAST_MESSAGE_CLOSE_BTN);
+        return message;
+    }
 
     public void completeVerify() {
         soft.assertAll();
     }
+
     public Integer verifySalePitchPopupDisplay() throws IOException {
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
         return countFailed;
     }
+
     public Integer verifySalePitchPopupNotDisplay() throws IOException {
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
         return countFailed;
     }
+
     public boolean isMenuClicked(WebElement element) {
 //        commons.sleepInMiliSecond(1000);
         wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -401,9 +413,9 @@ public class HomePage {
             return false;
         }
     }
-    
+
     public boolean isStatisticsDisplayed() {
-    	return !commons.isElementNotDisplay(driver.findElements(STATISTICS));
+        return !commons.isElementNotDisplay(driver.findElements(STATISTICS));
     }
 
     public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
@@ -436,9 +448,17 @@ public class HomePage {
             commons.switchToWindow(0);
         } else {
             countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of page: " + pageName);
-            if (commons.getCurrentURL().contains("404")){
+            if (commons.getCurrentURL().contains("404")) {
                 commons.navigateBack();
                 logger.debug("Page show 404");
+            }
+        }
+        LandingPage landingPage = new LandingPage(driver);
+        if (pageName.equals("Marketing")) {
+            waitTillSpinnerDisappear1();
+            commons.sleepInMiliSecond(1000);
+            if (landingPage.isPermissionModalDisplay()) {
+                landingPage.closeModal();
             }
         }
         logger.info("Check page has permission");
@@ -457,13 +477,18 @@ public class HomePage {
             }
             commons.sleepInMiliSecond(1000);
             countFailed = assertCustomize.assertFalse(countFailed, isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
-            if (!pageName.equals("Google Shopping")) {
+            if (!pageName.equals("Landing Page") || !pageName.equals("Marketing")) {
                 commons.openNewTab();
                 commons.switchToWindow(1);
                 commons.navigateToURL(DOMAIN + path);
                 countFailed = assertCustomize.assertTrue(countFailed, commons.getCurrentURL().contains("/404"), "Check url 404: " + pageName);
                 commons.closeTab();
                 commons.switchToWindow(0);
+            } else {
+                landingPage = new LandingPage(driver);
+                if (landingPage.isPermissionModalDisplay()) {
+                    landingPage.closeModal();
+                }
             }
         }
         logger.info("Check page no permission");
@@ -484,8 +509,9 @@ public class HomePage {
         logger.info("Read and check permission from excel");
         return this;
     }
+
     /**
-     * @param page ALL: check all page, menuItemName: to check a page
+     * @param page        ALL: check all page, menuItemName: to check a page
      * @param packageType Input value: GoWeb, GoApp, GoPos, GoSocial, GoLead (ignore case)
      * @throws IOException
      */
@@ -496,7 +522,8 @@ public class HomePage {
         String permissionParentMenu = "";
         for (int i = 1; i <= rowNumber; i++) {
             String menuItemExcel = planPermissionSheet.getRow(i).getCell(0).getStringCellValue();
-            if(!page.equalsIgnoreCase("ALL")&& !menuItemExcel.equalsIgnoreCase(page)){
+            if (!page.equalsIgnoreCase("ALL") && !menuItemExcel.equalsIgnoreCase(page)) {
+                logger.debug("Skip page: " + page);
                 continue;
             }
             int packageColIndex = excel.getCellIndexByCellValue(planPermissionSheet.getRow(0), packageType);
@@ -511,7 +538,7 @@ public class HomePage {
                 permissionParentMenu = permissionFromExcel;
             } else {
                 if (permissionParentMenu.equalsIgnoreCase("D") && hasSalePitch.equalsIgnoreCase("N")) {
-                    logger.debug("Parent menu is disable");
+                    logger.info("Parent menu is disable");
                     continue;
                 }
                 for (int j = 0; j < pageNames.length; j++) {
@@ -523,12 +550,13 @@ public class HomePage {
                     }
                 }
             }
-            if(!page.equalsIgnoreCase("All")&& menuItemExcel.equalsIgnoreCase(page)){
+            if (!page.equalsIgnoreCase("All") && menuItemExcel.equalsIgnoreCase(page)) {
                 break;
             }
         }
         return this;
     }
+
     public HomePage completeVerifyPermissionByPackage() {
         logger.info("countFail = %s".formatted(countFailed));
         if (countFailed > 0) {
@@ -542,51 +570,91 @@ public class HomePage {
         commons.verifyPageLoaded(DB_HOME_PAGE_LOADED_TEXT_VIE, DB_HOME_PAGE_LOADED_TEXT_ENG);
         return this;
     }
-    
+
     public HomePage hideFacebookBubble() {
-    	commons.hideElement(FACEBOOK_BUBBLE);
-    	logger.info("Hid Facebook bubble."); 
+        commons.hideElement(FACEBOOK_BUBBLE);
+        logger.info("Hid Facebook bubble.");
         return this;
-    }    
-    
+    }
+
     public void clickCreateProduct() {
         commons.clickElement(CREATE_PRODUCT_BTN);
         logger.info("Clicked on 'Create Products' button");
         new HomePage(driver).waitTillSpinnerDisappear();
-    }    
-    
+    }
+
     public void clickImportFromShopee() {
-    	commons.clickElement(IMPORT_FROM_SHOPEE_BTN);
-    	logger.info("Clicked on 'Import From Shopee' button");
-    	new HomePage(driver).waitTillSpinnerDisappear();
-    	commons.sleepInMiliSecond(2000);
-    }    
-    
+        commons.clickElement(IMPORT_FROM_SHOPEE_BTN);
+        logger.info("Clicked on 'Import From Shopee' button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+        commons.sleepInMiliSecond(2000);
+    }
+
     public void clickImportFromLazada() {
-    	commons.clickElement(IMPORT_FROM_LAZADA_BTN);
-    	logger.info("Clicked on 'Import From Lazada' button");
-    	new HomePage(driver).waitTillSpinnerDisappear();
-    }    
-    
+        commons.clickElement(IMPORT_FROM_LAZADA_BTN);
+        logger.info("Clicked on 'Import From Lazada' button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+    }
+
     public void clickChangeDesign() {
-    	commons.clickElement(CUSTOMIZE_APPEARANCE_ICON);
-    	commons.clickElement(CHANGE_DESIGN_BTN);
-    	logger.info("Clicked on 'Change Design' button");
-    	new HomePage(driver).waitTillSpinnerDisappear();
-    }    
-    
+        commons.clickElement(CUSTOMIZE_APPEARANCE_ICON);
+        commons.clickElement(CHANGE_DESIGN_BTN);
+        logger.info("Clicked on 'Change Design' button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+    }
+
     public void clickDomain() {
-    	commons.clickElement(ADD_YOUR_DOMAIN_ICON);
-    	commons.clickElement(ADD_DOMAIN_BTN);
-    	logger.info("Clicked on 'Add Domain' button");
-    	new HomePage(driver).waitTillSpinnerDisappear();
-    }    
-    
+        commons.clickElement(ADD_YOUR_DOMAIN_ICON);
+        commons.clickElement(ADD_DOMAIN_BTN);
+        logger.info("Clicked on 'Add Domain' button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+    }
+
     public void clickBankInformation() {
-    	commons.clickElement(ADD_BANK_ACCOUNT_ICON);
-    	commons.clickElement(BANK_INFORMATION_BTN);
-    	logger.info("Clicked on 'Bank Information' button");
-    	new HomePage(driver).waitTillSpinnerDisappear();
-    }    
-    
+        commons.clickElement(ADD_BANK_ACCOUNT_ICON);
+        commons.clickElement(BANK_INFORMATION_BTN);
+        logger.info("Clicked on 'Bank Information' button");
+        new HomePage(driver).waitTillSpinnerDisappear();
+    }
+
+    public String getShopName() {
+        return commons.getText(homeUI.SHOP_NAME);
+    }
+
+    public void verifyTextOfPage() throws Exception {
+        Assert.assertEquals(commons.getText(homeUI.HOME_PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.home.pageTitle") + " " + getShopName());
+        Assert.assertEquals(commons.getText(homeUI.GOPOS_LBL), PropertiesUtil.getPropertiesValueByDBLang("page.home.POSLbl"));
+        Assert.assertEquals(commons.getText(homeUI.GOWEB_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOWEBLbl"));
+        Assert.assertEquals(commons.getText(homeUI.GOWEB_BUILDING_Txt),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOWEBBuildingTxt"));
+        Assert.assertEquals(commons.getText(homeUI.GOAPP_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOAPPLbl"));
+        Assert.assertEquals(commons.getText(homeUI.GOAPP_BUILDING_Txt),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOAPPBuildingTxt"));
+        Assert.assertEquals(commons.getText(homeUI.SALE_CHANNELS_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.home.saleChannelsLbl"));
+        Assert.assertEquals(commons.getText(homeUI.TO_CONFIRM_ORDERS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.toConfirmOrdersLbl"));
+        Assert.assertEquals(commons.getText(homeUI.DELIVERED_ORDERS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.deliveredOrdersLbl"));
+        Assert.assertEquals(commons.getText(homeUI.TO_CONFIRM_RESERVATIONS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.toConfirmReservationsLbl"));
+        Assert.assertEquals(commons.getText(homeUI.COMPLETED_RESERVATIONS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.completedReservationsLbl"));
+        Assert.assertEquals(commons.getText(homeUI.WHAT_TO_DO_NEXT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.whatToDoNext.title"));
+        Assert.assertEquals(commons.getText(homeUI.WHAT_TO_DO_NEXT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.whatToDoNext.description"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCTS_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProducts.title"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.description"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCT_HINT_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.hintTxt"));
+        Assert.assertEquals(commons.getText(homeUI.CREATE_PRODUCT_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.createProductBtn"));
+        Assert.assertEquals(commons.getText(homeUI.IMPORT_FROM_SHOPEE_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.importFromShopeeBtn"));
+        Assert.assertEquals(commons.getText(homeUI.IMPORT_FROM_LAZADA_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.importFromLazadaBtn"));
+        commons.clickElement(homeUI.CUSTOMIZE_APPEARANCE_TITLE);
+        Assert.assertEquals(commons.getText(homeUI.CUSTOMIZE_APPEARANCE_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.customizeAppearance.title"));
+        Assert.assertEquals(commons.getText(homeUI.CUSTOMIZE_APPEARANCE_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.customizeAppearance.description"));
+        Assert.assertEquals(commons.getText(homeUI.CHANGE_DESIGN_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.customizeAppearance.changeDesignBtn"));
+        commons.clickElement(homeUI.ADD_YOUR_DOMAIN_TITLE);
+        Assert.assertEquals(commons.getText(homeUI.ADD_YOUR_DOMAIN_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.addYourDomain.title"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_YOUR_DOMAIN_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.addYourDomain.description"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_DOMAIN_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addYourDomain.addDomainBtn"));
+        commons.clickElement(homeUI.ADD_BANK_ACCOUNT_TITLE);
+        Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.addBankAccount.title"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.addBankAccount.description"));
+        Assert.assertEquals(commons.getText(homeUI.BANK_INFORMATION_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addBankAccount.bankInformation"));
+
+
+    }
+
 }

@@ -3,6 +3,7 @@ package pages.dashboard.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.framework.qual.FromStubFile;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -10,6 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 
@@ -18,66 +20,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CreateServicePage {
+public class CreateServicePage extends HomePage{
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commons;
     DataGenerator generate;
     final static Logger logger = LogManager.getLogger(CreateServicePage.class);
-
-    public CreateServicePage(WebDriver driver){
+    CreateServiceElement createServiceUI;
+    PropertiesUtil propertiesUtil;
+    String createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("page.services.create.successullyMessage");
+    public CreateServicePage(WebDriver driver) throws Exception {
+        super(driver);
         this.driver=driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         commons = new UICommonAction(driver);
         generate = new DataGenerator();
+        createServiceUI = new CreateServiceElement(driver);
         PageFactory.initElements(driver,this);
     }
-    @FindBy(xpath = "(//button[contains(@class,'btn-save')])[1]")
-    WebElement SAVE_BTN;
-    @FindBy(xpath = "//input[@name='serviceName']")
-    WebElement SERVICE_NAME;
-    @FindBy(xpath = "(//input[@inputmode='numeric'])[1]")
-    WebElement LISTING_PRICE;
-    @FindBy(xpath = "(//input[@inputmode='numeric'])[2]")
-    WebElement SELLING_PRICE;
-    @FindBy(xpath = "(//input[@type='checkbox'])[1]")
-    WebElement SHOW_AS_LISTING_CBX_VALUE;
-    @FindBy(xpath = "(//input[@type='checkbox'])[1]/following-sibling::div")
-    WebElement SHOW_AS_LISTING_CBX_ACTION;
-    @FindBy(xpath = " //div[@name='serviceDescription']//div[@class='fr-wrapper show-placeholder']/div")
-    WebElement SERVICE_DESCRIPTION;
-    @FindBy(css = ".product-form-collection-selector")
-    WebElement COLLECTION_FORM;
-    @FindBy(xpath = "//div[contains(@id,'react-select-2-option')]")
-    List<WebElement> COLLECTION_SUGGESTION;
-    @FindBy(xpath = "//div[@class='product-form-collection-selector']//div[contains(@class,'multiValue')]/div[1]")
-    List<WebElement> SELECTED_COLLECTIONS;
-    @FindBy(xpath = "//input[@type='file' and @style ='display: none;']")
-    WebElement IMAGE_INPUT;
-    @FindBy(css = "#locations")
-    WebElement LOCATION;
-    @FindBy(css = "#timeSlots")
-    WebElement TIME_SLOTS;
-    @FindBy (css ="#seoTitle")
-    WebElement SEO_TITLE;
-    @FindBy(css = "#seoDescription")
-    WebElement SEO_DESCRIPTION;
-    @FindBy(css = "#seoKeywords")
-    WebElement SEO_KEYWORDS;
-    @FindBy(css = "#seoUrl")
-    WebElement SEO_URL;
-    @FindBy(css = ".modal-body")
-    WebElement POPUP_MESSAGE;
-    @FindBy(css = ".loading-screen .loading")
-    WebElement LOADING;
+
+
     public CreateServicePage inputServiceName(String serviceName){
-        commons.inputText(SERVICE_NAME,serviceName);
+        commons.inputText(createServiceUI.SERVICE_NAME,serviceName);
         logger.info("Input "+serviceName+ " into Service name field");
         return this;
     }
 
     public CreateServicePage inputListingPrice (String listingPrice){
-        commons.inputText(LISTING_PRICE,listingPrice);
+        commons.inputText(createServiceUI.LISTING_PRICE,listingPrice);
         logger.info("Input "+ listingPrice + " into Listing price field");
         return this;
     }
@@ -85,30 +55,30 @@ public class CreateServicePage {
     public String inputSellingPrice (String listingPrice, String discountPercent){
         int listingPricePars = Integer.parseInt(listingPrice);
         int sellingPrice = listingPricePars - listingPricePars * Integer.parseInt(discountPercent)/100;
-        commons.inputText(SELLING_PRICE,  String.valueOf(sellingPrice));
-        logger.info("Input "+ String.valueOf(sellingPrice)+ " into Selling price field");
-        return String.valueOf(sellingPrice+"đ");
+        commons.inputText(createServiceUI.SELLING_PRICE,  String.valueOf(sellingPrice));
+        logger.info("Input "+ sellingPrice+ " into Selling price field");
+        return String.valueOf(sellingPrice);
     }
     public CreateServicePage checkOnShowAsListingService(){
-        commons.checkTheCheckBoxOrRadio(SHOW_AS_LISTING_CBX_VALUE,SHOW_AS_LISTING_CBX_ACTION);
+        commons.checkTheCheckBoxOrRadio(createServiceUI.SHOW_AS_LISTING_CBX_VALUE,createServiceUI.SHOW_AS_LISTING_CBX_ACTION);
         logger.info("Check on Show as listing service checkbox");
         return this;
     }
     public  CreateServicePage uncheckOnShowAsListingService(){
-        commons.uncheckTheCheckboxOrRadio(SHOW_AS_LISTING_CBX_VALUE,SHOW_AS_LISTING_CBX_ACTION);
+        commons.uncheckTheCheckboxOrRadio(createServiceUI.SHOW_AS_LISTING_CBX_VALUE,createServiceUI.SHOW_AS_LISTING_CBX_ACTION);
         logger.info("Uncheck on Show as listing service checkbox");
         return this;
     }
     public CreateServicePage inputServiceDescription(String description){
-        commons.inputText(SERVICE_DESCRIPTION,description);
+        commons.inputText(createServiceUI.SERVICE_DESCRIPTION,description);
         logger.info("Input "+description+ " into description field");
         return this;
     }
     public CreateServicePage inputCollections(int quantity ){
         for (int i=0;i<quantity;i++) {
-            commons.clickElement(COLLECTION_FORM);
+            commons.clickElement(createServiceUI.COLLECTION_FORM);
             logger.info("Click on collection form");
-            commons.clickElement(COLLECTION_SUGGESTION.get(0));
+            commons.clickElement(createServiceUI.COLLECTION_SUGGESTION.get(0));
             logger.info("Select collection");
         }
         return this;
@@ -116,68 +86,108 @@ public class CreateServicePage {
     public List<String>  getSelectedCollection(){
         List<String> selectedCollections =   new ArrayList<>();
 
-        for (WebElement element:SELECTED_COLLECTIONS) {
+        for (WebElement element:createServiceUI.SELECTED_COLLECTIONS) {
             selectedCollections.add(element.getText());
         }
         logger.debug("selectedCollections: "+selectedCollections);
         return selectedCollections;
     }
     public CreateServicePage uploadImages(String...fileNames){
-        commons.uploadMultipleFile(IMAGE_INPUT,"serviceimages",fileNames);
+        commons.uploadMultipleFile(createServiceUI.IMAGE_INPUT,"serviceimages",fileNames);
         logger.info("Upload multiple file: "+ Arrays.toString(fileNames));
         return this;
     }
     public CreateServicePage inputLocations(String...locations){
         for (String loctaion:locations) {
-            commons.inputText(LOCATION,loctaion+"\n");
+            commons.inputText(createServiceUI.LOCATION,loctaion+"\n");
             logger.info("Input "+loctaion+ " into Location field");
         }
         return this;
     }
     public CreateServicePage inputTimeSlots(String...timeSlots){
         for (String timeSlot:timeSlots) {
-            commons.inputText(TIME_SLOTS,timeSlot +"\n");
+            commons.inputText(createServiceUI.TIME_SLOTS,timeSlot +"\n");
             logger.info("Input %s into TimeSlot field".formatted(timeSlots));
         }
         return this;
     }
+
     public CreateServicePage inputSEOTitle (String SEOTitle){
-        commons.inputText(SEO_TITLE, SEOTitle);
+    	if (commons.isElementVisiblyDisabled(createServiceUI.SEO_TITLE.findElement(By.xpath("./ancestor::div[contains(@class,'gs-widget  seo-editor')]/descendant::*[1]")))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(createServiceUI.SEO_TITLE));
+    		return this;
+    	}
+        commons.inputText(createServiceUI.SEO_TITLE, SEOTitle);
         logger.info("Input "+SEOTitle+" into SEO title field");
         return this;
     }
+
     public CreateServicePage inputSEODescription (String SEODesciption){
-        commons.inputText(SEO_DESCRIPTION, SEODesciption);
+        commons.inputText(createServiceUI.SEO_DESCRIPTION, SEODesciption);
         logger.info("Input "+SEODesciption+ " into SEO description field");
         return this;
     }
     public CreateServicePage inputSEOKeyword (String SEOKeyword){
-        commons.inputText(SEO_KEYWORDS,SEOKeyword);
+        commons.inputText(createServiceUI.SEO_KEYWORDS,SEOKeyword);
         logger.info("Input "+SEOKeyword+ " into SEO keyword field");
         return this;
     }
     public CreateServicePage inputSEOUrl (String SEOUrl){
-        commons.inputText(SEO_URL, SEOUrl);
+        commons.inputText(createServiceUI.SEO_URL, SEOUrl);
         logger.info("Input "+SEOUrl+ " into SEO url field");
         return this;
     }
     public CreateServicePage clickSaveBtn (){
-        commons.clickElement(SAVE_BTN);;
+        commons.clickElement(createServiceUI.SAVE_BTN);;
         logger.info("Click on Save button");
         return this;
     }
 
+	public String getSEOTitle() {
+		String title = commons.getElementAttribute(createServiceUI.SEO_TITLE, "value");
+		logger.info("Retrieved SEO Title: %s".formatted(title));
+		return title;
+	}    
+    
     public void verifyCreateSeviceSuccessfulMessage() {
-        String message= commons.getText(POPUP_MESSAGE);
-        Assert.assertEquals(message,"Sản phẩm được tạo thành công!");
+        commons.sleepInMiliSecond(2000);//wait loading
+        String message= commons.getText(createServiceUI.POPUP_MESSAGE);
+        Assert.assertEquals(message,createSuccessfullyMess);
         logger.info("Create service successfully popup is shown");
     }
-
-
-
-
-
-
-
-
+    public void verifyTextOfPage() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.CREATE_NEW_SERVICE_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.pageTitle"));
+        Assert.assertEquals(commons.getText(createServiceUI.SAVE_BTN),propertiesUtil.getPropertiesValueByDBLang("page.services.create.saveBtn"));
+        Assert.assertEquals(commons.getText(createServiceUI.CANCEL_BTN),propertiesUtil.getPropertiesValueByDBLang("page.services.create.cancelBtn"));
+        Assert.assertEquals(commons.getText(createServiceUI.BASIC_INFOMATION_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.basicInformationTitle"));
+        Assert.assertEquals(commons.getText(createServiceUI.SERVICE_NAME_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.serviceNameLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.LISTING_PRICE_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.listingPriceLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.SELLING_PRICE_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.sellingPriceLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.SHOW_AS_LISTING_CBX_ACTION),propertiesUtil.getPropertiesValueByDBLang("page.services.create.showAsListingServiceTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.DESCRIPTION_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.descriptionLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.COLLECTIONS_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.collectionLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.SELECT_COLLECTIONS_HINT_TXT),propertiesUtil.getPropertiesValueByDBLang("page.services.create.selectCollectionsHintTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.IMAGES_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.imagesLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.DRAG_DROP_PHOTO_TXT),propertiesUtil.getPropertiesValueByDBLang("page.services.create.drapAndDropTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.LOCATIONS_AND_TIME_TITLE_AND_DESCRIPNTION),propertiesUtil.getPropertiesValueByDBLang("page.services.create.locations&TimesTitleAndDescription"));
+        Assert.assertEquals(commons.getText(createServiceUI.LOCATIONS_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.locationsLbl"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.LOCATION,"placeholder"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.inputLocationHintTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.TIME_SLOTS_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.timeSlotsLbl"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.TIME_SLOTS_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.titmeSlotsTooltipTxt"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.TIME_SLOTS,"placeholder"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.inputTimeSlotsHintTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.LIST_LOCATIONS_TIMESLOTS_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.listLocationAndTimeslotsTitle"));
+        Assert.assertEquals(commons.getText(createServiceUI.LOCATION_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.locationLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.TIMESLOT_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.timeSlotLbl"));
+        Assert.assertEquals(commons.getText(createServiceUI.NO_LOCATION_TIMESLOT_TXT),propertiesUtil.getPropertiesValueByDBLang("page.services.create.noLocationAndTimeSlotTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.SEO_SETTINGS_TITLE),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoSettingsTitle"));
+        Assert.assertEquals(commons.getText(createServiceUI.LIVE_PREVIEW_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.livePreviewLbl"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.LIVE_PREVIEW_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.livePreviewTooltipTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.SEO_TITLE_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoTitleLbl"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.SEO_TITLE_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoTitleTooltipTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.SEO_DESCRIPTION_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoDescriptionLbl"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.SEO_DESCRIPTION_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoDescriptionTooltipTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.SEO_KEYWORDS_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoKeywordsLbl"));
+        Assert.assertEquals(commons.getElementAttribute(createServiceUI.SEO_KEYWORD_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("page.services.create.seoKeywordsTooltipTxt"));
+        Assert.assertEquals(commons.getText(createServiceUI.URL_LINK_LBL),propertiesUtil.getPropertiesValueByDBLang("page.services.create.urlLinkLbl"));
+    }
 }
