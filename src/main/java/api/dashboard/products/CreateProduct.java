@@ -50,6 +50,7 @@ public class CreateProduct {
     public static int productID;
     public static String productName;
     public static String productDescription;
+    public static int taxID;
 
     public static int collectionID;
 
@@ -71,7 +72,7 @@ public class CreateProduct {
         productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
 
         // product tax
-        int taxID = taxList.get(nextInt(taxList.size()));
+        taxID = taxList.get(nextInt(taxList.size()));
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
@@ -158,7 +159,7 @@ public class CreateProduct {
         productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
 
         // product tax
-        int taxID = taxList.get(nextInt(taxList.size()));
+        taxID = taxList.get(nextInt(taxList.size()));
 
         // create body
         CreateProductBody productBody = new CreateProductBody();

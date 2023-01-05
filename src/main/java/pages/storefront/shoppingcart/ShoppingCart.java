@@ -12,7 +12,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.storefront.GeneralSF;
 import pages.storefront.checkout.checkoutstep1.CheckOutStep1;
 import utilities.UICommonAction;
+import utilities.assert_customize.AssertCustomize;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,13 +22,15 @@ import java.util.List;
 import java.util.Map;
 
 import static api.dashboard.login.Login.storeURL;
-import static api.dashboard.products.CreateProduct.productName;
-import static api.dashboard.products.CreateProduct.wholesaleProductRate;
+import static api.dashboard.products.CreateProduct.*;
+import static api.dashboard.promotion.CreatePromotion.*;
+import static api.dashboard.setting.VAT.taxRate;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
 
 public class ShoppingCart extends ShoppingCartElement {
     final static Logger logger = LogManager.getLogger(ShoppingCart.class);
+    private int countFail = 0;
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
@@ -192,6 +196,54 @@ public class ShoppingCart extends ShoppingCartElement {
 
         System.out.println(wholesaleProductRate);
         return this;
+    }
+
+    void checkProductName(String productName, String productNameCheck, String couponType) throws IOException {
+        new AssertCustomize(driver).assertTrue(countFail, productName.equals(productNameCheck), "[Failed][Coupon Type: %s] Product name should be '%s', but found '%s'.".formatted(couponType, productNameCheck, productName));
+    }
+
+    void checkVariation(String variation, String couponType) throws IOException {
+        new AssertCustomize(driver).assertTrue(countFail, variationList.contains(variation), "[Failed][Coupon Type: %s] Can not found any variation value as %s.".formatted(couponType, variation));
+    }
+
+    void checkUnitPrice(int unitPrice, int unitPriceCheck, String couponType) throws IOException {
+        new AssertCustomize(driver).assertTrue(countFail, unitPrice == unitPriceCheck, "[Failed][Coupon Type: %s] Unit price should be '%s', but found '%s'.".formatted(couponType, unitPriceCheck, unitPrice));
+    }
+
+    void checkCoupon(String couponCode, String couponCodeCheck, String couponType) throws IOException {
+        new AssertCustomize(driver).assertTrue(countFail, couponCode.contains(couponCodeCheck), "[Failed][Coupon Type: %s] Coupon value is not contained '%s'.".formatted(couponType, couponCodeCheck));
+    }
+
+    void checkTotalPrice(String totalPrice, String totalPriceCheck, String couponType) throws IOException {
+        new AssertCustomize(driver).assertTrue(countFail, totalPrice.equals(totalPriceCheck), "[Failed][Coupon Type: %s] Variation should be '%s', but found '%s'.".formatted(couponType, totalPriceCheck, totalPrice));
+    }
+
+    void calculatePriceAndVAT(Map<String, List<String>> salePriceMap, String brName, String varName) throws IOException {
+        int unitPrice;
+        int totalPrice;
+        int taxAmount;
+
+        int varIndex = cartInfo.get(brName).get(1).indexOf(varName);
+        switch (salePriceMap.get(brName).get(varIndex)) {
+            case "FLASH SALE" -> {
+                unitPrice = flashSalePrice.get(variationList.indexOf(varName));
+                totalPrice = flashSalePrice.get(variationList.indexOf(varName));
+                taxAmount = (int) (totalPrice * taxRate.get(taxID));
+                checkProductName(cartInfo.get(brName).get(0).get(varIndex), productName, "FLASH SALE");
+                checkVariation(varName, "FLASH SALE");
+                checkUnitPrice(Integer.parseInt(cartInfo.get(brName).get(2).get(varIndex)), unitPrice, "FLASH SALE");
+                checkCoupon(cartInfo.get(brName).get(3).get(varIndex), "Flash Sale", "FLASH SALE");
+            }
+            case "DISCOUNT CAMPAIGN" -> {
+                unitPrice = discountCampaignPrice.get(variationList.indexOf(varName));
+                totalPrice = discountCampaignPrice.get(variationList.indexOf(varName)) * discountCampaignStock;
+                taxAmount = (int) (totalPrice * taxRate.get(taxID));
+                checkProductName(cartInfo.get(brName).get(0).get(varIndex), productName, "DISCOUNT CAMPAIGN");
+                checkVariation(varName, "DISCOUNT CAMPAIGN");
+                checkUnitPrice(Integer.parseInt(cartInfo.get(brName).get(2).get(varIndex)), unitPrice, "DISCOUNT CAMPAIGN");
+//                checkCoupon(cartInfo.get(brName).get(3).get(varIndex), discountCampaignValue, "DISCOUNT CAMPAIGN");
+            }
+        }
     }
 
 }

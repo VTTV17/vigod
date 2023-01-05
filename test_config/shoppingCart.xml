@@ -5,8 +5,8 @@
     <classes>
       <class name="ShoppingTest">
         <methods>
-          <include name="BH_SPC_G1_Case1_2_FlashSaleIsInProgress"/>
-<!--          <include name="BH_SPC_G3_Case1_2_FlashSaleIsInProgress"/>-->
+<!--          <include name="BH_SPC_G1_Case1_2_FlashSaleIsInProgress"/>-->
+          <include name="BH_SPC_G3_Case1_2_FlashSaleIsInProgress"/>
         </methods>
       </class> <!-- ShoppingTest -->
     </classes>

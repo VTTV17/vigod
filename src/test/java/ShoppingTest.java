@@ -1,6 +1,7 @@
 import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
+import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.VAT;
 import api.storefront.login.LoginSF;
@@ -25,11 +26,6 @@ import static utilities.links.Links.SF_DOMAIN;
 public class ShoppingTest extends BaseTest {
 
     String sfDomain;
-
-    @BeforeTest
-    private void set() {
-        driver = new InitWebdriver().getDriver("chrome", "false");
-    }
 
     @BeforeSuite
     void initPreCondition() throws SQLException, InterruptedException {
@@ -56,6 +52,11 @@ public class ShoppingTest extends BaseTest {
         boolean isIMEIProduct = false;
         int branchStock = 5;
         new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -66,6 +67,11 @@ public class ShoppingTest extends BaseTest {
         boolean isIMEIProduct = true;
         int branchStock = 5;
         new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -78,6 +84,11 @@ public class ShoppingTest extends BaseTest {
         int increaseNum = 1;
         new CreateProduct().createVariationProduct(isIMEIProduct,
                         increaseNum,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -90,6 +101,12 @@ public class ShoppingTest extends BaseTest {
         int increaseNum = 1;
         new CreateProduct().createVariationProduct(isIMEIProduct,
                         increaseNum,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
+                        branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
                 .createCollection();
@@ -103,14 +120,22 @@ public class ShoppingTest extends BaseTest {
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductID().addProductToCart();
 
-        new ShoppingCart(driver).navigateToShoppingCartByURL().getShoppingCartInfo().checkPrice();
+        new ShoppingCart(driver).navigateToShoppingCartByURL().getShoppingCartInfo();
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_SPC_G3_Case1_2_FlashSaleIsInProgress() throws IOException {
+    void BH_SPC_G3_Case1_2_FlashSaleIsInProgress() throws IOException, InterruptedException {
+        int startMin = 1;
+        int endMin = 60;
         new LoginPage(driver)
                 .navigate(sfDomain)
                 .performLogin(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(startMin, endMin)
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductID().addProductToCart();
 

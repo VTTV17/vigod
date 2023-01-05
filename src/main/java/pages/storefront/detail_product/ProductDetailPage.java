@@ -574,7 +574,7 @@ public class ProductDetailPage extends ProductDetailElement {
         return branchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleStatus.get(brName).size()).mapToObj(i -> flashSaleStatus.get(brName).get(i).equals("IN-PROGRESS") ? "FLASH SALE" : discountCampaignStatus.get(brName).get(i).equals("IN-PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
     }
 
-    private void addToCart(List<Integer> branchStock, String variationName) throws IOException {
+    private void addToCartForAllBranches(List<Integer> branchStock, String variationName) throws IOException {
         if ((Collections.max(branchStock) > 0) && branchListIsShownOnSF(branchStock)) {
             // wait list branch visible
             commonAction.waitElementList(BRANCH_NAME_LIST);
@@ -590,7 +590,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 int varIndex = variationList.indexOf(variationName);
 
                 // Add product to cart
-                addProductToCart(varIndex, discountCampaignStock, wholesaleProductStock.get(varIndex), element.getText() );
+                clickAddToCart(varIndex, discountCampaignStock, wholesaleProductStock.get(varIndex), element.getText() );
 
                 // wait spinner loading if any
                 commonAction.waitForElementInvisible(SPINNER, 30);
@@ -628,18 +628,17 @@ public class ProductDetailPage extends ProductDetailElement {
                     commonAction.waitForElementInvisible(SPINNER, 30);
 
                     // Add product to cart
-                    addToCart(productStockQuantity.get(variationValue), variationValue);
+                    addToCartForAllBranches(productStockQuantity.get(variationValue), variationValue);
                 }
             } else {
                 // Add product to cart
-                addToCart(productStockQuantity.get(null), null);
+                addToCartForAllBranches(productStockQuantity.get(null), null);
             }
         } else check404Page();
-        new ShoppingCart(driver);
     }
 
 
-    private void addProductToCart(int indexOfVariation, int discountCampaignStock, int wholesaleProductStock, String branchName) {
+    private void clickAddToCart(int indexOfVariation, int discountCampaignStock, int wholesaleProductStock, String branchName) {
         String priceType = getSalePriceMap().get(branchName).get(indexOfVariation);
         switch (priceType) {
             case "DISCOUNT CAMPAIGN" -> {
