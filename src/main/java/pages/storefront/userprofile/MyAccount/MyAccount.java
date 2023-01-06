@@ -13,6 +13,7 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.storefront.header.HeaderSF;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 public class MyAccount extends HeaderSF {
@@ -243,5 +244,40 @@ public class MyAccount extends HeaderSF {
     public MyAccount verifyOtherEmailListSize(int expected){
         Assert.assertEquals(getQuantityOfOtherEmail(),expected,"Verify Other email list size");
         return this;
+    }
+    public void verifyTextOfMyAccountPage() throws Exception {
+        Assert.assertEquals(commonAction.getText(myAccountUI.MY_ACCOUNT_TITLE), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.pageTitle"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.FULL_NAME_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.fullNameLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.COMPANY_NAME_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.companyNameLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.TAX_CODE_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.taxCodeLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.PHONE_NUMBER_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.phoneNumberLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.OTHER_PHONE_NUMBER_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.otherPhoneNumberLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.EMAIL_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.emailLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.OTHER_EMAIL_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.otherEmailLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.GENDER_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.genderLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.MALE_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.gender.maleLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.FEMALE_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.gender.femaleLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.BIRTHDAY_LBL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.birthdayLbl"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.CANCEL_BTN), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.SAVE_BTN), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.saveBtn"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.DISPLAY_NAME,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.inputFullNameHintTxt"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.COMPANY_NAME_INPUT,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.inputCompanyNameHintTxt"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.TAX_CODE_INPUT,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.inputTaxCodeHintTxt"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.PHONE,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.inputPhoneNumberHintTxt"));
+        commonAction.clickElement(myAccountUI.ADD_OTHER_PHONE_BTN);
+        Assert.assertEquals(commonAction.getText(myAccountUI.PHONE_NAME_LBL_ADD_OTHER_PHONE), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherPhone.nameLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.PHONE_NAME_ADD_OTHER_PHONE,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherPhone.inputNameHintTxt"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.PHONE_NUMBER_LBL_ADD_OTHER_PHONE), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherPhone.phoneNumberLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.PHONE_NUMBER_ADD_OTHER_PHONE,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherPhone.inputPhoneNumberHintTxt"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherPhone.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.SAVE_BTN_ADD_OTHER_PHONE), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherPhone.saveBtn"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE);
+        commonAction.clickElement(myAccountUI.ADD_OTHER_EMAIL_BTN);
+        Assert.assertEquals(commonAction.getText(myAccountUI.NAME_LBL_ADD_OTHER_EMAIL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherMail.nameLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.EMAIL_NAME_ADD_OTHER_EMAIL,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherMail.inputNameHintTxt"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.EMAIL_LBL_ADD_OTHER_EMAIL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherMail.phoneNumberLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.EMAIL_ADD_OTHER_EMAIL,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherMail.inputPhoneNumberHintTxt"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.CANCEL_BTN_ADD_OTHER_EMAIL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherMail.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(myAccountUI.SAVE_BTN_ADD_OTHER_EMAIL), PropertiesUtil.getPropertiesValueBySFLang("sf.userProfile.myAccount.addOtherMail.saveBtn"));
     }
 }
