@@ -79,4 +79,27 @@ public class ProductDetailElement {
 
     @FindBy (css = ".input-search-branch")
     WebElement SEARCH_BRANCH_BY_ADDRESS;
+
+
+    // UI check
+    @FindBy (css = ".tm-header-default-menu-layout img.gs-shop-logo")
+    WebElement HEADER_SHOP_LOGO;
+
+    @FindBy (css = ".navbar-desktop .nav-link")
+    List<WebElement> HEADER_MENU ;
+
+    @FindBy (css = ".bi-search")
+    WebElement HEADER_SEARCH_ICON;
+
+    @FindBy (css = ".shoppping-cart-number")
+    WebElement HEADER_NUMBER_PRODUCT_IN_CART;
+
+    @FindBy (css = ".bi-cart2")
+    WebElement HEADER_CART_ICON;
+
+    @FindBy (css = ".bi-person-circle")
+    WebElement HEADER_PROFILE_ICON;
+
+    @FindBy (css = ".breadcrumbs")
+    WebElement BREAD_CRUMBS;
 }

@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 import static api.dashboard.login.Login.*;
+import static api.dashboard.setting.StoreInformation.storeURL;
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
 

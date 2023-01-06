@@ -8,13 +8,9 @@ import utilities.database.InitConnection;
 
 import java.sql.SQLException;
 
-import static api.dashboard.login.Login.storeName;
-import static api.dashboard.login.Login.storeURL;
+import static api.dashboard.setting.StoreInformation.storeURL;
 import static io.restassured.RestAssured.given;
 import static org.apache.commons.lang.RandomStringUtils.random;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static utilities.character_limit.CharacterLimit.*;
 import static utilities.links.Links.SF_DOMAIN;
 
 public class SignUp {

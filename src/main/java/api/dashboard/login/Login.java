@@ -15,12 +15,10 @@ import static utilities.links.Links.URI;
 
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
-    String API_STORE_INFO_PATH = "/storeservice/api/stores/%s";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     public static String accessToken;
     public static int storeID;
     public static String storeName;
-    public static String storeURL;
     API api = new API();
 
     Logger logger = LogManager.getLogger(Login.class);
@@ -41,11 +39,6 @@ public class Login {
         accessToken = loginResponse.jsonPath().getString("accessToken");
         storeID = loginResponse.jsonPath().getInt("store.id");
         storeName = loginResponse.jsonPath().getString("store.name");
-
-        // get storeURL
-        Response storeInfo = new API().get(API_STORE_INFO_PATH.formatted(storeID), accessToken);
-        storeInfo.then().statusCode(200);
-        storeURL = storeInfo.jsonPath().getString("url");
     }
 
     /**

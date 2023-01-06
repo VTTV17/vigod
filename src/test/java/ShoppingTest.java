@@ -3,22 +3,21 @@ import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
 import api.storefront.login.LoginSF;
 import api.storefront.signup.SignUp;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.login.LoginPage;
 import pages.storefront.shoppingcart.ShoppingCart;
-import utilities.driver.InitWebdriver;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
-import static api.dashboard.login.Login.storeURL;
+import static api.dashboard.setting.StoreInformation.storeURL;
 import static api.storefront.signup.SignUp.*;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -32,6 +31,7 @@ public class ShoppingTest extends BaseTest {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         new BranchManagement().getBranchInformation();
+        new StoreInformation().getStoreInformation();
 
         new VAT().getTaxList();
 

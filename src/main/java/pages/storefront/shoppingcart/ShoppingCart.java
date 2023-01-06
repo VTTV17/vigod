@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static api.dashboard.login.Login.storeURL;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
+import static api.dashboard.setting.StoreInformation.storeURL;
 import static api.dashboard.setting.VAT.taxRate;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;

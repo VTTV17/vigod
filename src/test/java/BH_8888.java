@@ -3,6 +3,7 @@ import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
 import api.storefront.login.LoginSF;
 import api.storefront.signup.SignUp;
@@ -15,7 +16,7 @@ import pages.storefront.login.LoginPage;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import static api.dashboard.login.Login.storeURL;
+import static api.dashboard.setting.StoreInformation.storeURL;
 import static api.storefront.signup.SignUp.*;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -32,6 +33,7 @@ public class BH_8888 extends BaseTest {
         createProduct = new CreateProduct();
 
         new BranchManagement().getBranchInformation();
+        new StoreInformation().getStoreInformation();
 
         new VAT().getTaxList();
 

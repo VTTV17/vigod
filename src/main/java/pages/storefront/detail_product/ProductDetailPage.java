@@ -21,10 +21,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static api.dashboard.login.Login.storeURL;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.*;
+import static api.dashboard.setting.StoreInformation.storeURL;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.api_body.product.CreateProductBody.isDisplayOutOfStock;
@@ -67,14 +67,11 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
-    public boolean checkElementVisible(WebElement element) {
-        boolean check = true;
-        try {
-            wait.until(elementToBeClickable(element));
-        } catch (TimeoutException ex) {
-            check = false;
-        }
-        return check;
+    void checkHeader() {
+//        new AssertCustomize(driver).assertTrue(countFail, HEADER_SHOP_LOGO.isDisplayed(), )
+    }
+
+    void checkUI() {
     }
 
     /**
@@ -140,7 +137,13 @@ public class ProductDetailPage extends ProductDetailElement {
     // check flash sale
     private void checkFlashSaleShouldBeShown(String branchName) throws IOException {
         String branch = "[Branch name: %s]".formatted(branchName);
-        countFail = new AssertCustomize(driver).assertTrue(countFail, checkElementVisible(FLASH_SALE_BADGE), "%s Flash sale badge does not show".formatted(branch));
+        boolean check = true;
+        try {
+            wait.until(elementToBeClickable(FLASH_SALE_BADGE));
+        } catch (TimeoutException ex) {
+            check = false;
+        }
+        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "%s Flash sale badge does not show".formatted(branch));
         logger.info("%s Check flash sale badge is shown".formatted(branch));
     }
 
