@@ -47,6 +47,7 @@ public class CreatePromotion {
     public static List<Integer> discountCampaignPrice;
     public static Instant discountCampaignStartTime;
     public static Instant discountCampaignEndTime;
+    public static int productDiscountCouponValue;
     public static Map<String, List<String>> discountCampaignStatus;
 
     /**
@@ -211,7 +212,7 @@ public class CreatePromotion {
 
         // coupon value
         int minFixAmount = Collections.min(productSellingPrice);
-        int productDiscountCouponValue = productDiscountCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(minFixAmount) + 1;
+        productDiscountCouponValue = productDiscountCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextInt(minFixAmount) + 1;
 
         // set product campaign discount price
         IntStream.range(0, productSellingPrice.size()).forEach(i -> discountCampaignPrice.set(i, (productDiscountCouponType == 0)

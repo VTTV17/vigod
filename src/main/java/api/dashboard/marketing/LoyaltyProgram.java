@@ -1,6 +1,7 @@
 package api.dashboard.marketing;
 
 import utilities.api.API;
+import utilities.data.DataGenerator;
 
 import static api.dashboard.customers.Customers.segmentID;
 import static api.dashboard.login.Login.accessToken;
@@ -11,11 +12,11 @@ import static utilities.character_limit.CharacterLimit.*;
 
 public class LoyaltyProgram {
     String CREATE_MEMBERSHIP_PATH = "/beehiveservices/api/memberships";
-    public void createNewMembership(int... segId) {
-        String name = randomAlphabetic(nextInt(MAX_MEMBERSHIP_NAME));
+    public void createNewMembership() {
+        String name = "Auto - Membership - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String description = randomAlphabetic(nextInt(MAX_MEMBERSHIP_DESCRIPTION_LENGTH));
-        int segmentId =  segId.length == 0 ? segmentID : segId[0];
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
+        int discountMaxAmount = nextInt(1000000) + 1;
 
         String body = """
                 {
@@ -26,14 +27,14 @@ public class LoyaltyProgram {
                     "priority": 1,
                     "enabledBenefit": true,
                     "discountPercent": "%s",
-                    "discountMaxAmount": "",
+                    "discountMaxAmount": "%s",
                     "image": {
                         "urlPrefix": "",
                         "imageUUID": "",
                         "extension": ""
                     }
-                }""".formatted(name, description, segmentId, storeID, discountPercent);
+                }""".formatted(name, description, segmentID, storeID, discountPercent, discountMaxAmount);
 
-        new API().post(CREATE_MEMBERSHIP_PATH, accessToken, body);
+        new API().post(CREATE_MEMBERSHIP_PATH, accessToken, body).then().statusCode(200);
     }
 }

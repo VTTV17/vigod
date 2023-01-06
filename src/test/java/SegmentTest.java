@@ -104,14 +104,14 @@ public class SegmentTest {
     }
 
     int createEqualSegment(int numberOfOrders) {
-        String segmentName = "Auto - Segment - " + "Order Data_Total Order Number_is equal %s - ".formatted(numberOfOrders) + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        String segmentName = "Auto - Segment - " + "Order Data_Total Order Number_is equal to %s - ".formatted(numberOfOrders) + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {
                     "name": "%s",
                     "matchCondition": "ALL",
                     "conditions": [
                         {
-                            "name": "Order Data_Total Order Number_is equal",
+                            "name": "Order Data_Total Order Number_is equal to",
                             "value": "%s",
                             "expiredTime": "ALL"
                         }
@@ -182,7 +182,7 @@ public class SegmentTest {
         Response segmentInfo = new API().get(SEGMENT_CUSTOMER_LIST_PATH.formatted(storeID, segmentID), accessToken);
         segmentInfo.then().statusCode(200);
         try {
-            return segmentInfo.jsonPath().getList("");
+            return segmentInfo.jsonPath().getList("id");
         } catch (NullPointerException ex) {
             return List.of();
         }
@@ -208,16 +208,16 @@ public class SegmentTest {
         int greaterSegmentID2 = createGreaterThanSegment(1);
 
         // create segment 1
-        int lessSegmentID1 = createGreaterThanSegment(2);
+        int lessSegmentID1 = createLessThanSegment(2);
 
         // create segment 2
-        int lessSegmentID2 = createGreaterThanSegment(3);
+        int lessSegmentID2 = createLessThanSegment(3);
 
         // create segment 1
-        int equalSegmentID1 = createGreaterThanSegment(1);
+        int equalSegmentID1 = createEqualSegment(1);
 
         // create segment 2
-        int equalSegmentID2 = createGreaterThanSegment(2);
+        int equalSegmentID2 = createEqualSegment(2);
 
         // create POS customer
         createNewPOSCustomer();
@@ -228,37 +228,37 @@ public class SegmentTest {
         // make POS order
         createPOSOrder();
 
-        sleep(10);
+        sleep(5 * 60 * 1000);
 
         // check segment after 5 minutes
         //greater
-        Assert.assertTrue(getListSegmentCustomer(greaterSegmentID1).contains(profileID));
-        Assert.assertFalse(getListSegmentCustomer(greaterSegmentID2).contains(profileID));
+        Assert.assertTrue(getListSegmentCustomer(greaterSegmentID1).contains(profileID), "%s %s %s".formatted(greaterSegmentID1, profileID, getListSegmentCustomer(greaterSegmentID1)));
+        Assert.assertFalse(getListSegmentCustomer(greaterSegmentID2).contains(profileID), "%s".formatted(greaterSegmentID2));
 
         //less
-        Assert.assertTrue(getListSegmentCustomer(lessSegmentID1).contains(profileID));
-        Assert.assertTrue(getListSegmentCustomer(lessSegmentID1).contains(profileID));
+        Assert.assertTrue(getListSegmentCustomer(lessSegmentID1).contains(profileID), "%s".formatted(lessSegmentID1));
+        Assert.assertTrue(getListSegmentCustomer(lessSegmentID2).contains(profileID), "%s".formatted(lessSegmentID2));
 
         //equal
-        Assert.assertTrue(getListSegmentCustomer(equalSegmentID1).contains(profileID));
-        Assert.assertFalse(getListSegmentCustomer(equalSegmentID2).contains(profileID));
+        Assert.assertTrue(getListSegmentCustomer(equalSegmentID1).contains(profileID), "%s".formatted(equalSegmentID1));
+        Assert.assertFalse(getListSegmentCustomer(equalSegmentID2).contains(profileID), "%s".formatted(equalSegmentID2));
 
         // make POS order again
         createPOSOrder();
 
-        sleep(10);
+        sleep(5 * 60 * 1000);
 
         // check segment after 5 minutes
         //greater
-        Assert.assertTrue(getListSegmentCustomer(greaterSegmentID1).contains(profileID));
-        Assert.assertTrue(getListSegmentCustomer(greaterSegmentID2).contains(profileID));
+        Assert.assertTrue(getListSegmentCustomer(greaterSegmentID1).contains(profileID), "%s".formatted(greaterSegmentID1));
+        Assert.assertTrue(getListSegmentCustomer(greaterSegmentID2).contains(profileID), "%s".formatted(greaterSegmentID2));
 
         //less
-        Assert.assertFalse(getListSegmentCustomer(lessSegmentID1).contains(profileID));
-        Assert.assertTrue(getListSegmentCustomer(lessSegmentID1).contains(profileID));
+        Assert.assertFalse(getListSegmentCustomer(lessSegmentID1).contains(profileID), "%s".formatted(lessSegmentID1));
+        Assert.assertTrue(getListSegmentCustomer(lessSegmentID2).contains(profileID), "%s".formatted(lessSegmentID2));
 
         //equal
-        Assert.assertFalse(getListSegmentCustomer(equalSegmentID1).contains(profileID));
-        Assert.assertTrue(getListSegmentCustomer(equalSegmentID2).contains(profileID));
+        Assert.assertFalse(getListSegmentCustomer(equalSegmentID1).contains(profileID), "%s".formatted(equalSegmentID1));
+        Assert.assertTrue(getListSegmentCustomer(equalSegmentID2).contains(profileID), "%s".formatted(equalSegmentID2));
     }
 }
