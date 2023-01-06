@@ -4,8 +4,12 @@ public class FileNameAndPath {
     public static String projectLocation= System.getProperty("user.dir");
     static String osName= System.getProperty("os.name");
     public static final String FILE_CONFIG = "config.properties";
-    public static final String FILE_EN_TEXT = "en.properties";
-    public static final String FILE_VI_TEXT = "vi.properties";
+    public static final String FILE_DASHBOARD_EN_TEXT = "dashboard_en.properties";
+    public static final String FILE_STOREFRONT_EN_TEXT = "storefront_en.properties";
+
+    public static final String FILE_DASHBOARD_VI_TEXT = "dashboard_vi.properties";
+    public static final String FILE_STOREFRONT_VI_TEXT = "storefront_vi.properties";
+
 
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
