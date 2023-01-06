@@ -16,6 +16,9 @@ public class BranchElement {
 
     @FindBy (css = "li:nth-child(6) > a.nav-link")
     WebElement BRANCH_MANAGEMENT_MENU;
+    
+    @FindBy (xpath = "(//div[contains(@class,'branch-management')]//button[contains(@class,'gs-button__green')])[1]")
+    WebElement ADD_BRANCH_BTN;
 
     @FindBy(css = ".branch-management  tbody > tr > td:nth-child(1)")
     List<WebElement> BRANCH_NAME_LIST;
