@@ -4,6 +4,7 @@ import api.dashboard.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -14,23 +15,20 @@ import utilities.assert_customize.AssertCustomize;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.*;
+import static api.dashboard.setting.StoreInformation.storeLogo;
 import static api.dashboard.setting.StoreInformation.storeURL;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.api_body.product.CreateProductBody.isDisplayOutOfStock;
 import static utilities.api_body.product.CreateProductBody.isHideStock;
-import static utilities.links.Links.SF_DOMAIN;
-import static utilities.links.Links.STORE_CURRENCY;
+import static utilities.links.Links.*;
 
 public class ProductDetailPage extends ProductDetailElement {
     WebDriverWait wait;
@@ -67,9 +65,28 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
-    void checkHeader() {
-//        new AssertCustomize(driver).assertTrue(countFail, HEADER_SHOP_LOGO.isDisplayed(), )
+    public void checkHeader() throws IOException {
+        // check store logo
+        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src");
+        new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Header] Store logo does not match.");
+
+        // check header menu
+        commonAction.waitElementList(HEADER_MENU, 2);
+        List<String> sfHeaderMenu = HEADER_MENU.stream().map(WebElement::getText).toList();
+        new AssertCustomize(driver).assertEquals(countFail, sfHeaderMenu.toString(), List.of("TRANG CHỦ", "SẢN PHẨM").toString(), "[Failed][Header] Header menu should be %s, but found %s.".formatted(sfHeaderMenu, List.of("TRANG CHỦ", "SẢN PHẨM")));
+
+        // check search icon
+        new AssertCustomize(driver).assertTrue(countFail, HEADER_SEARCH_ICON.isDisplayed(), "[Failed][Header] Search icon does not show.");
+
+        // check cart
+        new AssertCustomize(driver).assertTrue(countFail, HEADER_CART_ICON.isDisplayed(), "[Failed][Header] Cart icon does not show.");
+        new AssertCustomize(driver).assertTrue(countFail, HEADER_NUMBER_PRODUCT_IN_CART.isDisplayed(), "[Failed][Header] Number of products in cart does not show.");
+
+        // check profile icon
+        new AssertCustomize(driver).assertTrue(countFail, HEADER_PROFILE_ICON.isDisplayed(), "[Failed][Header] Profile icon does not show.");
     }
+
+
 
     void checkUI() {
     }
