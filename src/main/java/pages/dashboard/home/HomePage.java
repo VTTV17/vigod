@@ -622,39 +622,37 @@ public class HomePage {
     }
 
     public void verifyTextOfPage() throws Exception {
-        Assert.assertEquals(commons.getText(homeUI.HOME_PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.home.pageTitle") + " " + getShopName());
-        Assert.assertEquals(commons.getText(homeUI.GOPOS_LBL), PropertiesUtil.getPropertiesValueByDBLang("page.home.POSLbl"));
-        Assert.assertEquals(commons.getText(homeUI.GOWEB_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOWEBLbl"));
-        Assert.assertEquals(commons.getText(homeUI.GOWEB_BUILDING_Txt),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOWEBBuildingTxt"));
-        Assert.assertEquals(commons.getText(homeUI.GOAPP_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOAPPLbl"));
-        Assert.assertEquals(commons.getText(homeUI.GOAPP_BUILDING_Txt),PropertiesUtil.getPropertiesValueByDBLang("page.home.GOAPPBuildingTxt"));
-        Assert.assertEquals(commons.getText(homeUI.SALE_CHANNELS_LBL),PropertiesUtil.getPropertiesValueByDBLang("page.home.saleChannelsLbl"));
-        Assert.assertEquals(commons.getText(homeUI.TO_CONFIRM_ORDERS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.toConfirmOrdersLbl"));
-        Assert.assertEquals(commons.getText(homeUI.DELIVERED_ORDERS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.deliveredOrdersLbl"));
-        Assert.assertEquals(commons.getText(homeUI.TO_CONFIRM_RESERVATIONS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.toConfirmReservationsLbl"));
-        Assert.assertEquals(commons.getText(homeUI.COMPLETED_RESERVATIONS_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.completedReservationsLbl"));
-        Assert.assertEquals(commons.getText(homeUI.WHAT_TO_DO_NEXT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.whatToDoNext.title"));
-        Assert.assertEquals(commons.getText(homeUI.WHAT_TO_DO_NEXT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.whatToDoNext.description"));
-        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCTS_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProducts.title"));
-        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.description"));
-        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCT_HINT_TXT),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.hintTxt"));
-        Assert.assertEquals(commons.getText(homeUI.CREATE_PRODUCT_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.createProductBtn"));
-        Assert.assertEquals(commons.getText(homeUI.IMPORT_FROM_SHOPEE_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.importFromShopeeBtn"));
-        Assert.assertEquals(commons.getText(homeUI.IMPORT_FROM_LAZADA_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addOrImportProduct.importFromLazadaBtn"));
+        Assert.assertEquals(commons.getText(homeUI.HOME_PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("home.pageTitle") + " " + getShopName());
+        Assert.assertEquals(commons.getText(homeUI.GOPOS_LBL), PropertiesUtil.getPropertiesValueByDBLang("home.POSLbl"));
+        Assert.assertEquals(commons.getText(homeUI.GOWEB_LBL),PropertiesUtil.getPropertiesValueByDBLang("home.GOWEBLbl"));
+        Assert.assertEquals(commons.getText(homeUI.GOWEB_BUILDING_Txt),PropertiesUtil.getPropertiesValueByDBLang("home.GOWEBBuildingTxt"));
+        Assert.assertEquals(commons.getText(homeUI.GOAPP_LBL),PropertiesUtil.getPropertiesValueByDBLang("home.GOAPPLbl"));
+        Assert.assertEquals(commons.getText(homeUI.GOAPP_BUILDING_Txt),PropertiesUtil.getPropertiesValueByDBLang("home.GOAPPBuildingTxt"));
+        Assert.assertEquals(commons.getText(homeUI.SALE_CHANNELS_LBL),PropertiesUtil.getPropertiesValueByDBLang("home.saleChannelsLbl"));
+        Assert.assertEquals(commons.getText(homeUI.TO_CONFIRM_ORDERS_TXT),PropertiesUtil.getPropertiesValueByDBLang("home.toConfirmOrdersLbl"));
+        Assert.assertEquals(commons.getText(homeUI.DELIVERED_ORDERS_TXT),PropertiesUtil.getPropertiesValueByDBLang("home.deliveredOrdersLbl"));
+        Assert.assertEquals(commons.getText(homeUI.TO_CONFIRM_RESERVATIONS_TXT),PropertiesUtil.getPropertiesValueByDBLang("home.toConfirmReservationsLbl"));
+        Assert.assertEquals(commons.getText(homeUI.COMPLETED_RESERVATIONS_TXT),PropertiesUtil.getPropertiesValueByDBLang("home.completedReservationsLbl"));
+        Assert.assertEquals(commons.getText(homeUI.WHAT_TO_DO_NEXT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("home.whatToDoNext.title"));
+        Assert.assertEquals(commons.getText(homeUI.WHAT_TO_DO_NEXT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("home.whatToDoNext.description"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCTS_TITLE),PropertiesUtil.getPropertiesValueByDBLang("home.addOrImportProducts.title"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("home.addOrImportProduct.description"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_OR_IMPORT_PRODUCT_HINT_TXT),PropertiesUtil.getPropertiesValueByDBLang("home.addOrImportProduct.hintTxt"));
+        Assert.assertEquals(commons.getText(homeUI.CREATE_PRODUCT_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.addOrImportProduct.createProductBtn"));
+        Assert.assertEquals(commons.getText(homeUI.IMPORT_FROM_SHOPEE_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.addOrImportProduct.importFromShopeeBtn"));
+        Assert.assertEquals(commons.getText(homeUI.IMPORT_FROM_LAZADA_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.addOrImportProduct.importFromLazadaBtn"));
         commons.clickElement(homeUI.CUSTOMIZE_APPEARANCE_TITLE);
-        Assert.assertEquals(commons.getText(homeUI.CUSTOMIZE_APPEARANCE_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.customizeAppearance.title"));
-        Assert.assertEquals(commons.getText(homeUI.CUSTOMIZE_APPEARANCE_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.customizeAppearance.description"));
-        Assert.assertEquals(commons.getText(homeUI.CHANGE_DESIGN_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.customizeAppearance.changeDesignBtn"));
+        Assert.assertEquals(commons.getText(homeUI.CUSTOMIZE_APPEARANCE_TITLE),PropertiesUtil.getPropertiesValueByDBLang("home.customizeAppearance.title"));
+        Assert.assertEquals(commons.getText(homeUI.CUSTOMIZE_APPEARANCE_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("home.customizeAppearance.description"));
+        Assert.assertEquals(commons.getText(homeUI.CHANGE_DESIGN_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.customizeAppearance.changeDesignBtn"));
         commons.clickElement(homeUI.ADD_YOUR_DOMAIN_TITLE);
-        Assert.assertEquals(commons.getText(homeUI.ADD_YOUR_DOMAIN_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.addYourDomain.title"));
-        Assert.assertEquals(commons.getText(homeUI.ADD_YOUR_DOMAIN_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.addYourDomain.description"));
-        Assert.assertEquals(commons.getText(homeUI.ADD_DOMAIN_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addYourDomain.addDomainBtn"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_YOUR_DOMAIN_TITLE),PropertiesUtil.getPropertiesValueByDBLang("home.addYourDomain.title"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_YOUR_DOMAIN_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("home.addYourDomain.description"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_DOMAIN_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.addYourDomain.addDomainBtn"));
         commons.clickElement(homeUI.ADD_BANK_ACCOUNT_TITLE);
-        Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("page.home.addBankAccount.title"));
-        Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("page.home.addBankAccount.description"));
-        Assert.assertEquals(commons.getText(homeUI.BANK_INFORMATION_BTN),PropertiesUtil.getPropertiesValueByDBLang("page.home.addBankAccount.bankInformation"));
-
-
+        Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_TITLE),PropertiesUtil.getPropertiesValueByDBLang("home.addBankAccount.title"));
+        Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("home.addBankAccount.description"));
+        Assert.assertEquals(commons.getText(homeUI.BANK_INFORMATION_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.addBankAccount.bankInformation"));
     }
 
 }
