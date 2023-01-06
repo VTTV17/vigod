@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.storeID;
+import static api.dashboard.marketing.LoyaltyProgram.membershipStatus;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.branchID;
 import static api.dashboard.setting.BranchManagement.branchName;
@@ -104,45 +105,56 @@ public class CreateProduct {
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
 
-        // init wholesale product status
-        wholesaleProductStatus = new HashMap<>();
-        branchName.forEach(brName -> wholesaleProductStatus
-                .put(brName, IntStream.range(0, 1)
-                        .mapToObj(i -> false).toList()));
+//        // init wholesale product status
+//        wholesaleProductStatus = new HashMap<>();
+//        branchName.forEach(brName -> wholesaleProductStatus
+//                .put(brName, IntStream.range(0, 1)
+//                        .mapToObj(i -> false).toList()));
+//
+//        // init flash sale status
+//        flashSaleStatus = new HashMap<>();
+//        branchName.forEach(brName -> flashSaleStatus
+//                .put(brName, IntStream.range(0, 1)
+//                        .mapToObj(i -> "EXPIRED").toList()));
+//
+//        // init discount campaign status
+//        discountCampaignStatus = new HashMap<>();
+//        branchName.forEach(brName -> discountCampaignStatus
+//                .put(brName, IntStream.range(0, 1)
+//                        .mapToObj(i -> "EXPIRED").toList()));
+//
+//        // init flash sale price
+//        flashSalePrice = new ArrayList<>();
+//        flashSalePrice.addAll(productSellingPrice);
+//
+//        // init flash sale stock
+//        flashSaleStock = new ArrayList<>();
+//        variationList.forEach(varName -> flashSaleStock.add(Collections.max(productStockQuantity.get(varName))));
+//
+//        // init product discount campaign price
+//        discountCampaignPrice = new ArrayList<>();
+//        discountCampaignPrice.addAll(productSellingPrice);
+//
+//        // init wholesale product price, rate and stock
+//        wholesaleProductPrice = new ArrayList<>();
+//        wholesaleProductPrice.addAll(productSellingPrice);
+//
+//        wholesaleProductRate = new ArrayList<>();
+//        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
+//
+//        wholesaleProductStock = new ArrayList<>();
+//        variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
+//
+//        // discount code
+//        discountCodeStatus = new HashMap<>();
+//        branchName.forEach(brName -> discountCodeStatus
+//                .put(brName, IntStream.range(0, 1)
+//                        .mapToObj(i -> "EXPIRED").toList()));
 
-        // init flash sale status
-        flashSaleStatus = new HashMap<>();
-        branchName.forEach(brName -> flashSaleStatus
-                .put(brName, IntStream.range(0, 1)
-                        .mapToObj(i -> "EXPIRED").toList()));
+        // init discount information
+        initDiscountInformation();
 
-        // init discount campaign status
-        discountCampaignStatus = new HashMap<>();
-        branchName.forEach(brName -> discountCampaignStatus
-                .put(brName, IntStream.range(0, 1)
-                        .mapToObj(i -> "EXPIRED").toList()));
 
-        // init flash sale price
-        flashSalePrice = new ArrayList<>();
-        flashSalePrice.addAll(productSellingPrice);
-
-        // init flash sale stock
-        flashSaleStock = new ArrayList<>();
-        variationList.forEach(varName -> flashSaleStock.add(Collections.max(productStockQuantity.get(varName))));
-
-        // init product discount campaign price
-        discountCampaignPrice = new ArrayList<>();
-        discountCampaignPrice.addAll(productSellingPrice);
-
-        // init wholesale product price, rate and stock
-        wholesaleProductPrice = new ArrayList<>();
-        wholesaleProductPrice.addAll(productSellingPrice);
-
-        wholesaleProductRate = new ArrayList<>();
-        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
-
-        wholesaleProductStock = new ArrayList<>();
-        variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
         return this;
     }
 
@@ -200,6 +212,13 @@ public class CreateProduct {
         // get variation modelID
         variationModelID = createProductResponse.jsonPath().getList("models.id");
 
+        // init discount information
+        initDiscountInformation();
+
+        return this;
+    }
+
+    void initDiscountInformation() {
         // init wholesale product status
         wholesaleProductStatus = new HashMap<>();
         branchName.forEach(brName -> wholesaleProductStatus
@@ -240,7 +259,17 @@ public class CreateProduct {
         wholesaleProductStock = new ArrayList<>();
         variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
 
-        return this;
+        // discount code
+        discountCodeStatus = new HashMap<>();
+        branchName.forEach(brName -> discountCodeStatus
+                .put(brName, IntStream.range(0, variationList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // membership
+        membershipStatus = new HashMap<>();
+        branchName.forEach(brName -> membershipStatus
+                .put(brName, IntStream.range(0, variationList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
     }
 
     public CreateProduct addWholesalePriceProduct() {

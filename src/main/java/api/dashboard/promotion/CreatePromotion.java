@@ -50,6 +50,12 @@ public class CreatePromotion {
     public static int productDiscountCouponValue;
     public static Map<String, List<String>> discountCampaignStatus;
 
+    // discount code
+    public static Instant discountCodeStartTime;
+    public static Instant discountCodeEndTime;
+    public static String couponCode;
+    public static Map<String, List<String>> discountCodeStatus;
+
     /**
      * set branch condition
      * <p> DEFAULT value = - 1, no condition is provided, random condition should be generated</p>
@@ -278,11 +284,9 @@ public class CreatePromotion {
 
         // init minimum requirement
         int min = 1;
-        if (isVariation) {
-            for (String key : productStockQuantity.keySet()) {
-                min = Math.min(min, Collections.min(productStockQuantity.get(key)));
-            }
-        } else min = Collections.min(productStockQuantity.get(null));
+        if (isVariation) for (String key : productStockQuantity.keySet())
+            min = Math.min(min, Collections.min(productStockQuantity.get(key)));
+        else min = Collections.min(productStockQuantity.get(null));
         discountCampaignStock = nextInt(Math.max(1, min)) + 1;
 
         String minimumRequirement = """
@@ -343,18 +347,20 @@ public class CreatePromotion {
         return this;
     }
 
-    public void createProductDiscount() {
+    public void createProductDiscountCode(int... time) {
         // coupon name
-        String name = randomAlphabetic(nextInt(MAX_PRODUCT_DISCOUNT_CODE_NAME_LENGTH));
+        String name = "Auto - [Product] Discount code - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");;
 
         // start date
-        String activeDate = Instant.now().plus(1, ChronoUnit.MINUTES).toString();
+        int startMin = time.length > 0 ? time[0] : nextInt(60);
+        discountCodeStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
-        String expiredDate = Instant.now().plus(5, ChronoUnit.MINUTES).toString();
+        int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
+        discountCodeEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
 
         // coupon code
-        String couponCode = randomAlphabetic(nextInt(MAX_PRODUCT_DISCOUNT_CODE_LENGTH - MIN_PRODUCT_DISCOUNT_CODE_LENGTH + 1) + MIN_PRODUCT_DISCOUNT_CODE_LENGTH).toUpperCase();
+        couponCode = "AUTO" + Instant.now().toEpochMilli();
 
         // usage limit
         boolean couponLimitToOne = nextBoolean();
@@ -395,7 +401,7 @@ public class CreatePromotion {
                             "feeShippingType": "FIXED_AMOUNT",
                             "enabledRewards": %s,
                             "rewardsDescription": "%s",
-                            "conditions": [""".formatted(name, storeID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription));
+                            "conditions": [""".formatted(name, storeID, discountCodeStartTime, discountCodeEndTime, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription));
 
         // init segment condition
         // segment type:
