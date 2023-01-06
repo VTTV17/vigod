@@ -73,9 +73,9 @@ public class ProductCollectionTest extends BaseTest {
         passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
         languageDashboard = PropertiesUtil.getLanguageFromConfig("Dashboard");
-        automatedMode = PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.automatedModeTxt");
-        manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.manuallyModeTxt");
-        productType = PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.productTypeTxt");
+        automatedMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.automatedModeTxt");
+        manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
+        productType = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
     }
 
     public void callLoginAPI() {

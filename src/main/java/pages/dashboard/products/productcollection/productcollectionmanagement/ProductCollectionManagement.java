@@ -149,19 +149,19 @@ public class ProductCollectionManagement extends HomePage {
     }
 
     public void verifyTextOfPage() throws Exception {
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.PAGE_TITLE_AND_TOTAL_NUMBER).split("\n")[0], PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.pageTitle"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.CREATE_PRODUCT_COLLECTION_BTN), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.createProductCollectionBtn"));
-        Assert.assertEquals(commonAction.getElementAttribute(collectionManagementUI.SEARCH_COLLECTION_INPUT, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.searchHintTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.THUMBNAIL_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.thumbnailColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.COLLECTION_NAME_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.collectionNameColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.TYPE_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.typeColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODE_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.modeColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.ITEMS_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.itemsColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.ACTIONS_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.table.actionsColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.PAGE_TITLE_AND_TOTAL_NUMBER).split("\n")[0], PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.pageTitle"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.CREATE_PRODUCT_COLLECTION_BTN), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.createProductCollectionBtn"));
+        Assert.assertEquals(commonAction.getElementAttribute(collectionManagementUI.SEARCH_COLLECTION_INPUT, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.searchHintTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.THUMBNAIL_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.thumbnailColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.COLLECTION_NAME_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.collectionNameColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.TYPE_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.typeColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODE_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.modeColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.ITEMS_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.itemsColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.ACTIONS_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.actionsColTxt"));
         commonAction.clickElement(collectionManagementUI.DELETE_BTN.get(0));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_TITLE), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.deleteModal.title"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CONTENT), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.deleteModal.content"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.OK_BTN_ON_MODAL), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.deleteModal.OKBtn"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CANCEL_BTN), PropertiesUtil.getPropertiesValueByDBLang("page.products.productCollections.management.deleteModal.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_TITLE), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.title"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CONTENT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.content"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.OK_BTN_ON_MODAL), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.OKBtn"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CANCEL_BTN), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.cancelBtn"));
     }
 }
