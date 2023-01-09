@@ -48,7 +48,7 @@ public class CreateServiceTest extends BaseTest{
         passWord = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
-        sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("sf.serviceDetail.allServicesTxt");
+        sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
     }
     @Test (priority = 0)
     public void CS01_CreateService() throws Exception {

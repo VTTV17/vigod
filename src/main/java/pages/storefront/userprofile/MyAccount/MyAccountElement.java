@@ -15,7 +15,10 @@ public class MyAccountElement {
     }
     @FindBy(id = "displayName")
     WebElement DISPLAY_NAME;
-
+    @FindBy(id = "companyName")
+    WebElement COMPANY_NAME_INPUT;
+    @FindBy(id = "taxCode")
+    WebElement TAX_CODE_INPUT;
     @FindBy(id = "email")
     WebElement EMAIL;
 
@@ -62,4 +65,43 @@ public class MyAccountElement {
     List<WebElement> OTHER_PHONE_LIST;
     @FindBy(css = ".email-item")
     List<WebElement> OTHER_EMAIL_LIST;
+    @FindBy(css = ".my-account-info")
+    WebElement MY_ACCOUNT_TITLE;
+    @FindBy(xpath = "//label[@for='displayName']")
+    WebElement FULL_NAME_LBL;
+    @FindBy(xpath = "//label[@for='companyName']")
+    WebElement COMPANY_NAME_LBL;
+    @FindBy(xpath = "//label[@for='taxCode']")
+    WebElement TAX_CODE_LBL;
+    @FindBy(xpath = "//label[@for='phone']")
+    WebElement PHONE_NUMBER_LBL;
+    @FindBy(xpath = "//label[@for='other-phone-list']")
+    WebElement OTHER_PHONE_NUMBER_LBL;
+    @FindBy(xpath = "//label[@for='email']")
+    WebElement EMAIL_LBL;
+    @FindBy(xpath = "//label[@for='other-email-list']")
+    WebElement OTHER_EMAIL_LBL;
+    @FindBy(xpath = "//label[@for='dob']")
+    WebElement BIRTHDAY_LBL;
+    @FindBy(xpath = "//label[@for='male']")
+    WebElement MALE_LBL;
+    @FindBy(xpath = "//label[@for='female']")
+    WebElement FEMALE_LBL;
+    @FindBy(xpath = "//label[@for='male']//ancestor::div[@class='form-group']/label")
+    WebElement GENDER_LBL;
+    @FindBy(css = ".btn-cancel")
+    WebElement CANCEL_BTN;
+    @FindBy(xpath = "//label[@for='phone-name-modal']")
+    WebElement PHONE_NAME_LBL_ADD_OTHER_PHONE;
+    @FindBy(xpath = "//label[@for='new-phone-modal']")
+    WebElement PHONE_NUMBER_LBL_ADD_OTHER_PHONE;
+    @FindBy(id = "btn-cancel-add-phone")
+    WebElement CANCEL_BTN_ADD_OTHER_PHONE;
+    @FindBy(xpath = "//label[@for='email-name-modal']")
+    WebElement NAME_LBL_ADD_OTHER_EMAIL;
+    @FindBy(xpath = "//label[@for='new-email-modal']")
+    WebElement EMAIL_LBL_ADD_OTHER_EMAIL;
+    @FindBy(id = "btn-cancel-add-email")
+    WebElement CANCEL_BTN_ADD_OTHER_EMAIL;
+
 }

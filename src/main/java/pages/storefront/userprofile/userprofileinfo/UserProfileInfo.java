@@ -6,6 +6,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.TestNG;
+import org.testng.TestNGUtils;
 import org.testng.asserts.SoftAssert;
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
@@ -35,6 +37,7 @@ public class UserProfileInfo extends HeaderSF {
         commonAction.clickElement(userProfileUI.MYACCOUNT_SECTION);
         logger.info("Clicked on My Account section.");
         return this;
+
     }
     public MyAddress clickMyAddressSection() {
         commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);

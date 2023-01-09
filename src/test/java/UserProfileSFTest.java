@@ -272,7 +272,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         homePage = new HomePage(driver);
-        homePage.selectLanguage(languageDb).waitTillSpinnerDisappear();
+        homePage.waitTillSpinnerDisappear().selectLanguage(languageDb);
         allCustomers = new AllCustomers(driver);
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
                 .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
@@ -405,7 +405,8 @@ public class UserProfileSFTest extends BaseTest {
     }
     @Test
     public void UP01_BH_4604_ViewAccountInfo() throws Exception {
-        testCaseID = "BH_4604";
+
+        testCaseID = "UP01";
         loginAndGoToUserProfile(userName);
         userProfileInfo = new UserProfileInfo(driver);
         userProfileInfo.verifyDisplayName(displayName)
@@ -557,6 +558,14 @@ public class UserProfileSFTest extends BaseTest {
         testCaseID = "BH_8273";
         CheckUserUpdateAddress_ExistedAccount();
         CheckUserUpdateAddress_NewAccount();
+    }
+    @Test
+    public void UP10_VerifyText() throws Exception {
+        loginAndGoToUserProfile(userName);
+        userProfileInfo = new UserProfileInfo(driver);
+        userProfileInfo.clickMyAccountSection();
+        myAccount = new MyAccount(driver);
+        myAccount.verifyTextOfMyAccountPage();
     }
 //    @AfterTest
     public void updateTestLink(ITestResult result){
