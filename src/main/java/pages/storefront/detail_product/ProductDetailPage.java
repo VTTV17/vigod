@@ -11,6 +11,7 @@ import org.testng.Assert;
 import pages.storefront.shoppingcart.ShoppingCart;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.data.DataGenerator;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -19,13 +20,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static api.dashboard.login.Login.storeName;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.*;
-import static api.dashboard.setting.StoreInformation.storeLogo;
-import static api.dashboard.setting.StoreInformation.storeURL;
+import static api.dashboard.setting.StoreInformation.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
+import static utilities.PropertiesUtil.getPropertiesValueBySFLang;
 import static utilities.api_body.product.CreateProductBody.isDisplayOutOfStock;
 import static utilities.api_body.product.CreateProductBody.isHideStock;
 import static utilities.links.Links.*;
@@ -39,6 +41,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
+    boolean isMultipleLanguage;
 
     public ProductDetailPage(WebDriver driver) {
         super(driver);
@@ -49,50 +52,202 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public ProductDetailPage accessToProductDetailPageByProductID() {
-        driver.get("https://%s%s/vi/product/%s".formatted(storeURL, SF_DOMAIN, productID));
-        driver.navigate().refresh();
-        logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
-        commonAction.waitForElementInvisible(SPINNER, 15);
+    public ProductDetailPage accessToProductDetailPageByProductID() throws Exception {
+        // check shop has multiple language or not
+        driver.get("https://%s%s/".formatted(storeURL, SF_DOMAIN));
+
+        // check URL contains /vi or /en
+        isMultipleLanguage = driver.getCurrentUrl().split("/").length > 3;
 
         // get max stock
         int maxStock = Collections.max(productStockQuantity.values().stream().map(Collections::max).toList());
 
         // check product is display or not
-        if ((maxStock == 0) && (!isDisplayOutOfStock)) commonAction.sleepInMiliSecond(1000);
-        else commonAction.verifyPageLoaded(productName, productName);
+        if ((maxStock == 0) && (!isDisplayOutOfStock)) {
+            // in-case out of stock and setting hide product when out of stock
+            // wait 404 page loaded
+            driver.get("https://%s%s/product/%s".formatted(storeURL, SF_DOMAIN, productID));
 
+            // sleep 1s
+            commonAction.sleepInMiliSecond(1000);
+
+            // wait spinner loaded if any
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+        } else if (isMultipleLanguage) {
+            // in-case in stock or setting show product when out of stock
+            // check if shop have multiple language, check all language should be shown exactly
+            // else check default language is shown correctly
+            // check all information with VIE language
+            driver.get("https://%s%s/vi/product/%s".formatted(storeURL, SF_DOMAIN, productID));
+
+            //wait spinner loaded
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // wait product detail page loaded
+            commonAction.verifyPageLoaded(productName, productName);
+            if (maxStock > 0) checkUIInStock("VIE");
+            else checkUIOutOfStock("VIE");
+
+            // check all information with ENG language
+            driver.get("https://%s%s/en/product/%s".formatted(storeURL, SF_DOMAIN, productID));
+
+            //wait spinner loaded
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // wait product detail page loaded
+            commonAction.verifyPageLoaded(productName, productName);
+            if (maxStock > 0) checkUIInStock("ENG");
+            else checkUIOutOfStock("ENG");
+
+        } else {
+            // check default language
+            driver.get("https://%s%s/product/%s".formatted(storeURL, SF_DOMAIN, productID));
+
+            // wait spinner loaded
+            commonAction.waitForElementInvisible(SPINNER, 15);
+
+            // wait product detail page loaded
+            commonAction.verifyPageLoaded(productName, productName);
+
+            // check default language
+            if (maxStock > 0) checkUIInStock(defaultLanguage);
+            else checkUIOutOfStock(defaultLanguage);
+        }
+
+        logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
         return this;
     }
 
-    void checkHeader() throws IOException {
+    void checkHeader(String language) throws Exception {
         // check store logo
-        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src");
-        new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Header] Store logo does not match.");
+        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src").replace("/200/", "/");
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Header] Store logo should be %s, but found %s.".formatted(storeLogo, sfStoreLogo));
 
         // check header menu
         commonAction.waitElementList(HEADER_MENU, 2);
         List<String> sfHeaderMenu = HEADER_MENU.stream().map(WebElement::getText).toList();
-        new AssertCustomize(driver).assertEquals(countFail, sfHeaderMenu.toString(), List.of("TRANG CHỦ", "SẢN PHẨM").toString(), "[Failed][Header] Header menu should be %s, but found %s.".formatted(sfHeaderMenu, List.of("TRANG CHỦ", "SẢN PHẨM")));
+        List<String> defaultMenu = defaultLanguage.equals("VIE")
+                ? List.of(getPropertiesValueBySFLang("header.menu.vnStore.0", language), getPropertiesValueBySFLang("header.menu.vnStore.1", language))
+                : List.of(getPropertiesValueBySFLang("header.menu.nonVNStore.0", language), getPropertiesValueBySFLang("header.menu.nonVNStore.1", language));
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfHeaderMenu, defaultMenu,
+                "[Failed][Header] Header menu should be %s, but found %s.".formatted(sfHeaderMenu, defaultMenu));
 
         // check search icon
-        new AssertCustomize(driver).assertTrue(countFail, HEADER_SEARCH_ICON.isDisplayed(), "[Failed][Header] Search icon does not show.");
+        countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_SEARCH_ICON.isDisplayed(), "[Failed][Header] Search icon does not show.");
 
         // check cart
-        new AssertCustomize(driver).assertTrue(countFail, HEADER_CART_ICON.isDisplayed(), "[Failed][Header] Cart icon does not show.");
-        new AssertCustomize(driver).assertTrue(countFail, HEADER_NUMBER_PRODUCT_IN_CART.isDisplayed(), "[Failed][Header] Number of products in cart does not show.");
+        countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_CART_ICON.isDisplayed(), "[Failed][Header] Cart icon does not show.");
+        countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_NUMBER_PRODUCT_IN_CART.isDisplayed(), "[Failed][Header] Number of products in cart does not show.");
 
         // check profile icon
-        new AssertCustomize(driver).assertTrue(countFail, HEADER_PROFILE_ICON.isDisplayed(), "[Failed][Header] Profile icon does not show.");
+        countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_PROFILE_ICON.isDisplayed(), "[Failed][Header] Profile icon does not show.");
     }
 
-    void checkBreadcrumbs() {
-        String[] breadCrumbs = wait.until(ExpectedConditions.visibilityOf(BREAD_CRUMBS)).getText().split("    /     ");
+    void checkBreadcrumbs(String language) throws Exception {
+        // check breadcrumbs
+        String[] sfBreadCrumbs = wait.until(ExpectedConditions.visibilityOf(BREAD_CRUMBS)).getText().split(" {4}/ {5}");
+        String[] breadCrumbsCollection = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionName, productName};
+        String[] breadCrumbsAllProduct = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productName};
+        countFail = new AssertCustomize(driver).assertTrue(countFail, Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsAllProduct)) || Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsCollection)), "[Failed][Breadcrumbs] Breadcrumbs should be %s or %s, but found %s.".formatted(Arrays.toString(breadCrumbsAllProduct), Arrays.toString(breadCrumbsCollection), Arrays.toString(sfBreadCrumbs)));
+    }
+
+    void checkOthersInformation(String language) throws Exception {
+        // description tab
+        String sfDescriptionTab = wait.until(ExpectedConditions.visibilityOf(DESCRIPTION_TAB)).getText();
+        String descriptionTab = getPropertiesValueBySFLang("productDetail.description", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfDescriptionTab, descriptionTab, "[Failed][Product Detail] Description tab title should be %s, but found %s.".formatted(descriptionTab, sfDescriptionTab));
+
+        // review tab
+        String sfReview = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
+        String review = getPropertiesValueBySFLang("productDetail.review", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfReview, review, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(review, sfReview));
+
+        // similar product
+        if (productList.size() > 1) {
+            String sfSimilarProduct = wait.until(ExpectedConditions.visibilityOf(SIMILAR_PRODUCT)).getText();
+            String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
+        }
+    }
+
+    void checkProductDetailWhenInStock(String language) throws Exception {
+        // quantity
+        String sfQuantity = wait.until(ExpectedConditions.visibilityOf(QUANTITY_TITLE)).getText();
+        String quantity = getPropertiesValueBySFLang("productDetail.quantity", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfQuantity, quantity, "[Failed][Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
+
+        // check branch
+        String[] sfAvailableBranch = wait.until(ExpectedConditions.visibilityOf(AVAILABLE_BRANCH)).getText().split("\\d");
+        String[] availableBranch = getPropertiesValueBySFLang("productDetail.branch.availableBranch", language).split("\\d");
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfAvailableBranch, availableBranch, "[Failed][Product Detail] Available branch title should be %s, but found %s.".formatted(Arrays.toString(availableBranch), Arrays.toString(sfAvailableBranch)));
+
+        // check stock
+        commonAction.waitElementList(STOCK_QUANTITY_IN_BRANCH);
+        String[] sfStock = wait.until(ExpectedConditions.visibilityOf(STOCK_QUANTITY_IN_BRANCH.get(0))).getText().split("\\d");
+        String[] stock = getPropertiesValueBySFLang("productDetail.branch.stock", language).split("\\d");
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfStock, stock, "[Failed][Product Detail] Stock title should be %s, but found %s.".formatted(Arrays.toString(stock), Arrays.toString(sfStock)));
+
+        // check buy now
+        String sfBuyNow = wait.until(ExpectedConditions.visibilityOf(BUY_NOW_BTN)).getText();
+        String buyNow = getPropertiesValueBySFLang("productDetail.cart.buyNow", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfBuyNow, buyNow, "[Failed][Product Detail] Buy now title should be %s, but found %s.".formatted(buyNow, sfBuyNow));
+
+        // check Add to cart
+        String sfAddToCart = wait.until(ExpectedConditions.visibilityOf(ADD_TO_CART_BTN)).getText();
+        String addToCart = getPropertiesValueBySFLang("productDetail.cart.addToCart", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfAddToCart, addToCart, "[Failed][Product Detail] Add to cart title should be %s, but found %s.".formatted(addToCart, sfAddToCart));
+
+        // payment
+        String sfPayment = wait.until(ExpectedConditions.visibilityOf(PAYMENT)).getText();
+        String payment = getPropertiesValueBySFLang("productDetail.payment", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfPayment, payment, "[Failed][Product Detail] Payment title should be %s, but found %s.".formatted(payment, sfPayment));
+
+    }
+
+    void checkProductDetailWhenOutOfStock(String language) throws Exception {
+        // check sold out mark
+        String sfSoldOut = wait.until(ExpectedConditions.visibilityOf(SOLD_OUT_MARK)).getText();
+        String soldOut = getPropertiesValueBySFLang("productDetail.soldOut", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfSoldOut, soldOut, "[Failed][Product Detail] Sold out title should be %s, but found %s.".formatted(soldOut, sfSoldOut));
+    }
+
+    void checkFooter(String language) throws Exception {
+        // check store logo
+        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(FOOTER_SHOP_LOGO)).getAttribute("src").replace("/200/", "/");
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Footer] Store logo should be %s, but found %s.".formatted(storeLogo, sfStoreLogo));
+
+        // check company
+        String sfCompany = wait.until(ExpectedConditions.visibilityOf(FOOTER_COMPANY)).getText();
+        String company = getPropertiesValueBySFLang("footer.company", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfCompany, company, "[Failed][Footer] Company title should be %s, but found %s.".formatted(company, sfCompany));
+
+        // check follow us
+        String sfFollowUs = wait.until(ExpectedConditions.visibilityOf(FOOTER_FOLLOW_US)).getText();
+        String followUs = getPropertiesValueBySFLang("footer.followUs", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfFollowUs, followUs, "[Failed][Footer] Follow us title should be %s, but found %s.".formatted(followUs, sfFollowUs));
+
+        // check copyright
+        String sfCopyright = wait.until(ExpectedConditions.visibilityOf(FOOTER_COPYRIGHT)).getText();
+        String copyright = getPropertiesValueBySFLang("footer.copyright", language).formatted(new DataGenerator().generateDateTime("yyyy"), storeName);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfCopyright, copyright, "[Failed][Footer] Copyright title should be %s, but found %s.".formatted(copyright, sfCopyright));
     }
 
 
+    void checkUIInStock(String language) throws Exception {
+        checkHeader(language);
+        checkBreadcrumbs(language);
+        checkProductDetailWhenInStock(language);
+        checkOthersInformation(language);
+        checkFooter(language);
+    }
 
-    void checkUI() {
+    void checkUIOutOfStock(String language) throws Exception {
+        checkHeader(language);
+        checkBreadcrumbs(language);
+        checkProductDetailWhenOutOfStock(language);
+        checkOthersInformation(language);
+        checkFooter(language);
     }
 
     /**
@@ -614,7 +769,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 int varIndex = variationList.indexOf(variationName);
 
                 // Add product to cart
-                clickAddToCart(varIndex, discountCampaignStock, wholesaleProductStock.get(varIndex), element.getText() );
+                clickAddToCart(varIndex, discountCampaignStock, wholesaleProductStock.get(varIndex), element.getText());
 
                 // wait spinner loading if any
                 commonAction.waitForElementInvisible(SPINNER, 30);

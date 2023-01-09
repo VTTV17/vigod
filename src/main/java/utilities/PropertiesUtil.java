@@ -52,20 +52,21 @@ public class PropertiesUtil {
         return language;
     }
 
-    public static String getPropertiesValueByDBLang(String propertyName) throws Exception {
-        String language = getLanguageFromConfig("Dashboard");
-        if (language.equalsIgnoreCase("ENG")) {
-            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_DASHBOARD_EN_TEXT), propertyName);
-        } else if (language.equalsIgnoreCase("VIE")) {
-            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_DASHBOARD_VI_TEXT), propertyName);
-        }else throw new Exception("Can't detect language.");
+    public static String getPropertiesValueByDBLang(String propertyName, String... language) throws Exception {
+        String lang = language.length == 0 ? getLanguageFromConfig("Dashboard") : language[0];
+        if (lang.equalsIgnoreCase("ENG")) {
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_DASHBOARD_EN_TEXT), propertyName);
+        } else if (lang.equalsIgnoreCase("VIE")) {
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_DASHBOARD_VI_TEXT), propertyName);
+        } else throw new Exception("Can't detect language.");
     }
-    public static String getPropertiesValueBySFLang(String propertyName) throws Exception {
-        String language = getLanguageFromConfig("Storefront");
-        if (language.equalsIgnoreCase("ENG")) {
-            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") +getDirectorySlash("main") +getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_EN_TEXT), propertyName);
-        } else if (language.equalsIgnoreCase("VIE")) {
-            return getPropertyValue(initProperties(projectLocation  + getDirectorySlash("src") +getDirectorySlash("main") +getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_VI_TEXT), propertyName);
-        }else throw new Exception("Can't detect language.");
+
+    public static String getPropertiesValueBySFLang(String propertyName, String... language) throws Exception {
+        String lang = language.length == 0 ? getLanguageFromConfig("Storefront") : language[0];
+        if (lang.equalsIgnoreCase("ENG")) {
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_EN_TEXT), propertyName);
+        } else if (lang.equalsIgnoreCase("VIE")) {
+            return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_VI_TEXT), propertyName);
+        } else throw new Exception("Can't detect language.");
     }
 }

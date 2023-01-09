@@ -2,6 +2,7 @@ package pages.storefront.header;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -11,7 +12,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import pages.storefront.GeneralSF;
-import pages.storefront.login.LoginPage;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
 
@@ -193,6 +193,19 @@ public class HeaderSF extends GeneralSF {
 		commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));
 		logger.info("Click on menu: "+menuItemByText);
 		return this;
+	}
+
+	public HeaderSF clickUserInfoIconJS() {
+		wait.until(ExpectedConditions.visibilityOf(USER_INFO_ICON));
+		((JavascriptExecutor) driver).executeScript("arguments[0].click()", USER_INFO_ICON);
+		logger.info("Clicked on User Info icon.");
+		return this;
+	}
+
+	public void clickLoginIconJS() {
+		wait.until(ExpectedConditions.visibilityOf(LOGIN_ICON));
+		((JavascriptExecutor) driver).executeScript("arguments[0].click()", LOGIN_ICON);
+		logger.info("Clicked on Login icon.");
 	}
 
 }

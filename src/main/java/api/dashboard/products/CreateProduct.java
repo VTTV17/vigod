@@ -32,6 +32,7 @@ public class CreateProduct {
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
+    String GET_LIST_PRODUCT_IN_COLLECTION_PATH = "/itemservice/api/collections/detail/%s/%s";
 
     // product info
     public static Map<String, List<String>> variationMap;
@@ -54,6 +55,9 @@ public class CreateProduct {
     public static int taxID;
 
     public static int collectionID;
+    public static boolean hasCollections;
+    public static String collectionName;
+    public static List<Integer> productList;
 
     API api = new API();
 
@@ -66,7 +70,7 @@ public class CreateProduct {
 
         // random some product information
         // product name
-        productName = isIMEIProduct ? ("IMEI - without variation - ") : ("Normal - without variation - ");
+        productName = isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - ");
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
@@ -105,52 +109,6 @@ public class CreateProduct {
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
 
-//        // init wholesale product status
-//        wholesaleProductStatus = new HashMap<>();
-//        branchName.forEach(brName -> wholesaleProductStatus
-//                .put(brName, IntStream.range(0, 1)
-//                        .mapToObj(i -> false).toList()));
-//
-//        // init flash sale status
-//        flashSaleStatus = new HashMap<>();
-//        branchName.forEach(brName -> flashSaleStatus
-//                .put(brName, IntStream.range(0, 1)
-//                        .mapToObj(i -> "EXPIRED").toList()));
-//
-//        // init discount campaign status
-//        discountCampaignStatus = new HashMap<>();
-//        branchName.forEach(brName -> discountCampaignStatus
-//                .put(brName, IntStream.range(0, 1)
-//                        .mapToObj(i -> "EXPIRED").toList()));
-//
-//        // init flash sale price
-//        flashSalePrice = new ArrayList<>();
-//        flashSalePrice.addAll(productSellingPrice);
-//
-//        // init flash sale stock
-//        flashSaleStock = new ArrayList<>();
-//        variationList.forEach(varName -> flashSaleStock.add(Collections.max(productStockQuantity.get(varName))));
-//
-//        // init product discount campaign price
-//        discountCampaignPrice = new ArrayList<>();
-//        discountCampaignPrice.addAll(productSellingPrice);
-//
-//        // init wholesale product price, rate and stock
-//        wholesaleProductPrice = new ArrayList<>();
-//        wholesaleProductPrice.addAll(productSellingPrice);
-//
-//        wholesaleProductRate = new ArrayList<>();
-//        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
-//
-//        wholesaleProductStock = new ArrayList<>();
-//        variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
-//
-//        // discount code
-//        discountCodeStatus = new HashMap<>();
-//        branchName.forEach(brName -> discountCodeStatus
-//                .put(brName, IntStream.range(0, 1)
-//                        .mapToObj(i -> "EXPIRED").toList()));
-
         // init discount information
         initDiscountInformation();
 
@@ -164,7 +122,7 @@ public class CreateProduct {
 
         // random some product information
         // product name
-        productName = isIMEIProduct ? ("IMEI - variation - ") : ("Normal - variation - ");
+        productName = isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - ");
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
@@ -332,7 +290,8 @@ public class CreateProduct {
     }
 
     public void createCollection() {
-        String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        hasCollections = true;
+        collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {
                     "name": "%s",
@@ -344,7 +303,7 @@ public class CreateProduct {
                             "operand": "CONTAINS",
                             "values": [
                                 {
-                                    "value": "%s"
+                                    "value": "Auto"
                                 }
                             ]
                         }
@@ -353,11 +312,17 @@ public class CreateProduct {
                     "lstProduct": [],
                     "itemType": "BUSINESS_PRODUCT",
                     "bcStoreId": "%s"
-                }""".formatted(collectionName, productName, storeID);
+                }""".formatted(collectionName, storeID);
         Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + storeID, accessToken, body);
 
         createCollection.then().statusCode(200);
 
         collectionID = createCollection.jsonPath().getInt("id");
+
+        // get list product in collection
+        Response collectionInfo = api.get(GET_LIST_PRODUCT_IN_COLLECTION_PATH.formatted(storeID, collectionID), accessToken);
+        collectionInfo.then().statusCode(200);
+        productList = collectionInfo.jsonPath().getList("lstProduct.id");
+
     }
 }

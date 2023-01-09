@@ -38,23 +38,11 @@ public class ProductDetailElement {
     @FindBy (css = ".sold-out")
     WebElement SOLD_OUT_MARK;
 
-    @FindBy(css = "#header-search-web-component")
-    WebElement SEARCH_ICON;
-
-    @FindBy(css = "input[name='q']")
-    WebElement SEARCH_BOX;
-
-    @FindBy(css = "div[class *= 'search-result-container'] > a")
-    List<WebElement> LIST_SEARCH_RESULT;
-
     @FindBy (css = ".info > div:nth-child(1)")
     List<WebElement> BRANCH_NAME_LIST;
 
     @FindBy (css = "[name = 'quantity']")
     WebElement QUANTITY;
-
-    @FindBy (css = ".info > div:nth-child(2)")
-    List<WebElement> BRANCH_ADDRESS_LIST;
 
     @FindBy (css = ".flash-sale")
     WebElement FLASH_SALE_BADGE;
@@ -102,4 +90,34 @@ public class ProductDetailElement {
 
     @FindBy (css = ".breadcrumbs")
     WebElement BREAD_CRUMBS;
+
+    @FindBy(css = ".quantity-box > div:nth-child(1)")
+    WebElement QUANTITY_TITLE;
+
+    @FindBy(css = ".branch-list > .title")
+    WebElement AVAILABLE_BRANCH;
+
+    @FindBy(css = ".payment .text")
+    WebElement PAYMENT;
+
+    @FindBy(css = "#nav-description-tab")
+    WebElement DESCRIPTION_TAB;
+
+    @FindBy(css = "#nav-review-tab")
+    WebElement REVIEW_TAB;
+
+    @FindBy(css = ".same-shop > p")
+    WebElement SIMILAR_PRODUCT;
+
+    @FindBy(css = "#tm-footer-default-layout img.gs-shop-logo")
+    WebElement FOOTER_SHOP_LOGO;
+
+    @FindBy(css = ".col-sm-3 > .title")
+    WebElement FOOTER_COMPANY;
+
+    @FindBy(css = "div:nth-child(3) > .title")
+    WebElement FOOTER_FOLLOW_US;
+
+    @FindBy(css = ".col-12.text-center > span")
+    WebElement FOOTER_COPYRIGHT;
 }

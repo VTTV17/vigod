@@ -3,6 +3,7 @@ package pages.storefront.login;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -250,6 +251,31 @@ public class LoginPage {
   
     public void completeVerify() {
         soft.assertAll();
-    }    
-    
+    }
+
+    void inputEmailOrPhoneNumberJS(String username) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].value = '%s'".formatted(username), USERNAME);
+        logger.info("Input '" + username + "' into Username field.");
+    }
+
+    void inputPasswordJS(String password) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].value = '%s'".formatted(password), PASSWORD);
+        logger.info("Input '" + password + "' into Password field.");
+    }
+
+    public void clickLoginBtnJS() {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LOGIN_BTN);
+        logger.info("Clicked on Login button.");
+        new GeneralSF(driver).waitTillLoaderDisappear();
+    }
+
+    public void performLoginJS(String username, String password) {
+        new GeneralSF(driver).waitTillLoaderDisappear();
+        new HeaderSF(driver).clickUserInfoIconJS()
+                .clickLoginIconJS();
+        inputEmailOrPhoneNumberJS(username);
+        inputPasswordJS(password);
+        clickLoginBtnJS();
+    }
+
 }
