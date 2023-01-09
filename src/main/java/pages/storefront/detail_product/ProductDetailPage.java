@@ -65,7 +65,7 @@ public class ProductDetailPage extends ProductDetailElement {
         return this;
     }
 
-    public void checkHeader() throws IOException {
+    void checkHeader() throws IOException {
         // check store logo
         String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src");
         new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Header] Store logo does not match.");
@@ -84,6 +84,10 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // check profile icon
         new AssertCustomize(driver).assertTrue(countFail, HEADER_PROFILE_ICON.isDisplayed(), "[Failed][Header] Profile icon does not show.");
+    }
+
+    void checkBreadcrumbs() {
+        String[] breadCrumbs = wait.until(ExpectedConditions.visibilityOf(BREAD_CRUMBS)).getText().split("    /     ");
     }
 
 
