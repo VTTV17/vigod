@@ -152,30 +152,28 @@ public class ProductDetailPage extends ProductDetailElement {
         countFail = new AssertCustomize(driver).assertTrue(countFail, Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsAllProduct)) || Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsCollection)), "[Failed][Breadcrumbs] Breadcrumbs should be %s or %s, but found %s.".formatted(Arrays.toString(breadCrumbsAllProduct), Arrays.toString(breadCrumbsCollection), Arrays.toString(sfBreadCrumbs)));
     }
 
-    void checkOthersInformation(String language) throws Exception {
-        // description tab
-        String sfDescriptionTab = wait.until(ExpectedConditions.visibilityOf(DESCRIPTION_TAB)).getText();
-        String descriptionTab = getPropertiesValueBySFLang("productDetail.description", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfDescriptionTab, descriptionTab, "[Failed][Product Detail] Description tab title should be %s, but found %s.".formatted(descriptionTab, sfDescriptionTab));
-
-        // review tab
-        String sfReview = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
-        String review = getPropertiesValueBySFLang("productDetail.review", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfReview, review, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(review, sfReview));
-
-        // similar product
-        if (productList.size() > 1) {
-            String sfSimilarProduct = wait.until(ExpectedConditions.visibilityOf(SIMILAR_PRODUCT)).getText();
-            String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
-        }
-    }
-
     void checkProductDetailWhenInStock(String language) throws Exception {
         // quantity
         String sfQuantity = wait.until(ExpectedConditions.visibilityOf(QUANTITY_TITLE)).getText();
         String quantity = getPropertiesValueBySFLang("productDetail.quantity", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfQuantity, quantity, "[Failed][Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
+
+        // check search and filter branch
+        int count = IntStream.range(0, allBranchStatus.size())
+                .filter(i -> !isHideOnStoreFront.get(i) && allBranchStatus.get(i).equals("ACTIVE") && (productStockQuantity.get(variationList.get(0)).get(i) > 0))
+                .mapToObj(i -> true).toList().size();
+
+        if (count > 5) {
+            // filter
+            String sfFilterBranch = wait.until(ExpectedConditions.visibilityOf(FILTER_BRANCH_BY_LOCATION)).getText();
+            String filterBranch = getPropertiesValueBySFLang("productDetail.branch.filter", language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfFilterBranch, filterBranch, "[Failed][Filter branch by location] The first filter value should be %s, but found %s.".formatted(filterBranch, sfFilterBranch));
+
+            // search
+            String sfSearchBranch = wait.until(ExpectedConditions.visibilityOf(SEARCH_BRANCH_BY_ADDRESS)).getText();
+            String searchBranch = getPropertiesValueBySFLang("productDetail.branch.search", language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfFilterBranch, filterBranch, "[Failed][Search branch by address] The search placeholder value should be %s, but found %s.".formatted(searchBranch, sfSearchBranch));
+        }
 
         // check branch
         String[] sfAvailableBranch = wait.until(ExpectedConditions.visibilityOf(AVAILABLE_BRANCH)).getText().split("\\d");
@@ -210,6 +208,25 @@ public class ProductDetailPage extends ProductDetailElement {
         String sfSoldOut = wait.until(ExpectedConditions.visibilityOf(SOLD_OUT_MARK)).getText();
         String soldOut = getPropertiesValueBySFLang("productDetail.soldOut", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfSoldOut, soldOut, "[Failed][Product Detail] Sold out title should be %s, but found %s.".formatted(soldOut, sfSoldOut));
+    }
+
+    void checkOthersInformation(String language) throws Exception {
+        // description tab
+        String sfDescriptionTab = wait.until(ExpectedConditions.visibilityOf(DESCRIPTION_TAB)).getText();
+        String descriptionTab = getPropertiesValueBySFLang("productDetail.description", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfDescriptionTab, descriptionTab, "[Failed][Product Detail] Description tab title should be %s, but found %s.".formatted(descriptionTab, sfDescriptionTab));
+
+        // review tab
+        String sfReview = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
+        String review = getPropertiesValueBySFLang("productDetail.review", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfReview, review, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(review, sfReview));
+
+        // similar product
+        if (productList.size() > 1) {
+            String sfSimilarProduct = wait.until(ExpectedConditions.visibilityOf(SIMILAR_PRODUCT)).getText();
+            String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
+        }
     }
 
     void checkFooter(String language) throws Exception {
@@ -437,7 +454,7 @@ public class ProductDetailPage extends ProductDetailElement {
         List<String> variationNameList = LIST_VARIATION_NAME.stream().map(element -> element.getText().toLowerCase()).toList().stream().sorted().toList();
 
         countFail = new AssertCustomize(driver).assertTrue(countFail,
-                variationNameList.toString().equals(variationMap.keySet().toString()),
+                variationNameList.toString().equals(variationMap.keySet().stream().sorted().toList().toString()),
                 "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationMap.keySet().stream().sorted().toList(), variationNameList));
         logger.info("[Check variation name] Check product variation show correctly");
     }
@@ -609,7 +626,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         wholesaleProductPrice,
                         element.getText());
             }
-            checkBranch(branchStock);
+            checkBranch(branchStock, variationName);
         } else {
             checkSoldOutMark(variationName);
             checkBuyNowAndAddToCartBtnIsHidden(variationName);
@@ -693,10 +710,10 @@ public class ProductDetailPage extends ProductDetailElement {
 
     private void checkFilterAndSearchBranchIsShown(String... variationName) throws IOException {
         String varName = variationName.length > 0 ? "[Variation: %s]".formatted(variationName[0]) : "";
-        // check Buy now button is shown
+        // check Filter branch is shown
         boolean checkFilter = true;
         try {
-            FILTER_BRANCH_BY_LOCATION.getText();
+            FILTER_BRANCH.getText();
         } catch (NoSuchElementException ex) {
             checkFilter = false;
         }
@@ -707,7 +724,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // check Add to cart button is shown
         boolean checkSearchBox = true;
         try {
-            SEARCH_BRANCH_BY_ADDRESS.getText();
+            SEARCH_BRANCH.getText();
         } catch (NoSuchElementException ex) {
             checkSearchBox = false;
         }
@@ -720,7 +737,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // check Buy now button is shown
         boolean checkFilter = true;
         try {
-            FILTER_BRANCH_BY_LOCATION.getText();
+            FILTER_BRANCH.getText();
         } catch (NoSuchElementException ex) {
             checkFilter = false;
         }
@@ -731,7 +748,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // check Add to cart button is shown
         boolean checkSearchBox = true;
         try {
-            SEARCH_BRANCH_BY_ADDRESS.getText();
+            SEARCH_BRANCH.getText();
         } catch (NoSuchElementException ex) {
             checkSearchBox = false;
         }

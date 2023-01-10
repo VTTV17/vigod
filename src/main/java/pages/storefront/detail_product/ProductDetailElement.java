@@ -63,10 +63,10 @@ public class ProductDetailElement {
     WebElement SPINNER;
 
     @FindBy (css = "#locationCode")
-    WebElement FILTER_BRANCH_BY_LOCATION;
+    WebElement FILTER_BRANCH;
 
     @FindBy (css = ".input-search-branch")
-    WebElement SEARCH_BRANCH_BY_ADDRESS;
+    WebElement SEARCH_BRANCH;
 
 
     // UI check
@@ -96,6 +96,12 @@ public class ProductDetailElement {
 
     @FindBy(css = ".branch-list > .title")
     WebElement AVAILABLE_BRANCH;
+
+    @FindBy(css = "#locationCode > option:nth-child(1)")
+    WebElement FILTER_BRANCH_BY_LOCATION;
+
+    @FindBy(css = ".input-search-branch > input")
+    WebElement SEARCH_BRANCH_BY_ADDRESS;
 
     @FindBy(css = ".payment .text")
     WebElement PAYMENT;
