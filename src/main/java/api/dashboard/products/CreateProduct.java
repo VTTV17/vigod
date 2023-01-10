@@ -32,7 +32,6 @@ public class CreateProduct {
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
-    String GET_LIST_PRODUCT_IN_COLLECTION_PATH = "/itemservice/api/collections/detail/%s/%s";
 
     // product info
     public static Map<String, List<String>> variationMap;
@@ -57,8 +56,6 @@ public class CreateProduct {
     public static int collectionID;
     public static boolean hasCollections;
     public static String collectionName;
-    public static List<Integer> productList;
-
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
@@ -318,11 +315,5 @@ public class CreateProduct {
         createCollection.then().statusCode(200);
 
         collectionID = createCollection.jsonPath().getInt("id");
-
-        // get list product in collection
-        Response collectionInfo = api.get(GET_LIST_PRODUCT_IN_COLLECTION_PATH.formatted(storeID, collectionID), accessToken);
-        collectionInfo.then().statusCode(200);
-        productList = collectionInfo.jsonPath().getList("lstProduct.id");
-
     }
 }

@@ -1,6 +1,7 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -20,6 +21,8 @@ public class BH_9536 extends BaseTest {
         createProduct = new CreateProduct();
 
         new BranchManagement().getBranchInformation();
+
+        new StoreInformation().getStoreInformation();
 
         new VAT().getTaxList();
     }

@@ -21,7 +21,7 @@ public class CreateProductBody {
     public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
     public static boolean isDisplayOutOfStock = true;
     public static boolean isHideStock = false;
-    public static boolean isEnableListing = true;
+    public static boolean isEnableListing = false;
     public static boolean isShowOnApp = true;
     public static boolean isShowOnWeb = true;
     public static boolean isShowInStore = true;
@@ -198,14 +198,15 @@ public class CreateProductBody {
         StringBuilder lstInventory = new StringBuilder("""
                 "lstInventory": [""");
         for (int i = 0; i < branchIDList.size(); i++) {
+            int branchIndex = i;
             lstInventory.append("""
                     {
                                 "branchId": %s,
                                 "inventoryActionType": "FROM_CREATE_AT_ITEM_SCREEN",
                                 "inventoryCurrent": 0,
-                                "inventoryStock": 0,
+                                "inventoryStock": %s,
                                 "inventoryType": "SET"
-                            }""".formatted(branchIDList.get(i)));
+                            }""".formatted(branchIDList.get(i), productStockQuantity.keySet().stream().map(key -> productStockQuantity.get(key).get(branchIndex)).toList().stream().reduce(0, Integer::sum)));
             lstInventory.append(i < branchIDList.size() - 1 ? "," : "");
         }
         lstInventory.append("]}");

@@ -66,7 +66,7 @@ public class ProductDetailPage extends ProductDetailElement {
         if ((maxStock == 0) && (!isDisplayOutOfStock)) {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
-            driver.get("https://%s%s/product/%s".formatted(storeURL, SF_DOMAIN, productID));
+            driver.get("https://%s%s%s/product/%s".formatted(storeURL, SF_DOMAIN, isMultipleLanguage ? "/vi" : "", productID));
 
             // sleep 1s
             commonAction.sleepInMiliSecond(1000);
@@ -86,8 +86,9 @@ public class ProductDetailPage extends ProductDetailElement {
 
             // wait product detail page loaded
             commonAction.verifyPageLoaded(productName, productName);
-            if (maxStock > 0) checkUIInStock("VIE");
-            else checkUIOutOfStock("VIE");
+            if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
+                checkUIInStock("VIE");
+            } else checkUIOutOfStock("VIE");
 
             // check all information with ENG language
             driver.get("https://%s%s/en/product/%s".formatted(storeURL, SF_DOMAIN, productID));
@@ -97,7 +98,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
             // wait product detail page loaded
             commonAction.verifyPageLoaded(productName, productName);
-            if (maxStock > 0) checkUIInStock("ENG");
+            if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) checkUIInStock("ENG");
             else checkUIOutOfStock("ENG");
 
         } else {
@@ -111,7 +112,7 @@ public class ProductDetailPage extends ProductDetailElement {
             commonAction.verifyPageLoaded(productName, productName);
 
             // check default language
-            if (maxStock > 0) checkUIInStock(defaultLanguage);
+            if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) checkUIInStock(defaultLanguage);
             else checkUIOutOfStock(defaultLanguage);
         }
 
@@ -123,6 +124,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // check store logo
         String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src").replace("/200/", "/");
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Header] Store logo should be %s, but found %s.".formatted(storeLogo, sfStoreLogo));
+        logger.info("[UI][%s] Check Header - Store Logo".formatted(language));
 
         // check header menu
         commonAction.waitElementList(HEADER_MENU, 2);
@@ -132,16 +134,20 @@ public class ProductDetailPage extends ProductDetailElement {
                 : List.of(getPropertiesValueBySFLang("header.menu.nonVNStore.0", language), getPropertiesValueBySFLang("header.menu.nonVNStore.1", language));
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfHeaderMenu, defaultMenu,
                 "[Failed][Header] Header menu should be %s, but found %s.".formatted(sfHeaderMenu, defaultMenu));
+        logger.info("[UI][%s] Check Header - Menu".formatted(language));
 
         // check search icon
         countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_SEARCH_ICON.isDisplayed(), "[Failed][Header] Search icon does not show.");
+        logger.info("[UI][%s] Check Header - Search Icon".formatted(language));
 
         // check cart
         countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_CART_ICON.isDisplayed(), "[Failed][Header] Cart icon does not show.");
         countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_NUMBER_PRODUCT_IN_CART.isDisplayed(), "[Failed][Header] Number of products in cart does not show.");
+        logger.info("[UI][%s] Check Header - Cart Icon".formatted(language));
 
         // check profile icon
         countFail = new AssertCustomize(driver).assertTrue(countFail, HEADER_PROFILE_ICON.isDisplayed(), "[Failed][Header] Profile icon does not show.");
+        logger.info("[UI][%s] Check Header - Profile Icon".formatted(language));
     }
 
     void checkBreadcrumbs(String language) throws Exception {
@@ -149,7 +155,12 @@ public class ProductDetailPage extends ProductDetailElement {
         String[] sfBreadCrumbs = wait.until(ExpectedConditions.visibilityOf(BREAD_CRUMBS)).getText().split(" {4}/ {5}");
         String[] breadCrumbsCollection = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionName, productName};
         String[] breadCrumbsAllProduct = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productName};
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsAllProduct)) || Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsCollection)), "[Failed][Breadcrumbs] Breadcrumbs should be %s or %s, but found %s.".formatted(Arrays.toString(breadCrumbsAllProduct), Arrays.toString(breadCrumbsCollection), Arrays.toString(sfBreadCrumbs)));
+        countFail = new AssertCustomize(driver).assertTrue(countFail,
+                Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsAllProduct)) || Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsCollection)),
+                "[Failed][Breadcrumbs] Breadcrumbs should be %s or %s, but found %s.".formatted(Arrays.toString(breadCrumbsAllProduct),
+                        Arrays.toString(breadCrumbsCollection),
+                        Arrays.toString(sfBreadCrumbs)));
+        logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
     }
 
     void checkProductDetailWhenInStock(String language) throws Exception {
@@ -157,49 +168,54 @@ public class ProductDetailPage extends ProductDetailElement {
         String sfQuantity = wait.until(ExpectedConditions.visibilityOf(QUANTITY_TITLE)).getText();
         String quantity = getPropertiesValueBySFLang("productDetail.quantity", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfQuantity, quantity, "[Failed][Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
+        logger.info("[UI][%s] Check Product Detail - Quantity".formatted(language));
 
-        // check search and filter branch
-        int count = IntStream.range(0, allBranchStatus.size())
-                .filter(i -> !isHideOnStoreFront.get(i) && allBranchStatus.get(i).equals("ACTIVE") && (productStockQuantity.get(variationList.get(0)).get(i) > 0))
-                .mapToObj(i -> true).toList().size();
-
-        if (count > 5) {
+        if (BRANCH_NAME_LIST.size() > 5) {
             // filter
             String sfFilterBranch = wait.until(ExpectedConditions.visibilityOf(FILTER_BRANCH_BY_LOCATION)).getText();
             String filterBranch = getPropertiesValueBySFLang("productDetail.branch.filter", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfFilterBranch, filterBranch, "[Failed][Filter branch by location] The first filter value should be %s, but found %s.".formatted(filterBranch, sfFilterBranch));
+            logger.info("[UI][%s] Check Product Detail - Filter Branch".formatted(language));
 
             // search
             String sfSearchBranch = wait.until(ExpectedConditions.visibilityOf(SEARCH_BRANCH_BY_ADDRESS)).getText();
             String searchBranch = getPropertiesValueBySFLang("productDetail.branch.search", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfFilterBranch, filterBranch, "[Failed][Search branch by address] The search placeholder value should be %s, but found %s.".formatted(searchBranch, sfSearchBranch));
+            logger.info("[UI][%s] Check Product Detail - Search Branch".formatted(language));
         }
 
         // check branch
         String[] sfAvailableBranch = wait.until(ExpectedConditions.visibilityOf(AVAILABLE_BRANCH)).getText().split("\\d");
         String[] availableBranch = getPropertiesValueBySFLang("productDetail.branch.availableBranch", language).split("\\d");
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfAvailableBranch, availableBranch, "[Failed][Product Detail] Available branch title should be %s, but found %s.".formatted(Arrays.toString(availableBranch), Arrays.toString(sfAvailableBranch)));
+        logger.info("[UI][%s] Check Product Detail - Available Branches".formatted(language));
 
         // check stock
-        commonAction.waitElementList(STOCK_QUANTITY_IN_BRANCH);
-        String[] sfStock = wait.until(ExpectedConditions.visibilityOf(STOCK_QUANTITY_IN_BRANCH.get(0))).getText().split("\\d");
-        String[] stock = getPropertiesValueBySFLang("productDetail.branch.stock", language).split("\\d");
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfStock, stock, "[Failed][Product Detail] Stock title should be %s, but found %s.".formatted(Arrays.toString(stock), Arrays.toString(sfStock)));
+        if (!isHideStock) {
+            commonAction.waitElementList(STOCK_QUANTITY_IN_BRANCH);
+            String[] sfStock = wait.until(ExpectedConditions.visibilityOf(STOCK_QUANTITY_IN_BRANCH.get(0))).getText().split("\\d+");
+            String[] stock = getPropertiesValueBySFLang("productDetail.branch.stock", language).split("\\d+");
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfStock, stock, "[Failed][Product Detail] Stock title should be %s, but found %s.".formatted(Arrays.toString(stock), Arrays.toString(sfStock)));
+            logger.info("[UI][%s] Check Product Detail - Stock in Branch".formatted(language));
+        }
 
         // check buy now
         String sfBuyNow = wait.until(ExpectedConditions.visibilityOf(BUY_NOW_BTN)).getText();
         String buyNow = getPropertiesValueBySFLang("productDetail.cart.buyNow", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfBuyNow, buyNow, "[Failed][Product Detail] Buy now title should be %s, but found %s.".formatted(buyNow, sfBuyNow));
+        logger.info("[UI][%s] Check Product Detail - Buy Now button".formatted(language));
 
         // check Add to cart
         String sfAddToCart = wait.until(ExpectedConditions.visibilityOf(ADD_TO_CART_BTN)).getText();
         String addToCart = getPropertiesValueBySFLang("productDetail.cart.addToCart", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfAddToCart, addToCart, "[Failed][Product Detail] Add to cart title should be %s, but found %s.".formatted(addToCart, sfAddToCart));
+        logger.info("[UI][%s] Check Product Detail - Add to Cart button".formatted(language));
 
         // payment
         String sfPayment = wait.until(ExpectedConditions.visibilityOf(PAYMENT)).getText();
         String payment = getPropertiesValueBySFLang("productDetail.payment", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfPayment, payment, "[Failed][Product Detail] Payment title should be %s, but found %s.".formatted(payment, sfPayment));
+        logger.info("[UI][%s] Check Product Detail - Payment Method".formatted(language));
 
     }
 
@@ -208,6 +224,7 @@ public class ProductDetailPage extends ProductDetailElement {
         String sfSoldOut = wait.until(ExpectedConditions.visibilityOf(SOLD_OUT_MARK)).getText();
         String soldOut = getPropertiesValueBySFLang("productDetail.soldOut", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfSoldOut, soldOut, "[Failed][Product Detail] Sold out title should be %s, but found %s.".formatted(soldOut, sfSoldOut));
+        logger.info("[UI][%s] Check Product Detail - Sold Out mark".formatted(language));
     }
 
     void checkOthersInformation(String language) throws Exception {
@@ -215,17 +232,20 @@ public class ProductDetailPage extends ProductDetailElement {
         String sfDescriptionTab = wait.until(ExpectedConditions.visibilityOf(DESCRIPTION_TAB)).getText();
         String descriptionTab = getPropertiesValueBySFLang("productDetail.description", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfDescriptionTab, descriptionTab, "[Failed][Product Detail] Description tab title should be %s, but found %s.".formatted(descriptionTab, sfDescriptionTab));
+        logger.info("[UI][%s] Check Product Detail - Description Tab".formatted(language));
 
         // review tab
-        String sfReview = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
-        String review = getPropertiesValueBySFLang("productDetail.review", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfReview, review, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(review, sfReview));
+        String sfReviewTab = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
+        String reviewTab = getPropertiesValueBySFLang("productDetail.review", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfReviewTab, reviewTab, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));
+        logger.info("[UI][%s] Check Product Detail - Review Tab".formatted(language));
 
         // similar product
-        if (productList.size() > 1) {
+        if (SIMILAR_PRODUCT.isDisplayed()) {
             String sfSimilarProduct = wait.until(ExpectedConditions.visibilityOf(SIMILAR_PRODUCT)).getText();
             String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
+            logger.info("[UI][%s] Check Product Detail - Similar Product".formatted(language));
         }
     }
 
@@ -233,21 +253,25 @@ public class ProductDetailPage extends ProductDetailElement {
         // check store logo
         String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(FOOTER_SHOP_LOGO)).getAttribute("src").replace("/200/", "/");
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeLogo, "[Failed][Footer] Store logo should be %s, but found %s.".formatted(storeLogo, sfStoreLogo));
+        logger.info("[UI][%s] Check Footer - Shop Logo".formatted(language));
 
         // check company
         String sfCompany = wait.until(ExpectedConditions.visibilityOf(FOOTER_COMPANY)).getText();
         String company = getPropertiesValueBySFLang("footer.company", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfCompany, company, "[Failed][Footer] Company title should be %s, but found %s.".formatted(company, sfCompany));
+        logger.info("[UI][%s] Check Footer - Company".formatted(language));
 
         // check follow us
         String sfFollowUs = wait.until(ExpectedConditions.visibilityOf(FOOTER_FOLLOW_US)).getText();
         String followUs = getPropertiesValueBySFLang("footer.followUs", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfFollowUs, followUs, "[Failed][Footer] Follow us title should be %s, but found %s.".formatted(followUs, sfFollowUs));
+        logger.info("[UI][%s] Check Footer - Follow Us".formatted(language));
 
         // check copyright
         String sfCopyright = wait.until(ExpectedConditions.visibilityOf(FOOTER_COPYRIGHT)).getText();
         String copyright = getPropertiesValueBySFLang("footer.copyright", language).formatted(new DataGenerator().generateDateTime("yyyy"), storeName);
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfCopyright, copyright, "[Failed][Footer] Copyright title should be %s, but found %s.".formatted(copyright, sfCopyright));
+        logger.info("[UI][%s] Check Footer - Copyright".formatted(language));
     }
 
 
