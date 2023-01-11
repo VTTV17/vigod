@@ -26,7 +26,7 @@ public class BH_8888 extends BaseTest {
     CreateProduct createProduct;
 
     @BeforeSuite
-    void createCustomerAndSegment() throws SQLException, InterruptedException {
+    void initPreCondition() throws SQLException, InterruptedException {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         createProduct = new CreateProduct();
@@ -101,17 +101,16 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8887_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void BH_8888_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
-                .createFlashSale(startMin, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
+                .createFlashSale(startMin, endMin);
 
         sleep(startMin * 60 * 1000);
 
@@ -122,20 +121,17 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8887_G1_Case1_2_FlashSaleIsExpired() throws Exception {
+    void BH_8888_G1_Case1_2_FlashSaleIsExpired() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
+                .endEarlyFlashSale();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
@@ -144,35 +140,30 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8887_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
-        int startMin = 1;
+    void BH_8888_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .navigate(sfDomain)                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
+                .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
                 .checkWithoutVariationProductInformation()
-//                .checkProductPriceWhenFlashSaleIsScheduleWithoutVariationProduct()
                 .completeVerify();
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8887_G1_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+    void BH_8888_G1_Case2_1_DiscountCampaignIsInProgress() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -187,21 +178,19 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8887_G1_Case2_2_DiscountCampaignIsExpired() throws Exception {
+    void BH_8888_G1_Case2_2_DiscountCampaignIsExpired() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
-        sleep(startMin * 60 * 1000);
-
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductID()
                 .checkWithoutVariationProductInformation()
@@ -209,12 +198,12 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Without variation")
-    void BH_8887_G1_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+    void BH_8888_G1_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -228,102 +217,16 @@ public class BH_8888 extends BaseTest {
 
 
     @Test(groups = "IMEI product - Without variation")
-    void BH_8887_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void BH_8888_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8887_G2_Case1_2_FlashSaleIsExpired() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8887_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(endMin - 1, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8887_G2_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Without variation")
-    void BH_8887_G2_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
@@ -335,12 +238,91 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "IMEI product - Without variation")
-    void BH_8887_G2_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+    void BH_8888_G2_Case1_2_FlashSaleIsExpired() throws Exception {
+        int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(startMin, endMin)
+                .endEarlyFlashSale()
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8888_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(endMin - 1, endMin)
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8888_G2_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8888_G2_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkWithoutVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Without variation")
+    void BH_8888_G2_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -353,102 +335,16 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void BH_8888_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case1_2_FlashSaleIsExpired() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(endMin - 1, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
@@ -460,12 +356,91 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "Normal product - Variation")
-    void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+    void BH_8888_G3_Case1_2_FlashSaleIsExpired() throws Exception {
+        int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(startMin, endMin)
+                .endEarlyFlashSale()
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "Normal product - Variation")
+    void BH_8888_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(endMin - 1, endMin)
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "Normal product - Variation")
+    void BH_8888_G3_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "Normal product - Variation")
+    void BH_8888_G3_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "Normal product - Variation")
+    void BH_8888_G3_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -476,105 +451,18 @@ public class BH_8888 extends BaseTest {
                 .checkVariationProductInformation()
                 .completeVerify();
     }
-
-
+    //
     @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void BH_8888_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
         int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case1_2_FlashSaleIsExpired() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .createFlashSale(endMin - 1, endMin)
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin);
-
-        sleep(startMin * 60 * 1000);
-
-        new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
-    }
-
-    @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        int startMin = 1;
-        int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
-
-        new CreatePromotion()
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         sleep(startMin * 60 * 1000);
@@ -586,12 +474,91 @@ public class BH_8888 extends BaseTest {
     }
 
     @Test(groups = "IMEI product - Variation")
-    void BH_8887_G4_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+    void BH_8888_G4_Case1_2_FlashSaleIsExpired() throws Exception {
+        int startMin = 1;
         int endMin = 60;
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLogin(phoneNumber, password);
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(startMin, endMin)
+                .endEarlyFlashSale()
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8888_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .createFlashSale(endMin - 1, endMin)
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8888_G4_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin);
+
+        sleep(startMin * 60 * 1000);
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8888_G4_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        int startMin = 1;
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
+
+        new CreatePromotion()
+                .endEarlyFlashSale()
+                .createProductDiscountCampaign(startMin, endMin)
+                .endEarlyDiscountCampaign();
+
+        new ProductDetailPage(driver)
+                .accessToProductDetailPageByProductID()
+                .checkVariationProductInformation()
+                .completeVerify();
+    }
+
+    @Test(groups = "IMEI product - Variation")
+    void BH_8888_G4_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        int endMin = 60;
+
+        new LoginPage(driver)
+                .navigate(sfDomain)
+                .performLoginJS(phoneNumber, password);
 
         new CreatePromotion()
                 .endEarlyFlashSale()

@@ -25,7 +25,7 @@ public class BH_8887 extends BaseTest {
     String sfDomain;
 
     @BeforeSuite
-    void createCustomerAndSegment() throws SQLException, InterruptedException {
+    void initPreCondition() throws SQLException, InterruptedException {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         new BranchManagement().getBranchInformation();
