@@ -12,7 +12,7 @@ public class FileNameAndPath {
     public static final String FILE_CREATE_SERVICE_TCS = "CreateService.xlsx";
     public static final String FILE_IMAGE_1 = "cham-soc-mat.jpg";
     public static final String FILE_IMAGE_2 = "giam-beo-bung.jpg";
-    
+
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
     }

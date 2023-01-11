@@ -70,16 +70,16 @@ public class CreateServiceTest extends BaseTest {
         return new CreateServicePage(driver);
     }
 
-    @Test
-    public void CS_01_VerifyText() throws Exception {
-        testCaseId = "CS_01";
+    @Test(priority = 1)
+    public void CS01_VerifyText() throws Exception {
+        testCaseId = "CS01";
         createService = loginDbAndGoToCreateServicePage();
         createService.verifyTextOfPage();
     }
 
-    @Test
-    public void CS_02_CheckValidate() throws Exception {
-        testCaseId = "CS_02";
+    @Test(priority = 2)
+    public void CS02_CheckValidate() throws Exception {
+        testCaseId = "CS02";
         createService = loginDbAndGoToCreateServicePage();
         createService.checkErrorSaveWithBlankField()
                 .checkErrorWhenInputListingPriceOutOfRange()
@@ -89,9 +89,9 @@ public class CreateServiceTest extends BaseTest {
                 .checkMaximumCharacterForSEODescriptionField();
     }
 
-    @Test
-    public void CS_03_CreateNormalService() throws Exception {
-        testCaseId = "CS_03";
+    @Test(priority = 3)
+    public void CS03_CreateNormalService() throws Exception {
+        testCaseId = "CS03";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -107,9 +107,9 @@ public class CreateServiceTest extends BaseTest {
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test(dependsOnMethods = "CS_03_CreateNormalService")
-    public void CS_04_VerifyServiceOnSF() throws Exception {
-        testCaseId = "CS_04";
+    @Test(priority = 4, dependsOnMethods = "CS03_CreateNormalService")
+    public void CS04_VerifyServiceOnSF() throws Exception {
+        testCaseId = "CS04";
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
@@ -133,9 +133,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-    @Test
-    public void CS_05_CreateServiceBelongTo1Collection() throws Exception {
-        testCaseId = "CS_05";
+    @Test(priority = 5)
+    public void CS05_CreateServiceBelongTo1Collection() throws Exception {
+        testCaseId = "CS05";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -153,9 +153,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyCreateSeviceSuccessfulMessage();
     }
 
-    @Test(dependsOnMethods = "CS_05_CreateService")
-    public void CS_06_VerifyServiceBelongTo1CollectionOnSF() throws Exception {
-        testCaseId = "CS_06";
+    @Test(priority = 6, dependsOnMethods = "CS05_CreateServiceBelongTo1Collection")
+    public void CS06_VerifyServiceBelongTo1CollectionOnSF() throws Exception {
+        testCaseId = "CS06";
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
@@ -179,9 +179,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-    @Test
+    @Test(priority = 7)
     public void CS07_CreateServiceBelongToMultipleCollections() throws Exception {
-        testCaseId = "CS_07";
+        testCaseId = "CS07";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -199,9 +199,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyCreateSeviceSuccessfulMessage();
     }
 
-    @Test(dependsOnMethods = "CS07_CreateServiceBelongToMultipleCollections")
-    public void CS_08_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
-        testCaseId = "CS_08";
+    @Test(priority = 8, dependsOnMethods = "CS07_CreateServiceBelongToMultipleCollections")
+    public void CS08_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
+        testCaseId = "CS08";
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
@@ -224,9 +224,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-    @Test
-    public void CS_09_CreateListingPriceService() throws Exception {
-        testCaseId = "CS_09";
+    @Test(priority = 9)
+    public void CS09_CreateListingPriceService() throws Exception {
+        testCaseId = "CS09";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -244,9 +244,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyCreateSeviceSuccessfulMessage();
     }
 
-    @Test(dependsOnMethods = "CS_09_CreateListingPriceService")
-    public void CS_10_VerifyListingPriceServiceOnSF() throws Exception {
-        testCaseId = "CS_10";
+    @Test(priority = 10, dependsOnMethods = "CS09_CreateListingPriceService")
+    public void CS10_VerifyListingPriceServiceOnSF() throws Exception {
+        testCaseId = "CS10";
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
@@ -266,9 +266,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyListingServiceDisplayInList(serviceName);
     }
 
-    @Test
-    public void CS_11_CreateServiceWithSEOInfo() throws Exception {
-        testCaseId = "CS_11";
+    @Test(priority = 11)
+    public void CS11_CreateServiceWithSEOInfo() throws Exception {
+        testCaseId = "CS11";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -291,9 +291,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyCreateSeviceSuccessfulMessage();
     }
 
-    @Test(dependsOnMethods = "CS_11_CreateServiceWithSEOInfo")
-    public void CS_12_VerifyServiceWithSEOInfoOnSF() throws Exception {
-        testCaseId = "CS_12";
+    @Test(priority = 12, dependsOnMethods = "CS11_CreateServiceWithSEOInfo")
+    public void CS12_VerifyServiceWithSEOInfoOnSF() throws Exception {
+        testCaseId = "CS12";
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
