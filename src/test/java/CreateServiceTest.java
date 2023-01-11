@@ -1,5 +1,7 @@
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+import org.testng.annotations.*;
+import org.testng.internal.TestResult;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.service.CreateServicePage;
@@ -13,6 +15,7 @@ import utilities.account.AccountTest;
 import java.io.IOException;
 import java.util.List;
 
+import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
 import static utilities.links.Links.*;
 
 public class CreateServiceTest extends BaseTest{
@@ -42,6 +45,7 @@ public class CreateServiceTest extends BaseTest{
     String  languageDB;
     String languageSF;
     String sfAllServicesTxt;
+    String testCaseId;
     @BeforeClass
     public void beforeClass() throws Exception {
         userName = AccountTest.ADMIN_SHOP_VI_USERNAME;
@@ -50,8 +54,35 @@ public class CreateServiceTest extends BaseTest{
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
         sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
     }
-    @Test (priority = 0)
-    public void CS01_CreateService() throws Exception {
+    @AfterMethod
+    public void afterMethod(ITestResult result) throws IOException {
+        writeResultToExcel(FILE_CREATE_SERVICE_TCS,0,result,testCaseId);
+    }
+    public CreateServicePage loginAndGoToCreateServicePage() throws Exception {
+        login = new LoginPage(driver);
+        login.navigate().performLogin(userName,passWord);
+        home =  new HomePage(driver);
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Services");
+        serviceManagement = new ServiceManagementPage(driver);
+        serviceManagement.goToCreateServicePage();
+        return new CreateServicePage(driver);
+    }
+    @Test
+    public void CS_01_VerifyText() throws Exception {
+        testCaseId = "CS_01";
+        createService = loginAndGoToCreateServicePage();
+        createService.verifyTextOfPage();
+    }
+//    @Test
+    public void CS_02_CheckValidate() throws Exception {
+        testCaseId = "CS_02";
+        createService = loginAndGoToCreateServicePage();
+        createService.clickSaveBtn();
+
+    }
+    @Test
+    public void CS_02_CreateService() throws Exception {
+        testCaseId = "CS_03";
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
         home =  new HomePage(driver);
@@ -74,7 +105,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
    }
-   @Test(priority = 1,dependsOnMethods = "CS01_CreateService")
+//   @Test(dependsOnMethods = "CS01_CreateService")
     public void CS02_VerifyServiceOnSF() throws Exception {
        loginSF = new pages.storefront.login.LoginPage(driver);
        loginSF.navigate(SF_ShopVi);
@@ -99,7 +130,7 @@ public class CreateServiceTest extends BaseTest{
        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
    }
-    @Test(priority = 2)
+//    @Test(priority = 2)
     public void CS03_CreateListingPriceService() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -123,7 +154,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test(priority = 3, dependsOnMethods = "CS03_CreateListingPriceService")
+//    @Test(priority = 3, dependsOnMethods = "CS03_CreateListingPriceService")
     public void CS04_VerifyListingPriceServiceOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
@@ -143,7 +174,7 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyListingServiceDisplayInList(serviceName);
     }
-    @Test (priority = 4)
+//    @Test (priority = 4)
     public void CS05_CreateServiceBelongToMultipleCollections() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -167,7 +198,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
+//    @Test(priority = 5, dependsOnMethods = "CS05_CreateServiceBelongToMultipleCollections")
     public void CS06_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
@@ -191,7 +222,7 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
     }
-    @Test (priority = 6)
+//    @Test (priority = 6)
     public void CS07_CreateServiceWithSEOInfo() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName,passWord);
@@ -220,7 +251,7 @@ public class CreateServiceTest extends BaseTest{
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-    @Test(priority = 7, dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
+//    @Test(priority = 7, dependsOnMethods = "CS07_CreateServiceWithSEOInfo")
     public void CS08_VerifyServiceWithSEOInfoOnSF() throws Exception {
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
@@ -245,15 +276,5 @@ public class CreateServiceTest extends BaseTest{
         collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
                 .verifyNewServiceDisplayInList(serviceName,sellingPrice,listingPrice);
     }
-    @Test
-    public void CS09_VerifyText() throws Exception {
-        login = new LoginPage(driver);
-        login.navigate().performLogin(userName,passWord);
-        home =  new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).navigateToPage("Services");
-        serviceManagement = new ServiceManagementPage(driver);
-        serviceManagement.goToCreateServicePage();
-        createService = new CreateServicePage(driver);
-        createService.verifyTextOfPage();
-    }
+
 }
