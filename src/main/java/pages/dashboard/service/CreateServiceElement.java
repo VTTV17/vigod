@@ -107,4 +107,18 @@ public class CreateServiceElement {
     WebElement CREATE_NEW_SERVICE_TITLE;
     @FindBy(xpath = "//label[@for='productCollection']//following::div[contains(@class,'placeholder')]")
     WebElement SELECT_COLLECTIONS_HINT_TXT;
+    @FindBy(xpath = "//label[@for='serviceName']//following-sibling::div[@class='invalid-feedback']")
+    WebElement ERROR_MESSAGE_SERVICE_NAME;
+    @FindBy(xpath = "//input[@id='orgPrice']/following-sibling::div[@class='invalid-feedback']")
+    WebElement ERROR_MESSAGE_LISTING_PRICE;
+    @FindBy(xpath = "//input[@id='newPrice']/following-sibling::div[@class='invalid-feedback']")
+    WebElement ERROR_MESSAGE_SELLING_PRICE;
+    @FindBy(xpath = "//input[@id='serviceDescription']/following-sibling::div[@class='invalid-feedback']")
+    WebElement ERROR_MESSAGE_DESCRIPTION;
+    @FindBy(css = ".image-widget__error-wrapper div")
+    WebElement ERROR_MESSAGE_IMAGES;
+    @FindBy(xpath = "//input[@id='locations']/following-sibling::div[@class='invalid-feedback']")
+    WebElement ERROR_MESSAGE_LOCATIONS;
+    @FindBy(xpath = "//input[@id='timeSlots']/following-sibling::div[@class='invalid-feedback']")
+    WebElement ERROR_MESSAGE_TIMESLOTS;
 }

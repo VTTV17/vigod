@@ -1,5 +1,6 @@
 package pages.dashboard.service;
 
+import com.beust.ah.A;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.framework.qual.FromStubFile;
@@ -38,8 +39,6 @@ public class CreateServicePage extends HomePage{
         createServiceUI = new CreateServiceElement(driver);
         PageFactory.initElements(driver,this);
     }
-
-
     public CreateServicePage inputServiceName(String serviceName){
         commons.inputText(createServiceUI.SERVICE_NAME,serviceName);
         logger.info("Input "+serviceName+ " into Service name field");
@@ -58,6 +57,11 @@ public class CreateServicePage extends HomePage{
         commons.inputText(createServiceUI.SELLING_PRICE,  String.valueOf(sellingPrice));
         logger.info("Input "+ sellingPrice+ " into Selling price field");
         return String.valueOf(sellingPrice);
+    }
+    public String inputSellingPrice (String sellingPrice){
+        commons.inputText(createServiceUI.SELLING_PRICE, sellingPrice);
+        logger.info("Input "+ sellingPrice+ " into Selling price field");
+        return sellingPrice;
     }
     public CreateServicePage checkOnShowAsListingService(){
         commons.checkTheCheckBoxOrRadio(createServiceUI.SHOW_AS_LISTING_CBX_VALUE,createServiceUI.SHOW_AS_LISTING_CBX_ACTION);
@@ -189,5 +193,33 @@ public class CreateServicePage extends HomePage{
         Assert.assertEquals(commons.getText(createServiceUI.SEO_KEYWORDS_LBL),propertiesUtil.getPropertiesValueByDBLang("services.create.seoKeywordsLbl"));
         Assert.assertEquals(commons.getElementAttribute(createServiceUI.SEO_KEYWORD_TOOLTIP,"data-original-title"),propertiesUtil.getPropertiesValueByDBLang("services.create.seoKeywordsTooltipTxt"));
         Assert.assertEquals(commons.getText(createServiceUI.URL_LINK_LBL),propertiesUtil.getPropertiesValueByDBLang("services.create.urlLinkLbl"));
+    }
+    public CreateServicePage checkErrorSaveWithBlankField() throws Exception {
+        clickSaveBtn();
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_SERVICE_NAME),PropertiesUtil.getPropertiesValueByDBLang("services.create.inputFieldEmptyError"));
+        Assert.assertFalse(commons.isElementDisplay(createServiceUI.ERROR_MESSAGE_LISTING_PRICE));
+        Assert.assertFalse(commons.isElementDisplay(createServiceUI.ERROR_MESSAGE_SELLING_PRICE));
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("services.create.inputFieldEmptyError"));
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_IMAGES),PropertiesUtil.getPropertiesValueByDBLang("services.create.imagesFieldEmptyError"));
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LOCATIONS),PropertiesUtil.getPropertiesValueByDBLang("services.create.inputFieldEmptyError"));
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_TIMESLOTS),PropertiesUtil.getPropertiesValueByDBLang("services.create.inputFieldEmptyError"));
+        return this;
+    }
+    public CreateServicePage checkErrorWhenInputListingPriceOutOfRange() throws Exception {
+        inputListingPrice("-1");
+        clickSaveBtn();
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.minimumRequiredError"));
+        inputListingPrice("100000000000");
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.maximumRequiredError"));
+        return this;
+    }
+    public CreateServicePage checkErrorWhenInputSellingPriceOutOfRange() throws Exception {
+        inputListingPrice("10000");
+        inputSellingPrice("-1");
+        clickSaveBtn();
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.minimumRequiredError"));
+        inputListingPrice("100000000000");
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.maximumRequiredError"));
+        return this;
     }
 }

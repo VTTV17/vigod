@@ -9,7 +9,7 @@ public class FileNameAndPath {
 
     public static final String FILE_DASHBOARD_VI_TEXT = "dashboard_vi.properties";
     public static final String FILE_STOREFRONT_VI_TEXT = "storefront_vi.properties";
-
+    public static final String FILE_CREATE_SERVICE_TCS = "CreateService.xlsx";
 
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
