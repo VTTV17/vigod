@@ -12,8 +12,10 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
+import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
+import utilities.character_limit.CharacterLimit;
 import utilities.data.DataGenerator;
 
 import java.time.Duration;
@@ -214,12 +216,32 @@ public class CreateServicePage extends HomePage{
         return this;
     }
     public CreateServicePage checkErrorWhenInputSellingPriceOutOfRange() throws Exception {
-        inputListingPrice("10000");
+        String listingPrice ="10000";
+        inputListingPrice(listingPrice);
         inputSellingPrice("-1");
         clickSaveBtn();
-        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.minimumRequiredError"));
-        inputListingPrice("100000000000");
-        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.maximumRequiredError"));
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_SELLING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.minimumRequiredError"));
+        inputSellingPrice("1000000");
+        String sellingPriceActual=String.join("", commons.getText(createServiceUI.ERROR_MESSAGE_SELLING_PRICE).split(","));
+        Assert.assertEquals(sellingPriceActual,PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.maximumRequiredError").formatted(listingPrice));
+        return this;
+    }
+    public CreateServicePage checkMaximumCharacterForServiceNameField(){
+        inputServiceName(Constant.TEXT_101_CHAR);
+        String serviceNameDisplay = commons.getElementAttribute(createServiceUI.SERVICE_NAME,"value");
+        Assert.assertEquals(serviceNameDisplay.length(), CharacterLimit.MAX_CHAR_SERVICE_NAME);
+        return this;
+    }
+    public CreateServicePage checkMaximumCharacterForSEOTitleField(){
+        inputSEOTitle(Constant.TEXT_201_CHAR);
+        String SEOTitleDisplay = getSEOTitle();
+        Assert.assertEquals(SEOTitleDisplay.length(),CharacterLimit.MAX_CHAR_SEO_TITLE);
+        return this;
+    }
+    public CreateServicePage checkMaximumCharacterForSEODescriptionField(){
+        inputSEODescription(Constant.TEXT_326_CHAR);
+        String SEODescriptionDisplay = commons.getElementAttribute(createServiceUI.SEO_DESCRIPTION,"value");
+        Assert.assertEquals(SEODescriptionDisplay.length(),CharacterLimit.MAX_CHAR_SEO_DESCRIPTION);
         return this;
     }
 }
