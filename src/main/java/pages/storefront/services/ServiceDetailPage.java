@@ -8,7 +8,10 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
+import utilities.account.AccountTest;
 import utilities.assert_customize.AssertCustomize;
 
 import java.io.IOException;
@@ -23,7 +26,7 @@ public class ServiceDetailPage {
     int countFalse = 0;
     final static Logger logger = LogManager.getLogger(ServiceDetailPage.class);
 
-    public ServiceDetailPage(WebDriver driver) {
+    public ServiceDetailPage(WebDriver driver) throws Exception {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commons = new UICommonAction(driver);
@@ -31,7 +34,7 @@ public class ServiceDetailPage {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(xpath = "//p[@rv-text='models.serviceName']")
+    @FindBy(xpath = "//h1[@rv-text='models.serviceName']")
     WebElement SERVICE_NAME;
 
     @FindBy(css = ".price-box .old-price")
@@ -61,6 +64,8 @@ public class ServiceDetailPage {
     WebElement META_DESCRIPTION;
     @FindBy(xpath = "//meta[@name='keywords']")
     WebElement META_KEYWORD;
+
+    String sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
 
     public ServiceDetailPage verifyServiceName(String nameExpected) throws IOException {
         String nameActual = commons.getText(SERVICE_NAME);
@@ -119,7 +124,7 @@ public class ServiceDetailPage {
         if(collectionQuantity==1) {
             Assert.assertEquals(commons.getText(COLLECTION_LINK), expected.get(0));
         }else {
-            Assert.assertEquals(commons.getText(COLLECTION_LINK), "All Services");
+            Assert.assertEquals(commons.getText(COLLECTION_LINK), sfAllServicesTxt);
         }
         logger.info("Verify collection link");
         return this;

@@ -50,7 +50,7 @@ public class HeaderSF extends GeneralSF {
 	@FindBy(css = "[data-target='#modalChangeLanguage']")
 	WebElement CHANGE_LANGUAGE_LINKTEXT;	
 	
-	@FindBy(xpath = "//div[@id='custom-search-input']")
+	@FindBy(css = "#header-search-web-component")
 	WebElement SEARCH_FIELD_TO_CLICK;
 
 	@FindBy(xpath = "//input[@type='search']")

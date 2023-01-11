@@ -48,9 +48,9 @@ public class ChangeLanguageDialog {
 	 * 
 	 */	
 	public ChangeLanguageDialog selectLanguage(String language) throws Exception {
-		if (language.contentEquals("English")) {
+		if (language.contentEquals("ENG")) {
 			commonAction.clickElement(ENGLISH_LANGUAGE);
-		} else if (language.contentEquals("Vietnamese")) {
+		} else if (language.contentEquals("VIE")) {
 			commonAction.clickElement(VIETNAMESE_LANGUAGE);
 		} else {
 			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
