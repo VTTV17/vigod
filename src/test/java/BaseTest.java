@@ -13,11 +13,7 @@ import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.excel.Excel;
 import utilities.screenshot.Screenshot;
-
 import java.io.IOException;
-
-import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
-
 public class BaseTest {
     public WebDriver driver;
     
