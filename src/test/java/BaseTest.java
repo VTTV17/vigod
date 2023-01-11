@@ -32,6 +32,8 @@ public class BaseTest {
     String sellerAccount = "stgauto@nbobd.com";
     String sellerPassword = "Abc@12345";
     String imgFileName = "img.jpg";
+    String tcsFileName;
+    String testCaseId;
 
     @BeforeMethod
     public void setup() throws InterruptedException {
@@ -40,13 +42,13 @@ public class BaseTest {
         commonAction = new UICommonAction(driver);
     }
 
-//    @AfterMethod
-//    public void tearDown() throws IOException {
-////        new Screenshot().takeScreenshot(driver);
-//        if (driver != null) {
-//            driver.quit();
-//        }
-//    }
+    @AfterMethod
+    public void tearDown(ITestResult result) throws IOException {
+        writeResultToExcel(tcsFileName, 0, result, testCaseId);
+        if (driver != null) {
+            driver.quit();
+        }
+    }
     public void writeResultToExcel(String fileName, int sheetId,ITestResult result, String testCaseID) throws IOException {
         Excel excel = new Excel();
         int testCaseRow = excel.getRowCellByKey(fileName,sheetId,testCaseID).get(0);

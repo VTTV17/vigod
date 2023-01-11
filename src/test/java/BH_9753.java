@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static api.dashboard.setting.BranchManagement.branchID;
@@ -27,6 +28,8 @@ public class BH_9753 extends BaseTest{
         new StoreInformation().getStoreInformation();
 
         new VAT().getTaxList();
+
+        tcsFileName = "check_product_detail_sf/BH_9753_Search and view branchs in product detail page.xlsx".replace("/", File.separator);
     }
 
     // G1: Normal product - without variation
@@ -36,6 +39,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G1_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G1_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
         int[] stock = new int[branchID.size()];
@@ -57,6 +61,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G1_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G1_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
         int[] stock = new int[branchID.size()];
@@ -78,6 +83,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G1_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G1_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
         int[] stock = new int[branchID.size()];
@@ -100,6 +106,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G2_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G2_Case1_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
         int[] stock = new int[branchID.size()];
@@ -121,6 +128,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G2_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G2_Case2_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
         int[] stock = new int[branchID.size()];
@@ -142,6 +150,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G2_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G3_Case1_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
         int[] stock = new int[branchID.size()];
@@ -164,6 +173,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G3_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G3_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
@@ -186,6 +196,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G3_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G3_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
@@ -208,6 +219,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G3_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G3_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
@@ -231,6 +243,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G4_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G4_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
@@ -253,6 +266,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G4_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G4_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
@@ -275,6 +289,7 @@ public class BH_9753 extends BaseTest{
     // setting: Hide free branch on shop online
     // stock quantity > 0
     public void BH_9753_G4_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+        testCaseId = "BH_9753_G4_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
