@@ -9,8 +9,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class EmailCampaignManagement {
@@ -39,4 +41,16 @@ public class EmailCampaignManagement {
     	return this;
     }    	
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateEmailCampaign(String permission, String url) {
+		if (permission.contentEquals("A")) {
+			clickCreateEmailCampaign();
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(commonAction.getCurrentURL().contains(url));
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/     
+    
 }

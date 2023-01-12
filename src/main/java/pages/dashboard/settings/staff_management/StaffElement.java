@@ -44,6 +44,9 @@ public class StaffElement {
 
     @FindBy (css = "div.staff-modal__footer > button.gs-button__green")
     WebElement DONE_BTN;
+    
+    @FindBy (css = "div.staff-modal__footer > button.gs-button__white")
+    WebElement CANCEL_BTN;
 
     @FindBy (css = "div.Toastify > div > div > div")
     WebElement TOAST_MESSAGE;

@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.testng.Assert;
+
 import pages.dashboard.home.HomePage;
 import utilities.screenshot.Screenshot;
 
@@ -63,6 +65,12 @@ public class StaffPage extends StaffVerify {
         return this;
     }
 
+    public StaffPage clickStaffManagementTab() {
+    	commons.clickElement(STAFF_MANAGEMENT_MENU);
+    	logger.info("Clicked on 'Staff Management' Tab");
+    	return this;
+    }
+    
     public StaffPage clickOnTheAddStaffBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(ADD_STAFF_BTN)).click();
         logger.info("Click on Add Staff button to open the Add staff popup");
@@ -125,6 +133,20 @@ public class StaffPage extends StaffVerify {
         }
         return this;
     }
+    
+    public StaffPage assignPermissionsToStaff(List<Integer> roleList) {
+    	for (Integer role : roleList) {
+    		if ((role < STAFF_PERMISSIONS_LABEL.size())) {
+    			if ((role == 12) || (role == 13)) {
+    				if (!STAFF_PERMISSIONS_CHECKBOX.get(0).isSelected()) {
+    					commons.clickElement(STAFF_PERMISSIONS_LABEL.get(0));
+    				}
+    			}
+    			commons.clickElement(STAFF_PERMISSIONS_LABEL.get(role));
+    		}
+    	}
+    	return this;
+    }
 
     public StaffPage deselectedAllStaffPermissions() {
         for (var i = STAFF_PERMISSIONS_CHECKBOX.size() - 1; i >= 0; i--) {
@@ -160,4 +182,30 @@ public class StaffPage extends StaffVerify {
         new Screenshot().takeScreenshot(driver);
         return this;
     }
+
+    public StaffPage clickCancelBtn() {
+    	commons.clickElement(CANCEL_BTN);
+    	logger.info("Clicked on 'Cancel' button");
+    	return this;
+    }    
+    
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToAddStaff(String permission) {
+    	clickStaffManagementTab();
+		if (permission.contentEquals("A")) {
+			clickOnTheAddStaffBtn();
+			inputStaffName("Staff A");
+            List<Integer> staffRole = List.of(1);
+            List<Integer> staffBranch = List.of(0);
+            assignPermissionsToStaff(staffRole);
+            selectBranch(staffBranch);
+            clickCancelBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/       
+    
 }

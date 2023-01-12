@@ -9,6 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
@@ -36,4 +37,20 @@ public class Inventory {
 		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
 	}
+
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToSeeInventoryHistory(String permission, String url) {
+    	clickInventoryHistory();
+		if (permission.contentEquals("A")) {
+			Assert.assertTrue(commons.getCurrentURL().contains(url));
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+
+
+    /*-------------------------------------*/   	
+	
 }

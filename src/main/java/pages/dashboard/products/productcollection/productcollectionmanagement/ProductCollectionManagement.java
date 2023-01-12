@@ -6,6 +6,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
 import pages.dashboard.products.productcollection.createeditproductcollection.EditProductCollection;
@@ -148,6 +150,21 @@ public class ProductCollectionManagement extends HomePage {
         logger.info("Delete the first collection");
     }
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateProductCollection(String permission) {
+		if (permission.contentEquals("A")) {
+			new ProductCollectionManagement(driver).clickOnCreateCollection().inputCollectionName("Test Permission");
+			commonAction.navigateBack();
+			new ConfirmationDialog(driver).clickOKBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+
+    /*-------------------------------------*/      
+    
     public void verifyTextOfPage() throws Exception {
         Assert.assertEquals(commonAction.getText(collectionManagementUI.PAGE_TITLE_AND_TOTAL_NUMBER).split("\n")[0], PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.pageTitle"));
         Assert.assertEquals(commonAction.getText(collectionManagementUI.CREATE_PRODUCT_COLLECTION_BTN), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.createProductCollectionBtn"));

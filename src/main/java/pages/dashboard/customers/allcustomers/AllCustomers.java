@@ -11,8 +11,10 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
@@ -183,4 +185,44 @@ public class AllCustomers extends HomePage{
 		clickUser(fullName);
 		return new CustomerDetails(driver);
 	}
+
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToExportCustomer(String permission) {
+		if (permission.contentEquals("A")) {
+			clickExport().clickExportCustomer();
+			new ConfirmationDialog(driver).clickCancelBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToImportCustomer(String permission) {
+		clickExport().clickImportCustomer();
+		boolean flag = isImportCustomerDialogDisplayed();
+		commonAction.refreshPage();
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(flag);
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToPrintBarCode(String permission) {
+		clickPrintBarcode();
+		boolean flag = isPrintBarcodeDialogDisplayed();
+		commonAction.refreshPage();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(flag);
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(flag);
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    
+    /*-------------------------------------*/ 
+	
 }

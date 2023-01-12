@@ -1,5 +1,7 @@
 package pages.dashboard.settings.account;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -12,8 +14,6 @@ import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
-
-import java.time.Duration;
 
 public class AccountPage {
 	
@@ -173,5 +173,18 @@ public class AccountPage {
     public void completeVerify() {
         soft.assertAll();
     }    
+    
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToUseAccountTab(String permission) {
+		if (permission.contentEquals("A")) {
+			clickAccountInfoSaveBtn();
+			new HomePage(driver).getToastMessage();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/        
     
 }

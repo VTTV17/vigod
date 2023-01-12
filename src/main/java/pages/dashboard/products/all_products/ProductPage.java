@@ -15,7 +15,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import pages.dashboard.home.HomePage;
-import pages.dashboard.onlineshop.Domains;
 import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
 import pages.dashboard.products.all_products.wholesale_price.WholesalePricePage;
 import utilities.UICommonAction;
@@ -1083,4 +1082,81 @@ public class ProductPage extends ProductVerify {
         logger.info("Wait Product created successfully! popup show and close it.");
         return this;
     }
+    
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToPrintBarCode(String permission) {
+		clickPrintBarcode();
+		boolean flag = isPrintBarcodeDialogDisplayed();
+		commonAction.navigateBack();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		if (permission.contentEquals("A")) {
+			Assert.assertTrue(flag);
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(flag);
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToCreateProduct(String permission, String url) {
+    	clickOnTheCreateProductBtn();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+		String currentURL = commonAction.getCurrentURL();
+		commonAction.navigateBack();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(currentURL.contains(url));
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToCreateVariationProduct(String permission) {
+    	clickOnTheCreateProductBtn();
+    	clickAddVariation();
+    	
+		boolean flag = isDeleteVariationBtnDisplayed();
+		commonAction.refreshPage();
+		commonAction.navigateBack();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(flag);
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(flag);
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToCreateDepositProduct(String permission) {
+    	clickOnTheCreateProductBtn();
+		clickAddDepositBtn();
+		boolean flag = isDeleteDepositBtnDisplayed();
+    	commonAction.refreshPage();
+    	commonAction.navigateBack();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(flag);
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(flag);
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToCreateProductSEO(String permission) {
+    	clickOnTheCreateProductBtn();
+    	inputSEOTitle("Test SEO");
+		String flag = getSEOTitle();
+		commonAction.refreshPage();
+		commonAction.navigateBack();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertEquals(flag, "Test SEO");
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertEquals(flag, "");
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+
+    /*-------------------------------------*/    
 }

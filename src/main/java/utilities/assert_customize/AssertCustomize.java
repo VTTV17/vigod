@@ -39,11 +39,15 @@ public class AssertCustomize {
         return countFalse;
     }
 
-    public Integer assertTrue(int countFalse, boolean actual, String mess) throws IOException {
+    public Integer assertTrue(int countFalse, boolean actual, String mess) {
         try {
             Assert.assertTrue(actual, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            try {
+				new Screenshot().takeScreenshot(driver);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }

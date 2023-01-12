@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.role_matrix.RoleMatrix;
 
@@ -22,6 +23,7 @@ import static java.lang.Thread.sleep;
 
 public class StaffVerify extends StaffElement {
     WebDriverWait wait;
+    UICommonAction commons;
     AssertCustomize assertCustomize;
     static int countFail = 0;
     static String fileName;
@@ -35,6 +37,7 @@ public class StaffVerify extends StaffElement {
     public StaffVerify(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commons = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
     }
 

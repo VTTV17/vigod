@@ -9,8 +9,11 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.promotion.flashsale.campaign.FlashSaleCampaignPage;
 import pages.dashboard.promotion.flashsale.time.TimeManagementPage;
 import utilities.UICommonAction;
 
@@ -77,5 +80,20 @@ public class FlashSalePage extends FlashSaleElement {
     	logger.info("Clicked on 'Explore Now' button.");
     	return this;
     }     
+   
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateFlashSale(String permission) {
+		if (permission.contentEquals("A")) {
+			clickExploreNow().clickCreateCampaign();
+			new FlashSaleCampaignPage(driver).inputCampaignName("Test Permission");
+			commonAction.navigateBack();
+			new ConfirmationDialog(driver).clickOKBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/        
     
 }

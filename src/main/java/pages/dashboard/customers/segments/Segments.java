@@ -1,5 +1,9 @@
 package pages.dashboard.customers.segments;
 
+import static java.lang.Thread.sleep;
+
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -9,15 +13,12 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.customers.segments.customer_in_segment.SegmentCustomerPage;
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
-
-import java.time.Duration;
-
-import static java.lang.Thread.sleep;
 
 public class Segments {
 
@@ -99,4 +100,43 @@ public class Segments {
         // click on view icon
         wait.until(ExpectedConditions.elementToBeClickable(VIEW_ICON)).click();
     }
+    
+    public void verifyPermissionToCreateSegmentByCustomerData(String dataCondition, String permission) {
+    	if (permission.contentEquals("A")) {
+			clickCreateSegmentBtn().inputSegmentName("Test Permission")
+			.selectDataGroupCondition("Customers data")
+			.selectDataCondition(dataCondition);
+			commonAction.navigateBack();
+			new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		// Not done
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
+    public void verifyPermissionToCreateSegmentByOrderData(String dataCondition, String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCreateSegmentBtn().inputSegmentName("Test Permission")
+    		.selectDataGroupCondition("Order data")
+    		.selectDataCondition(dataCondition);
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		// Not done
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
+    public void verifyPermissionToCreateSegmentByPurchasedProduct(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCreateSegmentBtn().inputSegmentName("Test Permission")
+    		.selectDataGroupCondition("Purchased product");
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		// Not done
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
 }

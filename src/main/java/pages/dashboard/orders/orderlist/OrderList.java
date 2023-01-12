@@ -10,10 +10,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 
 public class OrderList {
@@ -82,4 +83,44 @@ public class OrderList {
 		return this;
 	}
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToExportOrder(String permission) {
+		if (permission.contentEquals("A")) {
+			clickExport().clickExportOrder();
+			new ConfirmationDialog(driver).clickCancelBtn();
+		} else if (permission.contentEquals("D")) {
+			clickExport().clickExportOrder();
+			boolean flag = new ConfirmationDialog(driver).isConfirmationDialogDisplayed();
+			new OrderList(driver).clickExport();
+			Assert.assertFalse(flag);
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToExportOrderByProduct(String permission) {
+    	if (permission.contentEquals("A")) {
+			clickExport().clickExportOrderByProduct();
+			new ExportOrderByProductDialog(driver).clickCancel();
+    	} else if (permission.contentEquals("D")) {
+			clickExport().clickExportOrderByProduct();
+			boolean flag = new ExportOrderByProductDialog(driver).isSelectProductDialogDisplayed();
+			clickExport();
+			Assert.assertFalse(flag);
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToExportHistory(String permission, String url) {
+    	if (permission.contentEquals("A")) {
+    		clickExport().clickExportHistory();
+			Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+
+    /*-------------------------------------*/   	
+	
 }

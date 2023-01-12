@@ -101,7 +101,7 @@ public class Shopee {
 		clickLoginBtn();
 		clickConfirmAuthorization();
 		waitTillSpinnerDisappear();
-//		clickOK();
+		clickOK();
 		return this;
 	}
 
