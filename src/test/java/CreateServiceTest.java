@@ -230,26 +230,22 @@ public class CreateServiceTest extends BaseTest {
                 .verifyCreateSeviceSuccessfulMessage();
         //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
-        loginSF.navigate(SF_URL);
+        loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage(languageSF)
                 .searchWithFullName(serviceName)
-                .verifySearchSuggestion(serviceName, sellingPrice)
+                .verifySearchSuggestion(serviceName, "")
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceName(serviceName)
-                .verifyListingPrice(listingPrice)
-                .verifySellingPrice(sellingPrice)
-                .verifyLocations(locations)
-                .verifyTimeSlots(timeSlots)
-                .verifyBookNowAndAddToCartButtonDisplay()
+                .verifyBookNowAndAddToCartButtonNotDisplay()
+                .verifyPriceNotDisplay()
+                .verifyContactNowButtonDisplay()
                 .verifyServiceDescription(description)
-                .verifyServiceImagesDisplay()
-                .verifyCollectionLink(selectedCollection.size(), selectedCollection)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
-        collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
-                .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
+        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
+                .verifyListingServiceDisplayInList(serviceName);
     }
 
     @Test
