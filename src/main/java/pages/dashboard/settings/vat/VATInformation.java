@@ -1,6 +1,7 @@
 package pages.dashboard.settings.vat;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +42,9 @@ public class VATInformation {
 	
 	@FindBy(css = ".VATmodal .gs-button__white")
 	WebElement CANCEL_BTN;
-	
+
+	@FindBy(css = ".modal-dialog.VATmodal")
+	List<WebElement> ADDTAX_DIALOG;
 
 	public VATInformation navigate() {
 		commonAction.clickElement(VAT_TAB);
@@ -71,5 +74,24 @@ public class VATInformation {
 		return this;
 	}
 
-
+	public boolean isAddTaxInfomationDialogDisplayed() {
+		commonAction.sleepInMiliSecond(500);
+		return !commonAction.isElementNotDisplay(ADDTAX_DIALOG);
+	}	
+	
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToConfigureVAT(String permission) {
+    	navigate();
+    	clickAddTaxInformation();
+    	boolean flag = isAddTaxInfomationDialogDisplayed();
+		if (permission.contentEquals("A")) {
+			clickCancelBtn();
+			Assert.assertTrue(flag);
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(flag);
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/ 
 }

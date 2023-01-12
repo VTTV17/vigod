@@ -19,11 +19,14 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.segments.Segments;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 import pages.dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
+import pages.dashboard.promotion.discount.servicediscountcampaign.ServiceDiscountCampaignPage;
+import pages.dashboard.promotion.discount.servicediscountcode.ServiceDiscountCodePage;
 import utilities.UICommonAction;
 
 public class DiscountPage extends DiscountElement {
@@ -176,6 +179,220 @@ public class DiscountPage extends DiscountElement {
     	return this;
     }    
     
-  
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateProductDiscountCodeForPlatform(String platform, String permission, String url) {
+    	String originalURL = commonAction.getCurrentURL();
+    	String URL1 = originalURL;
+    	
+    	clickDiscountCode();
+    	clickProductDiscountCode();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	ProductDiscountCodePage productDiscountCode = new ProductDiscountCodePage(driver);
+    	
+    	URL1 = commonAction.getCurrentURL();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+    		List<String> platform1 = new ArrayList<>();
+    		platform1.add(platform);
+    		productDiscountCode.setPlatforms(platform1);
+    	} else if (permission.contentEquals("D")) {
+    		if (!originalURL.contentEquals(URL1)) {
+    			Assert.assertTrue(productDiscountCode.isPlatformDisabled(platform));
+    		} else {
+    			logger.debug("Good for you! Failed from the outset.");
+    		}
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    	
+    	if (!originalURL.contentEquals(URL1)) {
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else {
+    		clickDiscountCode();
+    	}
+    }
+
+	public void verifyPermissionToCreateProductDiscountCodeAsReward(String permission, String url) {
+    	String originalURL = commonAction.getCurrentURL();
+    	String URL1 = originalURL;
+    	
+    	clickDiscountCode();
+    	clickProductDiscountCode();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	ProductDiscountCodePage productDiscountCode = new ProductDiscountCodePage(driver);
+    	
+    	URL1 = commonAction.getCurrentURL();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+			productDiscountCode.setDiscountCodeAsReward(true);
+    	} else if (permission.contentEquals("D")) {
+			if (!originalURL.contentEquals(URL1)) {
+				// Not reproducible
+			} else {
+				logger.debug("Good for you! Failed from the outset.");
+			}
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    	
+    	if (!originalURL.contentEquals(URL1)) {
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else {
+    		clickDiscountCode();
+    	}
+    }
+    public void verifyPermissionToCreateServiceDiscountCodeForPlatform(String platform, String permission, String url) {
+    	String originalURL = commonAction.getCurrentURL();
+    	String URL1 = originalURL;
+    	
+    	clickDiscountCode();
+    	clickServiceDiscountCode();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	ServiceDiscountCodePage serviceDiscountCode = new ServiceDiscountCodePage(driver);
+    	
+    	URL1 = commonAction.getCurrentURL();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+    		List<String> platform1 = new ArrayList<>();
+    		platform1.add(platform);
+    		serviceDiscountCode.setPlatforms(platform1);
+    	} else if (permission.contentEquals("D")) {
+    		if (!originalURL.contentEquals(URL1)) {
+    			Assert.assertTrue(serviceDiscountCode.isPlatformDisabled(platform));
+    		} else {
+    			logger.debug("Good for you! Failed from the outset.");
+    		}
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    	
+    	if (!originalURL.contentEquals(URL1)) {
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else {
+    		clickDiscountCode();
+    	}
+    } 
+    public void verifyPermissionToServiceDiscountCodeAsReward(String permission, String url) {
+    	String originalURL = commonAction.getCurrentURL();
+    	String URL1 = originalURL;
+    	
+    	clickDiscountCode();
+    	clickServiceDiscountCode();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	ServiceDiscountCodePage serviceDiscountCode = new ServiceDiscountCodePage(driver);
+    	
+    	URL1 = commonAction.getCurrentURL();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+			serviceDiscountCode.tickApplyDiscountCodeAsRewardCheckBox(true);
+			serviceDiscountCode.inputRewardDescription("You're qualified for this reward");
+    	} else if (permission.contentEquals("D")) {
+			if (!originalURL.contentEquals(URL1)) {
+				// Not reproducible
+			} else {
+				logger.debug("Good for you! Failed from the outset.");
+			}
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    	
+    	if (!originalURL.contentEquals(URL1)) {
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else {
+    		clickDiscountCode();
+    	}
+    }
+    public void verifyPermissionToCreateProductDiscountCampaignFor(String applyTo, String permission, String url) {
+    	String originalURL = commonAction.getCurrentURL();
+    	String URL1 = originalURL;
+    	
+		clickDiscountCampaign();
+		clickProductDiscountCampaign();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	ProductDiscountCampaignPage productDiscountCampaign = new ProductDiscountCampaignPage(driver);
+    	
+    	URL1 = commonAction.getCurrentURL();
+    	
+    	int typeOfProducts =-1;
+    	
+    	if (applyTo.contains("All Products")) {
+    		typeOfProducts =0;
+    	} else if (applyTo.contains("Specific Collections")) {
+    		typeOfProducts =1;
+    	} else {
+    		typeOfProducts =2;
+    	}
+    	
+    	if (permission.contentEquals("A")) {
+			Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+    		productDiscountCampaign.tickAppliesTo(typeOfProducts);
+    	} else if (permission.contentEquals("D")) {
+			if (!originalURL.contentEquals(URL1)) {
+				// Not reproducible
+			} else {
+				logger.debug("Good for you! Failed from the outset.");
+			}
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    	
+    	if (!originalURL.contentEquals(URL1)) {
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else {
+    		clickDiscountCampaign();
+    	}
+    }
+    public void verifyPermissionToCreateServiceDiscountCampaignFor(String applyTo, String permission, String url) {
+    	String originalURL = commonAction.getCurrentURL();
+    	String URL1 = originalURL;
+    	
+    	clickDiscountCampaign();
+    	clickServiceDiscountCampaign();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	ServiceDiscountCampaignPage serviceDiscountCampaign = new ServiceDiscountCampaignPage(driver);
+    	
+    	URL1 = commonAction.getCurrentURL();
+    	
+    	int typeOfProducts =-1;
+    	
+    	if (applyTo.contains("All Services")) {
+    		typeOfProducts =0;
+    	} else if (applyTo.contains("Specific Collections")) {
+    		typeOfProducts =1;
+    	} else {
+    		typeOfProducts =2;
+    	}
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+    		serviceDiscountCampaign.tickAppliesTo(typeOfProducts);
+    	} else if (permission.contentEquals("D")) {
+    		if (!originalURL.contentEquals(URL1)) {
+    			// Not reproducible
+    		} else {
+    			logger.debug("Good for you! Failed from the outset.");
+    		}
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    	
+    	if (!originalURL.contentEquals(URL1)) {
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else {
+    		clickDiscountCampaign();
+    	}
+    }
+    /*-------------------------------------*/   
+    
     
 }

@@ -54,5 +54,9 @@ public class AccountTest {
     //PAYPAL Credentials
     public static String PAYPAL_USERNAME = "Bonguyen11397@gmail.com";
     public static String PAYPAL_PASSWORD = "Abc@110113";
+    //Shopee Credentials
+    public static String SHOPEE_COUNTRY = "VN";
+    public static String SHOPEE_USERNAME = "chicoseller.01@gmail.com";
+    public static String SHOPEE_PASSWORD = "Medi@step01";
 
 }

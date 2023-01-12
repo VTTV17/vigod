@@ -12,6 +12,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
@@ -71,11 +72,11 @@ public class ShippingAndPayment {
 	By ISBOXCHECKED = By.xpath(".//*[@class='uik-checkbox__checkboxIcon']");
 
 	public ShippingAndPayment navigate() {
-		clickStoreInformationTab();
+		clickShippingAndPaymentTab();
 		return this;
 	}
 
-	public ShippingAndPayment clickStoreInformationTab() {
+	public ShippingAndPayment clickShippingAndPaymentTab() {
 		commonAction.clickElement(SHIPPING_AND_PAYMENT_TAB);
 		logger.info("Clicked on Shipping And Payment tab.");
 		return this;
@@ -136,7 +137,7 @@ public class ShippingAndPayment {
 	}	
 	
 	/*--------------------------------------------------------------*/
-	public ShippingAndPayment enablePaymentMethod(String productOrService) {
+	public ShippingAndPayment enablePaymentMethodFor(String productOrService) {
 		if (productOrService.contentEquals("Product")) {
 			if (!PRODUCT_CHECKBOX.findElement(ISBOXCHECKED).isDisplayed()) {
 				commonAction.clickElement(PRODUCT_CHECKBOX);
@@ -219,7 +220,181 @@ public class ShippingAndPayment {
 		logger.info("Clicked on Bank-Transfer toggle button.");
 		return this;
 	}
-	
 
+
+	public ShippingAndPayment enableLocalATM() {
+		if (!LOCAL_ATM_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickLocalATMToggle();
+			commonAction.sleepInMiliSecond(2000);
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Local ATM Card"));
+		return this;
+	}	
+
+	public ShippingAndPayment enableCreditCard() {
+		if (!CREDIT_CARD_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickCreditCardToggle();
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Credit Card"));
+		return this;
+	}		
+
+	public ShippingAndPayment enableCOD() {
+		if (!COD_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickCODToggle();
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Cash On Delivery"));
+		return this;
+	}		
+	
+	public ShippingAndPayment enableCash() {
+		if (!CASH_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickCashToggle();
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Cash"));
+		return this;
+	}		
+	
+	public ShippingAndPayment enableDebt() {
+		if (!DEBT_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickDebtToggle();
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Debt"));
+		return this;
+	}		
+	
+	public ShippingAndPayment enablePaypal() {
+		if (!PAYPAL_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickPaypalToggle();
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Paypal"));
+		return this;
+	}		
+	public ShippingAndPayment enableBankTransfer() {
+		if (!BANK_TRANSFER_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+			clickBankTransferToggle();
+		}
+		logger.info("Enabled Payment Method for %s.".formatted("Bank Transfer"));
+		return this;
+	}		
+	
+    public void verifyPermissionToEnableGHTK(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		clickGHTKToggle();
+    	} else if (permission.contentEquals("D")) {
+    		clickGHTKToggle();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableGHN(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		clickGHNToggle();
+    	} else if (permission.contentEquals("D")) {
+    		clickGHNToggle();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableAhamove(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		clickAhamoveToggle();
+    	} else if (permission.contentEquals("D")) {
+    		clickAhamoveToggle();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableSelfDelivery(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enableSelfDelivery();
+    	} else if (permission.contentEquals("D")) {
+    		enableSelfDelivery();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    
+    public void verifyPermissionToEnableLocalATMCard(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enableLocalATM();
+    		clickLocalATMToggle();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		enableLocalATM();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableCreditCard(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enableCreditCard();
+    		clickCreditCardToggle();
+    	} else if (permission.contentEquals("D")) {
+    		enableCreditCard();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableCOD(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enableCOD();
+    		clickCODToggle();
+    	} else if (permission.contentEquals("D")) {
+    		enableCOD();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableCash(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enableCash();
+    		clickCashToggle();
+    	} else if (permission.contentEquals("D")) {
+    		enableCash();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableDebt(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enableDebt();
+    		clickDebtToggle();
+    	} else if (permission.contentEquals("D")) {
+    		enableDebt();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnablePaypal(String permission) {
+    	clickShippingAndPaymentTab();
+    	if (permission.contentEquals("A")) {
+    		enablePaypal();
+    		clickPaypalToggle();
+    	} else if (permission.contentEquals("D")) {
+    		enablePaypal();
+    		// Not completed
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
 
 }

@@ -9,8 +9,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.ConfirmationDialog;
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class PageManagement {
@@ -38,5 +41,19 @@ public class PageManagement {
     	logger.info("Clicked on 'Add Page' button.");
     	return this;
     }    	
-
+    
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreatePage(String permission) {
+		if (permission.contentEquals("A")) {
+			clickAddPage();
+			new AddPage(driver).inputPageTitle("Test Permission");
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/    	
 }

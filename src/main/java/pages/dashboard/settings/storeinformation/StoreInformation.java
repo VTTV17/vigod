@@ -90,6 +90,12 @@ public class StoreInformation {
         return this;
     }
     
+    public String getShopName() {
+    	String name = commonAction.getElementAttribute(SHOP_NAME, "value");
+    	logger.info("Retrieved shop name: " + name);
+    	return name;
+    }
+    
     public StoreInformation inputAppName(String name) {
     	if (commonAction.isElementVisiblyDisabled(APP_NAME.findElement(By.xpath("./parent::*/parent::*")))) {
     		Assert.assertFalse(new HomePage(driver).isMenuClicked(APP_NAME));
@@ -100,6 +106,12 @@ public class StoreInformation {
     	return this;
     }
 
+    public String getAppName() {
+    	String name = commonAction.getElementAttribute(APP_NAME, "value");
+    	logger.info("Retrieved app name: " + name);
+    	return name;
+    }    
+    
     public StoreInformation inputHotline(String phone) {
     	commonAction.inputText(HOTLINE, phone);
     	logger.info("Input '" + phone + "' into Hotline field.");
@@ -154,10 +166,10 @@ public class StoreInformation {
 
     public StoreInformation clickNoticeLogoToggle() {
     	if (commonAction.isElementVisiblyDisabled(NOTICE_LOGO_TOGGLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*/parent::*/parent::*")))) {
-    		Assert.assertFalse(new HomePage(driver).isMenuClicked(NOTICE_LOGO_TOGGLE));
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(NOTICE_LOGO_TOGGLE.findElement(By.xpath("./preceding-sibling::*"))));
     		return this;
     	}
-    	commonAction.clickElement(NOTICE_LOGO_TOGGLE);
+    	commonAction.clickElement(NOTICE_LOGO_TOGGLE.findElement(By.xpath("./preceding-sibling::*")));
     	logger.info("Clicked on Notice Logo toggle button.");
         return this;
     }   
@@ -167,7 +179,7 @@ public class StoreInformation {
     		Assert.assertFalse(new HomePage(driver).isMenuClicked(REGISTERED_LOGO_TOGGLE));
     		return this;
     	}
-    	commonAction.clickElement(REGISTERED_LOGO_TOGGLE);
+    	commonAction.clickElement(REGISTERED_LOGO_TOGGLE.findElement(By.xpath("./preceding-sibling::*")));
     	logger.info("Clicked on Registered Logo toggle button.");
     	return this;
     }    
@@ -178,6 +190,88 @@ public class StoreInformation {
         return this;
     }       
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToSetStoreName(String permission) {
+		if (permission.contentEquals("A")) {
+			clickStoreInformationTab();
+			inputShopName("Test Permission");
+			Assert.assertEquals(getShopName(), "Test Permission"); 
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToSetAppName(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickStoreInformationTab();
+    		inputAppName("Test Permission");
+    		Assert.assertEquals(getAppName(), "Test Permission"); 
+    	} else if (permission.contentEquals("D")) {
+    		inputAppName("Test Permission");
+    		Assert.assertNotEquals(getAppName(), "Test Permission");
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToSetHotlineAndEmail(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickStoreInformationTab();
+    		inputHotline("0123000100");
+    		inputEmail("test@gmail.com");
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToSetStoreAddress(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickStoreInformationTab();
+    		inputStoreAdress("100 Wall Street");
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToSetSocialMedia(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickStoreInformationTab();
+    		inputFacebookLink("https://www.facebook.com/Shopping-Heaven-107830291950514/");
+    		inputInstagramLink("https://www.instagram.com/samsung_vietnam/");
+    		inputYoutubeLink("https://www.youtube.com/watch?v=NqDVlK4rohc");
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToSetSEO(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickStoreInformationTab();
+    		inputSEOTitle("Test Permission");
+    		Assert.assertEquals(getSEOTitle(), "Test Permission"); 
+    	} else if (permission.contentEquals("D")) {
+    		inputSEOTitle("Test Permission");
+    		Assert.assertNotEquals(getSEOTitle(), "Test Permission"); 
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToEnableTradeLogo(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickStoreInformationTab();
+    		clickNoticeLogoToggle();
+    		clickRegisteredLogoToggle();
+    	} else if (permission.contentEquals("D")) {
+    		// Not done
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    /*-------------------------------------*/      
+    
     public void completeVerify() {
         soft.assertAll();
     }    

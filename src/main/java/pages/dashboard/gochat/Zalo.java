@@ -9,7 +9,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class Zalo {
@@ -34,4 +36,18 @@ public class Zalo {
 		logger.info("Clicked on 'Connect Zalo' button.");
 		return this;
 	}
+
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToConnectToZalo(String permission) {
+		if (permission.contentEquals("A")) {
+			new Zalo(driver).clickConnectZalo();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    
+    /*-------------------------------------*/	
+	
 }
