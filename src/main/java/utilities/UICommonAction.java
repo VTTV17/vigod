@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.lang.model.element.Element;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -451,5 +452,10 @@ public class UICommonAction {
 	public void doubleClickElement(WebElement el){
 		Actions actionObj = new Actions(driver);
 		actionObj.doubleClick(el).build().perform();
+	}
+
+	public List<WebElement> refreshListElement(By locator) {
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+		return driver.findElements(locator);
 	}
 }
