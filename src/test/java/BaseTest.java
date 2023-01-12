@@ -1,18 +1,12 @@
-import com.sun.xml.bind.v2.runtime.reflect.opt.FieldAccessor_Boolean;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.util.CellReference;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
-import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.internal.TestResult;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.excel.Excel;
-import utilities.screenshot.Screenshot;
+
 import java.io.IOException;
 public class BaseTest {
     public WebDriver driver;
@@ -40,10 +34,8 @@ public class BaseTest {
 
     @AfterMethod
     public void tearDown(ITestResult result) throws IOException {
-        writeResultToExcel(tcsFileName, 0, result, testCaseId);
-        if (driver != null) {
-            driver.quit();
-        }
+        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
+        if (driver != null) driver.quit();
     }
     public void writeResultToExcel(String fileName, int sheetId,ITestResult result, String testCaseID) throws IOException {
         Excel excel = new Excel();
