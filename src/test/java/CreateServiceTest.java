@@ -44,7 +44,6 @@ public class CreateServiceTest extends BaseTest {
     String languageDB;
     String languageSF;
     String sfAllServicesTxt;
-    String testCaseId;
 
     @BeforeClass
     public void beforeClass() throws Exception {
@@ -53,11 +52,7 @@ public class CreateServiceTest extends BaseTest {
         languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
         sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
-    }
-
-    @AfterMethod
-    public void afterMethod(ITestResult result) throws IOException {
-        writeResultToExcel(FILE_CREATE_SERVICE_TCS, 0, result, testCaseId);
+        tcsFileName = FILE_CREATE_SERVICE_TCS;
     }
 
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {
@@ -106,10 +101,7 @@ public class CreateServiceTest extends BaseTest {
                 .inputTimeSlots(timeSlots)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-    }
-    @Test(priority = 4, dependsOnMethods = "CS03_CreateNormalService")
-    public void CS04_VerifyServiceOnSF() throws Exception {
-        testCaseId = "CS04";
+        //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
@@ -127,15 +119,16 @@ public class CreateServiceTest extends BaseTest {
                 .verifyServiceDescription(description)
                 .verifySEOInfo("", "", "", serviceName, description)
                 .verifyCollectionLink(selectedCollection.size(), selectedCollection)
+                .verifyServiceImagesDisplay()
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-    @Test(priority = 5)
-    public void CS05_CreateServiceBelongTo1Collection() throws Exception {
-        testCaseId = "CS05";
+    @Test(priority = 4)
+    public void CS04_CreateServiceBelongTo1Collection() throws Exception {
+        testCaseId = "CS04";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -151,11 +144,7 @@ public class CreateServiceTest extends BaseTest {
                 .inputTimeSlots(timeSlots)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-    }
-
-    @Test(priority = 6, dependsOnMethods = "CS05_CreateServiceBelongTo1Collection")
-    public void CS06_VerifyServiceBelongTo1CollectionOnSF() throws Exception {
-        testCaseId = "CS06";
+        //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_ShopVi);
         headerSF = new HeaderSF(driver);
@@ -172,6 +161,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyBookNowAndAddToCartButtonDisplay()
                 .verifyServiceDescription(description)
                 .verifyCollectionLink(selectedCollection.size(), selectedCollection)
+                .verifyServiceImagesDisplay()
                 .verifySEOInfo("", "", "", serviceName, description)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
@@ -179,9 +169,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-    @Test(priority = 7)
-    public void CS07_CreateServiceBelongToMultipleCollections() throws Exception {
-        testCaseId = "CS07";
+    @Test(priority = 5)
+    public void CS05_CreateServiceBelongToMultipleCollections() throws Exception {
+        testCaseId = "CS05";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -197,11 +187,7 @@ public class CreateServiceTest extends BaseTest {
                 .inputTimeSlots(timeSlots)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-    }
-
-    @Test(priority = 8, dependsOnMethods = "CS07_CreateServiceBelongToMultipleCollections")
-    public void CS08_VerifyServiceBelongToMultipleCollectionsOnSF() throws Exception {
-        testCaseId = "CS08";
+        //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
@@ -217,16 +203,16 @@ public class CreateServiceTest extends BaseTest {
                 .verifyTimeSlots(timeSlots)
                 .verifyBookNowAndAddToCartButtonDisplay()
                 .verifyServiceDescription(description)
+                .verifyServiceImagesDisplay()
                 .verifyCollectionLink(selectedCollection.size(), selectedCollection)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
         collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
-
-    @Test(priority = 9)
-    public void CS09_CreateListingPriceService() throws Exception {
-        testCaseId = "CS09";
+    @Test
+    public void CS06_CreateListingPriceService() throws Exception {
+        testCaseId = "CS06";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -242,33 +228,33 @@ public class CreateServiceTest extends BaseTest {
                 .inputTimeSlots(timeSlots)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-    }
-
-    @Test(priority = 10, dependsOnMethods = "CS09_CreateListingPriceService")
-    public void CS10_VerifyListingPriceServiceOnSF() throws Exception {
-        testCaseId = "CS10";
+        //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
-        loginSF.navigate(SF_ShopVi);
+        loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage(languageSF)
                 .searchWithFullName(serviceName)
-                .verifySearchSuggestion(serviceName, "")
+                .verifySearchSuggestion(serviceName, sellingPrice)
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceName(serviceName)
-                .verifyBookNowAndAddToCartButtonNotDisplay()
-                .verifyPriceNotDisplay()
-                .verifyContactNowButtonDisplay()
+                .verifyListingPrice(listingPrice)
+                .verifySellingPrice(sellingPrice)
+                .verifyLocations(locations)
+                .verifyTimeSlots(timeSlots)
+                .verifyBookNowAndAddToCartButtonDisplay()
                 .verifyServiceDescription(description)
+                .verifyServiceImagesDisplay()
+                .verifyCollectionLink(selectedCollection.size(), selectedCollection)
                 .clickOnCollectionLink();
         collectionSFPage = new CollectionSFPage(driver);
-        collectionSFPage.verifyCollectionPageTitle(selectedCollection.get(0))
-                .verifyListingServiceDisplayInList(serviceName);
+        collectionSFPage.verifyCollectionPageTitle(sfAllServicesTxt)
+                .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-    @Test(priority = 11)
-    public void CS11_CreateServiceWithSEOInfo() throws Exception {
-        testCaseId = "CS11";
+    @Test
+    public void CS07_CreateServiceWithSEOInfo() throws Exception {
+        testCaseId = "CS07";
         createService = loginDbAndGoToCreateServicePage();
         serviceName = "Automation Service SV" + generate.generateString(10);
         listingPrice = "2" + generate.generateNumber(5);
@@ -289,11 +275,7 @@ public class CreateServiceTest extends BaseTest {
                 .inputSEOUrl(SEOUrl)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-    }
-
-    @Test(priority = 12, dependsOnMethods = "CS11_CreateServiceWithSEOInfo")
-    public void CS12_VerifyServiceWithSEOInfoOnSF() throws Exception {
-        testCaseId = "CS12";
+        //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
@@ -310,6 +292,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyBookNowAndAddToCartButtonDisplay()
                 .verifyServiceDescription(description)
                 .verifyCollectionLink(selectedCollection.size(), selectedCollection)
+                .verifyServiceImagesDisplay()
                 .verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, serviceName, description)
                 .verifyNavigateToServiceDetailBySEOUrl(SF_ShopVi, SEOUrl, serviceName)
                 .clickOnCollectionLink();
