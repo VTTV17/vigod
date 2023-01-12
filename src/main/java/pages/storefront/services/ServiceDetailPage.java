@@ -64,7 +64,10 @@ public class ServiceDetailPage {
     WebElement META_DESCRIPTION;
     @FindBy(xpath = "//meta[@name='keywords']")
     WebElement META_KEYWORD;
-
+    @FindBy(css = ".slider-detail-img img")
+    List<WebElement> SERVICE_IMGS;
+    @FindBy(css = ".slider-detail-thumb img")
+    List<WebElement> SERVICE_IMGS_THUMB;
     String sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
 
     public ServiceDetailPage verifyServiceName(String nameExpected) throws IOException {
@@ -179,6 +182,17 @@ public class ServiceDetailPage {
         verifyServiceName(seviceName);
         commons.closeTab();
         commons.switchToWindow(0);
+        return this;
+    }
+    public ServiceDetailPage verifyServiceImagesDisplay(){
+        if(SERVICE_IMGS.size()>0){
+            Assert.assertTrue(commons.isElementDisplay(SERVICE_IMGS.get(0)),"Image not display.");
+        }else Assert.assertTrue(false,"Image element not found");
+        if(SERVICE_IMGS_THUMB.size()>0){
+            for (WebElement el:SERVICE_IMGS_THUMB) {
+                Assert.assertTrue(commons.isElementDisplay(el),"Image thumbnail not display.");
+            }
+        }else Assert.assertTrue(false,"Image thumbnail element not found");
         return this;
     }
 }
