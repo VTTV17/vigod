@@ -1,10 +1,10 @@
 package pages.dashboard.settings.storelanguages;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,6 +12,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
@@ -41,7 +42,9 @@ public class StoreLanguages {
 	
 	@FindBy(css = ".VATmodal .gs-button__white")
 	WebElement CANCEL_BTN;
-	
+
+	@FindBy(css = ".modal-dialog.modal-change")
+	List<WebElement> ADDLANGUAGE_DIALOG;	
 
 	public StoreLanguages navigate() {
 		commonAction.clickElement(STORE_LANGUAGE_TAB);
@@ -71,5 +74,25 @@ public class StoreLanguages {
 		return this;
 	}
 
+	public boolean isAddLanguageDialogDisplayed() {
+		commonAction.sleepInMiliSecond(1000);
+		return !commonAction.isElementNotDisplay(ADDLANGUAGE_DIALOG);
+	}		
+	
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToAddLanguages(String permission) {
+    	navigate();
+    	clickAddLanguage();
+    	boolean flag = new ConfirmationDialog(driver).isConfirmationDialogDisplayed();
+		if (permission.contentEquals("A")) {
+			new ConfirmationDialog(driver).clickCancelBtn();
+			Assert.assertTrue(flag);
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(flag);
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/ 	
 
 }

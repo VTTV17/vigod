@@ -4,15 +4,14 @@ import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
@@ -42,4 +41,17 @@ public class CreateQuotation {
 		return this;
 	}
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateQuotation(String permission, String url) {
+		if (permission.contentEquals("A")) {
+			inputSearchTerm("Test Permission");
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(commonAction.getCurrentURL().contains(url));
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+
+    /*-------------------------------------*/   	
+	
 }

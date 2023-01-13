@@ -9,8 +9,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.ConfirmationDialog;
+import pages.dashboard.home.HomePage;
+import pages.dashboard.onlineshop.blog.categorymanagement.CategoryManagement;
+import pages.dashboard.onlineshop.blog.categorymanagement.CreateCategory;
 import utilities.UICommonAction;
 
 public class BlogManagement {
@@ -39,13 +44,43 @@ public class BlogManagement {
     public BlogManagement clickCreateArticle() {
     	commonAction.clickElement(CREATE_ARTICLE_BTN);
     	logger.info("Clicked on 'Create Article' button.");
+    	new HomePage(driver).waitTillSpinnerDisappear1();
     	return this;
     }    	
     
     public BlogManagement clickCategoryManagement() {
     	commonAction.clickElement(CATEGORY_MANAGEMENT_BTN);
     	logger.info("Clicked on 'Category Management' button.");
+    	new HomePage(driver).waitTillSpinnerDisappear1();
     	return this;
     }    	
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToAddArticle(String permission) {
+		if (permission.contentEquals("A")) {
+			clickCreateArticle();
+			new CreateArticle(driver).inputTitleName("Test Permission");
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToCreateCategory(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCategoryManagement();
+    		new CategoryManagement(driver).clickCreateCategory();
+    		new CreateCategory(driver).inputCategoryName("Test Permission");
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    /*-------------------------------------*/       
+    
 }

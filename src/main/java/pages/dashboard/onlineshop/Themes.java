@@ -10,6 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
@@ -44,7 +45,7 @@ public class Themes {
     public Themes clickVisitThemeStore() {
     	commonAction.clickElement(COMPLETE_BTN);
     	logger.info("Clicked on 'Visit Theme Store' button.");
-    	new HomePage(driver).waitTillSpinnerDisappear();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
     	return this;
     }
     
@@ -63,5 +64,19 @@ public class Themes {
     	commonAction.sleepInMiliSecond(1000);
     	return !commonAction.isElementNotDisplay(driver.findElements(MODAL_CONTENT));
     } 
+    
+    public void verifyPermissionToCustomizeAppearance(String permission) {
+		clickVisitThemeStore().clickEditTheme();
+		boolean flag = new Themes(driver).isModalContentDisplayed();
+		commonAction.navigateBack();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(flag);
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(flag);
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
     
 }

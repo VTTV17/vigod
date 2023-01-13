@@ -1,8 +1,12 @@
 package pages.dashboard.settings.branch_management;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -10,14 +14,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.settings.bankaccountinformation.BankAccountInformation;
 import utilities.UICommonAction;
-
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BranchPage extends BranchElement {
 	final static Logger logger = LogManager.getLogger(BranchPage.class);
@@ -70,4 +69,21 @@ public class BranchPage extends BranchElement {
             return elementList.size() > 0;
         });
     }
+    
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToAddBranch(String permission) {
+    	navigate();
+    	waitElementList(BRANCH_NAME_LIST);
+    	clickAddBranch();
+    	boolean flag = new ConfirmationDialog(driver).isConfirmationDialogDisplayed();
+		if (permission.contentEquals("A")) {
+			new ConfirmationDialog(driver).clickCancelBtn();
+			Assert.assertTrue(flag);
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(flag);
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/       
 }

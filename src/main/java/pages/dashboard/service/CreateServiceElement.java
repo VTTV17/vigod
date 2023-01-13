@@ -121,4 +121,5 @@ public class CreateServiceElement {
     WebElement ERROR_MESSAGE_LOCATIONS;
     @FindBy(xpath = "//input[@id='timeSlots']/following-sibling::div[@class='invalid-feedback']")
     WebElement ERROR_MESSAGE_TIMESLOTS;
+
 }

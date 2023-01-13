@@ -50,12 +50,12 @@ public class ConfirmationDialog {
 	public ConfirmationDialog clickOKBtn() {
 		commonAction.clickElement(OK_BTN);
 		logger.info("Clicked on 'OK' button on Comfirmation Dialog");
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}
 
 	public boolean isConfirmationDialogDisplayed() {
-		commonAction.sleepInMiliSecond(1000);
+		commonAction.sleepInMiliSecond(500);
 		return !commonAction.isElementNotDisplay(CONFIRMATION_DIALOG);
 	}
 

@@ -1,4 +1,4 @@
-package pages.dashboard.reservation;
+package pages.dashboard.products.supplier;
 
 import java.time.Duration;
 
@@ -10,48 +10,46 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
-public class ReservationManagement {
-
-	final static Logger logger = LogManager.getLogger(ReservationManagement.class);
-
+public class SupplierManagement {
 	WebDriver driver;
+	UICommonAction commons;
 	WebDriverWait wait;
-	UICommonAction commonAction;
 
-	SoftAssert soft = new SoftAssert();
+	final static Logger logger = LogManager.getLogger(SupplierManagement.class);
 
-	public ReservationManagement(WebDriver driver) {
+	public SupplierManagement(WebDriver driver) {
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		commonAction = new UICommonAction(driver);
+		commons = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = ".reservation-list__filter-container input.uik-input__input")
+	@FindBy(css = ".supplier-list-page .d-desktop-flex .uik-input__input")
 	WebElement SEARCH_BOX;
 
-	public ReservationManagement inputSearchTerm(String searchTerm) {
-		commonAction.inputText(SEARCH_BOX, searchTerm);
+	public SupplierManagement inputSearchTerm(String searchTerm) {
+		commons.inputText(SEARCH_BOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
-//		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
 	}
 
     /*Verify permission for certain feature*/
-    public void verifyPermissionToManageReservation(String permission) {
+    public void verifyPermissionToManageSupplier(String permission, String url) {
 		if (permission.contentEquals("A")) {
-			inputSearchTerm("Test Permission");
+			Assert.assertTrue(commons.getCurrentURL().contains(url));
 		} else if (permission.contentEquals("D")) {
-			// Not reproducible
+			Assert.assertFalse(commons.getCurrentURL().contains(url));
 		} else {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
     }
-    /*-------------------------------------*/    	
+
+
+    /*-------------------------------------*/   	
 	
 }

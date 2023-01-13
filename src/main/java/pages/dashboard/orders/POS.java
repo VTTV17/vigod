@@ -9,8 +9,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class POS {
@@ -40,4 +42,19 @@ public class POS {
 		return this;
 	}
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToUsePOS(String permission) {
+		if (permission.contentEquals("A")) {
+			commonAction.switchToWindow(1);
+			new POS(driver).inputProductSearchTerm("Test Permission");
+			commonAction.closeTab();
+			commonAction.switchToWindow(0);
+		} else if (permission.contentEquals("D")) {
+			Assert.assertTrue(commonAction.getAllWindowHandles().size() == 1);
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/    	
+	
 }

@@ -9,8 +9,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class MenuManagement {
@@ -39,4 +41,15 @@ public class MenuManagement {
     	return this;
     }    	
 
+    public void verifyPermissionToAddMenu(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickAddMenu();
+    		new AddMenu(driver).inputMenuTitle("Test Permission");
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    
 }

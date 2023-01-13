@@ -1,4 +1,4 @@
-package pages.dashboard.analytics;
+package pages.dashboard.marketing.loyaltypoint;
 
 import java.time.Duration;
 
@@ -15,46 +15,44 @@ import org.testng.asserts.SoftAssert;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
-public class OrderAnalytics {
-
-	final static Logger logger = LogManager.getLogger(OrderAnalytics.class);
+public class LoyaltyPoint {
 	
+	final static Logger logger = LogManager.getLogger(LoyaltyPoint.class);
+
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
-
-    SoftAssert soft = new SoftAssert();    
     
-    public OrderAnalytics(WebDriver driver) {
+    SoftAssert soft = new SoftAssert();
+    
+    public LoyaltyPoint (WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy (css = ".time-frame-wrapper [href='#']")
-    WebElement REFRESH_LINKTEXT;
+
+    @FindBy (css = ".loyalty-point-setting .gs-button__green")
+    WebElement SAVE_BTN;
     
-    @FindBy (xpath = "//span[contains(@class,'spinner-border') and not(@hidden)]")
-    WebElement REFRESH_SPINNER;
-    
-    public OrderAnalytics clickRefresh() {
-    	commonAction.clickElement(REFRESH_LINKTEXT);
-    	logger.info("Clicked on 'Refresh' link text.");
-    	commonAction.waitForElementVisible(REFRESH_SPINNER, 30);
-    	return this;
+    public LoyaltyPoint clickSave() {
+    	commonAction.clickElement(SAVE_BTN);
+    	logger.info("Clicked on 'Save' button.");
+        return this;
     }
 
     /*Verify permission for certain feature*/
-    public void verifyPermissionToUseOrderAnalytics(String permission) {
+    public void verifyPermissionToConfigureLoyaltyPoint(String permission) {
 		if (permission.contentEquals("A")) {
-			clickRefresh();
+			clickSave();
+			new HomePage(driver).getToastMessage();
 		} else if (permission.contentEquals("D")) {
 			// Not reproducible
 		} else {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
     }
-    /*-------------------------------------*/       
+    /*-------------------------------------*/   
     
 }

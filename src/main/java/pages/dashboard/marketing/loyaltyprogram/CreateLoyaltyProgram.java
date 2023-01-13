@@ -115,7 +115,7 @@ public class CreateLoyaltyProgram {
 	}
 	
 	public CreateLoyaltyProgram clickCancelBtn() {
-		commonAction.clickElement(SAVE_BTN);
+		commonAction.clickElement(CANCEL_BTN);
 		logger.info("Clicked on 'Cancel' button");
 		return this;
 	}

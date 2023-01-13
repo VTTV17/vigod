@@ -1,5 +1,7 @@
 package pages.dashboard.marketing.loyaltyprogram;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -9,12 +11,12 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
-
-import java.time.Duration;
 
 public class LoyaltyProgram {
 
@@ -71,5 +73,18 @@ public class LoyaltyProgram {
 		logger.info("Clicked on 'Cancel' button to abort membership deletion.");
 		return this;
 	}
+	
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateLoyaltyProgram(String permission) {
+		if (permission.contentEquals("A")) {
+			clickCreateMembershipBtn().clickCancelBtn();
+			new ConfirmationDialog(driver).clickOKBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    /*-------------------------------------*/    
 	
 }

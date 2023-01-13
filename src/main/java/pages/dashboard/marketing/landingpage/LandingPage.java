@@ -7,7 +7,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
+import pages.dashboard.ConfirmationDialog;
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class LandingPage {
@@ -32,6 +35,7 @@ public class LandingPage {
 	}
 
 	public boolean isPermissionModalDisplay() {
+		commonAction.sleepInMiliSecond(500);
 		return commonAction.isElementDisplay(landingPageUI.PERMISSION_MODAL);
 	}
 
@@ -39,4 +43,58 @@ public class LandingPage {
 		commonAction.clickElement(landingPageUI.CLOSE_MODAL_BTN);
 		return this;
 	}
+
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToCreateLandingPage(String permission) {
+		if (permission.contentEquals("A")) {
+			clickCreateLandingPage().clickCancelBtn();
+			new ConfirmationDialog(driver).clickOKBtn();
+		} else if (permission.contentEquals("D")) {
+			closeModal();
+		} else {
+			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToAddAnalyticsToLandingPage(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCreateLandingPage().inputGoogleAnalyticsId("123456").clickCancelBtn();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		closeModal();
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToAddSEOToLandingPage(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCreateLandingPage().inputSEOTitle("Test Permission").clickCancelBtn();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		closeModal();
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToAddCustomerTagToLandingPage(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCreateLandingPage().inputCustomerTag("Test Permission").clickCancelBtn();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		closeModal();
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToCustomDomain(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickCreateLandingPage().inputSubDomain("testdomain@gmail.com").clickCancelBtn();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		closeModal();
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    /*-------------------------------------*/  	
+	
 }

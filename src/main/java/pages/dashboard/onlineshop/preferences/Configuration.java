@@ -9,8 +9,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.ConfirmationDialog;
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class Configuration {
@@ -57,8 +60,43 @@ public class Configuration {
     
     public Configuration clickEnableFacebookLoginForOnlineStoreToggle() {
     	commonAction.clickElement(ENABLE_FACEBOOK_LOGIN_FOR_ONLINE_STORE_TOGGLE);
-    	logger.info("Clicked on 'Zalo OA Messenger' toggle button.");
+    	logger.info("Clicked on 'Enable Facebook Login For Online Store' toggle button.");
     	return this;
     }
+
+    public void verifyPermissionToEnableFacebookMessenger(String permission, String url) {
+    	if (permission.contentEquals("A")) {
+    		clickEnableFacebookMessengerToggle();
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
+    public void verifyPermissionToEnableZaloOAMessenger(String permission, String url) {
+    	if (permission.contentEquals("A")) {
+    		clickEnableZaloOAMessengerToggle();
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
+    
+    public void verifyPermissionToEnableFacebookLoginForOnlineStore(String permission, String url) {
+    	if (permission.contentEquals("A")) {
+    		clickEnableFacebookLoginForOnlineStoreToggle();
+    		commonAction.navigateBack();
+    		new ConfirmationDialog(driver).clickOKBtn();
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
     
 }

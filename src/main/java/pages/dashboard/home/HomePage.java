@@ -27,6 +27,10 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.marketing.landingpage.LandingPage;
+import pages.dashboard.onlineshop.Domains;
+import pages.dashboard.onlineshop.Themes;
+import pages.dashboard.products.all_products.ProductPage;
+import pages.dashboard.settings.bankaccountinformation.BankAccountInformation;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
@@ -227,7 +231,12 @@ public class HomePage {
             if (!isMenuAlreadyOpened) {
                 commons.clickElement(element);
                 logger.info("Click on %s item on menu".formatted(pageName));
-                commons.waitForElementInvisible(SPINNER);
+                commons.waitForElementInvisible(SPINNER,20);
+                if (pageName.equals("Marketing")) {
+            		if (new LandingPage(driver).isPermissionModalDisplay()) {
+            			new LandingPage(driver).closeModal();
+            		}
+                }
             }
         }
     }
@@ -388,9 +397,12 @@ public class HomePage {
         soft.assertAll();
     }
 
-    public Integer verifySalePitchPopupDisplay() throws IOException {
+    public Integer verifySalePitchPopupDisplay() {
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
+        if (countFailed ==0) {
+        	logger.info("Sale pitch video is displayed");
+        }
         return countFailed;
     }
 
@@ -402,7 +414,7 @@ public class HomePage {
 
     public boolean isMenuClicked(WebElement element) {
 //        commons.sleepInMiliSecond(1000);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(1));
         try {
             wait.until(ExpectedConditions.visibilityOf(element)).click();
             logger.debug("Element is clickable");
@@ -600,14 +612,14 @@ public class HomePage {
         commons.clickElement(CUSTOMIZE_APPEARANCE_ICON);
         commons.clickElement(CHANGE_DESIGN_BTN);
         logger.info("Clicked on 'Change Design' button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
     }
 
     public void clickDomain() {
         commons.clickElement(ADD_YOUR_DOMAIN_ICON);
         commons.clickElement(ADD_DOMAIN_BTN);
         logger.info("Clicked on 'Add Domain' button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
     }
 
     public void clickBankInformation() {
@@ -615,12 +627,80 @@ public class HomePage {
         commons.clickElement(BANK_INFORMATION_BTN);
         logger.info("Clicked on 'Bank Information' button");
         new HomePage(driver).waitTillSpinnerDisappear();
+        commons.sleepInMiliSecond(2000);
     }
 
     public String getShopName() {
         return commons.getText(homeUI.SHOP_NAME);
     }
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToDisplayStatistics(String permission) {
+		if (permission.contentEquals("A")) {
+			Assert.assertTrue(isStatisticsDisplayed());
+		} else if (permission.contentEquals("D")) {
+			Assert.assertFalse(isStatisticsDisplayed());
+		} else {
+			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToCreateProduct(String permission) {
+		if (permission.contentEquals("A")) {
+			clickCreateProduct();
+			new ProductPage(driver).clickOnTheCreateProductBtn();
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToImportProductFromShopee(String permission, String url) {
+		if (permission.contentEquals("A")) {
+			clickImportFromShopee();
+			Assert.assertTrue(commons.getCurrentURL().contains(url));
+		} else if (permission.contentEquals("D")) {
+			// Not reproducible
+		} else {
+			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+		}
+    }
+    public void verifyPermissionToImportProductFromLazada(String permission, String url) {
+    	if (permission.contentEquals("A")) {
+    		clickImportFromLazada();
+    		Assert.assertTrue(commons.getCurrentURL().contains(url));
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToAddDomain(String permission) {
+		clickDomain();
+    	if (permission.contentEquals("A")) {
+    		new Domains(driver).inputSubDomain("testdomain");
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToAddBankAccount(String permission) {
+    	if (permission.contentEquals("A")) {
+    		clickBankInformation();
+    		new BankAccountInformation(driver).selectCountry("Vietnam");
+    	} else if (permission.contentEquals("D")) {
+    		// Not reproducible
+    	} else {
+    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+    	}
+    }
+    public void verifyPermissionToCustomizeAppearance(String permission) {
+		clickChangeDesign();
+		new Themes(driver).verifyPermissionToCustomizeAppearance(permission);
+    }
+    
+    /*-------------------------------------*/
+    
     public void verifyTextOfPage() throws Exception {
         Assert.assertEquals(commons.getText(homeUI.HOME_PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("home.pageTitle") + " " + getShopName());
         Assert.assertEquals(commons.getText(homeUI.GOPOS_LBL), PropertiesUtil.getPropertiesValueByDBLang("home.POSLbl"));
