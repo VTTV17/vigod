@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
+import static pages.dashboard.products.all_products.ProductPage.uiProductName;
 import static pages.dashboard.promotion.flashsale.time.TimeManagementPage.*;
 import static utilities.character_limit.CharacterLimit.MAX_FLASH_SALE_CAMPAIGN_NAME;
 import static utilities.links.Links.STORE_CURRENCY;
@@ -182,7 +182,7 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         // search product by product name
         // else select just created product name
         if (productName.length > 0) for (String name : productName) searchAndSelectProduct(name);
-        else searchAndSelectProduct(ProductPage.productName);
+        else searchAndSelectProduct(uiProductName);
 
         // close popup
         wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();

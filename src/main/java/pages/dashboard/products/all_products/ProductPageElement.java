@@ -1,4 +1,4 @@
-package pages.dashboard.products;
+package pages.dashboard.products.all_products;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -8,9 +8,9 @@ import org.openqa.selenium.support.PageFactory;
 
 import java.util.List;
 
-public class ProductPageElementRef {
+public class ProductPageElement {
     WebDriver driver;
-    public ProductPageElementRef(WebDriver driver){
+    ProductPageElement(WebDriver driver){
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
@@ -158,12 +158,22 @@ public class ProductPageElementRef {
 
     By UPDATE_STOCK_POPUP_NORMAL_VARIATION_STOCK = By.cssSelector(".input-stock  > input");
 
-    By PRINT_BARCODE_MODAL = By.cssSelector(".modal-content.product-list-barcode-printer");
-
     /* Product list page */
     @FindBy(css = ".d-mobile-none .uik-input__input")
     WebElement SEARCH_BOX;
 
     @FindBy(css = "tbody > tr > td:nth-child(1) > span > b")
     WebElement PRODUCT_ID;
+
+    /* Tien */
+    @FindBy (xpath = "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/following-sibling::*/button")
+    List<WebElement> DELETE_VARIATION_BTN;
+
+    @FindBy (xpath = "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/parent::*/following-sibling::*/button")
+    List<WebElement> DELETE_DEPOSIT_BTN;
+
+    By PRINT_BARCODE_MODAL = By.cssSelector(".modal-content.product-list-barcode-printer");
+
+    @FindBy(xpath = "//input[@class='uik-checkbox__checkbox' and @name='enabledListing']/ancestor::div[contains(@class,'uik-widget__wrapper')]/following-sibling::*/div[1]//span")
+    WebElement ADD_DEPOSIT_BTN;
 }
