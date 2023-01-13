@@ -29,6 +29,8 @@ import static pages.dashboard.products.all_products.wholesale_price.WholesalePro
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.character_limit.CharacterLimit.MAX_PRODUCT_DESCRIPTION;
 import static utilities.links.Links.DOMAIN;
+import static utilities.page_loaded_text.PageLoadedText.DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_ENG;
+import static utilities.page_loaded_text.PageLoadedText.DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_VIE;
 
 public class ProductPage extends ProductPageElement {
     WebDriverWait wait;
@@ -122,6 +124,15 @@ public class ProductPage extends ProductPageElement {
     public boolean isDeleteDepositBtnDisplayed() {
         commonAction.sleepInMiliSecond(500);
         return !commonAction.isElementNotDisplay(DELETE_DEPOSIT_BTN);
+    }
+
+    public void clickOnTheCreateProductBtn() {
+        // click create product button
+        wait.until(ExpectedConditions.elementToBeClickable(CREATE_PRODUCT_BTN)).click();
+        // log
+        logger.info("Click on the Create Product button");
+        // wait create product page loaded
+        new UICommonAction(driver).verifyPageLoaded(DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_VIE, DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_ENG);
     }
 
     public ProductPage navigateToCreateProductPage() {

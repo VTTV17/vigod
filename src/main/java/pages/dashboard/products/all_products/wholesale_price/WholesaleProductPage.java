@@ -102,12 +102,10 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         // wait and input buy from
         wait.until(ExpectedConditions.visibilityOf(WITHOUT_VARIATION_BUY_FROM));
-        System.out.println(uiWholesaleProductStock.get(0));
         act.moveToElement(WITHOUT_VARIATION_BUY_FROM).doubleClick().doubleClick().sendKeys(String.valueOf(uiWholesaleProductStock.get(0))).build().perform();
 
         // wait and input price per item
         wait.until(ExpectedConditions.visibilityOf(WITHOUT_VARIATION_PRICE_PER_ITEM));
-        System.out.println(uiWholesaleProductPrice.get(0));
         act.moveToElement(WITHOUT_VARIATION_PRICE_PER_ITEM).doubleClick().sendKeys(String.valueOf(uiWholesaleProductPrice.get(0))).build().perform();
 
         // open segment dropdown
@@ -129,9 +127,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     /* Variation config */
     List<String> variationSaleList = new ArrayList<>();
-
     void selectVariation() {
-        System.out.println(numOfWholesaleProduct);
         for (int i = 0; i < numOfWholesaleProduct; i++) {
             // open Add variation popup
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_ADD_VARIATION_BTN)).click();

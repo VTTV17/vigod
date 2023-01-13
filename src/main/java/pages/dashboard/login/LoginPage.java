@@ -24,7 +24,9 @@ public class LoginPage {
 	final static Logger logger = LogManager.getLogger(LoginPage.class);
 
 	public String country;
-	public String countryCode;	
+	public String countryCode;
+    public static String sellerAccount;
+    public static String sellerPassword;
 	
     WebDriver driver;
     WebDriverWait wait;
@@ -95,7 +97,7 @@ public class LoginPage {
     
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
-        new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
         return this;
     }
 
@@ -164,6 +166,8 @@ public class LoginPage {
     }
     
     public LoginPage performLogin(String username, String password) {
+        sellerAccount = username;
+        sellerPassword = password;
     	inputEmailOrPhoneNumber(username);
     	inputPassword(password);
     	clickLoginBtn();
