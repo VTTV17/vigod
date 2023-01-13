@@ -5,7 +5,6 @@ import api.dashboard.login.Login;
 import api.dashboard.setting.StoreInformation;
 import api.storefront.login.LoginSF;
 import api.storefront.signup.SignUp;
-import lombok.SneakyThrows;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
@@ -15,6 +14,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
 
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static api.dashboard.customers.Customers.segmentName;
-import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static pages.dashboard.login.LoginPage.sellerAccount;
 import static pages.dashboard.login.LoginPage.sellerPassword;
@@ -47,8 +46,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    @SneakyThrows
-    void createSegmentByAPI() {
+    void createSegmentByAPI() throws SQLException {
         // login to dashboard
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
@@ -68,7 +66,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         new Customers().addCustomerTag(SignUp.customerName).createSegment();
     }
 
-    public WholesaleProductPage navigateToWholesaleProductPage() {
+    public WholesaleProductPage navigateToWholesaleProductPage() throws SQLException {
         // create segment for wholesale product config
         createSegmentByAPI();
 

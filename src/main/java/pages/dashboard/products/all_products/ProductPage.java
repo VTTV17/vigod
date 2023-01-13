@@ -10,11 +10,13 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -64,6 +66,7 @@ public class ProductPage extends ProductPageElement {
     public static boolean uiIsShowInGoSocial = true;
     public static boolean uiIsIMEIProduct;
     public static Integer uiProductID;
+    boolean isVariation;
 
     public ProductPage clickPrintBarcode() {
         if (commonAction.isElementVisiblyDisabled(PRINT_BARCODE_BTN.findElement(By.xpath("./parent::*")))) {
@@ -438,7 +441,9 @@ public class ProductPage extends ProductPageElement {
 
     }
 
-    public void createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
+    public ProductPage createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
+        isVariation = false;
+
         // product name
         uiProductName = isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - ");
         uiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
@@ -448,6 +453,8 @@ public class ProductPage extends ProductPageElement {
         inputWithoutVariationProductSKU();
         completeCreateProduct();
         initDiscountInformation();
+
+        return this;
     }
 
     // Variation product
@@ -558,7 +565,9 @@ public class ProductPage extends ProductPageElement {
         }
     }
 
-    public void createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
+    public ProductPage createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
+        isVariation = true;
+
         // product name
         uiProductName = isIMEIProduct ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - ");
         uiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
@@ -568,6 +577,8 @@ public class ProductPage extends ProductPageElement {
         inputVariationStock(increaseNum, branchStock);
         completeCreateProduct();
         initDiscountInformation();
+
+        return this;
     }
 
     /* Complete create/update product */
@@ -651,8 +662,91 @@ public class ProductPage extends ProductPageElement {
                         .mapToObj(i -> "EXPIRED").toList()));
     }
 
-    public void configWholesaleProduct() {
+    public void configWholesaleProduct() throws SQLException {
+        if (isVariation) new WholesaleProductPage(driver)
+                .navigateToWholesaleProductPage()
+                .getWholesaleProductInfo()
+                .addWholesaleProductVariation();
+        else new WholesaleProductPage(driver)
+                .navigateToWholesaleProductPage()
+                .getWholesaleProductInfo()
+                .addWholesaleProductWithoutVariation();
+    }
 
+    /*Verify permission for certain feature*/
+    public void verifyPermissionToPrintBarCode(String permission) {
+        clickPrintBarcode();
+        boolean flag = isPrintBarcodeDialogDisplayed();
+        commonAction.navigateBack();
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        if (permission.contentEquals("A")) {
+            Assert.assertTrue(flag);
+        } else if (permission.contentEquals("D")) {
+            Assert.assertFalse(flag);
+        } else {
+            Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+        }
+    }
+
+    public void verifyPermissionToCreateProduct(String permission, String url) {
+        clickOnTheCreateProductBtn();
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        String currentURL = commonAction.getCurrentURL();
+        commonAction.navigateBack();
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        if (permission.contentEquals("A")) {
+            Assert.assertTrue(currentURL.contains(url));
+        } else if (permission.contentEquals("D")) {
+            // Not reproducible
+        } else {
+            Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+        }
+    }
+    public void verifyPermissionToCreateVariationProduct(String permission) {
+        clickOnTheCreateProductBtn();
+        clickAddVariation();
+
+        boolean flag = isDeleteVariationBtnDisplayed();
+        commonAction.refreshPage();
+        commonAction.navigateBack();
+
+        if (permission.contentEquals("A")) {
+            Assert.assertTrue(flag);
+        } else if (permission.contentEquals("D")) {
+            Assert.assertFalse(flag);
+        } else {
+            Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+        }
+    }
+    public void verifyPermissionToCreateDepositProduct(String permission) {
+        clickOnTheCreateProductBtn();
+        clickAddDepositBtn();
+        boolean flag = isDeleteDepositBtnDisplayed();
+        commonAction.refreshPage();
+        commonAction.navigateBack();
+
+        if (permission.contentEquals("A")) {
+            Assert.assertTrue(flag);
+        } else if (permission.contentEquals("D")) {
+            Assert.assertFalse(flag);
+        } else {
+            Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+        }
+    }
+    public void verifyPermissionToCreateProductSEO(String permission) {
+        clickOnTheCreateProductBtn();
+        inputSEOTitle("Test SEO");
+        String flag = getSEOTitle();
+        commonAction.refreshPage();
+        commonAction.navigateBack();
+
+        if (permission.contentEquals("A")) {
+            Assert.assertEquals(flag, "Test SEO");
+        } else if (permission.contentEquals("D")) {
+            Assert.assertEquals(flag, "");
+        } else {
+            Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+        }
     }
 
 }
