@@ -68,6 +68,8 @@ public class StaffPage extends StaffVerify {
     public StaffPage clickStaffManagementTab() {
     	commons.clickElement(STAFF_MANAGEMENT_MENU);
     	logger.info("Clicked on 'Staff Management' Tab");
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commons.sleepInMiliSecond(500);
     	return this;
     }
     

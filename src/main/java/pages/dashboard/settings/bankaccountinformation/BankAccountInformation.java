@@ -58,6 +58,8 @@ public class BankAccountInformation {
 
 	public BankAccountInformation navigate() {
 		clickStoreInformationTab();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 

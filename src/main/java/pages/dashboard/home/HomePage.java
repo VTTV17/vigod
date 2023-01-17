@@ -48,6 +48,7 @@ public class HomePage {
     int countFailed = 0;
     AssertCustomize assertCustomize;
     public String planPermissionFileName = "PlanPermission.xlsx";
+    public String featurePermissionFile = "Features.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
     HomePageElement homeUI;

@@ -49,6 +49,8 @@ public class StoreLanguages {
 	public StoreLanguages navigate() {
 		commonAction.clickElement(STORE_LANGUAGE_TAB);
 		logger.info("Clicked on Store Language tab.");
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 

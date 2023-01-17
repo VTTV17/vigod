@@ -78,6 +78,8 @@ public class AccountPage {
     
     public AccountPage navigate() {
     	clickAccountTab();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commonAction.sleepInMiliSecond(500);
         return this;
     }
 
@@ -176,6 +178,7 @@ public class AccountPage {
     
     /*Verify permission for certain feature*/
     public void verifyPermissionToUseAccountTab(String permission) {
+    	navigate();
 		if (permission.contentEquals("A")) {
 			clickAccountInfoSaveBtn();
 			new HomePage(driver).getToastMessage();

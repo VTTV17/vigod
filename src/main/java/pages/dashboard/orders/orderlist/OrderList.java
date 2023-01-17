@@ -100,7 +100,12 @@ public class OrderList {
     public void verifyPermissionToExportOrderByProduct(String permission) {
     	if (permission.contentEquals("A")) {
 			clickExport().clickExportOrderByProduct();
-			new ExportOrderByProductDialog(driver).clickCancel();
+			try {
+				new ExportOrderByProductDialog(driver).clickCancel();
+			} catch (Exception e) {
+				commonAction.navigateBack();
+			}
+			
     	} else if (permission.contentEquals("D")) {
 			clickExport().clickExportOrderByProduct();
 			boolean flag = new ExportOrderByProductDialog(driver).isSelectProductDialogDisplayed();

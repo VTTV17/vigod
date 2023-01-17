@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -36,6 +37,9 @@ public class Domains {
     @FindBy (id = "subDomain")
     WebElement SUB_DOMAIN;
     
+    @FindBy (id = "newDomain")
+    WebElement NEW_DOMAIN;
+    
     @FindBy (css = ".sub-domain__sample")
     WebElement SAMPLE_DOMAIN;
     
@@ -50,12 +54,39 @@ public class Domains {
     	return commonAction.getText(SAMPLE_DOMAIN);
     }
 
+    public Domains inputNewDomain(String domain) {
+    	if (commonAction.isElementVisiblyDisabled(NEW_DOMAIN.findElement(By.xpath("./parent::*/parent::*/parent::*")))) {
+    		new HomePage(driver).isMenuClicked(NEW_DOMAIN);
+    		return this;
+    	}
+    	commonAction.inputText(NEW_DOMAIN, domain);
+    	logger.info("Input '" + domain + "' into New Domain field.");
+    	return this;
+    }
+
+    public String getNewDomainValue() {
+    	logger.info("Getting new domain value...");
+    	return commonAction.getElementAttribute(NEW_DOMAIN, "value");
+    }
+    
     public void verifyPermissionToEditSubDomain(String permission) {
     	if (permission.contentEquals("A")) {
     		inputSubDomain("testpermission");
     		Assert.assertTrue(getGeneratedSampleDomain().contains("testpermission"));
     	} else if (permission.contentEquals("D")) {
     		// Not reproducible
+    	} else {
+    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    	}
+    }    
+    
+    public void verifyPermissionToEditNewDomain(String permission) {
+    	inputNewDomain("testpermission.com");
+    	String text = getNewDomainValue();
+    	if (permission.contentEquals("A")) {
+    		Assert.assertTrue(text.contentEquals("testpermission.com"));
+    	} else if (permission.contentEquals("D")) {
+    		Assert.assertTrue(text.contentEquals(""));
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
