@@ -45,52 +45,52 @@ public class LandingPage {
 	}
 
     /*Verify permission for certain feature*/
-    public void verifyPermissionToCreateLandingPage(String permission) {
+    public void verifyPermissionToCreateLandingPage(String permission, String url) {
 		if (permission.contentEquals("A")) {
 			clickCreateLandingPage().clickCancelBtn();
 			new ConfirmationDialog(driver).clickOKBtn();
 		} else if (permission.contentEquals("D")) {
-			closeModal();
+			Assert.assertFalse(commonAction.getCurrentURL().contains(url));
 		} else {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
     }
-    public void verifyPermissionToAddAnalyticsToLandingPage(String permission) {
+    public void verifyPermissionToAddAnalyticsToLandingPage(String permission, String url) {
     	if (permission.contentEquals("A")) {
     		clickCreateLandingPage().inputGoogleAnalyticsId("123456").clickCancelBtn();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {
-    		closeModal();
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
-    public void verifyPermissionToAddSEOToLandingPage(String permission) {
+    public void verifyPermissionToAddSEOToLandingPage(String permission, String url) {
     	if (permission.contentEquals("A")) {
     		clickCreateLandingPage().inputSEOTitle("Test Permission").clickCancelBtn();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {
-    		closeModal();
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
-    public void verifyPermissionToAddCustomerTagToLandingPage(String permission) {
+    public void verifyPermissionToAddCustomerTagToLandingPage(String permission, String url) {
     	if (permission.contentEquals("A")) {
     		clickCreateLandingPage().inputCustomerTag("Test Permission").clickCancelBtn();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {
-    		closeModal();
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
-    public void verifyPermissionToCustomDomain(String permission) {
+    public void verifyPermissionToCustomDomain(String permission, String url) {
     	if (permission.contentEquals("A")) {
     		clickCreateLandingPage().inputSubDomain("testdomain@gmail.com").clickCancelBtn();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {
-    		closeModal();
+    		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}

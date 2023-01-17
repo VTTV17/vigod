@@ -75,6 +75,8 @@ public class StoreInformation {
     
     public StoreInformation navigate() {
     	clickStoreInformationTab();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commonAction.sleepInMiliSecond(500);
         return this;
     }
 
@@ -192,8 +194,8 @@ public class StoreInformation {
 
     /*Verify permission for certain feature*/
     public void verifyPermissionToSetStoreName(String permission) {
+    	navigate();
 		if (permission.contentEquals("A")) {
-			clickStoreInformationTab();
 			inputShopName("Test Permission");
 			Assert.assertEquals(getShopName(), "Test Permission"); 
 		} else if (permission.contentEquals("D")) {
@@ -203,8 +205,8 @@ public class StoreInformation {
 		}
     }
     public void verifyPermissionToSetAppName(String permission) {
+    	navigate();
     	if (permission.contentEquals("A")) {
-    		clickStoreInformationTab();
     		inputAppName("Test Permission");
     		Assert.assertEquals(getAppName(), "Test Permission"); 
     	} else if (permission.contentEquals("D")) {
@@ -215,8 +217,8 @@ public class StoreInformation {
     	}
     }
     public void verifyPermissionToSetHotlineAndEmail(String permission) {
+    	navigate();
     	if (permission.contentEquals("A")) {
-    		clickStoreInformationTab();
     		inputHotline("0123000100");
     		inputEmail("test@gmail.com");
     	} else if (permission.contentEquals("D")) {
@@ -226,8 +228,8 @@ public class StoreInformation {
     	}
     }
     public void verifyPermissionToSetStoreAddress(String permission) {
+    	navigate();
     	if (permission.contentEquals("A")) {
-    		clickStoreInformationTab();
     		inputStoreAdress("100 Wall Street");
     	} else if (permission.contentEquals("D")) {
     		// Not reproducible
@@ -236,8 +238,8 @@ public class StoreInformation {
     	}
     }
     public void verifyPermissionToSetSocialMedia(String permission) {
+    	navigate();
     	if (permission.contentEquals("A")) {
-    		clickStoreInformationTab();
     		inputFacebookLink("https://www.facebook.com/Shopping-Heaven-107830291950514/");
     		inputInstagramLink("https://www.instagram.com/samsung_vietnam/");
     		inputYoutubeLink("https://www.youtube.com/watch?v=NqDVlK4rohc");
@@ -248,8 +250,8 @@ public class StoreInformation {
     	}
     }
     public void verifyPermissionToSetSEO(String permission) {
+    	navigate();
     	if (permission.contentEquals("A")) {
-    		clickStoreInformationTab();
     		inputSEOTitle("Test Permission");
     		Assert.assertEquals(getSEOTitle(), "Test Permission"); 
     	} else if (permission.contentEquals("D")) {
@@ -260,8 +262,8 @@ public class StoreInformation {
     	}
     }
     public void verifyPermissionToEnableTradeLogo(String permission) {
+    	navigate();
     	if (permission.contentEquals("A")) {
-    		clickStoreInformationTab();
     		clickNoticeLogoToggle();
     		clickRegisteredLogoToggle();
     	} else if (permission.contentEquals("D")) {

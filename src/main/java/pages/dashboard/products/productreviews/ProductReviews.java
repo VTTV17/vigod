@@ -11,10 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import pages.dashboard.ConfirmationDialog;
-import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import utilities.UICommonAction;
 
 public class ProductReviews {

@@ -73,6 +73,8 @@ public class ShippingAndPayment {
 
 	public ShippingAndPayment navigate() {
 		clickShippingAndPaymentTab();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 
@@ -206,6 +208,10 @@ public class ShippingAndPayment {
 			Assert.assertFalse(new HomePage(driver).isMenuClicked(PAYPAL_TOGGLE));
 			return this;
 		}
+		if (commonAction.isElementVisiblyDisabled(PAYPAL_TOGGLE.findElement(By.xpath("./parent::*/parent::*/parent::*")))) {
+			Assert.assertFalse(new HomePage(driver).isMenuClicked(PAYPAL_TOGGLE));
+			return this;
+		}
 		commonAction.clickElement(PAYPAL_TOGGLE);
 		logger.info("Clicked on Paypal toggle button.");
 		return this;
@@ -279,7 +285,7 @@ public class ShippingAndPayment {
 	}		
 	
     public void verifyPermissionToEnableGHTK(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		clickGHTKToggle();
     	} else if (permission.contentEquals("D")) {
@@ -290,7 +296,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableGHN(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		clickGHNToggle();
     	} else if (permission.contentEquals("D")) {
@@ -301,7 +307,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableAhamove(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		clickAhamoveToggle();
     	} else if (permission.contentEquals("D")) {
@@ -312,7 +318,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableSelfDelivery(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enableSelfDelivery();
     	} else if (permission.contentEquals("D")) {
@@ -324,7 +330,7 @@ public class ShippingAndPayment {
     }
     
     public void verifyPermissionToEnableLocalATMCard(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enableLocalATM();
     		clickLocalATMToggle();
@@ -337,7 +343,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableCreditCard(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enableCreditCard();
     		clickCreditCardToggle();
@@ -349,7 +355,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableCOD(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enableCOD();
     		clickCODToggle();
@@ -361,7 +367,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableCash(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enableCash();
     		clickCashToggle();
@@ -373,7 +379,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnableDebt(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enableDebt();
     		clickDebtToggle();
@@ -385,7 +391,7 @@ public class ShippingAndPayment {
     	}
     }
     public void verifyPermissionToEnablePaypal(String permission) {
-    	clickShippingAndPaymentTab();
+    	navigate();
     	if (permission.contentEquals("A")) {
     		enablePaypal();
     		clickPaypalToggle();

@@ -1,6 +1,7 @@
 package pages.dashboard.onlineshop;
 
 import java.time.Duration;
+import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,14 +67,25 @@ public class Themes {
     } 
     
     public void verifyPermissionToCustomizeAppearance(String permission) {
+    	String originalWindowHandle = commonAction.getCurrentWindowHandle();
+    	ArrayList<String> list = commonAction.getAllWindowHandles();
+    	int originalSize = list.size();
 		clickVisitThemeStore().clickEditTheme();
-		boolean flag = new Themes(driver).isModalContentDisplayed();
-		commonAction.navigateBack();
+		ArrayList<String> list1 = commonAction.getAllWindowHandles();
+		int laterSize = list1.size();
 		new HomePage(driver).waitTillSpinnerDisappear1();
     	if (permission.contentEquals("A")) {
-    		Assert.assertTrue(flag);
+    		Assert.assertTrue(originalSize < laterSize);
+    		for(String winHandle : list1){
+    			if (!winHandle.contentEquals(originalWindowHandle)) {
+    				commonAction.switchToWindow(winHandle);
+    			}
+    		}
+    		commonAction.closeTab();
+    		commonAction.switchToWindow(originalWindowHandle);
+    		commonAction.navigateBack();
     	} else if (permission.contentEquals("D")) {
-    		Assert.assertFalse(flag);
+    		Assert.assertTrue(originalSize == laterSize);
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}

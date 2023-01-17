@@ -198,9 +198,10 @@ public class AllCustomers extends HomePage{
 		}
     }
     public void verifyPermissionToImportCustomer(String permission) {
-		clickExport().clickImportCustomer();
+		clickImportCustomer();
 		boolean flag = isImportCustomerDialogDisplayed();
 		commonAction.refreshPage();
+		new HomePage(driver).waitTillSpinnerDisappear1();
     	if (permission.contentEquals("A")) {
     		Assert.assertTrue(flag);
     	} else if (permission.contentEquals("D")) {

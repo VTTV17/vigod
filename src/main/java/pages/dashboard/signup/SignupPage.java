@@ -12,8 +12,10 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -81,6 +83,9 @@ public class SignupPage {
     
     @FindBy (xpath = "//div[contains(@class,'package-steps')]/following-sibling::*/a")
     WebElement LOGOUT;
+    
+    @FindBy (css = "[btntext='Log out'] button.gs-button__green")
+    WebElement LOGOUT_BTN;
 
     @FindBy (css = "div.uik-select__valueWrapper>div>div:nth-child(2)")
     WebElement COUNTRY_CODE;
@@ -356,6 +361,12 @@ public class SignupPage {
     
     public SignupPage clickLogout() {
     	commonAction.clickElement(LOGOUT);
+    	logger.info("Clicked on Logout linktext.");        
+    	return this;
+    }
+    
+    public SignupPage clickLogoutByJS() {
+    	commonAction.clickElementByJS(LOGOUT);
     	logger.info("Clicked on Logout linktext.");        
     	return this;
     }

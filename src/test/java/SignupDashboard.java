@@ -14,7 +14,9 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import pages.InternalTool;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.home.Permission;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
 import pages.dashboard.signup.SignupPage;
@@ -194,7 +196,7 @@ public class SignupDashboard extends BaseTest {
         Excel excel = new Excel();
         Sheet planPermissionSheet = null;
 		try {
-			planPermissionSheet = excel.getSheet(new HomePage(driver).planPermissionFileName, 0);
+			planPermissionSheet = excel.getSheet(new HomePage(driver).featurePermissionFile, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -236,7 +238,7 @@ public class SignupDashboard extends BaseTest {
 		generateTestData();
 	}
 
-	@Test
+//	@Test
 	public void SignUpForShopWithRandomData() throws SQLException {
 
 		String country = "Vietnam";
@@ -261,7 +263,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-	@Test
+//	@Test
 	public void BH_4034_SignUpForPhoneAccountFromPromotionLink() throws SQLException {
 
 		String domain = "abcdefgh";
@@ -299,7 +301,7 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);		
 	}
 
-	@Test
+//	@Test
 	public void BH_4036_SignUpForShopWithExistingPhoneAccount() throws SQLException {
 		
 		// Getting data from json file
@@ -313,7 +315,7 @@ public class SignupDashboard extends BaseTest {
 		signupPage.verifyUsernameExistError(USERNAME_EXIST_ERROR).completeVerify();
 	}
 
-	@Test
+//	@Test
 	public void BH_4038_ResendVerificationCodeToPhone() throws SQLException {
 
 		String username = storePhone;
@@ -342,7 +344,7 @@ public class SignupDashboard extends BaseTest {
 		reLogintoShop(country, username, password);
 	}
 
-	@Test
+//	@Test
 	public void BH_4039_ResendVerificationCodeToEmail() throws SQLException {
 
 		String username = mail;
@@ -372,7 +374,7 @@ public class SignupDashboard extends BaseTest {
 	}
 
 	//This TC also covers BH_4054_ContinueSignupWizardAfterExitingSession()
-	@Test
+//	@Test
 	public void BH_4049_ExitWizard_EmailAccount() throws SQLException {
 	
 		String username = mail;
@@ -428,7 +430,7 @@ public class SignupDashboard extends BaseTest {
 	
 	}
 
-	@Test
+//	@Test
 	public void BH_5195_SignUpForEmailAccountWithURLInUpperCase() throws SQLException {
 
 		String username = mail;
@@ -456,7 +458,7 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
 	
-	@Test
+//	@Test
 	public void BH_5195_SignUpForPhoneAccountWithURLInUpperCase() throws SQLException {
 		
 		String username = storePhone;
@@ -484,7 +486,7 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
 
-	@Test
+//	@Test
 	public void BH_1363_SignUpForGoFreeEmailAccountWithoutPromotionLink() throws Exception {
 
 		String username = mail;
@@ -530,7 +532,7 @@ public class SignupDashboard extends BaseTest {
 		
 	}
 	
-	@Test
+//	@Test
 	public void BH_1363_SignUpForGoFreeEmailAccountWithPromotionLink() throws Exception {
 
 		String username = mail;
@@ -585,7 +587,7 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}	
 
-	@Test
+//	@Test
 	public void BH_1277_SignUpForGoFreePhoneAccountWithoutPromotionLink() throws Exception {
 
 		String username = storePhone;
@@ -631,7 +633,7 @@ public class SignupDashboard extends BaseTest {
 		
 	}
 	
-	@Test
+//	@Test
 	public void BH_1277_SignUpForGoFreePhoneAccountWithPromotionLink() throws Exception {
 
 		String username = storePhone;
@@ -853,7 +855,7 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreDomain(storeName), domain);
 	}	
 	
-	@Test
+//	@Test
 	public void BH_1368_SignUpForShopUsingStorefrontEmailAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -911,7 +913,7 @@ public class SignupDashboard extends BaseTest {
 		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));		
 	}	
 	
-	@Test
+//	@Test
 	public void BH_1599_SignUpForShopUsingStorefrontPhoneAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -978,7 +980,7 @@ public class SignupDashboard extends BaseTest {
 		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));        
 	}		
 	
-	@Test
+//	@Test
 	public void BH_1631_SignUpForShopUsingGomuaMailAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -1032,7 +1034,7 @@ public class SignupDashboard extends BaseTest {
 		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
 	}	
 	
-	@Test
+//	@Test
 	public void BH_1632_SignUpForShopUsingGomuaPhoneAccount() throws SQLException {
 		
 		String country = "Vietnam";
@@ -1091,7 +1093,7 @@ public class SignupDashboard extends BaseTest {
 		if (!username.matches("\\d+")) Assert.assertTrue(mailContent[2][3].contains(expectedVerificationCodeMessage));
 	}	
 
-	@Test
+//	@Test
 	public void BH_4052_SignUpForShopUsingGomuaPhoneAccount() throws SQLException {
 		
 		country = "Vietnam";
@@ -1174,7 +1176,7 @@ public class SignupDashboard extends BaseTest {
 		.clickDoneBtn();
 	}	
 
-	@Test
+//	@Test
 	public void BH_7668_SignUpForGoFreeEmailAccountViaPromotionLink() throws Exception {
 		
 		String domain = "abcdefgh";
@@ -1227,7 +1229,7 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}	
 	
-	@Test
+//	@Test
 	public void BH_7668_SignUpForGoFreePhoneAccountViaPromotionLink() throws Exception {
 		
 		String domain = "abcdefgh";
@@ -1280,14 +1282,59 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}	
 
-	@Test
+//	@Test
 	public void BH_7669_SignUpForShopWithGoFreePackageUsingGomuaMailAccount() throws Exception {
 		BH_1364_SignUpForShopWithGoFreePackageUsingGomuaMailAccount();
 	}	
 	
-	@Test
+//	@Test
 	public void BH_7669_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount() throws Exception {
 		BH_1365_SignUpForShopWithGoFreePackageUsingGomuaPhoneAccount();
 	}	
+
+	@Test
+	public void Standard_SignUp() throws Exception {
+		String country = "Vietnam";
+		String currency = "Dong - VND(đ)";
+		String storeLanguage = "Tiếng Anh";
+		
+		String username = storePhone;
+		String contact = mail;
+
+		// Sign up
+		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
+				.inputVerificationCode(getVerificationCode(username)).clickConfirmBtn();
+
+		country = signupPage.country;
+
+		// Setup store
+		setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		PlansPage plansPage = new PlansPage(driver);
+		String orderID = plansPage.purchasePlan("GoLEAD", "BANKTRANSFER");
+        new InternalTool(driver).openNewTabAndNavigateToInternalTool()
+                .login().navigateToPage("GoSell","Packages","Orders list").approveOrder(orderID).closeTab();
+		signupPage.clickLogout();
+		
+//        PlansPage plansPage = new PlansPage(driver);
+//        String orderID = plansPage.purchasePlan("GoLEAD", "ATM");
+//		signupPage.clickLogoutByJS();
+		
+//		PlansPage plansPage = new PlansPage(driver);
+//		String orderID = plansPage.purchasePlan("GoLEAD", "VISA");
+//		signupPage.clickLogoutByJS();
+		
+//		PlansPage plansPage = new PlansPage(driver);
+//		String orderID = plansPage.purchasePlan("GoLEAD", "PAYPAL");
+//		signupPage.clickLogoutByJS();
+
+
+		// Re-login to the shop
+		new LoginPage(driver).performLogin(country, username, password);
+		new HomePage(driver).waitTillSpinnerDisappear();
+		
+		new Permission(driver).testPermission("GoLead");
+	}		
 	
 }

@@ -49,6 +49,8 @@ public class VATInformation {
 	public VATInformation navigate() {
 		commonAction.clickElement(VAT_TAB);
 		logger.info("Clicked on VAT tab.");
+    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 

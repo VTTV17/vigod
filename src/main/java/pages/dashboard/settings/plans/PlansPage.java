@@ -96,7 +96,7 @@ public class PlansPage extends HomePage {
 		return method;
 	}
 
-	public PlansPage purchasePlan(String plan, String paymentMethod) {
+	public String purchasePlan(String plan, String paymentMethod) {
 		selectPlan(plan);
 		selectPaymentMethod(paymentMethod);
 		if (paymentMethod.contentEquals("ATM")) {
@@ -120,7 +120,7 @@ public class PlansPage extends HomePage {
 			commons.switchToWindow(0);
 		}
 		logger.info("Purchased plan '%s' and paid for it via '%s' successfully".formatted(plan, paymentMethod));
-		return this;
+		return getOrderId();
 	}
 
 	public String getOrderId() {

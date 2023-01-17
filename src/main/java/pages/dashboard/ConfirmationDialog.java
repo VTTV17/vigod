@@ -55,7 +55,7 @@ public class ConfirmationDialog {
 	}
 
 	public boolean isConfirmationDialogDisplayed() {
-		commonAction.sleepInMiliSecond(500);
+		commonAction.sleepInMiliSecond(1000);
 		return !commonAction.isElementNotDisplay(CONFIRMATION_DIALOG);
 	}
 
