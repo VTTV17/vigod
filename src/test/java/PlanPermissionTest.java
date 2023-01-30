@@ -1,3 +1,5 @@
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.InternalTool;
 import pages.thirdparty.Mailnesia;
@@ -9,20 +11,31 @@ import pages.dashboard.signup.SignupPage;
 import java.io.IOException;
 import java.sql.SQLException;
 import static utilities.account.AccountTest.*;
+import static utilities.file.FileNameAndPath.FILE_PERMISSION_PLAN_TCS;
 
 public class PlanPermissionTest extends BaseTest {
     LoginPage loginPage;
     HomePage homePage;
     PlansPage plansPage;
     InternalTool internalTool;
-    String userName_goWeb = ADMIN_USERNAME_GOWEB;
-    String userName_goApp = ADMIN_USERNAME_GOAPP;
-    String userName_goPOS = ADMIN_USERNAME_GOPOS;
-    String userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
-    String userName_GoLead = ADMIN_USERNAME_GOLEAD;
+    String userName_goWeb;
+    String userName_goApp;
+    String userName_goPOS;
+    String userName_goSocial;
+    String userName_GoLead;
     String password = "fortesting!1";
     String orderID;
     SignupPage signupPage;
+    @BeforeClass
+    public void getData(){
+        userName_goWeb = ADMIN_USERNAME_GOWEB;
+        userName_goApp = ADMIN_USERNAME_GOAPP;
+        userName_goPOS = ADMIN_USERNAME_GOPOS;
+        userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
+        userName_GoLead = ADMIN_USERNAME_GOLEAD;
+        tcsFileName = FILE_PERMISSION_PLAN_TCS;
+    }
+
     public void setupShop(String username, String storeName, String url, String contact, String pickupAddress, String province, String district, String ward) {
         signupPage.inputStoreName(storeName);
         if (url != "") {
@@ -94,11 +107,13 @@ public class PlanPermissionTest extends BaseTest {
         plansPage = new PlansPage(driver);
         plansPage.selectPlan(plan).selectPayment();
         orderID = plansPage.getOrderId();
+        plansPage = new PlansPage(driver);
+        plansPage.clickOnLogOut();
         internalTool = new InternalTool(driver);
         internalTool.openNewTabAndNavigateToInternalTool()
                 .login()
                 .navigateToPage("GoSell","Packages","Orders list")
-                .approveOrder(orderID);
+                .approveOrder(orderID).closeTab();
     }
 
     public void checkPlanPermission(String packageType, String userName) throws IOException {
@@ -110,45 +125,59 @@ public class PlanPermissionTest extends BaseTest {
                 .completeVerifyPermissionByPackage();
     }
     @Test
-    public void PP01_SelectAndAprovePlanGoWeb() throws SQLException, InterruptedException {
-        SignUpSelectAndApprovePlan("GoWEB");
+    public void PP01_CheckPermissionGoWebWithExistentAccount() throws  IOException {
+        testCaseId = "PP01";
+        checkPlanPermission("GoWeb",userName_goWeb);
     }
     @Test
-    public void PP02_CheckPermissionGoWeb() throws IOException {
+    public void PP02_CheckPermissionGoWebWithNewAccount() throws IOException, SQLException, InterruptedException {
+        testCaseId = "PP02";
+        SignUpSelectAndApprovePlan("GoWEB");
         checkPlanPermission("GoWeb",userName_goWeb);
     }
 
     @Test
-    public void PP03_SelectAndAprovePlanGoAPP() throws SQLException, InterruptedException {
-        SignUpSelectAndApprovePlan("GoAPP");
-    }
-    @Test
-    public void PP04_CheckPermissionGoApp() throws IOException {
+    public void PP03_CheckPermissionGoAppWithExistentAccount() throws IOException {
+        testCaseId = "PP03";
         checkPlanPermission("GoApp",userName_goApp);
     }
     @Test
-    public void PP05_SelectAndAprovePlanGoPOS() throws SQLException, InterruptedException {
-        SignUpSelectAndApprovePlan("GoPOS");
+    public void PP04_CheckPermissionGoAppWithNewAccount() throws IOException, SQLException, InterruptedException {
+        testCaseId = "PP04";
+        SignUpSelectAndApprovePlan("GoAPP");
+        checkPlanPermission("GoApp",userName_goApp);
     }
     @Test
-    public void PP06_CheckPermissionGoPos() throws IOException {
+    public void PP05_CheckPermissionGoPOSWithExistentAccount() throws IOException {
+        testCaseId = "PP05";
         checkPlanPermission("GoPOS",userName_goPOS);
     }
     @Test
-    public void PP07_SelectAndAprovePlanGoSocial() throws SQLException, InterruptedException {
-        SignUpSelectAndApprovePlan("GoSOCIAL");
+    public void PP06_CheckPermissionGoPosWithNewAccount() throws IOException, SQLException, InterruptedException {
+        testCaseId = "PP06";
+        SignUpSelectAndApprovePlan("GoPOS");
+        checkPlanPermission("GoPOS",userName_goPOS);
     }
     @Test
-    public void PP08_CheckPermissionGoSocial() throws IOException {
+    public void PP07_CheckPermissionGoSocialWithExistentAccount() throws IOException {
+        testCaseId = "PP07";
         checkPlanPermission("GoSocial",userName_goSocial);
     }
     @Test
-    public void PP09_SelectAndAprovePlanGoLead() throws SQLException, InterruptedException {
-        SignUpSelectAndApprovePlan("GoLEAD");
-
+    public void PP08_CheckPermissionGoSocialWithNewAccount() throws IOException, SQLException, InterruptedException {
+        testCaseId = "PP08";
+        SignUpSelectAndApprovePlan("GoSOCIAL");
+        checkPlanPermission("GoSocial",userName_goSocial);
     }
     @Test
-    public void PP10_CheckPermissionGoLead() throws IOException {
+    public void PP09_CheckPermissionGoLeadWithExistentAccount() throws IOException {
+        testCaseId = "PP09";
+        checkPlanPermission("GoLead",userName_GoLead);
+    }
+    @Test
+    public void PP10_CheckPermissionGoLeadWithNewAccount() throws IOException, SQLException, InterruptedException {
+        testCaseId = "PP10";
+        SignUpSelectAndApprovePlan("GoLEAD");
         checkPlanPermission("GoLead",userName_GoLead);
     }
 }

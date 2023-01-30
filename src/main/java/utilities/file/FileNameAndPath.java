@@ -10,6 +10,7 @@ public class FileNameAndPath {
     public static final String FILE_DASHBOARD_VI_TEXT = "dashboard_vi.properties";
     public static final String FILE_STOREFRONT_VI_TEXT = "storefront_vi.properties";
     public static final String FILE_CREATE_SERVICE_TCS = "CreateService.xlsx";
+    public static final String FILE_PERMISSION_PLAN_TCS = "PlanPermissionTcs.xlsx";
     public static final String FILE_IMAGE_1 = "cham-soc-mat.jpg";
     public static final String FILE_IMAGE_2 = "giam-beo-bung.jpg";
 
