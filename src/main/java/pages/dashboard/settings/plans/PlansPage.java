@@ -15,6 +15,7 @@ import pages.thirdparty.PAYPAL;
 import pages.thirdparty.VISA;
 import utilities.UICommonAction;
 import static utilities.account.AccountTest.*;
+import static utilities.links.Links.LOGIN_PAGE_TITLE;
 
 import java.time.Duration;
 
@@ -129,7 +130,9 @@ public class PlansPage extends HomePage {
 	}
 
 	public PlansPage clickOnLogOut() {
+		commons.sleepInMiliSecond(1000);
 		commons.clickElement(LOGOUT_BTN);
+		new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
 		logger.info("Clicked on Logout link");
 		return this;
 	}

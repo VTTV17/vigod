@@ -44,7 +44,7 @@ public class Excel {
     public List<Integer> getRowCellByKey(String fileName, int sheetID, String searchKey) throws IOException {
         Sheet sheet = getSheet(fileName, sheetID);
         List<Integer> list = new ArrayList<>();
-        for (int rowID = 0; rowID < sheet.getLastRowNum(); rowID++) {
+        for (int rowID = 0; rowID <= sheet.getLastRowNum(); rowID++) {
             for (int cellID = 0; cellID < sheet.getRow(0).getLastCellNum(); cellID++) {
                 if (new DataFormatter().formatCellValue(sheet.getRow(rowID).getCell(cellID)).equals(searchKey)) {
                     list = List.of(rowID, cellID);
