@@ -1,150 +1,146 @@
 package pages.dashboard.products.all_products.conversion_unit;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
 
 import java.time.Duration;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import static java.lang.Thread.sleep;
-import static utilities.character_limit.CharacterLimit.*;
-import static utilities.page_loaded_text.PageLoadedText.DB_CONFIGURE_CONVERSION_UNIT_PAGE_LOADED_TEXT_ENG;
-import static utilities.page_loaded_text.PageLoadedText.DB_CONFIGURE_CONVERSION_UNIT_PAGE_LOADED_TEXT_VIE;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static pages.dashboard.products.all_products.ProductPage.*;
+import static utilities.character_limit.CharacterLimit.MAX_CONVERSION_UNIT_NAME;
+import static utilities.links.Links.DOMAIN;
 
 public class ConversionUnitPage extends ConversionUnitElement {
+    String PRODUCT_DETAIL_PAGE_PATH = "/product/edit/%s";
     WebDriverWait wait;
-    Actions actions;
-    String pageLoadedTextVIE = "Thiết lập đơn vị quy đổi";
-    String pageLoadedTextENG = "Set up conversion unit";
-
-    public Map<String, Integer> conversionMap = new HashMap<>();
+    UICommonAction commonAction;
+    Logger logger = LogManager.getLogger(ConversionUnitPage.class);
 
     public ConversionUnitPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        actions = new Actions(driver);
+        commonAction = new UICommonAction(driver);
     }
 
-    Logger logger = LogManager.getLogger(ConversionUnitPage.class);
+    public ConversionUnitPage navigateToConversionUnitPage() {
+        // navigate to product detail page by URL
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
 
-    /**
-     * Select all variation
-     */
-    public ConversionUnitPage selectVariations() {
-        int id = 0;
-        wait.until(ExpectedConditions.elementToBeClickable(SELECT_VARIATION_BTN)).click();
-        int max = VARIATION_LIST_IN_SELECT_VARIATION_POPUP.size();
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", VARIATION_LIST_IN_SELECT_VARIATION_POPUP.get(id));
-        wait.until(ExpectedConditions.elementToBeClickable(OK_BTN_IN_SELECT_VARIATION_POPUP)).click();
-        id++;
+        // wait page loaded
+        commonAction.verifyPageLoaded("Chọn kênh bán hàng", "Select sale channel");
 
-        while (id < max) {
-            wait.until(ExpectedConditions.elementToBeClickable(SELECT_VARIATION_BTN)).click();
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", VARIATION_LIST_IN_SELECT_VARIATION_POPUP.get(id));
-            wait.until(ExpectedConditions.elementToBeClickable(OK_BTN_IN_SELECT_VARIATION_POPUP)).click();
-            id++;
-        }
+        // if 'Add Conversion Unit' checkbox is not checked, check and click on 'Configure' button
+        if (!(boolean)((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
+        wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
+
+        // wait wholesale product page loaded
+        commonAction.verifyPageLoaded("Quay lại chi tiết sản phẩm", "Go back to product detail");
+
+        // hide Facebook bubble
+        commonAction.hideElement(driver.findElement(By.cssSelector("#fb-root")));
+
         return this;
     }
 
-    /**
-     * generate conversion map (Conversion name, Quantity)
-     */
-    private Map<String, Integer> generateMapStringInteger(int size, int stringLength, int maxInt) {
-        Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < size; i++) {
-            map.put(RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(stringLength) + 1), maxInt);
+    /* Without variation config */
+    public void addConversionUnitWithoutVariation() {
+        // click Select Unit button
+        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
+
+        // select conversion unit
+        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_UNIT)).click();
+        commonAction.sleepInMiliSecond(1000);
+        List<WebElement> availableConversionUnit = driver.findElements(WITHOUT_VARIATION_LIST_AVAILABLE_UNIT);
+        if (availableConversionUnit.size() > 0)
+            try {
+                availableConversionUnit.get(nextInt(availableConversionUnit.size())).click();
+            } catch (StaleElementReferenceException|ElementNotInteractableException ex) {
+                logger.info(ex);
+                availableConversionUnit = driver.findElements(WITHOUT_VARIATION_LIST_AVAILABLE_UNIT);
+                availableConversionUnit.get(nextInt(availableConversionUnit.size())).click();
+            }
+        else {
+            WITHOUT_VARIATION_UNIT.sendKeys(randomAlphabetic(MAX_CONVERSION_UNIT_NAME));
+            wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_ADD_BTN)).click();
         }
-        return map;
+
+        // input conversion unit quantity
+        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_QUANTITY)).clear();
+        WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.max(Collections.max(uiProductStockQuantity.get(null)), 1)));
+
+        // click Save button
+        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SAVE_BTN)).click();
     }
 
-    /**
-     * Configure conversion unit
-     */
-    @SafeVarargs
-    public final void selectConversionUnit(Map<String, Integer>... conversionMap) throws InterruptedException {
-        // get conversion map
-        this.conversionMap = conversionMap.length == 0 ? generateMapStringInteger(RandomUtils.nextInt(MAX_DEPOSIT_QUANTITY), RandomUtils.nextInt(MAX_DEPOSIT_NAME), RandomUtils.nextInt(MAX_STOCK_QUANTITY + 1)) : conversionMap[0];
+    /* Variation config */
+    public void addConversionUnitVariation() {
+        // number of conversion unit
+        int numberOfConversionUnit = nextInt(uiVariationList.size()) + 1;
 
-        // set conversion unit
-        for (String conversionName : this.conversionMap.keySet()) {
+        // select variation
+        for (int i = 0; i < numberOfConversionUnit; i ++) {
+            // open Select Variation popup
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_SELECT_VARIATION_BTN)).click();
 
-            // add new conversion unit
-            wait.until(ExpectedConditions.elementToBeClickable(SELECT_UNIT_BTN));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SELECT_UNIT_BTN);
-            logger.info("Add new conversion unit");
+            // wait Select Variation popup visible
+            wait.until(ExpectedConditions.visibilityOf(SELECT_VARIATION_POPUP));
 
-            // wait and input conversion unit name
-            wait.until(ExpectedConditions.elementToBeClickable(CONVERSION_UNIT_NAME));
-            actions.moveToElement(CONVERSION_UNIT_NAME).click().build().perform();
+            // select variation
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commonAction.refreshListElement(VARIATION_SELECT_VARIATION_POPUP_LIST_VARIATION_CHECKBOX).get(i));
 
-            // input conversion name
-            CONVERSION_UNIT_NAME.sendKeys(conversionName);
+            // wait variation is selected
+            commonAction.sleepInMiliSecond(100);
 
-            // wait api return search result
-            sleep(1000);
+            // close Add variation popup
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_SELECT_VARIATION_POPUP_SAVE_BTN)).click();
 
-            // have conversion unit match with keyword, select the first result
-            if (MATCH_CONVERSION_RESULT.size() > 0) {
-                for (WebElement element : MATCH_CONVERSION_RESULT) {
-                    if (element.getText().contains(conversionName)) {
-                        //sleep(500);
-                        wait.until(ExpectedConditions.elementToBeClickable(element));
-                        logger.info("Conversion: %s".formatted(element.getText()));
-                        element.click();
-                        break;
-                    }
+            // add conversion unit configuration for variation
+            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_CONFIGURE_BTN.get(i))).click();
+
+            // wait variation conversion unit page loaded
+            commonAction.verifyPageLoaded("Quay lại cài đặt đơn vị quy đổi", "Go back to Set up conversion unit");
+
+            // click Select Unit button
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
+
+            // select conversion unit
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_UNIT)).click();
+            commonAction.sleepInMiliSecond(1000);
+            List<WebElement> availableConversionUnit = driver.findElements(CONFIGURE_FOR_EACH_VARIATION_LIST_AVAILABLE_UNIT);
+            if (availableConversionUnit.size() > 0)
+                try {
+                    availableConversionUnit.get(nextInt(availableConversionUnit.size())).click();
+                } catch (StaleElementReferenceException|ElementNotInteractableException ex) {
+                    logger.info(ex);
+                    availableConversionUnit = driver.findElements(CONFIGURE_FOR_EACH_VARIATION_LIST_AVAILABLE_UNIT);
+                    availableConversionUnit.get(nextInt(availableConversionUnit.size())).click();
                 }
-            } else {
-                // else add new conversion unit
-                wait.until(ExpectedConditions.elementToBeClickable(ADD_CONVERSION_UNIT_BTN)).click();
-                logger.info("Conversion %s has been created".formatted(conversionName));
+            else {
+                CONFIGURE_FOR_EACH_VARIATION_UNIT.sendKeys(randomAlphabetic(MAX_CONVERSION_UNIT_NAME));
+                wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_ADD_BTN)).click();
             }
 
             // input conversion unit quantity
-            wait.until(ExpectedConditions.elementToBeClickable(CONVERSION_UNIT_QUANTITY)).clear();
-            CONVERSION_UNIT_QUANTITY.sendKeys(Integer.toString(this.conversionMap.get(conversionName)));
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_QUANTITY)).clear();
+            CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)));
+
+            // click Save button
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SAVE_BTN)).click();
+
+            // wait wholesale product page loaded
+            commonAction.verifyPageLoaded("Quay lại chi tiết sản phẩm", "Go back to product detail");
         }
 
-        // complete configure conversion unit
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        // click Save button
+        wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_SAVE_BTN)).click();
     }
 
-    /**
-     * Configure conversion unit for all variations
-     */
-    @SafeVarargs
-    public final void configureConversionUnitForAllVariations(Map<String, Integer>... conversionMap) throws InterruptedException {
-        // wait configure visible on each variation
-        new UICommonAction(driver).waitElementList(CONFIGURE_BY_VARIATION_BTN);
-        int max = CONFIGURE_BY_VARIATION_BTN.size();
-
-        // configure conversion unit for each variation
-        for (int i = 0; i < max; i++) {
-            wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BY_VARIATION_BTN.get(i))).click();
-            selectConversionUnit(conversionMap);
-            wait.until(ExpectedConditions.visibilityOf(TOAST_MESSAGE));
-            new UICommonAction(driver).waitElementList(CONFIGURE_BY_VARIATION_BTN);
-        }
-
-        // complete configure conversion unit
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
-    }
-
-    public ConversionUnitPage verifyPageLoaded() {
-        new UICommonAction(driver).verifyPageLoaded(DB_CONFIGURE_CONVERSION_UNIT_PAGE_LOADED_TEXT_VIE, DB_CONFIGURE_CONVERSION_UNIT_PAGE_LOADED_TEXT_ENG);
-        return this;
-    }
 }

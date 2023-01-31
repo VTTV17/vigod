@@ -29,7 +29,7 @@ import static pages.dashboard.products.all_products.ProductPage.*;
 import static utilities.links.Links.DOMAIN;
 
 public class WholesaleProductPage extends WholesaleProductElement {
-    String WHOLESALE_PRODUCT_PAGE_PATH = "/product/wholesale-price/create/%s";
+    String PRODUCT_DETAIL_PAGE_PATH = "/product/edit/%s";
     UICommonAction commonAction;
     WebDriverWait wait;
     Actions act;
@@ -70,8 +70,16 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // create segment for wholesale product config
         createSegmentByAPI();
 
-        // navigate to wholesale product page by URL
-        driver.get("%s%s".formatted(DOMAIN, WHOLESALE_PRODUCT_PAGE_PATH.formatted(uiProductID)));
+        // navigate to product detail page by URL
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
+
+        // wait page loaded
+        commonAction.verifyPageLoaded("Chọn kênh bán hàng", "Select sale channel");
+
+        // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
+        if (!(boolean)((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX))
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
+        wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
 
         // wait wholesale product page loaded
         commonAction.verifyPageLoaded("Quay lại chi tiết sản phẩm", "Go back to product detail");

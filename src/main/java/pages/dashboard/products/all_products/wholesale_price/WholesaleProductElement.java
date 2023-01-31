@@ -16,7 +16,14 @@ public class WholesaleProductElement {
         PageFactory.initElements(driver, this);
     }
 
-    /* Without variation */
+    /* Wholesale product config */
+    @FindBy(css = ".uik-checkbox__wrapper > [name='enabledListing']")
+    WebElement ADD_WHOLESALE_PRICING_CHECKBOX;
+
+    @FindBy(css = "div:nth-child(6)  .bg-light-white > div > button")
+    WebElement CONFIGURE_BTN;
+
+    /* Without variation config*/
     @FindBy(css = ".wholesale-btn-group-header .gs-button__gray--outline")
     WebElement WITHOUT_VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN;
 
@@ -48,10 +55,10 @@ public class WholesaleProductElement {
 
     By VARIATION_HEADER_VARIATION_VALUE = By.cssSelector(".border-bottom > .wholesale-group-header > div > div");
 
-    @FindBy (css = "[name^='buyFrom-']")
+    @FindBy(css = "[name^='buyFrom-']")
     List<WebElement> VARIATION_BUY_FROM;
 
-    @FindBy (css = "[name^='pricePerItem-'] input")
+    @FindBy(css = "[name^='pricePerItem-'] input")
     List<WebElement> VARIATION_PRICE_PER_ITEM;
 
     By VARIATION_CUSTOMER_SEGMENT_DROPDOWN = By.cssSelector(".dropdown-search-checkbox-custom");

@@ -25,6 +25,9 @@ public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
     public final static int MAX_WIDTH = 100;
     public final static int MAX_HEIGHT = 100;
 
+    // product conversion unit
+    public final static int MAX_CONVERSION_UNIT_NAME = 30;
+
     public final static int MAX_CONVERSION_UNIT_QUANTITY = 1000;
     public final static int MAX_CONVERSION_NAME = 30;
 
