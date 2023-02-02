@@ -2,9 +2,6 @@ package api.dashboard.login;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.testng.Assert;
 import utilities.api.API;
 
 import java.util.HashMap;
@@ -17,11 +14,9 @@ public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     public static String accessToken;
-    public static int storeID;
-    public static String storeName;
+    public static int apiStoreID;
+    public static String apiStoreName;
     API api = new API();
-
-    Logger logger = LogManager.getLogger(Login.class);
 
     public void loginToDashboardByMail(String account, String password) {
         baseURI = URI;
@@ -35,10 +30,10 @@ public class Login {
         // if pre-condition can not complete -> skip test
         loginResponse.then().statusCode(200);
 
-        // else get accessToken, storeID, storeName
+        // else get accessToken, apiStoreID, apiStoreName
         accessToken = loginResponse.jsonPath().getString("accessToken");
-        storeID = loginResponse.jsonPath().getInt("store.id");
-        storeName = loginResponse.jsonPath().getString("store.name");
+        apiStoreID = loginResponse.jsonPath().getInt("store.id");
+        apiStoreName = loginResponse.jsonPath().getString("store.name");
     }
 
     /**
@@ -46,7 +41,7 @@ public class Login {
      * @param countryCode: example: "+84"
      * @param phoneNumber
      * @param password
-     * @return Map with keys: accessToken, storeID
+     * @return Map with keys: accessToken, apiStoreID
      */
     public Map<String,String> loginToDashboardWithPhone(String countryCode, String phoneNumber, String password) {
         RestAssured.baseURI = URI;
@@ -63,10 +58,10 @@ public class Login {
         Response loginResponse = api.login(DASHBOARD_LOGIN_PHONE_PATH, body);
         loginResponse.then().statusCode(200);
         accessToken = loginResponse.jsonPath().getString("accessToken");
-        storeID = loginResponse.jsonPath().getInt("store.id");
+        apiStoreID = loginResponse.jsonPath().getInt("store.id");
         Map<String, String> map = new HashMap<>();
         map.put("accessToken",accessToken);
-        map.put("storeID",String.valueOf(storeID));
+        map.put("storeID",String.valueOf(apiStoreID));
         System.out.println(map);
         return map;
     }

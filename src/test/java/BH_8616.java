@@ -9,7 +9,7 @@ import pages.storefront.detail_product.ProductDetailPage;
 
 import java.io.File;
 
-import static utilities.api_body.product.CreateProductBody.isHideStock;
+import static utilities.api_body.product.CreateProductBody.apiIsHideStock;
 
 // BH_8616:Check to display/hide if out of stock at product detail
 public class BH_8616 extends BaseTest {
@@ -35,7 +35,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G1_Case1_1_HideStockAndInStock() throws Exception {
         testCaseId = "BH_8616_G1_Case1_1";
         boolean isIMEIProduct = false;
-        isHideStock = true;
+        apiIsHideStock = true;
         int branchStock = 5;
         new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                         branchStock);
@@ -53,7 +53,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G1_Case2_1_ShowStockAndInStock() throws Exception {
         testCaseId = "BH_8616_G1_Case2_1";
         boolean isIMEIProduct = false;
-        isHideStock = false;
+        apiIsHideStock = false;
         int branchStock = 5;
         new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
@@ -72,7 +72,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G2_Case1_1_HideStockAndInStock() throws Exception {
         testCaseId = "BH_8616_G2_Case1_1";
         boolean isIMEIProduct = true;
-        isHideStock = true;
+        apiIsHideStock = true;
         int branchStock = 5;
         new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                         branchStock);
@@ -90,7 +90,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G2_Case2_1_ShowStockAndInStock() throws Exception {
         testCaseId = "BH_8616_G2_Case2_1";
         boolean isIMEIProduct = true;
-        isHideStock = false;
+        apiIsHideStock = false;
         int branchStock = 5;
         new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
@@ -109,7 +109,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G3_Case1_1_HideStockAndInStock_AllVariations() throws Exception {
         testCaseId = "BH_8616_G3_Case1_1";
         boolean isIMEIProduct = false;
-        isHideStock = true;
+        apiIsHideStock = true;
         int increaseNum = 1;
         int branchStock = 2;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -129,7 +129,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G3_Case1_2_HideStockAndInStock_SomeVariations() throws Exception {
         testCaseId = "BH_8616_G3_Case1_2";
         boolean isIMEIProduct = false;
-        isHideStock = true;
+        apiIsHideStock = true;
         int increaseNum = 1;
         int branchStock = 0;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -149,7 +149,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G3_Case2_1_ShowStockAndInStock_AllVariations() throws Exception {
         testCaseId = "BH_8616_G3_Case2_1";
         boolean isIMEIProduct = false;
-        isHideStock = false;
+        apiIsHideStock = false;
         int increaseNum = 1;
         int branchStock = 2;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -168,7 +168,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G3_Case2_2_ShowStockAndInStock_SomeVariations() throws Exception {
         testCaseId = "BH_8616_G3_Case2_2";
         boolean isIMEIProduct = false;
-        isHideStock = false;
+        apiIsHideStock = false;
         int increaseNum = 1;
         int branchStock = 0;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -190,7 +190,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G4_Case1_1_HideStockAndInStock_AllVariations() throws Exception {
         testCaseId = "BH_8616_G4_Case1_1";
         boolean isIMEIProduct = true;
-        isHideStock = true;
+        apiIsHideStock = true;
         int increaseNum = 1;
         int branchStock = 2;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -210,7 +210,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G4_Case1_2_HideStockAndInStock_SomeVariations() throws Exception {
         testCaseId = "BH_8616_G4_Case1_2";
         boolean isIMEIProduct = true;
-        isHideStock = true;
+        apiIsHideStock = true;
         int increaseNum = 1;
         int branchStock = 0;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -230,7 +230,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G4_Case2_1_ShowStockAndInStock_AllVariations() throws Exception {
         testCaseId = "BH_8616_G4_Case2_1";
         boolean isIMEIProduct = true;
-        isHideStock = false;
+        apiIsHideStock = false;
         int increaseNum = 1;
         int branchStock = 2;
         new CreateProduct().createVariationProduct(isIMEIProduct,
@@ -249,7 +249,7 @@ public class BH_8616 extends BaseTest {
     public void BH_8616_G4_Case2_2_ShowStockAndInStock_SomeVariations() throws Exception {
         testCaseId = "BH_8616_G4_Case2_2";
         boolean isIMEIProduct = true;
-        isHideStock = false;
+        apiIsHideStock = false;
         int increaseNum = 1;
         int branchStock = 0;
         new CreateProduct().createVariationProduct(isIMEIProduct,

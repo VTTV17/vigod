@@ -19,13 +19,13 @@ public class CreateProductBody {
     public List<Integer> productSellingPrice;
     // String: variation name, List: stock quantity per each branch
     public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
-    public static boolean isDisplayOutOfStock = true;
-    public static boolean isHideStock = false;
-    public static boolean isEnableListing = false;
-    public static boolean isShowOnApp = true;
-    public static boolean isShowOnWeb = true;
-    public static boolean isShowInStore = true;
-    public static boolean isShowInGosocial = true;
+    public static boolean apiIsDisplayOutOfStock = true;
+    public static boolean apiIsHideStock = false;
+    public static boolean apiIsEnableListing = false;
+    public static boolean apiIsShowOnApp = true;
+    public static boolean apiIsShowOnWeb = true;
+    public static boolean apiIsShowInStore = true;
+    public static boolean apiIsShowInGosocial = true;
 
     public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID) {
         return """
@@ -77,7 +77,7 @@ public class CreateProductBody {
                         "length": 10,
                         "width": 10
                     },
-                """.formatted(name, currency, description, taxID, isDisplayOutOfStock, isHideStock, isEnableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", isShowOnApp, isShowOnWeb, isShowInStore, isShowInGosocial);
+                """.formatted(name, currency, description, taxID, apiIsDisplayOutOfStock, apiIsHideStock, apiIsEnableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", apiIsShowOnApp, apiIsShowOnWeb, apiIsShowInStore, apiIsShowInGosocial);
     }
 
     public String variationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int increaseNum, int... branchStockQuantity) {

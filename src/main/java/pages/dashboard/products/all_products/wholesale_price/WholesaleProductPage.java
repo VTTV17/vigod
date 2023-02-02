@@ -1,8 +1,6 @@
 package pages.dashboard.products.all_products.wholesale_price;
 
 import api.dashboard.customers.Customers;
-import api.dashboard.login.Login;
-import api.dashboard.setting.StoreInformation;
 import api.storefront.login.LoginSF;
 import api.storefront.signup.SignUp;
 import org.openqa.selenium.By;
@@ -21,10 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static api.dashboard.customers.Customers.segmentName;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static pages.dashboard.login.LoginPage.sellerAccount;
-import static pages.dashboard.login.LoginPage.sellerPassword;
 import static pages.dashboard.products.all_products.ProductPage.*;
 import static utilities.links.Links.DOMAIN;
 
@@ -47,12 +42,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
     }
 
     void createSegmentByAPI() throws SQLException {
-        // login to dashboard
-        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
-
-        // get store information
-        new StoreInformation().getStoreInformation();
-
         // sign up SF account
         new SignUp().signUpByPhoneNumber();
 
@@ -63,7 +52,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         commonAction.sleepInMiliSecond(3000);
 
         // add tag and create segment by tag name
-        new Customers().addCustomerTag(SignUp.customerName).createSegment();
+        new Customers().addCustomerTag(SignUp.apiCustomerName).createSegment();
     }
 
     public WholesaleProductPage navigateToWholesaleProductPage() throws SQLException {
@@ -77,7 +66,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         commonAction.verifyPageLoaded("Chọn kênh bán hàng", "Select sale channel");
 
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
-        if (!(boolean)((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX))
+        if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
 
@@ -119,7 +108,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         // search segment
         wait.until(ExpectedConditions.visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(segmentName));
+        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(Customers.apiSegmentName));
 
         // select segment
         wait.until(ExpectedConditions.visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();
@@ -133,6 +122,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     /* Variation config */
     List<String> variationSaleList = new ArrayList<>();
+
     void selectVariation() {
         for (int i = 0; i < numOfWholesaleProduct; i++) {
             // open Add variation popup
@@ -177,7 +167,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // search segment
             commonAction.sleepInMiliSecond(1000);
             wait.until(ExpectedConditions.visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(segmentName));
+            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(Customers.apiSegmentName));
 
             // select segment
             wait.until(ExpectedConditions.visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();

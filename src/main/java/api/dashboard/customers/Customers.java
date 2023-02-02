@@ -1,8 +1,6 @@
 package api.dashboard.customers;
 
 import io.restassured.response.Response;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 
@@ -18,26 +16,24 @@ public class Customers {
 
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
-    public static String customerName;
-    public static String customerTag;
-    public static int buyerId;
-    public static int profileId;
+    public static String apiCustomerName;
+    public static String apiCustomerTag;
+    public static int apiBuyerId;
+    public static int apiProfileId;
 
-    public static String customerPhoneCode;
-    public static String customerPhoneNum;
+    public static String apiCustomerPhoneCode;
+    public static String apiCustomerPhoneNum;
 
-    public static String segmentName;
+    public static String apiSegmentName;
 
-    public static int segmentID;
+    public static int apiSegmentID;
 
     API api = new API();
 
-    Logger logger = LogManager.getLogger(Customers.class);
-
     public Customers createNewCustomer() {
-        customerName = randomAlphabetic(nextInt(MAX_CUSTOMER_NAME) + 1);
-        customerPhoneNum = random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + MIN_PHONE_NUMBER), false, true);
-        customerTag = randomAlphabetic(nextInt(MAX_CUSTOMER_TAG_LENGTH) + 1);
+        apiCustomerName = randomAlphabetic(nextInt(MAX_CUSTOMER_NAME) + 1);
+        apiCustomerPhoneNum = random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + MIN_PHONE_NUMBER), false, true);
+        apiCustomerTag = randomAlphabetic(nextInt(MAX_CUSTOMER_TAG_LENGTH) + 1);
         String body = """
                 {
                     "name": "%s",
@@ -57,24 +53,24 @@ public class Customers {
                     "countryCode": "VN",
                     "storeName": "%s",
                     "langKey": "en"
-                }""".formatted(customerName, customerPhoneNum, customerTag, storeName);
+                }""".formatted(apiCustomerName, apiCustomerPhoneNum, apiCustomerTag, apiStoreName);
 
-        Response createCustomerResponse = api.post(CREATE_POS_CUSTOMER_PATH + storeID, accessToken, body);
+        Response createCustomerResponse = api.post(CREATE_POS_CUSTOMER_PATH + apiStoreID, accessToken, body);
         createCustomerResponse.then().statusCode(200);
-        buyerId = createCustomerResponse.jsonPath().getInt("userId");
-        profileId = createCustomerResponse.jsonPath().getInt("id");
+        apiBuyerId = createCustomerResponse.jsonPath().getInt("userId");
+        apiProfileId = createCustomerResponse.jsonPath().getInt("id");
         return this;
     }
 
     public Customers addCustomerTag(String customerName) {
-        Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, storeID, customerName), accessToken);
+        Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
         searchCustomerByName.then().statusCode(200);
 
-        buyerId = searchCustomerByName.jsonPath().getInt("userId[0]");
-        profileId = searchCustomerByName.jsonPath().getInt("id[0]");
-        customerPhoneCode = searchCustomerByName.jsonPath().getString("phone[0]").replace("(", "").replace(")", " ").split(" ")[0];
-        customerPhoneNum = searchCustomerByName.jsonPath().getString("phone[0]").replace(")", " ").split(" ")[1];
-        customerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
+        apiBuyerId = searchCustomerByName.jsonPath().getInt("userId[0]");
+        apiProfileId = searchCustomerByName.jsonPath().getInt("id[0]");
+        apiCustomerPhoneCode = searchCustomerByName.jsonPath().getString("phone[0]").replace("(", "").replace(")", " ").split(" ")[0];
+        apiCustomerPhoneNum = searchCustomerByName.jsonPath().getString("phone[0]").replace(")", " ").split(" ")[1];
+        apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
 
         String body = """
                 {
@@ -104,14 +100,14 @@ public class Customers {
                     "taxCode": "",
                     "backupPhones": [],
                     "backupEmails": []
-                }""".formatted(profileId, customerName, customerPhoneCode, customerName, customerPhoneNum, customerTag);
-        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, storeID), accessToken, body);
+                }""".formatted(apiProfileId, customerName, apiCustomerPhoneCode, customerName, apiCustomerPhoneNum, apiCustomerTag);
+        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, apiStoreID), accessToken, body);
         updateCustomerProfile.then().statusCode(200);
         return this;
     }
 
     public void createSegment() {
-        segmentName = "Auto - Segment - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        apiSegmentName = "Auto - Segment - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {
                     "name": "%s",
@@ -123,9 +119,9 @@ public class Customers {
                         }
                     ]
                 }
-                """.formatted(segmentName, customerTag);
-        Response createSegment = api.post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+                """.formatted(apiSegmentName, apiCustomerTag);
+        Response createSegment = api.post(CREATE_SEGMENT_PATH + apiStoreID, accessToken, body);
         createSegment.then().statusCode(200);
-        segmentID = createSegment.jsonPath().getInt("id");
+        apiSegmentID = createSegment.jsonPath().getInt("id");
     }
 }

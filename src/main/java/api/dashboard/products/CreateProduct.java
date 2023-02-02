@@ -13,12 +13,12 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.storeID;
-import static api.dashboard.marketing.LoyaltyProgram.membershipStatus;
+import static api.dashboard.login.Login.apiStoreID;
+import static api.dashboard.marketing.LoyaltyProgram.apiMembershipStatus;
 import static api.dashboard.promotion.CreatePromotion.*;
-import static api.dashboard.setting.BranchManagement.branchID;
-import static api.dashboard.setting.BranchManagement.branchName;
-import static api.dashboard.setting.VAT.taxList;
+import static api.dashboard.setting.BranchManagement.apiBranchID;
+import static api.dashboard.setting.BranchManagement.apiBranchName;
+import static api.dashboard.setting.VAT.apiTaxList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -34,28 +34,27 @@ public class CreateProduct {
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
 
     // product info
-    public static Map<String, List<String>> variationMap;
-    public static List<String> variationList;
-    public static List<Integer> variationModelID;
-    public static Map<String, List<Integer>> productStockQuantity;
-    public static List<Integer> productListingPrice;
-    public static List<Integer> productSellingPrice;
+    public static Map<String, List<String>> apiVariationMap;
+    public static List<String> apiVariationList;
+    public static List<Integer> apiVariationModelID;
+    public static Map<String, List<Integer>> apiProductStockQuantity;
+    public static List<Integer> apiProductListingPrice;
+    public static List<Integer> apiProductSellingPrice;
 
     // wholesale product price
-    public static List<Integer> wholesaleProductPrice;
-    public static List<Float> wholesaleProductRate;
-    public static List<Integer> wholesaleProductStock;
-    public static Map<String, List<Boolean>> wholesaleProductStatus;
+    public static List<Integer> apiWholesaleProductPrice;
+    public static List<Float> apiWholesaleProductRate;
+    public static List<Integer> apiWholesaleProductStock;
+    public static Map<String, List<Boolean>> apiWholesaleProductStatus;
 
-    public static boolean isVariation;
-    public static int productID;
-    public static String productName;
-    public static String productDescription;
-    public static int taxID;
+    public static boolean apiIsVariation;
+    public static int apiProductID;
+    public static String apiProductName;
+    public static String apiProductDescription;
+    public static int apiTaxID;
 
-    public static int collectionID;
-    public static boolean hasCollections;
-    public static String collectionName;
+    public static int apiCollectionID;
+    public static String apiCollectionName;
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
@@ -63,37 +62,37 @@ public class CreateProduct {
 
     public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
         // is not variation product
-        isVariation = false;
+        apiIsVariation = false;
 
         // random some product information
         // product name
-        productName = isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - ");
-        productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        apiProductName = isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - ");
+        apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
-        productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        apiProductDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
 
         // product tax
-        taxID = taxList.get(nextInt(taxList.size()));
+        apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
-                productBody.withoutVariationInfo(isIMEIProduct, branchID, branchName, branchStock),
-                productBody.withoutVariationBranchConfig(branchID));
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID),
+                productBody.withoutVariationInfo(isIMEIProduct, apiBranchID, apiBranchName, branchStock),
+                productBody.withoutVariationBranchConfig(apiBranchID));
 
         // get product stock and price
-        variationList = new ArrayList<>();
-        variationList.addAll(productBody.variationList);
+        apiVariationList = new ArrayList<>();
+        apiVariationList.addAll(productBody.variationList);
 
-        productSellingPrice = new ArrayList<>();
-        productSellingPrice.addAll(productBody.productSellingPrice);
+        apiProductSellingPrice = new ArrayList<>();
+        apiProductSellingPrice.addAll(productBody.productSellingPrice);
 
-        productListingPrice = new ArrayList<>();
-        productListingPrice.addAll(productBody.productListingPrice);
+        apiProductListingPrice = new ArrayList<>();
+        apiProductListingPrice.addAll(productBody.productListingPrice);
 
-        productStockQuantity = new HashMap<>();
-        productBody.productStockQuantity.keySet().forEach(key -> productStockQuantity.put(key, productBody.productStockQuantity.get(key)));
+        apiProductStockQuantity = new HashMap<>();
+        productBody.productStockQuantity.keySet().forEach(key -> apiProductStockQuantity.put(key, productBody.productStockQuantity.get(key)));
 
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
@@ -103,8 +102,8 @@ public class CreateProduct {
         }
         createProductResponse.then().statusCode(201);
 
-        // get productID for another test
-        productID = createProductResponse.jsonPath().getInt("id");
+        // get apiProductID for another test
+        apiProductID = createProductResponse.jsonPath().getInt("id");
 
         // init discount information
         initDiscountInformation();
@@ -115,40 +114,40 @@ public class CreateProduct {
 
     public CreateProduct createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
         // is variation product
-        isVariation = true;
+        apiIsVariation = true;
 
         // random some product information
         // product name
-        productName = isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - ");
-        productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        apiProductName = isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - ");
+        apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
-        productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        apiProductDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
 
         // product tax
-        taxID = taxList.get(nextInt(taxList.size()));
+        apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
 
         // create body
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, productName, STORE_CURRENCY, productDescription, taxID),
-                productBody.variationInfo(isIMEIProduct, branchID, branchName, increaseNum, branchStock),
-                productBody.variationBranchConfig(branchID));
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID),
+                productBody.variationInfo(isIMEIProduct, apiBranchID, apiBranchName, increaseNum, branchStock),
+                productBody.variationBranchConfig(apiBranchID));
 
         // get product stock and price
-        variationMap = new HashMap<>();
-        productBody.variationMap.keySet().forEach(key -> variationMap.put(key, productBody.variationMap.get(key)));
+        apiVariationMap = new HashMap<>();
+        productBody.variationMap.keySet().forEach(key -> apiVariationMap.put(key, productBody.variationMap.get(key)));
 
-        variationList = new ArrayList<>();
-        variationList.addAll(productBody.variationList);
+        apiVariationList = new ArrayList<>();
+        apiVariationList.addAll(productBody.variationList);
 
-        productSellingPrice = new ArrayList<>();
-        productSellingPrice.addAll(productBody.productSellingPrice);
+        apiProductSellingPrice = new ArrayList<>();
+        apiProductSellingPrice.addAll(productBody.productSellingPrice);
 
-        productListingPrice = new ArrayList<>();
-        productListingPrice.addAll(productBody.productListingPrice);
+        apiProductListingPrice = new ArrayList<>();
+        apiProductListingPrice.addAll(productBody.productListingPrice);
 
-        productStockQuantity = new HashMap<>();
-        productBody.productStockQuantity.keySet().forEach(key -> productStockQuantity.put(key, productBody.productStockQuantity.get(key)));
+        apiProductStockQuantity = new HashMap<>();
+        productBody.productStockQuantity.keySet().forEach(key -> apiProductStockQuantity.put(key, productBody.productStockQuantity.get(key)));
 
 
         // post without variation product
@@ -161,11 +160,11 @@ public class CreateProduct {
         // if pre-condition can not complete -> skip test
         createProductResponse.then().statusCode(201);
 
-        // get productID for another test
-        productID = createProductResponse.jsonPath().getInt("id");
+        // get apiProductID for another test
+        apiProductID = createProductResponse.jsonPath().getInt("id");
 
         // get variation modelID
-        variationModelID = createProductResponse.jsonPath().getList("models.id");
+        apiVariationModelID = createProductResponse.jsonPath().getList("models.id");
 
         // init discount information
         initDiscountInformation();
@@ -175,55 +174,55 @@ public class CreateProduct {
 
     void initDiscountInformation() {
         // init wholesale product status
-        wholesaleProductStatus = new HashMap<>();
-        branchName.forEach(brName -> wholesaleProductStatus
-                .put(brName, IntStream.range(0, variationList.size())
+        apiWholesaleProductStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiWholesaleProductStatus
+                .put(brName, IntStream.range(0, apiVariationList.size())
                         .mapToObj(i -> false).toList()));
 
         // init flash sale status
-        flashSaleStatus = new HashMap<>();
-        branchName.forEach(brName -> flashSaleStatus
-                .put(brName, IntStream.range(0, variationList.size())
+        apiFlashSaleStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiFlashSaleStatus
+                .put(brName, IntStream.range(0, apiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // init discount campaign status
-        discountCampaignStatus = new HashMap<>();
-        branchName.forEach(brName -> discountCampaignStatus
-                .put(brName, IntStream.range(0, variationList.size())
+        apiDiscountCampaignStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
+                .put(brName, IntStream.range(0, apiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // init flash sale price
-        flashSalePrice = new ArrayList<>();
-        flashSalePrice.addAll(productSellingPrice);
+        apiFlashSalePrice = new ArrayList<>();
+        apiFlashSalePrice.addAll(apiProductSellingPrice);
 
         // init flash sale stock
-        flashSaleStock = new ArrayList<>();
-        variationList.forEach(varName -> flashSaleStock.add(Collections.max(productStockQuantity.get(varName))));
+        apiFlashSaleStock = new ArrayList<>();
+        apiVariationList.forEach(varName -> apiFlashSaleStock.add(Collections.max(apiProductStockQuantity.get(varName))));
 
         // init product discount campaign price
-        discountCampaignPrice = new ArrayList<>();
-        discountCampaignPrice.addAll(productSellingPrice);
+        apiDiscountCampaignPrice = new ArrayList<>();
+        apiDiscountCampaignPrice.addAll(apiProductSellingPrice);
 
         // init wholesale product price, rate and stock
-        wholesaleProductPrice = new ArrayList<>();
-        wholesaleProductPrice.addAll(productSellingPrice);
+        apiWholesaleProductPrice = new ArrayList<>();
+        apiWholesaleProductPrice.addAll(apiProductSellingPrice);
 
-        wholesaleProductRate = new ArrayList<>();
-        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
+        apiWholesaleProductRate = new ArrayList<>();
+        IntStream.range(0, apiWholesaleProductPrice.size()).forEach(i -> apiWholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) apiWholesaleProductPrice.get(i) / apiProductSellingPrice.get(i)) * 100))));
 
-        wholesaleProductStock = new ArrayList<>();
-        variationList.forEach(varName -> wholesaleProductStock.add(Collections.max(productStockQuantity.get(varName))));
+        apiWholesaleProductStock = new ArrayList<>();
+        apiVariationList.forEach(varName -> apiWholesaleProductStock.add(Collections.max(apiProductStockQuantity.get(varName))));
 
         // discount code
-        discountCodeStatus = new HashMap<>();
-        branchName.forEach(brName -> discountCodeStatus
-                .put(brName, IntStream.range(0, variationList.size())
+        apiDiscountCodeStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiDiscountCodeStatus
+                .put(brName, IntStream.range(0, apiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // membership
-        membershipStatus = new HashMap<>();
-        branchName.forEach(brName -> membershipStatus
-                .put(brName, IntStream.range(0, variationList.size())
+        apiMembershipStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiMembershipStatus
+                .put(brName, IntStream.range(0, apiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
     }
 
@@ -231,13 +230,13 @@ public class CreateProduct {
         StringBuilder body = new StringBuilder("""
                 {
                     "itemId": "%s",
-                    "lstWholesalePricingDto": [""".formatted(productID));
-        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.segmentID);
-        int num = isVariation ? nextInt(variationList.size()) + 1 : 1;
-        if (isVariation) {
+                    "lstWholesalePricingDto": [""".formatted(apiProductID));
+        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.apiSegmentID);
+        int num = apiIsVariation ? nextInt(apiVariationList.size()) + 1 : 1;
+        if (apiIsVariation) {
             for (int i = 0; i < num; i++) {
-                wholesaleProductPrice.set(i, nextInt(productSellingPrice.get(i)) + 1);
-                wholesaleProductStock.set(i, nextInt(Collections.max(productStockQuantity.get(variationList.get(i)))) + 1);
+                apiWholesaleProductPrice.set(i, nextInt(apiProductSellingPrice.get(i)) + 1);
+                apiWholesaleProductStock.set(i, nextInt(Collections.max(apiProductStockQuantity.get(apiVariationList.get(i)))) + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
                         {
@@ -250,14 +249,14 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, wholesaleProductStock.get(i), "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, wholesaleProductPrice.get(i), segmentIDs, productID);
+                        }""".formatted(title, apiWholesaleProductStock.get(i), "%s_%s".formatted(apiProductID, apiVariationModelID.get(i)), STORE_CURRENCY, apiWholesaleProductPrice.get(i), segmentIDs, apiProductID);
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            wholesaleProductPrice.set(0, nextInt(productSellingPrice.get(0)) + 1);
-            wholesaleProductStock.set(0, nextInt(Collections.max(productStockQuantity.get(null))) + 1);
+            apiWholesaleProductPrice.set(0, nextInt(apiProductSellingPrice.get(0)) + 1);
+            apiWholesaleProductStock.set(0, nextInt(Collections.max(apiProductStockQuantity.get(null))) + 1);
             String variationWholesaleConfig = """
                     {
                         "id": null,
@@ -269,7 +268,7 @@ public class CreateProduct {
                         "segmentIds": "%s",
                         "itemId": "%s",
                         "action": null
-                    }""".formatted(title, wholesaleProductStock.get(0), productID, STORE_CURRENCY, wholesaleProductPrice.get(0), segmentIDs, productID);
+                    }""".formatted(title, apiWholesaleProductStock.get(0), apiProductID, STORE_CURRENCY, apiWholesaleProductPrice.get(0), segmentIDs, apiProductID);
             body.append(variationWholesaleConfig);
         }
         body.append("]}");
@@ -278,17 +277,16 @@ public class CreateProduct {
         addWholesale.then().statusCode(200);
 
         // update wholesale product rate
-        wholesaleProductRate = new ArrayList<>();
-        IntStream.range(0, wholesaleProductPrice.size()).forEach(i -> wholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) wholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
+        apiWholesaleProductRate = new ArrayList<>();
+        IntStream.range(0, apiWholesaleProductPrice.size()).forEach(i -> apiWholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) apiWholesaleProductPrice.get(i) / apiProductSellingPrice.get(i)) * 100))));
 
         // update wholesale product status
-        branchName.forEach(brName -> wholesaleProductStatus.put(brName, IntStream.range(0, isVariation ? variationList.size() : 1).mapToObj(i -> i < num).toList()));
+        apiBranchName.forEach(brName -> apiWholesaleProductStatus.put(brName, IntStream.range(0, apiIsVariation ? apiVariationList.size() : 1).mapToObj(i -> i < num).toList()));
         return this;
     }
 
     public void createCollection() {
-        hasCollections = true;
-        collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        apiCollectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {
                     "name": "%s",
@@ -309,11 +307,11 @@ public class CreateProduct {
                     "lstProduct": [],
                     "itemType": "BUSINESS_PRODUCT",
                     "bcStoreId": "%s"
-                }""".formatted(collectionName, storeID);
-        Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + storeID, accessToken, body);
+                }""".formatted(apiCollectionName, apiStoreID);
+        Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + apiStoreID, accessToken, body);
 
         createCollection.then().statusCode(200);
 
-        collectionID = createCollection.jsonPath().getInt("id");
+        apiCollectionID = createCollection.jsonPath().getInt("id");
     }
 }

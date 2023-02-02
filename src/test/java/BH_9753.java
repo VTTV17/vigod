@@ -10,7 +10,7 @@ import pages.storefront.detail_product.ProductDetailPage;
 import java.io.File;
 import java.util.Arrays;
 
-import static api.dashboard.setting.BranchManagement.branchID;
+import static api.dashboard.setting.BranchManagement.apiBranchID;
 
 public class BH_9753 extends BaseTest{
     CreateProduct createProduct;
@@ -42,7 +42,7 @@ public class BH_9753 extends BaseTest{
         testCaseId = "BH_9753_G1_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
 
@@ -64,7 +64,7 @@ public class BH_9753 extends BaseTest{
         testCaseId = "BH_9753_G1_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
 
@@ -86,7 +86,7 @@ public class BH_9753 extends BaseTest{
         testCaseId = "BH_9753_G1_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
 
@@ -109,7 +109,7 @@ public class BH_9753 extends BaseTest{
         testCaseId = "BH_9753_G2_Case1_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
 
@@ -131,7 +131,7 @@ public class BH_9753 extends BaseTest{
         testCaseId = "BH_9753_G2_Case2_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
 
@@ -153,7 +153,7 @@ public class BH_9753 extends BaseTest{
         testCaseId = "BH_9753_G3_Case1_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
 
@@ -177,7 +177,7 @@ public class BH_9753 extends BaseTest{
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
 
@@ -200,7 +200,7 @@ public class BH_9753 extends BaseTest{
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
 
@@ -223,7 +223,7 @@ public class BH_9753 extends BaseTest{
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
 
@@ -247,7 +247,7 @@ public class BH_9753 extends BaseTest{
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
 
@@ -270,7 +270,7 @@ public class BH_9753 extends BaseTest{
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
 
@@ -293,7 +293,7 @@ public class BH_9753 extends BaseTest{
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        int[] stock = new int[branchID.size()];
+        int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
         createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
 

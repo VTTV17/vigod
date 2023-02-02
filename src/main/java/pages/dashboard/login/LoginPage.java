@@ -1,8 +1,12 @@
 package pages.dashboard.login;
 
+import api.dashboard.login.Login;
+import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -97,7 +101,13 @@ public class LoginPage {
     
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
-        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+        } catch (TimeoutException ex) {
+            logger.info(ex);
+            driver.get(DOMAIN + LOGIN_PATH);
+            new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+        }
         return this;
     }
 
@@ -236,6 +246,18 @@ public class LoginPage {
 
     public void completeVerify() {
         soft.assertAll();
-    }    
-    
+    }
+
+    /* get dashboard information */
+    public void getDashboardInformation() {
+        // login to dashboard
+        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+
+        // get store information
+        new StoreInformation().getStoreInformation();
+
+        // get branch information
+        new BranchManagement().getBranchInformation();
+    }
+
 }

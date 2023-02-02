@@ -17,7 +17,7 @@
 //import java.io.IOException;
 //import java.sql.SQLException;
 //
-//import static api.dashboard.setting.StoreInformation.storeURL;
+//import static api.dashboard.setting.StoreInformation.apiStoreURL;
 //import static api.storefront.signup.SignUp.*;
 //import static java.lang.Thread.sleep;
 //import static utilities.links.Links.SF_DOMAIN;
@@ -43,7 +43,7 @@
 //
 //        new Customers().addCustomerTag(customerName).createSegment();
 //
-//        sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
+//        sfDomain = "https://%s%s/".formatted(apiStoreURL, SF_DOMAIN);
 //
 //    }
 //

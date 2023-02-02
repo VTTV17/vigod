@@ -8,12 +8,11 @@ import utilities.combine.Combination;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 
 import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.storeID;
-import static api.dashboard.setting.BranchManagement.branchID;
+import static api.dashboard.login.Login.apiStoreID;
+import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 
@@ -23,13 +22,13 @@ public class DiscountCode {
         new Login().loginToDashboardByMail(account, password);
         new BranchManagement().getBranchInformation();
         API api = new API();
-        Response segmentList = api.get("/beehiveservices/api/segments/store/%s?page=0&size=100".formatted(storeID), accessToken);
+        Response segmentList = api.get("/beehiveservices/api/segments/store/%s?page=0&size=100".formatted(apiStoreID), accessToken);
         segmentList.then().statusCode(200);
 
-        Response productList = api.get("/itemservice/api/store/dashboard/%s/items-v2?langKey=vi&page=0&size=100".formatted(storeID), accessToken);
+        Response productList = api.get("/itemservice/api/store/dashboard/%s/items-v2?langKey=vi&page=0&size=100".formatted(apiStoreID), accessToken);
         productList.then().statusCode(200);
 
-        Response collectionList = api.get("/itemservice/api/collections/list/%s?page=0&size=100&itemType=BUSINESS_PRODUCT".formatted(storeID), accessToken);
+        Response collectionList = api.get("/itemservice/api/collections/list/%s?page=0&size=100&itemType=BUSINESS_PRODUCT".formatted(apiStoreID), accessToken);
         collectionList.then().statusCode(200);
 
         List<Integer> segmentIDList = segmentList.jsonPath().getList("id");
@@ -179,7 +178,7 @@ public class DiscountCode {
                                                 String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
                                                         {
                                                             "conditionValue": "%s"
-                                                        }""".formatted(branchID.get(nextInt(branchID.size())));
+                                                        }""".formatted(apiBranchID.get(nextInt(apiBranchID.size())));
                                                 String applicableBranch = """
                                                         {
                                                             "conditionOption": "%s",
@@ -228,7 +227,7 @@ public class DiscountCode {
                                                                         "feeShippingType": "FIXED_AMOUNT",
                                                                         "enabledRewards": %s,
                                                                         "rewardsDescription": "%s",
-                                                                        "conditions": [""".formatted(name10, storeID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
+                                                                        "conditions": [""".formatted(name10, apiStoreID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
                                                             appliesToCondition +
                                                             minimumRequirement +
                                                             applicableBranch +
@@ -305,7 +304,7 @@ public class DiscountCode {
                                             String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
                                                     {
                                                         "conditionValue": "%s"
-                                                    }""".formatted(branchID.get(nextInt(branchID.size())));
+                                                    }""".formatted(apiBranchID.get(nextInt(apiBranchID.size())));
                                             String applicableBranch = """
                                                     {
                                                         "conditionOption": "%s",
@@ -354,7 +353,7 @@ public class DiscountCode {
                                                                     "feeShippingType": "FIXED_AMOUNT",
                                                                     "enabledRewards": %s,
                                                                     "rewardsDescription": "%s",
-                                                                    "conditions": [""".formatted(name10, storeID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
+                                                                    "conditions": [""".formatted(name10, apiStoreID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
                                                         appliesToCondition +
                                                         minimumRequirement +
                                                         applicableBranch +

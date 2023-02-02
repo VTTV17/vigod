@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
 import pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
@@ -23,13 +24,12 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static api.dashboard.marketing.LoyaltyProgram.membershipStatus;
+import static api.dashboard.marketing.LoyaltyProgram.apiMembershipStatus;
 import static api.dashboard.promotion.CreatePromotion.*;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static api.dashboard.setting.BranchManagement.apiBranchName;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage.*;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
-import static utilities.character_limit.CharacterLimit.MAX_PRODUCT_DESCRIPTION;
 import static utilities.links.Links.DOMAIN;
 import static utilities.page_loaded_text.PageLoadedText.DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_ENG;
 import static utilities.page_loaded_text.PageLoadedText.DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_VIE;
@@ -39,6 +39,7 @@ public class ProductPage extends ProductPageElement {
     Actions act;
     UICommonAction commonAction;
     String CREATE_PRODUCT_PATH = "/product/create";
+    public static boolean isCreateByUI;
 
     Logger logger = LogManager.getLogger(ProductPage.class);
 
@@ -50,6 +51,7 @@ public class ProductPage extends ProductPageElement {
     }
 
     public static String uiProductName;
+    public static String uiProductDescription;
     public static List<Integer> uiProductListingPrice;
     public static List<Integer> uiProductSellingPrice;
     public static Map<String, List<String>> uiVariationMap;
@@ -66,7 +68,8 @@ public class ProductPage extends ProductPageElement {
     public static boolean uiIsShowInGoSocial = true;
     public static boolean uiIsIMEIProduct;
     public static Integer uiProductID;
-    boolean isVariation;
+    public static boolean uiIsVariation;
+    public static String uiCollectionName;
 
     public ProductPage clickPrintBarcode() {
         if (commonAction.isElementVisiblyDisabled(PRINT_BARCODE_BTN.findElement(By.xpath("./parent::*")))) {
@@ -138,6 +141,8 @@ public class ProductPage extends ProductPageElement {
         new UICommonAction(driver).verifyPageLoaded(DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_VIE, DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_ENG);
     }
 
+    List<String> activeBranches;
+
     public ProductPage navigateToCreateProductPage() {
         // access to create product page by URL
         driver.get("%s%s".formatted(DOMAIN, CREATE_PRODUCT_PATH));
@@ -156,10 +161,14 @@ public class ProductPage extends ProductPageElement {
 
         // get branch name list
         uiBranchName = new ArrayList<>();
+        uiBranchName.addAll(apiBranchName);
+
+        activeBranches = new ArrayList<>();
+        commonAction.sleepInMiliSecond(1000);
         for (int i = 0; i < listBranchName.size(); i++) {
             try {
                 // get branch name
-                uiBranchName.add(listBranchName.get(i).getText());
+                activeBranches.add(listBranchName.get(i).getText());
             } catch (StaleElementReferenceException ex) {
                 logger.info(ex);
                 // wait all branches name element is visible again
@@ -169,9 +178,10 @@ public class ProductPage extends ProductPageElement {
                 listBranchName = driver.findElements(LIST_BRANCH_NAME);
 
                 // get branch name again
-                uiBranchName.add(listBranchName.get(i).getText());
+                activeBranches.add(listBranchName.get(i).getText());
             }
         }
+        System.out.println(activeBranches);
 
         return this;
     }
@@ -184,8 +194,14 @@ public class ProductPage extends ProductPageElement {
 
     void inputProductDescription() {
         // input product description
-        String productDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).sendKeys(productDescription);
+//        uiProductDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        uiProductDescription = """
+                What is Lorem Ipsum?
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                
+                Why do we use it?
+                It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).""";
+        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).sendKeys(uiProductDescription);
 
     }
 
@@ -228,7 +244,8 @@ public class ProductPage extends ProductPageElement {
             int index = nextInt(LIST_MANUAL_COLLECTION.size());
 
             // log
-            logger.info("Collection: %s".formatted(LIST_MANUAL_COLLECTION.get(index).getText()));
+            uiCollectionName = LIST_MANUAL_COLLECTION.get(index).getText();
+            logger.info("Collection: %s".formatted(uiCollectionName));
 
             // select collection
             LIST_MANUAL_COLLECTION.get(index).click();
@@ -333,7 +350,7 @@ public class ProductPage extends ProductPageElement {
         setSFDisplay();
         setProductDimension();
         selectPlatform();
-        inputSEO();
+//        inputSEO();
     }
 
     // Without variation product
@@ -365,9 +382,11 @@ public class ProductPage extends ProductPageElement {
         else ADD_IMEI_POPUP_BRANCH_DROPDOWN.click();
 
         // input IMEI/Serial number for each branch
-        for (int brIndex = 0; brIndex < uiBranchName.size(); brIndex++) {
-            for (int i = 0; i < branchStock.get(brIndex); i++) {
-                act.moveToElement(ADD_IMEI_POPUP_IMEI_TEXT_BOX.get(brIndex)).click().sendKeys("%s%s_IMEI_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", uiBranchName.get(brIndex), i)).build().perform();
+        for (int brIndex = 0; brIndex < activeBranches.size(); brIndex++) {
+            System.out.printf("**%s**%n", activeBranches.get(brIndex));
+            int brStockIndex = uiBranchName.indexOf(activeBranches.get(brIndex));
+            for (int i = 0; i < branchStock.get(brStockIndex); i++) {
+                act.moveToElement(ADD_IMEI_POPUP_IMEI_TEXT_BOX.get(brIndex)).click().sendKeys("%s%s_IMEI_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", activeBranches.get(brIndex), i)).build().perform();
             }
         }
 
@@ -383,7 +402,7 @@ public class ProductPage extends ProductPageElement {
 
         // get product stock quantity
         uiProductStockQuantity = new HashMap<>();
-        uiProductStockQuantity.put(null, IntStream.range(0, uiBranchName.size()).mapToObj(i -> branchStockQuantity.length > i ? branchStockQuantity[i] : 0).toList());
+        uiProductStockQuantity.put(null, IntStream.range(0, uiBranchName.size()).mapToObj(i -> (branchStockQuantity.length > i) ? (activeBranches.contains(uiBranchName.get(i)) ? branchStockQuantity[i] : 0) : 0).toList());
 
         /* input stock for each branch */
         if (uiIsIMEIProduct) {
@@ -403,7 +422,7 @@ public class ProductPage extends ProductPageElement {
             addIMEIForEachBranch(null, uiProductStockQuantity.get(null));
         } else {
             // handle StaleElementReference exception
-            for (int i = 0; i < uiBranchName.size(); i++) {
+            for (int i = 0; i < activeBranches.size(); i++) {
                 // clear old stock value
                 try {
                     // clear old stock value
@@ -442,7 +461,8 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
-        isVariation = false;
+        isCreateByUI = true;
+        uiIsVariation = false;
 
         // product name
         uiProductName = isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - ");
@@ -528,7 +548,7 @@ public class ProductPage extends ProductPageElement {
             List<Integer> variationStock = new ArrayList<>();
             // set branch stock
             for (int branchIndex = 0; branchIndex < uiBranchName.size(); branchIndex++) {
-                variationStock.add((branchStockQuantity.length > branchIndex) ? (branchStockQuantity[branchIndex] + (i * increaseNum)) : 0);
+                variationStock.add((branchStockQuantity.length > branchIndex) ? ((activeBranches.contains(uiBranchName.get(branchIndex)) ? (branchStockQuantity[branchIndex] + (i * increaseNum)) : 0)) : 0);
             }
             uiProductStockQuantity.put(uiVariationList.get(i), variationStock);
         }
@@ -536,7 +556,7 @@ public class ProductPage extends ProductPageElement {
         // input product price
         for (int i = 0; i < uiVariationList.size(); i++) {
             // open Update stock popup
-            act.moveToElement(commonAction.refreshListElement(VARIATION_TABLE_STOCK_QUANTITY).get(i)).click().build().perform();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_TABLE_STOCK_QUANTITY.get(i));
 
             // wait Update stock popup visible
             wait.until(ExpectedConditions.visibilityOf(POPUP));
@@ -550,13 +570,16 @@ public class ProductPage extends ProductPageElement {
                 // input stock quantity to visible stock input field
                 wait.until(ExpectedConditions.elementToBeClickable(UPDATE_STOCK_POPUP_INPUT_STOCK)).sendKeys(String.valueOf(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))) + 1));
 
+                commonAction.sleepInMiliSecond(1000);
+                System.out.println(uiProductStockQuantity.get(uiVariationList.get(i)));
+
                 // input stock for each branch
-                for (int brIndex = 0; brIndex < uiBranchName.size(); brIndex++) {
-                    act.moveToElement(commonAction.refreshListElement(UPDATE_STOCK_POPUP_NORMAL_VARIATION_STOCK).get(brIndex))
-                            .doubleClick()
-                            .sendKeys(String.valueOf(uiProductStockQuantity.get(uiVariationList.get(i)).get(brIndex)))
-                            .build()
-                            .perform();
+                for (int brIndex = activeBranches.size() - 1; brIndex >= 0; brIndex--) {
+                    int brStockIndex = uiBranchName.indexOf(activeBranches.get(brIndex));
+                    act.doubleClick(commonAction.refreshListElement(UPDATE_STOCK_POPUP_NORMAL_VARIATION_STOCK).get(brIndex)).build().perform();
+                    commonAction.sleepInMiliSecond(200);
+
+                    act.sendKeys(String.valueOf(uiProductStockQuantity.get(uiVariationList.get(i)).get(brStockIndex))).build().perform();
                 }
             }
 
@@ -566,7 +589,8 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
-        isVariation = true;
+        isCreateByUI = true;
+        uiIsVariation = true;
 
         // product name
         uiProductName = isIMEIProduct ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - ");
@@ -616,28 +640,28 @@ public class ProductPage extends ProductPageElement {
                         .mapToObj(i -> false).toList()));
 
         // init flash sale status
-        flashSaleStatus = new HashMap<>();
-        uiBranchName.forEach(brName -> flashSaleStatus
+        apiFlashSaleStatus = new HashMap<>();
+        uiBranchName.forEach(brName -> apiFlashSaleStatus
                 .put(brName, IntStream.range(0, uiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // init discount campaign status
-        discountCampaignStatus = new HashMap<>();
-        uiBranchName.forEach(brName -> discountCampaignStatus
+        apiDiscountCampaignStatus = new HashMap<>();
+        uiBranchName.forEach(brName -> apiDiscountCampaignStatus
                 .put(brName, IntStream.range(0, uiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // init flash sale price
-        flashSalePrice = new ArrayList<>();
-        flashSalePrice.addAll(uiProductSellingPrice);
+        apiFlashSalePrice = new ArrayList<>();
+        apiFlashSalePrice.addAll(uiProductSellingPrice);
 
         // init flash sale stock
-        flashSaleStock = new ArrayList<>();
-        uiVariationList.forEach(varName -> flashSaleStock.add(Collections.max(uiProductStockQuantity.get(varName))));
+        apiFlashSaleStock = new ArrayList<>();
+        uiVariationList.forEach(varName -> apiFlashSaleStock.add(Collections.max(uiProductStockQuantity.get(varName))));
 
         // init product discount campaign price
-        discountCampaignPrice = new ArrayList<>();
-        discountCampaignPrice.addAll(uiProductSellingPrice);
+        apiDiscountCampaignPrice = new ArrayList<>();
+        apiDiscountCampaignPrice.addAll(uiProductSellingPrice);
 
         // init wholesale product price, rate and stock
         uiWholesaleProductPrice = new ArrayList<>();
@@ -650,20 +674,20 @@ public class ProductPage extends ProductPageElement {
         uiVariationList.forEach(varName -> uiWholesaleProductStock.add(Collections.max(uiProductStockQuantity.get(varName))));
 
         // discount code
-        discountCodeStatus = new HashMap<>();
-        uiBranchName.forEach(brName -> discountCodeStatus
+        apiDiscountCodeStatus = new HashMap<>();
+        uiBranchName.forEach(brName -> apiDiscountCodeStatus
                 .put(brName, IntStream.range(0, uiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
 
         // membership
-        membershipStatus = new HashMap<>();
-        uiBranchName.forEach(brName -> membershipStatus
+        apiMembershipStatus = new HashMap<>();
+        uiBranchName.forEach(brName -> apiMembershipStatus
                 .put(brName, IntStream.range(0, uiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
     }
 
     public void configWholesaleProduct() throws SQLException {
-        if (isVariation) new WholesaleProductPage(driver)
+        if (uiIsVariation) new WholesaleProductPage(driver)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductVariation();
@@ -671,6 +695,17 @@ public class ProductPage extends ProductPageElement {
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductWithoutVariation();
+    }
+
+    public ProductPage configConversionUnit() {
+        if (!uiIsIMEIProduct) if (uiIsVariation) new ConversionUnitPage(driver)
+                .navigateToConversionUnitPage()
+                .addConversionUnitVariation();
+        else new ConversionUnitPage(driver)
+                    .navigateToConversionUnitPage()
+                    .addConversionUnitWithoutVariation();
+
+        return this;
     }
 
     /*Verify permission for certain feature*/
@@ -702,6 +737,7 @@ public class ProductPage extends ProductPageElement {
             Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
         }
     }
+
     public void verifyPermissionToCreateVariationProduct(String permission) {
         clickOnTheCreateProductBtn();
         clickAddVariation();
@@ -718,6 +754,7 @@ public class ProductPage extends ProductPageElement {
             Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
         }
     }
+
     public void verifyPermissionToCreateDepositProduct(String permission) {
         clickOnTheCreateProductBtn();
         clickAddDepositBtn();
@@ -733,6 +770,7 @@ public class ProductPage extends ProductPageElement {
             Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
         }
     }
+
     public void verifyPermissionToCreateProductSEO(String permission) {
         clickOnTheCreateProductBtn();
         inputSEOTitle("Test SEO");

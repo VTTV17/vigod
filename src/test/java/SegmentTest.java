@@ -11,8 +11,8 @@ import utilities.data.DataGenerator;
 import java.util.List;
 
 import static api.dashboard.login.Login.*;
-import static api.dashboard.products.CreateProduct.productID;
-import static api.dashboard.setting.BranchManagement.branchID;
+import static api.dashboard.products.CreateProduct.apiProductID;
+import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 
@@ -54,9 +54,9 @@ public class SegmentTest {
                      ],
                      "storeName": "%s",
                      "langKey": "en"
-                 }""".formatted(customerName, customerPhoneNum, customerPhoneNum, storeName);
+                 }""".formatted(customerName, customerPhoneNum, customerPhoneNum, apiStoreName);
 
-        Response createCustomerResponse = new API().post(CREATE_POS_CUSTOMER_PATH.formatted(storeID), accessToken, body);
+        Response createCustomerResponse = new API().post(CREATE_POS_CUSTOMER_PATH.formatted(apiStoreID), accessToken, body);
         createCustomerResponse.prettyPrint();
         createCustomerResponse.then().statusCode(200);
         profileID = createCustomerResponse.jsonPath().getInt("id");
@@ -78,7 +78,7 @@ public class SegmentTest {
                     ]
                 }""".formatted(segmentName, numberOfOrders);
 
-        Response createSegment = new API().post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+        Response createSegment = new API().post(CREATE_SEGMENT_PATH + apiStoreID, accessToken, body);
         createSegment.then().statusCode(200);
         return createSegment.jsonPath().getInt("id");
     }
@@ -98,7 +98,7 @@ public class SegmentTest {
                     ]
                 }""".formatted(segmentName, numberOfOrders);
 
-        Response createSegment = new API().post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+        Response createSegment = new API().post(CREATE_SEGMENT_PATH + apiStoreID, accessToken, body);
         createSegment.then().statusCode(200);
         return createSegment.jsonPath().getInt("id");
     }
@@ -118,7 +118,7 @@ public class SegmentTest {
                     ]
                 }""".formatted(segmentName, numberOfOrders);
 
-        Response createSegment = new API().post(CREATE_SEGMENT_PATH + storeID, accessToken, body);
+        Response createSegment = new API().post(CREATE_SEGMENT_PATH + apiStoreID, accessToken, body);
         createSegment.then().statusCode(200);
         return createSegment.jsonPath().getInt("id");
     }
@@ -172,14 +172,14 @@ public class SegmentTest {
                     "directDiscount": null,
                     "customerId": %s,
                     "inStore": true
-                }""".formatted(buyerID, profileID, productID, branchID.get(0), customerName, customerPhoneNum, storeID, branchID.get(0), profileID);
+                }""".formatted(buyerID, profileID, apiProductID, apiBranchID.get(0), customerName, customerPhoneNum, apiStoreID, apiBranchID.get(0), profileID);
         Response createOrderResponse = new API().post(CREATE_POS_ORDER_PATH, accessToken, body);
         createOrderResponse.prettyPrint();
         createOrderResponse.then().statusCode(201);
     }
 
     List<Integer> getListSegmentCustomer(int segmentID) {
-        Response segmentInfo = new API().get(SEGMENT_CUSTOMER_LIST_PATH.formatted(storeID, segmentID), accessToken);
+        Response segmentInfo = new API().get(SEGMENT_CUSTOMER_LIST_PATH.formatted(apiStoreID, segmentID), accessToken);
         segmentInfo.then().statusCode(200);
         try {
             return segmentInfo.jsonPath().getList("id");

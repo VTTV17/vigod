@@ -16,7 +16,7 @@ import pages.storefront.login.LoginPage;
 import java.io.File;
 import java.sql.SQLException;
 
-import static api.dashboard.setting.StoreInformation.storeURL;
+import static api.dashboard.setting.StoreInformation.apiStoreURL;
 import static api.storefront.signup.SignUp.*;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -44,9 +44,9 @@ public class BH_8888 extends BaseTest {
 
         sleep(3000);
 
-        new Customers().addCustomerTag(customerName).createSegment();
+        new Customers().addCustomerTag(apiCustomerName).createSegment();
 
-        sfDomain = "https://%s%s/".formatted(storeURL, SF_DOMAIN);
+        sfDomain = "https://%s%s/".formatted(apiStoreURL, SF_DOMAIN);
 
         tcsFileName = "check_product_detail_sf/BH_8888_View wholesale product at product detail.xlsx".replace("/", File.separator);
     }
@@ -111,7 +111,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin);
@@ -132,7 +132,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -151,7 +151,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -171,7 +171,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -193,7 +193,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -213,7 +213,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -234,7 +234,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -256,7 +256,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -276,7 +276,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -296,7 +296,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -318,7 +318,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -338,7 +338,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -358,7 +358,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -380,7 +380,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -400,7 +400,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -420,7 +420,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -442,7 +442,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -462,7 +462,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -482,7 +482,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -504,7 +504,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -524,7 +524,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
@@ -544,7 +544,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -566,7 +566,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -586,7 +586,7 @@ public class BH_8888 extends BaseTest {
 
         new LoginPage(driver)
                 .navigate(sfDomain)
-                .performLoginJS(phoneNumber, password);
+                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()

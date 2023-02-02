@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.storeID;
+import static api.dashboard.login.Login.apiStoreID;
 
 public class VAT {
-    public static List<Integer> taxList;
-    public static List<Float> taxRate;
+    public static List<Integer> apiTaxList;
+    public static List<Float> apiTaxRate;
     public void getTaxList() {
         String API_TAX_LIST_PATH = "/storeservice/api/tax-settings/store/";
-        Response taxResponse = new API().get(API_TAX_LIST_PATH + storeID, accessToken);
+        Response taxResponse = new API().get(API_TAX_LIST_PATH + apiStoreID, accessToken);
         taxResponse.then().statusCode(200);
-        taxList = taxResponse.jsonPath().getList("id");
-        taxRate = taxResponse.jsonPath().getList("rate");
-        IntStream.range(0, taxRate.size()).filter(i -> taxRate.get(i) == null).forEachOrdered(i -> taxRate.set(i, 0F));
+        apiTaxList = taxResponse.jsonPath().getList("id");
+        apiTaxRate = taxResponse.jsonPath().getList("rate");
+        IntStream.range(0, apiTaxRate.size()).filter(i -> apiTaxRate.get(i) == null).forEachOrdered(i -> apiTaxRate.set(i, 0F));
     }
 }

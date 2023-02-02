@@ -417,14 +417,14 @@ public class UICommonAction {
 	}
 
 	public void verifyPageLoaded(String pageLoadedTextVIE, String pageLoadedTextENG) {
-		new WebDriverWait(driver, Duration.ofSeconds(30)).until((ExpectedCondition<Boolean>) driver -> {
+		new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
 			assert driver != null;
 			return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
 		});
 	}
 
 	public void waitElementList(List<WebElement> elementList, int... listSize) {
-		new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
+		new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
 			assert driver != null;
 			return elementList.size() > ((listSize.length > 0) ? (listSize[0] - 1) : 0);
 		});

@@ -8,7 +8,7 @@ import utilities.database.InitConnection;
 
 import java.sql.SQLException;
 
-import static api.dashboard.setting.StoreInformation.storeURL;
+import static api.dashboard.setting.StoreInformation.apiStoreURL;
 import static io.restassured.RestAssured.given;
 import static org.apache.commons.lang.RandomStringUtils.random;
 import static utilities.links.Links.SF_DOMAIN;
@@ -19,11 +19,11 @@ public class SignUp {
 
     String ACTIVE_PATH = "/api/activate";
 
-    public static String guestToken;
-    public static String phoneNumber;
-    public static String phoneCode;
-    public static String password;
-    public static String customerName;
+    public static String apiGuestToken;
+    public static String apiPhoneNumber;
+    public static String apiPhoneCode;
+    public static String apiPassword;
+    public static String apiCustomerName;
 
     public void getGuestToken() {
         String body = """
@@ -31,7 +31,7 @@ public class SignUp {
                     "langKey": "vi",
                     "locationCode": "vn"
                 }""";
-        guestToken = given().contentType(ContentType.JSON)
+        apiGuestToken = given().contentType(ContentType.JSON)
                 .header("Authorization", "Basic aW50ZXJuYWw6TUtQZDVkUG1MZXg3b2hXcmxHeEpQR3htZ2ZTSFF0MXU=")
                 .when()
                 .body(body)
@@ -40,10 +40,10 @@ public class SignUp {
 
     public void signUpByPhoneNumber(String... phone) throws SQLException {
         getGuestToken();
-        customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
-        phoneNumber = (phone.length > 0) ? phone[0] : random(10, false, true).replace("00","0");
-        phoneCode = (phone.length > 1) ? phone[1] : "+84";
-        password = "Abc@12345";
+        apiCustomerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
+        apiPhoneNumber = (phone.length > 0) ? phone[0] : random(10, false, true).replace("00","0");
+        apiPhoneCode = (phone.length > 1) ? phone[1] : "+84";
+        apiPassword = "Abc@12345";
         String signupBody = """
                 {
                     "displayName": "%s",
@@ -52,8 +52,8 @@ public class SignUp {
                         "countryCode": "%s",
                         "phoneNumber": "%s"
                     }
-                }""".formatted(customerName, password, phoneCode, phoneNumber);
-        Response signUpResponse = new API().post(SIGN_UP_PHONE_PATH, guestToken, signupBody);
+                }""".formatted(apiCustomerName, apiPassword, apiPhoneCode, apiPhoneNumber);
+        Response signUpResponse = new API().post(SIGN_UP_PHONE_PATH, apiGuestToken, signupBody);
 
         String loginText = signUpResponse.jsonPath().getString("login");
         int userID = signUpResponse.jsonPath().getInt("id");
@@ -66,6 +66,6 @@ public class SignUp {
                     "userId": %s
                 }""".formatted(activeCode, userID);
 
-        new API().login("https://%s%s%s".formatted(storeURL, SF_DOMAIN, ACTIVE_PATH), activeBody);
+        new API().login("https://%s%s%s".formatted(apiStoreURL, SF_DOMAIN, ACTIVE_PATH), activeBody);
     }
 }

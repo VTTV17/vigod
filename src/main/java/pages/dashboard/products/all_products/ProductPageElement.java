@@ -141,8 +141,8 @@ public class ProductPageElement {
     // 3: Update SKU
     // 4: Update Image
     By VARIATION_TABLE_LIST_ACTION = By.cssSelector(".uik-menuDrop__list > button");
-
-    By VARIATION_TABLE_STOCK_QUANTITY = By.cssSelector("td [name *= stock]");
+    @FindBy(css = "td [name *= stock]")
+    List<WebElement> VARIATION_TABLE_STOCK_QUANTITY;
 
     By UPDATE_PRICE_POPUP_LISTING_PRICE = By.cssSelector(".wrapper [name *= 'orgPrice']");
     By UPDATE_PRICE_POPUP_SELLING_PRICE = By.cssSelector(".wrapper [name *= 'discountPrice']");
