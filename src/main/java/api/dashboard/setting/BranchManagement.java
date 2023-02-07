@@ -3,6 +3,7 @@ package api.dashboard.setting;
 import io.restassured.response.Response;
 import utilities.api.API;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -21,6 +22,7 @@ public class BranchManagement {
     public static List<String> apiBranchName;
     public static List<Boolean> apiIsHideOnStoreFront;
     public static List<String> apiAllBranchStatus;
+    public static List<String> apiActiveBranches;
 
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
@@ -42,6 +44,9 @@ public class BranchManagement {
         apiIsHideOnStoreFront = branchInfo.jsonPath().getList("hideOnStoreFront");
         IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.get(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
         apiAllBranchStatus = branchInfo.jsonPath().getList("branchStatus");
+        apiActiveBranches = new ArrayList<>();
+        IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.get(i)));
+
     }
 
     private void updateBranchInfo(int id, boolean isDefault, boolean hideOnStoreFront, String branchStatus) {

@@ -2,6 +2,7 @@ package utilities.driver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -39,6 +40,7 @@ public class InitWebdriver {
                     WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.setHeadless(headless.equals("true"));
+                    chromeOptions.setPageLoadStrategy(PageLoadStrategy.NORMAL);
                     // fix org.openqa.selenium.WebDriverException: unknown error: cannot determine loading status from no such window
                     chromeOptions.addArguments("--disable-site-isolation-trials");
                     driver = new ChromeDriver(chromeOptions);

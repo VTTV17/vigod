@@ -6,7 +6,6 @@ import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -15,7 +14,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import pages.thirdparty.Facebook;
 import utilities.UICommonAction;
 
@@ -24,20 +22,20 @@ import java.time.Duration;
 import static utilities.links.Links.*;
 
 public class LoginPage {
-	
+
 	final static Logger logger = LogManager.getLogger(LoginPage.class);
 
 	public String country;
 	public String countryCode;
     public static String sellerAccount;
     public static String sellerPassword;
-	
+
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
-    
+
     SoftAssert soft = new SoftAssert();
-    
+
     public LoginPage (WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -46,11 +44,11 @@ public class LoginPage {
     }
 
     @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
-    WebElement LANGUAGE;       
-    
+    WebElement LANGUAGE;
+
     @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
-    WebElement COUNTRY_DROPDOWN;    
-    
+    WebElement COUNTRY_DROPDOWN;
+
     @FindBy(css = "input[name='username']")
     WebElement USERNAME;
 
@@ -64,50 +62,44 @@ public class LoginPage {
     WebElement USER_ERROR;
 
     @FindBy (css = "#password + .invalid-feedback")
-    WebElement PASSWORD_ERROR;    
-    
+    WebElement PASSWORD_ERROR;
+
     @FindBy (css = "div.alert__wrapper")
-    WebElement INVALID_USER_ERROR;	
-    
+    WebElement INVALID_USER_ERROR;
+
     @FindBy (css = ".login-widget__btnSubmitFaceBook")
-    WebElement FACEBOOK_BTN;	
-    
+    WebElement FACEBOOK_BTN;
+
     @FindBy(css = "#email")
-    WebElement FACEBOOK_USERNAME;	
+    WebElement FACEBOOK_USERNAME;
 
     @FindBy (css = "#pass")
     WebElement FACEBOOK_PASSWORD;
 
     @FindBy (css = "input[name='login']")
-    WebElement FACEBOOK_LOGIN_BTN;        
-    
+    WebElement FACEBOOK_LOGIN_BTN;
+
     @FindBy (css = "span.login-widget__tab:nth-child(2)")
     WebElement STAFF_TAB;
 
     @FindBy (css = "div.modal-content")
     WebElement WARNING_POPUP;
-    
+
     @FindBy (css = ".login-widget__forgotPassword")
     WebElement FORGOT_PASSWORD;
-    
+
     @FindBy (css = ".login-widget__btnSubmit")
     WebElement CONTINUE_BTN;
 
     @FindBy (css = "input[name='key']")
-    WebElement VERIFICATION_CODE;    
-    
+    WebElement VERIFICATION_CODE;
+
     @FindBy (css = ".btn-resend")
     WebElement RESEND_OTP;
-    
+
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
-        try {
-            new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
-        } catch (TimeoutException ex) {
-            logger.info(ex);
-            driver.get(DOMAIN + LOGIN_PATH);
-            new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
-        }
+        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
         return this;
     }
 
@@ -119,8 +111,8 @@ public class LoginPage {
     	this.country = selectedOption[0];
     	this.countryCode = selectedOption[1];
     	return this;
-    }   
-    
+    }
+
     public LoginPage switchToStaffTab() {
     	commonAction.clickElement(STAFF_TAB);
     	logger.info("Switched to Staff Tab.");
@@ -144,13 +136,13 @@ public class LoginPage {
     	logger.info("Input '" + password + "' into Password field.");
         return this;
     }
-    
+
     public LoginPage clickLoginBtn() {
     	commonAction.clickElement(LOGIN_BTN);
     	logger.info("Clicked on Login button.");
         return this;
     }
-    
+
     public LoginPage clickForgotPassword() {
     	commonAction.clickElement(FORGOT_PASSWORD);
     	logger.info("Clicked on Forgot Password linktext.");
@@ -159,10 +151,10 @@ public class LoginPage {
 
     public LoginPage clickResendOTP() {
     	commonAction.clickElement(RESEND_OTP);
-    	logger.info("Clicked on Resend linktext.");        
+    	logger.info("Clicked on Resend linktext.");
         return this;
-    }    
-    
+    }
+
     public LoginPage clickContinueOrConfirmBtn() {
     	commonAction.clickElement(CONTINUE_BTN);
     	logger.info("Clicked on Continue/Confirm button.");
@@ -174,7 +166,7 @@ public class LoginPage {
     	logger.info("Input '" + verificationCode + "' into Verification Code field.");
         return this;
     }
-    
+
     public LoginPage performLogin(String username, String password) {
         sellerAccount = username;
         sellerPassword = password;
@@ -183,7 +175,7 @@ public class LoginPage {
     	clickLoginBtn();
         return this;
     }
-    
+
     public LoginPage performLogin(String country, String username, String password) {
     	selectCountry(country);
     	inputEmailOrPhoneNumber(username);
@@ -194,29 +186,29 @@ public class LoginPage {
 
     public LoginPage performLoginWithFacebook(String username, String password) {
     	String originalWindow = commonAction.getCurrentWindowHandle();
-    	
+
     	clickFacebookBtn();
-    	
+
     	for (String windowHandle : commonAction.getAllWindowHandles()) {
     	    if(!originalWindow.contentEquals(windowHandle)) {
     	        commonAction.switchToWindow(windowHandle);
     	        break;
     	    }
     	}
-    	
+
     	new Facebook(driver).performLogin(username, password);
-    	
+
     	commonAction.switchToWindow(originalWindow);
         return this;
-    }      
+    }
 
     public String getSelectedLanguage() {
     	String selectedLanguage = commonAction.getText(LANGUAGE);
     	logger.info("Retrieved selected language.");
         return selectedLanguage;
-    }  
+    }
 
-    
+
     public LoginPage verifyEmailOrPhoneNumberError(String errMessage) {
         String text = commonAction.getText(USER_ERROR);
         soft.assertEquals(text, errMessage, "[Login][Email or Phone Number] Message does not match.");

@@ -16,7 +16,7 @@ class ConversionUnitElement {
         PageFactory.initElements(driver, this);
     }
 
-    /* Wholesale product config */
+    /* Conversion unit config */
     @FindBy(css = ".uik-checkbox__wrapper > [name='conversionUnitCheckbox']")
     WebElement ADD_CONVERSION_UNIT_CHECKBOX;
 
@@ -75,4 +75,14 @@ class ConversionUnitElement {
 
     @FindBy(css = "[name *= quantity]")
     WebElement CONFIGURE_FOR_EACH_VARIATION_QUANTITY;
+
+    /* UI element */
+    @FindBy(css = ".gs-widget__content .bg-light-white p")
+    WebElement UI_CONVERSION_UNIT_INFORMATION;
+
+    @FindBy(css = ".gs-widget__content .bg-light-white buton")
+    WebElement UI_CONVERSION_UNIT_CONFIGURE_BTN;
+
+    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(5) small")
+    WebElement UI_CONVERSION_UNIT_FOR_IMEI_NOTICE;
 }

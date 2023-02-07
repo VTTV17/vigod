@@ -69,4 +69,11 @@ public class WholesaleProductElement {
 
     @FindBy(css = ".label-list > .label:nth-child(2)")
     WebElement CUSTOMER_SEGMENT_CHECKBOX;
+
+    /* UI element */
+    @FindBy(css = ".gs-widget__content.bg-light-white p")
+    WebElement UI_WHOLESALE_PRODUCT_INFORMATION;
+
+    @FindBy(css = ".gs-widget__content.bg-light-white .gs-button__green")
+    WebElement UI_WHOLESALE_PRODUCT_CONFIGURE_BTN;
 }
