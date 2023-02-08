@@ -6,6 +6,7 @@ import org.apache.xpath.operations.Or;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
 import pages.storefront.checkout.checkoutstep3.CheckOutStep3Element;
 import utilities.UICommonAction;
@@ -29,5 +30,17 @@ public class OrderComplete {
         commonAction.clickElement(orderCompleteUI.BACK_TO_MARKET_BTN);
         commonAction.sleepInMiliSecond(2000);
         logger.info("Click on Back to market button");
+    }
+    public OrderComplete verifyProductNames(String...productNames){
+        for (int i=0;i<productNames.length;i++) {
+            Assert.assertEquals(productNames[i].toLowerCase(),commonAction.getText(orderCompleteUI.PRODUCT_NAME_LIST.get(i)).toLowerCase());
+        }
+        logger.info("Verify Product name list.");
+        return this;
+    }
+    public OrderComplete verifyDiscountAmount(String expected){
+        Assert.assertEquals(String.join("",commonAction.getText(orderCompleteUI.DISCOUNT_AMOUNT).split(",")),expected);
+        logger.info("Verify discount amount.");
+        return this;
     }
 }

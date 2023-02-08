@@ -37,7 +37,6 @@ public class UserProfileInfo extends HeaderSF {
         commonAction.clickElement(userProfileUI.MYACCOUNT_SECTION);
         logger.info("Clicked on My Account section.");
         return this;
-
     }
     public MyAddress clickMyAddressSection() {
         commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
@@ -53,6 +52,7 @@ public class UserProfileInfo extends HeaderSF {
 	}
     
     public UserProfileInfo verifyDisplayName(String expectedName){
+        waitTillLoaderDisappear();
         Assert.assertEquals(commonAction.getText(userProfileUI.DISPLAY_NAME),expectedName);
         return this;
     }
