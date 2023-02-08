@@ -1,6 +1,8 @@
 package pages.storefront.userprofile.MyAccount;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +17,7 @@ import org.testng.asserts.SoftAssert;
 import pages.storefront.header.HeaderSF;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
+import utilities.data.DataGenerator;
 
 public class MyAccount extends HeaderSF {
 
@@ -205,6 +208,7 @@ public class MyAccount extends HeaderSF {
         if(phones.length==0){
             throw new  Exception("Phones are empty!");
         }
+        commonAction.scrollToTopPage();
         for (String phone: phones) {
             commonAction.sleepInMiliSecond(1000);
             waitTillLoaderDisappear();
@@ -218,7 +222,7 @@ public class MyAccount extends HeaderSF {
         logger.info("Add other phones.");
         return this;
     }
-    public MyAccount addOneOtherEmails(String name, String...emails) throws Exception {
+    public MyAccount addOtherEmails(String name, String...emails) throws Exception {
         if(emails.length==0){
             throw new  Exception("Email are empty!");
         }
@@ -243,6 +247,22 @@ public class MyAccount extends HeaderSF {
     }
     public MyAccount verifyOtherEmailListSize(int expected){
         Assert.assertEquals(getQuantityOfOtherEmail(),expected,"Verify Other email list size");
+        return this;
+    }
+    public MyAccount inputCompanyName(String compayName){
+        commonAction.inputText(myAccountUI.COMPANY_NAME_INPUT,compayName);
+        return this;
+    }
+    public MyAccount inputTaxCode(String taxCode){
+        commonAction.inputText(myAccountUI.TAX_CODE_INPUT,taxCode);
+        return this;
+    }
+    public MyAccount verifyCompanyName(String expected){
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.COMPANY_NAME_INPUT,"value"),expected);
+        return this;
+    }
+    public MyAccount verifyTaxCode(String expected){
+        Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.TAX_CODE_INPUT,"value"),expected);
         return this;
     }
     public void verifyTextOfMyAccountPage() throws Exception {
@@ -279,5 +299,131 @@ public class MyAccount extends HeaderSF {
         Assert.assertEquals(commonAction.getElementAttribute(myAccountUI.EMAIL_ADD_OTHER_EMAIL,"placeholder"), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherMail.inputPhoneNumberHintTxt"));
         Assert.assertEquals(commonAction.getText(myAccountUI.CANCEL_BTN_ADD_OTHER_EMAIL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherMail.cancelBtn"));
         Assert.assertEquals(commonAction.getText(myAccountUI.SAVE_BTN_ADD_OTHER_EMAIL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherMail.saveBtn"));
+        logger.info("Check text successfully.");
+    }
+    public MyAccount checkErrorWhenInputOtherPhoneOutOfRange() throws Exception {
+        DataGenerator dataGenerator = new DataGenerator();
+        String phoneInvalid = "01"+dataGenerator.generateNumber(5);
+        addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
+        Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherPhone.invalidPhoneError"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE);
+        phoneInvalid = "01"+dataGenerator.generateNumber(14);
+        addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
+        Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherPhone.invalidPhoneError"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE);
+        logger.info("Check error when input other phone out of range.");
+        return this;
+    }
+    public MyAccount checkErrorWhenInputOtherPhoneWithExistingValue() throws Exception {
+        DataGenerator dataGenerator = new DataGenerator();
+        String phone = "01"+dataGenerator.generateNumber(6);
+        addOtherPhones("Other Phone Invalid","+84",phone,phone);
+        Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherPhone.existOtherPhoneError"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE);
+        logger.info("Check error when input other phone with existing value.");
+        return this;
+    }
+    public MyAccount checkErrorWhenInputInvalidEmail() throws Exception {
+        addOtherEmails("Other email invalid.","test");
+        Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_EMAIL_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherMail.invalidEmailError"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_EMAIL);
+        logger.info("Check error when input invalid enail.");
+        return this;
+    }
+    public MyAccount checkErrorWhenSaveOtherEmailWithBlankField() throws Exception {
+        commonAction.clickElement(myAccountUI.ADD_OTHER_EMAIL_BTN);
+        commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_EMAIL);
+        Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_EMAIL_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.emptyError"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_EMAIL);
+        logger.info("Check error when save other email with blank field");
+        return this;
+    }
+    public MyAccount checkErrorWhenSaveOtherPhoneWithBlankField() throws Exception {
+        DataGenerator dataGenerator = new DataGenerator();
+        String phoneInvalid = "01"+dataGenerator.generateNumber(5);
+        addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
+        commonAction.inputText(myAccountUI.PHONE_NUMBER_ADD_OTHER_PHONE,"");
+        Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.emptyError"));
+        commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE);
+        logger.info("Check error when save other phone with blank field.");
+        return this;
+    }
+    public Map<String,String> getOtherPhoneMap(){
+        Map<String, String> otherPhoneMap = new HashMap<>();
+        for (int i=0;i<myAccountUI.OTHER_PHONE_LIST.size();i++){
+            otherPhoneMap.put(commonAction.getText(myAccountUI.OTHER_PHONE_LIST.get(i)),commonAction.getText(myAccountUI.PHONE_NAMES.get(i)));
+        }
+        logger.info("Get other phone map: "+otherPhoneMap);
+        return otherPhoneMap;
+    }
+    public MyAccount verifyOtherPhoneNumber(Map<String,String> actual, Map<String,String>expected){
+        Assert.assertEquals(actual,expected);
+        logger.info("Verify other phone list.");
+        return this;
+    }
+    public Map<String,String> getOtherEmailMap(){
+        Map<String, String> otherPhoneMap = new HashMap<>();
+        commonAction.sleepInMiliSecond(1000);
+        for (int i=0;i<myAccountUI.OTHER_EMAIL_LIST.size();i++){
+            otherPhoneMap.put(commonAction.getText(myAccountUI.OTHER_EMAIL_LIST.get(i)),commonAction.getText(myAccountUI.EMAIL_NAMES.get(i)));
+        }
+        logger.info("Get other email map: "+otherPhoneMap);
+        return otherPhoneMap;
+    }
+    public MyAccount verifyOtherEmail(Map<String,String> actual, Map<String,String>expected){
+        Assert.assertEquals(actual,expected);
+        logger.info("Verify other email list.");
+        return this;
+    }
+    public Map<String,String> editOtherPhoneNumber(){
+        Map<String,String> otherPhoneMap = new HashMap<>();
+        String[] phoneCodeList = {"+84", "+1", "+95", "+86", "+93", "+3581", "+355"};
+        DataGenerator dataGenerator = new DataGenerator();
+        for(int i=0; i<myAccountUI.OTHER_PHONE_LIST.size();i++){
+            commonAction.clickElement(myAccountUI.OTHER_PHONE_LIST.get(i));
+            commonAction.sleepInMiliSecond(1000);
+            String phoneNameEdit = "Updated"+i;
+            commonAction.inputText(myAccountUI.PHONE_NAME_ADD_OTHER_PHONE, phoneNameEdit);
+            String phoneCodeEdit = phoneCodeList[dataGenerator.generatNumberInBound(0,phoneCodeList.length)];
+            String phoneEdit =  "01" + dataGenerator.generateNumber(8);
+            commonAction.selectByVisibleText(myAccountUI.PHONE_CODE_ADD_OTHER_PHONE,phoneCodeEdit);
+            commonAction.inputText(myAccountUI.PHONE_NUMBER_ADD_OTHER_PHONE, phoneEdit);
+            commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_PHONE); //click outside
+            commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_PHONE); //click save
+            otherPhoneMap.put(phoneCodeEdit+phoneEdit,phoneNameEdit);
+        }
+        logger.info("Other phone list after edit: "+otherPhoneMap);
+        return otherPhoneMap;
+    }
+    public Map<String,String> editOtherEmail(){
+        Map<String,String> otherEmailMap = new HashMap<>();
+        DataGenerator dataGenerator = new DataGenerator();
+        for(int i=0; i<myAccountUI.OTHER_PHONE_LIST.size();i++){
+            commonAction.clickElement(myAccountUI.OTHER_EMAIL_LIST.get(i));
+            commonAction.sleepInMiliSecond(1000);
+            String otherEmail = dataGenerator.generateString(5) + "@mailnesia.com";
+            commonAction.inputText(myAccountUI.EMAIL_NAME_ADD_OTHER_EMAIL, "Update email"+i);
+            commonAction.inputText(myAccountUI.EMAIL_ADD_OTHER_EMAIL, otherEmail);
+            commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_EMAIL);
+            otherEmailMap.put(otherEmail,"Update email"+i);
+        }
+        logger.info("Other phone list after edit: "+otherEmailMap);
+        return otherEmailMap;
+    }
+    public MyAccount deleteAllOtherPhone(){
+        int listSize = myAccountUI.OTHER_PHONE_DELETE_BTN.size();
+        for (int i=0;i<listSize;i++){
+            commonAction.clickElement(myAccountUI.OTHER_PHONE_DELETE_BTN.get(0));
+        }
+        logger.info("Click all delete other phone icon.");
+        return this;
+    }
+    public MyAccount deleteAllOtherEmail(){
+        int listSize = myAccountUI.OTHER_EMAIL_DELETE_BTN.size();
+        for (int i=0;i<listSize;i++){
+            commonAction.clickElement(myAccountUI.OTHER_EMAIL_DELETE_BTN.get(0));
+        }
+        logger.info("Click all delete other email icon.");
+        return this;
     }
 }

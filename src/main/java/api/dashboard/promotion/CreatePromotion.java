@@ -55,7 +55,16 @@ public class CreatePromotion {
     public static Instant apiDiscountCodeEndTime;
     public static String apiCouponCode;
     public static Map<String, List<String>> apiDiscountCodeStatus;
-
+    public static boolean apiIsLimitToOne;
+    public static boolean apiIsLimitToUsage;
+    public static int apiDiscountCodeType;
+    public static boolean apiIsEnabledReward;
+    public static int apiSegmentConditionType;
+    public static int apiAppliesCondtionType;
+    public static int apiMinimumRequiredType;
+    public static int apiApplicableBranchCondition;
+    public static String apiDiscountName;
+    public static float apiCouponValue;
     /**
      * set branch condition
      * <p> DEFAULT value = - 1, no condition is provided, random condition should be generated</p>
@@ -349,8 +358,7 @@ public class CreatePromotion {
 
     public void createProductDiscountCode(int... time) {
         // coupon name
-        String name = "Auto - [Product] Discount code - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");;
-
+        String name = "Auto - [Product] Discount code - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
         apiDiscountCodeStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
@@ -363,15 +371,18 @@ public class CreatePromotion {
         apiCouponCode = "AUTO" + Instant.now().toEpochMilli();
 
         // usage limit
-        boolean couponLimitToOne = nextBoolean();
-        boolean couponLimitedUsage = nextBoolean();
+//        boolean couponLimitToOne = nextBoolean();
+//        boolean couponLimitedUsage = nextBoolean();
+        boolean couponLimitToOne = apiIsLimitToOne;
+        boolean couponLimitedUsage = apiIsLimitToUsage;
         String couponTotal = couponLimitedUsage ? String.valueOf(nextInt(MAX_COUPON_USED_NUM) + 1) : "null";
 
         // coupon type
         // 0: percentage
         // 1: fixed amount
         // 2: free shipping
-        int couponType = nextInt(MAX_PRODUCT_CODE_DISCOUNT_TYPE);
+//        int couponType = nextInt(MAX_PRODUCT_CODE_DISCOUNT_TYPE);
+        int couponType = apiDiscountCodeType;
         String couponTypeLabel = (couponType == 0) ? "PERCENTAGE" : ((couponType == 1) ? "FIXED_AMOUNT" : "FREE_SHIPPING");
         // coupon value
         int couponValue = (couponType == 0) ? (nextInt(MAX_PERCENT_DISCOUNT) + 1) : ((couponType == 1) ? (nextInt(MAX_FIXED_AMOUNT) + 1) : (nextInt(MAX_FREE_SHIPPING) + 1));
@@ -379,7 +390,9 @@ public class CreatePromotion {
         String freeShippingProviders = (couponType == 2) ? "giaohangnhanh,giaohangtietkiem,ahamove_bike,selfdelivery,ahamove_truck" : "";
 
         // apply discount code as a reward
-        boolean enabledRewards = nextBoolean();
+//        boolean enabledRewards = nextBoolean();
+        boolean enabledRewards = apiIsEnabledReward;
+
         String rewardsDescription = enabledRewards ? randomAlphabetic(MAX_REWARD_DESCRIPTION_LENGTH) + 1 : "";
 
         StringBuilder body = new StringBuilder("""
@@ -407,7 +420,9 @@ public class CreatePromotion {
         // segment type:
         // 0: all customers
         // 1: specific segment
-        int segmentConditionType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_SEGMENT_TYPE);
+//        int segmentConditionType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_SEGMENT_TYPE);
+        int segmentConditionType = apiSegmentConditionType;
+
         String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
         String segmentConditionValue = segmentConditionType == 0 ? "" : """
                 {
@@ -428,7 +443,9 @@ public class CreatePromotion {
         // 0: all products
         // 1: specific collections
         // 2: specific products
-        int appliesToType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_APPLIES_TO_TYPE);
+//        int appliesToType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_APPLIES_TO_TYPE);
+        int appliesToType = apiAppliesCondtionType;
+
         String appliesToLabel = appliesToType == 0 ? "APPLIES_TO_ENTIRE_ORDER"
                 : (appliesToType == 1) ? "APPLIES_TO_SPECIFIC_COLLECTIONS" : "APPLIES_TO_SPECIFIC_PRODUCTS";
         String appliesToValue = appliesToType == 0 ? "" : """
@@ -450,7 +467,9 @@ public class CreatePromotion {
         // 0: None
         // 1: Minimum purchase amount (Only satisfied products)
         // 2: Minimum quantity of satisfied products
-        int minimumRequirementType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE);
+//        int minimumRequirementType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE);
+        int minimumRequirementType = apiMinimumRequiredType;
+
         String minimumRequirementLabel = minimumRequirementType == 0 ? "MIN_REQUIREMENTS_NONE" : (minimumRequirementType == 1) ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT" : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
         int minStock = 1;
         if (apiIsVariation) {
@@ -472,7 +491,11 @@ public class CreatePromotion {
         body.append(minimumRequirement);
 
         // init applicable branch
-        int applicableBranchCondition = nextInt(MAX_PRODUCT_DISCOUNT_CODE_APPLICABLE_BRANCH_TYPE);
+        // 0:APPLIES_TO_BRANCH_ALL_BRANCHES
+        //1:APPLIES_TO_BRANCH_SPECIFIC_BRANCH
+//        int applicableBranchCondition = nextInt(MAX_PRODUCT_DISCOUNT_CODE_APPLICABLE_BRANCH_TYPE);
+        int applicableBranchCondition = apiApplicableBranchCondition;
+
         String applicableBranchLabel = applicableBranchCondition == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
         String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
                 {
@@ -497,5 +520,7 @@ public class CreatePromotion {
         body.append("]}]}");
 
         api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).then().statusCode(200);
+        apiDiscountName = name;
+        apiCouponValue = couponValue;
     }
 }

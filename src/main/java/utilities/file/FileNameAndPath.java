@@ -13,7 +13,8 @@ public class FileNameAndPath {
     public static final String FILE_PERMISSION_PLAN_TCS = "PlanPermissionTcs.xlsx";
     public static final String FILE_IMAGE_1 = "cham-soc-mat.jpg";
     public static final String FILE_IMAGE_2 = "giam-beo-bung.jpg";
-
+    public static final String FILE_PLAN_PERMISSION = "featurePermissionFile";
+    public static final String FILE_USER_PROFILE_TCS = "UserProfileSFTcs.xlsx";
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
     }

@@ -35,6 +35,7 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
+import utilities.file.FileNameAndPath;
 
 public class HomePage {
     WebDriver driver;
@@ -47,7 +48,6 @@ public class HomePage {
     Excel excel;
     int countFailed = 0;
     AssertCustomize assertCustomize;
-    public String planPermissionFileName = "PlanPermission.xlsx";
     public String featurePermissionFile = "Features.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
@@ -530,7 +530,7 @@ public class HomePage {
      */
     public HomePage checkPermissionAllPageByPackage(String page, String packageType) throws IOException {
         excel = new Excel();
-        Sheet planPermissionSheet = excel.getSheet(planPermissionFileName, 0);
+        Sheet planPermissionSheet = excel.getSheet(FileNameAndPath.FILE_PLAN_PERMISSION, 0);
         int rowNumber = planPermissionSheet.getLastRowNum();
         String permissionParentMenu = "";
         for (int i = 1; i <= rowNumber; i++) {

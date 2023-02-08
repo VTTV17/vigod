@@ -5,7 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import pages.storefront.GeneralSF;
+import pages.storefront.checkout.checkoutstep1.CheckOutStep1;
 import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
 import pages.storefront.checkout.checkoutstep2.CheckOutStep2Element;
 import pages.storefront.checkout.ordercomplete.OrderComplete;
@@ -32,5 +34,15 @@ public class CheckOutStep3 extends GeneralSF {
         logger.info("Click on Next button.");
         waitTillLoaderDisappear();
         return new OrderComplete(driver);
+    }
+    public CheckOutStep3 clickOnArrowIcon(){
+        commonAction.clickElement(checkOutStep3UI.ARROW_ICON_NEXT_TO_TOTAL_AMOUNT);
+        logger.info("Click on Arrow icon to show/hide total summary.");
+        return this;
+    }
+    public CheckOutStep3 verifyDicountAmount(String expected){
+        Assert.assertEquals(String.join("",commonAction.getText(checkOutStep3UI.DISCOUNT_AMOUNT).split(",|-\s")),expected);
+        logger.info("Verify discount amount.");
+        return this;
     }
 }
