@@ -13,4 +13,8 @@ public class CheckOutStep3Element {
     }
     @FindBy(css = ".box-icon-paypal #checkout-footer-btn-continue")
     WebElement NEXT_BUTTON;
+    @FindBy(css = ".bi-caret-up-fill")
+    WebElement ARROW_ICON_NEXT_TO_TOTAL_AMOUNT;
+    @FindBy(xpath = "(//td[contains(@class,'sub-price')])[2]/span")
+    WebElement DISCOUNT_AMOUNT ;
 }

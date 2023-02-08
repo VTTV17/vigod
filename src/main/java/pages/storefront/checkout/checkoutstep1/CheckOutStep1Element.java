@@ -5,7 +5,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.List;
+
 public class CheckOutStep1Element {
+
     WebDriver driver;
     public CheckOutStep1Element(WebDriver driver) {
         this.driver = driver;
@@ -45,5 +48,18 @@ public class CheckOutStep1Element {
     WebElement STATE_REGION_PROVICE_DROPDOWN;
     @FindBy(css = "#input-zipCode")
     WebElement ZIP_CODE_INPUT;
-
+    @FindBy(xpath = "//div[contains(@class,'item-phone')]/span[1]")
+    List<WebElement> PHONE_NAMES;
+    @FindBy(xpath = "//div[contains(@class,'item-phone')]/span[2]")
+    List<WebElement> OTHER_PHONE_LIST;
+    @FindBy(css = "#input-email")
+    WebElement EMAIL_INPUT;
+    @FindBy(xpath = "//div[contains(@class,'item-email')]/span[1]")
+    List<WebElement> EMAIL_NAMES;
+    @FindBy(xpath = "//div[contains(@class,'item-email')]/span[2]")
+    List<WebElement> OTHER_EMAIL_LIST;
+    @FindBy(css = ".bi-caret-up-fill")
+    WebElement ARROW_ICON_NEXT_TO_TOTAL_AMOUNT;
+    @FindBy(xpath = "(//td[contains(@class,'sub-price')])[2]/span")
+    WebElement DISCOUNT_AMOUNT ;
 }

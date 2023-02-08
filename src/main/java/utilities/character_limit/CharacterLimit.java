@@ -106,4 +106,5 @@ public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
     public static final int MAX_CHAR_SERVICE_NAME = 100;
     public static final int MAX_CHAR_SEO_TITLE = 200;
     public static final int MAX_CHAR_SEO_DESCRIPTION = 325;
+    public static final int MAX_CHAR_ADDRESS = 255;
 }

@@ -60,7 +60,7 @@ public class CreateServiceTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWord);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_PAGE_NAME);
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         return new CreateServicePage(driver);

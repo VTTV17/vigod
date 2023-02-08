@@ -14,6 +14,8 @@ import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CheckOutStep1 extends GeneralSF {
     final static Logger logger = LogManager.getLogger(CheckOutStep1.class);
@@ -60,6 +62,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 verifyCityProvince(String expectedCityProvince) {
+        commonAction.sleepInMiliSecond(1000);
         String cityProvince = commonAction.getDropDownSelectedValue(checkOutStep1UI.CITY_PROVINCE_DROPDOWN);
         Assert.assertEquals(cityProvince, expectedCityProvince);
         logger.info("Verify city/province: %s".formatted(cityProvince));
@@ -134,6 +137,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep2 clickOnNextButton() {
+        commonAction.sleepInMiliSecond(1000);
         commonAction.clickElement(checkOutStep1UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
         waitTillLoaderDisappear();
@@ -159,7 +163,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 selectDistrict(String district) {
-        commonAction.sleepInMiliSecond(500);
+        commonAction.sleepInMiliSecond(1000);
         commonAction.selectByVisibleText(checkOutStep1UI.DISTRICT_DROPDOWN, district);
         logger.info("Select district: %s".formatted(district));
         return this;
@@ -245,6 +249,56 @@ public class CheckOutStep1 extends GeneralSF {
         verifyStateRegionProvince(state);
         verifyCity_CountryNonVietName(city);
         verifyZipCode(zipCode);
+        return this;
+    }
+    public Map<String,String> getOtherPhoneMap(){
+        commonAction.clickElement(checkOutStep1UI.PHONE_NUMBER_INPUT);
+        Map<String,String> otherPhoneMap = new HashMap<>();
+        String mainPhone = commonAction.getElementAttribute(checkOutStep1UI.PHONE_NUMBER_INPUT,"value").trim();
+        for(int i=0;i<checkOutStep1UI.OTHER_PHONE_LIST.size();i++){
+            String phone = commonAction.getText(checkOutStep1UI.OTHER_PHONE_LIST.get(i));
+            String onlyPhoneNumber = phone.split("\\)")[1].trim();
+            if(onlyPhoneNumber.equals(mainPhone)){
+                continue;
+            }
+            String fullPhone= String.join("",phone.split("\\)|\\(|\s"));
+            otherPhoneMap.put(fullPhone,commonAction.getText(checkOutStep1UI.PHONE_NAMES.get(i)));
+        }
+        logger.info("Other phone map: "+otherPhoneMap);
+        return otherPhoneMap;
+    }
+    public Map<String,String> getOtherEmailMap(){
+        commonAction.clickElement(checkOutStep1UI.EMAIL_INPUT);
+        Map<String,String> otherEmailMap = new HashMap<>();
+        String mainEmail = commonAction.getElementAttribute(checkOutStep1UI.EMAIL_INPUT,"value");
+        for(int i=0;i<checkOutStep1UI.OTHER_EMAIL_LIST.size();i++){
+            String email = commonAction.getText(checkOutStep1UI.OTHER_EMAIL_LIST.get(i));
+            if(email.equals(mainEmail)){
+                continue;
+            }
+            otherEmailMap.put(email,commonAction.getText(checkOutStep1UI.EMAIL_NAMES.get(i)));
+        }
+        logger.info("Other email map: "+otherEmailMap);
+        return otherEmailMap;
+    }
+    public CheckOutStep1 verifyOtherPhoneList(Map<String,String> actual, Map<String,String> expected){
+        Assert.assertEquals(actual,expected);
+        logger.info("Verify other phone list.");
+        return this;
+    }
+    public CheckOutStep1 verifyOtherEmailList(Map<String,String> actual, Map<String,String> expected){
+        Assert.assertEquals(actual,expected);
+        logger.info("Verify other email list.");
+        return this;
+    }
+    public CheckOutStep1 clickOnArrowIcon(){
+        commonAction.clickElement(checkOutStep1UI.ARROW_ICON_NEXT_TO_TOTAL_AMOUNT);
+        logger.info("Click on Arrow icon to show/hide total summary.");
+        return this;
+    }
+    public CheckOutStep1 verifyDicountAmount(String expected){
+        Assert.assertEquals(String.join("",commonAction.getText(checkOutStep1UI.DISCOUNT_AMOUNT).split(",|-\s")),expected);
+        logger.info("Verify discount amount.");
         return this;
     }
 }

@@ -103,5 +103,18 @@ public class MyAccountElement {
     WebElement EMAIL_LBL_ADD_OTHER_EMAIL;
     @FindBy(id = "btn-cancel-add-email")
     WebElement CANCEL_BTN_ADD_OTHER_EMAIL;
+    @FindBy(css = ".add-new-phone-error")
+    WebElement ADD_OTHER_PHONE_ERROR;
+    @FindBy(css = ".add-new-email-error")
+    WebElement ADD_OTHER_EMAIL_ERROR;
+    @FindBy(css = ".phone-name")
+    List<WebElement> PHONE_NAMES;
+    @FindBy(css = ".email-name")
+    List<WebElement> EMAIL_NAMES;
+    @FindBy(css = ".other-phone-item-wrapper .remove-icon-item")
+    List<WebElement> OTHER_PHONE_DELETE_BTN;
+    @FindBy(css = ".other-email-item-wrapper .remove-icon-item")
+    List<WebElement> OTHER_EMAIL_DELETE_BTN;
+
 
 }
