@@ -244,7 +244,7 @@ public class ProductPage extends ProductPageElement {
         new Select(MANAGE_INVENTORY).selectByValue(isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT");
 
         // check [UI] after select manage inventory by IMEI/Serial Number
-        checkManageInventoryByIMEINotice();
+        if (isIMEIProduct) checkManageInventoryByIMEINotice();
 
         // log
         logger.info("Manage inventory by: %s".formatted(isIMEIProduct ? "IMEI/Serial Number" : "Product"));
@@ -500,6 +500,7 @@ public class ProductPage extends ProductPageElement {
         // input variation name and variation value
         for (int varID = 0; varID < uiVariationMap.keySet().size(); varID++) {
             String varName = uiVariationMap.keySet().stream().toList().get(varID);
+            logger.info("variation name: %s".formatted(varName));
             // click add variation button
             wait.until(ExpectedConditions.elementToBeClickable(ADD_VARIATION_BTN)).click();
 
@@ -513,6 +514,7 @@ public class ProductPage extends ProductPageElement {
             // input variation value
             for (String varValue : uiVariationMap.get(varName)) {
                 act.moveToElement(VARIATION_VALUE.get(varID)).click().sendKeys("%s\n".formatted(varValue)).build().perform();
+                logger.info("variation value: %s".formatted(varValue));
             }
         }
 
@@ -702,8 +704,14 @@ public class ProductPage extends ProductPageElement {
         // search product by name
         wait.until(ExpectedConditions.visibilityOf(SEARCH_BOX)).sendKeys(uiProductName);
 
+        // wait api return result
+        commonAction.sleepInMiliSecond(1000);
+
         // wait api return list product
         uiProductID = Integer.valueOf(wait.until(ExpectedConditions.visibilityOf(PRODUCT_ID)).getText());
+
+        // log
+        logger.info("Product id: %s".formatted(uiProductID));
     }
 
     public void completeUpdateProduct() {
@@ -999,7 +1007,6 @@ public class ProductPage extends ProductPageElement {
         // check variation description
         String dbVariationDescription = wait.until(ExpectedConditions.visibilityOf(UI_VARIATION_DESCRIPTION)).getText();
         String ppVariationDescription = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationDescription", language);
-        Assert.assertEquals(dbVariationDescription, ppVariationDescription);
         countFail = new AssertCustomize(driver).assertTrue(countFail, dbVariationDescription.equals(ppVariationDescription), "[Failed][Body] Variation description should be %s, but found %s.".formatted(ppVariationDescription, dbVariationDescription));
         logger.info("[UI][%s] Check Body - Variation description.".formatted(language));
     }
@@ -1138,7 +1145,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Update normal variation stock popup - Input stock placeholder.".formatted(language));
 
         // check action type
-        String dbActionType = wait.until(ExpectedConditions.visibilityOf(UI_UPDATE_STOCK_ACTION_TYPE)).getText();
+        String dbActionType = wait.until(ExpectedConditions.visibilityOf(UI_UPDATE_STOCK_ACTION_TYPE)).getText().split(": ")[0];
         String ppActionType0 = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.0", language);
         String ppActionType1 = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.1", language);
         countFail = new AssertCustomize(driver).assertTrue(countFail, dbActionType.equals(ppActionType1) || dbActionType.equals(ppActionType0), "[Failed][Update normal variation popup] Action type should be %s or %s, but found %s.".formatted(ppActionType0, ppActionType1, dbActionType));
