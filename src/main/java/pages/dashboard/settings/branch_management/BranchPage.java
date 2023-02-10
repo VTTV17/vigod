@@ -1,6 +1,7 @@
 package pages.dashboard.settings.branch_management;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,24 @@ public class BranchPage extends BranchElement {
         return branchInfo;
     }
 
+	/**
+	 * <p>
+	 * Get info of free branch
+	 * <p>
+	 * Example: List<String> info = getFreeBranchInfo()
+	 * @return a List with the 0-indexed element containing the branch name, 1-indexed element denoting branch code,
+	 * 2-indexed element denoting branch location, 3-indexed element denoting branch status.
+	 */	
+    public List<String> getFreeBranchInfo() {
+    	waitElementList(BRANCH_NAME_LIST);
+    	List<String> info = new ArrayList<>();
+    	for (WebElement el:FREE_BRANCH_INFO) {
+    		String rawInfo = commonAction.getText(el);
+    		if (rawInfo.length()>0) info.add(rawInfo);
+    	}
+    	return info;
+    }    
+    
     private void waitElementList(List<WebElement> elementList) {
         new WebDriverWait(driver, Duration.ofSeconds(20)).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;

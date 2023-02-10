@@ -2,12 +2,15 @@ package pages.thirdparty;
 
 import java.time.Duration;
 
+import static utilities.account.AccountTest.*;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.UICommonAction;
@@ -68,11 +71,23 @@ public class PAYPAL {
 	}
 
 	public PAYPAL clickPayNow() {
+		// Without the 2 consecutive lines below, the new tab won't disappear on its own
+//		wait.until(ExpectedConditions.visibilityOf(PAYNOW_BTN));
+//		commonAction.sleepInMiliSecond(10000); 
 		commonAction.clickElement(PAYNOW_BTN);
 		logger.info("Clicked on 'Pay Now' button.");
 		return this;
 	}
 
+	public PAYPAL completePayment() {
+		inputUsername(PAYPAL_USERNAME);
+		clickNext();
+		inputPassword(PAYPAL_PASSWORD);
+		clickLogin();
+		clickPayNow();
+		return this;
+	}
+	
 	public PAYPAL completePayment(String username, String password) {
 		inputUsername(username);
 		clickNext();
