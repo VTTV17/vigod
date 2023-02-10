@@ -8,6 +8,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
+import pages.storefront.checkout.checkoutstep3.CheckOutStep3;
 import pages.storefront.checkout.checkoutstep3.CheckOutStep3Element;
 import utilities.UICommonAction;
 
@@ -41,6 +42,16 @@ public class OrderComplete {
     public OrderComplete verifyDiscountAmount(String expected){
         Assert.assertEquals(String.join("",commonAction.getText(orderCompleteUI.DISCOUNT_AMOUNT).split(",")),expected);
         logger.info("Verify discount amount.");
+        return this;
+    }
+    public String getShippingFeeAfterDiscount(){
+        String shippingFee = commonAction.getText(orderCompleteUI.SHIPPING_FEE);
+        logger.info("Get Shipping fee after discount: "+shippingFee);
+        return shippingFee;
+    }
+    public OrderComplete verifyShippingFeeAfterDiscount(String expected){
+        Assert.assertEquals(getShippingFeeAfterDiscount(),expected,"Expected shipping fee after discount is %s, but display %s".formatted(expected,getShippingFeeAfterDiscount()));
+        logger.info("Verify shipping fee after discount");
         return this;
     }
 }

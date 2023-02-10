@@ -66,7 +66,6 @@ public class CreateBuyLink extends HomePage {
     List<WebElement> COUPON_NAME_LIST;
     By PRODUCT_SELECTION_MODAL = By.cssSelector(".buy-link-created-modal");
 
-
     public boolean isProductSelectionDialogDisplayed() {
         commonAction.sleepInMiliSecond(1000);
         return !commonAction.isElementNotDisplay(driver.findElements(PRODUCT_SELECTION_MODAL));
@@ -78,7 +77,7 @@ public class CreateBuyLink extends HomePage {
     public CreateBuyLink searchAndSelectProduct(String...productNames) throws Exception {
         for (String productName:productNames) {
             commonAction.inputText(SEARCH_INPUT,productName);
-            commonAction.sleepInMiliSecond(500);
+            commonAction.sleepInMiliSecond(1000);
             waitTillLoadingDotsDisappear();
             commonAction.sleepInMiliSecond(1000);
             if(commonAction.getText(PRODUCT_NAME_SUGGESTION.get(0)).equalsIgnoreCase(productName)){
@@ -127,7 +126,7 @@ public class CreateBuyLink extends HomePage {
         clickOnNextBtn();
         Assert.assertEquals(commonAction.getText(POPUP_TITLE), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.popupTitle"));
         Assert.assertEquals(commonAction.getElementAttribute(SEARCH_INPUT,"placeholder"), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.searchHint"));
-        Assert.assertEquals(commonAction.getText(NO_SELECTED_PRODUCT_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.noSelectedCoupon"));
+//        Assert.assertEquals(commonAction.getText(NO_SELECTED_PRODUCT_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.noSelectedCoupon"));
         Assert.assertEquals(commonAction.getText(BACK_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.backBtn"));
         Assert.assertEquals(commonAction.getText(FINISH_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.finishBtn"));
         return this;

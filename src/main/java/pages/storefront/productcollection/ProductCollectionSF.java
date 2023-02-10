@@ -29,56 +29,71 @@ public class ProductCollectionSF extends GeneralSF {
         productCollectionSFUI = new ProductCollectionSFElement(driver);
         PageFactory.initElements(driver, this);
     }
-    public List<String> getProductNameList(){
+
+    public List<String> getProductNameList() {
         List<String> productNames = new ArrayList<>();
         int pageNumber = 1;
-        if(productCollectionSFUI.PAGING_PAGE_LIST.size()>0) {
-            pageNumber = productCollectionSFUI.PAGING_PAGE_LIST.size()-1;
+        if (productCollectionSFUI.PAGING_PAGE_LIST.size() > 0) {
+            pageNumber = productCollectionSFUI.PAGING_PAGE_LIST.size() - 1;
         }
-        for(int i=1; i<= pageNumber; i++){
-            for (int j=0;j< productCollectionSFUI.PRODUCT_NAMES.size();j++) {
+        for (int i = 1; i <= pageNumber; i++) {
+            for (int j = 0; j < productCollectionSFUI.PRODUCT_NAMES.size(); j++) {
                 productNames.add(productCollectionSFUI.PRODUCT_NAMES.get(j).getText().toLowerCase());
             }
-//            System.out.println("Page"+productCollectionSFUI.PAGING_PAGE_LIST.get(i).getText());
-            if(i< pageNumber-1){
+            if (i < pageNumber - 1) {
 //                String pageActive = productCollectionSFUI.PAGE_ACTIVE.getText();
-                common.clickElement(common.getElementByXpath(productCollectionSFUI.PAGE_IN_PAGINATION_DYNAMIC_XP.formatted(String.valueOf(i+1))));
+                common.clickElement(common.getElementByXpath(productCollectionSFUI.PAGE_IN_PAGINATION_DYNAMIC_XP.formatted(String.valueOf(i + 1))));
                 waitTillLoaderDisappear();
             }
-            pageNumber = productCollectionSFUI.PAGING_PAGE_LIST.size()-1;
+            pageNumber = productCollectionSFUI.PAGING_PAGE_LIST.size() - 1;
         }
-        logger.info("Get product names: "+productNames);
+        logger.info("Get product names: " + productNames);
         return productNames;
     }
 
-    public ProductCollectionSF verifyProductNameList(List<String> expected){
-        Assert.assertEquals(getProductNameList(),expected);
+    public List<String> getProductNameListWithLazyLoad(int scrollNumber) {
+        List<String> productNames = new ArrayList<>();
+        for (int i = 0; i < scrollNumber; i++) {
+            common.scrollBottomPage();
+            common.sleepInMiliSecond(500);
+        }
+        for (int j = 0; j < productCollectionSFUI.PRODUCT_NAMES.size(); j++) {
+            productNames.add(productCollectionSFUI.PRODUCT_NAMES.get(j).getText().toLowerCase());
+        }
+        logger.info("Get product names: " + productNames);
+        return productNames;
+    }
+
+    public ProductCollectionSF verifyProductNameList(List<String>actual,List<String> expected) {
+        Assert.assertEquals(actual, expected);
         logger.info("Verify product name list display and sort by latest");
         return this;
     }
-    public ProductCollectionSF verifyProductCollectionName(String expected){
-        Assert.assertEquals(common.getText(productCollectionSFUI.PRODUCT_COLLECTION_NAME),expected);
+
+    public ProductCollectionSF verifyProductCollectionName(String expected) {
+        Assert.assertEquals(common.getText(productCollectionSFUI.PRODUCT_COLLECTION_NAME), expected);
         logger.info("Verif product collection name show correctly.");
         return this;
     }
-    public ProductCollectionSF verifySEOInfo(String SEOTitle, String SEODescription, String SEOKeyword, String collectionName){
+
+    public ProductCollectionSF verifySEOInfo(String SEOTitle, String SEODescription, String SEOKeyword, String collectionName) {
         String titleActual = common.getElementAttribute(productCollectionSFUI.META_TITLE, "content");
-        if (SEOTitle==""){
-            Assert.assertEquals(titleActual,collectionName);
-        }else {
-            Assert.assertEquals(titleActual,SEOTitle);
+        if (SEOTitle == "") {
+            Assert.assertEquals(titleActual, collectionName);
+        } else {
+            Assert.assertEquals(titleActual, SEOTitle);
         }
         String SEODescActual = common.getElementAttribute(productCollectionSFUI.META_DESCRIPTION, "content");
         if (SEODescription == "") {
-            Assert.assertEquals(SEODescActual,"");
-        }else {
-            Assert.assertEquals(SEODescActual,SEODescription);
+            Assert.assertEquals(SEODescActual, "");
+        } else {
+            Assert.assertEquals(SEODescActual, SEODescription);
         }
         String SEOKeywordActual = common.getElementAttribute(productCollectionSFUI.META_KEYWORD, "content");
-        if (SEOKeyword==""){
-            Assert.assertEquals(SEOKeywordActual,collectionName);
-        }else {
-            Assert.assertEquals(SEOKeywordActual,SEOKeyword);
+        if (SEOKeyword == "") {
+            Assert.assertEquals(SEOKeywordActual, collectionName);
+        } else {
+            Assert.assertEquals(SEOKeywordActual, SEOKeyword);
         }
         logger.info("Verify SEO info");
         return this;

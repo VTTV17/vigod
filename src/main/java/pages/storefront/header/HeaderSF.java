@@ -70,7 +70,7 @@ public class HeaderSF extends GeneralSF {
 	WebElement ENGLISH_LANGUAGE;
 	@FindBy(css = "[onclick=\"gosellUtils.changeLanguage('vi')\"]")
 	WebElement VIETNAMESE_LANGUAGE;
-	String MENU_ITEM_BY_TEXT = "//button[@class='d-btn']//a[text()='%s']";
+	String MENU_ITEM_BY_TEXT = "//div[contains(@class,'desktop')]//a[text()='%s']";
 	public HeaderSF clickUserInfoIcon() {
 		commons.clickElement(USER_INFO_ICON);
 		logger.info("Clicked on User Info icon.");

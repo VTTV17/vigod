@@ -19,4 +19,6 @@ public class OrderCompleteElement {
     List<WebElement> PRODUCT_NAME_LIST;
     @FindBy(xpath = "(//span[contains(@class,'font-weight-bold')])[3]")
     WebElement DISCOUNT_AMOUNT;
+    @FindBy(xpath = "//span[@class='text-decoration-line-through']//following-sibling::span")
+    WebElement SHIPPING_FEE;
 }

@@ -61,4 +61,15 @@ public class CheckOutStep2 extends GeneralSF {
         logger.info("Verify discount amount.");
         return this;
     }
+    public String getShippingFeeAfterDiscount(){
+        String shippingFee = commonAction.getText(checkOutStep2UI.SHIPPING_FEE);
+        String shippingFeeAfterDiscount = shippingFee.split("đ\s")[1];
+        logger.info("Get Shipping fee after discount: "+shippingFeeAfterDiscount);
+        return shippingFeeAfterDiscount;
+    }
+    public CheckOutStep2 verifyShippingFeeAfterDiscount(String expected){
+        Assert.assertEquals(getShippingFeeAfterDiscount(),expected,"Expected shipping fee after discount is %s, but display %s".formatted(expected,getShippingFeeAfterDiscount()));
+        logger.info("Verify shipping fee after discount");
+        return this;
+    }
 }

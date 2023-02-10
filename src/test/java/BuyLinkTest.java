@@ -1,4 +1,5 @@
 import api.dashboard.login.Login;
+import api.dashboard.marketing.APIBuyLink;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
@@ -13,13 +14,14 @@ import pages.storefront.GeneralSF;
 import pages.storefront.checkout.checkoutstep1.CheckOutStep1;
 import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
 import pages.storefront.checkout.checkoutstep3.CheckOutStep3;
+import pages.storefront.header.HeaderSF;
+import pages.storefront.signup.SignupPage;
 import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
-import utilities.links.Links;
 
-import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
-import static utilities.links.Links.URI;
+import static utilities.file.FileNameAndPath.FILE_BUY_LINK_TCS;
+import static utilities.links.Links.SF_ShopVi;
 
 public class BuyLinkTest extends BaseTest {
     String userNameDb;
@@ -34,6 +36,7 @@ public class BuyLinkTest extends BaseTest {
     CreateBuyLink createBuyLink;
     String[] productName;
     GeneralSF generalSF;
+    HeaderSF headerSF;
     pages.storefront.login.LoginPage loginSF;
     CheckOutStep1 checkOutStep1;
     CheckOutStep2 checkOutStep2;
@@ -41,6 +44,8 @@ public class BuyLinkTest extends BaseTest {
     String discountCodeName;
     int productPrice;
     float discountAmount;
+    SignupPage signupSF;
+    String shopDomain;
 
     @BeforeClass
     public void beforeClass() throws Exception {
@@ -53,8 +58,16 @@ public class BuyLinkTest extends BaseTest {
         new Login().loginToDashboardWithPhone("+84",AccountTest.ADMIN_SHOP_VI_USERNAME,AccountTest.ADMIN_SHOP_VI_PASSWORD);
         new BranchManagement().getBranchInformation();
         new VAT().getTaxList();
+        shopDomain = SF_ShopVi;
+        tcsFileName = FILE_BUY_LINK_TCS;
     }
-
+    public void deleteNewestBuyLink(){
+        Login login = new Login();
+        login.loginToDashboardWithPhone("+84",userNameDb,passWordDb);
+        APIBuyLink apiBuyLink = new APIBuyLink();
+        int id = apiBuyLink.getNewestBuyLinkID();
+        apiBuyLink.deleteBuyLinkById(id);
+    }
     public BuyLinkManagement LoginAndNavigateToBuyLinkPage() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userNameDb, passWordDb);
@@ -62,7 +75,6 @@ public class BuyLinkTest extends BaseTest {
         home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.MARKETING_MENU_ITEM_NAME, Constant.BUYLINK_MENU_ITEM_NAME);
         return new BuyLinkManagement(driver);
     }
-
     public CreateBuyLink LoginAndNavigateToCreateBuyLinkPage() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userNameDb, passWordDb);
@@ -96,9 +108,14 @@ public class BuyLinkTest extends BaseTest {
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
                 .clickOnFinishBTN();
-        buyLinkManagement.NavigateToBuyLink();
+        String buyLinkURL = buyLinkManagement.getBuyLinkURL();
         generalSF = new GeneralSF(driver);
-        loginSF = generalSF.clickOnLoginButtonOnRequiredLoginModal();
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(buyLinkURL);
+        loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
         checkOutStep1 = new CheckOutStep1(driver);
         checkOutStep1.selectPaymentMethod("COD")
@@ -108,10 +125,11 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnNextButton()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
+        deleteNewestBuyLink();
     }
     @Test
     public void BL04_CheckBuyLinkFixAmountDiscountCodeAndCheckout() throws Exception {
-//        testCaseId = "BL04";
+        testCaseId = "BL04";
         CreatePromotion.apiIsLimitToOne=false;
         CreatePromotion.apiIsLimitToUsage=false;
         CreatePromotion.apiDiscountCodeType=1;
@@ -135,9 +153,14 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnNextBtn()
                 .searchAndSelectPromotion(discountCodeName)
                 .clickOnFinishBTN();
-        buyLinkManagement.NavigateToBuyLink();
+        String buyLinkURL = buyLinkManagement.getBuyLinkURL();
         generalSF = new GeneralSF(driver);
-        loginSF = generalSF.clickOnLoginButtonOnRequiredLoginModal();
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(buyLinkURL);
+        loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
         checkOutStep1 = new CheckOutStep1(driver);
         checkOutStep1.selectPaymentMethod("COD")
@@ -150,6 +173,7 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnNextButton()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
+        deleteNewestBuyLink();
     }
     @Test
     public void BL05_CheckBuyLinkPercentDiscountCodeAndCheckout() throws Exception {
@@ -174,9 +198,14 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnNextBtn()
                 .searchAndSelectPromotion(discountCodeName)
                 .clickOnFinishBTN();
-        buyLinkManagement.NavigateToBuyLink();
+        String buyLinkURL = buyLinkManagement.getBuyLinkURL();
         generalSF = new GeneralSF(driver);
-        loginSF = generalSF.clickOnLoginButtonOnRequiredLoginModal();
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(buyLinkURL);
+        loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
         checkOutStep1 = new CheckOutStep1(driver);
         checkOutStep1.selectPaymentMethod("COD")
@@ -189,5 +218,127 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnNextButton()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
+        deleteNewestBuyLink();
+    }
+    @Test
+    public void BL06_CreateBuyLinkWithFreeShippingDiscountCodeAndCheckout() throws Exception {
+        testCaseId = "BL06";
+        CreatePromotion.apiIsLimitToOne=false;
+        CreatePromotion.apiIsLimitToUsage=false;
+        CreatePromotion.apiDiscountCodeType=2;
+        CreatePromotion.apiIsEnabledReward=false;
+        CreatePromotion.apiSegmentConditionType=0;
+        CreatePromotion.apiAppliesCondtionType=0;
+        CreatePromotion.apiMinimumRequiredType=0;
+        CreatePromotion.apiApplicableBranchCondition=0;
+        new CreateProduct().createWithoutVariationProduct(false,10);
+        new CreatePromotion().createProductDiscountCode(0);
+        productName = new String[]{CreateProduct.apiProductName};
+        discountCodeName = CreatePromotion.apiDiscountName;
+        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+
+        createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
+        buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
+                .clickOnNextBtn()
+                .searchAndSelectPromotion(discountCodeName)
+                .clickOnFinishBTN();
+        String buyLinkURL = buyLinkManagement.getBuyLinkURL();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(buyLinkURL);
+        loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
+        loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
+        checkOutStep1 = new CheckOutStep1(driver);
+        checkOutStep1.selectPaymentMethod("COD")
+                .clickOnNextButton()
+                .verifyShippingFeeAfterDiscount("0đ")
+                .selectShippingMethod("Self delivery")
+                .clickOnNextButton()
+                .verifyShippingFreeAfterDiscount("0đ")
+                .clickOnNextButton()
+                .verifyProductNames(productName)
+                .verifyShippingFeeAfterDiscount("0đ");
+        deleteNewestBuyLink();
+    }
+    @Test
+    public void BL07_CreateBuyLinkWithRewardDiscountCodeAndCheckout() throws Exception {
+        testCaseId = "BL07";
+        CreatePromotion.apiIsLimitToOne = false;
+        CreatePromotion.apiIsLimitToUsage = false;
+        CreatePromotion.apiDiscountCodeType = 0;
+        CreatePromotion.apiIsEnabledReward = true;
+        CreatePromotion.apiSegmentConditionType = 0;
+        CreatePromotion.apiAppliesCondtionType = 0;
+        CreatePromotion.apiMinimumRequiredType = 0;
+        CreatePromotion.apiApplicableBranchCondition = 0;
+        new CreateProduct().createWithoutVariationProduct(false, 10);
+        new CreatePromotion().createProductDiscountCode(0);
+        productName = new String[]{CreateProduct.apiProductName};
+        discountCodeName = CreatePromotion.apiDiscountName;
+        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        discountAmount = CreatePromotion.apiCouponValue*productPrice/100;
+
+        createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
+        buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
+                .clickOnNextBtn()
+                .searchAndSelectPromotion(discountCodeName)
+                .clickOnFinishBTN();
+        String buyLinkURL = buyLinkManagement.getBuyLinkURL();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(buyLinkURL);
+        loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
+        loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
+        checkOutStep1 = new CheckOutStep1(driver);
+        checkOutStep1.selectPaymentMethod("COD")
+                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnNextButton()
+                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .selectShippingMethod("Self delivery")
+                .clickOnNextButton()
+                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnNextButton()
+                .verifyProductNames(productName)
+                .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
+        deleteNewestBuyLink();
+    }
+    @Test
+    public void BL08_CheckNoAccountAndCheckoutWithBuyLink() throws Exception {
+        testCaseId = "BL08";
+        new CreateProduct().createWithoutVariationProduct(false,1);
+        productName = new String[]{CreateProduct.apiProductName};
+        createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
+        buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
+                .clickOnNextBtn()
+                .clickOnFinishBTN();
+        String buyLinkURL = buyLinkManagement.getBuyLinkURL();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(buyLinkURL);
+        loginSF = new GeneralSF(driver).clickOnRegisterButtonOnRequiredLoginModal();
+        signupSF = new SignupPage(driver);
+        String generateName = generate.generateString(10);
+        String buyerAccount_Signup = "01" + generate.generateNumber(9);
+        String buyerDisplayName_Signup = generateName;
+        signupSF.signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        checkOutStep1 = new CheckOutStep1(driver);
+        checkOutStep1.selectPaymentMethod("COD")
+                .inputAddressInfo_VN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
+                .clickOnNextButton()
+                .selectShippingMethod("Self delivery")
+                .clickOnNextButton()
+                .clickOnNextButton()
+                .verifyProductNames(productName)
+                .verifyDiscountAmount("0đ");
+        deleteNewestBuyLink();
     }
 }

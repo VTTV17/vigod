@@ -19,4 +19,7 @@ public class CheckOutStep2Element {
     WebElement ARROW_ICON_NEXT_TO_TOTAL_AMOUNT;
     @FindBy(xpath = "(//td[contains(@class,'sub-price')])[2]/span")
     WebElement DISCOUNT_AMOUNT ;
+    @FindBy(css = ".delivery-option .color-red")
+    WebElement SHIPPING_FEE;
+
 }
