@@ -17,4 +17,7 @@ public class CheckOutStep3Element {
     WebElement ARROW_ICON_NEXT_TO_TOTAL_AMOUNT;
     @FindBy(xpath = "(//td[contains(@class,'sub-price')])[2]/span")
     WebElement DISCOUNT_AMOUNT ;
+    @FindBy(xpath = "//span[@class='text-decoration-line-through']//following-sibling::span")
+    WebElement SHIPPING_FEE;
+
 }

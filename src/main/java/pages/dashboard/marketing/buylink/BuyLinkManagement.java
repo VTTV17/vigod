@@ -14,6 +14,8 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
+import pages.storefront.GeneralSF;
+import pages.storefront.header.HeaderSF;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
@@ -58,6 +60,12 @@ public class BuyLinkManagement {
 	WebElement DELETE_LINK_ICO;
 	@FindBy(css = ".text-truncate")
 	List<WebElement> URL_LIST;
+	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[1]")
+	WebElement COPY_LINK_TOOLTIP;
+	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]")
+	WebElement EDIT_LINK_TOOLTIP;
+	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]")
+	WebElement DELETE_LINK_TOOLTIP;
 	public BuyLinkManagement clickExploreNow() {
     	commonAction.clickElement(EXPLORE_NOW_BTN);
     	logger.info("Clicked on 'Explore Now' button.");
@@ -92,7 +100,10 @@ public class BuyLinkManagement {
 		Assert.assertEquals(commonAction.getText(COUPON_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.couponCol"));
 		Assert.assertEquals(commonAction.getText(CREATE_DATE_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.createDate"));
 		Assert.assertEquals(commonAction.getText(ACTIONS_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.actions"));
-		Assert.assertEquals(commonAction.getText(NO_BUY_LINK_YET),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.noBuyLinkYet"));
+		commonAction.sleepInMiliSecond(500);
+		Assert.assertEquals(commonAction.getElementAttribute(COPY_LINK_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.copyLinkTooltip"));
+		Assert.assertEquals(commonAction.getElementAttribute(EDIT_LINK_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.editLinkTooltip"));
+		Assert.assertEquals(commonAction.getElementAttribute(DELETE_LINK_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.deleteLinkTooltip"));
 		return this;
 	}
 	public BuyLinkManagement clickOnCopyLink(){
@@ -100,10 +111,9 @@ public class BuyLinkManagement {
 		logger.info("Click on Copy link of the newest link (on the top)");
 		return this;
 	}
-	public void NavigateToBuyLink(){
-		commonAction.sleepInMiliSecond(1000);
+	public String getBuyLinkURL(){
+		commonAction.sleepInMiliSecond(1500);
 		String URL = commonAction.getText(URL_LIST.get(0));
-		commonAction.navigateToURL(URL);
-		logger.info("Navigate to url: "+URL);
+		return URL;
 	}
 }

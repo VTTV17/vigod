@@ -261,14 +261,18 @@ public class SignupPage extends GeneralSF {
     public void completeVerify() {
         soft.assertAll();
     }
-
     public SignupPage navigate(String domain) {
         commonAction.navigateToURL(domain);
         return this;
     }
-
+    public SignupPage navigateToSignUp(String domain) {
+        commonAction.navigateToURL(domain);
+        new HeaderSF(driver).clickUserInfoIcon()
+                .clickSignupIcon();
+        return this;
+    }
     public void signUpWithEmail(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
-        fillOutSignupForm(country, userName, passWord, displayName, birthday);
+        onlyFillOutSignupForm(country, userName, passWord, displayName, birthday);
         mailnesia = new Mailnesia(driver);
         String verifyCode = mailnesia.navigateToMailAndGetVerifyCode(userName);
         inputVerificationCode(verifyCode);
@@ -277,10 +281,19 @@ public class SignupPage extends GeneralSF {
     }
 
     public void signUpWithPhoneNumber(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
-        fillOutSignupForm(country, userName, passWord, displayName, birthday);
+        onlyFillOutSignupForm(country, userName, passWord, displayName, birthday);
         String verificationCode = new InitConnection().getActivationKey(countryCode + ":" + userName);
         inputVerificationCode(verificationCode);
         clickConfirmBtn();
         inputEmail(displayName+"@mailnesia.com").clickCompleteBtn();
+    }
+    public SignupPage onlyFillOutSignupForm(String country, String user, String password, String displayName, String birthday) {
+        inputBirthday(birthday);
+        selectCountry(country);
+        inputMailOrPhoneNumber(user);
+        inputPassword(password);
+        inputDisplayName(displayName);
+        clickSignupBtn();
+        return this;
     }
 }

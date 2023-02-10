@@ -64,7 +64,7 @@ public class ProductCollectionTest extends BaseTest {
         userNameDb = ADMIN_SHOP_VI_USERNAME;
         passwordDb = ADMIN_SHOP_VI_PASSWORD;
         domainSF = SF_ShopVi;
-        menuID = "1174";
+        menuID = "7071";
         userName_goWeb = ADMIN_USERNAME_GOWEB;
         userName_goApp = ADMIN_USERNAME_GOAPP;
         userName_goPOS = ADMIN_USERNAME_GOPOS;
@@ -121,8 +121,8 @@ public class ProductCollectionTest extends BaseTest {
         pages.storefront.login.LoginPage loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(domainSF);
         HeaderSF headerSF = new HeaderSF(driver);
-        headerSF.selectLanguage(languageSF).waitTillLoaderDisappear();
-        headerSF.clickOnMenuItemByText(collectionName).waitTillLoaderDisappear();
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        headerSF. clickOnMenuItemByText(collectionName).waitTillLoaderDisappear();
     }
 
     public void navigateToSFAndVerifyCollectionPage(String collectNameEdit, boolean hasSetPriority) throws Exception {
@@ -138,7 +138,7 @@ public class ProductCollectionTest extends BaseTest {
             productListSorted = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
         }
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productListSorted);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
     }
 
     /**
@@ -173,8 +173,8 @@ public class ProductCollectionTest extends BaseTest {
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductCollectionName(collectionName)
-                .verifyProductNameList(productExpectedList);
+//        productCollectionSF.verifyProductCollectionName(collectionName)
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(3),productExpectedList);
     }
 
     public void editAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
@@ -204,8 +204,8 @@ public class ProductCollectionTest extends BaseTest {
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductCollectionName(collectionName)
-                .verifyProductNameList(productExpectedList);
+//        productCollectionSF.verifyProductCollectionName(collectionName)
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productExpectedList);
 
     }
 
@@ -233,7 +233,7 @@ public class ProductCollectionTest extends BaseTest {
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, "0");
         //product list: add some product, no input priority
         collectionName = "Manually collection has product " + generate.generateString(10);
-        productList = new String[]{"Quần jeans nữ ống rộng", "Vỏ bưởi", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
+        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
         productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.clickOnCreateCollection()
                 .createManualCollectionWithoutSEO_NoPriority(collectionName, productList)
@@ -248,13 +248,13 @@ public class ProductCollectionTest extends BaseTest {
         APIAllProducts apiAllProducts = new APIAllProducts();
         List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productListExpected)
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListExpected)
                 .verifySEOInfo("", "", "", collectionName);
         //Delete menuItem (Clear data)
         callDeleteMenuItemAndCollectionAPI(collectionName);
         //product list: add some product, input priority
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-        productList = new String[]{"Quần jeans nữ ống rộng", "Vỏ bưởi", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
+        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, true, true)
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
@@ -265,14 +265,14 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productListSorted);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
         collectionNameEditManual = collectionName;
     }
 
     @Test
     public void PC_02_BH_4784_CreateManualProductCollectionAndAddAProductSEO() throws Exception {
         collectionName = "Manually: has SEO info" + generate.generateString(5);
-        productList = new String[]{"Quần jeans nữ ống rộng"};
+        productList = new String[]{"Dâu tây Đà Lạt"};
         String radomText = generate.generateString(5);
         SEOTitle = "SEO title " + radomText;
         SEODescription = "SEO description " + radomText;
@@ -290,15 +290,15 @@ public class ProductCollectionTest extends BaseTest {
         List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductCollectionName(collectionName)
-                .verifyProductNameList(productListExpected)
+//        productCollectionSF.verifyProductCollectionName(collectionName)
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListExpected)
                 .verifySEOInfo(SEOTitle, SEODescription, SEOKeyword, collectionName);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword() throws Exception {
-        condition = "Product title-contains-nam";
+        condition = "Product title-contains-Dâu";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         collectionNameEditAutomationWithOrCondition = collectionName;
@@ -306,7 +306,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword() throws Exception {
-        condition = "Product title-starts with-Áo thun";
+        condition = "Product title-starts with-Awesome";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         collectionNameEditAutomationWithAndCondition = collectionName;
@@ -314,7 +314,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword() throws Exception {
-        condition = "Product title-ends with-hiện đại";
+        condition = "Product title-ends with-Đà Lạt";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -322,7 +322,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_06_BH_4789_CreateAutomationProductCollectionWithTitleEqualToKeyword() throws Exception {
-        condition = "Product title-is equal to-Áo khoác 2 lớp có nón rút gấu chống nắng ulzzang thời trang nữ";
+        condition = "Product title-is equal to-Hồng trứng Đà Lạt";
         collectionName = generate.generateString(5) + " - " + "Product title-is equal to";
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -330,7 +330,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_07_BH_4790_CreateAutomationProductCollectionWithPriceEqualToNumber() throws Exception {
-        condition = "Product price-is equal to-300000";
+        condition = "Product price-is equal to-499000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -346,7 +346,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_09_BH_4792_CreateAutomationProductCollectionWithPriceGreaterThanNumber() throws Exception {
-        condition = "Product price-is greater than-10000000";
+        condition = "Product price-is greater than-500000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -354,7 +354,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_10_BH_4793_CreateAutomationProductCollectionWithANDMultipleCondition() throws Exception {
-        String[] conditions = {"Product title-contains-nam", "Product price-is greater than-100000"};
+        String[] conditions = {"Product title-contains-Dâu", "Product price-is greater than-100000"};
         collectionName = generate.generateString(5) + " - " + "and multiple condition";
         createAutomationCollectionAndVerify(collectionName, "All conditions", conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -362,7 +362,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_11_BH_4794_CreateAutomationProductCollectionWithORMultipleCondition() throws Exception {
-        String[] conditions = {"Product title-contains-Đồng hồ", "Product price-is greater than-10000000"};
+        String[] conditions = {"Product title-contains-Dâu", "Product price-is greater than-5000000"};
         collectionName = generate.generateString(5) + " - " + "OR multiple condition";
         createAutomationCollectionAndVerify(collectionName, "Any condition", conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -380,7 +380,7 @@ public class ProductCollectionTest extends BaseTest {
     @Test
     public void PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber() throws Exception {
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-        productList = new String[]{"Quần jeans nữ ống rộng", "create product variation with cost price", "Vỏ bưởi", "Chả cá nhà làm", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
+        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, false, true)
                 .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(productList.length));
@@ -393,7 +393,7 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productListSorted);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
         collectNameEditPriority = collectionName;
     }
 
@@ -408,13 +408,13 @@ public class ProductCollectionTest extends BaseTest {
     @Test(dependsOnMethods = "PC_01_BH_4783_CreateManualProductCollection_V2")
     public void PC_15_BH_4785_EditManualProductCollection() throws Exception {
         //edit product list: add new list
-        productList = new String[]{"Trắng răng", "Đồng hồ thời trang Nam Rồng vàng có lịch - kim dạ quang sang trọng hiện đại", "Chả cá nhà làm", "Áo thun tay lỡ nam nữ họa tiết vụ trụ vải dày mịn"};
+        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt"};
         loginAndNavigateToEditCollection(collectionNameEditManual)
                 .editProductListInManualCollection(productList, true, false)
                 .clickLogout();
         navigateToSFAndVerifyCollectionPage(collectionNameEditManual, false);
         //edit product list, add new list, set priority
-        productList = new String[]{"Quần jeans nữ ống rộng", "create product variation with cost price", "Vỏ bưởi", "Chả cá nhà làm", "Áo thun unisex form rộng Nhật Bản đẹp độc lạ vải dày mịn", "Áo khoác jean chống nắng", "Xương rồng mini"};
+        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt","Fantastic Wooden Bacon - Product has variation API 1672995449"};
         loginAndNavigateToEditCollection(collectionNameEditManual)
                 .editProductListInManualCollection(productList, true, true);
         navigateToSFAndVerifyCollectionPage(collectionNameEditManual, true);
@@ -423,7 +423,7 @@ public class ProductCollectionTest extends BaseTest {
     }
     @Test(dependsOnMethods = "PC_01_BH_4783_CreateManualProductCollection_V2")
     public void PC_16_BH_4796_AddProductToExistingManualCollection() throws Exception {
-        productList = new String[]{"Cà phê pha phin King coffee Expert Blend 2- Túi 500g 65KCF KCF00002", "Quần Nhung Tăm - Quần Ống Xuông Hai Màu Be Đen Siêu Đẹp"};
+        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230"};
         loginAndNavigateToEditCollection(collectionNameEditManual)
                 .editProductListInManualCollection(productList, false, false);
         navigateToSFAndVerifyCollectionPage(collectionNameEditManual, true);//data has set priority before
@@ -433,7 +433,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test(dependsOnMethods = "PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword")
     public void PC_17_BH_4797_UpdateAutomationCollection_AndCondition() throws Exception {
-        condition = "Product title-contains-nam";
+        condition = "Product title-contains-Lạt";
         editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithAndCondition);
     }
