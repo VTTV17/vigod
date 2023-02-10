@@ -2,6 +2,8 @@ package pages.thirdparty;
 
 import java.time.Duration;
 
+import static utilities.account.AccountTest.*;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -121,6 +123,7 @@ public class VISA {
 	}
 	
 	public VISA clickNext() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("step-up-iframe")));
 		commonAction.switchToFrameByElement(iframe);
 		commonAction.switchToFrameByIndex(0);
@@ -130,6 +133,10 @@ public class VISA {
 	}
 
 	public VISA inputOTP(String OTPValue) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+		WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("step-up-iframe")));
+		commonAction.switchToFrameByElement(iframe);
+		commonAction.switchToFrameByIndex(0);
 		commonAction.inputText(OTP, OTPValue);
 		logger.info("Input '" + OTPValue + "' into OTP field.");
 		return this;
@@ -141,6 +148,22 @@ public class VISA {
 		return this;
 	}
 
+	public VISA completePayment() {
+		inputCardNumber(VISA_CARDNUMBER);
+		inputExpiryDate(VISA_EXPIRYDATE);
+		inputCVCCVV(VISA_CCV);
+		inputCardHolder(VISA_CARDHOLDER);
+		inputEmail(VISA_EMAIL);
+		selectCountry(VISA_COUNTRY);
+		inputProvinceCity(VISA_CITY);
+		inputAddress(VISA_ADDRESS);
+		clickContinue();
+//		clickNext();
+		inputOTP(VISA_OTP);
+		clickSubmit();
+		return this;
+	}
+	
 	public VISA completePayment(String cardNumber, String expiryDate, String cvccvv, String cardHolder, String email,
 			String country, String city, String address, String otp) {
 		inputCardNumber(cardNumber);
@@ -152,7 +175,7 @@ public class VISA {
 		inputProvinceCity(city);
 		inputAddress(address);
 		clickContinue();
-		clickNext();
+//		clickNext();
 		inputOTP(otp);
 		clickSubmit();
 		return this;

@@ -1,5 +1,7 @@
 package pages.thirdparty;
 
+import static utilities.account.AccountTest.*;
+
 import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
@@ -103,6 +105,18 @@ public class ATM {
 	public ATM clickConfirm() {
 		commonAction.clickElement(CONFIRM_BTN);
 		logger.info("Clicked on 'Confirm' button.");
+		return this;
+	}	
+	
+	public ATM completePayment() {
+		clickDomesticCard();
+		selectBank(ATM_BANK);
+		inputCardNumber(ATM_CARDNUMBER);
+		inputCardHolder(ATM_CARDHOLDER);
+		inputIssuingDate(ATM_ISSUINGDATE);
+		clickContinue();
+		inputOTP(ATM_OTP);
+		clickConfirm();
 		return this;
 	}	
 	

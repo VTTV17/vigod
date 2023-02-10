@@ -18,6 +18,7 @@ import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 public class Segments {
@@ -102,9 +103,17 @@ public class Segments {
     }
     
     public void verifyPermissionToCreateSegmentByCustomerData(String dataCondition, String permission) {
+    	String displayLanguage = new HomePage(driver).getDashboardLanguage();
+    	String dataGroup = null;
+    	try {
+    		dataGroup = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.dataGroup.customerData", displayLanguage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
     	if (permission.contentEquals("A")) {
 			clickCreateSegmentBtn().inputSegmentName("Test Permission")
-			.selectDataGroupCondition("Customers data")
+			.selectDataGroupCondition(dataGroup)
 			.selectDataCondition(dataCondition);
 			commonAction.navigateBack();
 			new ConfirmationDialog(driver).clickOKBtn();
@@ -115,9 +124,17 @@ public class Segments {
     	}
     }    
     public void verifyPermissionToCreateSegmentByOrderData(String dataCondition, String permission) {
+    	String displayLanguage = new HomePage(driver).getDashboardLanguage();
+    	String dataGroup = null;
+    	try {
+    		dataGroup = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.dataGroup.orderData", displayLanguage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
     	if (permission.contentEquals("A")) {
     		clickCreateSegmentBtn().inputSegmentName("Test Permission")
-    		.selectDataGroupCondition("Order data")
+    		.selectDataGroupCondition(dataGroup)
     		.selectDataCondition(dataCondition);
     		commonAction.navigateBack();
     		new ConfirmationDialog(driver).clickOKBtn();
@@ -128,9 +145,17 @@ public class Segments {
     	}
     }    
     public void verifyPermissionToCreateSegmentByPurchasedProduct(String permission) {
+    	String displayLanguage = new HomePage(driver).getDashboardLanguage();
+    	String dataGroup = null;
+    	try {
+    		dataGroup = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.dataGroup.purchasedProduct", displayLanguage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
     	if (permission.contentEquals("A")) {
     		clickCreateSegmentBtn().inputSegmentName("Test Permission")
-    		.selectDataGroupCondition("Purchased product");
+    		.selectDataGroupCondition(dataGroup);
     		commonAction.navigateBack();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {

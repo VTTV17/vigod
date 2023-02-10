@@ -217,7 +217,7 @@ public class HomePage {
     }
 
     public void navigateToPage(String pageName) {
-        commons.waitForElementInvisible(SPINNER, 20);
+        commons.waitForElementInvisible(SPINNER, 60);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
@@ -232,7 +232,7 @@ public class HomePage {
             if (!isMenuAlreadyOpened) {
                 commons.clickElement(element);
                 logger.info("Click on %s item on menu".formatted(pageName));
-                commons.waitForElementInvisible(SPINNER,20);
+                commons.waitForElementInvisible(SPINNER, 60);
                 if (pageName.equals("Marketing")) {
             		if (new LandingPage(driver).isPermissionModalDisplay()) {
             			new LandingPage(driver).closeModal();
@@ -326,11 +326,8 @@ public class HomePage {
         // Sometimes it takes longer for the API to fill the element with text
         for (int i = 0; i < 5; i++) {
             language = commons.getText(LANGUAGE).trim();
-            if (language.length() > 0) {
-                break;
-            } else {
-                commons.sleepInMiliSecond(500);
-            }
+            if (language.length() > 0) break;
+            commons.sleepInMiliSecond(500);
         }
         return language;
     }

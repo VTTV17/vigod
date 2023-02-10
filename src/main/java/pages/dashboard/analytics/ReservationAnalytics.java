@@ -15,6 +15,7 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 public class ReservationAnalytics {
@@ -49,8 +50,16 @@ public class ReservationAnalytics {
     
     /*Verify permission for certain feature*/
     public void verifyPermissionToUseAnalytics(String permission) {
+		String displayLanguage = new HomePage(driver).getDashboardLanguage();
+		String data = null;
+    	try {
+    		data = PropertiesUtil.getPropertiesValueByDBLang("analytics.reservations.filter.yesterday", displayLanguage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		if (permission.contentEquals("A")) {
-			selectDateFilterValue("Yesterday");
+			selectDateFilterValue(data);
 		} else if (permission.contentEquals("D")) {
 			// Not reproducible
 		} else {

@@ -41,7 +41,7 @@ public class Configuration {
     @FindBy (xpath = "(//div[contains(@class,'live-chat-configuration')]//section)[2]//h3[contains(.,'Zalo')]/following-sibling::*")
     WebElement ENABLE_ZALO_OA_MESSENGER_TOGGLE;
     
-    @FindBy (xpath = "(//div[contains(@class,'live-chat-configuration')]//section)[3]//h3[contains(.,'login')]/following-sibling::*")
+    @FindBy (xpath = "(//div[contains(@class,'live-chat-configuration')]//section)[3]//h3[contains(.,'login') or contains(.,'đăng nhập') ]/following-sibling::*")
     WebElement ENABLE_FACEBOOK_LOGIN_FOR_ONLINE_STORE_TOGGLE;
     
     @FindBy (id = "gaCode")
