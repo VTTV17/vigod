@@ -1,5 +1,9 @@
 package pages.dashboard.settings.plans;
 
+import static utilities.links.Links.LOGIN_PAGE_TITLE;
+
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -9,15 +13,12 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import pages.dashboard.home.HomePage;
 import pages.thirdparty.ATM;
 import pages.thirdparty.PAYPAL;
 import pages.thirdparty.VISA;
 import utilities.UICommonAction;
-import static utilities.account.AccountTest.*;
-import static utilities.links.Links.LOGIN_PAGE_TITLE;
-
-import java.time.Duration;
 
 public class PlansPage extends HomePage {
 	WebDriver driver;
@@ -47,14 +48,17 @@ public class PlansPage extends HomePage {
 	@FindBy(css = ".wizard-layout__content a[href='/logout']")
 	WebElement LOGOUT_BTN;
 
-	@FindBy(css = ".online-payment div div label:nth-of-type(1)")
+	@FindBy(css = "img[src*='atm']")
 	WebElement ATM_RADIO_BTN;
 
-	@FindBy(css = ".online-payment div div label:nth-of-type(2)")
+	@FindBy(css = "img[src*='visa']")
 	WebElement VISA_RADIO_BTN;
 
-	@FindBy(css = ".online-payment div div label:nth-of-type(3)")
+	@FindBy(css = "img[src*='paypal']")
 	WebElement PAYPAL_RADIO_BTN;
+
+	@FindBy(css = ".setting-plans-step3__overlay")
+	WebElement OVERLAY_ELEMENT;
 
 	String PLAN_PRICE_12M = "//tr[contains(@class,'plan-price')]//td[count(//div[text()='%planName%']//ancestor::th/preceding-sibling::*)+1]//button[not(contains(@class,'price-btn--disable'))]";
 	final static Logger logger = LogManager.getLogger(PlansPage.class);
@@ -62,8 +66,10 @@ public class PlansPage extends HomePage {
 	public PlansPage selectPlan(String planName) {
 		commons.waitForElementInvisible(LOADING, 20);
 		String newXpath = PLAN_PRICE_12M.replace("%planName%", planName);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 		commons.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath))));
 		logger.info("Select plan: " + planName);
+		commons.sleepInMiliSecond(1000);
 		return this;
 	}
 
@@ -76,57 +82,120 @@ public class PlansPage extends HomePage {
 	}
 
 	public String selectPaymentMethod(String method) {
-		if (method.contentEquals("ATM")) {
+		switch (method) {
+		case "BANKTRANSFER":
+			commons.clickElement(BANK_TRANSFER_BTN);
+			break;
+		case "ATM":
 			commons.clickElement(ONLINE_PAYMENT_BTN);
 			commons.checkTheCheckBoxOrRadio(ATM_RADIO_BTN);
-		} else if (method.contentEquals("VISA")) {
+			break;
+		case "VISA":
 			commons.clickElement(ONLINE_PAYMENT_BTN);
 			commons.checkTheCheckBoxOrRadio(VISA_RADIO_BTN);
-		} else if (method.contentEquals("PAYPAL")) {
+			break;
+		case "PAYPAL":
 			commons.clickElement(ONLINE_PAYMENT_BTN);
 			commons.checkTheCheckBoxOrRadio(PAYPAL_RADIO_BTN);
-		} else if (method.contentEquals("BANKTRANSFER")) {
-			commons.clickElement(BANK_TRANSFER_BTN);
-		} else {
+			break;
+		default:
 			logger.error("Unsupported payment method: " + method);
 			return method;
 		}
+		
 		commons.clickElement(PAY_BTN);
 		commons.sleepInMiliSecond(1000);
 		logger.info("Payment method selected: " + method);
 		return method;
 	}
 
+	/**
+	 * @param paymentMethod Input value: BANKTRANSFER/ATM/VISA/PAYPAL
+	 */
+	public void completePayment(String paymentMethod) {
+		if (paymentMethod.contentEquals("BANKTRANSFER")) {
+			return;
+		}
+		
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		int currentNumberOfWindows = commons.getAllWindowHandles().size();
+		
+		commons.switchToWindow(1);
+		
+		switch (paymentMethod) {
+		case "ATM":
+			new ATM(driver).completePayment();
+			break;
+		case "VISA":
+			new VISA(driver).completePayment();
+			break;
+		case "PAYPAL":
+			new PAYPAL(driver).completePayment();
+			break;
+		}
+		
+		//Wait till 
+		for (int i=9; i>=0; i--) {
+			if (commons.getAllWindowHandles().size() != currentNumberOfWindows) {
+				break;
+			}
+			commons.sleepInMiliSecond(2000);
+			// After a while, if the tab does not close on its own then we close it and switch to the original tab
+			if (i==0)  {
+				commons.closeTab();
+			}
+		}
+		commons.switchToWindow(currentWindowHandle);
+	}
+
+	/**
+	 * @param plan          Input value: GoWEB/GoAPP/GoPOS/GoSOCIAL/GoLEAD
+	 * @param paymentMethod Input value: BANKTRANSFER/ATM/VISA/PAYPAL
+	 */
 	public String purchasePlan(String plan, String paymentMethod) {
 		selectPlan(plan);
 		selectPaymentMethod(paymentMethod);
+
+		if (paymentMethod.contentEquals("BANKTRANSFER")) {
+			return getOrderId();
+		}
+
+		int originalSize = commons.getAllWindowHandles().size();
 		if (paymentMethod.contentEquals("ATM")) {
 			commons.switchToWindow(1);
-			ATM atm = new ATM(driver);
-			atm.completePayment(ATM_BANK, ATM_CARDNUMBER, ATM_CARDHOLDER, ATM_ISSUINGDATE, ATM_OTP);
-			commons.sleepInMiliSecond(7000);
-			commons.switchToWindow(0);
+			new ATM(driver).completePayment();
 		} else if (paymentMethod.contentEquals("VISA")) {
 			commons.switchToWindow(1);
-			VISA visa = new VISA(driver);
-			visa.completePayment(VISA_CARDNUMBER, VISA_EXPIRYDATE, VISA_CCV, VISA_CARDHOLDER, VISA_EMAIL, VISA_COUNTRY,
-					VISA_CITY, VISA_ADDRESS, VISA_OTP);
-			commons.sleepInMiliSecond(7000);
-			commons.switchToWindow(0);
+			new VISA(driver).completePayment();
 		} else if (paymentMethod.contentEquals("PAYPAL")) {
 			commons.switchToWindow(1);
-			PAYPAL paypal = new PAYPAL(driver);
-			paypal.completePayment(PAYPAL_USERNAME, PAYPAL_PASSWORD);
-			commons.sleepInMiliSecond(7000);
-			commons.switchToWindow(0);
+			new PAYPAL(driver).completePayment();
 		}
+
+		// Wait till
+		for (int i = 0; i < 10; i++) {
+			if (commons.getAllWindowHandles().size() != originalSize) {
+				break;
+			}
+			commons.sleepInMiliSecond(2000);
+		}
+		commons.switchToWindow(0);
 		logger.info("Purchased plan '%s' and paid for it via '%s' successfully".formatted(plan, paymentMethod));
+		commons.sleepInMiliSecond(3000); // Cannot logout without this delay
 		return getOrderId();
 	}
 
 	public String getOrderId() {
-		logger.info("Get orderID: " + commons.getText(ORDER_ID));
-		return commons.getText(ORDER_ID);
+		String orderID = "";
+		
+		// If element does not exist in DOM then we return empty value.
+		if (!commons.isElementDisplay(ORDER_ID)) {
+			return orderID;
+		}
+		
+		orderID = commons.getText(ORDER_ID);
+		logger.info("Get orderID: " + orderID);
+		return orderID;
 	}
 
 	public PlansPage clickOnLogOut() {
@@ -134,6 +203,12 @@ public class PlansPage extends HomePage {
 		commons.clickElement(LOGOUT_BTN);
 		new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
 		logger.info("Clicked on Logout link");
+		return this;
+	}
+
+	public PlansPage clickOverlayElement() {
+		commons.clickElement(OVERLAY_ELEMENT);
+		logger.info("Clicked on overlay element");
 		return this;
 	}
 }

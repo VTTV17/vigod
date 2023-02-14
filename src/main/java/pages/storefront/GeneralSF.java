@@ -37,6 +37,8 @@ public class GeneralSF {
 	WebElement FACEBOOK_BUBBLE;
 	@FindBy(css = ".modal-login")
 	WebElement LOGIN_BUTTON_ON_MODAL;
+	@FindBy(css = ".modal-register")
+	WebElement REGISTER_BUTTON_ON_MODAL;
 	public GeneralSF waitTillLoaderDisappear() {
 		commons.waitForElementInvisible(SPINNER, 20);
 		logger.info("Loader has finished loading");
@@ -62,7 +64,16 @@ public class GeneralSF {
     }
 	public LoginPage clickOnLoginButtonOnRequiredLoginModal(){
 		commons.clickElement(LOGIN_BUTTON_ON_MODAL);
-		logger.info("Clic on Login button onn required modal.");
+		logger.info("Click on Login button on required login modal.");
 		return  new LoginPage(driver);
+	}
+	public LoginPage clickOnRegisterButtonOnRequiredLoginModal(){
+		commons.clickElement(REGISTER_BUTTON_ON_MODAL);
+		logger.info("Click on Register button on required login modal.");
+		return  new LoginPage(driver);
+	}
+	public void navigateToURL(String URL){
+		commons.navigateToURL(URL);
+		logger.info("Navigate to: "+URL);
 	}
 }

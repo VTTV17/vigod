@@ -93,12 +93,8 @@ public class UICommonAction {
 			wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
 			doubleClickElement(element);
 			element.sendKeys(text);
-		} catch (StaleElementReferenceException|TimeoutException ex) {
-			if (ex instanceof StaleElementReferenceException) {
-				logger.debug("StaleElementReferenceException caught in inputText");
-			} else {
-				logger.debug("TimeoutException caught in inputText");
-			}
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in inputText");
 			List<WebElement> listOfElements = refreshElement(element);
 			if (listOfElements.size() ==1) element = listOfElements.get(0);
 			wait.until(ExpectedConditions.elementToBeClickable(element)).clear();

@@ -160,7 +160,7 @@ public class UserProfileSFTest extends BaseTest {
         return new UserProfileInfo(driver);
     }
 
-    public void CheckUserHasAddressBefore_ExistedAccount_VietNam() {
+    public void CheckUserHasAddressBefore_ExistedAccount_VietNam() throws Exception {
         myAddress = loginAndGoToUserProfile(userName)
                 .clickMyAddressSection();
         String countryExpected = myAddress.getCountry();
@@ -176,6 +176,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .selectPaymentMethod("COD")
                 .clickOnNextButton()
+                .selectShippingMethod("Self delivery")
                 .clickOnNextButton()
                 .clickOnNextButton()
                 .clickOnBackToMarket();
@@ -204,6 +205,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputAddressInfo_NonVN(countryCheckout, addressCheckout, address2Checkout, stateCheckout, cityInputCheckout, zipCodeCheckout)
                 .selectPaymentMethod("COD")
                 .clickOnNextButton()
+                .selectShippingMethod("Self delivery")
                 .clickOnNextButton()
                 .clickOnNextButton()
                 .clickOnBackToMarket();
@@ -220,7 +222,7 @@ public class UserProfileSFTest extends BaseTest {
         buyerDisplayName_Signup = generateName;
         phoneNumber = "01" + generate.generateNumber(9);
         signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        signupSF.navigateToSignUp(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().clickLogout();
         loginAndGoToUserProfile(buyerAccount_Signup)
@@ -236,6 +238,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .selectPaymentMethod("COD")
                 .clickOnNextButton()
+                .selectShippingMethod("Self delivery")
                 .clickOnNextButton()
                 .clickOnNextButton()
                 .clickOnBackToMarket();
@@ -341,7 +344,7 @@ public class UserProfileSFTest extends BaseTest {
         buyerDisplayName_Signup = generateName;
         phoneNumber = "01" + generate.generateNumber(9);
         signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        signupSF.navigateToSignUp(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         myAddress = goToUserProfile()
                 .clickMyAddressSection();
         //Update valid address in VietNam
@@ -424,7 +427,7 @@ public class UserProfileSFTest extends BaseTest {
         buyerAccount_Signup = generateName + "@mailnesia.com";
         buyerDisplayName_Signup = generateName;
         signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).waitTillLoaderDisappear();
+        signupSF.navigateToSignUp(shopDomain).waitTillLoaderDisappear();
         signupSF = new SignupPage(driver);
         signupSF.signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
@@ -484,7 +487,7 @@ public class UserProfileSFTest extends BaseTest {
         email_Edit = generateName + "@mailnesia.com";
         buyerDisplayName_Signup = generateName;
         signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        signupSF.navigateToSignUp(shopDomain).signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().clickLogout();
         loginAndGoToUserProfile(buyerAccount_Signup);
@@ -550,7 +553,7 @@ public class UserProfileSFTest extends BaseTest {
         buyerDisplayName_Signup = generateName;
         phoneNumber = "01" + generate.generateNumber(9);
         signupSF = new SignupPage(driver);
-        signupSF.navigate(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
+        signupSF.navigateToSignUp(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
         // first checkout
@@ -580,6 +583,7 @@ public class UserProfileSFTest extends BaseTest {
                 .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .selectPaymentMethod("COD")
                 .clickOnNextButton()
+                .selectShippingMethod("Self delivery")
                 .clickOnNextButton()
                 .clickOnNextButton()
                 .clickOnBackToMarket();
@@ -595,7 +599,6 @@ public class UserProfileSFTest extends BaseTest {
         CheckUserUpdateAddress_ExistedAccount();
         CheckUserUpdateAddress_NewAccount();
     }
-
     @Test
     public void UP09_CheckAddInvalidOtherPhoneOtherEmail() throws Exception {
         testCaseId = "UP09";

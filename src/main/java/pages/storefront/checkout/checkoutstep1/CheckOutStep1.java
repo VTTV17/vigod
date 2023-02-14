@@ -137,7 +137,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep2 clickOnNextButton() {
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1500);
         commonAction.clickElement(checkOutStep1UI.NEXT_BUTTON);
         logger.info("Click on Next button.");
         waitTillLoaderDisappear();

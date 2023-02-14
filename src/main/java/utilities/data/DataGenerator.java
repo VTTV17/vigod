@@ -3,6 +3,10 @@ package utilities.data;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import utilities.jsonFileUtility;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -24,6 +28,27 @@ public class DataGenerator {
         int random_integer = rand.nextInt(end-start) + start;
         return random_integer;
     }
+    
+    public List<String> getCountryList() {
+		JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json");
+		Iterator<String> it = data.fieldNames();
+		List<String> countries = new ArrayList<>();
+		while(it.hasNext()) {
+			countries.add(it.next());
+		}
+        return countries;
+    }
+    
+    /**
+     * 
+     * @param country
+     * @return country code of the input country
+     */
+    public String getCountryCode(String country) {
+    	JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
+    	return data.asText();
+    }
+    
     public static class UniqueRng implements Iterator<Integer> {
         private List<Integer> numbers = new ArrayList<>();
 

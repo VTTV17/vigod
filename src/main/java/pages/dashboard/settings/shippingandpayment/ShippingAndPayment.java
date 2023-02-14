@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
@@ -74,7 +75,7 @@ public class ShippingAndPayment {
 	public ShippingAndPayment navigate() {
 		clickShippingAndPaymentTab();
     	new HomePage(driver).waitTillSpinnerDisappear1();
-    	commonAction.sleepInMiliSecond(500);
+    	commonAction.sleepInMiliSecond(1000);
 		return this;
 	}
 
@@ -238,6 +239,7 @@ public class ShippingAndPayment {
 	}	
 
 	public ShippingAndPayment enableCreditCard() {
+		wait.until(ExpectedConditions.visibilityOf(CREDIT_CARD_TOGGLE)); // It takes some time for the element to appear.
 		if (!CREDIT_CARD_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
 			clickCreditCardToggle();
 		}

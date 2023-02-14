@@ -56,6 +56,7 @@ import pages.dashboard.settings.staff_management.StaffPage;
 import pages.dashboard.settings.storeinformation.StoreInformation;
 import pages.dashboard.settings.storelanguages.StoreLanguages;
 import pages.dashboard.settings.vat.VATInformation;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.excel.Excel;
 
@@ -76,19 +77,37 @@ public class Permission {
         PageFactory.initElements(driver, this);
     }
 
-    public void testPermission(String packageName) {
+    /**
+     * @param packageName Input value: GoWEB/GoAPP/GoPOS/GoSOCIAL/GoLEAD
+     */
+    public void testPermission(String... packageName) {
+		if (packageName.length == 0)
+			packageName[0] = "GoFree"; // If no input is provided, we assume it's GoFree package
     	HomePage home = new HomePage(driver);
     	
 		Map<String, String> permission = getFeaturePermissions(packageName);
 
 		Map<String, String> url = getFeatureURL();
 		
+		//Identify the shop's location to skip testing permissions of certain features (delivery/payment methods) against NON-VN shops
+		home.navigateToPage("Settings");
+		boolean isInVietnam = false;
+		if (new BranchPage(driver).navigate().getFreeBranchInfo().get(2).contains("Vietnam")) isInVietnam = true;
+		
 		for (String menuComponent : permission.keySet()) {
 			logger.debug("============: " + menuComponent + " =========: " + permission.get(menuComponent));
 			String parentMenu = menuComponent.split("-")[0];
 			String subMenu = menuComponent.split("-")[1];
 			String function = menuComponent.split("-")[2];
-
+			
+			//Skip testing permissions of certain features (Gomua, Lazada) against NON-VN shops
+			if (!isInVietnam) {
+				if (parentMenu.contentEquals("GoMua") || parentMenu.contentEquals("Lazada")) {
+					logger.info("Skipped as this feature is not available for NON-VN shops");
+					continue;
+				}
+			}
+			
 			navigate(parentMenu, subMenu);
 			
 			switch (parentMenu) {
@@ -106,6 +125,10 @@ public class Permission {
 							url.get(menuComponent));
 				}
 				case "Import Product From Lazada" -> {
+					if (!isInVietnam) {
+						logger.info("Skipped as this feature is not available for NON-VN shops");
+						break;
+					}
 					home.verifyPermissionToImportProductFromLazada(permission.get(menuComponent),
 							url.get(menuComponent));
 				}
@@ -293,27 +316,64 @@ public class Permission {
 						new AllCustomers(driver).verifyPermissionToPrintBarCode(permission.get(menuComponent));
 					}
 				} else if (subMenu.contentEquals("Segments")) {
+					String displayLanguage = new HomePage(driver).getDashboardLanguage();
 					Segments segment = new Segments(driver);
+					String data = null;
 					if (function.contentEquals("Create Segment According To Registration Date")) {
-						segment.verifyPermissionToCreateSegmentByCustomerData("Registration date", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.registrationDate", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByCustomerData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Customer Tag")) {
-						segment.verifyPermissionToCreateSegmentByCustomerData("Customer tag", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.customerTag", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByCustomerData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Installed App")) {
-						segment.verifyPermissionToCreateSegmentByCustomerData("Installed app", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.installedApp", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByCustomerData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Order Delivered")) {
-						segment.verifyPermissionToCreateSegmentByOrderData("Order delivered", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.orderDelivered", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByOrderData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Total Order Count")) {
-						segment.verifyPermissionToCreateSegmentByOrderData("Total order count", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.totalOrderCount", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByOrderData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Total Purchase Amount")) {
-						segment.verifyPermissionToCreateSegmentByOrderData("Total purchase amount", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.totalPurchaseAmount", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByOrderData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Purchased Date")) {
-						segment.verifyPermissionToCreateSegmentByOrderData("Purchased date", permission.get(menuComponent));
+				    	try {
+				    		data = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.data.purchaseDate", displayLanguage);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						segment.verifyPermissionToCreateSegmentByOrderData(data, permission.get(menuComponent));
 					}
 					if (function.contentEquals("Create Segment According To Purchased Product")) {
 						segment.verifyPermissionToCreateSegmentByPurchasedProduct(permission.get(menuComponent));
@@ -471,21 +531,41 @@ public class Permission {
 					new StoreInformation(driver).verifyPermissionToEnableTradeLogo(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable GHTK")) {
+					if (!isInVietnam) {
+						logger.info("Skipped as this feature is not available for NON-VN shops");
+						break;
+					}
 					new ShippingAndPayment(driver).verifyPermissionToEnableGHTK(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable GHN")) {
+					if (!isInVietnam) {
+						logger.info("Skipped as this feature is not available for NON-VN shops");
+						break;
+					}
 					new ShippingAndPayment(driver).verifyPermissionToEnableGHN(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable Ahamove")) {
+					if (!isInVietnam) {
+						logger.info("Skipped as this feature is not available for NON-VN shops");
+						break;
+					}
 					new ShippingAndPayment(driver).verifyPermissionToEnableAhamove(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable Self Delivery")) {
 					new ShippingAndPayment(driver).verifyPermissionToEnableSelfDelivery(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable Local ATM Card")) {
+					if (!isInVietnam) {
+						logger.info("Skipped as this feature is not available for NON-VN shops");
+						break;
+					}
 					new ShippingAndPayment(driver).verifyPermissionToEnableLocalATMCard(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable Credit Card")) {
+					if (!isInVietnam) {
+						logger.info("Skipped as this feature is not available for NON-VN shops");
+						break;
+					}
 					new ShippingAndPayment(driver).verifyPermissionToEnableCreditCard(permission.get(menuComponent));
 				}
 				if (function.contentEquals("Enable Cash On Delivery")) {
@@ -555,6 +635,9 @@ public class Permission {
 
 				if (map.get(menuItem) != null) {
 					if (map.get(menuItem).contentEquals("A")) {
+						continue;
+					}
+					if (map.get(menuItem).contentEquals("D")) {
 						continue;
 					}
 				}

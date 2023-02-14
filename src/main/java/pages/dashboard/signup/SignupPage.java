@@ -20,8 +20,10 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 public class SignupPage {
@@ -77,6 +79,9 @@ public class SignupPage {
 
     @FindBy (css = "button.uik-btn__iconRight")
     WebElement SIGNUP_BTN;
+    
+    @FindBy (css = ".btn-back")
+    WebElement BACK_BTN;
     
     @FindBy (css = ".btn-next")
     WebElement COMPLETE_BTN;
@@ -156,6 +161,15 @@ public class SignupPage {
     @FindBy (css = ".alert__wrapper")
     WebElement WRONG_CODE_ERROR;
     
+    @FindBy (css = ".step1-page__wrapper")
+    WebElement SIGNUP_SCREEN_TXT;
+    
+    @FindBy (css = ".modal-content")
+    WebElement VERIFICATION_CODE_SCREEN_TXT;
+    
+    @FindBy (css = ".wizard-layout__title")
+    WebElement WIZARD_SCREEN_TITLE;
+    
     public SignupPage navigate() {
     	String url = DOMAIN + SIGNUP_PATH;
         driver.get(url);
@@ -186,22 +200,18 @@ public class SignupPage {
 	}      
     
 	/**
-	 * <p>
-	 * Change language of Dashboard at Sign-up screen
-	 * <p>
-	 * Example: selectDisplayLanguage("English")
-	 * 
-	 * @param language the desired language - either Vietnamese or English
-	 * 
+	 * <p> Change language of Dashboard at Sign-up screen <p>
+	 * Example: selectDisplayLanguage("ENG")
+	 * @param language the desired language - either VIE or ENG
 	 */	
 	public SignupPage selectDisplayLanguage(String language) throws Exception {
-		commonAction.sleepInMiliSecond(500);
-		if (language.contentEquals("English")) {
+		commonAction.sleepInMiliSecond(1000);
+		if (language.contentEquals("ENG")) {
 			commonAction.clickElement(ENGLISH_LANGUAGE);
-		} else if (language.contentEquals("Vietnamese")) {
+		} else if (language.contentEquals("VIE")) {
 			commonAction.clickElement(VIETNAMESE_LANGUAGE);
 		} else {
-			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
+			throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
 		}
 		logger.info("Selected display language '%s'.".formatted(language));
 		return this;
@@ -439,4 +449,80 @@ public class SignupPage {
         soft.assertAll();
     }
 
+    public void verifyTextAtSignupScreen(String signupLanguage) throws Exception {
+        String text = commonAction.getText(SIGNUP_SCREEN_TXT);
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.screen.text", signupLanguage));
+        logger.info("verifyTextAtSignupScreen completed");
+    }    
+    
+    public void verifyTextAtVerificationCodeScreen(String username, String signupLanguage) throws Exception {
+    	String text = commonAction.getText(VERIFICATION_CODE_SCREEN_TXT);
+    	String subText = "";
+    	if (!username.matches("\\d+")) subText = username + "\n";
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.verificationCode.text", signupLanguage).formatted(subText));
+    	logger.info("verifyTextAtVerificationCodeScreen completed");
+    }    
+    
+    public void verifyTextAtSetupShopScreen(String username, String country, String signupLanguage) throws Exception {
+    	String text = "";
+    	text = commonAction.getText(WIZARD_SCREEN_TITLE);
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.screenTitle", signupLanguage));
+    	text = commonAction.getText(STORE_NAME.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.storeName", signupLanguage));
+    	text = commonAction.getElementAttribute(STORE_NAME, "placeholder");
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.storeNamePlaceHolder", signupLanguage));
+    	text = commonAction.getText(STORE_URL.findElement(By.xpath("./parent::*/parent::*/preceding-sibling::label")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.url", signupLanguage));
+    	text = commonAction.getText(COUNTRY_DROPDOWN_SETUP_SHOP.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.country", signupLanguage));
+    	text = commonAction.getText(CURRENCY.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.currency", signupLanguage));
+    	text = commonAction.getText(STORE_LANGUAGE.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.storeLanguageTxt", signupLanguage));
+    	
+		if (!username.matches("\\d+")) {
+	    	text = commonAction.getText(STORE_PHONE.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.phone", signupLanguage));
+	    	text = commonAction.getElementAttribute(STORE_PHONE, "placeholder");
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.phonePlaceHolder", signupLanguage));
+		} else {
+	    	text = commonAction.getText(STORE_MAIL.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.mail", signupLanguage));
+	    	text = commonAction.getElementAttribute(STORE_MAIL, "placeholder");
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.mailPlaceHolder", signupLanguage));
+		}
+		
+    	text = commonAction.getText(PICKUP_ADDRESS.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.pickupAddress1", signupLanguage));
+    	text = commonAction.getElementAttribute(PICKUP_ADDRESS, "placeholder");
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.pickupAddress1PlaceHolder", signupLanguage));
+    	
+		if (!country.contentEquals("Vietnam")) {
+	    	text = commonAction.getText(SECOND_PICKUP_ADDRESS.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.pickupAddress2", signupLanguage));
+	    	text = commonAction.getElementAttribute(SECOND_PICKUP_ADDRESS, "placeholder");
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.pickupAddress2PlaceHolder", signupLanguage));
+	    	text = commonAction.getText(CITY.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.city", signupLanguage));
+	    	text = commonAction.getText(PROVINCE_DROPDOWN.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.state", signupLanguage));
+	    	text = commonAction.getText(ZIPCODE.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.zipCode", signupLanguage));
+		} else {
+	    	text = commonAction.getText(PROVINCE_DROPDOWN.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.province", signupLanguage));
+	    	text = commonAction.getText(DISTRICT_DROPDOWN.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.district", signupLanguage));
+	    	text = commonAction.getText(WARD.findElement(By.xpath("./parent::*/preceding-sibling::label")));
+	    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.ward", signupLanguage));
+		}
+    	
+		text = commonAction.getText(COMPLETE_BTN);
+		Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.completeBtn", signupLanguage));
+    	text = commonAction.getText(BACK_BTN);
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("signup.wizard.backBtn", signupLanguage));
+    	
+    	logger.info("verifyTextAtSetupShopScreen completed");
+    }    
+    
 }
