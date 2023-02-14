@@ -121,6 +121,7 @@ public class Customers {
                 }
                 """.formatted(apiSegmentName, apiCustomerTag);
         Response createSegment = api.post(CREATE_SEGMENT_PATH + apiStoreID, accessToken, body);
+        createSegment.prettyPrint();
         createSegment.then().statusCode(200);
         apiSegmentID = createSegment.jsonPath().getInt("id");
     }

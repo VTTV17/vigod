@@ -121,7 +121,7 @@ public class ProductDetailElement {
     @FindBy(css = ".col-sm-3 > .title")
     WebElement FOOTER_COMPANY;
 
-    @FindBy(css = "div:nth-child(3) > .title")
+    @FindBy(xpath = "//div[@class = 'icon-wrapper']/parent::div/div[contains(@class, 'title')]")
     WebElement FOOTER_FOLLOW_US;
 
     @FindBy(css = ".col-12.text-center > span")

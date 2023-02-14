@@ -14,8 +14,10 @@ public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     public static String accessToken;
+    public static String refreshToken;
     public static int apiStoreID;
     public static String apiStoreName;
+    public static int sellerID;
     API api = new API();
 
     public void loginToDashboardByMail(String account, String password) {
@@ -32,8 +34,10 @@ public class Login {
 
         // else get accessToken, apiStoreID, apiStoreName
         accessToken = loginResponse.jsonPath().getString("accessToken");
+        refreshToken = loginResponse.jsonPath().getString("refreshToken");
         apiStoreID = loginResponse.jsonPath().getInt("store.id");
         apiStoreName = loginResponse.jsonPath().getString("store.name");
+        sellerID = loginResponse.jsonPath().getInt("id");
     }
 
     /**

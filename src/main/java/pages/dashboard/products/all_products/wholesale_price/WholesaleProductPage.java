@@ -95,7 +95,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
 
         // wait wholesale product page loaded
-        commonAction.verifyPageLoaded("Quay lại chi tiết sản phẩm", "Go back to product detail");
+        commonAction.verifyPageLoaded("Bạn chưa thiết lập giá sỉ cho sản phẩm này", "You don't configure any wholesale price for this product yet");
 
         // check [UI] header
         checkUIHeader();
@@ -112,7 +112,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         numOfWholesaleProduct = nextInt(uiVariationList.size()) + 1;
         for (int i = 0; i < numOfWholesaleProduct; i++) {
             uiWholesaleProductPrice.set(i, nextInt(uiProductSellingPrice.get(i)) + 1);
-            uiWholesaleProductStock.set(i, nextInt(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i)))) + 1);
+            uiWholesaleProductStock.set(i, nextInt(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)) + 1);
         }
         System.out.println(uiWholesaleProductPrice);
         System.out.println(uiWholesaleProductStock);
@@ -205,6 +205,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // wait and input buy from
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_BUY_FROM.get(i)));
             VARIATION_BUY_FROM.get(i).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+            System.out.println(uiWholesaleProductStock.get(varIndex));
             VARIATION_BUY_FROM.get(i).sendKeys(String.valueOf(uiWholesaleProductStock.get(varIndex)));
 
             // wait and input price per item
@@ -251,7 +252,17 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     void checkUIHeader() throws Exception {
         // check go back to product detail link text
-        String dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
+        String dbGoBackToProductDetailPage;
+        try {
+            // get text
+            dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
+        } catch (TimeoutException ex) {
+            // log error
+            logger.info(ex);
+
+            // get text again
+            dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
+        }
         String ppGoBackToProductDetailPage = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.goBackToProductDetail", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
         logger.info("[UI][%s] Check Header - Go back to product detail.".formatted(language));

@@ -3,12 +3,12 @@ package pages.dashboard.products.all_products.conversion_unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -135,7 +135,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 checkVariationConfigTable(i);
 
                 // add conversion unit configuration for variation
-                wait.until(ExpectedConditions.elementToBeClickable(VARIATION_CONFIGURE_BTN.get(i))).click();
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_CONFIGURE_BTN.get(i));
 
                 // wait variation conversion unit page loaded
                 commonAction.verifyPageLoaded("Quay lại cài đặt đơn vị quy đổi", "Go back to Set up conversion unit");
@@ -276,6 +276,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // input new unit
         WITHOUT_VARIATION_UNIT.sendKeys(String.valueOf(Instant.now().toEpochMilli()));
         WITHOUT_VARIATION_UNIT.click();
+        commonAction.waitForElementInvisible(SEARCH_LOADING, 30);
 
         // check search unit no result
         String dbSearchUnitNoResult = wait.until(visibilityOf(UI_WITHOUT_VARIATION_CONFIG_TABLE_SEARCH_UNIT_NO_RESULT)).getText();

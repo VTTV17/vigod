@@ -8,6 +8,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.shoppingcart.ShoppingCart;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static api.dashboard.login.Login.apiStoreName;
 import static api.dashboard.products.CreateProduct.*;
@@ -48,8 +50,6 @@ public class ProductDetailPage extends ProductDetailElement {
     boolean isDisplayOutOfStock;
     boolean isHideStock;
     int productID;
-
-    String productName;
     String productDescription;
     Instant flashSaleStartTime;
     Instant flashSaleEndTime;
@@ -89,9 +89,6 @@ public class ProductDetailPage extends ProductDetailElement {
             variationList.addAll(uiVariationList);
 
             if (isVariation) variationMap.putAll(uiVariationMap);
-
-            // product name
-            productName = uiProductName;
 
             // product description
             productDescription = uiProductDescription;
@@ -154,9 +151,6 @@ public class ProductDetailPage extends ProductDetailElement {
             variationList.addAll(apiVariationList);
 
             if (isVariation) variationMap.putAll(apiVariationMap);
-
-            // product name
-            productName = apiProductName;
 
             // product description
             productDescription = apiProductDescription;
@@ -247,7 +241,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 commonAction.waitForElementInvisible(SPINNER, 30);
 
                 // wait product detail page loaded
-                commonAction.verifyPageLoaded(productName, productName);
+                commonAction.verifyPageLoaded(uiProductName, apiProductName);
                 if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
                     checkUIInStock(languageCode.equals("vi") ? "VIE" : "ENG");
                 } else checkUIOutOfStock(languageCode.equals("vi") ? "VIE" : "ENG");
@@ -291,12 +285,16 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkBreadcrumbs(String language) throws Exception {
         // check breadcrumbs
         String[] sfBreadCrumbs = wait.until(ExpectedConditions.visibilityOf(BREAD_CRUMBS)).getText().split(" {4}/ {5}");
-        String[] breadCrumbsCollection = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionName, productName};
-        String[] breadCrumbsAllProduct = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productName};
+        String[] apiBreadCrumbsCollection = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionName, apiProductName};
+        String[] apiBreadCrumbsAllProduct = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), apiProductName};
+        String[] uiBreadCrumbsCollection = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionName, uiProductName};
+        String[] uiBreadCrumbsAllProduct = {getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), uiProductName};
         countFail = new AssertCustomize(driver).assertTrue(countFail,
-                Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsAllProduct)) || Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(breadCrumbsCollection)),
-                "[Failed][Breadcrumbs] Breadcrumbs should be %s or %s, but found %s.".formatted(Arrays.toString(breadCrumbsAllProduct),
-                        Arrays.toString(breadCrumbsCollection),
+                Stream.of(apiBreadCrumbsAllProduct, apiBreadCrumbsCollection, uiBreadCrumbsAllProduct, uiBreadCrumbsCollection).anyMatch(strings -> Arrays.toString(sfBreadCrumbs).equals(Arrays.toString(strings))),
+                "[Failed][Breadcrumbs] Breadcrumbs should be %s or %s or %s or %s, but found %s.".formatted(Arrays.toString(apiBreadCrumbsAllProduct),
+                        Arrays.toString(apiBreadCrumbsCollection),
+                        Arrays.toString(uiBreadCrumbsAllProduct),
+                        Arrays.toString(uiBreadCrumbsCollection),
                         Arrays.toString(sfBreadCrumbs)));
         logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
     }
@@ -435,9 +433,10 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> Reset countFail for the next test</p>
      */
     public void completeVerify() {
-        if (countFail > 0) {
-            int count = countFail;
+        if (countFail + ProductPage.countFail > 0) {
+            int count = countFail + ProductPage.countFail;
             countFail = 0;
+            ProductPage.countFail = 0;
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
     }
@@ -626,12 +625,12 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product name on the SF with Dashboard
      */
-    void checkProductName(String productName) throws IOException {
+    void checkProductName() {
         // get product name on shop online
         String sfProductName = wait.until(visibilityOf(PRODUCT_NAME)).getText();
 
         // check product name
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfProductName, productName, "[Failed][Check product name] Product name should be %s but found %s.".formatted(productName, sfProductName));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, sfProductName.equals(uiProductName) || sfProductName.equals(apiProductName), "[Failed][Check product name] Product name should be %s or %s but found %s.".formatted(apiProductName, uiProductName, sfProductName));
 
         logger.info("[Check product name] Check product name show correctly.");
     }
@@ -747,7 +746,7 @@ public class ProductDetailPage extends ProductDetailElement {
         if (variationName.length > 0) logger.info("*** var: %s ***".formatted(variationName[0]));
 
         // check product name
-        checkProductName(productName);
+        checkProductName();
 
         // check variation name if any
         if (isVariation) checkVariationName(variationMap);

@@ -118,6 +118,8 @@ class ConversionUnitElement {
     @FindBy(css = "#unit-0")
     WebElement UI_WITHOUT_VARIATION_CONFIG_TABLE_INPUT_UNIT_PLACEHOLDER;
 
+    @FindBy(css = ".search-list > .loading")
+    WebElement SEARCH_LOADING;
     @FindBy(css = ".search-list > p")
     WebElement UI_WITHOUT_VARIATION_CONFIG_TABLE_SEARCH_UNIT_NO_RESULT;
 

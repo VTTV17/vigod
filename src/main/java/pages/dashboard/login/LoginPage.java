@@ -3,9 +3,11 @@ package pages.dashboard.login;
 import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
+import api.dashboard.setting.VAT;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,6 +21,7 @@ import utilities.UICommonAction;
 
 import java.time.Duration;
 
+import static api.dashboard.login.Login.*;
 import static utilities.links.Links.*;
 
 public class LoginPage {
@@ -241,15 +244,33 @@ public class LoginPage {
     }
 
     /* get dashboard information */
-    public void getDashboardInformation() {
+    public void loginDashboardByJsAndGetStoreInformation(String username, String password) {
+        // access to dashboard to set cookie
+        driver.get(DOMAIN);
+
         // login to dashboard
-        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+        new Login().loginToDashboardByMail(username, password);
+
+        // login by js - local storage
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(accessToken));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('refreshToken', '%s')".formatted(refreshToken));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeId', %s)".formatted(apiStoreID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(sellerID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(sellerID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
+
+        logger.info("Set local storage successfully");
+
+        driver.navigate().refresh();
 
         // get store information
         new StoreInformation().getStoreInformation();
 
         // get branch information
         new BranchManagement().getBranchInformation();
+
+        // get tax information
+        new VAT().getTaxList();
     }
 
 }

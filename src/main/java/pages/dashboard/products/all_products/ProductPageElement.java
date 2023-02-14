@@ -15,7 +15,13 @@ public class ProductPageElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+    By HEADER_SELECTED_LANGUAGE = By.cssSelector(".language-selector .uik-select__valueWrapper");
 
+    @FindBy(css = ".language-selector .uik-select__optionList .uik-select__label")
+    List<WebElement> HEADER_LANGUAGE_LIST;
+
+    @FindBy(css = "#fb-root")
+    WebElement FB_BUBBLE;
     @FindBy(css = ".product-list-page > div > div > div >  button.gs-button__green")
     WebElement CREATE_PRODUCT_BTN;
 
@@ -28,6 +34,8 @@ public class ProductPageElement {
 
     @FindBy(css = "div.fr-wrapper > div")
     WebElement PRODUCT_DESCRIPTION;
+
+    By REMOVE_PRODUCT_IMAGE_BTN = By.cssSelector(".image-widget__btn-remove");
 
     @FindBy(css = ".image-drop-zone input")
     WebElement PRODUCT_IMAGE;
@@ -45,7 +53,11 @@ public class ProductPageElement {
     List<WebElement> LIST_MANUAL_COLLECTION;
 
     @FindBy(css = "#productSKU")
-    WebElement PRODUCT_SKU_WITHOUT_VARIATION;
+    WebElement CR_PRODUCT_SKU_WITHOUT_VARIATION;
+
+    @FindBy(css = "[class *=--n2] > div:nth-child(3) .align-items-center > span")
+    WebElement UP_PRODUCT_SKU_WITHOUT_VARIATION;
+
 
     @FindBy(css = "#manageInventory")
     WebElement MANAGE_INVENTORY;
@@ -80,6 +92,11 @@ public class ProductPageElement {
     @FindBy(css = ".gss-content-header .btn-save")
     WebElement SAVE_BTN;
 
+    @FindBy(css = ".lds-ellipsis")
+    WebElement THREE_POINT_LOADING;
+    @FindBy(css = ".lds-dual-ring-grey")
+    WebElement SPINNER_LOADING;
+
     @FindBy(css = ".modal-content")
     WebElement POPUP;
 
@@ -111,10 +128,11 @@ public class ProductPageElement {
     List<WebElement> SF_DISPLAY_SETTING;
     By LIST_BRANCH_STOCK_WITHOUT_VARIATION_PRODUCT = By.cssSelector(".branch-list-stock__wrapper__row  input");
 
-    @FindBy(css = ".branch > div button.uik-select__valueRendered")
-    WebElement ADD_IMEI_POPUP_BRANCH_DROPDOWN;
+    By ADD_IMEI_POPUP_BRANCH_DROPDOWN = By.cssSelector(".modal-body button.uik-select__valueRendered");
 
-    @FindBy(css = ".branch .uik-menuDrop__list > button:nth-child(1)  input")
+    By REMOVE_IMEI_ICON = By.cssSelector(".fa-times");
+
+    @FindBy(css = ".modal-body .uik-menuDrop__list > button:nth-child(1)  input")
     WebElement ADD_IMEI_POPUP_BRANCH_DROPDOWN_SELECT_ALL;
 
     @FindBy(css = ".input-code input")
@@ -148,12 +166,19 @@ public class ProductPageElement {
 
     By VARIATION_TABLE_LIST_ACTION = By.cssSelector(".uik-menuDrop__list > button");
     @FindBy(css = "td [name *= stock]")
-    List<WebElement> VARIATION_TABLE_STOCK_QUANTITY;
+    List<WebElement> CR_VARIATION_TABLE_STOCK_QUANTITY;
+
+    @FindBy(xpath = "//input[contains(@name,'barcode')]/ancestor::td/preceding-sibling::td[2]/span")
+    List<WebElement> VARIATION_TABLE_UP_STOCK_LINK_TEXT;
+
+    @FindBy(xpath = "//input[contains(@name,'barcode')]/ancestor::td/preceding-sibling::td[1]/span")
+    List<WebElement> VARIATION_TABLE_UP_EDIT_SKU_LINK_TEXT;
 
     @FindBy(css = "td [name *= sku]")
-    List<WebElement> VARIATION_TABLE_SKU;
+    List<WebElement> CR_VARIATION_TABLE_SKU;
 
-    By UPDATE_SKU_POPUP_SKU_TEXT_BOX = By.cssSelector(".justify-content-center input");
+    @FindBy(css = ".justify-content-center input")
+    List<WebElement> UPDATE_SKU_POPUP_SKU_TEXT_BOX;
 
     @FindBy(css = "td > img")
     List<WebElement> VARIATION_TABLE_IMAGE;
@@ -167,13 +192,19 @@ public class ProductPageElement {
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement POPUP_UPDATE_BTN;
 
+    @FindBy(css = ".modal-body .uik-select__valueWrapper")
+    WebElement UPDATE_STOCK_POPUP_BRANCH_DROPDOWN;
+
+    @FindBy(css = ".modal-body .uik-menuDrop__list > button:nth-child(1)  input")
+    WebElement UPDATE_STOCK_POPUP_BRANCH_DROPDOWN_SELECT_ALL;
+
     @FindBy(css = ".modal-body  div > div > .gs-button:nth-child(2)")
     WebElement UPDATE_STOCK_POPUP_CHANGE_TAB;
 
     @FindBy(css = ".modal-body  .quantity-input-field > input")
     WebElement UPDATE_STOCK_POPUP_INPUT_STOCK;
 
-    By UPDATE_STOCK_POPUP_NORMAL_VARIATION_STOCK = By.cssSelector(".input-stock  > input");
+    By UPDATE_STOCK_POPUP_LIST_INPUT_STOCK_TEXT_BOX = By.cssSelector(".input-stock  > input");
 
     /* Product list page */
     @FindBy(css = ".d-mobile-none .uik-input__input")
@@ -200,12 +231,20 @@ public class ProductPageElement {
     WebElement UI_HEADER_GO_BACK_TO_PRODUCT_LIST;
 
     @FindBy(css = ".gss-content-header .gs-page-title")
-    WebElement UI_HEADER_PAGE_TITLE;
+    WebElement UI_HEADER_CR_PAGE_TITLE;
 
+    @FindBy(xpath = "//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/preceding-sibling::button")
+    WebElement UI_HEADER_UP_EDIT_TRANSLATION_BTN;
     @FindBy(css = ".gss-content-header .gs-button__green")
     WebElement UI_HEADER_SAVE_BTN;
 
-    @FindBy(css = ".gss-content-header .gs-button__gray--outline")
+    @FindBy(css = ".gss-content-header .gs-button__yellow--outline")
+    WebElement UI_HEADER_UP_DEACTIVATE_BTN;
+
+    @FindBy(css = ".gss-content-header .gs-button__red--outline")
+    WebElement UI_HEADER_UP_DELETE_BTN;
+
+    @FindBy(xpath = "//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/following-sibling::button[contains(@class, 'gs-button__gray--outline')]")
     WebElement UI_HEADER_CANCEL_BTN;
 
     /* Product information */
@@ -244,8 +283,8 @@ public class ProductPageElement {
     @FindBy(css = "label:not([for]).gs-frm-control__title")
     WebElement UI_VAT;
 
-    @FindBy(css = ".uik-select__option:nth-child(1)  .uik-select__label")
-    WebElement UI_TAX_DOES_NOT_APPLY;
+    @FindBy(css = ".uik-select__option .uik-select__label")
+    List<WebElement> UI_VAT_LIST;
 
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(3) .uik-checkbox__label")
     WebElement UI_SHOW_AS_LISTING_PRODUCT_ON_STOREFRONT;
@@ -257,13 +296,13 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__header > span")
     WebElement UI_ADD_VARIATION_BTN;
 
-    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__content > p")
+    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) .gs-widget__content > p")
     WebElement UI_VARIATION_DESCRIPTION;
 
-    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__content >.product-form-variation-selector > .d-none > div:nth-child(1) > label")
+    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) .product-form-variation-selector > .d-none > div:nth-child(1) > label")
     WebElement UI_VARIATION_NAME;
 
-    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__content >.product-form-variation-selector > .d-none > div:nth-child(2) > label")
+    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) .product-form-variation-selector > .d-none > div:nth-child(2) > label")
     WebElement UI_VARIATION_VALUE;
 
     @FindBy(css = ".second-item .css-151xaom-placeholder")
@@ -296,6 +335,9 @@ public class ProductPageElement {
      */
     @FindBy(xpath = "//th[@class=' align-middle'][1] | //th[contains(@class, 'text-center')]")
     List<WebElement> UI_VARIATION_TABLE_COLUMN;
+
+    @FindBy(xpath = "//input[contains(@name,'barcode')]/ancestor::td/preceding-sibling::td[1]/span")
+    List<WebElement> UI_VARIATION_TABLE_UP_EDIT_SKU;
 
     // Update variation price popup
     @FindBy(css = ".modal-title")
@@ -359,11 +401,10 @@ public class ProductPageElement {
     @FindBy(css = ".modal-title")
     WebElement UI_ADD_IMEI_POPUP_TITLE;
 
-    @FindBy(css = ".branch")
+    @FindBy(css = ".branch > h3")
     WebElement UI_ADD_IMEI_POPUP_BRANCH;
 
-    @FindBy(css = ".modal-body .uik-select__valueWrapper")
-    WebElement UI_ADD_IMEI_POPUP_BRANCH_DROPDOWN;
+    By UI_ADD_IMEI_POPUP_BRANCH_DROPDOWN = By.cssSelector(".modal-body .uik-select__valueWrapper");
 
     @FindBy(css = ".input-code input")
     List<WebElement> UI_ADD_IMEI_POPUP_INPUT_IMEI_PLACEHOLDER;
@@ -413,7 +454,7 @@ public class ProductPageElement {
     @FindBy(xpath = "//*[@name='conversionUnitCheckbox']/parent::label/div")
     WebElement UI_ADD_CONVERSION_UNIT_LABEL;
 
-    @FindBy(css = "[aria-describedby='tippy-tooltip-1']")
+    @FindBy(css = "[aria-describedby='tippy-tooltip-1'],[aria-describedby='tippy-tooltip-13']")
     WebElement UI_CONVERSION_UNIT_TOOLTIPS;
 
     /* Wholesale product */
@@ -427,38 +468,38 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(7) > .gs-widget__header > span")
     WebElement UI_ADD_DEPOSIT_BTN;
 
-    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(7) > .gs-widget__content > p")
+    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(7)  .gs-widget__content > p")
     WebElement UI_DEPOSIT_DESCRIPTION;
 
     /* SEO */
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(8) > .gs-widget__header > h3")
     WebElement UI_SEO_SETTING;
 
-    @FindBy(css = ".seo-editor > .gs-widget__content > div:nth-child(1) > span")
+    @FindBy(xpath = "//div[@aria-describedby='tippy-tooltip-2']/parent::div/preceding-sibling::span")
     WebElement UI_LIVE_PREVIEW;
 
     @FindBy(css = "[aria-describedby='tippy-tooltip-2']")
     WebElement UI_LIVE_PREVIEW_TOOLTIPS;
 
-    @FindBy(css = ".seo-editor > .gs-widget__content > div:nth-child(3) > span")
+    @FindBy(xpath = "//div[@aria-describedby='tippy-tooltip-3']/parent::div/preceding-sibling::span")
     WebElement UI_SEO_TITLE;
 
     @FindBy(css = "[aria-describedby='tippy-tooltip-3']")
     WebElement UI_SEO_TITLE_TOOLTIPS;
 
-    @FindBy(css = ".seo-editor > .gs-widget__content > div:nth-child(5) > span")
+    @FindBy(xpath = "//div[@aria-describedby='tippy-tooltip-4']/parent::div/preceding-sibling::span")
     WebElement UI_SEO_DESCRIPTION;
 
     @FindBy(css = "[aria-describedby='tippy-tooltip-4']")
     WebElement UI_SEO_DESCRIPTIONS_TOOLTIPS;
 
-    @FindBy(css = ".seo-editor > .gs-widget__content > div:nth-child(7) > span")
+    @FindBy(xpath = "//div[@aria-describedby='tippy-tooltip-5']/parent::div/preceding-sibling::span")
     WebElement UI_SEO_KEYWORDS;
 
     @FindBy(css = "[aria-describedby='tippy-tooltip-5']")
     WebElement UI_SEO_KEYWORDS_TOOLTIPS;
 
-    @FindBy(css = ".seo-editor > .gs-widget__content > div:nth-child(9) > span")
+    @FindBy(xpath = "//div[@class='mb-2'][last()]")
     WebElement UI_SEO_URL_LINK;
 
     /* Sale chanel */
@@ -483,6 +524,12 @@ public class ProductPageElement {
     @FindBy(css = "#tippy-tooltip-8 .tippy-tooltip-content")
     WebElement UI_SALE_CHANEL_SHOPEE_TOOLTIPS;
 
+    @FindBy(css = "[aria-describedby='tippy-tooltip-9']")
+    WebElement UI_SALE_CHANEL_TIKTOK;
+
+    @FindBy(css = "#tippy-tooltip-9 .tippy-tooltip-content")
+    WebElement UI_SALE_CHANEL_TIKTOK_TOOLTIPS;
+
     /* Collections */
     @FindBy(css = "[class $= --n2] > div:nth-child(2) h3")
     WebElement UI_COLLECTIONS;
@@ -490,12 +537,18 @@ public class ProductPageElement {
     @FindBy(css = ".product-form-collection-selector2 input")
     WebElement UI_COLLECTIONS_SEARCH_BOX_PLACEHOLDER;
 
+    @FindBy(css = ".product-form-collection-selector2 > .no-content")
+    WebElement UI_COLLECTION_NO_CREATED_COLLECTION;
+
     /* Warehousing */
     @FindBy(css = "[class $= --n2] > div:nth-child(3) h3")
     WebElement UI_WAREHOUSING;
 
     @FindBy(css = "[for = 'productSKU']")
-    WebElement UI_SKU;
+    WebElement UI_CR_WITHOUT_VARIATION_PRODUCT_SKU;
+
+    @FindBy(css = "[class *=--n2] > div:nth-child(3) .align-items-center > label")
+    WebElement UI_UP_WITHOUT_VARIATION_PRODUCT_SKU;
 
     @FindBy(css = "[for = 'barcode']")
     WebElement UI_BARCODE;
@@ -519,10 +572,43 @@ public class ProductPageElement {
     WebElement UI_STOCK_QUANTITY_APPLY_ALL_BTN;
 
     @FindBy(css = "[for = remaining]")
-    WebElement UI_REMAINING_STOCK;
+    WebElement UI_REMAINING_STOCK_LABEL;
 
+    @FindBy(xpath = "//*[@for='remaining']/following-sibling::span")
+    WebElement UI_REMAINING_STOCK_LINK_TEXT;
+
+    @FindBy(css = ".modal-title")
+    WebElement UI_VIEW_REMAINING_STOCK_POPUP_TILE;
+
+    @FindBy(css = ".remaining-sold-item-modal__body__dropdown > button")
+    WebElement UI_VIEW_REMAINING_STOCK_POPUP_BRANCH_DROPDOWN;
+
+    @FindBy(xpath = "//*[contains(@class,'modal-body')]/descendant::label[1]")
+    WebElement UI_VIEW_REMAINING_STOCK_POPUP_ALL_BRANCHES_CHECKBOX;
+
+    @FindBy(css = ".remaining-sold-item-modal__body__error")
+    WebElement UI_VIEW_REMAINING_STOCK_POPUP_NO_SELECT_BRANCH_ERROR;
+
+    @FindBy(css = ".modal-header > .close")
+    WebElement UI_CLOSE_VIEW_REMAINING_STOCK_POPUP_BTN;
     @FindBy(css = "[for = soldItem]")
-    WebElement UI_SOLD_COUNT;
+    WebElement UI_SOLD_COUNT_LABEL;
+
+    @FindBy(xpath = "//*[@for='soldItem']/following-sibling::span")
+    WebElement UI_SOLD_COUNT_LINK_TEXT;
+
+    By UI_VIEW_SOLD_COUNT_POPUP_TILE = By.cssSelector(".modal-title");
+
+    By UI_VIEW_SOLD_COUNT_POPUP_BRANCH_DROPDOWN = By.cssSelector(".remaining-sold-item-modal__body__dropdown > button");
+
+    @FindBy(xpath = "//*[contains(@class,'modal-body')]/descendant::label[1]")
+    WebElement UI_VIEW_SOLD_COUNT_POPUP_ALL_BRANCHES_CHECKBOX;
+
+    @FindBy(css = ".remaining-sold-item-modal__body__error")
+    WebElement UI_VIEW_SOLD_COUNT_POPUP_NO_SELECT_BRANCH_ERROR;
+
+    @FindBy(css = ".modal-header > .close")
+    WebElement UI_CLOSE_VIEW_SOLD_COUNT_POPUP_BTN;
 
     @FindBy(xpath = "//*[@id='showOutOfStock']/parent::div/preceding-sibling::label/div")
     WebElement UI_DISPLAY_IF_OUT_OF_STOCK;
@@ -534,7 +620,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n2] > div:nth-child(4) h3")
     WebElement UI_PACKAGE_INFORMATION;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-9]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-10]")
     WebElement UI_PACKAGE_INFORMATION_TOOLTIPS;
 
     @FindBy(css = "[for = productWeight]")
@@ -556,7 +642,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n2] > div:nth-child(5) h3")
     WebElement UI_PRIORITY;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-10]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-11]")
     WebElement UI_PRIORITY_TOOLTIPS;
 
     @FindBy(css = "[name = productPriority]")
@@ -566,7 +652,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n2] > div:nth-child(6) h3")
     WebElement UI_PLATFORM;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-11]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-12]")
     WebElement UI_PLATFORM_TOOLTIPS;
 
     @FindBy(xpath = "//*[@name='onApp']/following-sibling::div")

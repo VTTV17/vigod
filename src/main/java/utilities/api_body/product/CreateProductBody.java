@@ -19,6 +19,7 @@ public class CreateProductBody {
     public List<Integer> productSellingPrice;
     // String: variation name, List: stock quantity per each branch
     public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
+    public static boolean apiIsIMEIProduct;
     public static boolean apiIsDisplayOutOfStock = true;
     public static boolean apiIsHideStock = false;
     public static boolean apiIsEnableListing = false;
@@ -28,6 +29,7 @@ public class CreateProductBody {
     public static boolean apiIsShowInGosocial = true;
 
     public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID) {
+        apiIsIMEIProduct = isIMEIProduct;
         return """
                 {
                     "name": "%s",
