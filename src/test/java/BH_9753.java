@@ -38,7 +38,7 @@ public class BH_9753 extends BaseTest{
     // store only active 1 branch
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G1_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G1_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G1_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
@@ -60,7 +60,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G1_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G1_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G1_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
@@ -82,7 +82,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G1_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void BH_9753_G1_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G1_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
@@ -105,7 +105,7 @@ public class BH_9753 extends BaseTest{
     // store only active 1 branch
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G2_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G2_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G2_Case1_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
@@ -127,7 +127,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G2_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G2_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G2_Case2_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
@@ -149,7 +149,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G2_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void BH_9753_G2_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case1_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
@@ -172,7 +172,7 @@ public class BH_9753 extends BaseTest{
     // store only active 1 branch
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G3_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G3_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -195,7 +195,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G3_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G3_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -218,7 +218,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G3_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void BH_9753_G3_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -242,7 +242,7 @@ public class BH_9753 extends BaseTest{
     // store only active 1 branch
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G4_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G4_Case1_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G4_Case1_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -265,7 +265,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G4_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void BH_9753_G4_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G4_Case2_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -288,7 +288,7 @@ public class BH_9753 extends BaseTest{
     // Active all branches
     // setting: Hide free branch on shop online
     // stock quantity > 0
-    public void BH_9753_G4_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void BH_9753_G4_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G4_Case3_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;

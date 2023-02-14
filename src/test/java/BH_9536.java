@@ -36,7 +36,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // stockQuantity > 0
-    public void BH_9536_G1_Case1_1_SettingDisplayAndProductInStock() throws Exception {
+    void BH_9536_G1_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G1_Case1_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -53,7 +53,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // stock quantity = 0
-    public void BH_9536_G1_Case2_1_SettingDisplayAndProductOutOfStock() throws Exception {
+    void BH_9536_G1_Case2_1_SettingDisplayAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G1_Case2_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -71,7 +71,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // stock quantity > 0
-    public void BH_9536_G1_Case3_1_SettingHiddenAndProductInStock() throws Exception {
+    void BH_9536_G1_Case3_1_SettingHiddenAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G1_Case3_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -89,7 +89,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // stock quantity = 0
-    public void BH_9536_G1_Case3_2_SettingHiddenAndProductOutOfStock() throws Exception {
+    void BH_9536_G1_Case3_2_SettingHiddenAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G1_Case3_2";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -108,7 +108,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // stockQuantity > 0
-    public void BH_9536_G2_Case1_1_SettingDisplayAndProductInStock() throws Exception {
+    void BH_9536_G2_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G2_Case1_1";
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = true;
@@ -125,7 +125,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // stock quantity = 0
-    public void BH_9536_G2_Case2_1_SettingDisplayAndProductOutOfStock() throws Exception {
+    void BH_9536_G2_Case2_1_SettingDisplayAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G2_Case2_1";
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = true;
@@ -143,7 +143,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // stock quantity > 0
-    public void BH_9536_G2_Case3_1_SettingHiddenAndProductInStock() throws Exception {
+    void BH_9536_G2_Case3_1_SettingHiddenAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G2_Case3_1";
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = false;
@@ -161,7 +161,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // stock quantity = 0
-    public void BH_9536_G2_Case3_2_SettingHiddenAndProductOutOfStock() throws Exception {
+    void BH_9536_G2_Case3_2_SettingHiddenAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G2_Case3_2";
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = false;
@@ -180,7 +180,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // all variations stock quantity > 0
-    public void BH_9536_G3_Case1_1_SettingDisplayAndProductInStock() throws Exception {
+    void BH_9536_G3_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G3_Case1_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -200,7 +200,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // one of variation stock quantity = 0
-    public void BH_9536_G3_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
+    void BH_9536_G3_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case2_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -219,7 +219,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // all variations stock quantity = 0
-    public void BH_9536_G3_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
+    void BH_9536_G3_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case2_2";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -239,7 +239,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // all variations stock quantity > 0
-    public void BH_9536_G3_Case3_1_SettingHiddenAndAllVariationsInStock() throws Exception {
+    void BH_9536_G3_Case3_1_SettingHiddenAndAllVariationsInStock() throws Exception {
         testCaseId = "BH_9536_G3_Case3_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -259,7 +259,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // one of variation stock quantity = 0
-    public void BH_9536_G3_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
+    void BH_9536_G3_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case3_2";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -279,7 +279,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // all variations stock quantity = 0
-    public void BH_9536_G3_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
+    void BH_9536_G3_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case3_3";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -300,7 +300,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // all variations stock quantity > 0
-    public void BH_9536_G4_Case1_1_SettingDisplayAndProductInStock() throws Exception {
+    void BH_9536_G4_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G4_Case1_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -320,7 +320,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // one of variation stock quantity = 0
-    public void BH_9536_G4_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
+    void BH_9536_G4_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case2_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -339,7 +339,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // all variations stock quantity = 0
-    public void BH_9536_G4_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
+    void BH_9536_G4_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case2_2";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
@@ -359,7 +359,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // all variations stock quantity > 0
-    public void BH_9536_G4_Case3_1_SettingHiddenAndAllVariationsInStock() throws Exception {
+    void BH_9536_G4_Case3_1_SettingHiddenAndAllVariationsInStock() throws Exception {
         testCaseId = "BH_9536_G4_Case3_1";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -379,7 +379,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // one of variation stock quantity = 0
-    public void BH_9536_G4_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
+    void BH_9536_G4_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case3_2";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
@@ -399,7 +399,7 @@ public class BH_9536 extends BaseTest {
     // Pre-condition:
     // setting: uncheck Display if out of stock checkbox
     // all variations stock quantity = 0
-    public void BH_9536_G4_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
+    void BH_9536_G4_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case3_3";
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
