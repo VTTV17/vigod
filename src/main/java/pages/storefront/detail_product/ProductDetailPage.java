@@ -75,14 +75,11 @@ public class ProductDetailPage extends ProductDetailElement {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-    }
 
-    public ProductDetailPage(WebDriver driver, boolean checkDetail) {
-        super(driver);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        commonAction = new UICommonAction(driver);
-        //get product information
-        getProductInformation();
+        // get product information
+        if (uiVariationList != null || apiVariationList != null) {
+            getProductInformation();
+        }
     }
 
     void getProductInformation() {
