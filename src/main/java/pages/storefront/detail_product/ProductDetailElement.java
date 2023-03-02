@@ -112,7 +112,7 @@ public class ProductDetailElement {
     @FindBy(css = "#nav-review-tab")
     WebElement REVIEW_TAB;
 
-    @FindBy(css = ".same-shop > p")
+    @FindBy(css = "#similar-product .title-product-description")
     WebElement SIMILAR_PRODUCT;
 
     @FindBy(css = "#tm-footer-default-layout img.gs-shop-logo")

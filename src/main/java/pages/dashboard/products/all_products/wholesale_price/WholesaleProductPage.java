@@ -94,6 +94,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // click Configure button
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
 
+        // wait spinner loading hidden
+        commonAction.waitForElementInvisible(SPINNER, 15);
+
         // wait wholesale product page loaded
         commonAction.verifyPageLoaded("Bạn chưa thiết lập giá sỉ cho sản phẩm này", "You don't configure any wholesale price for this product yet");
 

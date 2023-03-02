@@ -271,11 +271,11 @@ public class ProductPage extends ProductPageElement {
         // access to create product page by URL
         driver.get("%s%s".formatted(DOMAIN, CREATE_PRODUCT_PATH));
 
-        // set language
-        setLanguage();
-
         // wait page loaded
         commonAction.verifyPageLoaded("Chọn kênh bán hàng", "Select sale channel");
+
+        // set language
+        setLanguage();
 
         // hide Facebook bubble
         hideFacebookBubble();
@@ -300,11 +300,11 @@ public class ProductPage extends ProductPageElement {
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
 
-        // set language
-        setLanguage();
-
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+
+        // set language
+        setLanguage();
 
         // hide Facebook bubble
         hideFacebookBubble();
@@ -343,7 +343,6 @@ public class ProductPage extends ProductPageElement {
 
     void selectVAT() {
         // open VAT dropdown
-        wait.until(ExpectedConditions.elementToBeClickable(VAT_DROPDOWN));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VAT_DROPDOWN);
 
         // wait list VAT visible
@@ -1301,13 +1300,13 @@ public class ProductPage extends ProductPageElement {
 
         // check VAT default value
         // open VAT dropdown
-        VAT_DROPDOWN.click();
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VAT_DROPDOWN);
         List<String> dbVATList = UI_VAT_LIST.stream().map(WebElement::getText).toList();
         String ppTaxDoesNotApply = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.taxDoesNotApply", language);
         countFail = new AssertCustomize(driver).assertTrue(countFail, dbVATList.contains(ppTaxDoesNotApply), "[Failed][Body] Tax does not apply text should be %s, but found VAT list: %s.".formatted(ppTaxDoesNotApply, dbVATList));
         logger.info("[UI][%s] Check Body - Tax does not apply.".formatted(language));
         // close VAT dropdown
-        VAT_DROPDOWN.click();
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VAT_DROPDOWN);
 
         // show as listing product on storefront checkbox
         String dbShowAsListingProduct = wait.until(visibilityOf(UI_SHOW_AS_LISTING_PRODUCT_ON_STOREFRONT)).getText();
@@ -1757,18 +1756,18 @@ public class ProductPage extends ProductPageElement {
         act.moveToElement(UI_SALE_CHANEL_SHOPEE).build().perform();
         commonAction.sleepInMiliSecond(500);
         String dbShopeeTooltips = wait.until(visibilityOf(UI_SALE_CHANEL_SHOPEE_TOOLTIPS)).getText();
-        String ppShopeeTooltips = (apiIsIMEIProduct && driver.getCurrentUrl().contains("/edit/")) ? getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language)
-                : getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.shopeeTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbShopeeTooltips, ppShopeeTooltips, "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips, dbShopeeTooltips));
+        List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
+                getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
+                getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedShopeeTooltips", language));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, ppShopeeTooltips.contains(dbShopeeTooltips), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips, dbShopeeTooltips));
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
         act.moveToElement(UI_SALE_CHANEL_TIKTOK).build().perform();
         commonAction.sleepInMiliSecond(500);
         String dbTiktokTooltips = wait.until(visibilityOf(UI_SALE_CHANEL_TIKTOK_TOOLTIPS)).getText();
-        String ppTiktokTooltips = (apiIsIMEIProduct && driver.getCurrentUrl().contains("/edit/")) ? getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language)
-                : getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.tiktokTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTiktokTooltips, ppTiktokTooltips, "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
+        List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
         logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
 

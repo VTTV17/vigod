@@ -23,6 +23,9 @@ public class WholesaleProductElement {
     @FindBy(css = "div:nth-child(6)  .bg-light-white > div > button")
     WebElement CONFIGURE_BTN;
 
+    @FindBy(css = ".loading .lds-dual-ring-grey")
+    WebElement SPINNER;
+
     @FindBy(css = ".modal-content")
     WebElement CONFIRM_POPUP;
 
