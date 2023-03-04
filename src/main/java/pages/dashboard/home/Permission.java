@@ -92,7 +92,8 @@ public class Permission {
 		//Identify the shop's location to skip testing permissions of certain features (delivery/payment methods) against NON-VN shops
 		home.navigateToPage("Settings");
 		boolean isInVietnam = false;
-		if (new BranchPage(driver).navigate().getFreeBranchInfo().get(2).contains("Vietnam")) isInVietnam = true;
+		String location = new BranchPage(driver).navigate().getFreeBranchInfo().get(2);
+		if (location.contains("Vietnam") || location.contains("Việt Nam")) isInVietnam = true;
 		
 		for (String menuComponent : permission.keySet()) {
 			logger.debug("============: " + menuComponent + " =========: " + permission.get(menuComponent));
@@ -632,12 +633,21 @@ public class Permission {
 
 				String permission = permissionSheet.getRow(row).getCell(packageColIndex).getStringCellValue();
 				String menuItem = permissionSheet.getRow(row).getCell(menuColIndex).getStringCellValue();
-
+				
 				if (map.get(menuItem) != null) {
 					if (map.get(menuItem).contentEquals("A")) {
 						continue;
 					}
+					if (permission.contentEquals("A")) {
+						map.put(menuItem, permission);
+						continue;
+					}
+					
 					if (map.get(menuItem).contentEquals("D")) {
+						continue;
+					}
+					if (permission.contentEquals("D")) {
+						map.put(menuItem, permission);
 						continue;
 					}
 				}

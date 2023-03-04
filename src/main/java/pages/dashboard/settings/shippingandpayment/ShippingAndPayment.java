@@ -36,13 +36,13 @@ public class ShippingAndPayment {
 	WebElement SHIPPING_AND_PAYMENT_TAB;
 
 	@FindBy(id = "provider-giaohangtietkiem")
-	WebElement GHTK_TOGGLE;
+	WebElement GHTK;
 	@FindBy(id = "provider-giaohangnhanh")
-	WebElement GHN_TOGGLE;
+	WebElement GHN;
 	@FindBy(id = "provider-ahamove_bike")
-	WebElement AHAMOVE_TOGGLE;
+	WebElement AHAMOVE;
 	@FindBy(id = "provider-selfdelivery")
-	WebElement SELF_DELIVERY_TOGGLE;
+	WebElement SELF_DELIVERY;
 	@FindBy(css = ".shipping__provider  button.gs-button__blue")
 	WebElement SHIPPING_PROVIDER_SAVE_BTN;
 
@@ -86,47 +86,96 @@ public class ShippingAndPayment {
 	}
 
 	public ShippingAndPayment clickGHTKToggle() {
-		if (commonAction.isElementVisiblyDisabled(GHTK_TOGGLE.findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(GHTK_TOGGLE.findElement(TOGGLE_BTN)));
+		if (commonAction.isElementVisiblyDisabled(GHTK.findElement(By.xpath("./parent::*")))) {
+			Assert.assertFalse(new HomePage(driver).isMenuClicked(GHTK.findElement(TOGGLE_BTN)));
 			return this;
 		}
-		commonAction.clickElement(GHTK_TOGGLE.findElement(TOGGLE_BTN));
+		commonAction.clickElement(GHTK.findElement(TOGGLE_BTN));
 		logger.info("Clicked on GHTK toggle button.");
 		return this;
 	}
 	
+	public boolean isGHTKTurnedOn() {
+		boolean isTurnedOn = GHTK.findElement(TOGGLE_BTN).findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Giao Hang Tiet Kiem turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+	
+	public boolean isGHNTurnedOn() {
+		boolean isTurnedOn = GHN.findElement(TOGGLE_BTN).findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Giao Hang Nhanh turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+	
+	public boolean isAhamoveTurnedOn() {
+		boolean isTurnedOn = AHAMOVE.findElement(TOGGLE_BTN).findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Ahamove turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+
+	public boolean isSelfDeliveryTurnedOn() {
+		boolean isTurnedOn = SELF_DELIVERY.findElement(TOGGLE_BTN).findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Self-Delivery turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	public boolean isLocalATMTurnedOn() {
+		boolean isTurnedOn = LOCAL_ATM_TOGGLE.findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Local ATM turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	public boolean isCreditCardTurnedOn() {
+		wait.until(ExpectedConditions.visibilityOf(CREDIT_CARD_TOGGLE)); // It takes some time for the element to appear.
+		boolean isTurnedOn = CREDIT_CARD_TOGGLE.findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Credit Card turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	public boolean isCODTurnedOn() {
+		boolean isTurnedOn = COD_TOGGLE.findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Cash On Delivery turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	public boolean isCashTurnedOn() {
+		boolean isTurnedOn = CASH_TOGGLE.findElement(By.xpath("./input")).isSelected();
+		logger.info("Is Cash turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
 	public ShippingAndPayment clickGHNToggle() {
-		if (commonAction.isElementVisiblyDisabled(GHN_TOGGLE.findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(GHN_TOGGLE.findElement(TOGGLE_BTN)));
+		if (commonAction.isElementVisiblyDisabled(GHN.findElement(By.xpath("./parent::*")))) {
+			Assert.assertFalse(new HomePage(driver).isMenuClicked(GHN.findElement(TOGGLE_BTN)));
 			return this;
 		}
-		commonAction.clickElement(GHN_TOGGLE.findElement(TOGGLE_BTN));
+		commonAction.clickElement(GHN.findElement(TOGGLE_BTN));
 		logger.info("Clicked on GHN toggle button.");
 		return this;
 	}
-	
+
 	public ShippingAndPayment clickAhamoveToggle() {
-		if (commonAction.isElementVisiblyDisabled(AHAMOVE_TOGGLE.findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(AHAMOVE_TOGGLE.findElement(TOGGLE_BTN)));
+		if (commonAction.isElementVisiblyDisabled(AHAMOVE.findElement(By.xpath("./parent::*")))) {
+			Assert.assertFalse(new HomePage(driver).isMenuClicked(AHAMOVE.findElement(TOGGLE_BTN)));
 			return this;
 		}
-		commonAction.clickElement(AHAMOVE_TOGGLE.findElement(TOGGLE_BTN));
+		commonAction.clickElement(AHAMOVE.findElement(TOGGLE_BTN));
 		logger.info("Clicked on Ahamove toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickSelfDeliveryToggle() {
-		if (commonAction.isElementVisiblyDisabled(SELF_DELIVERY_TOGGLE.findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(SELF_DELIVERY_TOGGLE.findElement(TOGGLE_BTN)));
+		if (commonAction.isElementVisiblyDisabled(SELF_DELIVERY.findElement(By.xpath("./parent::*")))) {
+			Assert.assertFalse(new HomePage(driver).isMenuClicked(SELF_DELIVERY.findElement(TOGGLE_BTN)));
 			return this;
 		}
-		commonAction.clickElement(SELF_DELIVERY_TOGGLE.findElement(TOGGLE_BTN));
+		commonAction.clickElement(SELF_DELIVERY.findElement(TOGGLE_BTN));
 		logger.info("Clicked on Self-Delivery toggle button.");
 		return this;
 	}
 
 	public ShippingAndPayment enableSelfDelivery() {
-		if (!SELF_DELIVERY_TOGGLE.findElement(TOGGLE_BTN).findElement(By.xpath("./input")).isSelected()) {
+		if (!isSelfDeliveryTurnedOn()) {
 			clickSelfDeliveryToggle();
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Self Delivery"));
@@ -230,7 +279,7 @@ public class ShippingAndPayment {
 
 
 	public ShippingAndPayment enableLocalATM() {
-		if (!LOCAL_ATM_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+		if (!isLocalATMTurnedOn()) {
 			clickLocalATMToggle();
 			commonAction.sleepInMiliSecond(2000);
 		}
@@ -239,25 +288,27 @@ public class ShippingAndPayment {
 	}	
 
 	public ShippingAndPayment enableCreditCard() {
-		wait.until(ExpectedConditions.visibilityOf(CREDIT_CARD_TOGGLE)); // It takes some time for the element to appear.
-		if (!CREDIT_CARD_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+		if (!isCreditCardTurnedOn()) {
 			clickCreditCardToggle();
+			commonAction.sleepInMiliSecond(2000);
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Credit Card"));
 		return this;
 	}		
 
 	public ShippingAndPayment enableCOD() {
-		if (!COD_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+		if (!isCODTurnedOn()) {
 			clickCODToggle();
+			commonAction.sleepInMiliSecond(2000);
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Cash On Delivery"));
 		return this;
 	}		
 	
 	public ShippingAndPayment enableCash() {
-		if (!CASH_TOGGLE.findElement(By.xpath("./input")).isSelected()) {
+		if (!isCashTurnedOn()) {
 			clickCashToggle();
+			commonAction.sleepInMiliSecond(2000);
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Cash"));
 		return this;
@@ -288,44 +339,48 @@ public class ShippingAndPayment {
 	
     public void verifyPermissionToEnableGHTK(String permission) {
     	navigate();
+    	clickGHTKToggle();
+    	boolean isTurnedOn = isGHTKTurnedOn();
     	if (permission.contentEquals("A")) {
-    		clickGHTKToggle();
+    		Assert.assertTrue(isTurnedOn, "GHTK");
     	} else if (permission.contentEquals("D")) {
-    		clickGHTKToggle();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "GHTK");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableGHN(String permission) {
     	navigate();
+    	clickGHNToggle();
+    	boolean isTurnedOn = isGHNTurnedOn();
     	if (permission.contentEquals("A")) {
-    		clickGHNToggle();
+    		Assert.assertTrue(isTurnedOn, "GHN");
     	} else if (permission.contentEquals("D")) {
-    		clickGHNToggle();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "GHN");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableAhamove(String permission) {
     	navigate();
+    	clickAhamoveToggle();
+    	boolean isTurnedOn = isAhamoveTurnedOn();
     	if (permission.contentEquals("A")) {
-    		clickAhamoveToggle();
+    		Assert.assertTrue(isTurnedOn, "Ahamove");
     	} else if (permission.contentEquals("D")) {
-    		clickAhamoveToggle();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "Ahamove");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableSelfDelivery(String permission) {
     	navigate();
+    	enableSelfDelivery();
+    	boolean isTurnedOn = isSelfDeliveryTurnedOn();
     	if (permission.contentEquals("A")) {
-    		enableSelfDelivery();
+    		Assert.assertTrue(isTurnedOn, "Self-Delivery");
     	} else if (permission.contentEquals("D")) {
-    		enableSelfDelivery();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "Self-Delivery");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
@@ -333,49 +388,53 @@ public class ShippingAndPayment {
     
     public void verifyPermissionToEnableLocalATMCard(String permission) {
     	navigate();
+    	enableLocalATM();
+    	boolean isTurnedOn = isLocalATMTurnedOn();
     	if (permission.contentEquals("A")) {
-    		enableLocalATM();
+    		Assert.assertTrue(isTurnedOn, "Local ATM");
     		clickLocalATMToggle();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {
-    		enableLocalATM();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "Local ATM");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableCreditCard(String permission) {
     	navigate();
+    	enableCreditCard();
+    	boolean isTurnedOn = isCreditCardTurnedOn();
     	if (permission.contentEquals("A")) {
-    		enableCreditCard();
+    		Assert.assertTrue(isTurnedOn, "Credit Card");
     		clickCreditCardToggle();
     	} else if (permission.contentEquals("D")) {
-    		enableCreditCard();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "Credit Card");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableCOD(String permission) {
     	navigate();
+    	enableCOD();
+    	boolean isTurnedOn = isCODTurnedOn();
     	if (permission.contentEquals("A")) {
-    		enableCOD();
+    		Assert.assertTrue(isTurnedOn, "Cash On Delivery");
     		clickCODToggle();
     	} else if (permission.contentEquals("D")) {
-    		enableCOD();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "Cash On Delivery");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableCash(String permission) {
     	navigate();
+    	enableCash();
+    	boolean isTurnedOn = isCashTurnedOn();
     	if (permission.contentEquals("A")) {
-    		enableCash();
+    		Assert.assertTrue(isTurnedOn, "Cash");
     		clickCashToggle();
     	} else if (permission.contentEquals("D")) {
-    		enableCash();
-    		// Not completed
+    		Assert.assertFalse(isTurnedOn, "Cash");
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}

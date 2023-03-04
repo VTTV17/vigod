@@ -81,17 +81,17 @@ public class ServiceDiscountCodePage {
 		WebElement element = null;
 		switch (platform) {
 		case "Web":
-			element = PLATFORM.get(0);
+			element = PLATFORM.get(0).findElement(By.xpath("./parent::*/parent::*"));
 			break;
 		case "App":
-			element = PLATFORM.get(1);
+			element = PLATFORM.get(1).findElement(By.xpath("./parent::*/parent::*"));
 			break;
 		case "In-store":
-			element = PLATFORM.get(2);
+			element = PLATFORM.get(2).findElement(By.xpath("./parent::*"));
 			break;
 		}
 
-		if (commonAction.isElementVisiblyDisabled(element.findElement(By.xpath("./parent::*/parent::*")))) {
+		if (commonAction.isElementVisiblyDisabled(element)) {
 			Assert.assertFalse(new HomePage(driver).isMenuClicked(element));
 			return true;
 		}

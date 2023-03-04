@@ -431,16 +431,18 @@ public class SignupPage {
     	logger.info("Clicked on Confirm button.");     
     }
 
-    public SignupPage verifyUsernameExistError(String errMessage) {
+    public SignupPage verifyUsernameExistError(String signupLanguage) throws Exception {
     	String text = commonAction.getText(USEREXIST_ERROR);
-    	soft.assertEquals(text,errMessage, "[Signup][Username already exists] Message does not match.");
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.userExists", signupLanguage);
+    	soft.assertEquals(text,retrievedMsg, "[Signup][Username already exists] Message does not match.");
     	logger.info("verifyUsernameExistError completed");
     	return this;
     }
     
-    public SignupPage verifyVerificationCodeError(String errMessage) {
+    public SignupPage verifyVerificationCodeError(String signupLanguage) throws Exception {
         String text = commonAction.getText(WRONG_CODE_ERROR);
-        soft.assertEquals(text,errMessage, "[Signup][Wrong Verification Code] Message does not match.");
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.wrongVerificationCode", signupLanguage);
+    	soft.assertEquals(text,retrievedMsg, "[Signup][Wrong Verification Code] Message does not match.");
         logger.info("verifyVerificationCodeError completed");
         return this;
     }
