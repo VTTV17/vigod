@@ -8,12 +8,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.login.LoginPage;
 import pages.thirdparty.Mailnesia;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.database.InitConnection;
 
@@ -54,6 +56,12 @@ public class SignupPage extends GeneralSF {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy (css = "#signup-modal .modal-content")
+    WebElement SIGNUP_SCREEN_TXT;    
+    
+    @FindBy (css = "#activate-modal .modal-content")
+    WebElement VERIFICATION_CODE_SCREEN_TXT;
+    
     @FindBy(css = "#signup-username")
     WebElement USERNAME;
 
@@ -296,4 +304,17 @@ public class SignupPage extends GeneralSF {
         clickSignupBtn();
         return this;
     }
+    
+    public void verifyTextAtSignupScreen(String signupLanguage) throws Exception {
+        String text = commonAction.getText(SIGNUP_SCREEN_TXT);
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.screen.text", signupLanguage));
+        logger.info("verifyTextAtSignupScreen completed");
+    }    
+
+    public void verifyTextAtVerificationCodeScreen(String username, String signupLanguage) throws Exception {
+    	String text = commonAction.getText(VERIFICATION_CODE_SCREEN_TXT);
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.verificationCode.text", signupLanguage).formatted(username));
+    	logger.info("verifyTextAtVerificationCodeScreen completed");
+    }       
+    
 }

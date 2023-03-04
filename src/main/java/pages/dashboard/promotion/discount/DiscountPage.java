@@ -230,7 +230,7 @@ public class DiscountPage extends DiscountElement {
 			productDiscountCode.setDiscountCodeAsReward(true);
     	} else if (permission.contentEquals("D")) {
 			if (!originalURL.contentEquals(URL1)) {
-				// Not reproducible
+				Assert.assertTrue(productDiscountCode.isSetDiscountCodeAsRewardCheckboxDisabled());
 			} else {
 				logger.debug("Good for you! Failed from the outset.");
 			}
@@ -295,7 +295,7 @@ public class DiscountPage extends DiscountElement {
 			serviceDiscountCode.inputRewardDescription("You're qualified for this reward");
     	} else if (permission.contentEquals("D")) {
 			if (!originalURL.contentEquals(URL1)) {
-				// Not reproducible
+				// Not reproducible but hardly happens
 			} else {
 				logger.debug("Good for you! Failed from the outset.");
 			}
@@ -336,7 +336,7 @@ public class DiscountPage extends DiscountElement {
     		productDiscountCampaign.tickAppliesTo(typeOfProducts);
     	} else if (permission.contentEquals("D")) {
 			if (!originalURL.contentEquals(URL1)) {
-				// Not reproducible
+				// Not reproducible but hardly happens
 			} else {
 				logger.debug("Good for you! Failed from the outset.");
 			}
@@ -377,7 +377,7 @@ public class DiscountPage extends DiscountElement {
     		serviceDiscountCampaign.tickAppliesTo(typeOfProducts);
     	} else if (permission.contentEquals("D")) {
     		if (!originalURL.contentEquals(URL1)) {
-    			// Not reproducible
+    			// Not reproducible but hardly happens
     		} else {
     			logger.debug("Good for you! Failed from the outset.");
     		}

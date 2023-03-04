@@ -92,7 +92,8 @@ public class BranchPage extends BranchElement {
     /*Verify permission for certain feature*/
     public void verifyPermissionToAddBranch(String permission) {
     	navigate();
-    	waitElementList(BRANCH_NAME_LIST);
+    	commonAction.sleepInMiliSecond(3000);
+//    	waitElementList(BRANCH_NAME_LIST);
     	clickAddBranch();
     	boolean flag = new ConfirmationDialog(driver).isConfirmationDialogDisplayed();
 		if (permission.contentEquals("A")) {

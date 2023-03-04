@@ -63,6 +63,10 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
         return this;
     }
 
+    public boolean isSetDiscountCodeAsRewardCheckboxDisabled() {
+		return !APPLY_DISCOUNT_CODE_AS_REWARD_CHECKBOX.findElement(By.xpath("./input[@type='checkbox']")).isEnabled();
+    }    
+    
     public ProductDiscountCodePage setDiscountCodeAsReward(boolean... isReward) {
         this.isReward = isReward.length == 0 ? RandomUtils.nextBoolean() : isReward[0];
         if (this.isReward) {

@@ -9,7 +9,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
@@ -74,12 +76,16 @@ public class CreateSegment {
 		logger.info("Selected Data Group: " + selectedOption);
 		return this;
 	}
-	
+
 	public CreateSegment selectDataCondition(String data) {	
 		String selectedOption = commonAction.selectByVisibleText(CONDITION_FRAGMENTS.get(1).findElement(By.xpath(".//select")), data);
 		logger.info("Selected Data: " + selectedOption);
 		return this;
 	}
+	public String getSelectedtDataCondition() {	
+		WebElement selectedOption = new Select(CONDITION_FRAGMENTS.get(1).findElement(By.xpath(".//select"))).getFirstSelectedOption();
+		return selectedOption.getText();
+	}	
 	
 	public CreateSegment selectComparisonOperatorCondition(String operator) {
 		String selectedOption = commonAction.selectByVisibleText(CONDITION_FRAGMENTS.get(2).findElement(By.xpath(".//select")), operator);
