@@ -240,6 +240,7 @@ public class HomePage {
                 }
             }
         }
+        logger.info("Navigated to page: " + pageName);
     }
 
     public void navigateToPage(String... subMenus) {
