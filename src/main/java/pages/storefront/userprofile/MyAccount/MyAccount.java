@@ -150,6 +150,7 @@ public class MyAccount extends HeaderSF {
         logger.info("Click on Save button");
         wait.until(ExpectedConditions.visibilityOf(myAccountUI.TOAST_MESSAGE));
         waitTillLoaderDisappear();
+        commonAction.sleepInMiliSecond(1000);
         return this;
     }
 
@@ -215,6 +216,23 @@ public class MyAccount extends HeaderSF {
             commonAction.clickElement(myAccountUI.ADD_OTHER_PHONE_BTN);
             commonAction.inputText(myAccountUI.PHONE_NAME_ADD_OTHER_PHONE, name);
             commonAction.sleepInMiliSecond(2000);
+            commonAction.selectByVisibleText(myAccountUI.PHONE_CODE_ADD_OTHER_PHONE, countryPhoneCode);
+            commonAction.inputText(myAccountUI.PHONE_NUMBER_ADD_OTHER_PHONE, phone);
+            commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_PHONE);
+        }
+        logger.info("Add other phones.");
+        return this;
+    }
+    public MyAccount addOtherPhones(String name, String countryPhoneCode, int quantity) {
+        commonAction.scrollToTopPage();
+        DataGenerator generate = new DataGenerator();
+        for (int i=0;i<quantity;i++) {
+            String phone = "01" + generate.generateNumber(8);
+//            commonAction.sleepInMiliSecond(1000);
+            waitTillLoaderDisappear();
+            commonAction.clickElement(myAccountUI.ADD_OTHER_PHONE_BTN);
+            commonAction.inputText(myAccountUI.PHONE_NAME_ADD_OTHER_PHONE, name);
+//            commonAction.sleepInMiliSecond(2000);
             commonAction.selectByVisibleText(myAccountUI.PHONE_CODE_ADD_OTHER_PHONE, countryPhoneCode);
             commonAction.inputText(myAccountUI.PHONE_NUMBER_ADD_OTHER_PHONE, phone);
             commonAction.clickElement(myAccountUI.SAVE_BTN_ADD_OTHER_PHONE);
@@ -377,7 +395,7 @@ public class MyAccount extends HeaderSF {
     }
     public Map<String,String> editOtherPhoneNumber(){
         Map<String,String> otherPhoneMap = new HashMap<>();
-        String[] phoneCodeList = {"+84", "+1", "+95", "+86", "+93", "+3581", "+355"};
+        String[] phoneCodeList = {"+84", "+1", "+95", "+86", "+93", "+35818", "+355"};
         DataGenerator dataGenerator = new DataGenerator();
         for(int i=0; i<myAccountUI.OTHER_PHONE_LIST.size();i++){
             commonAction.clickElement(myAccountUI.OTHER_PHONE_LIST.get(i));

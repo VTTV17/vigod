@@ -79,7 +79,7 @@ public class CreateBuyLink extends HomePage {
             commonAction.inputText(SEARCH_INPUT,productName);
             commonAction.sleepInMiliSecond(1000);
             waitTillLoadingDotsDisappear();
-            commonAction.sleepInMiliSecond(1000);
+            commonAction.sleepInMiliSecond(2000);
             if(commonAction.getText(PRODUCT_NAME_SUGGESTION.get(0)).equalsIgnoreCase(productName)){
                 commonAction.clickElement(PRODUCT_NAME_SUGGESTION.get(0));
             }else {

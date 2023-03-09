@@ -187,9 +187,10 @@ public class PlansPage extends HomePage {
 
 	public String getOrderId() {
 		String orderID = "";
-		
+		commons.sleepInMiliSecond(1000);
 		// If element does not exist in DOM then we return empty value.
 		if (!commons.isElementDisplay(ORDER_ID)) {
+			logger.info("OrderID not show.");
 			return orderID;
 		}
 		
