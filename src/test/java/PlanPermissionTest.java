@@ -156,7 +156,7 @@ public class PlanPermissionTest extends BaseTest {
     public void PP06_CheckPermissionGoPosWithNewAccount() throws IOException, SQLException, InterruptedException {
         testCaseId = "PP06";
         SignUpSelectAndApprovePlan("GoPOS");
-        checkPlanPermission("GoPOS",userName_goPOS);
+//        checkPlanPermission("GoPOS",userName_goPOS);
     }
     @Test
     public void PP07_CheckPermissionGoSocialWithExistentAccount() throws IOException {

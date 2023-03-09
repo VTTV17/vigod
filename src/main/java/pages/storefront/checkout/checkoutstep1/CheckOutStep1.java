@@ -55,6 +55,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 verifyAddress(String expectedAddress) {
+        commonAction.waitForElementVisible(checkOutStep1UI.ADDRESS_INPUT,5000);
         String address = commonAction.getElementAttribute(checkOutStep1UI.ADDRESS_INPUT, "value");
         Assert.assertEquals(address, expectedAddress);
         logger.info("Verify address: %s display".formatted(address));
@@ -230,7 +231,6 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 verifyAddressInfo_VN(String country, String address, String city, String district, String ward) {
-        commonAction.sleepInMiliSecond(2000);
         if (country != "") {
             verifyCountrySelectedValue(country);
         }

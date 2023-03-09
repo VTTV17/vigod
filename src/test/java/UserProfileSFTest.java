@@ -106,11 +106,11 @@ public class UserProfileSFTest extends BaseTest {
         shopDomain = SF_ShopVi;
         shopDomainB = SF_COFFEE;
         fullName_UpdateAddress = "qcgosell0066";
-        productIDToBuyNow = "1054248";
+        productIDToBuyNow = "1058485";
         productIDToBuyNowShopB = "213172";
         displayName = "qcgosell01";
         membershipLevel = "Thanh Vien Vang";
-        barcodeNumber = "3620545";
+        barcodeNumber = "3719379";
         address_Edit_Invalid = Constant.TEXT_256_CHAR;
         companyName_Edit = "GoSell";
         taxCode_Edit = "1058896666";
@@ -320,19 +320,19 @@ public class UserProfileSFTest extends BaseTest {
         homePage.waitTillSpinnerDisappear();
         allCustomers = new AllCustomers(driver);
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
-                .verifyAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .clickLogout();
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
         myAddress.clickUserInfoIcon().clickLogout();
-        //Update addres in shop B as before
+//        Update addres in shop B as before
         loginSF = new LoginPage(driver);
         loginSF.navigate(shopDomainB);
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
-                .clickMyAddressSection()
-                .inputAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
+                .clickMyAddressSection();
+        myAddress.inputAddressInfo_VN("Vietnam", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
                 .clickOnSave()
                 .clickUserInfoIcon().clickLogout();
     }
@@ -360,7 +360,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
-        allCustomers.selectLanguage(languageDb).waitTillSpinnerDisappear();
+        allCustomers.waitTillSpinnerDisappear().selectLanguage(languageDb).waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
                 .clickLogout();
@@ -440,11 +440,11 @@ public class UserProfileSFTest extends BaseTest {
         displayName_Edit = generate.generateString(10);
         phoneNumber_Edit = "01" + generate.generateNumber(9);
         gender_Edit = myAccount.editGender();
-        myAccount.inputBirthday(birthday_Edit)
-                .inputFullName(displayName_Edit)
+        myAccount.inputFullName(displayName_Edit)
                 .inputCompanyName(companyName_Edit)
                 .inputTaxCode(taxCode_Edit)
                 .inputPhoneNumber(phoneNumber_Edit)
+                .inputBirthday(birthday_Edit)
                 .clickOnSaveButton()
                 .verifyBirday(birthday_Edit)
                 .verifyDisplayName(displayName_Edit)
@@ -571,7 +571,8 @@ public class UserProfileSFTest extends BaseTest {
                 .clickOnBackToMarket();
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
-                .clickMyAddressSection()
+                .clickMyAddressSection();
+        new UserProfileInfo(driver).clickMyAddressSection()
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
         // second checkout
         productDetailSF = new ProductDetailPage(driver);
@@ -693,7 +694,6 @@ public class UserProfileSFTest extends BaseTest {
         myAccount = new MyAccount(driver);
         myAccount.verifyTextOfMyAccountPage();
     }
-
     @Test
     public void UP14_VerifyTextOfMyAddressPage() throws Exception {
         testCaseId = "UP14";
@@ -703,5 +703,4 @@ public class UserProfileSFTest extends BaseTest {
         myAddress = new MyAddress(driver);
         myAddress.verifyText();
     }
-
 }
