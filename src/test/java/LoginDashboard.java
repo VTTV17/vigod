@@ -19,6 +19,7 @@ public class LoginDashboard extends BaseTest {
 	LoginPage loginPage;
 	HomePage homePage;
 
+	String signinLanguage = "ENG";
 	String MAIL;
 	String PASSWORD;
 	String PHONE;
@@ -48,7 +49,7 @@ public class LoginDashboard extends BaseTest {
 
 	String language;
 
-	public String getVerificationCode(String username) throws InterruptedException, SQLException {
+	public String getVerificationCode(String username) throws SQLException {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
@@ -69,7 +70,7 @@ public class LoginDashboard extends BaseTest {
 		loginPage.verifyPasswordError(message).completeVerify();
 	}
 
-	public void verifyConfirmationCodeError() throws InterruptedException {
+	public void verifyConfirmationCodeError() throws Exception {
 		String message;
 		if (language.contentEquals("English")) {
 			message = INVALID_CODE_ERROR_EN;
@@ -115,11 +116,23 @@ public class LoginDashboard extends BaseTest {
 		homePage = new HomePage(driver);
 	}
 	
-//    @Test
-	public void TC01_DB_LoginWithAllFieldsLeftBlank() {
+    @Test
+	public void LoginDB_01_CheckTranslation() throws Exception {
+		loginPage.navigate()
+		.selectDisplayLanguage(signinLanguage)
+		.verifyTextAtLoginScreen(signinLanguage);
+		
+		loginPage.clickForgotPassword()
+		.verifyTextAtForgotPasswordScreen(signinLanguage);
+	}
+    
+    @Test
+	public void LoginDB_02_LoginWithAllFieldsLeftBlank() throws Exception {
 		// Username field is left empty.
-		loginPage.navigate().performLogin("", generate.generateNumber(9))
-				.verifyEmailOrPhoneNumberError(BLANK_ERROR).completeVerify();
+		loginPage.navigate()
+		.performLogin("", generate.generateNumber(9))
+		.verifyEmailOrPhoneNumberError(BLANK_ERROR).completeVerify();
+		
 		// Password field is left empty.
 		loginPage.navigate().performLogin(generate.generateNumber(10), "").verifyPasswordError(BLANK_ERROR)
 				.completeVerify();
@@ -128,8 +141,8 @@ public class LoginDashboard extends BaseTest {
 				.verifyPasswordError(BLANK_ERROR).completeVerify();
 	}
 
-//    @Test
-	public void TC02_DB_LoginWithInvalidPhoneFormat() {
+    @Test
+	public void LoginDB_03_LoginWithInvalidPhoneFormat() {
 		// Log in with a phone number consisting of 9 digits.
 		loginPage.navigate().performLogin(generate.generateNumber(9), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_PHONE_ERROR).completeVerify();
@@ -138,8 +151,8 @@ public class LoginDashboard extends BaseTest {
 				.verifyEmailOrPhoneNumberError(INVALID_PHONE_ERROR).completeVerify();
 	}
 
-//    @Test
-	public void TC03_DB_LoginWithInvalidMailFormat() {
+    @Test
+	public void LoginDB_04_LoginWithInvalidMailFormat() {
 		// Mail does not have symbol @
 		loginPage.navigate().performLogin(generate.generateString(10), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR).completeVerify();
@@ -154,39 +167,33 @@ public class LoginDashboard extends BaseTest {
 				.verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR).completeVerify();
 	}
 
-//    @Test
-	public void TC04_DB_LoginWithWrongEmailAccount() {
+    @Test
+	public void LoginDB_05_LoginWithWrongEmailAccount() {
 		loginPage.navigate()
 				.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
-	}
-
-//    @Test
-	public void TC05_DB_LoginWithWrongPhoneAccount() {
+		
 		loginPage.navigate().performLogin(generate.generateNumber(13), generate.generateString(10))
-				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
+		.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
 	}
 
-//    @Test
-	public void TC06_DB_LoginWithCorrectPhoneAccount() {
+    @Test
+	public void LoginDB_06_LoginWithCorrectPhoneAccount() {
 		loginPage.navigate().performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
 		homePage.waitTillSpinnerDisappear().clickLogout();
-	}
-
-//    @Test
-	public void TC07_DB_LoginWithCorrectMailAccount() {
+		
 		loginPage.navigate().performLogin(MAIL, PASSWORD);
 		homePage.waitTillSpinnerDisappear().clickLogout();
 	}
 
-//    @Test
-	public void TC08_DB_LoginWithFacebook() throws InterruptedException {
+    @Test
+	public void LoginDB_07_LoginWithFacebook() {
 		loginPage.navigate().performLoginWithFacebook(FACEBOOK, FACEBOOK_PASSWORD);
 		homePage.waitTillSpinnerDisappear().clickLogout();
 	}
 
-//    @Test
-	public void TC09_DB_StaffLogin() {
+    @Test
+	public void LoginDB_08_StaffLogin() {
 		// Login with wrong credentials.
 		loginPage.navigate().switchToStaffTab().performLogin(STAFF, generate.generateString(10))
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
@@ -196,12 +203,18 @@ public class LoginDashboard extends BaseTest {
 	}
 
 	@Test
-	public void BH_1813_StaffForgotPassword() throws InterruptedException, SQLException {
+	public void LoginDB_09_StaffForgotPassword() throws Exception {
 		String newPassword = STAFF_PASSWORD + generate.generateNumber(4) + "!";
 
 		String staff = "emcehc@mailnesia.com";
 
 		language = loginPage.navigate().getSelectedLanguage();
+		
+		if (language.contentEquals("English")) {
+			signinLanguage = "ENG";
+		} else {
+			signinLanguage = "VIE";
+		}
 
 		// Inadequate number of characters
 		loginPage.switchToStaffTab()
@@ -234,7 +247,7 @@ public class LoginDashboard extends BaseTest {
 
 		loginPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1))
 		.clickContinueOrConfirmBtn();
-		verifyConfirmationCodeError();
+		loginPage.verifyVerificationCodeError(signinLanguage);
 
 		// Input correct verification code
 		loginPage.inputVerificationCode(code)
@@ -249,7 +262,7 @@ public class LoginDashboard extends BaseTest {
 	}
 
 	@Test
-	public void BH_4050_SellersChangePassword() throws InterruptedException {
+	public void LoginDB_10_SellersChangePassword() throws InterruptedException {
 		String username = "";
 		String password = "";
 		String country = "";
@@ -294,7 +307,7 @@ public class LoginDashboard extends BaseTest {
 	}
 
 	@Test
-	public void BH_4050_SellerForgotPassword() throws InterruptedException, SQLException {
+	public void LoginDB_11_SellerForgotPassword() throws InterruptedException, SQLException {
 		String username = "";
 		String password = "";
 		String country = "";
