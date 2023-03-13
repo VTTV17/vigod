@@ -1,10 +1,13 @@
 package api.dashboard.customers;
 
+import api.storefront.login.LoginSF;
+import api.storefront.signup.SignUp;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 
 import static api.dashboard.login.Login.*;
+import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomStringUtils.random;
@@ -18,6 +21,7 @@ public class Customers {
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
     public static String apiCustomerName;
     public static String apiCustomerTag;
+    public static String apiCustomerMail;
     public static int apiBuyerId;
     public static int apiProfileId;
 
@@ -62,7 +66,7 @@ public class Customers {
         return this;
     }
 
-    public Customers addCustomerTag(String customerName) {
+    public Customers addCustomerTagForPhoneCustomer(String customerName) {
         Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
         searchCustomerByName.then().statusCode(200);
 
@@ -106,6 +110,47 @@ public class Customers {
         return this;
     }
 
+    public Customers addCustomerTagForMailCustomer(String customerName) {
+        Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
+        searchCustomerByName.then().statusCode(200);
+
+        apiBuyerId = searchCustomerByName.jsonPath().getInt("userId[0]");
+        apiProfileId = searchCustomerByName.jsonPath().getInt("id[0]");
+        apiCustomerMail = searchCustomerByName.jsonPath().getString("email[0]");
+        apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
+        String body = """
+                {
+                     "id": "%s",
+                     "fullName": "%s",
+                     "phones": [],
+                     "emails": [
+                         {
+                             "email": "%s",
+                             "emailName": "%s"
+                         }
+                     ],
+                     "note": "",
+                     "tags": [
+                         "%s"
+                     ],
+                     "countryCode": "VN",
+                     "address": "",
+                     "locationCode": "",
+                     "districtCode": "",
+                     "wardCode": "",
+                     "gender": null,
+                     "birthday": null,
+                     "partnerId": null,
+                     "companyName": "",
+                     "taxCode": "",
+                     "backupPhones": [],
+                     "backupEmails": []
+                 }""".formatted(apiProfileId, customerName, apiCustomerMail, customerName, apiCustomerTag);
+        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, apiStoreID), accessToken, body);
+        updateCustomerProfile.then().statusCode(200);
+        return this;
+    }
+
     public void createSegment() {
         apiSegmentName = "Auto - Segment - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
@@ -124,5 +169,19 @@ public class Customers {
         createSegment.prettyPrint();
         createSegment.then().statusCode(200);
         apiSegmentID = createSegment.jsonPath().getInt("id");
+    }
+
+    public void createSegmentByAPI() throws InterruptedException {
+        // sign up SF account
+        new SignUp().signUpByMail();
+
+        // login SF to create new Customer in Dashboard
+        new LoginSF().LoginToSF();
+
+        // wait customer is added
+        sleep(3000);
+
+        // add tag and create segment by tag name
+        new Customers().addCustomerTagForMailCustomer(SignUp.apiCustomerName).createSegment();
     }
 }

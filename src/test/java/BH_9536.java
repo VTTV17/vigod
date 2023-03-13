@@ -14,19 +14,9 @@ import static utilities.api_body.product.CreateProductBody.apiIsDisplayOutOfStoc
 // BH_9536:Check to display/hide if out of stock at product detail
 public class BH_9536 extends BaseTest {
 
-    CreateProduct createProduct;
-
     @BeforeSuite
     void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
-
-        createProduct = new CreateProduct();
-
-        new BranchManagement().getBranchInformation();
-
-        new StoreInformation().getStoreInformation();
-
-        new VAT().getTaxList();
 
         tcsFileName = "check_product_detail_sf/BH_9536_Check to display if out of stock at product detail.xlsx".replace("/", File.separator);
     }
@@ -41,7 +31,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
         int branchStock = 5;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -56,7 +46,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = true;
         int branchStock = 5;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -72,7 +62,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
         int branchStock = 5;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -88,7 +78,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = false;
         apiIsDisplayOutOfStock = false;
         int branchStock = 0;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -105,7 +95,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = true;
         int branchStock = 5;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -120,7 +110,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = true;
         int branchStock = 5;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -136,7 +126,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = false;
         int branchStock = 5;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -152,7 +142,7 @@ public class BH_9536 extends BaseTest {
         boolean isIMEIProduct = true;
         apiIsDisplayOutOfStock = false;
         int branchStock = 0;
-        createProduct.createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                 branchStock);
 
         new ProductDetailPage(driver)
@@ -170,7 +160,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 2;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -188,7 +178,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -205,7 +195,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = true;
         int increaseNum = 0;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -223,7 +213,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -241,7 +231,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -259,7 +249,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -278,7 +268,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 2;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -296,7 +286,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -313,7 +303,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = true;
         int increaseNum = 0;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -331,7 +321,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -349,7 +339,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 
@@ -367,7 +357,7 @@ public class BH_9536 extends BaseTest {
         apiIsDisplayOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-        createProduct.createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                 increaseNum,
                 branchStock);
 

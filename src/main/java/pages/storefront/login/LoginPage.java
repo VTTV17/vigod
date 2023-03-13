@@ -19,6 +19,7 @@ import pages.storefront.signup.SignupPage;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
+import static api.dashboard.setting.StoreInformation.apiStoreURL;
 import static utilities.links.Links.*;
 
 import java.time.Duration;
@@ -111,8 +112,8 @@ public class LoginPage {
         wait.until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE1));
         return this;
     }
-    public LoginPage navigate(String domain) {
-        driver.get(domain);
+    public LoginPage navigate(String... domain) {
+        driver.get(domain.length > 0 ? domain[0] : "https://%s%s/".formatted(apiStoreURL, SF_DOMAIN));
         logger.debug("Page title is: "+driver.getTitle());
         return this;
     }

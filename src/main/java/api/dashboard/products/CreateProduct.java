@@ -1,6 +1,8 @@
 package api.dashboard.products;
 
 import api.dashboard.customers.Customers;
+import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.VAT;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,6 +60,11 @@ public class CreateProduct {
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
+
+    public CreateProduct() {
+        if (apiBranchID == null) new BranchManagement().getBranchInformation();
+        if (apiTaxList == null) new VAT().getTaxList();
+    }
 
 
     public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {

@@ -13,21 +13,10 @@ import java.util.Arrays;
 import static api.dashboard.setting.BranchManagement.apiBranchID;
 
 public class BH_9753 extends BaseTest{
-    CreateProduct createProduct;
-    BranchManagement branchManagement;
 
     @BeforeSuite
     void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
-
-        createProduct = new CreateProduct();
-        branchManagement = new BranchManagement();
-
-        branchManagement.getBranchInformation();
-
-        new StoreInformation().getStoreInformation();
-
-        new VAT().getTaxList();
 
         tcsFileName = "check_product_detail_sf/BH_9753_Search and view branchs in product detail page.xlsx".replace("/", File.separator);
     }
@@ -44,9 +33,9 @@ public class BH_9753 extends BaseTest{
         int branchStock = 5;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
@@ -64,9 +53,9 @@ public class BH_9753 extends BaseTest{
         int branchStock = 5;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -84,9 +73,9 @@ public class BH_9753 extends BaseTest{
         int branchStock = 5;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct, stock);
 
-        branchManagement.showFreeBranchOnShopOnline()
+        new BranchManagement().showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -105,9 +94,9 @@ public class BH_9753 extends BaseTest{
         int branchStock = 5;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
@@ -125,9 +114,9 @@ public class BH_9753 extends BaseTest{
         int branchStock = 5;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -145,9 +134,9 @@ public class BH_9753 extends BaseTest{
         int branchStock = 5;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createWithoutVariationProduct(isIMEIProduct, stock);
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct, stock);
 
-        branchManagement.showFreeBranchOnShopOnline()
+        new BranchManagement().showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -167,9 +156,9 @@ public class BH_9753 extends BaseTest{
         int increaseNum = 1;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
+        new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
@@ -188,9 +177,9 @@ public class BH_9753 extends BaseTest{
         int increaseNum = 1;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
+        new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -209,9 +198,9 @@ public class BH_9753 extends BaseTest{
         int increaseNum = 1;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
+        new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, stock);
 
-        branchManagement.showFreeBranchOnShopOnline()
+        new BranchManagement().showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -231,9 +220,9 @@ public class BH_9753 extends BaseTest{
         int increaseNum = 1;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
+        new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
@@ -252,9 +241,9 @@ public class BH_9753 extends BaseTest{
         int increaseNum = 1;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
+        new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, stock);
 
-        branchManagement.hideFreeBranchOnShopOnline()
+        new BranchManagement().hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
@@ -273,9 +262,9 @@ public class BH_9753 extends BaseTest{
         int increaseNum = 1;
         int[] stock = new int[apiBranchID.size()];
         Arrays.fill(stock, branchStock);
-        createProduct.createVariationProduct(isIMEIProduct, increaseNum, stock);
+        new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, stock);
 
-        branchManagement.showFreeBranchOnShopOnline()
+        new BranchManagement().showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)

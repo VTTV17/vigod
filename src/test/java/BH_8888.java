@@ -22,32 +22,12 @@ import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
 
 public class BH_8888 extends BaseTest {
-
-    String sfDomain;
     CreateProduct createProduct;
 
     @BeforeSuite
-    void initPreCondition() throws SQLException, InterruptedException {
+    void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
-
-        createProduct = new CreateProduct();
-
-        new BranchManagement().getBranchInformation();
-
-        new StoreInformation().getStoreInformation();
-
-        new VAT().getTaxList();
-
-        new SignUp().signUpByPhoneNumber();
-
-        new LoginSF().LoginByPhoneNumber();
-
-        sleep(3000);
-
-        new Customers().addCustomerTag(apiCustomerName).createSegment();
-
-        sfDomain = "https://%s%s/".formatted(apiStoreURL, SF_DOMAIN);
-
+        
         tcsFileName = "check_product_detail_sf/BH_8888_View wholesale product at product detail.xlsx".replace("/", File.separator);
     }
 
@@ -55,8 +35,7 @@ public class BH_8888 extends BaseTest {
     void preCondition_G1() {
         boolean isIMEIProduct = false;
         int branchStock = 5;
-        createProduct
-                .createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                         branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
@@ -67,8 +46,7 @@ public class BH_8888 extends BaseTest {
     void preCondition_G2() {
         boolean isIMEIProduct = true;
         int branchStock = 5;
-        createProduct
-                .createWithoutVariationProduct(isIMEIProduct,
+        new CreateProduct().createWithoutVariationProduct(isIMEIProduct,
                         branchStock,
                         branchStock)
                 .addWholesalePriceProduct()
@@ -80,8 +58,7 @@ public class BH_8888 extends BaseTest {
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        createProduct
-                .createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                         increaseNum,
                         branchStock,
                         branchStock)
@@ -94,8 +71,7 @@ public class BH_8888 extends BaseTest {
         boolean isIMEIProduct = true;
         int branchStock = 2;
         int increaseNum = 1;
-        createProduct
-                .createVariationProduct(isIMEIProduct,
+        new CreateProduct().createVariationProduct(isIMEIProduct,
                         increaseNum,
                         branchStock,
                         branchStock)
@@ -110,7 +86,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -129,7 +105,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -146,7 +122,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -164,7 +140,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -184,7 +160,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -202,7 +178,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -221,7 +197,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -241,7 +217,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -259,7 +235,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -277,7 +253,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -297,7 +273,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -315,7 +291,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -333,7 +309,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -353,7 +329,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -371,7 +347,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -389,7 +365,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -409,7 +385,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -427,7 +403,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -445,7 +421,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -465,7 +441,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -483,7 +459,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -501,7 +477,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -521,7 +497,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -539,7 +515,7 @@ public class BH_8888 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()

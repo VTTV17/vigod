@@ -1,5 +1,6 @@
 package api.dashboard.promotion;
 
+import api.dashboard.customers.Customers;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +11,6 @@ import utilities.data.DataGenerator;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.apiSegmentID;
@@ -73,6 +73,10 @@ public class CreatePromotion {
      * <p> SET value = 1: SPECIFIC BRANCH</p>
      */
     public static int apiProductDiscountCampaignBranchConditionType = -1;
+
+    public CreatePromotion() throws InterruptedException {
+        if (apiSegmentID == 0)  new Customers().createSegmentByAPI();
+    }
 
     public CreatePromotion endEarlyFlashSale() {
         // get schedule flash sale list

@@ -18,12 +18,6 @@ public class BH_8616 extends BaseTest {
     void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
-        new BranchManagement().getBranchInformation();
-
-        new VAT().getTaxList();
-
-        new StoreInformation().getStoreInformation();
-
         tcsFileName = "check_product_detail_sf/BH_8616_Check hide remaining stock on online store.xlsx".replace("/", File.separator);
     }
 

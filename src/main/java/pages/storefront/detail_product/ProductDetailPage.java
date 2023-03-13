@@ -4,6 +4,7 @@ import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
@@ -107,6 +108,9 @@ public class ProductDetailPage extends ProductDetailElement {
      * Access to product detail on SF by URL
      */
     public void accessToProductDetailPageByProductIDAndCheckProductInformation() throws Exception {
+        // get store language and others information
+        if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
+
         // get product information
         productID = isCreateByUI ? uiProductID : apiProductID;
         new ProductInformation().get(productID);

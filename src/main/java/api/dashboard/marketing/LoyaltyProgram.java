@@ -1,5 +1,6 @@
 package api.dashboard.marketing;
 
+import api.dashboard.customers.Customers;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 
@@ -19,11 +20,13 @@ import static utilities.character_limit.CharacterLimit.*;
 public class LoyaltyProgram {
     String CREATE_MEMBERSHIP_PATH = "/beehiveservices/api/memberships";
     public static Map<String, List<String>> apiMembershipStatus;
-    public void createNewMembership() {
+    public void createNewMembership() throws InterruptedException {
         String name = "Auto - Membership - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String description = randomAlphabetic(nextInt(MAX_MEMBERSHIP_DESCRIPTION_LENGTH));
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
         int discountMaxAmount = nextInt(1000000) + 1;
+
+        if (apiSegmentID == 0) new Customers().createSegmentByAPI();
 
         String body = """
                 {

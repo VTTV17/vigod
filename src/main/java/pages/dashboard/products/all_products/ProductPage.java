@@ -2,8 +2,8 @@ package pages.dashboard.products.all_products;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -16,7 +16,6 @@ import pages.dashboard.products.all_products.wholesale_price.WholesaleProductPag
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.data.DataGenerator;
-import utilities.screenshot.Screenshot;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -31,7 +30,7 @@ import static api.dashboard.products.CreateProduct.apiProductID;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.apiActiveBranches;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
-import static org.apache.commons.lang.RandomStringUtils.*;
+import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage.*;

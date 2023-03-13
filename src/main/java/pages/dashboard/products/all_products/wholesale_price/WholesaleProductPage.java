@@ -44,25 +44,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         act = new Actions(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
-
-    void createSegmentByAPI() throws SQLException {
-        // sign up SF account
-        new SignUp().signUpByPhoneNumber();
-
-        // login SF to create new Customer in Dashboard
-        new LoginSF().LoginByPhoneNumber();
-
-        // wait customer is added
-        commonAction.sleepInMiliSecond(3000);
-
-        // add tag and create segment by tag name
-        new Customers().addCustomerTag(SignUp.apiCustomerName).createSegment();
-    }
-
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {
-        // create segment for wholesale product config
-        createSegmentByAPI();
-
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
 
@@ -117,8 +99,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
             uiWholesaleProductPrice.set(i, nextInt(uiProductSellingPrice.get(i)) + 1);
             uiWholesaleProductStock.set(i, nextInt(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)) + 1);
         }
-        System.out.println(uiWholesaleProductPrice);
-        System.out.println(uiWholesaleProductStock);
         return this;
     }
 
@@ -147,6 +127,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         checkSegmentInformation();
 
         // search segment
+        if (apiSegmentName == null) new Customers().createSegmentByAPI();
         wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
         act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(apiSegmentName));
 

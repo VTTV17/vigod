@@ -6,14 +6,16 @@ import io.restassured.response.Response;
 
 import static api.dashboard.login.Login.*;
 import static api.dashboard.setting.StoreInformation.apiStoreURL;
+import static api.storefront.signup.SignUp.apiMail;
+import static api.storefront.signup.SignUp.apiPhoneNumber;
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
 
 public class LoginSF {
     public static String sfToken;
 
-    public void LoginByPhoneNumber(String... loginInfo) {
-        String username = loginInfo.length > 0 ? loginInfo[0] : SignUp.apiPhoneNumber;
+    public void LoginToSF(String... loginInfo) {
+        String username = loginInfo.length > 0 ? loginInfo[0] : apiPhoneNumber != null ? apiPhoneNumber : apiMail;
         String password = loginInfo.length > 1 ? loginInfo[1] : SignUp.apiPassword;
         String phoneCode = loginInfo.length > 2 ? loginInfo[2] : SignUp.apiPhoneCode;
         String body = """

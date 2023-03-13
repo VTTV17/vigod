@@ -1,12 +1,6 @@
-import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
-import api.dashboard.setting.BranchManagement;
-import api.dashboard.setting.StoreInformation;
-import api.dashboard.setting.VAT;
-import api.storefront.login.LoginSF;
-import api.storefront.signup.SignUp;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -14,35 +8,15 @@ import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.login.LoginPage;
 
 import java.io.File;
-import java.sql.SQLException;
 
-import static api.dashboard.setting.StoreInformation.apiStoreURL;
-import static api.storefront.signup.SignUp.*;
+import static api.storefront.signup.SignUp.apiPassword;
+import static api.storefront.signup.SignUp.apiPhoneNumber;
 import static java.lang.Thread.sleep;
-import static utilities.links.Links.SF_DOMAIN;
 
 public class BH_8887 extends BaseTest {
-
-    String sfDomain;
-
     @BeforeSuite
-    void initPreCondition() throws SQLException, InterruptedException {
+    void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
-
-        new BranchManagement().getBranchInformation();
-        new StoreInformation().getStoreInformation();
-
-        new VAT().getTaxList();
-
-        new SignUp().signUpByPhoneNumber();
-
-        new LoginSF().LoginByPhoneNumber();
-
-        sleep(3000);
-
-        new Customers().addCustomerTag(apiCustomerName).createSegment();
-
-        sfDomain = "https://%s%s/".formatted(apiStoreURL, SF_DOMAIN);
 
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
     }
@@ -97,7 +71,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -117,7 +91,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -138,7 +112,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -158,7 +132,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -178,7 +152,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -196,7 +170,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -215,7 +189,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -235,7 +209,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -256,7 +230,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -276,7 +250,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -296,7 +270,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -314,7 +288,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -332,7 +306,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -352,7 +326,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -373,7 +347,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -393,7 +367,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -413,7 +387,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -431,7 +405,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -450,7 +424,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -470,7 +444,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -491,7 +465,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -511,7 +485,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -531,7 +505,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
@@ -549,7 +523,7 @@ public class BH_8887 extends BaseTest {
         int endMin = 60;
 
         new LoginPage(driver)
-                .navigate(sfDomain)
+                .navigate()
                 .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
