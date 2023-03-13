@@ -46,6 +46,6 @@ public class LoyaltyProgram {
 
         apiBranchName.forEach(brName -> apiMembershipStatus
                 .put(brName, IntStream.range(0, apiVariationList.size())
-                        .mapToObj(i -> "IN-PROGRESS").toList()));
+                        .mapToObj(i -> "IN_PROGRESS").toList()));
     }
 }

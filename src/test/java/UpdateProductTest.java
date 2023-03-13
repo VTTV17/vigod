@@ -50,9 +50,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -75,9 +73,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -100,9 +96,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -125,9 +119,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G2: IMEI product - without variation
@@ -151,9 +143,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -176,9 +166,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -201,9 +189,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -226,9 +212,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G3: Normal product - Variation
@@ -253,9 +237,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -279,9 +261,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -305,9 +285,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -331,9 +309,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -357,9 +333,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -383,9 +357,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G4: IMEI product - Variation
@@ -410,9 +382,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -436,9 +406,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -462,9 +430,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -488,9 +454,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -514,9 +478,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = VIE")
@@ -540,9 +502,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     /* check ENG language*/
@@ -567,9 +527,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -592,9 +550,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -617,9 +573,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -642,9 +596,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G2: IMEI product - without variation
@@ -668,9 +620,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -693,9 +643,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -718,9 +666,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -743,9 +689,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G3: Normal product - Variation
@@ -770,9 +714,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -796,9 +738,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -822,9 +762,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -848,9 +786,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -874,9 +810,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -900,9 +834,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G4: IMEI product - Variation
@@ -927,9 +859,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -953,9 +883,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -979,9 +907,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -1005,9 +931,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -1031,9 +955,7 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Dashboard language = ENG")
@@ -1057,8 +979,6 @@ public class UpdateProductTest extends BaseTest {
                 .configWholesaleProduct();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 }

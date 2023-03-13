@@ -63,9 +63,9 @@ public class PropertiesUtil {
 
     public static String getPropertiesValueBySFLang(String propertyName, String... language) throws Exception {
         String lang = language.length == 0 ? getLanguageFromConfig("Storefront") : language[0];
-        if (lang.equalsIgnoreCase("ENG")) {
+        if (lang.equalsIgnoreCase("ENG") || lang.equalsIgnoreCase("en")) {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_EN_TEXT), propertyName);
-        } else if (lang.equalsIgnoreCase("VIE")) {
+        } else if (lang.equalsIgnoreCase("VIE") || lang.equalsIgnoreCase("vi")) {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_VI_TEXT), propertyName);
         } else throw new Exception("Can't detect language.");
     }

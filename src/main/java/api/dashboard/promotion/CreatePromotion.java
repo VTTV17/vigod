@@ -1,5 +1,6 @@
 package api.dashboard.promotion;
 
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +19,6 @@ import static api.dashboard.login.Login.apiStoreID;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.setting.BranchManagement.*;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 
@@ -28,6 +28,7 @@ public class CreatePromotion {
     String END_EARLY_FLASH_SALE_PATH = "/itemservice/api/campaigns/end-early/";
     String DELETE_FLASH_SALE_PATH = "/itemservice/api/campaigns/delete/%s?storeId=%s";
     String FLASH_SALE_LIST_PATH = "/itemservice/api/campaigns/search/";
+    String FLASH_SALE_DETAIL = "/itemservice/api/campaigns/%s?storeId=%s";
     String WHOLESALE_CAMPAIGN_SCHEDULE_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=SCHEDULED";
     String WHOLESALE_CAMPAIGN_IN_PROGRESS_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=IN_PROGRESS";
     String DELETE_DISCOUNT_PATH = "/orderservices2/api/gs-discount-campaigns/";
@@ -90,8 +91,6 @@ public class CreatePromotion {
         apiBranchName.forEach(brName -> apiFlashSaleStatus
                 .put(brName, IntStream.range(0, apiVariationList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
-
-
         return this;
     }
 
@@ -187,6 +186,51 @@ public class CreatePromotion {
         return this;
     }
 
+    List<Integer> getInProgressAndScheduleFlashSale() {
+        List<Integer> flashSaleList = new ArrayList<>();
+        flashSaleList.addAll(new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, apiStoreID), accessToken).jsonPath().getList("id"));
+        flashSaleList.addAll(new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, apiStoreID), accessToken).jsonPath().getList("id"));
+        return flashSaleList;
+    }
+
+    void getFlashSaleInformation(int flashSaleID, List<String> barcodeList, List<Integer> sellingPrice) {
+        System.out.println(flashSaleID);
+        Response flashSaleDetail = api.get(FLASH_SALE_DETAIL.formatted(flashSaleID, apiStoreID), accessToken);
+        flashSaleDetail.then().statusCode(200);
+        JsonPath flashSaleDetailJson = flashSaleDetail.jsonPath();
+
+        // init flash sale status map
+        if (apiFlashSaleStatus == null)
+            apiBranchName.forEach(brName -> apiFlashSaleStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
+
+        // init flash sale price list
+        if (apiFlashSalePrice == null)
+            barcodeList.forEach(barcode -> apiFlashSalePrice.add(sellingPrice.get(barcodeList.indexOf(barcode))));
+
+        // init flash sale stock list
+        if (apiFlashSaleStock == null) barcodeList.forEach(barcode -> apiFlashSaleStock.add(0));
+
+        // update flash sale status map
+        String status = flashSaleDetailJson.getString("status");
+        List<String> hasFlashSaleBarcodeList = flashSaleDetailJson.getList("items.itemModelId");
+        apiBranchName.forEach(brName -> {
+            List<String> statusList = new ArrayList<>(apiFlashSaleStatus.get(brName));
+            hasFlashSaleBarcodeList.stream().filter(barcodeList::contains).forEachOrdered(promotionBarcode -> statusList.set(barcodeList.indexOf(promotionBarcode), status));
+            apiFlashSaleStatus.put(brName, statusList);
+        });
+
+        // update flash sale price
+        hasFlashSaleBarcodeList.stream().filter(barcodeList::contains).forEach(promotionBarcode -> apiFlashSalePrice.set(barcodeList.indexOf(promotionBarcode), IntStream.range(0, flashSaleDetailJson.getList("items.newPrice").size()).mapToObj(itemID -> (int) flashSaleDetailJson.getFloat("items[%s].newPrice".formatted(itemID))).toList().get(hasFlashSaleBarcodeList.indexOf(promotionBarcode))));
+
+        // update flash sale stock
+        hasFlashSaleBarcodeList.stream().filter(barcodeList::contains).forEach(promotionBarcode -> apiFlashSaleStock.set(barcodeList.indexOf(promotionBarcode), IntStream.range(0, flashSaleDetailJson.getList("items.saleStock").size()).mapToObj(itemID -> (int) flashSaleDetailJson.getFloat("items[%s].saleStock".formatted(itemID))).toList().get(hasFlashSaleBarcodeList.indexOf(promotionBarcode))));
+    }
+
+    public void getCurrentFlashSaleInformation(List<String> barcodeList, List<Integer> sellingPrice) {
+        List<Integer> flashSaleList = getInProgressAndScheduleFlashSale();
+        flashSaleList.forEach(integer -> getFlashSaleInformation(integer, barcodeList, sellingPrice));
+    }
+
     public void endEarlyDiscountCampaign() {
         List<Integer> scheduleList = new API().get(WHOLESALE_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(apiStoreID), accessToken).jsonPath().getList("id");
         for (int campaignID : scheduleList) {
@@ -201,7 +245,7 @@ public class CreatePromotion {
         //update product discount campaign status
         apiBranchName.forEach(brName -> apiDiscountCampaignStatus
                 .put(brName, IntStream.range(0, apiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").collect(Collectors.toList())));
+                        .mapToObj(i -> "EXPIRED").toList()));
     }
 
     public CreatePromotion createProductDiscountCampaign(int... time) {
