@@ -63,8 +63,23 @@ public class Cashbook {
 	@FindBy(css = ".gs-content-header-right-el .gs-button__green:nth-of-type(2)")
 	WebElement CREATE_PAYMENT_BTN;
 	
+	@FindBy(css = ".date-ranger-picker")
+	WebElement DATE_RANGER_PICKER;
+	
+	@FindBy(css = ".daterangepicker .btn-default")
+	WebElement DATE_RANGER_PICKER_RESET_BTN;
+	
 	@FindBy(css = ".btn-filter-action")
 	WebElement FILTER_BTN;
+	
+	@FindBy(css = ".mega-filter-container .dropdown-menu-right")
+	WebElement FILTER_CONTAINER;
+	
+	@FindBy(xpath = "//div[contains(@class,'gs-mega-filter-row-select')]")
+	List<WebElement> FILTER_CONDITION;
+	
+	@FindBy(css = ".gs-button__green.gs-button--small")
+	WebElement FILTER_DONE_BTN;
 	
 	@FindBy(css = ".modal-title")
 	WebElement CREATE_RECEIPT_PAYMENT_MODAL_TITLE;
@@ -141,6 +156,13 @@ public class Cashbook {
 		commonAction.clickElement(CREATE_PAYMENT_BTN);
 		commonAction.sleepInMiliSecond(1000);
 		logger.info("Clicked on Create Payment button.");
+		return this;
+	}	
+
+	public Cashbook inputSearchTerm(String searchTerm) {
+		commonAction.inputText(SEARCHBOX, searchTerm);
+		logger.info("Input '" + searchTerm + "' into Search box.");
+		commonAction.sleepInMiliSecond(1000);
 		return this;
 	}	
 	
@@ -515,5 +537,104 @@ public class Cashbook {
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
     }  	
-    
+	
+	public Cashbook clickResetDateRangerPicker() {
+		commonAction.clickElement(DATE_RANGER_PICKER);
+		commonAction.clickElement(DATE_RANGER_PICKER_RESET_BTN);
+		logger.info("Clicked on Reset Time ranger picker button.");
+		return this;
+	}    
+	
+	public Cashbook clickFilterBtn() {
+		commonAction.clickElement(FILTER_BTN);
+		logger.info("Clicked on Filter button.");
+		return this;
+	}    
+
+	public Cashbook selectFilteredBranch(String branch) {
+		commonAction.clickElement(FILTER_CONDITION.get(0));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(branch);
+		commonAction.clickElement(FILTER_CONDITION.get(0).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered branch: %s.".formatted(branch));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredAccounting(String yesOrNo) {
+		commonAction.clickElement(FILTER_CONDITION.get(1));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(yesOrNo);
+		commonAction.clickElement(FILTER_CONDITION.get(1).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Accounting: %s.".formatted(yesOrNo));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredTransaction(String transaction) {
+		commonAction.clickElement(FILTER_CONDITION.get(2));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(transaction);
+		commonAction.clickElement(FILTER_CONDITION.get(2).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Transaction: %s.".formatted(transaction));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredExpenseType(String expenseType) {
+		commonAction.clickElement(FILTER_CONDITION.get(3));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(expenseType);
+		commonAction.clickElement(FILTER_CONDITION.get(3).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Expense type: %s.".formatted(expenseType));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredRevenueType(String revenueType) {
+		commonAction.clickElement(FILTER_CONDITION.get(4));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(revenueType);
+		commonAction.clickElement(FILTER_CONDITION.get(4).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Revenue type: %s.".formatted(revenueType));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredCreatedBy(String createdBy) {
+		commonAction.clickElement(FILTER_CONDITION.get(5));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(createdBy);
+		commonAction.clickElement(FILTER_CONDITION.get(5).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Created by: %s.".formatted(createdBy));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredGroup(String group) {
+		commonAction.clickElement(FILTER_CONDITION.get(6));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(group);
+		commonAction.clickElement(FILTER_CONDITION.get(6).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Sender/Recipient group: %s.".formatted(group));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredName(String name) {
+		commonAction.clickElement(FILTER_CONDITION.get(7));
+		String xpath = ".//div[@class='option-item ' and text()='%s']".formatted(name);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+		commonAction.clickElement(FILTER_CONDITION.get(7).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Sender/Recipient name: %s.".formatted(name));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredPaymentMethod(String method) {
+		commonAction.clickElement(FILTER_CONDITION.get(8));
+		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(method);
+		commonAction.clickElement(FILTER_CONDITION.get(8).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered payment method: %s.".formatted(method));
+		return this;
+	}	
+	
+	
+	public Cashbook clickFilterDoneBtn() {
+		commonAction.clickElement(FILTER_DONE_BTN);
+		logger.info("Clicked on Filter Done button.");
+		return this;
+	}    
+
+    public void verifyTextAtFilterContainer(String signupLanguage) throws Exception {
+    	String text = commonAction.getText(FILTER_DONE_BTN.findElement(By.xpath("./ancestor::div[contains(@class,'dropdown-menu-right')]")));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.filterContainer", signupLanguage));
+    	logger.info("verifyTextAtFilterContainer completed");
+    }  		
+	
 }

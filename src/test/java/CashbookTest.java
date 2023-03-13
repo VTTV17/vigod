@@ -39,7 +39,12 @@ public class CashbookTest extends BaseTest {
 		cashbookPage = new Cashbook(driver);
 		homePage = new HomePage(driver);
 	}
-
+	
+	/**
+	 * Extract numbers from a string
+	 * @param rawAmount
+	 * @return
+	 */
 	public String extractDigits(String rawAmount) {
 		Matcher m = Pattern.compile("\\d+").matcher(rawAmount);
 		ArrayList<String> sub = new ArrayList<String>();
@@ -59,6 +64,17 @@ public class CashbookTest extends BaseTest {
 	public String senderGroup(String group, String displayLanguage) throws Exception {
 		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group." + group, displayLanguage);
 	}
+	
+	/**
+	 * 
+	 * @param revenue debtCollectionFromSupplier/debtCollectionFromCustomer/paymentForOrder/saleOfAssets/otherIncome
+	 * @param displayLanguage VIE/ENG
+	 * @return revenue text according to VIE/ENG
+	 * @throws Exception
+	 */
+	public String revenueSource(String revenue, String displayLanguage) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source." + revenue, displayLanguage);
+	}
 
 	/**
 	 * 
@@ -66,16 +82,27 @@ public class CashbookTest extends BaseTest {
 	 * @return a list of revenue sources
 	 * @throws Exception
 	 */
-	public String[] revenueSource(String displayLanguage) throws Exception {
+	public String[] revenueSourceList(String displayLanguage) throws Exception {
 		String[] list = {
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source.debtCollectionFromSupplier",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source.debtCollectionFromCustomer",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source.paymentForOrder",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source.saleOfAssets",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source.otherIncome",displayLanguage),
+				revenueSource("debtCollectionFromSupplier", displayLanguage),
+				revenueSource("debtCollectionFromCustomer", displayLanguage),
+				revenueSource("paymentForOrder", displayLanguage),
+				revenueSource("saleOfAssets", displayLanguage),
+				revenueSource("otherIncome", displayLanguage),
 		};
 		return list;
 	}
+
+	/**
+	 * 
+	 * @param expense paymentToShippingPartner/paymentForGoods/productionCost/costOfRawMaterials/debtPaymentToCustomer/rentalFee/utilities/salaries/sellingExpenses/otherCosts/refund
+	 * @param displayLanguage
+	 * @return
+	 * @throws Exception
+	 */
+	public String expenseType(String expense, String displayLanguage) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense." + expense, displayLanguage);
+	}	
 	
 	/**
 	 * 
@@ -83,35 +110,79 @@ public class CashbookTest extends BaseTest {
 	 * @return a list of expense types
 	 * @throws Exception
 	 */
-	public String[] expenseType(String displayLanguage) throws Exception {
+	public String[] expenseTypeList(String displayLanguage) throws Exception {
 		String[] list = {
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.paymentToShippingPartner",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.paymentForGoods",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.productionCost",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.costOfRawMaterials",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.debtPaymentToCustomer",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.rentalFee",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.utilites",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.salaries",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.sellingExpenses",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.otherCosts",displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense.refund",displayLanguage),
+				expenseType("paymentToShippingPartner",displayLanguage),
+				expenseType("paymentForGoods",displayLanguage),
+				expenseType("productionCost",displayLanguage),
+				expenseType("costOfRawMaterials",displayLanguage),
+				expenseType("debtPaymentToCustomer",displayLanguage),
+				expenseType("rentalFee",displayLanguage),
+				expenseType("utilities",displayLanguage),
+				expenseType("salaries",displayLanguage),
+				expenseType("sellingExpenses",displayLanguage),
+				expenseType("otherCosts",displayLanguage),
+				expenseType("refund",displayLanguage),
 		};
 		return list;
 	}
 
+	/**
+	 * 
+	 * @param method visa/atm/bankTransfer/cash/zalopay/momo
+	 * @param displayLanguage
+	 * @return
+	 * @throws Exception
+	 */
+	public String paymentMethod(String method, String displayLanguage) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod." + method, displayLanguage);
+	}		
+	
 	public String randomPaymentMethod(String displayLanguage) throws Exception {
 		String[] paymentMethod = { 
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod.visa", displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod.atm", displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod.bankTransfer", displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod.cash", displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod.zalopay", displayLanguage),
-				PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod.momo", displayLanguage),
+				paymentMethod("visa", displayLanguage),
+				paymentMethod("atm", displayLanguage),
+				paymentMethod("bankTransfer", displayLanguage),
+				paymentMethod("cash", displayLanguage),
+				paymentMethod("zalopay", displayLanguage),
+				paymentMethod("momo", displayLanguage),
 		};
 		return paymentMethod[new Random().nextInt(0, paymentMethod.length)];
 	}
 
+	/**
+	 * Allow accounting or not
+	 * @param yesOrNo yes/no
+	 * @param displayLanguage
+	 * @return
+	 * @throws Exception
+	 */
+	public String allowAccounting(String yesOrNo, String displayLanguage) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.accountChecked." + yesOrNo, displayLanguage);
+	}	
+	
+	/**
+	 * 
+	 * @param transactionType allExpenses/allRevenues
+	 * @param displayLanguage
+	 * @return
+	 * @throws Exception
+	 */
+	public String transactions(String transactionType, String displayLanguage) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.transaction." + transactionType, displayLanguage);
+	}	
+	
+	/**
+	 * 
+	 * @param staff system/shopOwner
+	 * @param displayLanguage
+	 * @return
+	 * @throws Exception
+	 */
+	public String createdBy(String staff, String displayLanguage) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.createdBy." + staff, displayLanguage);
+	}	
+	
 	public void verifySummaryDataAfterReceiptCreated(List<Integer> originalSummary, List<Integer> laterSummary, boolean isAccountingChecked) {
 		Integer revenue = (isAccountingChecked) ? originalSummary.get(1) + Integer.parseInt(amount) : originalSummary.get(1);
 		Assert.assertEquals(laterSummary.get(1), revenue, "Revenue");
@@ -159,7 +230,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_01_CheckTranslation() throws Exception {
+	public void CB_01_CheckTranslation() throws Exception {
 		
 		String group = senderGroup("customer", displayLanguage);
 		String sender = "Anh Le";
@@ -175,7 +246,7 @@ public class CashbookTest extends BaseTest {
 		/* Verify text at create receipt screen */
 		cashbookPage.clickCreateReceiptBtn().verifyTextAtCreateReceiptScreen(displayLanguage);
 		cashbookPage.clickCancelBtn();
-		cashbookPage.createReceipt(group, revenueSource(displayLanguage)[0], branch, randomPaymentMethod(displayLanguage), sender, amount, note, isAccountingChecked);
+		cashbookPage.createReceipt(group, revenueSourceList(displayLanguage)[0], branch, randomPaymentMethod(displayLanguage), sender, amount, note, isAccountingChecked);
 		homePage.getToastMessage();
 		List<List<String>> records = cashbookPage.getRecords();
 		cashbookPage.clickRecord(records.get(0).get(0)); // Click on the first record on the list.
@@ -185,16 +256,21 @@ public class CashbookTest extends BaseTest {
 		/* Verify text at create payment screen */
 		cashbookPage.clickCreatePaymentBtn().verifyTextAtCreatePaymentScreen(displayLanguage);
 		cashbookPage.clickCancelBtn();
-		cashbookPage.createPayment(group, expenseType(displayLanguage)[0], branch, randomPaymentMethod(displayLanguage), sender, amount, note, isAccountingChecked);
+		cashbookPage.createPayment(group, expenseTypeList(displayLanguage)[0], branch, randomPaymentMethod(displayLanguage), sender, amount, note, isAccountingChecked);
 		homePage.getToastMessage();
 		records = cashbookPage.getRecords();
 		cashbookPage.clickRecord(records.get(0).get(0)); // Click on the first record on the list.
 		cashbookPage.verifyTextAtPaymentTransactionIDScreen(displayLanguage);
 		cashbookPage.clickCancelBtn();
+		
+		/* Verify text at filter container screen */
+		cashbookPage.clickFilterBtn();
+		cashbookPage.verifyTextAtFilterContainer(displayLanguage);
+		cashbookPage.clickFilterDoneBtn();
 	}	
 	
 	@Test
-	public void Cashbook_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
+	public void CB_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
 
 		String group = senderGroup("customer", displayLanguage);
 		String sender = "Anh Le";
@@ -206,7 +282,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSource(displayLanguage)) {
+		for (String source : revenueSourceList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating receipts
@@ -238,7 +314,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
+	public void CB_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
 
 		String group = senderGroup("supplier", displayLanguage);
 		String sender = "Kim Ma 1";
@@ -250,7 +326,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSource(displayLanguage)) {
+		for (String source : revenueSourceList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating receipts
@@ -282,7 +358,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
+	public void CB_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
 
 		String group = senderGroup("staff", displayLanguage);
 		String sender = "Staff A";
@@ -294,7 +370,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSource(displayLanguage)) {
+		for (String source : revenueSourceList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating receipts
@@ -326,7 +402,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
+	public void CB_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
 
 		String group = senderGroup("others", displayLanguage);
 		String sender = "nocus";
@@ -338,7 +414,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSource(displayLanguage)) {
+		for (String source : revenueSourceList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating receipts
@@ -370,7 +446,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_06_CreatePaymentWhenRecipientGroupIsCustomer() throws Exception {
+	public void CB_06_CreatePaymentWhenRecipientGroupIsCustomer() throws Exception {
 
 		String group = senderGroup("customer", displayLanguage);
 		String sender = "aaa";
@@ -382,7 +458,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseType(displayLanguage)) {
+		for (String source : expenseTypeList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating payments
@@ -414,7 +490,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_07_CreatePaymentWhenRecipientGroupIsSupplỉer() throws Exception {
+	public void CB_07_CreatePaymentWhenRecipientGroupIsSupplỉer() throws Exception {
 
 		String group = senderGroup("supplier", displayLanguage);
 		String sender = "Kim Ma 2";
@@ -426,7 +502,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseType(displayLanguage)) {
+		for (String source : expenseTypeList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating payments
@@ -458,7 +534,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_08_CreatePaymentWhenRecipientGroupIsStaff() throws Exception {
+	public void CB_08_CreatePaymentWhenRecipientGroupIsStaff() throws Exception {
 
 		String group = senderGroup("staff", displayLanguage);
 		String sender = "Staff B";
@@ -470,7 +546,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseType(displayLanguage)) {
+		for (String source : expenseTypeList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating payments
@@ -502,7 +578,7 @@ public class CashbookTest extends BaseTest {
 	}
 
 	@Test
-	public void Cashbook_09_CreatePaymentWhenRecipientGroupIsOthers() throws Exception {
+	public void CB_09_CreatePaymentWhenRecipientGroupIsOthers() throws Exception {
 
 		String group = senderGroup("others", displayLanguage);
 		String sender = "fgh";
@@ -514,7 +590,7 @@ public class CashbookTest extends BaseTest {
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseType(displayLanguage)) {
+		for (String source : expenseTypeList(displayLanguage)) {
 			String paymentMethod = randomPaymentMethod(displayLanguage);
 
 			// Get cashbook summary before creating payments
@@ -544,5 +620,497 @@ public class CashbookTest extends BaseTest {
 			cashbookPage.clickCancelBtn();
 		}
 	}
+	
+	@Test
+	public void CB_10_SearchRecords() throws Exception {
+		
+		/* Log into dashboard */
+		loginPage.navigate().performLogin(country, username, password);
+		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		
+		/* Get available records */
+		cashbookPage.navigate();
+		List<List<String>> records = cashbookPage.getRecords();
+		
+		/* Search the first record on the list */
+		cashbookPage.inputSearchTerm(records.get(0).get(0));
+		
+		List<List<String>> seatchedRecords = cashbookPage.getRecords();
+		
+		/* Click on the searched record */
+		Assert.assertEquals(seatchedRecords.size(), 1, "Number of found records");
+		Assert.assertEquals(seatchedRecords.get(0).get(0), records.get(0).get(0), "Transaction Code");
+	}
+	
+	@Test
+	public void CB_11_FilterCashbook() throws Exception {
+		
+		List<List<String>> records;
+		
+		/* Log into dashboard */
+		loginPage.navigate().performLogin(country, username, password);
+		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
 
+		/* Filter */
+		cashbookPage.navigate();
+		
+		/* Filter by Accounting*/
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredAccounting(allowAccounting("no", displayLanguage));
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), false);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredAccounting(allowAccounting("yes", displayLanguage));
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), true);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		
+		/* Filter by branch*/
+		String branch = "My Shop Vietnam"; 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredBranch(branch);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(2), branch);
+		}
+		
+		branch = "CN3"; 
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredBranch(branch);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(2), branch);
+		}
+		
+		/* Filter by transaction */
+		String filteredTransaction = transactions("allExpenses", displayLanguage); 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredTransaction(filteredTransaction);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(3), "-");
+		}
+		
+		filteredTransaction = transactions("allRevenues", displayLanguage); 
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredTransaction(filteredTransaction);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(4), "-");
+		}
+		
+		
+		/* Filter by Expense type */
+		String filteredExpenseType = expenseType("productionCost", displayLanguage);
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredExpenseType(filteredExpenseType);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(4), filteredExpenseType);
+		}
+		
+		filteredExpenseType = expenseType("salaries", displayLanguage);
+		
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredExpenseType(filteredExpenseType);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(2000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(4), filteredExpenseType);
+		}
+		
+		
+		/* Filter by Revenue type */
+		String filteredRevenueType = revenueSource("saleOfAssets", displayLanguage); 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredRevenueType(filteredRevenueType);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(3), filteredRevenueType);
+		}
+		
+		filteredRevenueType = revenueSource("paymentForOrder", displayLanguage); 
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredRevenueType(filteredRevenueType);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(3), filteredRevenueType);
+		}
+		
+		
+		/* Filter by Created by */
+		String filteredStaff = "Staff D"; 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredCreatedBy(filteredStaff);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(6), filteredStaff);
+		}
+		
+		filteredStaff = createdBy("shopOwner", displayLanguage); 
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredCreatedBy(filteredStaff);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(6), filteredStaff);
+		}
+		
+		
+		/* Filter by Sender/Recipient Group */
+		String filteredGroup = senderGroup("customer", displayLanguage); 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		filteredGroup = senderGroup("staff", displayLanguage);
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		for (List<String> record : records) {
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		
+		/* Filter by Sender/Recipient Name */
+		filteredGroup = senderGroup("customer", displayLanguage);
+		String filteredName = "Anh Le"; 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.selectFilteredName(filteredName);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(5), filteredName);
+		}
+		
+		filteredGroup = senderGroup("staff", displayLanguage);
+		filteredName = "Staff A"; 
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.selectFilteredName(filteredName);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(5), filteredName);
+		}
+		
+
+		/* Filter by Payment methods */
+		String filteredPaymentMethod = paymentMethod("visa", displayLanguage); 
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		filteredPaymentMethod = paymentMethod("momo", displayLanguage); 
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0);
+		for (List<String> record : records) {
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
+			cashbookPage.clickCancelBtn();
+		}
+		
+	}
+	
+	@Test
+	public void CB_12_CombineFilterConditions() throws Exception {
+		
+		List<List<String>> records;
+		
+		/* Log into dashboard */
+		loginPage.navigate().performLogin(country, username, password);
+		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+
+		/* Combine filter conditions */
+		// 1-st combination of filter conditions
+		String branch = "My Shop Vietnam - Thu Duc Location"; 
+		String accounting = allowAccounting("no", displayLanguage);
+		String filteredTransaction = transactions("allExpenses", displayLanguage);
+		String filteredExpenseType = expenseType("rentalFee", displayLanguage); 
+		String filteredStaff = "Staff B";
+		String filteredGroup = senderGroup("customer", displayLanguage);
+		String filteredName = "Anh Le"; 
+		String filteredPaymentMethod = paymentMethod("zalopay", displayLanguage); 
+		boolean isAccountingChecked = (accounting.contentEquals(allowAccounting("yes", displayLanguage))) ? true : false;
+		
+		cashbookPage.navigate();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredBranch(branch);
+		cashbookPage.selectFilteredAccounting(accounting);
+		cashbookPage.selectFilteredTransaction(filteredTransaction);
+		cashbookPage.selectFilteredExpenseType(filteredExpenseType);
+		cashbookPage.selectFilteredCreatedBy(filteredStaff);
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.selectFilteredName(filteredName);
+		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0, "Number of found records");
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(2), branch);
+			Assert.assertEquals(record.get(3), "-");
+			Assert.assertEquals(record.get(4), filteredExpenseType);
+			Assert.assertEquals(record.get(5), filteredName);
+			Assert.assertEquals(record.get(6), filteredStaff);
+			
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked);
+			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		// 2-nd combination of filter conditions
+		filteredTransaction = transactions("allRevenues", displayLanguage);
+		filteredExpenseType = revenueSource("debtCollectionFromSupplier", displayLanguage); 
+		
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredBranch(branch);
+		cashbookPage.selectFilteredAccounting(accounting);
+		cashbookPage.selectFilteredTransaction(filteredTransaction);
+		cashbookPage.selectFilteredRevenueType(filteredExpenseType);
+		cashbookPage.selectFilteredCreatedBy(filteredStaff);
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.selectFilteredName(filteredName);
+		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0, "Number of found records");
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(2), branch);
+			Assert.assertEquals(record.get(3), filteredExpenseType);
+			Assert.assertEquals(record.get(4), "-");
+			Assert.assertEquals(record.get(5), filteredName);
+			Assert.assertEquals(record.get(6), filteredStaff);
+			
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked);
+			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		// 3-rd combination of filter conditions
+		branch = "CN3"; 
+		accounting = allowAccounting("yes", displayLanguage);
+		filteredTransaction = transactions("allExpenses", displayLanguage);
+		filteredExpenseType = expenseType("costOfRawMaterials", displayLanguage); 
+		filteredStaff = "Staff B";
+		filteredGroup = senderGroup("supplier", displayLanguage);
+		filteredName = "Tín Cường"; 
+		filteredPaymentMethod = paymentMethod("atm", displayLanguage); 
+		isAccountingChecked = (accounting.contentEquals(allowAccounting("yes", displayLanguage))) ? true : false;
+		
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredBranch(branch);
+		cashbookPage.selectFilteredAccounting(accounting);
+		cashbookPage.selectFilteredTransaction(filteredTransaction);
+		cashbookPage.selectFilteredExpenseType(filteredExpenseType);
+		cashbookPage.selectFilteredCreatedBy(filteredStaff);
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.selectFilteredName(filteredName);
+		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0, "Number of found records");
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(2), branch);
+			Assert.assertEquals(record.get(3), "-");
+			Assert.assertEquals(record.get(4), filteredExpenseType);
+			Assert.assertEquals(record.get(5), filteredName);
+			Assert.assertEquals(record.get(6), filteredStaff);
+			
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked);
+			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
+			cashbookPage.clickCancelBtn();
+		}
+		
+		// 4-th combination of filter conditions
+		filteredTransaction = transactions("allRevenues", displayLanguage);
+		filteredExpenseType = revenueSource("saleOfAssets", displayLanguage); 
+		isAccountingChecked = (accounting.contentEquals(allowAccounting("yes", displayLanguage))) ? true : false;
+		
+		commonAction.refreshPage();
+		homePage.hideFacebookBubble();
+		cashbookPage.clickResetDateRangerPicker();
+		cashbookPage.clickFilterBtn();
+		cashbookPage.selectFilteredBranch(branch);
+		cashbookPage.selectFilteredAccounting(accounting);
+		cashbookPage.selectFilteredTransaction(filteredTransaction);
+		cashbookPage.selectFilteredRevenueType(filteredExpenseType);
+		cashbookPage.selectFilteredCreatedBy(filteredStaff);
+		cashbookPage.selectFilteredGroup(filteredGroup);
+		cashbookPage.selectFilteredName(filteredName);
+		cashbookPage.selectFilteredPaymentMethod(filteredPaymentMethod);
+		cashbookPage.clickFilterDoneBtn();
+		
+		commonAction.sleepInMiliSecond(1000);
+		records = cashbookPage.getRecords();
+		
+		Assert.assertNotEquals(records.size(), 0, "Number of found records");
+		for (List<String> record : records) {
+			Assert.assertEquals(record.get(2), branch);
+			Assert.assertEquals(record.get(3), filteredExpenseType);
+			Assert.assertEquals(record.get(4), "-");
+			Assert.assertEquals(record.get(5), filteredName);
+			Assert.assertEquals(record.get(6), filteredStaff);
+			cashbookPage.clickRecord(record.get(0));
+			Assert.assertEquals(cashbookPage.getGroup(), filteredGroup);
+			Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked);
+			Assert.assertEquals(cashbookPage.getPaymentMethod(), filteredPaymentMethod);
+			cashbookPage.clickCancelBtn();
+		}
+	}
 }
