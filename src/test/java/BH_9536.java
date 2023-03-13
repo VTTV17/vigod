@@ -45,9 +45,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
     @Test
     // Pre-condition:
@@ -62,9 +60,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -80,9 +76,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -98,9 +92,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G2: IMEI product - without variation
@@ -117,9 +109,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
     @Test
     // Pre-condition:
@@ -134,9 +124,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -152,9 +140,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -170,9 +156,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G3: Normal product - Variation
@@ -191,9 +175,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -211,9 +193,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
     @Test
     // Pre-condition:
@@ -230,9 +210,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -250,9 +228,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -270,9 +246,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -290,9 +264,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     // G4: IMEI product - Variation
@@ -311,9 +283,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -331,9 +301,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
     @Test
     // Pre-condition:
@@ -350,9 +318,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -370,9 +336,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -390,9 +354,7 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test
@@ -410,8 +372,6 @@ public class BH_9536 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 }

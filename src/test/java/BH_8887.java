@@ -90,7 +90,6 @@ public class BH_8887 extends BaseTest {
                 .addWholesalePriceProduct()
                 .createCollection();
     }
-
     @Test(groups = "Normal product - Without variation")
     void BH_8887_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "BH_8887_G1_Case1_1";
@@ -108,9 +107,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Without variation")
@@ -131,9 +128,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Without variation")
@@ -153,9 +148,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Without variation")
@@ -175,9 +168,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Without variation")
@@ -195,12 +186,8 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
-        sleep(startMin * 60 * 1000);
-
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Without variation")
@@ -217,9 +204,7 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
 
@@ -240,9 +225,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Without variation")
@@ -263,9 +246,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Without variation")
@@ -285,9 +266,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Without variation")
@@ -307,9 +286,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Without variation")
@@ -327,12 +304,8 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
-        sleep(startMin * 60 * 1000);
-
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Without variation")
@@ -349,9 +322,7 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkWithoutVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Variation")
@@ -371,9 +342,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Variation")
@@ -394,9 +363,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Variation")
@@ -416,9 +383,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Variation")
@@ -438,9 +403,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Variation")
@@ -458,12 +421,8 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
-        sleep(startMin * 60 * 1000);
-
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "Normal product - Variation")
@@ -480,9 +439,7 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
 
@@ -503,9 +460,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Variation")
@@ -526,9 +481,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Variation")
@@ -548,9 +501,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Variation")
@@ -570,9 +521,7 @@ public class BH_8887 extends BaseTest {
         sleep(startMin * 60 * 1000);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Variation")
@@ -590,12 +539,8 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(startMin, endMin)
                 .endEarlyDiscountCampaign();
 
-        sleep(startMin * 60 * 1000);
-
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
     @Test(groups = "IMEI product - Variation")
@@ -612,8 +557,6 @@ public class BH_8887 extends BaseTest {
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductID()
-                .checkVariationProductInformation()
-                .completeVerify();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 }

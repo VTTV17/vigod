@@ -40,9 +40,10 @@ public class InitWebdriver {
                     WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.setHeadless(headless.equals("true"));
-                    chromeOptions.setPageLoadStrategy(PageLoadStrategy.NORMAL);
                     // fix org.openqa.selenium.WebDriverException: unknown error: cannot determine loading status from no such window
                     chromeOptions.addArguments("--disable-site-isolation-trials");
+                    // fix 403 Forbidden
+                    chromeOptions.addArguments("--remote-allow-origins=*");
                     driver = new ChromeDriver(chromeOptions);
                 }
             }

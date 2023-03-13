@@ -1,0 +1,251 @@
+package api.dashboard.products;
+
+import api.dashboard.setting.BranchManagement;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import org.testng.collections.Lists;
+import utilities.api.API;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static api.dashboard.login.Login.accessToken;
+import static api.dashboard.login.Login.apiStoreID;
+import static api.dashboard.marketing.LoyaltyProgram.apiMembershipStatus;
+import static api.dashboard.products.CreateProduct.*;
+import static api.dashboard.promotion.CreatePromotion.*;
+import static api.dashboard.setting.BranchManagement.apiBranchID;
+import static api.dashboard.setting.BranchManagement.apiBranchName;
+
+public class ProductInformation {
+    String GET_DASHBOARD_PRODUCT_LIST = "/itemservice/api/store/dashboard/storeID/items-v2?itemType=BUSINESS_PRODUCT&size=100&sort=lastModifiedDate%2Cdesc";
+    String GET_PRODUCT_INFORMATION = "/itemservice/api/beehive-items/%s";
+    String GET_PRODUCT_COLLECTION = "/itemservice/api/collections/products/%s";
+    String GET_COLLECTION_LANGUAGE = "/itemservice/api/collection-languages/collection/%s";
+    API api = new API();
+    public static Map<String, String> variationNameMap;
+    public static Map<String, List<String>> variationListMap;
+    public static List<Integer> productListingPrice;
+    public static List<Integer> productSellingPrice;
+    public static boolean hasModel;
+    public static boolean manageInventoryByIMEI;
+    public static List<String> barcodeList;
+    public static Map<String, String> productNameMap;
+    public static Map<String, String> productDescriptionMap;
+    public static Map<String, Map<String, String>> seoMap;
+    public static Map<String, List<Integer>> productStockQuantityMap;
+    public static boolean showOutOfStock;
+    public static boolean enabledListing;
+    public static boolean isHideStock;
+    public static String bhStatus;
+    public static boolean deleted;
+    public static boolean onApp;
+    public static boolean onWeb;
+    public static boolean inStore;
+    public static boolean inGosocial;
+    public static Map<Integer, Map<String, String>> collectionNameMap;
+    /*
+
+     */
+    // flash sale
+
+
+    // product discount campaign
+
+
+    /**
+     * Return list product id has remaining stock > 0
+     */
+    public List<Integer> getProductList() {
+        Response dashboardProductList = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(apiStoreID)), accessToken);
+        dashboardProductList.then().statusCode(200);
+        JsonPath productListJson = dashboardProductList.jsonPath();
+        return Lists.newReversedArrayList(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
+    }
+
+    public void get(Integer productID) {
+        // get branch id list
+        if (apiBranchID == null) new BranchManagement().getBranchInformation();
+
+        // get product information
+        Response productInfo = api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
+
+        // check api working normally
+        productInfo.then().statusCode(200);
+
+        // set JsonPath to get product info
+        JsonPath productInfoJson = productInfo.jsonPath();
+
+        // get product name
+        productNameMap = IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> String.valueOf(productInfoJson.getList("languages.name").get(i)), (a, b) -> b));
+
+        // get product description
+        productDescriptionMap = IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> String.valueOf(!productInfoJson.getList("languages.description").get(i).equals("") ? productInfoJson.getList("languages.description").get(i) : null), (a, b) -> b));
+
+        // get SEO config
+        seoMap = new HashMap<>();
+        seoMap.put("title", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoTitle".formatted(i)) != null ? productInfoJson.getString("languages.seoTitle") : productNameMap.get(productInfoJson.getString("languages[%s].language".formatted(i))), (a, b) -> b)));
+        seoMap.put("description", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoDescription".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoDescription".formatted(i)) : productDescriptionMap.get(productInfoJson.getString("languages[%s].language".formatted(i))), (a, b) -> b)));
+        seoMap.put("keywords", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoKeywords".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoKeywords".formatted(i)) : "", (a, b) -> b)));
+        seoMap.put("url", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoUrl".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoUrl".formatted(i)) : "", (a, b) -> b)));
+
+        // check product has variation or not
+        hasModel = productInfoJson.getBoolean("hasModel");
+
+        // get SF/Buyer app config
+        showOutOfStock = productInfoJson.getBoolean("showOutOfStock");
+        isHideStock = productInfoJson.getBoolean("isHideStock");
+        enabledListing = productInfoJson.getBoolean("enabledListing");
+
+        // get product platform
+        onApp = productInfoJson.getBoolean("onApp");
+        onWeb = productInfoJson.getBoolean("onWeb");
+        inStore = productInfoJson.getBoolean("inStore");
+        inGosocial = productInfoJson.getBoolean("inGosocial");
+
+        // get product status
+        bhStatus = productInfoJson.getString("bhStatus");
+        deleted = productInfoJson.getBoolean("deleted");
+
+        // manage inventory
+        manageInventoryByIMEI = productInfoJson.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER");
+
+        if (!hasModel) {
+            // get barcode list
+            barcodeList = List.of(productInfoJson.getString("barcode"));
+
+            // get variation name map
+            variationNameMap = new HashMap<>();
+            variationNameMap.put("en", null);
+            variationNameMap.put("vi", null);
+
+            // get variation list map
+            variationListMap = new HashMap<>();
+            List<String> noVar = new ArrayList<>();
+            noVar.add(null);
+            variationListMap.put("en", noVar);
+            variationListMap.put("vi", noVar);
+
+            // get price
+            productListingPrice = List.of((int) productInfoJson.getFloat("orgPrice"));
+            productSellingPrice = List.of((int) productInfoJson.getFloat("newPrice"));
+
+            // get stock
+            productStockQuantityMap = Map.of(barcodeList.get(0), apiBranchID.stream().map(IntStream.range(0, productInfoJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getInt("branches[%s].branchId".formatted(i)), i -> productInfoJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList());
+        } else {
+            // get barcode list
+            barcodeList = productInfoJson.getList("models.barcode");
+
+            // get variation name map
+            variationNameMap = new HashMap<>();
+            IntStream.range(0, productInfoJson.getList("models[0].languages.language").size()).forEach(langID -> variationNameMap.put(productInfoJson.getString("models[0].languages[%s].language".formatted(langID)), productInfoJson.getString("models[0].languages[%s].label".formatted(langID))));
+
+            // init variation list map
+            variationListMap = new HashMap<>();
+
+            // init product listing price list
+            productListingPrice = new ArrayList<>();
+
+            // init product selling price list
+            productSellingPrice = new ArrayList<>();
+
+            // init product stock map
+            productStockQuantityMap = new HashMap<>();
+
+            // get variation info
+            for (int modelsID = 0; modelsID < productInfoJson.getList("models.languages").size(); modelsID++) {
+
+                // get variation list map
+                for (int langID = 0; langID < productInfoJson.getList("models[0].languages.language").size(); langID++) {
+                    // get language
+                    String language = productInfoJson.getString("models[0].languages[%s].language".formatted(langID));
+
+                    // add new variation value
+                    List<String> variationList = new ArrayList<>();
+                    if (variationListMap.get(language) != null) variationList.addAll(variationListMap.get(language));
+                    variationList.add(productInfoJson.getString("models[%s].languages[%s].name".formatted(modelsID, langID)));
+
+                    // add to map
+                    variationListMap.put(language, variationList);
+                }
+
+                // get listing price
+                productListingPrice.add((int) productInfoJson.getFloat("models[%s].orgPrice".formatted(modelsID)));
+                productSellingPrice.add((int) productInfoJson.getFloat("models[%s].newPrice".formatted(modelsID)));
+
+                // get variation branch stock
+                Map<Integer, Integer> varStock = new HashMap<>();
+                for (int brID = 0; brID < productInfoJson.getList("models[0].branches.branchId").size(); brID++) {
+                    varStock.put(productInfoJson.getInt("models[%s].branches[%s].branchId".formatted(modelsID, brID)), productInfoJson.getInt("models[%s].branches[%s].totalItem".formatted(modelsID, brID)));
+                }
+                productStockQuantityMap.put(barcodeList.get(modelsID), apiBranchID.stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
+            }
+        }
+
+        Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), accessToken);
+        collectionsList.then().statusCode(200);
+        List<Integer> collectionIDList = collectionsList.jsonPath().getList("id");
+
+        collectionNameMap = new HashMap<>();
+        for (int colID : collectionIDList) {
+            Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), accessToken);
+            collectionLanguage.then().statusCode(200);
+            JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
+            collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
+        }
+
+        initDiscountInformation();
+    }
+
+    void initDiscountInformation() {
+        // init wholesale product status
+        apiWholesaleProductStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiWholesaleProductStatus
+                .put(brName, IntStream.range(0, barcodeList.size())
+                        .mapToObj(i -> false).toList()));
+
+        // init flash sale status
+        apiFlashSaleStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiFlashSaleStatus
+                .put(brName, IntStream.range(0, barcodeList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // init discount campaign status
+        apiDiscountCampaignStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
+                .put(brName, IntStream.range(0, barcodeList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // init flash sale price
+        apiFlashSalePrice = new ArrayList<>();
+        apiFlashSalePrice.addAll(productSellingPrice);
+
+        // init flash sale stock
+        apiFlashSaleStock = new ArrayList<>();
+        barcodeList.forEach(barcode -> apiFlashSaleStock.add(Collections.max(productStockQuantityMap.get(barcode))));
+
+        // init product discount campaign price
+        apiDiscountCampaignPrice = new ArrayList<>();
+        apiDiscountCampaignPrice.addAll(productSellingPrice);
+
+        // init wholesale product price, rate and stock
+        apiWholesaleProductPrice = new ArrayList<>();
+        apiWholesaleProductPrice.addAll(productSellingPrice);
+
+        apiWholesaleProductStock = new ArrayList<>();
+        barcodeList.forEach(barcode -> apiWholesaleProductStock.add(Collections.max(productStockQuantityMap.get(barcode))));
+
+        // discount code
+        apiDiscountCodeStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiDiscountCodeStatus
+                .put(brName, IntStream.range(0, barcodeList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+
+        // membership
+        apiMembershipStatus = new HashMap<>();
+        apiBranchName.forEach(brName -> apiMembershipStatus
+                .put(brName, IntStream.range(0, barcodeList.size())
+                        .mapToObj(i -> "EXPIRED").toList()));
+    }
+}
