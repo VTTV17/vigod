@@ -16,7 +16,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+
+import pages.dashboard.signup.SignupPage;
 import pages.thirdparty.Facebook;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -46,9 +49,21 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy (css = ".login-widget")
+    WebElement SIGNIN_SCREEN_TXT;    
+    
+    @FindBy (css = ".forgot-page-wrapper")
+    WebElement SIGNIN_FORGOTPASSWORD_TXT;    
+    
     @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
     WebElement LANGUAGE;
 
+    @FindBy(css = ".login-widget__changeLanguage-english")
+    WebElement ENGLISH_LANGUAGE;    
+
+    @FindBy(css = ".login-widget__changeLanguage:nth-of-type(2)")
+    WebElement VIETNAMESE_LANGUAGE;    
+    
     @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
     WebElement COUNTRY_DROPDOWN;
 
@@ -97,6 +112,9 @@ public class LoginPage {
     @FindBy (css = "input[name='key']")
     WebElement VERIFICATION_CODE;
 
+    @FindBy (css = ".alert__wrapper")
+    WebElement WRONG_CODE_ERROR;    
+    
     @FindBy (css = ".btn-resend")
     WebElement RESEND_OTP;
 
@@ -211,6 +229,23 @@ public class LoginPage {
         return selectedLanguage;
     }
 
+	/**
+	 * <p> Change language of Dashboard at Sign-up screen <p>
+	 * Example: selectDisplayLanguage("ENG")
+	 * @param language the desired language - either VIE or ENG
+	 */	
+	public LoginPage selectDisplayLanguage(String language) throws Exception {
+		commonAction.sleepInMiliSecond(1000);
+		if (language.contentEquals("ENG")) {
+			commonAction.clickElement(ENGLISH_LANGUAGE);
+		} else if (language.contentEquals("VIE")) {
+			commonAction.clickElement(VIETNAMESE_LANGUAGE);
+		} else {
+			throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
+		}
+		logger.info("Selected display language '%s'.".formatted(language));
+		return this;
+	}
 
     public LoginPage verifyEmailOrPhoneNumberError(String errMessage) {
         String text = commonAction.getText(USER_ERROR);
@@ -273,4 +308,23 @@ public class LoginPage {
         new VAT().getTaxList();
     }
 
+    public void verifyVerificationCodeError(String signupLanguage) throws Exception {
+        String text = commonAction.getText(WRONG_CODE_ERROR);
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
+    	soft.assertEquals(text,retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
+        logger.info("verifyVerificationCodeError completed");
+    }    
+    
+    public void verifyTextAtLoginScreen(String signinLanguage) throws Exception {
+        String text = commonAction.getText(SIGNIN_SCREEN_TXT);
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.screen.text", signinLanguage));
+        logger.info("verifyTextAtLoginScreen completed");
+    }
+    
+    public void verifyTextAtForgotPasswordScreen(String signinLanguage) throws Exception {
+    	String text = commonAction.getText(SIGNIN_FORGOTPASSWORD_TXT);
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text", signinLanguage));
+    	logger.info("verifyTextAtForgotPasswordScreen completed");
+    }
+    
 }

@@ -68,6 +68,7 @@ public class LoginStorefront extends BaseTest {
 	String SAME_NEW_PASSWORD_ERROR;
 	String SAME_4_NEW_PASSWORD_ERROR;
 
+	String signinLanguage;
 
 	public String getVerificationCode(String username) throws InterruptedException, SQLException {
 		String verificationCode;
@@ -118,6 +119,8 @@ public class LoginStorefront extends BaseTest {
 		WRONG_CURRENT_PASSWORD_ERROR = sf.findValue("wrongCurrentPassword").asText();
 		INVALID_NEW_PASSWORD_ERROR = sf.findValue("invalidNewPassword").asText();
 		SAME_4_NEW_PASSWORD_ERROR = sf.findValue("same4Passwords").asText();
+		
+		signinLanguage = "VIE";
 	}
 
 	@BeforeMethod
@@ -127,8 +130,26 @@ public class LoginStorefront extends BaseTest {
 		headerPage = new HeaderSF(driver);
 	}
 
-//	@Test
-	public void TC01_SF_LoginWithAllFieldsLeftBlank() {
+	@Test
+	public void SignupSF_01_CheckTranslation() throws Exception {
+		
+		/* Sign up */
+		loginPage.navigate();
+		new HeaderSF(driver).clickUserInfoIcon()
+		.changeLanguage(signinLanguage)
+        .clickUserInfoIcon()
+        .clickLoginIcon();
+        loginPage.verifyTextAtLoginScreen(signinLanguage);
+        
+        loginPage.navigate();
+        new HeaderSF(driver).clickUserInfoIcon()
+        .clickUserInfoIcon()
+        .clickLoginIcon();
+        loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen(signinLanguage);
+	}		
+	
+	@Test
+	public void LoginSF_03_LoginWithAllFieldsLeftBlank() {
 		loginPage.navigate().performLogin("", generate.generateNumber(9))
 				.verifyEmailOrPhoneNumberError(BLANK_USERNAME_ERROR).completeVerify();
 		// Password field is left empty.
@@ -139,8 +160,8 @@ public class LoginStorefront extends BaseTest {
 				.verifyPasswordError(BLANK_PASSWORD_ERROR).completeVerify();
 	}
 
-//	@Test
-	public void TC02_SF_LoginWithInvalidPhoneFormat() {
+	@Test
+	public void LoginSF_04_LoginWithInvalidPhoneFormat() {
 		// Log in with a phone number consisting of 7 digits.
 		loginPage.navigate().performLogin(generate.generateNumber(7), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
@@ -149,20 +170,20 @@ public class LoginStorefront extends BaseTest {
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 	}
 
-//	@Test
-	public void TC03_SF_LoginWithInvalidMailFormat() {
+	@Test
+	public void LoginSF_05_LoginWithInvalidMailFormat() {
 		loginPage.navigate().performLogin(generate.generateString(10), generate.generateString(10))
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 	}
 
 	@Test
 	public void BH_1335_UnableToChangePasswordForFacebookAccount() {
-		loginPage.navigate(utilities.links.Links.SF_ShopVi);
+		loginPage.navigate();
 		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickFacebookIcon();
 		
 		commonAction.switchToWindow(1);
-		new Facebook(driver).performLogin("trangthuy9662@gmail.com", "Password2@");
+		new Facebook(driver).performLogin("trangthuy9662@gmail.com", "0123456aA@");
 		commonAction.switchToWindow(0);
 		
 		commonAction.sleepInMiliSecond(5000);
@@ -175,7 +196,7 @@ public class LoginStorefront extends BaseTest {
 	}
 	
 	@Test
-	public void BH_4592_NavigateBetweenLoginAndSignupForm() {
+	public void LoginSF_13_NavigateBetweenLoginAndSignupForm() {
 		loginPage.navigate();
 		headerPage.clickUserInfoIcon()
 		.clickSignupIcon();
@@ -190,7 +211,7 @@ public class LoginStorefront extends BaseTest {
 	}
 	
 	@Test
-	public void BH_1334_LoginWithNonExistingAccount() {
+	public void LoginSF_06_LoginWithNonExistingAccount() {
 		loginPage.navigate()
 				.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
@@ -374,7 +395,7 @@ public class LoginStorefront extends BaseTest {
 	}
 	
 	@Test
-	public void BH_4591_ForgotPasswordForNonExistingAccount() throws InterruptedException, SQLException {
+	public void LoginSF_10_ForgotPasswordForNonExistingAccount() throws InterruptedException, SQLException {
 		String nonExistingMailAccount = generate.generateString(10) + "@nbobd.com";
 		String nonExistingPhoneAccount = generate.generateNumber(13);
 		

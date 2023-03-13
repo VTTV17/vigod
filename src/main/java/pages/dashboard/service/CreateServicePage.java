@@ -114,6 +114,7 @@ public class CreateServicePage extends HomePage{
         for (String timeSlot:timeSlots) {
             commons.inputText(createServiceUI.TIME_SLOTS,timeSlot +"\n");
             logger.info("Input %s into TimeSlot field".formatted(timeSlots));
+            commons.sleepInMiliSecond(100);
         }
         return this;
     }
@@ -211,6 +212,7 @@ public class CreateServicePage extends HomePage{
         inputListingPrice("-1");
         clickSaveBtn();
         Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.minimumRequiredError"));
+        commons.sleepInMiliSecond(500);
         inputListingPrice("100000000000");
         Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_LISTING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.listingPrice.maximumRequiredError"));
         return this;
@@ -221,6 +223,7 @@ public class CreateServicePage extends HomePage{
         inputSellingPrice("-1");
         clickSaveBtn();
         Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_SELLING_PRICE),PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.minimumRequiredError"));
+        commons.sleepInMiliSecond(500);
         inputSellingPrice("1000000");
         String sellingPriceActual=String.join("", commons.getText(createServiceUI.ERROR_MESSAGE_SELLING_PRICE).split(","));
         Assert.assertEquals(sellingPriceActual,PropertiesUtil.getPropertiesValueByDBLang("services.create.sellingPrice.maximumRequiredError").formatted(listingPrice));

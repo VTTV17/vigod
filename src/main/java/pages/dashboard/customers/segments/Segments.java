@@ -7,6 +7,7 @@ import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -111,16 +112,22 @@ public class Segments {
 			e.printStackTrace();
 		}
     	
-    	if (permission.contentEquals("A")) {
-			clickCreateSegmentBtn().inputSegmentName("Test Permission")
-			.selectDataGroupCondition(dataGroup)
-			.selectDataCondition(dataCondition);
-			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
-    	} else if (permission.contentEquals("D")) {
-    		// Not done
-    	} else {
+    	if (permission.contentEquals("S")) {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		return;
+    	}
+    	
+		String selectedption = clickCreateSegmentBtn().inputSegmentName("Test Permission")
+		.selectDataGroupCondition(dataGroup)
+		.selectDataCondition(dataCondition)
+		.getSelectedtDataCondition();
+		commonAction.navigateBack();
+		new ConfirmationDialog(driver).clickOKBtn();
+    	
+    	if (permission.contentEquals("A")) {
+    		Assert.assertEquals(selectedption, dataCondition);
+    	} else {
+    		Assert.assertNotEquals(selectedption, dataCondition);
     	}
     }    
     public void verifyPermissionToCreateSegmentByOrderData(String dataCondition, String permission) {

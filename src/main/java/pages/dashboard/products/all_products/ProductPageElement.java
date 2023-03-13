@@ -25,7 +25,7 @@ public class ProductPageElement {
     @FindBy(css = ".product-list-page > div > div > div >  button.gs-button__green")
     WebElement CREATE_PRODUCT_BTN;
 
-    @FindBy(xpath = "(//div[@class='gs-content-header-right-el d-flex']//button)[4]")
+    @FindBy(xpath = "(//div[contains(@class,'gs-content-header-right-el d-flex')]//button)[4]")
     WebElement PRINT_BARCODE_BTN;
 
     /* General product information */

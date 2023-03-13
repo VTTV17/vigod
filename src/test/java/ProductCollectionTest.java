@@ -64,7 +64,7 @@ public class ProductCollectionTest extends BaseTest {
         userNameDb = ADMIN_SHOP_VI_USERNAME;
         passwordDb = ADMIN_SHOP_VI_PASSWORD;
         domainSF = SF_ShopVi;
-        menuID = "7071";
+        menuID = "7587";
         userName_goWeb = ADMIN_USERNAME_GOWEB;
         userName_goApp = ADMIN_USERNAME_GOAPP;
         userName_goPOS = ADMIN_USERNAME_GOPOS;
@@ -206,7 +206,6 @@ public class ProductCollectionTest extends BaseTest {
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productExpectedList);
-
     }
 
     /**
@@ -380,7 +379,7 @@ public class ProductCollectionTest extends BaseTest {
     @Test
     public void PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber() throws Exception {
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt"};
+        productList = new String[]{"Auto - Normal - variation - 08/02 09:56:04","Small Frozen Pizza - Product API 1672995364","Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, false, true)
                 .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(productList.length));

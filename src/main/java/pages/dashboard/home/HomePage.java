@@ -240,6 +240,7 @@ public class HomePage {
                 }
             }
         }
+        logger.info("Navigated to page: " + pageName);
     }
 
     public void navigateToPage(String... subMenus) {
@@ -361,10 +362,11 @@ public class HomePage {
         logger.info("Skipped introduction.");
     }
 
-    public HomePage verifyUpgradeNowMessage(String message) {
+    public HomePage verifyUpgradeNowMessage(String signupLanguage) throws Exception {
         commons.sleepInMiliSecond(2000); //Handle race condition
         String text = commons.getText(UPGRADENOW_MESSAGE.get(0));
-        soft.assertEquals(text, message, "[Homepage][Upgrade Now Message] Message does not match.");
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("home.upgradeNowTxt", signupLanguage);
+    	soft.assertEquals(text,retrievedMsg, "[Homepage][Upgrade Now Message] Message does not match.");
         logger.info("verifyUpgradeNowMessage completed");
         return this;
     }

@@ -12,7 +12,7 @@ public class ShoppingCartElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    @FindBy(css = ".box-icon-paypal #btn-checkout")
+    @FindBy(xpath = "//div[contains(@class,'shop-cart-footer')]/button")
     WebElement CONTINUE_BTN;
 
     By BRANCH_INFO = By.cssSelector(".branch-listing-item");

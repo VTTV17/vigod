@@ -50,7 +50,7 @@ public class Mailnesia {
 		String [][] mailContent;
 		for (int i = 0; i < 30; i++) {
 			mailContent = getListOfEmailHeaders();
-			if (mailContent.length >0 && mailContent[0][0].contentEquals("a few seconds ago")) {
+			if (mailContent.length >0 && (mailContent[0][0].contains("a few seconds")||mailContent[0][0].contains("a minute"))) {
 				Matcher m = Pattern.compile("\\d+").matcher(mailContent[0][3]); //Element at [0][3] contains the verification code.
 				if (m.find()) {
 					code = m.group();

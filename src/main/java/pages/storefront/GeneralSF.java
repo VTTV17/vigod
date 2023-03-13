@@ -63,11 +63,15 @@ public class GeneralSF {
         return this;
     }
 	public LoginPage clickOnLoginButtonOnRequiredLoginModal(){
+		commons.sleepInMiliSecond(1000);
+		commons.waitForElementVisible(LOGIN_BUTTON_ON_MODAL,3000);
 		commons.clickElement(LOGIN_BUTTON_ON_MODAL);
 		logger.info("Click on Login button on required login modal.");
 		return  new LoginPage(driver);
 	}
 	public LoginPage clickOnRegisterButtonOnRequiredLoginModal(){
+		commons.sleepInMiliSecond(1000);
+		commons.waitForElementVisible(REGISTER_BUTTON_ON_MODAL,3000);
 		commons.clickElement(REGISTER_BUTTON_ON_MODAL);
 		logger.info("Click on Register button on required login modal.");
 		return  new LoginPage(driver);

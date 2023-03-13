@@ -151,7 +151,7 @@ public class StoreInformation {
     }
 
     public StoreInformation inputSEOTitle(String seoTitle) {
-    	if (commonAction.isElementVisiblyDisabled(SEO_TITLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*")))) {
+    	if (commonAction.isElementVisiblyDisabled(SEO_TITLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*/parent::*")))) {
     		Assert.assertFalse(new HomePage(driver).isMenuClicked(SEO_TITLE));
     		return this;
     	}
@@ -166,8 +166,19 @@ public class StoreInformation {
 		return title;
     }     
 
+    public boolean getNoticeLogoToggleStatus() {
+    	String status = commonAction.getElementAttribute(NOTICE_LOGO_TOGGLE, "value");
+		logger.info("Retrieved status of Notice Logo Toggle: %s".formatted(status));
+		return Boolean.parseBoolean(status);
+    }      
+    public boolean getRegisteredLogoToggleStatus() {
+    	String status = commonAction.getElementAttribute(REGISTERED_LOGO_TOGGLE, "value");
+    	logger.info("Retrieved status of Registered Logo Toggle: %s".formatted(status));
+    	return Boolean.parseBoolean(status);
+    }      
+    
     public StoreInformation clickNoticeLogoToggle() {
-    	if (commonAction.isElementVisiblyDisabled(NOTICE_LOGO_TOGGLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*/parent::*/parent::*")))) {
+    	if (commonAction.isElementVisiblyDisabled(NOTICE_LOGO_TOGGLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*/parent::*/parent::*/parent::*")))) {
     		Assert.assertFalse(new HomePage(driver).isMenuClicked(NOTICE_LOGO_TOGGLE.findElement(By.xpath("./preceding-sibling::*"))));
     		return this;
     	}
@@ -177,7 +188,7 @@ public class StoreInformation {
     }   
     
     public StoreInformation clickRegisteredLogoToggle() {
-    	if (commonAction.isElementVisiblyDisabled(REGISTERED_LOGO_TOGGLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*/parent::*/parent::*")))) {
+    	if (commonAction.isElementVisiblyDisabled(REGISTERED_LOGO_TOGGLE.findElement(By.xpath("./parent::*/parent::*/parent::*/parent::*/parent::*/parent::*/parent::*")))) {
     		Assert.assertFalse(new HomePage(driver).isMenuClicked(REGISTERED_LOGO_TOGGLE));
     		return this;
     	}
@@ -263,11 +274,14 @@ public class StoreInformation {
     }
     public void verifyPermissionToEnableTradeLogo(String permission) {
     	navigate();
+		clickNoticeLogoToggle();
+		clickRegisteredLogoToggle();
     	if (permission.contentEquals("A")) {
-    		clickNoticeLogoToggle();
-    		clickRegisteredLogoToggle();
+    		Assert.assertTrue(getNoticeLogoToggleStatus());
+    		Assert.assertTrue(getRegisteredLogoToggleStatus());
     	} else if (permission.contentEquals("D")) {
-    		// Not done
+    		Assert.assertFalse(getNoticeLogoToggleStatus());
+    		Assert.assertFalse(getRegisteredLogoToggleStatus());
     	} else {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}

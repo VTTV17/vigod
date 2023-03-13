@@ -10,11 +10,13 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.signup.SignupPage;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 import static utilities.links.Links.*;
@@ -41,6 +43,12 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy (css = "#login-modal .modal-content")
+    WebElement SIGNIN_SCREEN_TXT;       
+    
+    @FindBy (css = "#forgot-pwd-modal .modal-content")
+    WebElement SIGNIN_FORGOTPASSWORD_TXT;       
+    
     @FindBy (id = "login-country-code")
     WebElement COUNTRY_DROPDOWN;       
     
@@ -278,4 +286,16 @@ public class LoginPage {
         clickLoginBtnJS();
     }
 
+    public void verifyTextAtLoginScreen(String signinLanguage) throws Exception {
+        String text = commonAction.getText(SIGNIN_SCREEN_TXT);
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("login.screen.text", signinLanguage));
+        logger.info("verifyTextAtLoginScreen completed");
+    }
+    
+    public void verifyTextAtForgotPasswordScreen(String signinLanguage) throws Exception {
+    	String text = commonAction.getText(SIGNIN_FORGOTPASSWORD_TXT);
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("login.forgotPassword.text", signinLanguage));
+    	logger.info("verifyTextAtForgotPasswordScreen completed");
+    }    
+    
 }

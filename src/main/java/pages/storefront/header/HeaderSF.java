@@ -160,8 +160,8 @@ public class HeaderSF extends GeneralSF {
 	* <p>
 	* Change language of SF
 	* <p>
-	* Example: changeLanguage("English")
-	* @param language the desired language. It is either Vietnamese or English
+	* Example: changeLanguage("VIE")
+	* @param language the desired language. It is either VIE or ENG
 	* 
 	*/	
 	public HeaderSF changeLanguage(String language) {
@@ -182,7 +182,7 @@ public class HeaderSF extends GeneralSF {
 		} else if (lang.contentEquals("VIE")) {
 			commons.clickElementByJS(VIETNAMESE_LANGUAGE);
 		} else {
-			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
+			throw new Exception("Input value does not match any of the accepted values: ENG/VIE");
 		}
 		logger.info("Selected language '%s'.".formatted(lang));
 		waitTillLoaderDisappear();

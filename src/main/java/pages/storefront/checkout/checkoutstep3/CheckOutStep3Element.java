@@ -11,7 +11,7 @@ public class CheckOutStep3Element {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    @FindBy(css = ".box-icon-paypal #checkout-footer-btn-continue")
+    @FindBy(css = ".summary #checkout-footer-btn-continue")
     WebElement NEXT_BUTTON;
     @FindBy(css = ".bi-caret-up-fill")
     WebElement ARROW_ICON_NEXT_TO_TOTAL_AMOUNT;

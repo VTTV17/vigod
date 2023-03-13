@@ -42,8 +42,8 @@ public class BuyLinkTest extends BaseTest {
     CheckOutStep2 checkOutStep2;
     CheckOutStep3 checkOutStep3;
     String discountCodeName;
-    int productPrice;
-    float discountAmount;
+    double productPrice;
+    double discountAmount;
     SignupPage signupSF;
     String shopDomain;
 
@@ -191,8 +191,8 @@ public class BuyLinkTest extends BaseTest {
         productName = new String[]{CreateProduct.apiProductName};
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = CreateProduct.apiProductSellingPrice.get(0);
-        discountAmount = CreatePromotion.apiCouponValue*productPrice/100;
-
+        double percent =  CreatePromotion.apiCouponValue;
+        discountAmount = percent*productPrice/100;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
@@ -279,7 +279,8 @@ public class BuyLinkTest extends BaseTest {
         productName = new String[]{CreateProduct.apiProductName};
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = CreateProduct.apiProductSellingPrice.get(0);
-        discountAmount = CreatePromotion.apiCouponValue*productPrice/100;
+        double percent = CreatePromotion.apiCouponValue;
+        discountAmount = productPrice*percent/100;
 
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
