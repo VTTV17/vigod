@@ -12,8 +12,8 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 public class LoyaltyPoint {
     String LOYALTY_POINT_PATH = "/beehiveservices/api/loyalty-point-settings/store/";
     public static int apiRatePoint;
-    public static int apiRateAmount;
-    public static int apiExchangeAmount;
+    public static long apiRateAmount;
+    public static long apiExchangeAmount;
 
     public void changeLoyaltyPointSetting(int... setting) {
         int loyaltyPointID = new API().get(LOYALTY_POINT_PATH + apiStoreID, accessToken).jsonPath().getInt("id");

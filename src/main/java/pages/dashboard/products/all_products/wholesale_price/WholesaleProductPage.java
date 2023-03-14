@@ -1,8 +1,6 @@
 package pages.dashboard.products.all_products.wholesale_price;
 
 import api.dashboard.customers.Customers;
-import api.storefront.login.LoginSF;
-import api.storefront.signup.SignUp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -12,14 +10,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static api.dashboard.customers.Customers.*;
+import static api.dashboard.customers.Customers.apiSegmentName;
+import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.ProductPage.*;
@@ -34,7 +32,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     Logger logger = LogManager.getLogger(WholesaleProductPage.class);
 
     public static Map<String, List<Boolean>> uiWholesaleProductStatus;
-    public static List<Integer> uiWholesaleProductPrice;
+    public static List<Long> uiWholesaleProductPrice;
     public static List<Float> uiWholesaleProductRate;
     public static List<Integer> uiWholesaleProductStock;
 
@@ -96,7 +94,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     public WholesaleProductPage getWholesaleProductInfo() {
         numOfWholesaleProduct = nextInt(uiVariationList.size()) + 1;
         for (int i = 0; i < numOfWholesaleProduct; i++) {
-            uiWholesaleProductPrice.set(i, nextInt(uiProductSellingPrice.get(i)) + 1);
+            uiWholesaleProductPrice.set(i, nextLong(uiProductSellingPrice.get(i)) + 1);
             uiWholesaleProductStock.set(i, nextInt(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)) + 1);
         }
         return this;

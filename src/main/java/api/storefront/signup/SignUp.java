@@ -4,6 +4,7 @@ import api.dashboard.setting.StoreInformation;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import utilities.api.API;
 import utilities.data.DataGenerator;
@@ -103,7 +104,15 @@ public class SignUp {
         WebDriver driver = new InitWebdriver().getDriver("chrome", "true");
         sleep(5000);
         driver.get("https://qa.team/inbox?code=%s".formatted(apiMail.split("@")[0]));
-        String activeCode = driver.findElement(By.cssSelector("#messages > a:nth-child(1) > .subject")).getText().split(" ")[0];
+        sleep(5000);
+        String activeCode;
+        try {
+            activeCode = driver.findElement(By.cssSelector("#messages > a:nth-child(1) > .subject")).getText().split(" ")[0];
+        } catch (NoSuchElementException ex) {
+            driver.get("https://qa.team/inbox?code=%s".formatted(apiMail.split("@")[0]));
+            sleep(5000);
+            activeCode = driver.findElement(By.cssSelector("#messages > a:nth-child(1) > .subject")).getText().split(" ")[0];
+        }
         driver.quit();
 
         String activeBody = """

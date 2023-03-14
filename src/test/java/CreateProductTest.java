@@ -10,6 +10,7 @@ import java.io.File;
 import static pages.dashboard.products.all_products.ProductPage.language;
 import static pages.dashboard.products.all_products.ProductPage.uiIsDisplayOutOfStock;
 
+// BH_4694, 4695, 4696, 4697, 4698, 4699, 4700, 4701, 4702, 4703, 4704, 7467, 7472, 3545,
 public class CreateProductTest extends BaseTest {
     @BeforeSuite
     void setTcsFileName() {

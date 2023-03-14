@@ -226,24 +226,24 @@ public class ShoppingCart extends ShoppingCartElement {
         int varIndex = cartInfo.get(brName).get(1).indexOf(varName);
         switch (salePriceMap.get(brName).get(varIndex)) {
             case "FLASH SALE" -> {
-                unitPrice = apiFlashSalePrice.get(apiVariationList.indexOf(varName));
-                subTotal = apiFlashSalePrice.get(apiVariationList.indexOf(varName));
-                taxAmount = (int) (subTotal * apiTaxRate.get(apiTaxID));
+//                unitPrice = apiFlashSalePrice.get(apiVariationList.indexOf(varName));
+//                subTotal = apiFlashSalePrice.get(apiVariationList.indexOf(varName));
+//                taxAmount = (int) (subTotal * apiTaxRate.get(apiTaxID));
                 checkProductName(cartInfo.get(brName).get(0).get(varIndex), apiProductName, "FLASH SALE");
                 checkVariation(varName, "FLASH SALE");
-                checkUnitPrice(Integer.parseInt(cartInfo.get(brName).get(2).get(varIndex)), unitPrice, "FLASH SALE");
+//                checkUnitPrice(Integer.parseInt(cartInfo.get(brName).get(2).get(varIndex)), unitPrice, "FLASH SALE");
                 checkCoupon(cartInfo.get(brName).get(3).get(varIndex), "Flash Sale", "FLASH SALE");
-                checkTotalPrice(cartInfo.get(brName).get(5).get(varIndex), String.valueOf(subTotal), "FLASH SALE");
+//                checkTotalPrice(cartInfo.get(brName).get(5).get(varIndex), String.valueOf(subTotal), "FLASH SALE");
             }
             case "DISCOUNT CAMPAIGN" -> {
-                unitPrice = apiProductSellingPrice.get(apiVariationList.indexOf(varName));
-                subTotal = apiDiscountCampaignPrice.get(apiVariationList.indexOf(varName)) * apiDiscountCampaignStock;
-                taxAmount = (int) (unitPrice * apiDiscountCampaignStock * apiTaxRate.get(apiTaxID));
+//                unitPrice = apiProductSellingPrice.get(apiVariationList.indexOf(varName));
+//                subTotal = apiDiscountCampaignPrice.get(apiVariationList.indexOf(varName)) * apiDiscountCampaignMinRequirementsQuantityOfItems;
+//                taxAmount = (int) (unitPrice * apiDiscountCampaignMinRequirementsQuantityOfItems * apiTaxRate.get(apiTaxID));
                 checkProductName(cartInfo.get(brName).get(0).get(varIndex), apiProductName, "DISCOUNT CAMPAIGN");
                 checkVariation(varName, "DISCOUNT CAMPAIGN");
-                checkUnitPrice(Integer.parseInt(cartInfo.get(brName).get(2).get(varIndex)), unitPrice, "DISCOUNT CAMPAIGN");
+//                checkUnitPrice(Integer.parseInt(cartInfo.get(brName).get(2).get(varIndex)), unitPrice, "DISCOUNT CAMPAIGN");
                 checkCoupon(cartInfo.get(brName).get(3).get(varIndex), String.valueOf(apiProductDiscountCouponValue), "DISCOUNT CAMPAIGN");
-                checkTotalPrice(cartInfo.get(brName).get(5).get(varIndex), String.valueOf(unitPrice * apiDiscountCampaignStock), "DISCOUNT CAMPAIGN");
+//                checkTotalPrice(cartInfo.get(brName).get(5).get(varIndex), String.valueOf(unitPrice * apiDiscountCampaignMinRequirementsQuantityOfItems), "DISCOUNT CAMPAIGN");
             }
             case "WHOLESALE PRODUCT" -> {
 

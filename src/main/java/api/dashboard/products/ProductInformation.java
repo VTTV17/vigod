@@ -7,6 +7,7 @@ import org.testng.collections.Lists;
 import utilities.api.API;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,8 +27,8 @@ public class ProductInformation {
     API api = new API();
     public static Map<String, String> variationNameMap;
     public static Map<String, List<String>> variationListMap;
-    public static List<Integer> productListingPrice;
-    public static List<Integer> productSellingPrice;
+    public static List<Long> productListingPrice;
+    public static List<Long> productSellingPrice;
     public static boolean hasModel;
     public static boolean manageInventoryByIMEI;
     public static List<String> barcodeList;
@@ -45,14 +46,6 @@ public class ProductInformation {
     public static boolean inStore;
     public static boolean inGosocial;
     public static Map<Integer, Map<String, String>> collectionNameMap;
-    /*
-
-     */
-    // flash sale
-
-
-    // product discount campaign
-
 
     /**
      * Return list product id has remaining stock > 0
@@ -111,6 +104,10 @@ public class ProductInformation {
         // manage inventory
         manageInventoryByIMEI = productInfoJson.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER");
 
+        // get price
+        productListingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+
         if (!hasModel) {
             // get barcode list
             barcodeList = List.of(productInfoJson.getString("barcode"));
@@ -126,10 +123,6 @@ public class ProductInformation {
             noVar.add(null);
             variationListMap.put("en", noVar);
             variationListMap.put("vi", noVar);
-
-            // get price
-            productListingPrice = List.of((int) productInfoJson.getFloat("orgPrice"));
-            productSellingPrice = List.of((int) productInfoJson.getFloat("newPrice"));
 
             // get stock
             productStockQuantityMap = Map.of(barcodeList.get(0), apiBranchID.stream().map(IntStream.range(0, productInfoJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getInt("branches[%s].branchId".formatted(i)), i -> productInfoJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList());
@@ -169,10 +162,6 @@ public class ProductInformation {
                     // add to map
                     variationListMap.put(language, variationList);
                 }
-
-                // get listing price
-                productListingPrice.add((int) productInfoJson.getFloat("models[%s].orgPrice".formatted(modelsID)));
-                productSellingPrice.add((int) productInfoJson.getFloat("models[%s].newPrice".formatted(modelsID)));
 
                 // get variation branch stock
                 Map<Integer, Integer> varStock = new HashMap<>();

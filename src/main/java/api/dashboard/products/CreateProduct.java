@@ -22,6 +22,7 @@ import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
 import static api.dashboard.setting.VAT.apiTaxList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRODUCT_DESCRIPTION;
@@ -40,17 +41,17 @@ public class CreateProduct {
     public static List<String> apiVariationList;
     public static List<Integer> apiVariationModelID;
     public static Map<String, List<Integer>> apiProductStockQuantity;
-    public static List<Integer> apiProductListingPrice;
-    public static List<Integer> apiProductSellingPrice;
+    public static List<Long> apiProductListingPrice;
+    public static List<Long> apiProductSellingPrice;
 
     // wholesale product price
-    public static List<Integer> apiWholesaleProductPrice;
+    public static List<Long> apiWholesaleProductPrice;
     public static List<Float> apiWholesaleProductRate;
     public static List<Integer> apiWholesaleProductStock;
     public static Map<String, List<Boolean>> apiWholesaleProductStatus;
 
     public static boolean apiIsVariation;
-    public static int apiProductID;
+    public static int apiProductID = 0;
     public static String apiProductName;
     public static String apiProductDescription;
     public static int apiTaxID;
@@ -242,7 +243,7 @@ public class CreateProduct {
         int num = apiIsVariation ? nextInt(apiVariationList.size()) + 1 : 1;
         if (apiIsVariation) {
             for (int i = 0; i < num; i++) {
-                apiWholesaleProductPrice.set(i, nextInt(apiProductSellingPrice.get(i)) + 1);
+                apiWholesaleProductPrice.set(i, nextLong(apiProductSellingPrice.get(i)) + 1);
                 apiWholesaleProductStock.set(i, nextInt(Collections.max(apiProductStockQuantity.get(apiVariationList.get(i)))) + 1);
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
@@ -262,7 +263,7 @@ public class CreateProduct {
             }
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            apiWholesaleProductPrice.set(0, nextInt(apiProductSellingPrice.get(0)) + 1);
+            apiWholesaleProductPrice.set(0, nextLong(apiProductSellingPrice.get(0)) + 1);
             apiWholesaleProductStock.set(0, nextInt(Collections.max(apiProductStockQuantity.get(null))) + 1);
             String variationWholesaleConfig = """
                     {

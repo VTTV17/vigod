@@ -2,6 +2,7 @@ package pages.storefront.detail_product;
 
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
+import api.dashboard.products.ProductReviews;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
@@ -29,13 +30,13 @@ import static api.dashboard.login.Login.apiStoreName;
 import static api.dashboard.onlineshop.Preferences.enabledProduct;
 import static api.dashboard.products.CreateProduct.*;
 import static api.dashboard.products.ProductInformation.*;
+import static api.dashboard.products.ProductReviews.isEnableReview;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.*;
 import static api.dashboard.setting.StoreInformation.*;
 import static java.lang.Thread.sleep;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
-import static pages.dashboard.products.all_products.ProductPage.isCreateByUI;
 import static pages.dashboard.products.all_products.ProductPage.uiProductID;
 import static pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueBySFLang;
@@ -50,12 +51,11 @@ public class ProductDetailPage extends ProductDetailElement {
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
     boolean isMultipleLanguage;
-    int productID;
     Instant discountCampaignStartTime;
     Instant discountCampaignEndTime;
 
     List<Integer> wholesaleProductStock = new ArrayList<>();
-    List<Integer> wholesaleProductPrice = new ArrayList<>();
+    List<Long> wholesaleProductPrice = new ArrayList<>();
     Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
     int discountCampaignStock;
 
@@ -66,42 +66,19 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     void getProductDiscountInformation() {
-        if (isCreateByUI) {
-            // product id
-            productID = uiProductID;
+        // discount campaign config
+        discountCampaignStartTime = apiDiscountCampaignStartTime;
 
-            // discount campaign config
-            discountCampaignStartTime = apiDiscountCampaignStartTime;
+        discountCampaignEndTime = apiDiscountCampaignEndTime;
 
-            discountCampaignEndTime = apiDiscountCampaignEndTime;
+        discountCampaignStock = apiDiscountCampaignMinRequirementsQuantityOfItems;
 
-            discountCampaignStock = apiDiscountCampaignStock;
+        // wholesale product config
+        wholesaleProductStock.addAll(uiWholesaleProductStock != null ? uiWholesaleProductStock : apiWholesaleProductStock);
 
-            // wholesale product config
-            wholesaleProductStock.addAll(uiWholesaleProductStock);
+        wholesaleProductPrice.addAll(uiWholesaleProductPrice != null ? uiWholesaleProductPrice : apiWholesaleProductPrice);
 
-            wholesaleProductPrice.addAll(uiWholesaleProductPrice);
-
-            wholesaleProductStatus.putAll(uiWholesaleProductStatus);
-
-        } else {
-            // product id
-            productID = apiProductID;
-
-            // discount campaign config
-            discountCampaignStartTime = apiDiscountCampaignStartTime;
-
-            discountCampaignEndTime = apiDiscountCampaignEndTime;
-
-            discountCampaignStock = apiDiscountCampaignStock;
-
-            // wholesale product config
-            wholesaleProductStock.addAll(apiWholesaleProductStock);
-
-            wholesaleProductPrice.addAll(apiWholesaleProductPrice);
-
-            wholesaleProductStatus.putAll(apiWholesaleProductStatus);
-        }
+        wholesaleProductStatus.putAll(uiWholesaleProductStatus != null ? uiWholesaleProductStatus : apiWholesaleProductStatus);
     }
 
     /**
@@ -112,8 +89,7 @@ public class ProductDetailPage extends ProductDetailElement {
         if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
 
         // get product information
-        productID = isCreateByUI ? uiProductID : apiProductID;
-        new ProductInformation().get(productID);
+        new ProductInformation().get(uiProductID != 0 ? uiProductID : apiProductID);
         getProductDiscountInformation();
 
         // check shop has multiple language or not
@@ -128,8 +104,8 @@ public class ProductDetailPage extends ProductDetailElement {
             // check if shop have multiple language, check all language should be shown exactly
             for (String languageCode : apiStoreLanguageList) {
                 // check all information with VIE language
-                driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, productID));
-                logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
+                driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, uiProductID != 0 ? uiProductID : apiProductID));
+                logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(uiProductID != 0 ? uiProductID : apiProductID));
 
                 //wait spinner loaded
                 commonAction.waitForElementInvisible(SPINNER, 30);
@@ -148,8 +124,8 @@ public class ProductDetailPage extends ProductDetailElement {
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
-            driver.get("https://%s%s%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, isMultipleLanguage ? "/%s".formatted(apiStoreLanguageList.get(0)) : "", productID));
-            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
+            driver.get("https://%s%s%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, isMultipleLanguage ? "/%s".formatted(apiStoreLanguageList.get(0)) : "", uiProductID != 0 ? uiProductID : apiProductID));
+            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(uiProductID != 0 ? uiProductID : apiProductID));
 
             // sleep 1s
             commonAction.sleepInMiliSecond(1000);
@@ -281,10 +257,13 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("[UI][%s] Check Product Detail - Description Tab".formatted(language));
 
         // review tab
-        String sfReviewTab = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
-        String reviewTab = getPropertiesValueBySFLang("productDetail.review", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfReviewTab, reviewTab, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));
-        logger.info("[UI][%s] Check Product Detail - Review Tab".formatted(language));
+        new ProductReviews().getProductReviewsConfig();
+        if (isEnableReview) {
+            String sfReviewTab = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
+            String reviewTab = getPropertiesValueBySFLang("productDetail.review", language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfReviewTab, reviewTab, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));
+            logger.info("[UI][%s] Check Product Detail - Review Tab".formatted(language));
+        }
 
         // similar product
         if (SIMILAR_PRODUCT.isDisplayed()) {
@@ -370,7 +349,7 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product price/currency on the SF with Dashboard
      */
-    void checkPriceOnEachBranch(int listingPrice, int sellingPrice, String apiBranchName) throws IOException {
+    void checkPriceOnEachBranch(long listingPrice, long sellingPrice, String apiBranchName) throws IOException {
         String branch = apiBranchName.equals("") ? "" : "[Branch name: %s]".formatted(apiBranchName);
         if (listingPrice != sellingPrice) {
             String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
@@ -378,18 +357,10 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         String actSellingPrice = new UICommonAction(driver).getText(SELLING_PRICE).replace(",", "");
-        int actSellingPriceValue = Integer.parseInt(actSellingPrice.replace(STORE_CURRENCY, ""));
+        long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
 
         countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, actSellingPrice));
         logger.info("%s Check product price/ store currency show correctly".formatted(branch));
-    }
-
-    void getProductDiscountCampaignStatus() {
-        boolean checkStart = discountCampaignStartTime != null && Instant.now().getEpochSecond() >= discountCampaignStartTime.getEpochSecond();
-        boolean checkEnd = discountCampaignEndTime != null && Instant.now().getEpochSecond() < discountCampaignEndTime.getEpochSecond();
-
-        // get discount campaign status
-        apiBranchName.stream().filter(branch -> apiDiscountCampaignStatus.get(branch).get(0).equals("SCHEDULE")).filter(branch -> checkStart && checkEnd).forEachOrdered(branch -> apiDiscountCampaignStatus.put(branch, IntStream.range(0, variationListMap.get(variationListMap.keySet().stream().toList().get(0)).size()).mapToObj(i -> "IN_PROGRESS").collect(Collectors.toList())));
     }
 
     // check flash sale
@@ -441,9 +412,12 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("%s Check wholesale product information is shown".formatted(branch));
     }
 
-    public void checkVariationPriceAndDiscount(int indexOfVariation, int listingPrice, int sellingPrice, int flashSalePrice, int productDiscountCampaignPrice, int wholesaleProductStock, int wholesaleProductPrice, String apiBranchName) throws IOException {
+    public void checkVariationPriceAndDiscount(int indexOfVariation, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String apiBranchName) throws IOException {
         String priceType = getSalePriceMap().get(apiBranchName).get(indexOfVariation);
         String displayType = getSaleDisplayMap().get(apiBranchName).get(indexOfVariation);
+        System.out.println(sellingPrice);
+        System.out.println(flashSalePrice);
+        System.out.println(productDiscountCampaignPrice);
 
         // check badge
         switch (displayType) {
@@ -644,7 +618,7 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("[Check description] Check product description is shown correctly.");
     }
 
-    void checkAllVariationsAndDiscount(int index, int listingPrice, int sellingPrice, int flashSalePrice, int productDiscountCampaignPrice, int wholesaleProductStock, int wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) throws IOException {
+    void checkAllVariationsAndDiscount(int index, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) throws IOException {
         // log
         if (variationName.length > 0)
             if (variationName[0] != null) logger.info("*** var: %s ***".formatted(variationName[0]));
@@ -695,9 +669,9 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Verify all information on the SF is shown correctly
      */
-    void checkProductInformation(String language) throws IOException, InterruptedException {
-        new CreatePromotion().getCurrentFlashSaleInformation(barcodeList, productSellingPrice);
-        getProductDiscountCampaignStatus();
+    void checkProductInformation(String language) throws InterruptedException, IOException {
+        new CreatePromotion().getCurrentFlashSaleInformation(barcodeList, productSellingPrice)
+                .getCurrentDiscountCampaignInformation(barcodeList, productSellingPrice);
 
         // verify on each variation
         for (String variationValue : variationListMap.get(language)) {

@@ -6,6 +6,8 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 
+import java.util.List;
+
 import static api.dashboard.login.Login.*;
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -19,6 +21,7 @@ public class Customers {
 
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
+    String GET_CUSTOMER_LIST_IN_SEGMENT_PATH = "/beehiveservices/api/customer-profiles/%s/v2?segmentId=%s";
     public static String apiCustomerName;
     public static String apiCustomerTag;
     public static String apiCustomerMail;
@@ -70,10 +73,10 @@ public class Customers {
         Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
         searchCustomerByName.then().statusCode(200);
 
-        apiBuyerId = searchCustomerByName.jsonPath().getInt("userId[0]");
-        apiProfileId = searchCustomerByName.jsonPath().getInt("id[0]");
-        apiCustomerPhoneCode = searchCustomerByName.jsonPath().getString("phone[0]").replace("(", "").replace(")", " ").split(" ")[0];
-        apiCustomerPhoneNum = searchCustomerByName.jsonPath().getString("phone[0]").replace(")", " ").split(" ")[1];
+        apiBuyerId = Integer.parseInt(searchCustomerByName.jsonPath().getList("userId").get(0).toString());
+        apiProfileId = Integer.parseInt(searchCustomerByName.jsonPath().getList("id").get(0).toString());
+        apiCustomerPhoneCode = String.valueOf(searchCustomerByName.jsonPath().getList("phone").get(0)).replace("(", "").replace(")", " ").split(" ")[0];
+        apiCustomerPhoneNum = String.valueOf(searchCustomerByName.jsonPath().getList("phone").get(0)).replace(")", " ").split(" ")[1];
         apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
 
         String body = """
@@ -114,9 +117,9 @@ public class Customers {
         Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
         searchCustomerByName.then().statusCode(200);
 
-        apiBuyerId = searchCustomerByName.jsonPath().getInt("userId[0]");
-        apiProfileId = searchCustomerByName.jsonPath().getInt("id[0]");
-        apiCustomerMail = searchCustomerByName.jsonPath().getString("email[0]");
+        apiBuyerId = Integer.parseInt(searchCustomerByName.jsonPath().getList("userId").get(0).toString());
+        apiProfileId = Integer.parseInt(searchCustomerByName.jsonPath().getList("id").get(0).toString());
+        apiCustomerMail = String.valueOf(searchCustomerByName.jsonPath().getList("email").get(0));
         apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
         String body = """
                 {
@@ -183,5 +186,11 @@ public class Customers {
 
         // add tag and create segment by tag name
         new Customers().addCustomerTagForMailCustomer(SignUp.apiCustomerName).createSegment();
+    }
+
+    public List<Integer> getListCustomerInSegment(Integer segmentID) {
+        Response segmentDetail = api.get(GET_CUSTOMER_LIST_IN_SEGMENT_PATH.formatted(apiStoreID, segmentID), accessToken);
+        segmentDetail.then().statusCode(200);
+        return segmentDetail.jsonPath().getList("id");
     }
 }

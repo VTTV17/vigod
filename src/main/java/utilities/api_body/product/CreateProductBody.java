@@ -1,5 +1,6 @@
 package utilities.api_body.product;
 
+import org.apache.commons.lang.math.JVMRandom;
 import utilities.data.DataGenerator;
 
 import java.util.ArrayList;
@@ -9,14 +10,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 
 public class CreateProductBody {
     public Map<String, List<String>> variationMap;
     public List<String> variationList;
-    public List<Integer> productListingPrice;
-    public List<Integer> productSellingPrice;
+    public List<Long> productListingPrice;
+    public List<Long> productSellingPrice;
     // String: variation name, List: stock quantity per each branch
     public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
     public static boolean apiIsIMEIProduct;
@@ -102,13 +104,13 @@ public class CreateProductBody {
         // random variation listing price
         productListingPrice = new ArrayList<>();
         IntStream.range(0, variationList.size())
-                .map(i -> (int) (Math.random() * MAX_PRICE))
+                .mapToLong(i -> nextLong(MAX_PRICE))
                 .forEachOrdered(orgPrice -> productListingPrice.add(orgPrice));
 
         // random variation selling price
         productSellingPrice = new ArrayList<>();
         productListingPrice.stream()
-                .mapToInt(listingPrice -> (int) (Math.random() * listingPrice))
+                .mapToLong(JVMRandom::nextLong)
                 .forEachOrdered(newPrice -> productSellingPrice.add(newPrice));
 
 
@@ -222,11 +224,11 @@ public class CreateProductBody {
 
         // random listing price
         productListingPrice = new ArrayList<>();
-        productListingPrice.add((int) (Math.random() * MAX_PRICE));
+        productListingPrice.add(nextLong(MAX_PRICE));
 
         // random selling price
         productSellingPrice = new ArrayList<>();
-        productSellingPrice.add((int) (Math.random() * productListingPrice.get(0)));
+        productSellingPrice.add(nextLong(productListingPrice.get(0)));
 
         // set branch stock
         productStockQuantity = new HashMap<>();

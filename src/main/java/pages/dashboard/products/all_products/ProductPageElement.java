@@ -122,6 +122,9 @@ public class ProductPageElement {
     @FindBy(css = "#productDiscountPrice input")
     WebElement PRODUCT_SELLING_PRICE_WITHOUT_VARIATION;
 
+    @FindBy(css = "[name = productCostPrice] input")
+    WebElement PRODUCT_COST_PRICE_WITHOUT_VARIATION;
+
     // 0: Display if out of stock
     // 1: Hide remaining stock on online store
     @FindBy(css = "[class=' '] > label > input")
@@ -188,6 +191,8 @@ public class ProductPageElement {
 
     By UPDATE_PRICE_POPUP_LISTING_PRICE = By.cssSelector(".wrapper [name *= 'orgPrice']");
     By UPDATE_PRICE_POPUP_SELLING_PRICE = By.cssSelector(".wrapper [name *= 'discountPrice']");
+
+    By UPDATE_PRICE_POPUP_COST_PRICE = By.cssSelector(".wrapper [name *= 'costPrice']");
 
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement POPUP_UPDATE_BTN;

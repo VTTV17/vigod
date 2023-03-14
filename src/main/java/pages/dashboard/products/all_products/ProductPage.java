@@ -31,6 +31,7 @@ import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.apiActiveBranches;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
 import static org.apache.commons.lang.RandomStringUtils.random;
+import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage.*;
@@ -49,7 +50,8 @@ public class ProductPage extends ProductPageElement {
     String CREATE_PRODUCT_PATH = "/product/create";
     String PRODUCT_DETAIL_PAGE_PATH = "/product/edit/%s";
     String epoch;
-    public static boolean isCreateByUI;
+    public static boolean noDiscount = false;
+    public static boolean hasDimension = true;
 
     Logger logger = LogManager.getLogger(ProductPage.class);
 
@@ -63,8 +65,8 @@ public class ProductPage extends ProductPageElement {
 
     public static String uiProductName;
     public static String uiProductDescription;
-    public static List<Integer> uiProductListingPrice;
-    public static List<Integer> uiProductSellingPrice;
+    public static List<Long> uiProductListingPrice;
+    public static List<Long> uiProductSellingPrice;
     public static Map<String, List<String>> uiVariationMap;
     public static List<String> uiVariationList;
     public static Map<String, List<Integer>> uiProductStockQuantity;
@@ -79,7 +81,7 @@ public class ProductPage extends ProductPageElement {
     public static boolean uiIsShowInStore = true;
     public static boolean uiIsShowInGoSocial = true;
     public static boolean uiIsIMEIProduct;
-    public static Integer uiProductID;
+    public static Integer uiProductID = 0;
     public static boolean uiIsVariation;
     public static String uiCollectionName;
     public static String language;
@@ -433,25 +435,26 @@ public class ProductPage extends ProductPageElement {
     }
 
     void setProductDimension() {
+        String dimension = (hasDimension) ? "10" : "0";
         // input product weight
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_WEIGHT));
-        act.moveToElement(PRODUCT_WEIGHT).doubleClick().sendKeys("100").build().perform();
-        logger.info("Input weight: 100");
+        act.moveToElement(PRODUCT_WEIGHT).doubleClick().sendKeys(dimension).build().perform();
+        logger.info("Input weight: %s".formatted(dimension));
 
         // input product length
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_LENGTH));
-        act.moveToElement(PRODUCT_LENGTH).doubleClick().sendKeys("10").build().perform();
-        logger.info("Input length: 10");
+        act.moveToElement(PRODUCT_LENGTH).doubleClick().sendKeys(dimension).build().perform();
+        logger.info("Input length: %s".formatted(dimension));
 
         // input product width
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_WIDTH));
-        act.moveToElement(PRODUCT_WIDTH).doubleClick().sendKeys("10").build().perform();
-        logger.info("Input width: 10");
+        act.moveToElement(PRODUCT_WIDTH).doubleClick().sendKeys(dimension).build().perform();
+        logger.info("Input width: %s".formatted(dimension));
 
         // input product height
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_HEIGHT));
-        act.moveToElement(PRODUCT_HEIGHT).doubleClick().sendKeys("10").build().perform();
-        logger.info("Input height: 10");
+        act.moveToElement(PRODUCT_HEIGHT).doubleClick().sendKeys(dimension).build().perform();
+        logger.info("Input height: %s".formatted(dimension));
 
     }
 
@@ -517,14 +520,12 @@ public class ProductPage extends ProductPageElement {
     public void inputWithoutVariationPrice() {
         // get listing price
         uiProductListingPrice = new ArrayList<>();
-        uiProductListingPrice.add((int) (Math.random() * MAX_PRICE));
-        System.out.println(uiProductListingPrice);
+        uiProductListingPrice.add(nextLong(MAX_PRICE));
 
         // get selling price
         uiProductSellingPrice = new ArrayList<>();
-        uiProductSellingPrice.add((int) (Math.random() * uiProductListingPrice.get(0)));
-        System.out.println(uiProductSellingPrice);
-
+        if (noDiscount) uiProductSellingPrice.addAll(uiProductListingPrice);
+        else uiProductSellingPrice.add(nextLong(uiProductListingPrice.get(0)));
 
         // input listing price
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_LISTING_PRICE_WITHOUT_VARIATION));
@@ -535,6 +536,11 @@ public class ProductPage extends ProductPageElement {
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_SELLING_PRICE_WITHOUT_VARIATION));
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf(uiProductSellingPrice.get(0)));
+
+        // input cost price
+        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_COST_PRICE_WITHOUT_VARIATION));
+        PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf((int) (Math.random() * uiProductSellingPrice.get(0))));
     }
 
     void addIMEIForEachBranch(String variationValue, List<Integer> branchStock) throws Exception {
@@ -781,10 +787,11 @@ public class ProductPage extends ProductPageElement {
         // get listing, selling price
         uiProductListingPrice = new ArrayList<>();
         uiProductSellingPrice = new ArrayList<>();
-        for (int i = 0; i < uiVariationList.size(); i++) {
-            uiProductListingPrice.add((int) (Math.random() * MAX_PRICE));
-            uiProductSellingPrice.add((int) (Math.random() * uiProductListingPrice.get(i)));
-        }
+        IntStream.range(0, uiVariationList.size()).forEachOrdered(i -> {
+            uiProductListingPrice.add(nextLong(MAX_PRICE));
+            if (noDiscount) uiProductSellingPrice.add(uiProductListingPrice.get(i));
+            else uiProductSellingPrice.add(nextLong(uiProductListingPrice.get(i)));
+        });
 
         // select all variation
         if (!VARIATION_TABLE_SELECT_ALL_CHECKBOX.isSelected())
@@ -809,10 +816,11 @@ public class ProductPage extends ProductPageElement {
         checkUpdatePricePopup();
 
         // input product price
-        for (int i = 0; i < uiVariationList.size(); i++) {
+        IntStream.range(0, uiVariationList.size()).forEachOrdered(i -> {
             act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_LISTING_PRICE).get(i)).doubleClick().sendKeys(String.valueOf(uiProductListingPrice.get(i))).build().perform();
             act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_SELLING_PRICE).get(i)).doubleClick().sendKeys(String.valueOf(uiProductSellingPrice.get(i))).build().perform();
-        }
+            act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_COST_PRICE).get(i)).doubleClick().sendKeys(String.valueOf((int) (Math.random() * uiProductSellingPrice.get(i)))).build().perform();
+        });
 
         // close Update price popup
         wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
@@ -1068,7 +1076,6 @@ public class ProductPage extends ProductPageElement {
 
     /* Create product */
     public ProductPage createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) throws Exception {
-        isCreateByUI = true;
         uiIsVariation = false;
 
         // product name
@@ -1085,7 +1092,6 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) throws Exception {
-        isCreateByUI = true;
         uiIsVariation = true;
 
         // product name
@@ -1105,7 +1111,6 @@ public class ProductPage extends ProductPageElement {
 
     /* Update Product */
     public ProductPage updateWithoutVariationProduct(int... newBranchStock) throws Exception {
-        isCreateByUI = true;
         uiIsVariation = false;
 
         // product name
@@ -1122,7 +1127,6 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage updateVariationProduct(int newIncreaseNum, int... newBranchStock) throws Exception {
-        isCreateByUI = true;
         uiIsVariation = true;
 
         // product name

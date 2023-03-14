@@ -6,17 +6,16 @@ public class CharacterLimit {
     public final static int MAX_PRODUCT_NAME = 100;
     //    final int MAX_PRODUCT_DESCRIPTION = 100000;
     public final static int MAX_PRODUCT_DESCRIPTION = 1000;
-//    public final static int MAX_STOCK_QUANTITY = 1000000;
+    //    public final static int MAX_STOCK_QUANTITY = 1000000;
     public final static int MAX_STOCK_QUANTITY = 10;
     public final static int MAX_STOCK_QUANTITY_IMEI = 10;
-//        public final static Long MAX_PRICE = 99999999999L;
-    public final static Long MAX_PRICE = 10000000L;
+    public final static Long MAX_PRICE = 99999999999L;
 
     public final static int MAX_VARIATION_NAME = 14;
     public final static int MAX_VARIATION_VALUE = 20;
     public final static int MAX_VARIATION_QUANTITY = 2;
-//    public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 20;
-public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
+    //    public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 20;
+    public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
 //    public final static int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 50;
 
     public final static int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 20;
@@ -75,7 +74,6 @@ public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
     public final static int MAX_PRODUCT_DISCOUNT_CODE_APPLIES_TO_TYPE = 3;
     public final static int MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE = 3;
     public final static int MAX_PRODUCT_DISCOUNT_CODE_APPLICABLE_BRANCH_TYPE = 2;
-
 
 
     // Customers >> All customers
