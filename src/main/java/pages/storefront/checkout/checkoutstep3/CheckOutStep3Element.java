@@ -5,6 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.List;
+
 public class CheckOutStep3Element {
     WebDriver driver;
     public CheckOutStep3Element(WebDriver driver) {
@@ -19,5 +21,6 @@ public class CheckOutStep3Element {
     WebElement DISCOUNT_AMOUNT ;
     @FindBy(xpath = "//span[@class='text-decoration-line-through']//following-sibling::span")
     WebElement SHIPPING_FEE;
-
+    @FindBy(css = ".d-md-table .product-name")
+    List<WebElement> PRODUCT_NAMES;
 }

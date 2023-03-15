@@ -5,6 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.List;
+
 public class CheckOutStep2Element {
     WebDriver driver;
     public CheckOutStep2Element(WebDriver driver) {
@@ -21,5 +23,6 @@ public class CheckOutStep2Element {
     WebElement DISCOUNT_AMOUNT ;
     @FindBy(css = ".delivery-option .color-red")
     WebElement SHIPPING_FEE;
-
+    @FindBy(css = ".d-md-table .product-name")
+    List<WebElement> PRODUCT_NAMES;
 }

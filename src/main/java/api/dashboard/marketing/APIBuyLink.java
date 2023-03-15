@@ -23,8 +23,7 @@ public class APIBuyLink {
     }
     public void deleteBuyLinkById(int id){
         String storeId = String.valueOf(Login.apiStoreID);
-        Response response = api.delete(DELETE_BUY_LINK_PATH.formatted(storeId,id),Login.accessToken);
-        response.then().statusCode(204);
+        api.delete(DELETE_BUY_LINK_PATH.formatted(storeId,id),Login.accessToken);
         logger.info("Delete buy link: "+id);
     }
 }

@@ -10,7 +10,12 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.lang.model.element.Element;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -237,6 +242,7 @@ public class UICommonAction {
 			// Some elements sometimes disappear and appear again after milliseconds.
 			sleepInMiliSecond(200);
 			wait.until(ExpectedConditions.invisibilityOf(element));
+			logger.info("Element invisible");
 		} catch (StaleElementReferenceException ex) {
 			logger.debug("Catch StaleElementReferenceException caught in waitForElementInvisible");
 			wait.until(ExpectedConditions.invisibilityOf(element));
@@ -457,5 +463,12 @@ public class UICommonAction {
 	public List<WebElement> refreshListElement(By locator) {
 		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
 		return driver.findElements(locator);
+	}
+	public String getCopiedText(WebElement buttonToCopyEl) throws IOException, UnsupportedFlavorException {
+		clickElement(buttonToCopyEl);
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Clipboard clipboard = toolkit.getSystemClipboard();
+		String actualCopedText = (String) clipboard.getData(DataFlavor.stringFlavor);
+		return actualCopedText;
 	}
 }

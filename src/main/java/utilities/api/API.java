@@ -62,12 +62,11 @@ public class API {
                 .delete(path);
     }
 
-    public Response putRequest(String path, String token, String body) {
+    public Response put(String path, String token) {
         return given()
                 .auth()
                 .oauth2(token)
                 .contentType(ContentType.JSON)
-                .body(body)
                 .when()
                 .put(path);
     }
