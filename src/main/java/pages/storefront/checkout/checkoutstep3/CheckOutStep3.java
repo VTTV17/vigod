@@ -7,6 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.storefront.GeneralSF;
+import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
 import pages.storefront.checkout.ordercomplete.OrderComplete;
 import utilities.UICommonAction;
 
@@ -50,6 +51,13 @@ public class CheckOutStep3 extends GeneralSF {
     public CheckOutStep3 verifyShippingFreeAfterDiscount(String expected){
         Assert.assertEquals(getShippingFeeAfterDiscount(),expected,"Expected shipping fee after discount is %s, but display %s".formatted(expected,getShippingFeeAfterDiscount()));
         logger.info("Verify shipping fee after discount");
+        return this;
+    }
+    public CheckOutStep3 verifyProductName(String...productNamesExpected){
+        for (int i=0;i<productNamesExpected.length;i++) {
+            Assert.assertEquals(commonAction.getText(checkOutStep3UI.PRODUCT_NAMES.get(i)).toLowerCase().trim(),productNamesExpected[i].toLowerCase().trim());
+        }
+        logger.info("Verify product name list.");
         return this;
     }
 }

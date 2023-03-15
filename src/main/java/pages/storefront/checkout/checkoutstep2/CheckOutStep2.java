@@ -72,4 +72,11 @@ public class CheckOutStep2 extends GeneralSF {
         logger.info("Verify shipping fee after discount");
         return this;
     }
+    public CheckOutStep2 verifyProductName(String...productNamesExpected){
+        for (int i=0;i<productNamesExpected.length;i++) {
+            Assert.assertEquals(commonAction.getText(checkOutStep2UI.PRODUCT_NAMES.get(i)).toLowerCase().trim(),productNamesExpected[i].toLowerCase().trim());
+        }
+        logger.info("Verify product name list.");
+        return this;
+    }
 }

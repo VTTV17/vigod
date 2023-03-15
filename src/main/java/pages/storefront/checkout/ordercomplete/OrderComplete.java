@@ -34,7 +34,7 @@ public class OrderComplete {
     }
     public OrderComplete verifyProductNames(String...productNames){
         for (int i=0;i<productNames.length;i++) {
-            Assert.assertEquals(productNames[i].toLowerCase(),commonAction.getText(orderCompleteUI.PRODUCT_NAME_LIST.get(i)).toLowerCase());
+            Assert.assertEquals(commonAction.getText(orderCompleteUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),productNames[i].toLowerCase());
         }
         logger.info("Verify Product name list.");
         return this;
