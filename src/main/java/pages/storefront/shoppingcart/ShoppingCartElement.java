@@ -12,7 +12,7 @@ public class ShoppingCartElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    @FindBy(xpath = "//div[contains(@class,'shop-cart-footer')]/button")
+    @FindBy(xpath = "(//*[@id='btn-checkout' and not(contains(@class,'d-none'))])[1]")
     WebElement CONTINUE_BTN;
 
     By BRANCH_INFO = By.cssSelector(".branch-listing-item");

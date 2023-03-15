@@ -120,6 +120,10 @@ public class HeaderSF extends GeneralSF {
 		return this;
 	}
 	public HeaderSF clickSearchResult (){
+		for (int i=0; i<6; i++) {
+			if (SEARCH_SUGGESTION_RESULT_TITLE.size() >0) break; 
+			commons.sleepInMiliSecond(500);
+		}
 		commons.clickElement(SEARCH_SUGGESTION_RESULT_TITLE.get(0));
 		logger.info("Click on the first suggestion to go to detail page");
 		return this;

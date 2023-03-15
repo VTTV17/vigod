@@ -13,6 +13,7 @@ import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.userprofile.MembershipInfo;
 import pages.storefront.userprofile.MyAddress;
+import pages.storefront.userprofile.MyOrders;
 import utilities.UICommonAction;
 import java.time.Duration;
 
@@ -43,6 +44,13 @@ public class UserProfileInfo extends HeaderSF {
         logger.info("Clicked on My Address section.");
         waitTillLoaderDisappear();
         return new MyAddress(driver);
+    }
+    
+    public MyOrders clickMyOrdersSection() {
+    	commonAction.clickElement(userProfileUI.MYORDERS_SECTION);
+    	logger.info("Clicked on My Orders section.");
+    	waitTillLoaderDisappear();
+    	return new MyOrders(driver);
     }
     
     public MembershipInfo clickMembershipInfoSection() {
