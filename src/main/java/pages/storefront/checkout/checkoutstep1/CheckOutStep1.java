@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
@@ -33,6 +34,13 @@ public class CheckOutStep1 extends GeneralSF {
         PageFactory.initElements(driver, this);
     }
 
+    public String getFullName() {
+    	wait.until(ExpectedConditions.visibilityOf(checkOutStep1UI.FULL_NAME_INPUT));
+        String name = commonAction.getElementAttribute(checkOutStep1UI.FULL_NAME_INPUT, "value");
+        logger.info("Retrieved full name: %s.".formatted(name));
+        return name;
+    }      
+    
     public CheckOutStep1 verifyCountrySelectedValue(String expectedCountry) {
         String value = commonAction.getDropDownSelectedValue(checkOutStep1UI.COUNTRY_DROPDOWN);
         Assert.assertEquals(value, expectedCountry);
