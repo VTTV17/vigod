@@ -11,7 +11,7 @@ public class CheckOutStep3Element {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    @FindBy(css = ".summary #checkout-footer-btn-continue")
+    @FindBy(xpath = "(//*[@id='checkout-footer-btn-continue' and not (contains(@class,'d-none'))])[1]")
     WebElement NEXT_BUTTON;
     @FindBy(css = ".bi-caret-up-fill")
     WebElement ARROW_ICON_NEXT_TO_TOTAL_AMOUNT;

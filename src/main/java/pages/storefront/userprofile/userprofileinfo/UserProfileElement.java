@@ -22,6 +22,9 @@ public class UserProfileElement {
     @FindBy(css = ".icon-my-address")
     WebElement MYADDRESS_SECTION;
     
+    @FindBy(css = ".icon-my-order")
+    WebElement MYORDERS_SECTION;
+    
 	@FindBy(css = ".icon-membership")
 	WebElement MEMBERSHIP_SECTION;    
     
