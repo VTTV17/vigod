@@ -92,7 +92,7 @@ class ConversionUnitElement {
     @FindBy(css = ".container-fluid h6")
     WebElement UI_HEADER_WITHOUT_VARIATION_PAGE_TITLE;
 
-    @FindBy(css = ".container-fluid h5")
+    @FindBy(css = ".container-fluid h6, .container-fluid h5")
     WebElement UI_HEADER_VARIATION_PAGE_TITLE;
 
     @FindBy(css = ".gs-button__green")

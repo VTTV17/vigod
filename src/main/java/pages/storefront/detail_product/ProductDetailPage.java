@@ -21,7 +21,6 @@ import utilities.data.DataGenerator;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -51,13 +50,10 @@ public class ProductDetailPage extends ProductDetailElement {
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
     boolean isMultipleLanguage;
-    Instant discountCampaignStartTime;
-    Instant discountCampaignEndTime;
 
     List<Integer> wholesaleProductStock = new ArrayList<>();
     List<Long> wholesaleProductPrice = new ArrayList<>();
     Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
-    int discountCampaignStock;
 
     public ProductDetailPage(WebDriver driver) {
         super(driver);
@@ -66,13 +62,6 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     void getProductDiscountInformation() {
-        // discount campaign config
-        discountCampaignStartTime = apiDiscountCampaignStartTime;
-
-        discountCampaignEndTime = apiDiscountCampaignEndTime;
-
-        discountCampaignStock = apiDiscountCampaignMinRequirementsQuantityOfItems;
-
         // wholesale product config
         wholesaleProductStock.addAll(uiWholesaleProductStock != null ? uiWholesaleProductStock : apiWholesaleProductStock);
 
@@ -177,9 +166,10 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkBreadcrumbs(String language) throws Exception {
         // check breadcrumbs
-        String[] sfBreadCrumbs = wait.until(ExpectedConditions.visibilityOf(BREAD_CRUMBS)).getText().split(" {4}/ {5}");
-        String[] ppBreadCrumbs = collectionNameMap.keySet().size() == 1 ? new String[]{getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionNameMap.get(collectionNameMap.keySet().stream().toList().get(0)).get(language), productNameMap.get(language)} : new String[]{getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productNameMap.get(language)};
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Arrays.toString(ppBreadCrumbs).equals(Arrays.toString(sfBreadCrumbs)), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(Arrays.toString(ppBreadCrumbs), Arrays.toString(sfBreadCrumbs)));
+        List<String> sfBreadCrumbs = BREAD_CRUMBS.stream().map(webElement -> webElement.getText().trim()).toList();
+        List<List<String>> ppBreadCrumbs = List.of(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionNameMap.get(collectionNameMap.keySet().stream().toList().get(0)).get(language).trim(), productNameMap.get(language)),
+                List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productNameMap.get(language)));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, ppBreadCrumbs.stream().anyMatch(breadCrumbs -> breadCrumbs.toString().equals(sfBreadCrumbs.toString())), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
         logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
     }
 
@@ -351,16 +341,19 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     void checkPriceOnEachBranch(long listingPrice, long sellingPrice, String apiBranchName) throws IOException {
         String branch = apiBranchName.equals("") ? "" : "[Branch name: %s]".formatted(apiBranchName);
-        if (listingPrice != sellingPrice) {
-            String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
-            countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
-        }
 
-        String actSellingPrice = new UICommonAction(driver).getText(SELLING_PRICE).replace(",", "");
-        long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
+        if (!(enabledProduct && enabledListing)) {
+            if (listingPrice != sellingPrice) {
+                String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
+                countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
+            }
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, actSellingPrice));
-        logger.info("%s Check product price/ store currency show correctly".formatted(branch));
+            String actSellingPrice = new UICommonAction(driver).getText(SELLING_PRICE).replace(",", "");
+            long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
+
+            countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, actSellingPrice));
+            logger.info("%s Check product price/ store currency show correctly".formatted(branch));
+        } else logger.info("%s Website listing enable, so listing/selling price is hidden".formatted(branch));
     }
 
     // check flash sale
@@ -415,9 +408,6 @@ public class ProductDetailPage extends ProductDetailElement {
     public void checkVariationPriceAndDiscount(int indexOfVariation, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String apiBranchName) throws IOException {
         String priceType = getSalePriceMap().get(apiBranchName).get(indexOfVariation);
         String displayType = getSaleDisplayMap().get(apiBranchName).get(indexOfVariation);
-        System.out.println(sellingPrice);
-        System.out.println(flashSalePrice);
-        System.out.println(productDiscountCampaignPrice);
 
         // check badge
         switch (displayType) {
@@ -535,28 +525,33 @@ public class ProductDetailPage extends ProductDetailElement {
         } else logger.info("%s[Check stock] Setting hide stock on StoreFront.".formatted(varName));
     }
 
-    void checkBuyNowAndAddToCartBtnIsShown(String... variationName) {
+    void checkBuyNowAndAddToCartBtnIsShown(String... variationName) throws IOException {
         String varName = (variationName.length > 0) ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
-        // check Buy now button is shown
-        boolean checkBuyNow = true;
-        try {
-            BUY_NOW_BTN.getText();
-        } catch (NoSuchElementException ex) {
-            checkBuyNow = false;
-        }
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, checkBuyNow, "[Failed]%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
-        logger.info("%s Check 'Buy Now' button is displayed.".formatted(varName));
+        if (!(enabledProduct && enabledListing)) {
+            // check Buy now button is shown
+            boolean checkBuyNow = true;
+            try {
+                BUY_NOW_BTN.getText();
+            } catch (NoSuchElementException ex) {
+                checkBuyNow = false;
+            }
 
-        // check Add to cart button is shown
-        boolean checkAddToCart = true;
-        try {
-            ADD_TO_CART_BTN.getText();
-        } catch (NoSuchElementException ex) {
-            checkAddToCart = false;
+            countFail = new AssertCustomize(driver).assertTrue(countFail, checkBuyNow, "[Failed]%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
+            logger.info("%s Check 'Buy Now' button is displayed.".formatted(varName));
+
+            // check Add to cart button is shown
+            boolean checkAddToCart = true;
+            try {
+                ADD_TO_CART_BTN.getText();
+            } catch (NoSuchElementException ex) {
+                checkAddToCart = false;
+            }
+            countFail = new AssertCustomize(driver).assertTrue(countFail, checkAddToCart, "[Failed]%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
+            logger.info("%s Check 'Add to cart' button is displayed.".formatted(varName));
+        } else {
+            checkBuyNowAndAddToCartBtnIsHidden(variationName);
         }
-        countFail = new AssertCustomize(driver).assertTrue(countFail, checkAddToCart, "[Failed]%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
-        logger.info("%s Check 'Add to cart' button is displayed.".formatted(varName));
     }
 
     void checkBuyNowAndAddToCartBtnIsHidden(String... variationName) throws IOException {
@@ -756,7 +751,7 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
      */
     public Map<String, List<String>> getSalePriceMap() {
-        return apiBranchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, apiFlashSaleStatus.get(brName).size()).mapToObj(i -> apiFlashSaleStatus.get(brName).get(i).equals("IN_PROGRESS") ? "FLASH SALE" : apiFlashSaleStatus.get(brName).get(i).equals("SCHEDULE") ? apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? !hasModel ? "DISCOUNT CAMPAIGN" : "SELLING PRICE" : wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE" : apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
+        return apiBranchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, apiFlashSaleStatus.get(brName).size()).mapToObj(i -> apiFlashSaleStatus.get(brName).get(i).equals("IN_PROGRESS") ? "FLASH SALE" : (apiFlashSaleStatus.get(brName).get(i).equals("SCHEDULE") ? (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? (!hasModel ? "DISCOUNT CAMPAIGN" : "SELLING PRICE") : (wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")) : (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : (wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")))).toList(), (a, b) -> b));
     }
 
     public Map<String, List<String>> getSaleDisplayMap() {

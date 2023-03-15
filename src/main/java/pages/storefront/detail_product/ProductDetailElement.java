@@ -88,8 +88,8 @@ public class ProductDetailElement {
     @FindBy (css = ".bi-person-circle")
     WebElement HEADER_PROFILE_ICON;
 
-    @FindBy (css = ".breadcrumbs")
-    WebElement BREAD_CRUMBS;
+    @FindBy (css = ".breadcrumbs a")
+    List<WebElement> BREAD_CRUMBS;
 
     @FindBy(css = ".quantity-box > div:nth-child(1)")
     WebElement QUANTITY_TITLE;

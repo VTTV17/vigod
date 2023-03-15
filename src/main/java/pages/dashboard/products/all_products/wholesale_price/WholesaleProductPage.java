@@ -75,7 +75,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
 
         // wait spinner loading hidden
-        commonAction.waitForElementInvisible(SPINNER, 15);
+        commonAction.waitForElementInvisible(SPINNER, 60);
 
         // wait wholesale product page loaded
         commonAction.verifyPageLoaded("Bạn chưa thiết lập giá sỉ cho sản phẩm này", "You don't configure any wholesale price for this product yet");
@@ -181,6 +181,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // click add wholesale pricing button
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN.get(i));
 
+            // wait wholesale product page loaded
+            commonAction.waitForElementInvisible(SPINNER, 60);
+
             // check [UI] after add new config
             checkVariationConfigTable(i);
 
@@ -242,8 +245,11 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // log error
             logger.info(ex);
 
-            // get text again
-            dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
+            // check wholesale product page is loaded
+            if (driver.getCurrentUrl().contains("wholesale-price")) {
+                // get text again
+                dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
+            } else throw new Exception("Can not navigate to Wholesale product page.");
         }
         String ppGoBackToProductDetailPage = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.goBackToProductDetail", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));

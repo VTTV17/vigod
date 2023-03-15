@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
+import static org.hamcrest.Matchers.notNullValue;
 import static utilities.links.Links.URI;
 
 public class Login {
@@ -31,6 +32,7 @@ public class Login {
 
         // if pre-condition can not complete -> skip test
         loginResponse.then().statusCode(200);
+        loginResponse.then().body("store.id", notNullValue());
 
         // else get accessToken, apiStoreID, apiStoreName
         accessToken = loginResponse.jsonPath().getString("accessToken");

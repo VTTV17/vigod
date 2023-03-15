@@ -105,8 +105,8 @@ public class ProductInformation {
         manageInventoryByIMEI = productInfoJson.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER");
 
         // get price
-        productListingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
-        productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        productListingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(hasModel ? productInfoJson.get("models").toString() : productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(hasModel ? productInfoJson.get("models").toString() : productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
 
         if (!hasModel) {
             // get barcode list
@@ -136,12 +136,6 @@ public class ProductInformation {
 
             // init variation list map
             variationListMap = new HashMap<>();
-
-            // init product listing price list
-            productListingPrice = new ArrayList<>();
-
-            // init product selling price list
-            productSellingPrice = new ArrayList<>();
 
             // init product stock map
             productStockQuantityMap = new HashMap<>();

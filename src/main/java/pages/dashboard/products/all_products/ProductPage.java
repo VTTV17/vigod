@@ -819,7 +819,7 @@ public class ProductPage extends ProductPageElement {
         IntStream.range(0, uiVariationList.size()).forEachOrdered(i -> {
             act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_LISTING_PRICE).get(i)).doubleClick().sendKeys(String.valueOf(uiProductListingPrice.get(i))).build().perform();
             act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_SELLING_PRICE).get(i)).doubleClick().sendKeys(String.valueOf(uiProductSellingPrice.get(i))).build().perform();
-            act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_COST_PRICE).get(i)).doubleClick().sendKeys(String.valueOf((int) (Math.random() * uiProductSellingPrice.get(i)))).build().perform();
+            act.moveToElement(commonAction.refreshListElement(UPDATE_PRICE_POPUP_COST_PRICE).get(i)).doubleClick().sendKeys(String.valueOf(nextLong(uiProductSellingPrice.get(i)))).build().perform();
         });
 
         // close Update price popup

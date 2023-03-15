@@ -3,7 +3,6 @@ package pages.dashboard.products.all_products.conversion_unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
@@ -20,6 +19,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.ProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.character_limit.CharacterLimit.MAX_CONVERSION_UNIT_NAME;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 
 public class ConversionUnitPage extends ConversionUnitElement {
@@ -98,7 +98,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
             // input conversion unit quantity
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_QUANTITY)).clear();
-            WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.max(Collections.max(uiProductStockQuantity.get(null)), 1)));
+            WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(null)), 1), MAX_PRICE/uiProductListingPrice.get(0))));
 
             // click Save button
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SAVE_BTN)).click();
@@ -144,7 +144,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 checkVariationConfigPageHeader();
 
                 // click Select Unit button
-                wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", CONFIGURE_FOR_EACH_VARIATION_HEADER_SELECT_UNIT_BTN);
 
                 // check [UI] config and alias table
                 checkVariationConfigPageConfigAndAliasTable();
@@ -167,7 +167,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
                 // input conversion unit quantity
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_QUANTITY)).clear();
-                CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)));
+                CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1), MAX_PRICE/uiProductListingPrice.get(i))));
 
                 // click Save button
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SAVE_BTN)).click();
