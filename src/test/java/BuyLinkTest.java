@@ -1,3 +1,4 @@
+import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.marketing.APIBuyLink;
 import api.dashboard.onlineshop.APIPreferences;
@@ -23,10 +24,6 @@ import pages.storefront.signup.SignupPage;
 import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
-
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-
 import static utilities.file.FileNameAndPath.FILE_BUY_LINK_TCS;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -363,7 +360,8 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL09_CheckNavigateToBuyLink_EnableGuestCheckout() throws Exception {
-
+        testCaseId = "BL09";
+        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,true);
         new CreateProduct().createWithoutVariationProduct(false,1);
         productName = new String[]{CreateProduct.apiProductName};
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
@@ -396,6 +394,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL10_CheckoutWithBuyLinkHasDiscountExpired() throws Exception {
+        testCaseId = "BL10";
         CreatePromotion.apiIsLimitToOne=false;
         CreatePromotion.apiIsLimitToUsage=false;
         CreatePromotion.apiDiscountCodeType=0;
@@ -436,6 +435,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL11_CheckoutWithBuyLinkHasDiscountExceedMaximumUse() throws Exception {
+        testCaseId = "BL11";
         CreatePromotion.apiIsLimitToOne=false;
         CreatePromotion.apiIsLimitToUsage=true;
         CreatePromotion.apiDiscountCodeType=0;
@@ -489,6 +489,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL12_CheckoutWithBuyLinkHasDiscountExceedMaximumUsePerUser() throws Exception {
+        testCaseId = "BL12";
         CreatePromotion.apiIsLimitToOne=true;
         CreatePromotion.apiIsLimitToUsage=false;
         CreatePromotion.apiDiscountCodeType=0;
@@ -542,6 +543,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL13_CheckoutWithBuyLinkHasDeletedProduct() throws Exception {
+        testCaseId = "BL13";
         new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
         new CreateProduct().createWithoutVariationProduct(false,10);
         productName = new String[]{CreateProduct.apiProductName};
@@ -566,6 +568,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL14_CheckoutWithBuyLinkHasDeletedVariation() throws Exception {
+        testCaseId = "BL14";
         new CreateProduct().createVariationProduct(false,10,11);
         productName = new String[]{CreateProduct.apiProductName};
         int productId = CreateProduct.apiProductID;
@@ -591,6 +594,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL15_CheckTextByLanguageOnSF_InvalidBuyLink() throws Exception {
+        testCaseId = "BL15";
         //create discount
         CreatePromotion.apiIsLimitToOne=false;
         CreatePromotion.apiIsLimitToUsage=false;
@@ -649,6 +653,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL16_CheckProductNameByLanguage_ValidBuyLink() throws Exception {
+        testCaseId = "BL16";
         //create product
         new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
         new CreateProduct().createWithoutVariationProduct(false,10);
@@ -702,6 +707,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL17_CheckCopyLink() throws Exception {
+        testCaseId = "BL17";
         String buyLinkExpected = LoginAndNavigateToBuyLinkPage()
                 .clickExploreNow()
                 .getNewestBuyLinkURL();
@@ -709,6 +715,7 @@ public class BuyLinkTest extends BaseTest {
     }
     @Test
     public void BL18_EditBuyLink() throws Exception {
+        testCaseId = "BL18";
         //create discount
         CreatePromotion.apiIsLimitToOne=false;
         CreatePromotion.apiIsLimitToUsage=false;
@@ -759,7 +766,17 @@ public class BuyLinkTest extends BaseTest {
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
     }
     @Test
-    public void checkDeleteBuyLink(){
-
+    public void BL19_CheckDeleteBuyLink(){
+        testCaseId = "BL19";
+        buyLinkManagement =  LoginAndNavigateToBuyLinkPage()
+                .clickExploreNow();
+        String buyLinkDelete = buyLinkManagement.getNewestBuyLinkURL();
+        buyLinkManagement.clickDeleteNewestBuyLink()
+                .clickDeleteBtnOnModal()
+                .verifyAfterDeleteBuyLink(buyLinkDelete);
+        generalSF = new GeneralSF(driver);
+        generalSF.navigateToURL(shopDomain);
+        headerSF = new HeaderSF(driver);
+        headerSF.verifyShopLogoDisplay();
     }
 }
