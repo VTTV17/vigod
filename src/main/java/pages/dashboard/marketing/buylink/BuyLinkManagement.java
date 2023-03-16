@@ -157,5 +157,12 @@ public class BuyLinkManagement extends HomePage{
 		logger.info("Click on delete button on Delete Confirmation modal.");
 		return this;
 	}
+	public BuyLinkManagement verifyAfterDeleteBuyLink(String linkBefore){
+
+		waitTillLoadingDotsDisappear();
+		Assert.assertNotEquals(getNewestBuyLinkURL(),linkBefore);
+		logger.info("Verify newest buy link after deleted.");
+		return this;
+	}
 
 }

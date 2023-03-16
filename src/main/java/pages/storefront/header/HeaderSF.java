@@ -70,6 +70,8 @@ public class HeaderSF extends GeneralSF {
 	WebElement ENGLISH_LANGUAGE;
 	@FindBy(css = "[onclick=\"gosellUtils.changeLanguage('vi')\"]")
 	WebElement VIETNAMESE_LANGUAGE;
+	@FindBy(css = ".gs-shop-logo-link")
+	WebElement SHOP_LOGO;
 	String MENU_ITEM_BY_TEXT = "//div[contains(@class,'desktop')]//a[text()='%s']";
 	public HeaderSF clickUserInfoIcon() {
 		commons.clickElement(USER_INFO_ICON);
@@ -210,6 +212,11 @@ public class HeaderSF extends GeneralSF {
 		wait.until(ExpectedConditions.visibilityOf(LOGIN_ICON));
 		((JavascriptExecutor) driver).executeScript("arguments[0].click()", LOGIN_ICON);
 		logger.info("Clicked on Login icon.");
+	}
+	public HeaderSF verifyShopLogoDisplay(){
+		commons.isElementDisplay(SHOP_LOGO);
+		logger.info("Verify shop logo display.");
+		return this;
 	}
 
 }
