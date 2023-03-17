@@ -1,10 +1,13 @@
 package pages.storefront.userprofile;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -32,19 +35,45 @@ public class MyOrders extends HeaderSF {
         PageFactory.initElements(driver, this);
     }
 	
+	@FindBy(css = ".my-order-container .group-order")
+	List<WebElement> ORDERS; 
+	
 	@FindBy(css = ".order-item__review")
 	List<WebElement> REVIEW_LINKTEXT;    
+	
+	String WRITE_REVIEW_LINKTEXT = "//div[@class='group-order__header__order-id' and contains(.,': #%s')]//ancestor::div[@class='group-order']//*[@class='order-item__review']";
     
-    public MyOrders clickWriteReview(){
-        commonAction.clickElement(REVIEW_LINKTEXT.get(0));
-        logger.info("Click on Write Review.");
-        return this;
-    }
-    
+	public List<List<String>> getOrderData() {
+		List<List<String>> table = new ArrayList<>();
+		for (WebElement eachOrder : ORDERS) {
+			List<String> orderData = new ArrayList<>();
+			Collections.addAll(orderData, commonAction.getText(eachOrder).split("\n"));
+			table.add(orderData);
+		}
+		return table;
+	}		
+
     public boolean isWriteReviewDisplayed(){
     	commonAction.sleepInMiliSecond(1000);
     	boolean isDisplayed = (REVIEW_LINKTEXT.size() > 0) ? true : false;
     	logger.info("Is Write Review displayed: " + isDisplayed);
     	return isDisplayed;
     }
+    
+    public boolean isWriteReviewDisplayed(String orderId){
+    	commonAction.sleepInMiliSecond(1000);
+    	List<WebElement> el = driver.findElements(By.xpath(WRITE_REVIEW_LINKTEXT.formatted(orderId)));
+    	boolean isDisplayed = (el.size() > 0) ? true : false;
+    	logger.info("Is Write Review displayed: " + isDisplayed);
+    	return isDisplayed;
+    }	
+	
+    public MyOrders clickWriteReview(String orderId){
+    	WebElement el = driver.findElement(By.xpath(WRITE_REVIEW_LINKTEXT.formatted(orderId)));
+    	commonAction.clickElement(el);
+    	logger.info("Click on Write Review for order: " + orderId);
+    	return this;
+    }
+
+    
 }
