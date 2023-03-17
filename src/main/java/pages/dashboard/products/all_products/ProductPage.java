@@ -2443,4 +2443,12 @@ public class ProductPage extends ProductPageElement {
         checkUIPriority();
         checkUIPlatform();
     }
+    public void navigateToProductAndDeleteAllVariation(int productId){
+        commonAction.navigateToURL(DOMAIN+PRODUCT_DETAIL_PAGE_PATH.formatted(productId));
+        new HomePage(driver).waitTillSpinnerDisappear();
+        for (WebElement el:DELETE_VARIATION_BTN) {
+            commonAction.clickElement(el);
+        }
+        completeUpdateProduct();
+    }
 }

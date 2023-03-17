@@ -36,7 +36,7 @@ public class APIMenus {
                 "dataValue":%s,
                 "collectionId":%s}]
                 """.formatted(menuID,menuItemName,collectionID,collectionID);
-        Response menuItemRespone = api.putRequest(ADD_MENU_ITEM_PATH,token,body);
+        Response menuItemRespone = api.put(ADD_MENU_ITEM_PATH,token,body);
         menuItemRespone.then().statusCode(200);
         logger.info("Create menuItem successful.");
     }

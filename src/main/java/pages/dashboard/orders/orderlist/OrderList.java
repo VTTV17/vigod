@@ -1,6 +1,7 @@
 package pages.dashboard.orders.orderlist;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,9 @@ public class OrderList {
 		commonAction = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
 	}
+	
+	@FindBy(css = ".order-list-table-custom tbody tr")
+	List<WebElement> TABLE_ROWS;
 
 	@FindBy(css = ".order-page button.gs-button__green")
 	WebElement EXPORT_BTN;
@@ -45,7 +49,22 @@ public class OrderList {
 
 	@FindBy(xpath = "(//div[contains(@class,'uik-menuDrop__list')]//button)[3]")
 	WebElement EXPORT_HISTORY_BTN;
-
+	
+	@FindBy(id = "btn-readyToShip")
+	WebElement CONFIRM_ORDER_BTN;
+	
+	@FindBy(css = ".ready-to-ship-confirm__btn-wrapper .gs-button__green")
+	WebElement SHIPMENT_OK_BTN;
+	
+	@FindBy(css = ".gs-button__green")
+	WebElement DELIVERED_BTN;
+	
+	public OrderList navigate() {
+		new HomePage(driver).navigateToPage("Orders");
+		new HomePage(driver).hideFacebookBubble();
+		return this;
+	}	
+	
 	public OrderList clickExport() {
 		commonAction.clickElement(EXPORT_BTN);
 		logger.info("Clicked on 'Export' button.");
@@ -80,6 +99,56 @@ public class OrderList {
 		}
 		commonAction.clickElement(EXPORT_HISTORY_BTN);
 		logger.info("Clicked on 'Export History' button.");
+		return this;
+	}
+	
+	/**
+	 * Temporary function, will be deleted soon.
+	 * @return 
+	 */
+	public OrderList clickFirstOrder() {
+		commonAction.clickElement(TABLE_ROWS.get(0));
+		logger.info("Clicked on the first order in order list.");
+		return this;
+	}
+	
+	/**
+	 * Temporary function, will be deleted soon.
+	 * @return 
+	 */
+	public OrderList clickConfirmOrder() {
+		commonAction.clickElement(CONFIRM_ORDER_BTN);
+		logger.info("Clicked on 'Confirm Order' button.");
+		return this;
+	}
+	
+	/**
+	 * Temporary function, will be deleted soon.
+	 * @return 
+	 */
+	public OrderList clickShipmentOKBtn() {
+		commonAction.clickElement(SHIPMENT_OK_BTN);
+		logger.info("Clicked on 'OK' button to confirm shipment.");
+		return this;
+	}
+	
+	/**
+	 * Temporary function, will be deleted soon.
+	 * @return 
+	 */
+	public OrderList clickDeliveredBtn() {
+		commonAction.clickElement(DELIVERED_BTN);
+		logger.info("Clicked on 'Delivered' button.");
+		return this;
+	}
+	
+	/**
+	 * Temporary function, will be deleted soon.
+	 * @return 
+	 */
+	public OrderList clickConfirmDeliveredOKBtn() {
+		new ConfirmationDialog(driver).clickOKBtn();
+		logger.info("Clicked on 'OK' button to confirm the order is delivered.");
 		return this;
 	}
 

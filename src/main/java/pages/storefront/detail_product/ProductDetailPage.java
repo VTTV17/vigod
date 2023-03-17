@@ -61,6 +61,12 @@ public class ProductDetailPage extends ProductDetailElement {
         commonAction = new UICommonAction(driver);
     }
 
+    public String getProductName() {
+        String name = commonAction.getText(PRODUCT_NAME);
+        logger.info("Retrieved product name: " + name);
+        return name;
+    }    
+    
     void getProductDiscountInformation() {
         // wholesale product config
         wholesaleProductStock.addAll(uiWholesaleProductStock != null ? uiWholesaleProductStock : apiWholesaleProductStock);
@@ -758,4 +764,66 @@ public class ProductDetailPage extends ProductDetailElement {
     public Map<String, List<String>> getSaleDisplayMap() {
         return apiBranchName.stream().collect(Collectors.toMap(s1 -> s1, s1 -> IntStream.range(0, apiFlashSaleStatus.get(s1).size()).mapToObj(i -> !apiFlashSaleStatus.get(s1).get(i).equals("EXPIRED") ? "FLASH SALE" : apiDiscountCampaignStatus.get(s1).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(s1).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
     }
+    
+    public boolean isReviewTabDisplayed() {
+    	boolean isDisplayed = REVIEW_TAB.isDisplayed();
+    	logger.info("Is Review tab displayed: " + isDisplayed);
+    	return isDisplayed;
+    }
+
+    public ProductDetailPage clickReviewTab() {
+        commonAction.clickElement(REVIEW_TAB);
+        logger.info("Clicked on Review tab");
+        return this;
+    }      
+    
+	public List<List<String>> getAllReviews() {
+		commonAction.sleepInMiliSecond(1000);
+		List<List<String>> table = new ArrayList<>();
+		for (WebElement eachReview : REVIEWS) {
+			List<String> reviewData = new ArrayList<>();
+			reviewData.add(String.valueOf(eachReview.findElements(By.xpath(".//span[@style='color: rgb(255, 176, 0);']")).size())); //Rating
+			reviewData.add(eachReview.findElement(By.xpath(".//span[@rv-text='review.userName']")).getText()); //Reviewer
+			reviewData.add(eachReview.findElement(By.xpath(".//span[contains(@rv-text,'review.reviewDate')]")).getText()); //Review date
+			reviewData.add(eachReview.findElement(By.xpath(".//div[@class='title']")).getText()); //Review title
+			reviewData.add(eachReview.findElement(By.xpath(".//div[@class='description']")).getText()); //Review description
+			table.add(reviewData);
+		}
+		return table;
+	}	    
+	
+    public ProductDetailPage inputRating(int rating){
+    	commonAction.clickElement(RATING_STARS.get(rating-1));
+    	logger.info("Rated stars : " + rating);
+    	return this;
+    }
+    
+    public ProductDetailPage inputReviewTitle(String reviewTitle){
+    	commonAction.inputText(REVIEW_TITLE, reviewTitle);
+    	logger.info("Input review title: " + reviewTitle);
+    	return this;
+    }
+    
+    public ProductDetailPage inputReviewDescription(String reviewDescription){
+    	commonAction.inputText(REVIEW_DESCRIPTION, reviewDescription);
+    	logger.info("Input review description: " + reviewDescription);
+    	return this;
+    }
+
+    public ProductDetailPage clickSubmitReviewBtn() {
+        commonAction.clickElement(SUBMIT_REVIEW_BTN);
+        logger.info("Clicked on Submit Review button");
+        return this;
+    }    
+    
+    public ProductDetailPage leaveReview(int rating, String reviewTitle, String reviewDescription) {
+    	inputRating(rating);
+    	inputReviewTitle(reviewTitle);
+    	inputReviewDescription(reviewDescription);
+    	clickSubmitReviewBtn();
+    	return this;
+    }    
+    
+    
+    
 }

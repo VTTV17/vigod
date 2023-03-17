@@ -232,7 +232,10 @@ public class ProductCollectionTest extends BaseTest {
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, "0");
         //product list: add some product, no input priority
         collectionName = "Manually collection has product " + generate.generateString(10);
-        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
+        productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
+        "Kem Rửa Mặt Hada Labo Sạch Sâu Dưỡng Ẩm 80g Advanced Nourish Hyaluronic Acid Cleanser",
+        "Kem Dưỡng Gilaa Khổ Qua & B5 Phục Hồi Giảm Mụn 50ml Bitter Melon Blemish Repair Cream",
+        "Kem Chống Nắng Aprilskin Nâng Tông Dưỡng Ẩm Da SPF 50+ 38g Tone Up Skin Tint"};
         productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.clickOnCreateCollection()
                 .createManualCollectionWithoutSEO_NoPriority(collectionName, productList)
@@ -253,7 +256,7 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectionName);
         //product list: add some product, input priority
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
+//        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, true, true)
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
@@ -265,13 +268,13 @@ public class ProductCollectionTest extends BaseTest {
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
-        collectionNameEditManual = collectionName;
+//        collectionNameEditManual = collectionName;
     }
 
     @Test
     public void PC_02_BH_4784_CreateManualProductCollectionAndAddAProductSEO() throws Exception {
         collectionName = "Manually: has SEO info" + generate.generateString(5);
-        productList = new String[]{"Dâu tây Đà Lạt"};
+        productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin"};
         String radomText = generate.generateString(5);
         SEOTitle = "SEO title " + radomText;
         SEODescription = "SEO description " + radomText;
@@ -297,7 +300,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword() throws Exception {
-        condition = "Product title-contains-Dâu";
+        condition = "Product title-contains-Gilaa";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         collectionNameEditAutomationWithOrCondition = collectionName;
@@ -305,7 +308,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword() throws Exception {
-        condition = "Product title-starts with-Awesome";
+        condition = "Product title-starts with-Kem Dưỡng";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         collectionNameEditAutomationWithAndCondition = collectionName;
@@ -313,7 +316,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword() throws Exception {
-        condition = "Product title-ends with-Đà Lạt";
+        condition = "Product title-ends with-Skin";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -321,7 +324,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_06_BH_4789_CreateAutomationProductCollectionWithTitleEqualToKeyword() throws Exception {
-        condition = "Product title-is equal to-Hồng trứng Đà Lạt";
+        condition = "Product title-is equal to-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
         collectionName = generate.generateString(5) + " - " + "Product title-is equal to";
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -329,7 +332,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_07_BH_4790_CreateAutomationProductCollectionWithPriceEqualToNumber() throws Exception {
-        condition = "Product price-is equal to-499000";
+        condition = "Product price-is equal to-328000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -337,7 +340,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_08_BH_4791_CreateAutomationProductCollectionWithPriceLessThanNumber() throws Exception {
-        condition = "Product price-is less than-50000";
+        condition = "Product price-is less than-100000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -353,7 +356,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_10_BH_4793_CreateAutomationProductCollectionWithANDMultipleCondition() throws Exception {
-        String[] conditions = {"Product title-contains-Dâu", "Product price-is greater than-100000"};
+        String[] conditions = {"Product title-contains-Auto", "Product price-is greater than-500000"};
         collectionName = generate.generateString(5) + " - " + "and multiple condition";
         createAutomationCollectionAndVerify(collectionName, "All conditions", conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -361,7 +364,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_11_BH_4794_CreateAutomationProductCollectionWithORMultipleCondition() throws Exception {
-        String[] conditions = {"Product title-contains-Dâu", "Product price-is greater than-5000000"};
+        String[] conditions = {"Product title-contains-Phấn", "Product price-is greater than-5000000"};
         collectionName = generate.generateString(5) + " - " + "OR multiple condition";
         createAutomationCollectionAndVerify(collectionName, "Any condition", conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -379,7 +382,10 @@ public class ProductCollectionTest extends BaseTest {
     @Test
     public void PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber() throws Exception {
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-        productList = new String[]{"Auto - Normal - variation - 08/02 09:56:04","Small Frozen Pizza - Product API 1672995364","Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt"};
+        productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
+                "Kem Rửa Mặt Hada Labo Sạch Sâu Dưỡng Ẩm 80g Advanced Nourish Hyaluronic Acid Cleanser",
+                "Kem Dưỡng Gilaa Khổ Qua & B5 Phục Hồi Giảm Mụn 50ml Bitter Melon Blemish Repair Cream",
+                "Bộ Sản Phẩm La Roche-Posay Phục Hồi Và Làm Dịu Da 2 Món Cicaplast Baume B5 40ml + Thermal Spring Water 50ml"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, false, true)
                 .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(productList.length));
@@ -404,42 +410,59 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectNameEditPriority);
     }
 
-    @Test(dependsOnMethods = "PC_01_BH_4783_CreateManualProductCollection_V2")
+    @Test()
     public void PC_15_BH_4785_EditManualProductCollection() throws Exception {
-        //edit product list: add new list
-        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt"};
-        loginAndNavigateToEditCollection(collectionNameEditManual)
-                .editProductListInManualCollection(productList, true, false)
+        //create collection and edit new list
+        collectionName = "Manually collection has product " + generate.generateString(5);
+        productList = new String[]{"Gel Rửa Mặt Cosrx Tràm Trà, 0.5% BHA Có Độ pH Thấp 150ml Low pH Good Morning Gel Cleanser"};
+        String[] productListEdit = new String[]{"Sữa Rửa Mặt Gilaa Khổ Qua Và Vegan BHA Giảm Mụn 160g Plant Serum Cleanser With Bitter Melon + BHA",
+                "Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen",
+                "Sữa Rửa Mặt Gilaa Saffron Sạch Da Và Sáng Khỏe 160g Plant Serum Cleanser With Saffron Extract",
+                "Kem Dưỡng Gilaa Khổ Qua & B5 Phục Hồi Giảm Mụn 50ml Bitter Melon Blemish Repair Cream"};
+        loginAndNavigateToCreateProductCollection()
+                .createManualCollectionWithoutSEO_NoPriority(collectionName, productList)
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length))
+                .goToEditProductCollection(collectionName)
+                .editProductListInManualCollection(productListEdit, true, false)
                 .clickLogout();
-        navigateToSFAndVerifyCollectionPage(collectionNameEditManual, false);
+        callCreateMenuItemParentAPI(collectionName);
+        navigateToSFAndVerifyCollectionPage(collectionName, false);
         //edit product list, add new list, set priority
-        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230", "Hồng trứng Đà Lạt", "Dâu tây Đà Lạt","Fantastic Wooden Bacon - Product has variation API 1672995449"};
-        loginAndNavigateToEditCollection(collectionNameEditManual)
+        productList = new String[]{"Phấn Nước Aprilskin Siêu Mỏng Nhẹ Màu 23 Be Tự Nhiên 15g Ultra Slim Cushion #23 Natural Beige",
+                "Phấn Nước Aprilskin Ma Thuật Màu Sáng Hồng 22 Pink Beige 15g Magic Snow Cushion 2.0",
+                "Bộ Sản Phẩm La Roche-Posay Phục Hồi Và Làm Dịu Da 2 Món Cicaplast Baume B5 40ml + Thermal Spring Water 50ml",
+                "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 400ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin"};
+        loginAndNavigateToEditCollection(collectionName)
                 .editProductListInManualCollection(productList, true, true);
-        navigateToSFAndVerifyCollectionPage(collectionNameEditManual, true);
-        callDeleteMenuItemAndCollectionAPI(collectionNameEditManual);
-
+        navigateToSFAndVerifyCollectionPage(collectionName, true);
+        callDeleteMenuItemAndCollectionAPI(collectionName);
     }
-    @Test(dependsOnMethods = "PC_01_BH_4783_CreateManualProductCollection_V2")
+    @Test()
     public void PC_16_BH_4796_AddProductToExistingManualCollection() throws Exception {
-        productList = new String[]{"Gorgeous Soft Sausages - Product has variation API 1673499230"};
-        loginAndNavigateToEditCollection(collectionNameEditManual)
-                .editProductListInManualCollection(productList, false, false);
-        navigateToSFAndVerifyCollectionPage(collectionNameEditManual, true);//data has set priority before
-        callDeleteMenuItemAndCollectionAPI(collectionNameEditManual);
-
+        //create collection
+        collectionName = "Manually collection has product " + generate.generateString(5);
+        productList = new String[]{"Gel Rửa Mặt Cosrx Tràm Trà, 0.5% BHA Có Độ pH Thấp 150ml Low pH Good Morning Gel Cleanser"};
+        String[] productListEdit = new String[]{"Bộ Sản Phẩm La Roche-Posay Phục Hồi Và Làm Dịu Da 2 Món Cicaplast Baume B5 40ml + Thermal Spring Water 50ml"};
+        loginAndNavigateToCreateProductCollection()
+                .createManualCollectionWithoutSEO_NoPriority(collectionName, productList)
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length))
+                .goToEditProductCollection(collectionName)
+                .editProductListInManualCollection(productListEdit, false, false);
+        callCreateMenuItemParentAPI(collectionName);
+        navigateToSFAndVerifyCollectionPage(collectionName, false);//data no set priority before
+        callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test(dependsOnMethods = "PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword")
     public void PC_17_BH_4797_UpdateAutomationCollection_AndCondition() throws Exception {
-        condition = "Product title-contains-Lạt";
+        condition = "Product title-contains-La Roche-Posay";
         editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, "All conditions", condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithAndCondition);
     }
 
     @Test(dependsOnMethods = "PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword")
     public void PC_18_BH_4798_UpdateAutomationCollection_OrCondition() throws Exception {
-        condition = "Product price-is less than-10000";
+        condition = "Product price-is less than-100000";
         editAutomationCollectionAndVerify(collectionNameEditAutomationWithOrCondition, "Any condition", condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithOrCondition);
     }

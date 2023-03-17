@@ -37,6 +37,7 @@ public class CreatePromotion {
     String DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=IN_PROGRESS";
     String DISCOUNT_CAMPAIGN_DETAIL = "/orderservices2/api/gs-discount-campaigns/%s/full-condition";
     String DELETE_DISCOUNT_PATH = "/orderservices2/api/gs-discount-campaigns/";
+    String END_EARLY_DISCOUNT_CODE_PATH = "/orderservices2/api/gs-discount?id=%s&storeId=%s";
     API api = new API();
     Logger logger = LogManager.getLogger(CreatePromotion.class);
 
@@ -71,6 +72,8 @@ public class CreatePromotion {
     public static int apiApplicableBranchCondition;
     public static String apiDiscountName;
     public static float apiCouponValue;
+    public static int apiDiscountId;
+    public static int apiLimitTimesUse =-1;
     /**
      * set branch condition
      * <p> DEFAULT value = - 1, no condition is provided, random condition should be generated</p>
@@ -499,7 +502,10 @@ public class CreatePromotion {
         // usage limit
         boolean couponLimitToOne = apiIsLimitToOne;
         boolean couponLimitedUsage = apiIsLimitToUsage;
-        String couponTotal = couponLimitedUsage ? String.valueOf(nextInt(MAX_COUPON_USED_NUM) + 1) : "null";
+        if (apiLimitTimesUse == -1 ){
+            apiLimitTimesUse = nextInt(MAX_COUPON_USED_NUM) + 1;
+        }
+        String couponTotal = couponLimitedUsage ? String.valueOf(apiLimitTimesUse) : "null";
 
         // coupon type
         // 0: percentage
@@ -642,8 +648,16 @@ public class CreatePromotion {
         body.append(platform);
         body.append("]}]}");
 
-        api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body)).then().statusCode(200);
+        Response response = api.post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body));
+        response.then().statusCode(200);
         apiDiscountName = name;
         apiCouponValue = couponValue;
+        apiDiscountId = response.jsonPath().getInt("discounts[0].id");
+    }
+    public void endEarlyDiscount(String token, int discountId, int storeId){
+        String path = END_EARLY_DISCOUNT_CODE_PATH.formatted(discountId,storeId);
+        Response response = api.put(path,token);
+        response.then().statusCode(200);
+        logger.info("Call api to end early discount.");
     }
 }

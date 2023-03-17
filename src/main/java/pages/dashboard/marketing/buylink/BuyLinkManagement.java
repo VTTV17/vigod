@@ -1,5 +1,7 @@
 package pages.dashboard.marketing.buylink;
 
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -14,12 +16,10 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
-import pages.storefront.GeneralSF;
-import pages.storefront.header.HeaderSF;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
-public class BuyLinkManagement {
+public class BuyLinkManagement extends HomePage{
 
 	final static Logger logger = LogManager.getLogger(BuyLinkManagement.class);
 
@@ -30,9 +30,11 @@ public class BuyLinkManagement {
 	SoftAssert soft = new SoftAssert();
 
 	public BuyLinkManagement(WebDriver driver) {
+		super(driver);
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
+
 		PageFactory.initElements(driver, this);
 	}
 
@@ -56,7 +58,7 @@ public class BuyLinkManagement {
 	WebElement COPY_LINK_ICO;
 	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[2]")
 	WebElement EDIT_LINK_ICO;
-	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[1]")
+	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[3]")
 	WebElement DELETE_LINK_ICO;
 	@FindBy(css = ".text-truncate")
 	List<WebElement> URL_LIST;
@@ -66,6 +68,9 @@ public class BuyLinkManagement {
 	WebElement EDIT_LINK_TOOLTIP;
 	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]")
 	WebElement DELETE_LINK_TOOLTIP;
+	@FindBy(xpath = "//div[@class='modal-footer']/button[2]")
+	WebElement DELETE_BTN_ON_MODAL;
+
 	public BuyLinkManagement clickExploreNow() {
     	commonAction.clickElement(EXPLORE_NOW_BTN);
     	logger.info("Clicked on 'Explore Now' button.");
@@ -111,9 +116,53 @@ public class BuyLinkManagement {
 		logger.info("Click on Copy link of the newest link (on the top)");
 		return this;
 	}
-	public String getBuyLinkURL(){
+	public String getNewestBuyLinkURL(){
 		commonAction.sleepInMiliSecond(1500);
 		String URL = commonAction.getText(URL_LIST.get(0));
 		return URL;
 	}
+	public BuyLinkManagement verifyCreateBuyLinkSuccessfulMessage() throws Exception {
+		waitTillLoadingDotsDisappear();
+		Assert.assertEquals(getToastMessage(),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.createSuccessfullyMessage"));
+		return this;
+	}
+	public BuyLinkManagement verifyCopiedLink(String expectedLink) throws IOException, UnsupportedFlavorException {
+		String copiedLink = commonAction.getCopiedText(COPY_LINK_ICO);
+		Assert.assertEquals(copiedLink,expectedLink);
+		logger.info("Verify copied link");
+		return this;
+	}
+	public BuyLinkManagement verifyCopiedMessage() throws Exception {
+		Assert.assertEquals(getToastMessage(),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.copySuccessfullyMessage"));
+		logger.info("Verify toast message Copy successfully.");
+		return this;
+	}
+	public CreateBuyLink clickEditNewestBuyLink(){
+		commonAction.clickElement(EDIT_LINK_ICO);
+		logger.info("Click on edit newest buy link");
+		return new CreateBuyLink(driver);
+	}
+	public BuyLinkManagement verifyUpdateBuyLinkSuccessfulMessage() throws Exception {
+		waitTillLoadingDotsDisappear();
+		Assert.assertEquals(getToastMessage(),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.updateSuccessfullyMessage"));
+		return this;
+	}
+	public BuyLinkManagement clickDeleteNewestBuyLink(){
+		commonAction.clickElement(DELETE_LINK_ICO);
+		logger.info("Click on delete newest buy link.");
+		return this;
+	}
+	public BuyLinkManagement clickDeleteBtnOnModal(){
+		commonAction.clickElement(DELETE_BTN_ON_MODAL);
+		logger.info("Click on delete button on Delete Confirmation modal.");
+		return this;
+	}
+	public BuyLinkManagement verifyAfterDeleteBuyLink(String linkBefore){
+
+		waitTillLoadingDotsDisappear();
+		Assert.assertNotEquals(getNewestBuyLinkURL(),linkBefore);
+		logger.info("Verify newest buy link after deleted.");
+		return this;
+	}
+
 }
