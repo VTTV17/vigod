@@ -111,7 +111,22 @@ public class ProductDetailElement {
 
     @FindBy(css = "#nav-review-tab")
     WebElement REVIEW_TAB;
+    
+    @FindBy(css = ".review-row")
+    List<WebElement> REVIEWS;
 
+    @FindBy(css = ".review-form .icon-star-solid")
+    List<WebElement> RATING_STARS;
+    
+    @FindBy(css = ".review-form #title")
+    WebElement REVIEW_TITLE;
+    
+    @FindBy(css = ".review-form #description")
+    WebElement REVIEW_DESCRIPTION;
+    
+    @FindBy(css = ".review-form .btn-submit")
+    WebElement SUBMIT_REVIEW_BTN;
+    
     @FindBy(css = "#similar-product .title-product-description")
     WebElement SIMILAR_PRODUCT;
 
