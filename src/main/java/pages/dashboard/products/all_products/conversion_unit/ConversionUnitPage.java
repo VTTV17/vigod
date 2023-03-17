@@ -98,7 +98,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
             // input conversion unit quantity
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_QUANTITY)).clear();
-            WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(null)), 1), MAX_PRICE/uiProductListingPrice.get(0))));
+            WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(null)), 1), MAX_PRICE/ productListingPrice.get(0))));
 
             // click Save button
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SAVE_BTN)).click();
@@ -167,7 +167,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
                 // input conversion unit quantity
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_QUANTITY)).clear();
-                CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1), MAX_PRICE/uiProductListingPrice.get(i))));
+                CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1), MAX_PRICE/ productListingPrice.get(i))));
 
                 // click Save button
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SAVE_BTN)).click();

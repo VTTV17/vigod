@@ -2,6 +2,7 @@ package api.dashboard.products;
 
 import api.dashboard.customers.Customers;
 import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,7 @@ import utilities.api_body.product.CreateProductBody;
 import utilities.data.DataGenerator;
 
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -20,6 +22,8 @@ import static api.dashboard.marketing.LoyaltyProgram.apiMembershipStatus;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
+import static api.dashboard.setting.StoreInformation.apiDefaultLanguage;
+import static api.dashboard.setting.StoreInformation.apiStoreLanguageList;
 import static api.dashboard.setting.VAT.apiTaxList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -65,6 +69,7 @@ public class CreateProduct {
     public CreateProduct() {
         if (apiBranchID == null) new BranchManagement().getBranchInformation();
         if (apiTaxList == null) new VAT().getTaxList();
+        if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
     }
 
 
@@ -74,18 +79,25 @@ public class CreateProduct {
 
         // random some product information
         // product name
-        apiProductName = isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - ");
+        apiProductName = "[%s] %s".formatted(apiDefaultLanguage, isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
         apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
-        apiProductDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        apiProductDescription = "[%s] product description".formatted(apiDefaultLanguage);
+
+        // product SEO
+        long epoch = Instant.now().toEpochMilli();
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(apiDefaultLanguage, epoch);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(apiDefaultLanguage, epoch);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(apiDefaultLanguage, epoch);
+        String seoURL = "%s%s".formatted(apiDefaultLanguage, epoch);
 
         // product tax
         apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID, seoTitle, seoDescription, seoKeywords, seoURL),
                 productBody.withoutVariationInfo(isIMEIProduct, apiBranchID, apiBranchName, branchStock),
                 productBody.withoutVariationBranchConfig(apiBranchID));
 
@@ -126,18 +138,25 @@ public class CreateProduct {
 
         // random some product information
         // product name
-        apiProductName = isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - ");
+        apiProductName = "[%s] %s".formatted(apiDefaultLanguage, isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - "));
         apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
 
         //product description
-        apiProductDescription = randomAlphabetic(nextInt(MAX_PRODUCT_DESCRIPTION) + 1);
+        apiProductDescription = "[%s] product description".formatted(apiDefaultLanguage);
+
+        // product SEO
+        long epoch = Instant.now().toEpochMilli();
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(apiDefaultLanguage, epoch);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(apiDefaultLanguage, epoch);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(apiDefaultLanguage, epoch);
+        String seoURL = "%s%s".formatted(apiDefaultLanguage, epoch);
 
         // product tax
         apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
 
         // create body
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID, seoTitle, seoDescription, seoKeywords, seoURL),
                 productBody.variationInfo(isIMEIProduct, apiBranchID, apiBranchName, increaseNum, branchStock),
                 productBody.variationBranchConfig(apiBranchID));
 

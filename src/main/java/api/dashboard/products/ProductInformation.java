@@ -6,6 +6,7 @@ import io.restassured.response.Response;
 import org.testng.collections.Lists;
 import utilities.api.API;
 
+import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,6 +64,7 @@ public class ProductInformation {
 
         // get product information
         Response productInfo = api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
+        productInfo.prettyPrint();
 
         // check api working normally
         productInfo.then().statusCode(200);
@@ -105,9 +107,12 @@ public class ProductInformation {
         manageInventoryByIMEI = productInfoJson.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER");
 
         // get price
-        productListingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(hasModel ? productInfoJson.get("models").toString() : productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
-        productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(hasModel ? productInfoJson.get("models").toString() : productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
-
+        productListingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(productInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        if (hasModel) {
+            productListingPrice = IntStream.range(1, productListingPrice.size()).mapToObj(i -> productListingPrice.get(i)).toList();
+            productSellingPrice = IntStream.range(1, productSellingPrice.size()).mapToObj(i -> productSellingPrice.get(i)).toList();
+        }
         if (!hasModel) {
             // get barcode list
             barcodeList = List.of(productInfoJson.getString("barcode"));
@@ -179,6 +184,8 @@ public class ProductInformation {
         }
 
         initDiscountInformation();
+        System.out.println(productListingPrice);
+        System.out.println(productSellingPrice);
     }
 
     void initDiscountInformation() {

@@ -79,6 +79,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // get product information
         new ProductInformation().get(uiProductID != 0 ? uiProductID : apiProductID);
+        System.out.println(uiProductID != 0 ? uiProductID : apiProductID);
         getProductDiscountInformation();
 
         // check shop has multiple language or not
@@ -91,7 +92,7 @@ public class ProductDetailPage extends ProductDetailElement {
         if (((maxStock != 0) || (showOutOfStock)) && bhStatus.equals("ACTIVE") && !deleted && onWeb) {
             // in-case in stock or setting show product when out of stock
             // check if shop have multiple language, check all language should be shown exactly
-            for (String languageCode : apiStoreLanguageList) {
+            for (String languageCode : apiSFLangList) {
                 // check all information with VIE language
                 driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, uiProductID != 0 ? uiProductID : apiProductID));
                 logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(uiProductID != 0 ? uiProductID : apiProductID));
@@ -146,8 +147,8 @@ public class ProductDetailPage extends ProductDetailElement {
         // check header menu
         commonAction.waitElementList(HEADER_MENU, 2);
         List<String> sfHeaderMenu = HEADER_MENU.stream().map(WebElement::getText).toList();
-        List<String> defaultMenu = apiDefaultLanguage.equals("VIE") ? List.of(getPropertiesValueBySFLang("header.menu.vnStore.0", language), getPropertiesValueBySFLang("header.menu.vnStore.1", language)) : List.of(getPropertiesValueBySFLang("header.menu.nonVNStore.0", language), getPropertiesValueBySFLang("header.menu.nonVNStore.1", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, sfHeaderMenu, defaultMenu, "[Failed][Header] Header menu should be %s, but found %s.".formatted(sfHeaderMenu, defaultMenu));
+        List<String> defaultMenu = List.of(getPropertiesValueBySFLang("header.menu.vnStore.0", apiDefaultLanguage), getPropertiesValueBySFLang("header.menu.vnStore.1", apiDefaultLanguage));
+        countFail = new AssertCustomize(driver).assertEquals(countFail, sfHeaderMenu, defaultMenu, "[Failed][Header] Header menu should be %s, but found %s.".formatted(defaultMenu, sfHeaderMenu));
         logger.info("[UI][%s] Check Header - Menu".formatted(language));
 
         // check search icon

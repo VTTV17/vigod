@@ -158,11 +158,11 @@ public class DataGenerator {
      * <p> example: var1 = {a, b, c} and var2 = {d}</p>
      * <p> with above variations, we have 3 variation value {a|d, b|d, c|d}</p>
      */
-    public List<String> mixVariationValue(List<String> variationValueList1, List<String> variationValueList2) {
+    public List<String> mixVariationValue(List<String> variationValueList1, List<String> variationValueList2, String language) {
         List<String> mixedVariationValueList = new ArrayList<>();
         for (String var1 : variationValueList1) {
             for (String var2 : variationValueList2) {
-                mixedVariationValueList.add(var1 + "|" + var2);
+                mixedVariationValueList.add("%s|%s_%s".formatted(var1, language,  var2));
             }
         }
         return mixedVariationValueList;

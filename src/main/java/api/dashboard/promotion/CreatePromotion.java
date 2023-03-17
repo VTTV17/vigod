@@ -479,8 +479,6 @@ public class CreatePromotion {
             apiBranchName.forEach(brName -> apiDiscountCampaignStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
 
         discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, barcodeList));
-
-        System.out.println("discount campaign: " + apiDiscountCampaignPrice);
     }
 
 

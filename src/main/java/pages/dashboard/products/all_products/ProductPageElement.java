@@ -125,10 +125,12 @@ public class ProductPageElement {
     @FindBy(css = "[name = productCostPrice] input")
     WebElement PRODUCT_COST_PRICE_WITHOUT_VARIATION;
 
-    // 0: Display if out of stock
-    // 1: Hide remaining stock on online store
-    @FindBy(css = "[class=' '] > label > input")
-    List<WebElement> SF_DISPLAY_SETTING;
+    @FindBy(xpath = "//*[@name='showOutOfStock']/parent::div/preceding-sibling::label[2]/input")
+    WebElement DISPLAY_IF_OUT_OF_STOCK_CHECKBOX;
+    @FindBy(xpath = "//*[@name='isHideStock']/parent::div/preceding-sibling::label[2]/input")
+    WebElement HIDE_REMAINING_STOCK_ON_ONLINE_STORE_CHECKBOX;
+    @FindBy(xpath = "//*[@name='enabledListing']/parent::div/preceding-sibling::label[2]/input")
+    WebElement SHOW_AS_LISTING_PRODUCT_ON_STOREFRONT_CHECKBOX;
     By LIST_BRANCH_STOCK_WITHOUT_VARIATION_PRODUCT = By.cssSelector(".branch-list-stock__wrapper__row  input");
 
     By ADD_IMEI_POPUP_BRANCH_DROPDOWN = By.cssSelector(".modal-body button.uik-select__valueRendered");
@@ -229,6 +231,33 @@ public class ProductPageElement {
 
     @FindBy(xpath = "//input[@class='uik-checkbox__checkbox' and @name='enabledListing']/ancestor::div[contains(@class,'uik-widget__wrapper')]/following-sibling::*/div[1]//span")
     WebElement ADD_DEPOSIT_BTN;
+
+    @FindBy(css = "#informationName")
+    WebElement EDIT_TRANSLATION_POPUP_PRODUCT_NAME;
+
+    @FindBy(css = ".modal-body .fr-element")
+    WebElement EDIT_TRANSLATION_POPUP_PRODUCT_DESCRIPTION;
+
+    @FindBy(xpath = "//*[@class = 'product-translate-modal']/*[@class = 'product-translate__titleBody']/h3/parent::div/following-sibling::div[@class]/div[1]/descendant::input")
+    List<WebElement> EDIT_TRANSLATION_POPUP_PRODUCT_VARIATION_NAME;
+
+    @FindBy(xpath = "//*[@class = 'product-translate-modal']/*[@class = 'product-translate__titleBody']/h3/parent::div/following-sibling::div[@class]/div[2]/descendant::input")
+    List<WebElement> EDIT_TRANSLATION_POPUP_PRODUCT_VARIATION_VALUE;
+
+    @FindBy(css = ".modal-body #seoTitle")
+    WebElement EDIT_TRANSLATION_POPUP_SEO_TITLE;
+
+    @FindBy(css = ".modal-body #seoDescription")
+    WebElement EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION;
+
+    @FindBy(css = ".modal-body #seoKeywords")
+    WebElement EDIT_TRANSLATION_POPUP_SEO_KEYWORDS;
+
+    @FindBy(css = ".modal-body #seoUrl")
+    WebElement EDIT_TRANSLATION_POPUP_SEO_URL;
+
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement EDIT_TRANSLATION_POPUP_SAVE_BTN;
 
     /* UI text element */
     /* Header */
@@ -448,6 +477,58 @@ public class ProductPageElement {
 
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement UI_UPLOAD_IMAGE_POPUP_SELECT_BTN;
+
+    // edit translation popup
+    @FindBy(css = ".product-translate__titleHeader > p")
+    WebElement UI_EDIT_TRANSLATION_POPUP_TITLE;
+
+    @FindBy(css = "[for='informationName']")
+    WebElement UI_EDIT_TRANSLATION_POPUP_PRODUCT_NAME;
+
+    @FindBy(xpath = "//*[@for='informationName']/parent::div/following-sibling::div/label")
+    WebElement UI_EDIT_TRANSLATION_POPUP_PRODUCT_DESCRIPTION;
+
+    @FindBy(xpath = "//div[@class='row']/preceding::div[@class = 'product-translate__titleBody'][1]")
+    WebElement UI_EDIT_TRANSLATION_POPUP_VARIATION;
+
+    @FindBy(xpath = "//div[@class=' seo-editor']/preceding::div[@class = 'product-translate__titleBody'][1]")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_SETTING;
+
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-18']/parent::div/preceding-sibling::span")
+    WebElement UI_EDIT_TRANSLATION_POPUP_LIVE_PREVIEW;
+
+    @FindBy(css = "[aria-describedby = tippy-tooltip-18]")
+    WebElement UI_EDIT_TRANSLATION_POPUP_LIVE_PREVIEW_TOOLTIPS;
+
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-19']/parent::div/preceding-sibling::span")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_TITLE;
+
+    @FindBy(xpath = "//*[@for='informationName']/parent::div/preceding-sibling::div")
+    WebElement UI_EDIT_TRANSLATION_POPUP_INFORMATION;
+
+    @FindBy(css = "[aria-describedby='tippy-tooltip-19']")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_TITLE_TOOLTIPS;
+
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-20']/parent::div/preceding-sibling::span")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION;
+
+    @FindBy(css = "[aria-describedby='tippy-tooltip-20']")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION_TOOLTIPS;
+
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-21']/parent::div/preceding-sibling::span")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_KEYWORDS;
+
+    @FindBy(css = "[aria-describedby='tippy-tooltip-21']")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SEO_KEYWORDS_TOOLTIPS;
+
+    @FindBy(xpath = "//*[@class='product-translate-modal']/descendant::*[@name='seoUrl']/parent::div/preceding-sibling::div[1]//span")
+    WebElement UI_EDIT_TRANSLATION_POPUP_URL_LINK;
+
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement UI_EDIT_TRANSLATION_POPUP_SAVE_BTN;
+
+    @FindBy(css = ".modal-footer .gs-button__white")
+    WebElement UI_EDIT_TRANSLATION_POPUP_CANCEL_BTN;
 
     /* Conversion unit */
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(5) > .gs-widget__header > h3 > span")

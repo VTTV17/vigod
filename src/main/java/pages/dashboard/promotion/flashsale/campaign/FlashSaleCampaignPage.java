@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
-import static pages.dashboard.products.all_products.ProductPage.uiProductName;
 import static pages.dashboard.promotion.flashsale.time.TimeManagementPage.*;
 import static utilities.character_limit.CharacterLimit.MAX_FLASH_SALE_CAMPAIGN_NAME;
 import static utilities.links.Links.STORE_CURRENCY;
@@ -173,23 +172,23 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
     /**
      * Search and select product
      */
-    public FlashSaleCampaignPage addFlashSaleProduct(String... productName) throws InterruptedException {
-        // open product list
-        wait.until(ExpectedConditions.elementToBeClickable(ADD_PRODUCT_BTN)).click();
-        logger.info("Open select flash sale product popup");
-
-        // if list product is provided
-        // search product by product name
-        // else select just created product name
-        if (productName.length > 0) for (String name : productName) searchAndSelectProduct(name);
-        else searchAndSelectProduct(uiProductName);
-
-        // close popup
-        wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
-        logger.info("Close select flash sale product popup");
-
-        return this;
-    }
+//    public FlashSaleCampaignPage addFlashSaleProduct(String... productName) throws InterruptedException {
+//        // open product list
+//        wait.until(ExpectedConditions.elementToBeClickable(ADD_PRODUCT_BTN)).click();
+//        logger.info("Open select flash sale product popup");
+//
+//        // if list product is provided
+//        // search product by product name
+//        // else select just created product name
+//        if (productName.length > 0) for (String name : productName) searchAndSelectProduct(name);
+//        else searchAndSelectProduct(uiProductName);
+//
+//        // close popup
+//        wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
+//        logger.info("Close select flash sale product popup");
+//
+//        return this;
+//    }
 
     /**
      * Remove out of stock product

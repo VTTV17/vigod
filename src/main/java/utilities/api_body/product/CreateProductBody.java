@@ -3,13 +3,11 @@ package utilities.api_body.product;
 import org.apache.commons.lang.math.JVMRandom;
 import utilities.data.DataGenerator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static api.dashboard.setting.StoreInformation.apiDefaultLanguage;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
@@ -30,7 +28,7 @@ public class CreateProductBody {
     public static boolean apiIsShowInStore = true;
     public static boolean apiIsShowInGosocial = true;
 
-    public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID) {
+    public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID, String seoTitle, String seoDescription, String seoKeywords, String seoURL) {
         apiIsIMEIProduct = isIMEIProduct;
         return """
                 {
@@ -56,6 +54,10 @@ public class CreateProductBody {
                     "onWeb": %s,
                     "inStore": %s,
                     "inGosocial": %s,
+                    "seoTitle": "%s",
+                    "seoDescription": "%s",
+                    "seoKeywords": "%s",
+                    "seoUrl": "%s",
                     "categories": [
                         {
                             "id": null,
@@ -81,7 +83,7 @@ public class CreateProductBody {
                         "length": 10,
                         "width": 10
                     },
-                """.formatted(name, currency, description, taxID, apiIsDisplayOutOfStock, apiIsHideStock, apiIsEnableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", apiIsShowOnApp, apiIsShowOnWeb, apiIsShowInStore, apiIsShowInGosocial);
+                """.formatted(name, currency, description, taxID, apiIsDisplayOutOfStock, apiIsHideStock, apiIsEnableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", apiIsShowOnApp, apiIsShowOnWeb, apiIsShowInStore, apiIsShowInGosocial, seoTitle, seoDescription, seoKeywords, seoURL);
     }
 
     public String variationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int increaseNum, int... branchStockQuantity) {
@@ -91,15 +93,16 @@ public class CreateProductBody {
 
         // get variation name
         List<String> varName = new ArrayList<>(variationMap.keySet());
-        String variationName = IntStream.range(1, varName.size()).mapToObj(i -> "|" + varName.get(i)).collect(Collectors.joining("", varName.get(0), ""));
+        String variationName = IntStream.range(1, varName.size()).mapToObj(i -> "|%s_%s".formatted(apiDefaultLanguage, varName.get(i))).collect(Collectors.joining("", "%s_%s".formatted(apiDefaultLanguage, varName.get(0)), ""));
 
         // get variation value
         List<List<String>> varValue = new ArrayList<>(variationMap.values());
-        variationList = varValue.get(0);
+        variationList = new ArrayList<>();
+        varValue.get(0).forEach(var -> variationList.add("%s_%s".formatted(apiDefaultLanguage, var)));
         if (varValue.size() > 1)
             IntStream.range(1, varValue.size())
                     .forEachOrdered(i -> variationList = new DataGenerator()
-                            .mixVariationValue(variationList, varValue.get(i)));
+                            .mixVariationValue(variationList, varValue.get(i), apiDefaultLanguage));
 
         // random variation listing price
         productListingPrice = new ArrayList<>();
@@ -177,12 +180,12 @@ public class CreateProductBody {
                         // generate IMEI object
                         // IMEI format: branchName_IMEI_Index
                         models.append("""
-                            {
-                                        "branchId": %s,
-                                        "code": "%s",
-                                        "status": "AVAILABLE"
-                                    }
-                            """.formatted(branchIDList.get(branchIndex), "%s%s_IMEI_%s".formatted(variationList.get(i), branchNameList.get(branchIndex), id)));
+                                {
+                                            "branchId": %s,
+                                            "code": "%s",
+                                            "status": "AVAILABLE"
+                                        }
+                                """.formatted(branchIDList.get(branchIndex), "%s%s_IMEI_%s".formatted(variationList.get(i), branchNameList.get(branchIndex), id)));
 
                         // add IMEI object to body
                         // add "," if is not last stock

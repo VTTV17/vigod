@@ -94,7 +94,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     public WholesaleProductPage getWholesaleProductInfo() {
         numOfWholesaleProduct = nextInt(uiVariationList.size()) + 1;
         for (int i = 0; i < numOfWholesaleProduct; i++) {
-            uiWholesaleProductPrice.set(i, nextLong(uiProductSellingPrice.get(i)) + 1);
+            uiWholesaleProductPrice.set(i, nextLong(productSellingPrice.get(i)) + 1);
             uiWholesaleProductStock.set(i, nextInt(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)) + 1);
         }
         return this;
@@ -270,6 +270,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
         } else {
             // check add wholesale pricing button
             String dbAddWholesalePricingBtn = wait.until(visibilityOf(UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN)).getText();
+            while (dbAddWholesalePricingBtn.equals("")) {
+                dbAddWholesalePricingBtn = UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN.getText();
+            }
             String ppAddWholesalePricingBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.withoutVariation.addWholesalePricingBtn", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Header] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
             logger.info("[UI][%s] Check Header - Add wholesale pricing button.".formatted(language));
