@@ -296,6 +296,39 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("[UI][%s] Check Footer - Copyright".formatted(language));
     }
 
+    void checkMetaTag(String language) throws IOException {
+        // check SEO title
+        if (!seoMap.get("title").get(language).equals("")) {
+            String sfSEOTitle = META_TITLE.getAttribute("content");
+            String dbSEOTitle = seoMap.get("title").get(language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOTitle, dbSEOTitle, "[Failed] SEO title should be %s, but found %s.".formatted(dbSEOTitle, sfSEOTitle));
+            logger.info("[%s] Check SEO title".formatted(language));
+        }
+
+        // check SEO description
+        if (!seoMap.get("description").get(language).equals("")) {
+            String sfSEODescription = META_TITLE.getAttribute("content");
+            String dbSEODescription = seoMap.get("description").get(language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEODescription, dbSEODescription, "[Failed] SEO description should be %s, but found %s.".formatted(dbSEODescription, sfSEODescription));
+            logger.info("[%s] Check SEO description".formatted(language));
+        }
+
+        // check SEO keywords
+        if (!seoMap.get("keywords").get(language).equals("")) {
+            String sfSEOKeywords = META_TITLE.getAttribute("content");
+            String dbSEOKeywords = seoMap.get("keywords").get(language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOKeywords, dbSEOKeywords, "[Failed] SEO keywords should be %s, but found %s.".formatted(dbSEOKeywords, sfSEOKeywords));
+            logger.info("[%s] Check SEO keywords".formatted(language));
+        }
+
+        // check SEO Url
+        if (!seoMap.get("url").get(language).equals("")) {
+            String sfSEOUrl = META_TITLE.getAttribute("content");
+            String dbSEOUrl = seoMap.get("url").get(language);
+            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOUrl, dbSEOUrl, "[Failed] SEO url should be %s, but found %s.".formatted(dbSEOUrl, sfSEOUrl));
+            logger.info("[%s] Check SEO url".formatted(language));
+        }
+    }
 
     void checkUIInStock(String language) throws Exception {
         checkHeader(language);
@@ -303,6 +336,7 @@ public class ProductDetailPage extends ProductDetailElement {
         checkProductDetailWhenInStock(language);
         checkOthersInformation(language);
         checkFooter(language);
+        checkMetaTag(language);
     }
 
     void checkUIOutOfStock(String language) throws Exception {
@@ -311,6 +345,7 @@ public class ProductDetailPage extends ProductDetailElement {
         checkProductDetailWhenOutOfStock(language);
         checkOthersInformation(language);
         checkFooter(language);
+        checkMetaTag(language);
     }
 
     /**

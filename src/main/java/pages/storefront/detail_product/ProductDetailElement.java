@@ -141,4 +141,16 @@ public class ProductDetailElement {
 
     @FindBy(css = ".col-12.text-center > span")
     WebElement FOOTER_COPYRIGHT;
+
+    @FindBy(css = "meta[name='title']")
+    WebElement META_TITLE;
+
+    @FindBy(css = "meta[name='description']")
+    WebElement META_DESCRIPTION;
+
+    @FindBy(css = "meta[name='keywords']")
+    WebElement META_KEYWORD;
+
+    @FindBy(css = "meta[name='og:url']")
+    WebElement META_URL;
 }

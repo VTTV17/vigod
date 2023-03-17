@@ -64,7 +64,6 @@ public class ProductInformation {
 
         // get product information
         Response productInfo = api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
-        productInfo.prettyPrint();
 
         // check api working normally
         productInfo.then().statusCode(200);
@@ -80,8 +79,8 @@ public class ProductInformation {
 
         // get SEO config
         seoMap = new HashMap<>();
-        seoMap.put("title", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoTitle".formatted(i)) != null ? productInfoJson.getString("languages.seoTitle") : productNameMap.get(productInfoJson.getString("languages[%s].language".formatted(i))), (a, b) -> b)));
-        seoMap.put("description", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoDescription".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoDescription".formatted(i)) : productDescriptionMap.get(productInfoJson.getString("languages[%s].language".formatted(i))), (a, b) -> b)));
+        seoMap.put("title", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoTitle".formatted(i)) != null ? productInfoJson.getString("languages.seoTitle") : "", (a, b) -> b)));
+        seoMap.put("description", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoDescription".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoDescription".formatted(i)) : "", (a, b) -> b)));
         seoMap.put("keywords", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoKeywords".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoKeywords".formatted(i)) : "", (a, b) -> b)));
         seoMap.put("url", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoUrl".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoUrl".formatted(i)) : "", (a, b) -> b)));
 
@@ -184,8 +183,6 @@ public class ProductInformation {
         }
 
         initDiscountInformation();
-        System.out.println(productListingPrice);
-        System.out.println(productSellingPrice);
     }
 
     void initDiscountInformation() {
