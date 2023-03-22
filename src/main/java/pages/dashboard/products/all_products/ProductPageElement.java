@@ -92,6 +92,15 @@ public class ProductPageElement {
     @FindBy(css = ".gss-content-header .btn-save")
     WebElement SAVE_BTN;
 
+    @FindBy(css = ".gss-content-header .gs-button__yellow--outline")
+    WebElement DEACTIVATE_BTN;
+
+    @FindBy(css = ".gss-content-header .gs-button__red--outline")
+    WebElement DELETE_BTN;
+
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN;
+
     @FindBy(css = ".lds-ellipsis")
     WebElement THREE_POINT_LOADING;
     @FindBy(css = ".lds-dual-ring-grey")
@@ -752,4 +761,17 @@ public class ProductPageElement {
 
     @FindBy(xpath = "//*[@name='inGosocial']/following-sibling::div")
     WebElement UI_GOSOCIAL;
+
+    /* Confirm delete product popup */
+    @FindBy(css = ".modal-title")
+    WebElement UI_CONFIRM_DELETE_PRODUCT_POPUP_TITLE;
+
+    @FindBy(css = ".modal-body")
+    WebElement UI_CONFIRM_DELETE_PRODUCT_POPUP_WARNING_MESSAGE;
+
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement UI_CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN;
+
+    @FindBy(css = ".modal-footer .gs-button__gray--outline")
+    WebElement UI_CONFIRM_DELETE_PRODUCT_POPUP_CANCEL_BTN;
 }

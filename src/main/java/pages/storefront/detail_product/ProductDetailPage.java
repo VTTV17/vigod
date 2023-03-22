@@ -83,13 +83,13 @@ public class ProductDetailPage extends ProductDetailElement {
         // get store language and others information
         if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
 
-        // get product information
-        new ProductInformation().get(uiProductID != 0 ? uiProductID : apiProductID);
-        System.out.println(uiProductID != 0 ? uiProductID : apiProductID);
-        getProductDiscountInformation();
-
         // check shop has multiple language or not
         driver.get("https://%s%s/".formatted(apiStoreURL, SF_DOMAIN));
+
+        // get product information
+        new ProductInformation().get(uiProductID != 0 ? uiProductID : apiProductID);
+        System.out.println(deleted);
+        getProductDiscountInformation();
 
         // get max stock
         int maxStock = Collections.max(productStockQuantityMap.values().stream().map(Collections::max).toList());

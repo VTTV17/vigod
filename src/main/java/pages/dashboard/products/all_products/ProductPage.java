@@ -956,6 +956,72 @@ public class ProductPage extends ProductPageElement {
         }
     }
 
+    /* Active/Deactivate product */
+    public void changeProductStatus(String status) {
+        // get product id
+        uiProductID = apiProductID;
+
+        // get product information
+        new ProductInformation().get(uiProductID);
+
+        if (!status.equals(bhStatus)) {
+            // log
+            logger.info("Product id: %s".formatted(uiProductID));
+
+            // navigate to product detail page by URL
+            driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
+
+            // wait page loaded
+            commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+
+            // set language
+            setLanguage();
+
+            // change status
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DEACTIVATE_BTN);
+
+            logger.info("change product status from %s to %s.".formatted(bhStatus, status));
+        }
+    }
+
+    public void deleteProduct() throws Exception {
+        // get product id
+        uiProductID = apiProductID;
+
+        // get product information
+        new ProductInformation().get(uiProductID);
+
+        if (!deleted) {
+            // log
+            logger.info("Product id: %s".formatted(uiProductID));
+
+            // navigate to product detail page by URL
+            driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
+
+            // wait page loaded
+            commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+
+            // set language
+            setLanguage();
+
+            // click delete button
+            wait.until(ExpectedConditions.elementToBeClickable(DELETE_BTN));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DELETE_BTN);
+
+            // wait confirm popup visible
+            wait.until(ExpectedConditions.visibilityOf(POPUP));
+
+            // check UI
+            checkUIConfirmDeleteProductPopup();
+
+            // click OK to confirm delete product
+            wait.until(ExpectedConditions.visibilityOf(CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN)).click();
+
+            // wait delete successfully
+            wait.until(ExpectedConditions.visibilityOf(POPUP));
+        }
+    }
+
 
     /* Complete create/update product */
     void completeCreateProduct() {
@@ -990,7 +1056,6 @@ public class ProductPage extends ProductPageElement {
     void completeUpdateProduct() {
         // click Save button
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SAVE_BTN);
-//        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
 
         // wait three point loading visible
         commonAction.waitForElementInvisible(THREE_POINT_LOADING, 30);
@@ -2427,6 +2492,28 @@ public class ProductPage extends ProductPageElement {
         String ppGoSocial = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.gosocial", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoSocial, ppGoSocial, "[Failed][Body] Platform GoSocial should be %s, but found %s.".formatted(ppGoSocial, dbGoSocial));
         logger.info("[UI][%s] Check Body - Platform GoSocial.".formatted(language));
+    }
+
+    void checkUIConfirmDeleteProductPopup() throws Exception {
+        String dbTitle = wait.until(visibilityOf(UI_CONFIRM_DELETE_PRODUCT_POPUP_TITLE)).getText();
+        String ppTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.title", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Confirm delete product popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        logger.info("[UI][%s] Check Confirm delete product popup - Title.".formatted(language));
+
+        String dbWarningMessage = wait.until(visibilityOf(UI_CONFIRM_DELETE_PRODUCT_POPUP_WARNING_MESSAGE)).getText();
+        String ppWarningMessage = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.warningMessage", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWarningMessage, ppWarningMessage, "[Failed][Confirm delete product popup] Warning message should be %s, but found %s.".formatted(ppWarningMessage, dbWarningMessage));
+        logger.info("[UI][%s] Check Confirm delete product popup - Warning message.".formatted(language));
+
+        String dbOKBtn = wait.until(visibilityOf(UI_CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN)).getText();
+        String ppOKBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.okBtn", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, dbOKBtn, ppOKBtn, "[Failed][Confirm delete product popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
+        logger.info("[UI][%s] Check Confirm delete product popup - OK button.".formatted(language));
+
+        String dbCancelBtn = wait.until(visibilityOf(UI_CONFIRM_DELETE_PRODUCT_POPUP_CANCEL_BTN)).getText();
+        String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.cancelBtn", language);
+        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Confirm delete product popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        logger.info("[UI][%s] Check Confirm delete product popup - Cancel button.".formatted(language));
     }
 
     void checkUICreateProductInfo() throws Exception {
