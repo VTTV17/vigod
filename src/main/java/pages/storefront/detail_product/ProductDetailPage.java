@@ -65,8 +65,8 @@ public class ProductDetailPage extends ProductDetailElement {
         String name = commonAction.getText(PRODUCT_NAME);
         logger.info("Retrieved product name: " + name);
         return name;
-    }    
-    
+    }
+
     void getProductDiscountInformation() {
         // wholesale product config
         wholesaleProductStock.addAll(uiWholesaleProductStock != null ? uiWholesaleProductStock : apiWholesaleProductStock);
@@ -99,24 +99,28 @@ public class ProductDetailPage extends ProductDetailElement {
             // in-case in stock or setting show product when out of stock
             // check if shop have multiple language, check all language should be shown exactly
             for (String languageCode : apiSFLangList) {
-                // check all information with VIE language
-                driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, uiProductID != 0 ? uiProductID : apiProductID));
-                logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(uiProductID != 0 ? uiProductID : apiProductID));
+                // check all information with language
+                if (languageCode.equals(apiDefaultLanguage) || !seoMap.get("url").get(languageCode).equals(seoMap.get("url").get(apiDefaultLanguage))) {
+                    driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, uiProductID != 0 ? uiProductID : apiProductID));
+                    logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(uiProductID != 0 ? uiProductID : apiProductID));
 
-                //wait spinner loaded
-                commonAction.waitForElementInvisible(SPINNER, 30);
+                    //wait spinner loaded
+                    commonAction.waitForElementInvisible(SPINNER, 30);
 
-                // wait product detail page loaded
-                commonAction.verifyPageLoaded(productNameMap.get(languageCode), productNameMap.get(languageCode));
+                    // wait product detail page loaded
+                    commonAction.verifyPageLoaded(defaultProductNameMap.get(languageCode), defaultProductNameMap.get(languageCode));
 
-                if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
-                    checkUIInStock(languageCode);
-                    checkProductInformation(languageCode);
-                } else {
-                    checkUIOutOfStock(languageCode);
+                    if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
+                        checkUIInStock(languageCode);
+                        checkProductInformation(languageCode);
+                    } else {
+                        checkUIOutOfStock(languageCode);
 
+                    }
                 }
+
             }
+
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
@@ -131,7 +135,6 @@ public class ProductDetailPage extends ProductDetailElement {
 
             // check 404 page is shown
             check404Page();
-
         }
 
         // complete verify
@@ -174,8 +177,10 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkBreadcrumbs(String language) throws Exception {
         // check breadcrumbs
         List<String> sfBreadCrumbs = BREAD_CRUMBS.stream().map(webElement -> webElement.getText().trim()).toList();
-        List<List<String>> ppBreadCrumbs = List.of(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionNameMap.get(collectionNameMap.keySet().stream().toList().get(0)).get(language).trim(), productNameMap.get(language)),
-                List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productNameMap.get(language)));
+        List<List<String>> ppBreadCrumbs = new ArrayList<>();
+        ppBreadCrumbs.add(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), defaultProductNameMap.get(language)));
+        if (collectionNameMap.keySet().size() > 0)
+            ppBreadCrumbs.add(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), collectionNameMap.get(collectionNameMap.keySet().stream().toList().get(0)).get(language).trim(), defaultProductNameMap.get(language)));
         countFail = new AssertCustomize(driver).assertTrue(countFail, ppBreadCrumbs.stream().anyMatch(breadCrumbs -> breadCrumbs.toString().equals(sfBreadCrumbs.toString())), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
         logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
     }
@@ -307,7 +312,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // check SEO description
         if (!seoMap.get("description").get(language).equals("")) {
-            String sfSEODescription = META_TITLE.getAttribute("content");
+            String sfSEODescription = META_DESCRIPTION.getAttribute("content");
             String dbSEODescription = seoMap.get("description").get(language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEODescription, dbSEODescription, "[Failed] SEO description should be %s, but found %s.".formatted(dbSEODescription, sfSEODescription));
             logger.info("[%s] Check SEO description".formatted(language));
@@ -315,7 +320,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // check SEO keywords
         if (!seoMap.get("keywords").get(language).equals("")) {
-            String sfSEOKeywords = META_TITLE.getAttribute("content");
+            String sfSEOKeywords = META_KEYWORD.getAttribute("content");
             String dbSEOKeywords = seoMap.get("keywords").get(language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOKeywords, dbSEOKeywords, "[Failed] SEO keywords should be %s, but found %s.".formatted(dbSEOKeywords, sfSEOKeywords));
             logger.info("[%s] Check SEO keywords".formatted(language));
@@ -323,9 +328,9 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // check SEO Url
         if (!seoMap.get("url").get(language).equals("")) {
-            String sfSEOUrl = META_TITLE.getAttribute("content");
+            String sfSEOUrl = META_URL.getAttribute("content");
             String dbSEOUrl = seoMap.get("url").get(language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOUrl, dbSEOUrl, "[Failed] SEO url should be %s, but found %s.".formatted(dbSEOUrl, sfSEOUrl));
+            countFail = new AssertCustomize(driver).assertTrue(countFail, sfSEOUrl.contains(dbSEOUrl), "[Failed] SEO url should be contains %s, but found %s.".formatted(dbSEOUrl, sfSEOUrl));
             logger.info("[%s] Check SEO url".formatted(language));
         }
     }
@@ -537,9 +542,9 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product name on the SF with Dashboard
      */
-    void checkProductName(String language) {
+    void checkProductName(String barcode, String language) {
         // get product name on dashboard
-        String dbProductName = productNameMap.get(language);
+        String dbProductName = productNameMap.get(barcode).get(language);
 
         // get product name on shop online
         String sfProductName = wait.until(visibilityOf(PRODUCT_NAME)).getText();
@@ -644,9 +649,9 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product description on the SF with Dashboard
      */
-    void checkProductDescription(String language) {
+    void checkProductDescription(String barcode, String language) {
         // get dashboard product description
-        String dbDescription = productDescriptionMap.get(language);
+        String dbDescription = productDescriptionMap.get(barcode).get(language);
 
         // get SF product description
         String sfDescription = wait.until(visibilityOf(PRODUCT_DESCRIPTION)).getText();
@@ -661,45 +666,49 @@ public class ProductDetailPage extends ProductDetailElement {
             if (variationName[0] != null) logger.info("*** var: %s ***".formatted(variationName[0]));
 
         // check product name
-        checkProductName(language);
+        checkProductName(barcodeList.get(index), language);
 
         // check variation name if any
         if (hasModel) checkVariationName(language);
 
         // check description
-        checkProductDescription(language);
+        checkProductDescription(barcodeList.get(index), language);
 
         int numberOfDisplayBranches = IntStream.range(0, apiAllBranchStatus.size()).filter(i -> !apiIsHideOnStoreFront.get(i) && apiAllBranchStatus.get(i).equals("ACTIVE") && (branchStock.get(i) > 0)).mapToObj(i -> true).toList().size();
-        if (numberOfDisplayBranches > 0) {
+        if (variationStatus.get(index).equals("ACTIVE")) {
+            if (numberOfDisplayBranches > 0) {
 
-            // check Buy Now and Add To Cart button is shown
-            checkBuyNowAndAddToCartBtnIsShown(variationName);
+                // check Buy Now and Add To Cart button is shown
+                checkBuyNowAndAddToCartBtnIsShown(variationName);
 
-            // wait list branch visible
-            commonAction.waitElementList(BRANCH_NAME_LIST);
+                // wait list branch visible
+                commonAction.waitElementList(BRANCH_NAME_LIST);
 
-            // check flash sale for each branch
-            for (WebElement element : BRANCH_NAME_LIST) {
-                // switch branch
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+                // check flash sale for each branch
+                for (WebElement element : BRANCH_NAME_LIST) {
+                    // switch branch
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 
-                // wait spinner loading if any
-                commonAction.waitForElementInvisible(SPINNER, 15);
+                    // wait spinner loading if any
+                    commonAction.waitForElementInvisible(SPINNER, 15);
 
-                // branch name
-                String branch = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", element).toString();
+                    // branch name
+                    String branch = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", element).toString();
 
-                // check branch stock quantity
-                int id = BRANCH_NAME_LIST.indexOf(element);
-                checkStock(isHideStock, id, branchStock.get(apiBranchName.indexOf(branch)));
+                    // check branch stock quantity
+                    int id = BRANCH_NAME_LIST.indexOf(element);
+                    checkStock(isHideStock, id, branchStock.get(apiBranchName.indexOf(branch)));
 
-                // check product price
-                checkVariationPriceAndDiscount(index, listingPrice, sellingPrice, flashSalePrice, productDiscountCampaignPrice, wholesaleProductStock, wholesaleProductPrice, element.getText());
+                    // check product price
+                    checkVariationPriceAndDiscount(index, listingPrice, sellingPrice, flashSalePrice, productDiscountCampaignPrice, wholesaleProductStock, wholesaleProductPrice, element.getText());
+                }
+                checkBranch(branchStock, variationName);
+            } else {
+                checkSoldOutMark(variationName);
+                checkBuyNowAndAddToCartBtnIsHidden(variationName);
             }
-            checkBranch(branchStock, variationName);
         } else {
-            checkSoldOutMark(variationName);
-            checkBuyNowAndAddToCartBtnIsHidden(variationName);
+
         }
     }
 
@@ -724,7 +733,16 @@ public class ProductDetailPage extends ProductDetailElement {
                 sleep(3000);
 
                 // select variation
-                Arrays.stream(varName).forEachOrdered(var -> LIST_VARIATION_VALUE.stream().filter(element -> ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", element).toString().equals(var)).findFirst().ifPresent(element -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element)));
+                for (String var : varName) {
+                    for (WebElement webElement : LIST_VARIATION_VALUE) {
+                        System.out.println(((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString());
+                        System.out.println(var);
+                        if (((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString().contains(var)) {
+                            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement);
+                            break;
+                        }
+                    }
+                }
 
 
                 // wait spinner loading if any
@@ -799,66 +817,65 @@ public class ProductDetailPage extends ProductDetailElement {
     public Map<String, List<String>> getSaleDisplayMap() {
         return apiBranchName.stream().collect(Collectors.toMap(s1 -> s1, s1 -> IntStream.range(0, apiFlashSaleStatus.get(s1).size()).mapToObj(i -> !apiFlashSaleStatus.get(s1).get(i).equals("EXPIRED") ? "FLASH SALE" : apiDiscountCampaignStatus.get(s1).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(s1).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
     }
-    
+
     public boolean isReviewTabDisplayed() {
-    	boolean isDisplayed = REVIEW_TAB.isDisplayed();
-    	logger.info("Is Review tab displayed: " + isDisplayed);
-    	return isDisplayed;
+        boolean isDisplayed = REVIEW_TAB.isDisplayed();
+        logger.info("Is Review tab displayed: " + isDisplayed);
+        return isDisplayed;
     }
 
     public ProductDetailPage clickReviewTab() {
         commonAction.clickElement(REVIEW_TAB);
         logger.info("Clicked on Review tab");
         return this;
-    }      
-    
-	public List<List<String>> getAllReviews() {
-		commonAction.sleepInMiliSecond(1000);
-		List<List<String>> table = new ArrayList<>();
-		for (WebElement eachReview : REVIEWS) {
-			List<String> reviewData = new ArrayList<>();
-			reviewData.add(String.valueOf(eachReview.findElements(By.xpath(".//span[@style='color: rgb(255, 176, 0);']")).size())); //Rating
-			reviewData.add(eachReview.findElement(By.xpath(".//span[@rv-text='review.userName']")).getText()); //Reviewer
-			reviewData.add(eachReview.findElement(By.xpath(".//span[contains(@rv-text,'review.reviewDate')]")).getText()); //Review date
-			reviewData.add(eachReview.findElement(By.xpath(".//div[@class='title']")).getText()); //Review title
-			reviewData.add(eachReview.findElement(By.xpath(".//div[@class='description']")).getText()); //Review description
-			table.add(reviewData);
-		}
-		return table;
-	}	    
-	
-    public ProductDetailPage inputRating(int rating){
-    	commonAction.clickElement(RATING_STARS.get(rating-1));
-    	logger.info("Rated stars : " + rating);
-    	return this;
     }
-    
-    public ProductDetailPage inputReviewTitle(String reviewTitle){
-    	commonAction.inputText(REVIEW_TITLE, reviewTitle);
-    	logger.info("Input review title: " + reviewTitle);
-    	return this;
+
+    public List<List<String>> getAllReviews() {
+        commonAction.sleepInMiliSecond(1000);
+        List<List<String>> table = new ArrayList<>();
+        for (WebElement eachReview : REVIEWS) {
+            List<String> reviewData = new ArrayList<>();
+            reviewData.add(String.valueOf(eachReview.findElements(By.xpath(".//span[@style='color: rgb(255, 176, 0);']")).size())); //Rating
+            reviewData.add(eachReview.findElement(By.xpath(".//span[@rv-text='review.userName']")).getText()); //Reviewer
+            reviewData.add(eachReview.findElement(By.xpath(".//span[contains(@rv-text,'review.reviewDate')]")).getText()); //Review date
+            reviewData.add(eachReview.findElement(By.xpath(".//div[@class='title']")).getText()); //Review title
+            reviewData.add(eachReview.findElement(By.xpath(".//div[@class='description']")).getText()); //Review description
+            table.add(reviewData);
+        }
+        return table;
     }
-    
-    public ProductDetailPage inputReviewDescription(String reviewDescription){
-    	commonAction.inputText(REVIEW_DESCRIPTION, reviewDescription);
-    	logger.info("Input review description: " + reviewDescription);
-    	return this;
+
+    public ProductDetailPage inputRating(int rating) {
+        commonAction.clickElement(RATING_STARS.get(rating - 1));
+        logger.info("Rated stars : " + rating);
+        return this;
+    }
+
+    public ProductDetailPage inputReviewTitle(String reviewTitle) {
+        commonAction.inputText(REVIEW_TITLE, reviewTitle);
+        logger.info("Input review title: " + reviewTitle);
+        return this;
+    }
+
+    public ProductDetailPage inputReviewDescription(String reviewDescription) {
+        commonAction.inputText(REVIEW_DESCRIPTION, reviewDescription);
+        logger.info("Input review description: " + reviewDescription);
+        return this;
     }
 
     public ProductDetailPage clickSubmitReviewBtn() {
         commonAction.clickElement(SUBMIT_REVIEW_BTN);
         logger.info("Clicked on Submit Review button");
         return this;
-    }    
-    
+    }
+
     public ProductDetailPage leaveReview(int rating, String reviewTitle, String reviewDescription) {
-    	inputRating(rating);
-    	inputReviewTitle(reviewTitle);
-    	inputReviewDescription(reviewDescription);
-    	clickSubmitReviewBtn();
-    	return this;
-    }    
-    
-    
-    
+        inputRating(rating);
+        inputReviewTitle(reviewTitle);
+        inputReviewDescription(reviewDescription);
+        clickSubmitReviewBtn();
+        return this;
+    }
+
+
 }

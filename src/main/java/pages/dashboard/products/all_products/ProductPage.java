@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
+import pages.dashboard.products.all_products.variation_detail.VariationDetailPage;
 import pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
@@ -53,7 +54,7 @@ public class ProductPage extends ProductPageElement {
     UICommonAction commonAction;
     String CREATE_PRODUCT_PATH = "/product/create";
     String PRODUCT_DETAIL_PAGE_PATH = "/product/edit/%s";
-    String epoch = String.valueOf(Instant.now().toEpochMilli());
+    String epoch;
     public static boolean noDiscount = nextBoolean();
     public static boolean hasDimension = nextBoolean();
 
@@ -64,6 +65,7 @@ public class ProductPage extends ProductPageElement {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         act = new Actions(driver);
         commonAction = new UICommonAction(driver);
+        epoch = String.valueOf(Instant.now().toEpochMilli());
     }
 
     String productName;
@@ -294,6 +296,9 @@ public class ProductPage extends ProductPageElement {
     public ProductPage navigateToUpdateProductPage() throws Exception {
         // get product id
         uiProductID = apiProductID;
+
+        // get product information
+        new ProductInformation().get(uiProductID);
 
         // log
         logger.info("Product id: %s".formatted(uiProductID));
@@ -951,6 +956,7 @@ public class ProductPage extends ProductPageElement {
         }
     }
 
+
     /* Complete create/update product */
     void completeCreateProduct() {
         // click Save button
@@ -1156,10 +1162,23 @@ public class ProductPage extends ProductPageElement {
         updateVariationStock(newIncreaseNum, newBranchStock);
         updateVariationSKU();
         completeUpdateProduct();
+
         // add translation
         List<String> langList = new ArrayList<>(apiStoreLanguageList);
         langList.remove(apiDefaultLanguage);
         for (String language : langList) editTranslation(language);
+
+        // get current product information
+        new ProductInformation().get(uiProductID);
+
+        // update variation product name and description
+        for (String barcode : barcodeList)
+            new VariationDetailPage(driver, barcode).updateVariationProductNameAndDescription(language, variationStatus.get(barcodeList.indexOf(barcode)));
+
+        // update variation status
+        for (String barcode : barcodeList)
+            new VariationDetailPage(driver, barcode).changeVariationStatus(language, List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
+
         initDiscountInformation();
 
         return this;
@@ -1176,6 +1195,8 @@ public class ProductPage extends ProductPageElement {
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
 
+        logger.info("Navigate to product page and edit translation.");
+
         // open edit translation popup
         if (apiStoreLanguageList.size() > 1) {
             // open edit translation popup
@@ -1188,7 +1209,7 @@ public class ProductPage extends ProductPageElement {
             checkEditTranslationPopup();
 
             // input translate product name
-            productName = "[%s]%s".formatted(language, manageInventoryByIMEI ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+            productName = "[%s]%s%s".formatted(language, manageInventoryByIMEI ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
             EDIT_TRANSLATION_POPUP_PRODUCT_NAME.click();
             EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys(productName);
@@ -1201,7 +1222,7 @@ public class ProductPage extends ProductPageElement {
 
             // input variation if any
             if (hasModel) {
-                List<String> variationName = IntStream.range(0, variationNameMap.get(apiDefaultLanguage).replace("|", " ").split("\\s").length).mapToObj(i -> "%s_var%s".formatted(apiDefaultLanguage, i)).toList();
+                List<String> variationName = IntStream.range(0, variationNameMap.get(apiDefaultLanguage).replace("|", " ").split("\\s").length).mapToObj(i -> "%s_var%s".formatted(language, i + 1)).toList();
                 List<String> variationValue = new ArrayList<>();
                 List<String> variationList = variationListMap.get(apiDefaultLanguage);
                 variationList.stream().map(varValue -> varValue.replace("|", " ").replace(apiDefaultLanguage, language).split("\\s")).forEach(varValueList -> Arrays.stream(varValueList).filter(varValue -> !variationValue.contains(varValue)).forEach(variationValue::add));
@@ -1222,19 +1243,19 @@ public class ProductPage extends ProductPageElement {
 
             // input SEO
             // input title
-            EDIT_TRANSLATION_POPUP_SEO_TITLE.click();
+            act.moveToElement(EDIT_TRANSLATION_POPUP_SEO_TITLE).click().build().perform();
             EDIT_TRANSLATION_POPUP_SEO_TITLE.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             EDIT_TRANSLATION_POPUP_SEO_TITLE.sendKeys("[%s] Auto - SEO Title - %s".formatted(language, epoch));
             // input description
-            EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION.click();
+            act.moveToElement(EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION).click().build().perform();
             EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION.sendKeys("[%s] Auto - SEO Description - %s".formatted(language, epoch));
             // input keywords
-            EDIT_TRANSLATION_POPUP_SEO_KEYWORDS.click();
+            act.moveToElement(EDIT_TRANSLATION_POPUP_SEO_KEYWORDS).click().build().perform();
             EDIT_TRANSLATION_POPUP_SEO_KEYWORDS.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             EDIT_TRANSLATION_POPUP_SEO_KEYWORDS.sendKeys("[%s] Auto - SEO Keyword - %s".formatted(language, epoch));
             // input url
-            EDIT_TRANSLATION_POPUP_SEO_URL.click();
+            act.moveToElement(EDIT_TRANSLATION_POPUP_SEO_URL).click().build().perform();
             EDIT_TRANSLATION_POPUP_SEO_URL.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             EDIT_TRANSLATION_POPUP_SEO_URL.sendKeys("%s%s".formatted(language, epoch));
 
@@ -1300,7 +1321,7 @@ public class ProductPage extends ProductPageElement {
 
         // check header Deactivate button
         String dbDeactivateBtn = wait.until(visibilityOf(UI_HEADER_UP_DEACTIVATE_BTN)).getText();
-        String ppDeactivateBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.header.deactivateBtn", language);
+        String ppDeactivateBtn = getPropertiesValueByDBLang(bhStatus.equals("ACTIVE") ? "products.allProducts.updateProduct.header.deactivateBtn" : "products.allProducts.updateProduct.header.activeBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeactivateBtn, ppDeactivateBtn, "[Failed][Header] Deactivate button should be %s, but found %s.".formatted(ppDeactivateBtn, dbDeactivateBtn));
         logger.info("[UI][%s] Check Header - Deactivate button.".formatted(language));
 
@@ -2443,10 +2464,11 @@ public class ProductPage extends ProductPageElement {
         checkUIPriority();
         checkUIPlatform();
     }
-    public void navigateToProductAndDeleteAllVariation(int productId){
-        commonAction.navigateToURL(DOMAIN+PRODUCT_DETAIL_PAGE_PATH.formatted(productId));
+
+    public void navigateToProductAndDeleteAllVariation(int productId) {
+        commonAction.navigateToURL(DOMAIN + PRODUCT_DETAIL_PAGE_PATH.formatted(productId));
         new HomePage(driver).waitTillSpinnerDisappear();
-        for (WebElement el:DELETE_VARIATION_BTN) {
+        for (WebElement el : DELETE_VARIATION_BTN) {
             commonAction.clickElement(el);
         }
         completeUpdateProduct();

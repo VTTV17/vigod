@@ -6,7 +6,6 @@ import io.restassured.response.Response;
 import org.testng.collections.Lists;
 import utilities.api.API;
 
-import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,8 +32,11 @@ public class ProductInformation {
     public static boolean hasModel;
     public static boolean manageInventoryByIMEI;
     public static List<String> barcodeList;
-    public static Map<String, String> productNameMap;
-    public static Map<String, String> productDescriptionMap;
+    public static List<String> variationStatus;
+    public static Map<String, String> defaultProductNameMap;
+    public static Map<String, Map<String, String>> productNameMap;
+    public static Map<String, String> defaultProductDescriptionMap;
+    public static Map<String, Map<String, String>> productDescriptionMap;
     public static Map<String, Map<String, String>> seoMap;
     public static Map<String, List<Integer>> productStockQuantityMap;
     public static boolean showOutOfStock;
@@ -72,14 +74,14 @@ public class ProductInformation {
         JsonPath productInfoJson = productInfo.jsonPath();
 
         // get product name
-        productNameMap = IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> String.valueOf(productInfoJson.getList("languages.name").get(i)), (a, b) -> b));
+        defaultProductNameMap = IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].name".formatted(i)), (a, b) -> b));
 
         // get product description
-        productDescriptionMap = IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> String.valueOf(!productInfoJson.getList("languages.description").get(i).equals("") ? productInfoJson.getList("languages.description").get(i) : null), (a, b) -> b));
+        defaultProductDescriptionMap = IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].description".formatted(i)), (a, b) -> b));
 
         // get SEO config
         seoMap = new HashMap<>();
-        seoMap.put("title", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoTitle".formatted(i)) != null ? productInfoJson.getString("languages.seoTitle") : "", (a, b) -> b)));
+        seoMap.put("title", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoTitle".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoTitle".formatted(i)) : "", (a, b) -> b)));
         seoMap.put("description", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoDescription".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoDescription".formatted(i)) : "", (a, b) -> b)));
         seoMap.put("keywords", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoKeywords".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoKeywords".formatted(i)) : "", (a, b) -> b)));
         seoMap.put("url", IntStream.range(0, productInfoJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getString("languages[%s].language".formatted(i)), i -> productInfoJson.getString("languages[%s].seoUrl".formatted(i)) != null ? productInfoJson.getString("languages[%s].seoUrl".formatted(i)) : "", (a, b) -> b)));
@@ -128,8 +130,19 @@ public class ProductInformation {
             variationListMap.put("en", noVar);
             variationListMap.put("vi", noVar);
 
+            // get product name
+            productNameMap = new HashMap<>();
+            productNameMap.put(barcodeList.get(0), defaultProductNameMap);
+
+            // get product description
+            productDescriptionMap = new HashMap<>();
+            productDescriptionMap.put(barcodeList.get(0), defaultProductDescriptionMap);
+
             // get stock
             productStockQuantityMap = Map.of(barcodeList.get(0), apiBranchID.stream().map(IntStream.range(0, productInfoJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getInt("branches[%s].branchId".formatted(i)), i -> productInfoJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList());
+
+            // get variation status
+            variationStatus = List.of(productInfoJson.getString("bhStatus"));
         } else {
             // get barcode list
             barcodeList = productInfoJson.getList("models.barcode");
@@ -144,13 +157,24 @@ public class ProductInformation {
             // init product stock map
             productStockQuantityMap = new HashMap<>();
 
+            // init variation status
+            variationStatus = new ArrayList<>();
+
+            // init product name map
+            productNameMap = new HashMap<>();
+
+            // init product description map
+            productDescriptionMap = new HashMap<>();
+
             // get variation info
             for (int modelsID = 0; modelsID < productInfoJson.getList("models.languages").size(); modelsID++) {
 
                 // get variation list map
-                for (int langID = 0; langID < productInfoJson.getList("models[0].languages.language").size(); langID++) {
+                Map<String, String> nameMap = new HashMap<>();
+                Map<String, String> descriptionMap = new HashMap<>();
+                for (int langID = 0; langID < productInfoJson.getList("models[%s].languages.language".formatted(modelsID)).size(); langID++) {
                     // get language
-                    String language = productInfoJson.getString("models[0].languages[%s].language".formatted(langID));
+                    String language = productInfoJson.getString("models[%s].languages[%s].language".formatted(modelsID, langID));
 
                     // add new variation value
                     List<String> variationList = new ArrayList<>();
@@ -159,14 +183,33 @@ public class ProductInformation {
 
                     // add to map
                     variationListMap.put(language, variationList);
+
+                    // get name map
+                    nameMap.put(language, productInfoJson.getString("models[%s].languages[%s].versionName".formatted(modelsID, langID)));
+
+                    // get description map
+                    descriptionMap.put(language, productInfoJson.getString("models[%s].languages[%s].description".formatted(modelsID, langID)));
                 }
+
+                // if variation product name
+                nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).equals("")).forEachOrdered(language -> nameMap.put(language, defaultProductNameMap.get(language)));
+                productNameMap.put(barcodeList.get(modelsID), nameMap);
+
+                // get variation product description
+                descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).equals("")).forEach(language -> descriptionMap.put(language, defaultProductDescriptionMap.get(language)));
+                productDescriptionMap.put(barcodeList.get(modelsID), descriptionMap);
 
                 // get variation branch stock
                 Map<Integer, Integer> varStock = new HashMap<>();
                 for (int brID = 0; brID < productInfoJson.getList("models[0].branches.branchId").size(); brID++) {
                     varStock.put(productInfoJson.getInt("models[%s].branches[%s].branchId".formatted(modelsID, brID)), productInfoJson.getInt("models[%s].branches[%s].totalItem".formatted(modelsID, brID)));
                 }
+
+                // get variation stock
                 productStockQuantityMap.put(barcodeList.get(modelsID), apiBranchID.stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
+
+                // get variation status
+                variationStatus.add(productInfoJson.getString("models[%s].status".formatted(modelsID)));
             }
         }
 
