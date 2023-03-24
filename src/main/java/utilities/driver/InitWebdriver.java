@@ -1,8 +1,10 @@
 package utilities.driver;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.PageLoadStrategy;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -11,6 +13,9 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.safari.SafariDriver;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import utilities.file.FileNameAndPath;
 
 public class InitWebdriver {
 
@@ -44,6 +49,9 @@ public class InitWebdriver {
                     chromeOptions.addArguments("--disable-site-isolation-trials");
                     // fix 403 Forbidden
                     chromeOptions.addArguments("--remote-allow-origins=*");
+                    Map<String, Object> prefs = new HashMap<String, Object>();
+                    prefs.put("download.default_directory", FileNameAndPath.downloadFolder);
+                    chromeOptions.setExperimentalOption("prefs", prefs);
                     driver = new ChromeDriver(chromeOptions);
                 }
             }
