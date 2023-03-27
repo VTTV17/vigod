@@ -27,7 +27,7 @@ public class CreateServiceElement {
     WebElement SHOW_AS_LISTING_CBX_VALUE;
     @FindBy(xpath = "(//input[@type='checkbox'])[1]/following-sibling::div")
     WebElement SHOW_AS_LISTING_CBX_ACTION;
-    @FindBy(xpath = "//label[@for='serviceDescription']//following::div[@class=\"fr-element fr-view\"]")
+    @FindBy(xpath = "//label[@for='serviceDescription']//following::div[@class='fr-element fr-view']")
     WebElement SERVICE_DESCRIPTION;
     @FindBy(css = ".product-form-collection-selector")
     WebElement COLLECTION_FORM;
@@ -121,5 +121,49 @@ public class CreateServiceElement {
     WebElement ERROR_MESSAGE_LOCATIONS;
     @FindBy(xpath = "//input[@id='timeSlots']/following-sibling::div[@class='invalid-feedback']")
     WebElement ERROR_MESSAGE_TIMESLOTS;
-
+    @FindBy(css = "#html-1")
+    WebElement CODE_VIEW_BTN;
+    @FindBy(xpath = "//textarea")
+    WebElement CODE_VIEW_DES;
+    @FindBy(xpath = "//div[@class='variation-item'][1]/div[2]")
+    WebElement MAXIMUM_ERROR_LOCATION;
+    @FindBy(xpath = "//div[@class='variation-item'][2]/div[2]")
+    WebElement MAXIMUM_ERROR_TIMESLOT;
+    @FindBy(css = ".modal-footer button")
+    WebElement CLOSE_BTN_NOTIFICATION_POPUP;
+    /*--------------Edit service-------------*/
+    @FindBy(xpath = "//h5[contains(@class,'product-name')]/following-sibling::div//button[contains(@class,'gs-button__gray--outline')][1]")
+    WebElement EDIT_TRANSLATION_BTN;
+    @FindBy(css = "input[name='informationName']")
+    WebElement NAME_INPUT_TRANSLATE;
+    @FindBy(xpath = "//label[@for='serviceDescription']//following::div[@class=\"fr-element fr-view\"][2]")
+    WebElement DESCRIPTION_TRANSLATE;
+    @FindBy(xpath = "//div[@class='modal-body']//div[@class='row']//input")
+    List<WebElement> LIST_LOCATION_INPUT;
+    @FindBy(css = "button[name='submit-translate']")
+    WebElement SAVE_TRANSLATE_BTN;
+    @FindBy(css = ".product-translate-modal #seoTitle")
+    WebElement SEO_TITLE_TRANSLATE;
+    @FindBy(css = ".product-translate-modal #seoDescription")
+    WebElement SEO_DESCRIPTION_TRANSLATE;
+    @FindBy(css = ".product-translate-modal #seoKeywords")
+    WebElement SEO_KEYWORDS_TRANSLATE;
+    @FindBy(css = ".product-translate-modal #seoUrl")
+    WebElement SEO_URL_TRANSLAE;
+    @FindBy(xpath = "(//button[contains(@class,'yellow')])[1]")
+    WebElement ACTIVE_DEACTIVE_BTN;
+    @FindBy(xpath = "//h5[contains(@class,'product-name')]/preceding-sibling::span")
+    WebElement STATUS;
+    @FindBy(css = ".seo-editor__live-preview-url a")
+    WebElement LIVE_PREVIEW_URL;
+    @FindBy(css = ".image-view")
+    List<WebElement> IMAGE_LIST;
+    @FindBy(css = ".image-widget__btn-remove")
+    List<WebElement> REMOVE_IMAGE_LIST;
+    @FindBy(css = ".product-form-collection-selector svg:not([role = 'img'])")
+    List<WebElement> DELETE_COLLECTION_ICON_LIST;
+    @FindBy(xpath = "(//button[contains(@class,'button__red')])[1]")
+    WebElement DELETE_BTN;
+    @FindBy(css = ".modal-footer button.gs-button__green")
+    WebElement OK_BTN_CONFIRM_POPUP;
 }

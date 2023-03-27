@@ -1,6 +1,7 @@
 package pages.dashboard.service.servicecollections;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,8 @@ import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.service.CreateServicePage;
+import pages.dashboard.service.ServiceManagementPage;
 import utilities.UICommonAction;
 
 public class ServiceCollectionManagement {
@@ -35,6 +38,10 @@ public class ServiceCollectionManagement {
 
 	@FindBy(css = ".collection-list-page button")
 	WebElement CREATE_SERVICE_COLLECTION_BTN;
+	@FindBy(css = ".collection-name")
+	List<WebElement> LIST_SERVICE_COLLECTION_NAME;
+	@FindBy(css = ".d-desktop-block .first-button")
+	List<WebElement> EDIT_ICON_LIST;
 
 	public ServiceCollectionManagement clickCreateServiceCollection() {
 		commonAction.clickElement(CREATE_SERVICE_COLLECTION_BTN);
@@ -56,6 +63,23 @@ public class ServiceCollectionManagement {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
     }
-    /*-------------------------------------*/   	
-	
+    /*-------------------------------------*/
+	public CreateServiceCollection goToEditServiceCollection(String collectionName) throws Exception {
+		boolean clicked = false;
+		for (int i=0;i< LIST_SERVICE_COLLECTION_NAME.size();i++) {
+			if (commonAction.getText(LIST_SERVICE_COLLECTION_NAME.get(i)).equalsIgnoreCase(collectionName)){
+				commonAction.clickElement(EDIT_ICON_LIST.get(i));
+				clicked = true;
+				break;
+			}
+		}
+		if (!clicked){
+			throw new Exception("Service %s not found".formatted(collectionName));
+		}
+		new HomePage(driver).waitTillSpinnerDisappear();
+		commonAction.sleepInMiliSecond(1000);
+		logger.info("Go to collection: "+collectionName);
+		return new CreateServiceCollection(driver);
+	}
+
 }

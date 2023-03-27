@@ -5,12 +5,16 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.List;
+
 public class ServiceManagementElement {
     WebDriver driver;
     public ServiceManagementElement(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+    @FindBy(css = ".service-list-page .gss-content-header button")
+    WebElement CREATE_SERVICE_BTN;
     @FindBy(xpath = "//h5[@class='gs-page-title']")
     WebElement PAGE_TITLE;
     @FindBy(css = ".gs-search-box__wrapper input")
@@ -45,4 +49,8 @@ public class ServiceManagementElement {
     WebElement MODAL_CANCEL_BTN;
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement MODAL_OK_BTN;
+    @FindBy(css = ".first-button")
+    List<WebElement> LIST_EDIT_BTN;
+    @FindBy(css = ".product-table__name b")
+    List<WebElement> LIST_SERVICE_NAME;
 }

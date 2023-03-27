@@ -2,6 +2,7 @@ package utilities.database;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.sql.*;
@@ -16,7 +17,11 @@ public class InitConnection {
         String connectionUrl = "jdbc:postgresql://%s:%s/%s?user=%s&password=%s&loginTimeout=30".formatted(DB_HOST, DB_PORT, DB_DATABASE, DB_USER, DB_PASS);
         return DriverManager.getConnection(connectionUrl);
     }
-
+	public java.sql.Connection createConnection(String host, String user, String pass) throws SQLException {
+		String connectionUrl = "jdbc:postgresql://%s:%s/%s?user=%s&password=%s&loginTimeout=30".formatted(host,DB_PORT, DB_DATABASE, user, pass);
+		System.out.println(connectionUrl);
+		return DriverManager.getConnection(connectionUrl);
+	}
     public String getActivationKey(String phoneNumber) throws SQLException {
     	try {
 			Thread.sleep(1000);
@@ -91,4 +96,5 @@ public class InitConnection {
             System.out.println(resultSet.getInt("activation_key"));
         }
     }
+
 }
