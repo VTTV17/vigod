@@ -16,7 +16,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.PropertiesUtil;
@@ -30,12 +29,23 @@ public class Cashbook {
 	WebDriverWait wait;
 	UICommonAction commonAction;
 
-	SoftAssert soft = new SoftAssert();
-
+	String otherVIE = null;
+	String otherENG = null;
+	
+	public void translateOthers() {
+		try {
+			otherVIE = PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group.others", "VIE");
+			otherENG = PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group.others", "ENG");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public Cashbook(WebDriver driver) {
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
+		translateOthers();
 		PageFactory.initElements(driver, this);
 	}
 
@@ -55,7 +65,7 @@ public class Cashbook {
 	WebElement TABLEHEADER;		
 	
 	@FindBy(css = ".uik-input__input")
-	WebElement SEARCHBOX;		
+	WebElement CASHBOOK_SEARCH_BOX;		
 	
 	@FindBy(css = ".gs-content-header-right-el .gs-button__green:nth-of-type(1)")
 	WebElement CREATE_RECEIPT_BTN;
@@ -98,6 +108,9 @@ public class Cashbook {
 
 	@FindBy(css = "[class*=gs-dropdown-search]")
 	WebElement SENDER_NAME_DROPDOWN;
+	
+	@FindBy(css = ".search-box input")
+	WebElement SEARCH_BOX;
 
 	By AMOUNT = By.id("amount");
 
@@ -116,11 +129,12 @@ public class Cashbook {
 	public Cashbook navigate() {
 		new HomePage(driver).navigateToPage("Cashbook");
 		commonAction.sleepInMiliSecond(5000);
+		new HomePage(driver).hideFacebookBubble();
 		return this;
 	}
 
-	public List<Integer> getCashbookSummary() {
-		List<Integer> summary = new ArrayList<>();
+	public List<Long> getCashbookSummary() {
+		List<Long> summary = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			String rawAmount = commonAction.getText(CASHBOOKSUMMARY.get(i));
 			Matcher m = Pattern.compile("\\d+").matcher(rawAmount);
@@ -128,7 +142,7 @@ public class Cashbook {
 			while (m.find()) {
 				sub.add(m.group());
 			}
-			summary.add(Integer.parseInt(String.join("", sub)));
+			summary.add(Long.parseLong(String.join("", sub)));
 		}
 		return summary;
 	}
@@ -159,8 +173,8 @@ public class Cashbook {
 		return this;
 	}	
 
-	public Cashbook inputSearchTerm(String searchTerm) {
-		commonAction.inputText(SEARCHBOX, searchTerm);
+	public Cashbook inputCashbookSearchTerm(String searchTerm) {
+		commonAction.inputText(CASHBOOK_SEARCH_BOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		commonAction.sleepInMiliSecond(1000);
 		return this;
@@ -176,9 +190,21 @@ public class Cashbook {
 
 	public Cashbook selectName(String name) {
 		commonAction.clickElement(SENDER_NAME_DROPDOWN);
-		String xpath = "//div[contains(@class,'search-item') and text()='%s']".formatted(name);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
-		commonAction.clickElement(SENDER_NAME_DROPDOWN.findElement(By.xpath(xpath)));
+		commonAction.inputText(SEARCH_BOX, name);
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
+		WebElement sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
+		commonAction.sleepInMiliSecond(500);
+		commonAction.clickElement(sender);
+		logger.info("Selected Sender Name: %s.".formatted(name));
+		return this;
+	}
+	
+	public Cashbook selectOthersName(String name) {
+		commonAction.clickElement(SENDER_NAME_DROPDOWN);
+		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
+		WebElement sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
+		commonAction.clickElement(sender);
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}
@@ -250,33 +276,35 @@ public class Cashbook {
 		return this;
 	}
 
-	public Cashbook createReceipt(String senderGroup, String revenue, String branch, String payment, String senderName,
+	public Cashbook createReceiptPaymentOverlap(String senderGroup, String revenue, String branch, String payment, String senderName,
 			String amount, String note, boolean isChecked) {
-		clickCreateReceiptBtn();
 		selectGroup(senderGroup);
 		selectRevenueExpense(revenue);
 		selectBranch(branch);
 		selectPaymentMethod(payment);
-		selectName(senderName);
+		if (senderGroup.contentEquals(otherENG) || senderGroup.contentEquals(otherVIE)) {
+			selectOthersName(senderName);
+		} else {
+			selectName(senderName);
+		}
 		inputAmount(amount);
 		inputNote(note);
 		checkAccountingCheckbox(isChecked);
 		clickSaveBtn();
+		return this;
+	}	
+	
+	public Cashbook createReceipt(String senderGroup, String revenue, String branch, String payment, String senderName,
+			String amount, String note, boolean isChecked) {
+		clickCreateReceiptBtn();
+		createReceiptPaymentOverlap(senderGroup, revenue, branch, payment, senderName, amount, note, isChecked);
 		return this;
 	}
 	
 	public Cashbook createPayment(String senderGroup, String revenue, String branch, String payment, String senderName,
 			String amount, String note, boolean isChecked) {
 		clickCreatePaymentBtn();
-		selectGroup(senderGroup);
-		selectRevenueExpense(revenue);
-		selectBranch(branch);
-		selectPaymentMethod(payment);
-		selectName(senderName);
-		inputAmount(amount);
-		inputNote(note);
-		checkAccountingCheckbox(isChecked);
-		clickSaveBtn();
+		createReceiptPaymentOverlap(senderGroup, revenue, branch, payment, senderName, amount, note, isChecked);
 		return this;
 	}
 
@@ -371,7 +399,7 @@ public class Cashbook {
     	text = commonAction.getText(TOOLTIP);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.endingBalance", signupLanguage));
     	
-    	text = commonAction.getElementAttribute(SEARCHBOX, "placeholder");
+    	text = commonAction.getElementAttribute(CASHBOOK_SEARCH_BOX, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.searchBox", signupLanguage));
     	
     	text = commonAction.getText(TABLEHEADER);
