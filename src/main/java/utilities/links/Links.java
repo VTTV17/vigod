@@ -33,4 +33,5 @@ public class Links {
     public static String URI = "https://api.beecow.info";
 
     public final static String SF_DOMAIN = ".unisell.vn";
+    public final static String PAGE_404_PATH = "404-page.html";
 }

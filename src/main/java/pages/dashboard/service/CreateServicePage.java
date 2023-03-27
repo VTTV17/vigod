@@ -1,13 +1,10 @@
 package pages.dashboard.service;
 
-import com.beust.ah.A;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.framework.qual.FromStubFile;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -17,11 +14,18 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.character_limit.CharacterLimit;
 import utilities.data.DataGenerator;
+import utilities.database.InitConnection;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static utilities.account.AccountTest.*;
+import static utilities.file.FileNameAndPath.FILE_IMAGE_1;
+import static utilities.file.FileNameAndPath.FILE_IMAGE_2;
 
 public class CreateServicePage extends HomePage{
     WebDriver driver;
@@ -31,7 +35,7 @@ public class CreateServicePage extends HomePage{
     final static Logger logger = LogManager.getLogger(CreateServicePage.class);
     CreateServiceElement createServiceUI;
     PropertiesUtil propertiesUtil;
-    String createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.create.successullyMessage");
+    String createSuccessfullyMess;
     public CreateServicePage(WebDriver driver) throws Exception {
         super(driver);
         this.driver=driver;
@@ -40,6 +44,7 @@ public class CreateServicePage extends HomePage{
         generate = new DataGenerator();
         createServiceUI = new CreateServiceElement(driver);
         PageFactory.initElements(driver,this);
+        createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.create.successullyMessage");
     }
     public CreateServicePage inputServiceName(String serviceName){
         commons.inputText(createServiceUI.SERVICE_NAME,serviceName);
@@ -71,6 +76,7 @@ public class CreateServicePage extends HomePage{
         return this;
     }
     public  CreateServicePage uncheckOnShowAsListingService(){
+        commons.sleepInMiliSecond(1000);
         commons.uncheckTheCheckboxOrRadio(createServiceUI.SHOW_AS_LISTING_CBX_VALUE,createServiceUI.SHOW_AS_LISTING_CBX_ACTION);
         logger.info("Uncheck on Show as listing service checkbox");
         return this;
@@ -120,6 +126,7 @@ public class CreateServicePage extends HomePage{
     }
 
     public CreateServicePage inputSEOTitle (String SEOTitle){
+        commons.sleepInMiliSecond(500);
     	if (commons.isElementVisiblyDisabled(createServiceUI.SEO_TITLE.findElement(By.xpath("./ancestor::div[contains(@class,'gs-widget  seo-editor')]/descendant::*[1]")))) {
     		Assert.assertFalse(new HomePage(driver).isMenuClicked(createServiceUI.SEO_TITLE));
     		return this;
@@ -156,11 +163,12 @@ public class CreateServicePage extends HomePage{
 		return title;
 	}    
     
-    public void verifyCreateSeviceSuccessfulMessage() {
-        commons.sleepInMiliSecond(2000);//wait loading
+    public CreateServicePage verifyCreateSeviceSuccessfulMessage() {
+        commons.waitForElementVisible(createServiceUI.POPUP_MESSAGE);
         String message= commons.getText(createServiceUI.POPUP_MESSAGE);
         Assert.assertEquals(message,createSuccessfullyMess);
         logger.info("Create service successfully popup is shown");
+        return this;
     }
     public void verifyTextOfPage() throws Exception {
         Assert.assertEquals(commons.getText(createServiceUI.CREATE_NEW_SERVICE_TITLE),propertiesUtil.getPropertiesValueByDBLang("services.create.pageTitle"));
@@ -245,6 +253,255 @@ public class CreateServicePage extends HomePage{
         inputSEODescription(Constant.TEXT_326_CHAR);
         String SEODescriptionDisplay = commons.getElementAttribute(createServiceUI.SEO_DESCRIPTION,"value");
         Assert.assertEquals(SEODescriptionDisplay.length(),CharacterLimit.MAX_CHAR_SEO_DESCRIPTION);
+        return this;
+    }
+    public CreateServicePage clickCodeViewInDescription(){
+        commons.sleepInMiliSecond(1000);
+        commons.clickElement(createServiceUI.CODE_VIEW_BTN);
+        logger.info("Select code view.");
+        return this;
+    }
+    public CreateServicePage inputDescriptionAsHTMLFormat(String html){
+        commons.inputText(createServiceUI.CODE_VIEW_DES,html);
+        logger.info("Input HTML format for description");
+        return this;
+    }
+    public void checkStockInventoryInDatabase(int itemId, int expected) throws SQLException {
+        String query = "SELECT * FROM \"item-services\".inventory WHERE item_id =%s".formatted(itemId);
+        ResultSet resultSet = new InitConnection().createConnection(DB_HOST_ITEM2,DB_ITEM2_USER, DB_ITEM2_PASS).prepareStatement(query).executeQuery();
+        while (resultSet.next()) {
+            System.out.println(resultSet.getInt("stock"));
+            Assert.assertEquals(resultSet.getInt("stock"), expected);
+        }
+    }
+    public CreateServicePage inputRandomLocations(int quantity){
+        for (int i=1;i<=quantity;i++){
+            String locationRd = generate.generateString(5)+ generate.generateString(5);
+            inputLocations(locationRd);
+        }
+        return this;
+    }
+    public CreateServicePage inputRandomTimes(int quantity){
+        List<String> addedTime = new ArrayList<>();
+        for (int i=1;i<=quantity;i++){
+            String timeRd = generate.generatNumberInBound(10,23)+":"+generate.generatNumberInBound(10,59);
+            while(addedTime.contains(timeRd)){
+                logger.debug("Duplicate: "+timeRd);
+                timeRd = generate.generatNumberInBound(10,23)+":"+generate.generatNumberInBound(10,59);
+            }
+            inputTimeSlots(timeRd);
+            addedTime.add(timeRd);
+        }
+        return this;
+    }
+    public CreateServicePage verifyMaximumErrorLocation() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.MAXIMUM_ERROR_LOCATION),PropertiesUtil.getPropertiesValueByDBLang("services.create.locations.maximumError"));
+        logger.info("Verify maximum error in locations");
+        return this;
+    }
+    public CreateServicePage verifyMaximumErrorTime() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.MAXIMUM_ERROR_TIMESLOT),PropertiesUtil.getPropertiesValueByDBLang("services.create.timeslots.maximumErrorTime"));
+        logger.info("Verify maximum error in locations");
+        return this;
+    }
+    public CreateServicePage createServiceWhenHasPermission(){
+        String[] images = {FILE_IMAGE_1, FILE_IMAGE_2};
+        String[] locations = {"Thu Duc", "Quan 9", "Quan 1", "Quan 2"};
+        String[] timeSlots = {"20:00", "21:00", "22:30"};
+        String serviceName = "Automation Service SV" + generate.generateString(10);
+        String description = "Automation sevices description";
+        String listingPrice = "2" + generate.generateNumber(5);
+        inputServiceName(serviceName);
+        inputListingPrice(listingPrice);
+        inputSellingPrice(listingPrice, generate.generateNumber(2));
+        uncheckOnShowAsListingService();
+        inputServiceDescription(description);
+        uploadImages(images);
+        inputLocations(locations);
+        inputTimeSlots(timeSlots);
+        clickSaveBtn();
+        verifyCreateSeviceSuccessfulMessage();
+        return this;
+    }
+    public ServiceManagementPage clickCloseBTNOnNotificationPopup(){
+        commons.clickElement(createServiceUI.CLOSE_BTN_NOTIFICATION_POPUP);
+        logger.info("Click on Close button on Notification pop up.");
+        waitTillLoadingDotsDisappear();
+        commons.sleepInMiliSecond(1000);
+        return new ServiceManagementPage(driver);
+    }
+    /*------------Edit---------------------*/
+    public CreateServicePage clickEditTranslation(){
+        waitTillLoadingDotsDisappear();
+        commons.clickElement(createServiceUI.EDIT_TRANSLATION_BTN);
+        logger.info("Click on edit translation button.");
+        return this;
+    }
+    public int getServiceId(){
+        waitTillSpinnerDisappear();
+        String url = commons.getCurrentURL();
+        String[] urlSplits = url.split("/");
+        String id = urlSplits[urlSplits.length -1];
+        return Integer.parseInt(id);
+    }
+    public String getNameTranslate(){
+        commons.sleepInMiliSecond(2000);
+        String name = commons.getElementAttribute(createServiceUI.NAME_INPUT_TRANSLATE,"value");
+        logger.info("Get name translate: ");
+        return name;
+    }
+    public String getDescriptionTranslate(){
+        String description = commons.getText(createServiceUI.DESCRIPTION_TRANSLATE);
+        logger.info("Get description in translate popup");
+        return description;
+    }
+    public CreateServicePage inputNameTranslate(String nameTranslate){
+        commons.inputText(createServiceUI.NAME_INPUT_TRANSLATE,nameTranslate);
+        logger.info("Input name in translate.");
+        return this;
+    }
+    public CreateServicePage inputDescriptionTranslate(String descriptionTranslate){
+        commons.inputText(createServiceUI.DESCRIPTION_TRANSLATE,descriptionTranslate);
+        logger.info("Input description in translate.");
+        return this;
+    }
+    public List<String> inputLocationsTranslate(){
+        List<String> locations = new ArrayList<>();
+        for (WebElement el:createServiceUI.LIST_LOCATION_INPUT) {
+            String locationRd = generate.generateString(5)+" "+generate.generateString(5);
+            commons.inputText(el,locationRd);
+            locations.add(locationRd);
+            logger.info("Input location: "+locationRd);
+        }
+        return locations;
+    }
+    public CreateServicePage clickSaveTranslateBTN(){
+        commons.clickElement(createServiceUI.SAVE_TRANSLATE_BTN);
+        logger.info("Click on Save button in translate.");
+        return this;
+    }
+    public CreateServicePage verifyUpdateTranslateSuccessfulMessage() throws Exception {
+        Assert.assertEquals(getToastMessage(),PropertiesUtil.getPropertiesValueByDBLang("services.create.updateTranslationSuccessully"));
+        logger.info("Update translate successfully message is show.");
+        return this;
+    }
+    public CreateServicePage inputSEOTitleTranslate(String SEOTitleTranslate){
+        commons.inputText(createServiceUI.SEO_TITLE_TRANSLATE,SEOTitleTranslate);
+        logger.info("Input SEO title translate: "+SEOTitleTranslate);
+        return this;
+    }
+    public CreateServicePage inputSEODescriptionTranslate(String SEODescriptionTranslate){
+        commons.inputText(createServiceUI.SEO_DESCRIPTION_TRANSLATE,SEODescriptionTranslate);
+        logger.info("Input SEO description translate: "+SEODescriptionTranslate);
+        return this;
+    }
+    public CreateServicePage inputSEOKeywordTranslate(String SEOKeywordTranslate){
+        commons.inputText(createServiceUI.SEO_KEYWORDS_TRANSLATE,SEOKeywordTranslate);
+        logger.info("Input SEO Keyword translate: "+SEOKeywordTranslate);
+        return this;
+    }
+    public CreateServicePage inputSEOUrlTranslate(String SEOUrlTranslate){
+        commons.inputText(createServiceUI.SEO_URL_TRANSLAE,SEOUrlTranslate);
+        logger.info("Input SEO Keyword translate: "+SEOUrlTranslate);
+        return this;
+    }
+    public String getServiceDescription(){
+        String des = commons.getText(createServiceUI.SERVICE_DESCRIPTION);
+        logger.info("Get Service description");
+        return des;
+    }
+    public CreateServicePage updateServiceStatus(String activeOrDeactive){
+        if(activeOrDeactive.equalsIgnoreCase("active")){
+            if(commons.getText(createServiceUI.STATUS).equalsIgnoreCase("inactive")){
+                commons.clickElement(createServiceUI.ACTIVE_DEACTIVE_BTN);
+            }
+        }else if(activeOrDeactive.equalsIgnoreCase("inactive")){
+            if(commons.getText(createServiceUI.STATUS).equalsIgnoreCase("active")){
+                commons.clickElement(createServiceUI.ACTIVE_DEACTIVE_BTN);
+            }
+        }
+        commons.clickElement(createServiceUI.SAVE_BTN);
+        return this;
+    }
+    public CreateServicePage verifyServiceStatusActive() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.STATUS),PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus"));
+        logger.info("Verify service status show active");
+        return this;
+    }
+    public CreateServicePage verifyServiceStatusInactive() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.STATUS),PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus"));
+        logger.info("Verify service status show inactive");
+        return this;
+    }
+    public CreateServicePage verifyUpdateServiceSuccessfully() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.POPUP_MESSAGE),PropertiesUtil.getPropertiesValueByDBLang("services.update.successfullyMessage"));
+        logger.info("Verify service status show inactive");
+        return this;
+    }
+    public String getLivePreviewLink(){
+        String url = commons.getElementAttribute(createServiceUI.LIVE_PREVIEW_URL,"href");
+        return url;
+    }
+    public String getSellingPrice(){
+        String sellingPrice = commons.getElementAttribute(createServiceUI.SELLING_PRICE,"value");
+        return sellingPrice;
+    }
+    public int getImageListSize(){
+        commons.sleepInMiliSecond(1000);
+        return createServiceUI.IMAGE_LIST.size();
+    }
+    public CreateServicePage removeAllImages() throws Exception {
+        commons.sleepInMiliSecond(500);
+        int size = createServiceUI.REMOVE_IMAGE_LIST.size();
+        for (int i=0;i<size;i++){
+            commons.clickElement(createServiceUI.REMOVE_IMAGE_LIST.get(0));
+            commons.sleepInMiliSecond(100);
+        }
+        Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_IMAGES),PropertiesUtil.getPropertiesValueByDBLang("services.create.imagesFieldEmptyError"));
+        logger.info("Remove alll images");
+        return this;
+    }
+    public CreateServicePage removeAllCollection(){
+        commons.sleepInMiliSecond(500);
+        int size = createServiceUI.DELETE_COLLECTION_ICON_LIST.size();
+        for (int i = 0;i<size;i++) {
+            commons.clickElement(createServiceUI.DELETE_COLLECTION_ICON_LIST.get(0));
+        }
+        logger.info("Remove all collection");
+        return this;
+    }
+    public CreateServicePage clickDeleteService(){
+        commons.clickElement(createServiceUI.DELETE_BTN);
+        logger.info("Click on Delete button");
+        return this;
+    }
+    public CreateServicePage verifyDeleteConfirmMessage() throws Exception {
+        Assert.assertEquals(commons.getText(createServiceUI.POPUP_MESSAGE),PropertiesUtil.getPropertiesValueByDBLang("services.delete.confirmMessage"));
+        logger.info("Verify delete comfirmation message.");
+        return this;
+    }
+    public CreateServicePage clickOKBtnOnConfirmPopup(){
+        commons.clickElement(createServiceUI.OK_BTN_CONFIRM_POPUP);
+        logger.info("Click on OK button on Confirmation popup.");
+        return this;
+    }
+    public CreateServicePage verifyDeleteSuccessfullyMessage() throws Exception {
+        commons.sleepInMiliSecond(2000);
+        Assert.assertEquals(commons.getText(createServiceUI.POPUP_MESSAGE),PropertiesUtil.getPropertiesValueByDBLang("services.delete.successfullyMessage"));
+        logger.info("Verify delete successfully message.");
+        return this;
+    }
+    public CreateServicePage updateServiceWhenHasPermission() throws Exception {
+        String serviceName = "Automation update name " + generate.generateString(5);
+        String description = "Automation update description " + generate.generateString(5);
+        String listingPrice = "3" + generate.generateNumber(5);
+        commons.sleepInMiliSecond(2000);
+        inputServiceName(serviceName);
+        inputServiceDescription(description);
+        inputListingPrice(listingPrice);
+        inputSellingPrice(listingPrice, generate.generateNumber(2));
+        clickSaveBtn();
+        verifyUpdateServiceSuccessfully();
         return this;
     }
 }

@@ -195,4 +195,14 @@ public class ServiceDetailPage {
         }else Assert.assertTrue(false,"Image thumbnail element not found");
         return this;
     }
+    public ServiceDetailPage verifyDescriptionAsHTMLFormat(String expected){
+       Assert.assertEquals(commons.getElementAttribute(SERVICE_DESCRIPTION,"innerHTML"),expected);
+       logger.info("Verify description has html as inputted");
+       return this;
+    }
+    public ServiceDetailPage verifyServiceListSize(int expected){
+        Assert.assertEquals(SERVICE_IMGS_THUMB.size(),expected);
+        logger.info("Verify service image thumbnail list size");
+        return this;
+    }
 }
