@@ -15,6 +15,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
+import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.header.HeaderSF;
 import utilities.UICommonAction;
 
@@ -68,11 +69,11 @@ public class MyOrders extends HeaderSF {
     	return isDisplayed;
     }	
 	
-    public MyOrders clickWriteReview(String orderId){
+    public ProductDetailPage clickWriteReview(String orderId){
     	WebElement el = driver.findElement(By.xpath(WRITE_REVIEW_LINKTEXT.formatted(orderId)));
     	commonAction.clickElement(el);
     	logger.info("Click on Write Review for order: " + orderId);
-    	return this;
+    	return new ProductDetailPage(driver);
     }
 
     
