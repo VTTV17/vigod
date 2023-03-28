@@ -5,55 +5,95 @@
         <classes>
             <class name="UpdateProductTest">
                 <methods>
+                    <!-- G1 VIE -->
                     <include name="UP_PRODUCT_VIE_G1_01_SettingDisplayAndProductInStock"/>
                     <include name="UP_PRODUCT_VIE_G1_02_SettingDisplayAndProductOutOfStock"/>
                     <include name="UP_PRODUCT_VIE_G1_03_SettingHiddenAndProductInStock"/>
                     <include name="UP_PRODUCT_VIE_G1_04_SettingHiddenAndProductOutOfStock"/>
+                    <include name="UP_PRODUCT_VIE_G1_05_EditTranslation" />
+                    <include name="UP_PRODUCT_VIE_G1_06_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_VIE_G1_07_DeleteProduct" />
+                    <!-- G1 ENG -->
+                    <include name="UP_PRODUCT_ENG_G1_01_SettingDisplayAndProductInStock"/>
+                    <include name="UP_PRODUCT_ENG_G1_02_SettingDisplayAndProductOutOfStock"/>
+                    <include name="UP_PRODUCT_ENG_G1_03_SettingHiddenAndProductInStock"/>
+                    <include name="UP_PRODUCT_ENG_G1_04_SettingHiddenAndProductOutOfStock"/>
+                    <include name="UP_PRODUCT_ENG_G1_05_EditTranslation" />
+                    <include name="UP_PRODUCT_ENG_G1_06_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_ENG_G1_07_UncheckWebPlatform" />
+                    <include name="UP_PRODUCT_ENG_G1_08_DeleteProduct" />
 
+                    <!-- G2 VIE -->
                     <include name="UP_PRODUCT_VIE_G2_01_SettingDisplayAndProductInStock"/>
                     <include name="UP_PRODUCT_VIE_G2_02_SettingDisplayAndProductOutOfStock"/>
                     <include name="UP_PRODUCT_VIE_G2_03_SettingHiddenAndProductInStock"/>
                     <include name="UP_PRODUCT_VIE_G2_04_SettingHiddenAndProductOutOfStock"/>
+                    <include name="UP_PRODUCT_VIE_G2_05_EditTranslation" />
+                    <include name="UP_PRODUCT_VIE_G2_06_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_VIE_G2_07_DeleteProduct" />
+                    <!-- G2 ENG -->
+                    <include name="UP_PRODUCT_ENG_G2_01_SettingDisplayAndProductInStock"/>
+                    <include name="UP_PRODUCT_ENG_G2_02_SettingDisplayAndProductOutOfStock"/>
+                    <include name="UP_PRODUCT_ENG_G2_03_SettingHiddenAndProductInStock"/>
+                    <include name="UP_PRODUCT_ENG_G2_04_SettingHiddenAndProductOutOfStock"/>
+                    <include name="UP_PRODUCT_ENG_G2_05_EditTranslation" />
+                    <include name="UP_PRODUCT_ENG_G2_06_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_ENG_G2_07_UncheckWebPlatform" />
+                    <include name="UP_PRODUCT_ENG_G2_08_DeleteProduct" />
 
+                    <!-- G3 VIE -->
                     <include name="UP_PRODUCT_VIE_G3_01_SettingDisplayAndProductInStock"/>
                     <include name="UP_PRODUCT_VIE_G3_02_SettingDisplayAndOneOfVariationOutOfStock"/>
                     <include name="UP_PRODUCT_VIE_G3_03_SettingDisplayAndAllVariationsOutOfStock"/>
                     <include name="UP_PRODUCT_VIE_G3_04_SettingHiddenAndAllVariationsInStock" />
                     <include name="UP_PRODUCT_VIE_G3_05_SettingHiddenAndOneOfVariationOutOfStock" />
                     <include name="UP_PRODUCT_VIE_G3_06_SettingHiddenAndAllVariationsOutOfStock" />
-
-                    <include name="UP_PRODUCT_VIE_G4_01_SettingDisplayAndProductInStock" />
-                    <include name="UP_PRODUCT_VIE_G4_02_SettingDisplayAndOneOfVariationOutOfStock" />
-                    <include name="UP_PRODUCT_VIE_G4_03_SettingDisplayAndAllVariationsOutOfStock" />
-                    <include name="UP_PRODUCT_VIE_G4_04_SettingHiddenAndAllVariationsInStock" />
-                    <include name="UP_PRODUCT_VIE_G4_05_SettingHiddenAndOneOfVariationOutOfStock" />
-                    <include name="UP_PRODUCT_VIE_G4_06_SettingHiddenAndAllVariationsOutOfStock" />
-
-                    <include name="UP_PRODUCT_ENG_G1_01_SettingDisplayAndProductInStock"/>
-                    <include name="UP_PRODUCT_ENG_G1_02_SettingDisplayAndProductOutOfStock"/>
-                    <include name="UP_PRODUCT_ENG_G1_03_SettingHiddenAndProductInStock"/>
-                    <include name="UP_PRODUCT_ENG_G1_04_SettingHiddenAndProductOutOfStock"/>
-
-                    <include name="UP_PRODUCT_ENG_G2_01_SettingDisplayAndProductInStock"/>
-                    <include name="UP_PRODUCT_ENG_G2_02_SettingDisplayAndProductOutOfStock"/>
-                    <include name="UP_PRODUCT_ENG_G2_03_SettingHiddenAndProductInStock"/>
-                    <include name="UP_PRODUCT_ENG_G2_04_SettingHiddenAndProductOutOfStock"/>
-
+                    <include name="UP_PRODUCT_VIE_G3_07_EditTranslationForMainProduct" />
+                    <include name="UP_PRODUCT_VIE_G3_08_EditTranslationForEachVariation" />
+                    <include name="UP_PRODUCT_VIE_G3_09_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_VIE_G3_10_ChangeVariationStatus" />
+                    <include name="UP_PRODUCT_VIE_G3_11_DeleteProduct" />
+                    <!-- G3 ENG -->
                     <include name="UP_PRODUCT_ENG_G3_01_SettingDisplayAndProductInStock"/>
                     <include name="UP_PRODUCT_ENG_G3_02_SettingDisplayAndOneOfVariationOutOfStock"/>
                     <include name="UP_PRODUCT_ENG_G3_03_SettingDisplayAndAllVariationsOutOfStock"/>
                     <include name="UP_PRODUCT_ENG_G3_04_SettingHiddenAndAllVariationsInStock" />
                     <include name="UP_PRODUCT_ENG_G3_05_SettingHiddenAndOneOfVariationOutOfStock" />
                     <include name="UP_PRODUCT_ENG_G3_06_SettingHiddenAndAllVariationsOutOfStock" />
+                    <include name="UP_PRODUCT_ENG_G3_07_EditTranslationForMainProduct" />
+                    <include name="UP_PRODUCT_ENG_G3_08_EditTranslationForEachVariation" />
+                    <include name="UP_PRODUCT_ENG_G3_09_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_ENG_G3_10_ChangeVariationStatus" />
+                    <include name="UP_PRODUCT_ENG_G3_11_UncheckWebPlatform" />
+                    <include name="UP_PRODUCT_ENG_G3_12_DeleteProduct" />
 
+                    <!-- G4 VIE -->
+                    <include name="UP_PRODUCT_VIE_G4_01_SettingDisplayAndProductInStock" />
+                    <include name="UP_PRODUCT_VIE_G4_02_SettingDisplayAndOneOfVariationOutOfStock" />
+                    <include name="UP_PRODUCT_VIE_G4_03_SettingDisplayAndAllVariationsOutOfStock" />
+                    <include name="UP_PRODUCT_VIE_G4_04_SettingHiddenAndAllVariationsInStock" />
+                    <include name="UP_PRODUCT_VIE_G4_05_SettingHiddenAndOneOfVariationOutOfStock" />
+                    <include name="UP_PRODUCT_VIE_G4_06_SettingHiddenAndAllVariationsOutOfStock" />
+                    <include name="UP_PRODUCT_VIE_G4_07_EditTranslationForMainProduct" />
+                    <include name="UP_PRODUCT_VIE_G4_08_EditTranslationForEachVariation" />
+                    <include name="UP_PRODUCT_VIE_G4_09_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_VIE_G4_10_ChangeVariationStatus" />
+                    <include name="UP_PRODUCT_VIE_G4_11_DeleteProduct" />
+                    <!-- G4 ENG -->
                     <include name="UP_PRODUCT_ENG_G4_01_SettingDisplayAndProductInStock" />
                     <include name="UP_PRODUCT_ENG_G4_02_SettingDisplayAndOneOfVariationOutOfStock" />
                     <include name="UP_PRODUCT_ENG_G4_03_SettingDisplayAndAllVariationsOutOfStock" />
                     <include name="UP_PRODUCT_ENG_G4_04_SettingHiddenAndAllVariationsInStock" />
                     <include name="UP_PRODUCT_ENG_G4_05_SettingHiddenAndOneOfVariationOutOfStock" />
                     <include name="UP_PRODUCT_ENG_G4_06_SettingHiddenAndAllVariationsOutOfStock" />
+                    <include name="UP_PRODUCT_ENG_G4_07_EditTranslationForMainProduct" />
+                    <include name="UP_PRODUCT_ENG_G4_08_EditTranslationForEachVariation" />
+                    <include name="UP_PRODUCT_ENG_G4_09_ChangeProductStatus" />
+                    <include name="UP_PRODUCT_ENG_G4_10_ChangeVariationStatus" />
+                    <include name="UP_PRODUCT_ENG_G4_11_UncheckWebPlatform" />
+                    <include name="UP_PRODUCT_ENG_G4_12_DeleteProduct" />
                 </methods>
-            </class> <!-- CreateProductTest -->
+            </class>
         </classes>
     </test> <!-- GoSELL-Automation -->
 </suite> <!-- Default Suite -->

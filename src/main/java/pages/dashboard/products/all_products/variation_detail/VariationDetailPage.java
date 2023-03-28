@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonAction;
@@ -38,7 +39,9 @@ public class VariationDetailPage extends VariationDetailElement {
 
     void navigateToVariationDetailPage() {
         driver.get("%s/product/%s/variation-detail/%s/edit".formatted(DOMAIN, barcode.split("-")[0], barcode.split("-")[1]));
+        new Actions(driver).keyDown(Keys.CONTROL).keyDown(Keys.SHIFT).sendKeys("r").keyUp(Keys.CONTROL).keyUp(Keys.SHIFT).build().perform();
         logger.info("Navigate to variation detail page, barcode: %s.".formatted(barcode));
+        commonAction.sleepInMiliSecond(3000);
         commonAction.verifyPageLoaded("Mẫu Mã Sản Phẩm", "Product Version");
     }
 
@@ -85,6 +88,7 @@ public class VariationDetailPage extends VariationDetailElement {
         EDIT_TRANSLATION_POPUP_DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(language, variationListMap.get(language).get(barcodeList.indexOf(barcode))));
         logger.info("Edit translation for product description.");
 
+        commonAction.sleepInMiliSecond(1000);
         wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_SAVE_BTN)).click();
         logger.info("Complete edit translation for variation.");
     }
@@ -100,8 +104,8 @@ public class VariationDetailPage extends VariationDetailElement {
         langList.forEach(this::updateVariationTranslation);
     }
 
-    public void changeVariationStatus(String language, String status) throws Exception {
-        checkUIEditTranslationPopup(language);
+    public void changeVariationStatus(String status) {
+        navigateToVariationDetailPage();
         if (!status.equals(variationStatus.get(barcodeList.indexOf(barcode))))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DEACTIVATE_BTN);
         logger.info("Update variation status.");

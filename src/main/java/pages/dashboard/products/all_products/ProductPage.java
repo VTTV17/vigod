@@ -242,26 +242,13 @@ public class ProductPage extends ProductPageElement {
     void setLanguage() {
         // set dashboard language
         WebElement selectedLanguage = driver.findElement(HEADER_SELECTED_LANGUAGE);
-        String currentLanguage;
-
-        // get current language
-        try {
-            // get text
-            currentLanguage = selectedLanguage.getText();
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
-
-            // get text again
-            selectedLanguage = driver.findElement(HEADER_SELECTED_LANGUAGE);
-            currentLanguage = selectedLanguage.getText();
-        }
+        String currentLanguage = (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", selectedLanguage);
+        System.out.println(currentLanguage);
+        System.out.println(language);
 
         if (!currentLanguage.contains(language)) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", selectedLanguage);
-            HEADER_LANGUAGE_LIST.stream().filter(webElement -> webElement.getText().contains(language))
-                    .findFirst().ifPresent(webElement -> ((JavascriptExecutor) driver)
-                            .executeScript("arguments[0].click()", webElement));
+            HEADER_LANGUAGE_LIST.stream().filter(webElement -> webElement.getText().contains(language)).findFirst().ifPresent(webElement -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement));
         }
     }
 
@@ -957,7 +944,7 @@ public class ProductPage extends ProductPageElement {
     }
 
     /* Active/Deactivate product */
-    public void changeProductStatus(String status) {
+    public ProductPage changeProductStatus(String status) {
         // get product id
         uiProductID = apiProductID;
 
@@ -982,6 +969,7 @@ public class ProductPage extends ProductPageElement {
 
             logger.info("change product status from %s to %s.".formatted(bhStatus, status));
         }
+        return this;
     }
 
     public void deleteProduct() throws Exception {
@@ -1054,6 +1042,25 @@ public class ProductPage extends ProductPageElement {
     }
 
     void completeUpdateProduct() {
+        // clear old conversion unit config
+        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
+
+        // delete old wholesale product config if any
+        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX)) {
+            // uncheck add wholesale pricing checkbox to delete old wholesale config
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
+
+            // wait confirm popup visible
+            wait.until(visibilityOf(CONFIRM_POPUP));
+
+            // confirm delete old wholesale config
+            wait.until(ExpectedConditions.elementToBeClickable(CONFIRM_POPUP_OK_BTN)).click();
+
+            // wait confirm popup invisible
+            wait.until(ExpectedConditions.invisibilityOf(CONFIRM_POPUP));
+        }
+
         // click Save button
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SAVE_BTN);
 
@@ -1161,11 +1168,6 @@ public class ProductPage extends ProductPageElement {
         inputWithoutVariationStock(branchStock);
         inputWithoutVariationProductSKU();
         completeCreateProduct();
-        // add translation
-        new StoreInformation().getStoreInformation();
-        List<String> langList = new ArrayList<>(apiStoreLanguageList);
-        langList.remove(apiDefaultLanguage);
-        for (String language : langList) editTranslation(language);
         initDiscountInformation();
 
         return this;
@@ -1184,10 +1186,6 @@ public class ProductPage extends ProductPageElement {
         inputVariationStock(increaseNum, branchStock);
         inputVariationSKU();
         completeCreateProduct();
-        // add translation
-        List<String> langList = new ArrayList<>(apiStoreLanguageList);
-        langList.remove(apiDefaultLanguage);
-        for (String language : langList) editTranslation(language);
         initDiscountInformation();
 
         return this;
@@ -1205,10 +1203,6 @@ public class ProductPage extends ProductPageElement {
         updateWithoutVariationStock(newBranchStock);
         updateWithoutVariationProductSKU();
         completeUpdateProduct();
-        // add translation
-        List<String> langList = new ArrayList<>(apiStoreLanguageList);
-        langList.remove(apiDefaultLanguage);
-        for (String language : langList) editTranslation(language);
         initDiscountInformation();
 
         return this;
@@ -1228,34 +1222,41 @@ public class ProductPage extends ProductPageElement {
         updateVariationSKU();
         completeUpdateProduct();
 
-        // add translation
-        List<String> langList = new ArrayList<>(apiStoreLanguageList);
-        langList.remove(apiDefaultLanguage);
-        for (String language : langList) editTranslation(language);
-
-        // get current product information
-        new ProductInformation().get(uiProductID);
-
-        // update variation product name and description
-        for (String barcode : barcodeList)
-            new VariationDetailPage(driver, barcode).updateVariationProductNameAndDescription(language, variationStatus.get(barcodeList.indexOf(barcode)));
-
-        // update variation status
-        for (String barcode : barcodeList)
-            new VariationDetailPage(driver, barcode).changeVariationStatus(language, List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
-
         initDiscountInformation();
 
         return this;
     }
 
+    public void changeVariationStatus() {
+        // update variation product name and description
+        // get current product information
+        new ProductInformation().get(apiProductID);
+
+        // update variation status
+        for (String barcode : barcodeList)
+            new VariationDetailPage(driver, barcode).changeVariationStatus(List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
+    }
+
+    public void editVariationTranslation() throws Exception {
+        setLanguage();
+
+        // update variation product name and description
+        // get current product information
+        new ProductInformation().get(apiProductID);
+
+        for (String barcode : barcodeList)
+            new VariationDetailPage(driver, barcode).updateVariationProductNameAndDescription(language, variationStatus.get(barcodeList.indexOf(barcode)));
+    }
+
     /* Edit translation */
     public void editTranslation(String language) throws Exception {
+        setLanguage();
+
         // get product information
-        new ProductInformation().get(uiProductID);
+        new ProductInformation().get(apiProductID);
 
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(apiProductID)));
 
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
@@ -1278,6 +1279,7 @@ public class ProductPage extends ProductPageElement {
             EDIT_TRANSLATION_POPUP_PRODUCT_NAME.click();
             EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys(productName);
+
 
             // input translate product description
             productDescription = "[%s] product description".formatted(language);
@@ -1325,8 +1327,35 @@ public class ProductPage extends ProductPageElement {
             EDIT_TRANSLATION_POPUP_SEO_URL.sendKeys("%s%s".formatted(language, epoch));
 
             // close edit translation popup
+            commonAction.sleepInMiliSecond(1000);
             wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_SAVE_BTN)).click();
         }
+    }
+
+    public void editTranslation() throws Exception {
+        // add translation
+        List<String> langList = new ArrayList<>(apiStoreLanguageList);
+        langList.remove(apiDefaultLanguage);
+        for (String language : langList) editTranslation(language);
+    }
+
+    public void uncheckWebPlatform() {
+        uiIsShowOnWeb = false;
+
+        // get product information
+        new ProductInformation().get(apiProductID);
+
+        // navigate to product detail page by URL
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(apiProductID)));
+
+        // wait page loaded
+        commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+
+        logger.info("Navigate to product page and edit translation.");
+
+        selectPlatform();
+
+        completeUpdateProduct();
     }
 
     /* check UI function */

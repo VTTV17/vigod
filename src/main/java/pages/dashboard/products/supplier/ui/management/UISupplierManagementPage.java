@@ -1,37 +1,33 @@
-package pages.dashboard.products.supplier;
-
-import java.time.Duration;
+package pages.dashboard.products.supplier.ui.management;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
-public class SupplierManagement {
-	WebDriver driver;
+import java.time.Duration;
+
+import static utilities.links.Links.DOMAIN;
+
+public class UISupplierManagementPage extends UISupplierManagementElement {
 	UICommonAction commons;
 	WebDriverWait wait;
+	String SUPPLIER_MANAGEMENT_PATH = "/supplier/list";
 
-	final static Logger logger = LogManager.getLogger(SupplierManagement.class);
+	final static Logger logger = LogManager.getLogger(UISupplierManagementPage.class);
 
-	public SupplierManagement(WebDriver driver) {
-		this.driver = driver;
+	public UISupplierManagementPage(WebDriver driver) {
+		super(driver);
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commons = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
 	}
-
-	@FindBy(css = ".supplier-list-page .d-desktop-flex .uik-input__input")
-	WebElement SEARCH_BOX;
-
-	public SupplierManagement inputSearchTerm(String searchTerm) {
+	public UISupplierManagementPage inputSearchTerm(String searchTerm) {
 		commons.inputText(SEARCH_BOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		new HomePage(driver).waitTillSpinnerDisappear();
@@ -50,6 +46,14 @@ public class SupplierManagement {
     }
 
 
-    /*-------------------------------------*/   	
+    /*-------------------------------------*/
+
+	void navigateToSupplierManagementPage() {
+		driver.get(DOMAIN + SUPPLIER_MANAGEMENT_PATH);
+
+		commons.verifyPageLoaded("Quản lý nhà cung cấp", "Supplier Management");
+
+		((JavascriptExecutor) driver).executeScript("arguments[0].click()", HEADER_ADD_SUPPLIER_BTN);
+	}
 	
 }

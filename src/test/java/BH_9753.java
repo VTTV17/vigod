@@ -1,24 +1,26 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.setting.BranchManagement;
-import api.dashboard.setting.StoreInformation;
-import api.dashboard.setting.VAT;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
+import utilities.driver.InitWebdriver;
 
 import java.io.File;
 import java.util.Arrays;
 
 import static api.dashboard.setting.BranchManagement.apiBranchID;
 
-public class BH_9753 extends BaseTest{
+public class BH_9753 extends BaseTest {
 
     @BeforeSuite
     void initPreCondition() {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         tcsFileName = "check_product_detail_sf/BH_9753_Search and view branchs in product detail page.xlsx".replace("/", File.separator);
+
+        driver = new InitWebdriver().getDriver("chrome", "true");
     }
 
     // G1: Normal product - without variation
@@ -43,10 +45,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G1_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G1_Case2_1";
         boolean isIMEIProduct = false;
@@ -63,10 +65,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G1_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G1_Case3_1";
         boolean isIMEIProduct = false;
@@ -104,10 +106,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G2_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G2_Case2_1";
         boolean isIMEIProduct = true;
@@ -124,10 +126,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G2_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case1_1";
         boolean isIMEIProduct = true;
@@ -166,10 +168,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G3_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case2_1";
         boolean isIMEIProduct = false;
@@ -187,10 +189,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G3_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G3_Case3_1";
         boolean isIMEIProduct = false;
@@ -230,10 +232,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G4_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G4_Case2_1";
         boolean isIMEIProduct = false;
@@ -251,10 +253,10 @@ public class BH_9753 extends BaseTest{
     }
 
     @Test
-    // Pre-condition:
-    // Active all branches
-    // setting: Hide free branch on shop online
-    // stock quantity > 0
+        // Pre-condition:
+        // Active all branches
+        // setting: Hide free branch on shop online
+        // stock quantity > 0
     void BH_9753_G4_Case3_1_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
         testCaseId = "BH_9753_G4_Case3_1";
         boolean isIMEIProduct = false;
@@ -271,5 +273,8 @@ public class BH_9753 extends BaseTest{
                 .accessToProductDetailPageByProductIDAndCheckProductInformation();
     }
 
-
+    @AfterSuite
+    void tearDown() {
+        if (driver != null) driver.quit();
+    }
 }

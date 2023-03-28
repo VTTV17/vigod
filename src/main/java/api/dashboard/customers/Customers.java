@@ -176,7 +176,7 @@ public class Customers {
 
     public void createSegmentByAPI() throws InterruptedException {
         // sign up SF account
-        new SignUp().signUpByMail();
+        if (apiCustomerName == null) new SignUp().signUpByMail();
 
         // login SF to create new Customer in Dashboard
         new LoginSF().LoginToSF();

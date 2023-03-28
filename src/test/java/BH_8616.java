@@ -1,11 +1,10 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
-import api.dashboard.setting.BranchManagement;
-import api.dashboard.setting.StoreInformation;
-import api.dashboard.setting.VAT;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
+import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
@@ -19,6 +18,8 @@ public class BH_8616 extends BaseTest {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         tcsFileName = "check_product_detail_sf/BH_8616_Check hide remaining stock on online store.xlsx".replace("/", File.separator);
+
+        driver = new InitWebdriver().getDriver("chrome", "true");
     }
 
     // G1: Normal product - without variation
@@ -230,5 +231,10 @@ public class BH_8616 extends BaseTest {
 
         new ProductDetailPage(driver)
                .accessToProductDetailPageByProductIDAndCheckProductInformation();
+    }
+
+    @AfterSuite
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 }

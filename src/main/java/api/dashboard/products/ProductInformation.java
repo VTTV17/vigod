@@ -67,8 +67,6 @@ public class ProductInformation {
         // get product information
         Response productInfo = api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
 
-        productInfo.prettyPrint();
-
         // set JsonPath to get product info
         JsonPath productInfoJson = productInfo.jsonPath();
 

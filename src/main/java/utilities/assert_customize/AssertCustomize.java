@@ -10,6 +10,7 @@ import java.io.IOException;
 
 public class AssertCustomize {
     WebDriver driver;
+    public int countFail = 0;
 
     public AssertCustomize(WebDriver driver) {
         this.driver = driver;

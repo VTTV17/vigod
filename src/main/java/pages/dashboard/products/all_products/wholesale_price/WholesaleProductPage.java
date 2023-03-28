@@ -49,21 +49,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm giá bán sỉ", "Add Wholesale Pricing");
 
-        // delete old wholesale product config if any
-        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX)) {
-            // uncheck add wholesale pricing checkbox to delete old wholesale config
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
-
-            // wait confirm popup visible
-            wait.until(visibilityOf(CONFIRM_POPUP));
-
-            // confirm delete old wholesale config
-            wait.until(ExpectedConditions.elementToBeClickable(CONFIRM_POPUP_OK_BTN)).click();
-
-            // wait confirm popup invisible
-            wait.until(ExpectedConditions.invisibilityOf(CONFIRM_POPUP));
-        }
-
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
         if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);

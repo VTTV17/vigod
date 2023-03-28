@@ -26,12 +26,6 @@ public class WholesaleProductElement {
     @FindBy(css = ".loading .lds-dual-ring-grey")
     WebElement SPINNER;
 
-    @FindBy(css = ".modal-content")
-    WebElement CONFIRM_POPUP;
-
-    @FindBy(css = ".modal-footer .gs-button__green")
-    WebElement CONFIRM_POPUP_OK_BTN;
-
     /* Without variation config*/
     @FindBy(css = ".wholesale-btn-group-header .gs-button__gray--outline")
     WebElement WITHOUT_VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN;

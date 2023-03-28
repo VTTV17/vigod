@@ -40,7 +40,7 @@ import pages.dashboard.products.inventory.Inventory;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import pages.dashboard.products.productreviews.ProductReviews;
 import pages.dashboard.products.purchaseorders.PurchaseOrders;
-import pages.dashboard.products.supplier.SupplierManagement;
+import pages.dashboard.products.supplier.function.management.FunctionSupplierManagementPage;
 import pages.dashboard.products.transfer.Transfer;
 import pages.dashboard.promotion.discount.DiscountPage;
 import pages.dashboard.promotion.flashsale.FlashSalePage;
@@ -199,7 +199,7 @@ public class Permission {
 					new ProductReviews(driver).verifyPermissionToManageReviews(permission.get(menuComponent));
 				}
 				if (subMenu.contentEquals("Supplier")) {
-					new SupplierManagement(driver).verifyPermissionToManageSupplier(permission.get(menuComponent),
+					new FunctionSupplierManagementPage(driver).verifyPermissionToManageSupplier(permission.get(menuComponent),
 								url.get(menuComponent));
 				}
 				if (subMenu.contentEquals("Purchase Orders")) {

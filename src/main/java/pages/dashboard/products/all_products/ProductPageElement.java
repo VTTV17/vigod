@@ -268,6 +268,18 @@ public class ProductPageElement {
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement EDIT_TRANSLATION_POPUP_SAVE_BTN;
 
+    @FindBy(css = ".uik-checkbox__wrapper > [name='conversionUnitCheckbox']")
+    WebElement ADD_CONVERSION_UNIT_CHECKBOX;
+
+    @FindBy(css = ".uik-checkbox__wrapper > [name='enabledListing']")
+    WebElement ADD_WHOLESALE_PRICING_CHECKBOX;
+
+    @FindBy(css = ".modal-content")
+    WebElement CONFIRM_POPUP;
+
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement CONFIRM_POPUP_OK_BTN;
+
     /* UI text element */
     /* Header */
     @FindBy(css = ".gss-content-header > div > div > a")

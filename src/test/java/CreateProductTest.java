@@ -1,9 +1,11 @@
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
+import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
@@ -15,7 +17,10 @@ public class CreateProductTest extends BaseTest {
     @BeforeSuite
     void setTcsFileName() {
         tcsFileName = "check_product_detail_sf/Create product.xlsx".replace("/", File.separator);
+        driver = new InitWebdriver().getDriver("chrome", "true");
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
     }
+
     @BeforeGroups(groups = "Dashboard language = VIE")
     void VIE() {
         language = "VIE";
@@ -38,8 +43,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -58,8 +61,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = false;
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -80,8 +81,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -100,8 +99,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = false;
         uiIsDisplayOutOfStock = false;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -123,8 +120,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -143,8 +138,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = true;
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -165,8 +158,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -185,8 +176,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = true;
         uiIsDisplayOutOfStock = false;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -209,8 +198,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -230,8 +217,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -253,8 +238,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -274,8 +257,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -297,8 +278,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -318,8 +297,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -342,8 +319,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -363,8 +338,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -386,8 +359,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -407,8 +378,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -430,8 +399,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -451,8 +418,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -475,8 +440,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -495,8 +458,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = false;
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -517,8 +478,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -537,8 +496,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = false;
         uiIsDisplayOutOfStock = false;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -560,8 +517,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -580,8 +535,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = true;
         uiIsDisplayOutOfStock = true;
         int branchStock = 5;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -602,8 +555,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int branchStock = 5;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .configConversionUnit()
@@ -622,8 +573,6 @@ public class CreateProductTest extends BaseTest {
         boolean isIMEIProduct = true;
         uiIsDisplayOutOfStock = false;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createWithoutVariationProduct(isIMEIProduct, branchStock)
@@ -646,8 +595,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -667,8 +614,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -690,8 +635,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -711,8 +654,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -734,8 +675,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -755,8 +694,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -779,8 +716,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -800,8 +735,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -823,8 +756,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -844,8 +775,6 @@ public class CreateProductTest extends BaseTest {
         uiIsDisplayOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
 
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
@@ -867,8 +796,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -889,8 +816,6 @@ public class CreateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
-
         new ProductPage(driver).navigateToCreateProductPage()
                 .createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                 .configConversionUnit()
@@ -898,5 +823,10 @@ public class CreateProductTest extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation();
+    }
+
+    @AfterSuite
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 }

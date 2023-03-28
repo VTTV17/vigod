@@ -1,24 +1,33 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
+import api.storefront.signup.SignUp;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.login.LoginPage;
+import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
-import static api.storefront.signup.SignUp.apiPassword;
-import static api.storefront.signup.SignUp.apiPhoneNumber;
+import static api.storefront.signup.SignUp.*;
+import static api.storefront.signup.SignUp.apiMail;
 import static java.lang.Thread.sleep;
 
 public class BH_8887 extends BaseTest {
     @BeforeSuite
-    void initPreCondition() {
+    void initPreCondition() throws InterruptedException {
         new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
 
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
+
+        driver = new InitWebdriver().getDriver("chrome", "true");
+
+        if (apiMail != null) new SignUp().signUpByMail();
+
+        new LoginPage(driver).navigate().performLoginJS(apiMail, apiPassword);
     }
 
     @BeforeGroups(groups = "Normal product - Without variation")
@@ -70,10 +79,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -89,10 +94,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G1_Case1_2";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -111,10 +112,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -130,10 +127,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G1_Case2_1";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -151,10 +144,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(startMin, endMin)
@@ -168,10 +157,6 @@ public class BH_8887 extends BaseTest {
     void BH_8887_G1_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "BH_8887_G1_Case2_3";
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -188,10 +173,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -207,10 +188,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G2_Case1_2";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -229,10 +206,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -248,10 +221,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G2_Case2_1";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -269,10 +238,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(startMin, endMin)
@@ -287,10 +252,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G2_Case2_3";
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(endMin - 1, endMin);
@@ -304,10 +265,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G3_Case1_1";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -324,10 +281,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G3_Case1_2";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -346,10 +299,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -365,10 +314,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G3_Case2_1";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -386,10 +331,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(startMin, endMin)
@@ -403,10 +344,6 @@ public class BH_8887 extends BaseTest {
     void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "BH_8887_G3_Case2_3";
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -423,10 +360,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -442,10 +375,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G4_Case1_2";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .createFlashSale(startMin, endMin)
@@ -464,10 +393,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .createFlashSale(endMin - 1, endMin)
                 .createProductDiscountCampaign(startMin, endMin);
@@ -483,10 +408,6 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G4_Case2_1";
         int startMin = 1;
         int endMin = 60;
-
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
 
         new CreatePromotion()
                 .endEarlyFlashSale()
@@ -504,10 +425,6 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(startMin, endMin)
@@ -522,15 +439,16 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G4_Case2_3";
         int endMin = 60;
 
-        new LoginPage(driver)
-                .navigate()
-                .performLoginJS(apiPhoneNumber, apiPassword);
-
         new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation();
+    }
+
+    @AfterSuite
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 }

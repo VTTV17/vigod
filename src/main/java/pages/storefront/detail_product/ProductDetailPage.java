@@ -88,7 +88,6 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // get product information
         new ProductInformation().get(uiProductID != 0 ? uiProductID : apiProductID);
-        System.out.println(deleted);
         getProductDiscountInformation();
 
         // get max stock
@@ -358,7 +357,7 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p> If countFail > 0, some cases have been failed</p>
      * <p> Reset countFail for the next test</p>
      */
-    public void completeVerify() {
+    void completeVerify() {
         if (countFail + ProductPage.countFail > 0) {
             int count = countFail + ProductPage.countFail;
             countFail = 0;
@@ -452,7 +451,7 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("%s Check wholesale product information is shown".formatted(branch));
     }
 
-    public void checkVariationPriceAndDiscount(int indexOfVariation, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String apiBranchName) throws IOException {
+    void checkVariationPriceAndDiscount(int indexOfVariation, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String apiBranchName) throws IOException {
         String priceType = getSalePriceMap().get(apiBranchName).get(indexOfVariation);
         String displayType = getSaleDisplayMap().get(apiBranchName).get(indexOfVariation);
 
@@ -734,14 +733,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
                 // select variation
                 for (String var : varName) {
-                    for (WebElement webElement : LIST_VARIATION_VALUE) {
-                        System.out.println(((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString());
-                        System.out.println(var);
-                        if (((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString().contains(var)) {
-                            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement);
-                            break;
-                        }
-                    }
+                    LIST_VARIATION_VALUE.stream().filter(webElement -> ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString().contains(var)).findFirst().ifPresent(webElement -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement));
                 }
 
 
@@ -810,11 +802,11 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p>Branch B = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN} </p>
      * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
      */
-    public Map<String, List<String>> getSalePriceMap() {
+    Map<String, List<String>> getSalePriceMap() {
         return apiBranchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, apiFlashSaleStatus.get(brName).size()).mapToObj(i -> apiFlashSaleStatus.get(brName).get(i).equals("IN_PROGRESS") ? "FLASH SALE" : (apiFlashSaleStatus.get(brName).get(i).equals("SCHEDULE") ? (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? (!hasModel ? "DISCOUNT CAMPAIGN" : "SELLING PRICE") : (wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")) : (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : (wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")))).toList(), (a, b) -> b));
     }
 
-    public Map<String, List<String>> getSaleDisplayMap() {
+    Map<String, List<String>> getSaleDisplayMap() {
         return apiBranchName.stream().collect(Collectors.toMap(s1 -> s1, s1 -> IntStream.range(0, apiFlashSaleStatus.get(s1).size()).mapToObj(i -> !apiFlashSaleStatus.get(s1).get(i).equals("EXPIRED") ? "FLASH SALE" : apiDiscountCampaignStatus.get(s1).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(s1).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
     }
 

@@ -6,6 +6,7 @@ import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.excel.Excel;
+import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
 public class BaseTest {
@@ -14,7 +15,7 @@ public class BaseTest {
     DataGenerator generate;
 	UICommonAction commonAction;
 
-    // PROD config
+//    // PROD config
 //    String sellerAccount = "prdvn@nbobd.com";
 //    String sellerPassword = "Abc@12345";
 
@@ -27,7 +28,7 @@ public class BaseTest {
 
     @BeforeMethod
     public void setup() throws InterruptedException {
-        driver = new InitWebdriver().getDriver("chrome","false");
+        if (driver == null) driver = new InitWebdriver().getDriver("chrome","false");
         generate = new DataGenerator();
         commonAction = new UICommonAction(driver);
     }
@@ -35,7 +36,7 @@ public class BaseTest {
     @AfterMethod
     public void tearDown(ITestResult result) throws IOException {
         if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
-        if (driver != null) driver.quit();
+        new Screenshot().takeScreenshot(driver);
     }
     public void writeResultToExcel(String fileName, int sheetId,ITestResult result, String testCaseID) throws IOException {
         Excel excel = new Excel();

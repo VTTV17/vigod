@@ -41,10 +41,6 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
 
-        // clear old conversion unit config
-        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
-
         // if 'Add Conversion Unit' checkbox is not checked, check and click on 'Configure' button
         if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
