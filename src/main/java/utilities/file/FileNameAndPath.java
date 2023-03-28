@@ -1,7 +1,10 @@
 package utilities.file;
 
+import java.io.File;
+
 public class FileNameAndPath {
     public static String projectLocation= System.getProperty("user.dir");
+    public static String downloadFolder = projectLocation + File.separator + "target" + File.separator + "downloads";
     static String osName= System.getProperty("os.name");
     public static final String FILE_CONFIG = "config.properties";
     public static final String FILE_DASHBOARD_EN_TEXT = "dashboard_en.properties";
@@ -13,6 +16,8 @@ public class FileNameAndPath {
     public static final String FILE_PERMISSION_PLAN_TCS = "PlanPermissionTcs.xlsx";
     public static final String FILE_IMAGE_1 = "cham-soc-mat.jpg";
     public static final String FILE_IMAGE_2 = "giam-beo-bung.jpg";
+    public static final String FILE_IMAGE_3 = "fusionmeso.jpg";
+    public static final String FILE_IMAGE_4 = "peel.jpg";
     public static final String FILE_PLAN_PERMISSION = "PlanPermission.xlsx";
     public static final String FILE_USER_PROFILE_TCS = "UserProfileSFTcs.xlsx";
     public static final String FILE_BUY_LINK_TCS = "BuyLinkTCs.xlsx";

@@ -734,5 +734,8 @@ public class HomePage {
         Assert.assertEquals(commons.getText(homeUI.ADD_BANK_ACCOUNT_DESCRIPTION),PropertiesUtil.getPropertiesValueByDBLang("home.addBankAccount.description"));
         Assert.assertEquals(commons.getText(homeUI.BANK_INFORMATION_BTN),PropertiesUtil.getPropertiesValueByDBLang("home.addBankAccount.bankInformation"));
     }
-
+    public HomePage navigateToPageByURL(){
+        commons.navigateToURL(DOMAIN);
+        return this;
+    }
 }

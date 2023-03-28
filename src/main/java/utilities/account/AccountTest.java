@@ -8,6 +8,7 @@ public class AccountTest {
     // 10.10.0.15
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com
     public static String DB_HOST = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
+    public static String DB_HOST_ITEM2 = "beecow-staging-item.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_PORT = "5432";
 
     // postgres
@@ -17,10 +18,12 @@ public class AccountTest {
     // postgres
     // readonly
     public static String DB_USER = "readonly";
-
+    public static String DB_ITEM2_USER = "dbaitem";
     // postgres
     // R7LHffcgeEh2tpQ0qU2y
     public static String DB_PASS = "R7LHffcgeEh2tpQ0qU2y";
+    public static String DB_ITEM2_PASS = "ShogdBiPHcC67RDQ6H1u";
+
     public static String USERNAME_INTERNALTOOL = "editor@mediastep.com";
     public static String PASSWORD_INTERNALTOOL = "editor.mediastep@1";
     public static String ADMIN_SHOP_VI_USERNAME = "0707159324";

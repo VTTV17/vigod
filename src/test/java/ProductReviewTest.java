@@ -16,6 +16,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -61,6 +62,11 @@ public class ProductReviewTest extends BaseTest {
 	String buyerPassword = buyerData.findValue("buyer").findValue("phone").findValue("password").asText();
 	String buyerCountry = buyerData.findValue("buyer").findValue("phone").findValue("country").asText();
 
+	@BeforeClass
+	public void logIntoDashboardByAPI() {
+		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
+	}	
+	
 	@BeforeMethod
 	public void setup() throws InterruptedException {
 		super.setup();
@@ -81,28 +87,23 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	public String randomSearchProduct() {
-        new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
         List<String> allProducts = new api.dashboard.products.ProductReviews().getProductNameList();
         Set<String> uniqueNames = new HashSet<String>(allProducts);
         List<String> productNames = new ArrayList<String>(uniqueNames);
         return productNames.get(new Random().nextInt(0, productNames.size()));
 	}	
 
-	
     public void confirmDeliverOrderByAPI(String orderID){
-        new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
         OrderAPI orderAPI = new OrderAPI();
         orderAPI.confirmOrder(orderID);
         orderAPI.deliverOrder(orderID);
     }		
 	
 	public List<Integer> getRatingListByAPI() {
-		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
 		return new api.dashboard.products.ProductReviews().getAllReviewJsonPath().getList("rate");
 	}	
 	
 	public List<Date> getCreatedDateListByAPI() {
-		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
 		List<String> rawList = new api.dashboard.products.ProductReviews().getAllReviewJsonPath().getList("reviewDate");
 		List<Date> processedList = new ArrayList<>();
 		FormatDate formatDate = new FormatDate();
@@ -193,7 +194,83 @@ public class ProductReviewTest extends BaseTest {
     		Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()));
     	}
     }	
-  
+    
+	public String buyProductThenDeliverOrder(String product) throws Exception {
+		/* Log into SF */
+		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
+		sfHeader.waitTillLoaderDisappear();
+
+		/* Buy product */
+		sfHeader.clickUserInfoIcon()
+		.changeLanguage(displayLanguage)
+		.searchWithFullName(product)
+		.clickSearchResult()
+		.waitTillLoaderDisappear();
+		
+		sfProductDetailPage.clickOnBuyNow()
+		.clickOnContinue()
+		.getFullName();
+		checkOutStep1.selectPaymentMethod("COD")
+		.clickOnNextButton()
+		.selectShippingMethod("Self delivery")
+		.clickOnNextButton()
+		.clickOnNextButton()
+		.clickOnBackToMarket();
+
+		/* See order details */
+		List<List<String>> orderData = sfHeader.clickUserInfoIcon()
+		.clickUserProfile()
+		.clickMyOrdersSection()
+		.getOrderData();
+		
+		/* Use API to deliver the order */
+		String orderId = orderData.get(0).get(0).replaceAll("\\D", "");
+		confirmDeliverOrderByAPI(orderId);
+		return orderId;
+	}  
+	
+	public void leaveReview(String product) throws Exception {
+		
+		String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(10);
+		int randomStar = new DataGenerator().generatNumberInBound(1, 6);
+		
+		/* Log into SF */
+		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
+		sfHeader.waitTillLoaderDisappear();
+		
+		/* Buy product */
+		sfHeader.clickUserInfoIcon()
+		.changeLanguage(displayLanguage)
+		.searchWithFullName(product)
+		.clickSearchResult()
+		.waitTillLoaderDisappear();
+		
+		sfProductDetailPage.clickOnBuyNow()
+		.clickOnContinue()
+		.getFullName();
+		checkOutStep1.selectPaymentMethod("COD")
+		.clickOnNextButton()
+		.selectShippingMethod("Self delivery")
+		.clickOnNextButton()
+		.clickOnNextButton()
+		.clickOnBackToMarket();
+		
+		/* See order details */
+		List<List<String>> orderData = sfHeader.clickUserInfoIcon()
+				.clickUserProfile()
+				.clickMyOrdersSection()
+				.getOrderData();
+		
+		/* Use API to deliver the order */
+		String orderId = orderData.get(0).get(0).replaceAll("\\D", "");
+		confirmDeliverOrderByAPI(orderId);
+		
+		/* Leave a review */
+		commonAction.refreshPage();
+		new MyOrders(driver).clickWriteReview(orderId)
+		.leaveReview(randomStar, "So good " + randomNumber, "Absolutely love the product " + randomNumber);
+	}  
+	
 	@Test
 	public void PR_00_PermissionToUseProductReviews() throws Exception {
 		
@@ -226,36 +303,7 @@ public class ProductReviewTest extends BaseTest {
     
 	public void PR_02_DisableProductReviews() throws Exception {
 
-		/* Log into SF */
-		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
-		sfHeader.waitTillLoaderDisappear();
-
-		/* Buy product */
-		sfHeader.clickUserInfoIcon()
-		.changeLanguage(displayLanguage)
-		.searchWithFullName(randomProduct)
-		.clickSearchResult()
-		.waitTillLoaderDisappear();
-		
-		sfProductDetailPage.clickOnBuyNow()
-		.clickOnContinue()
-		.getFullName();
-		checkOutStep1.selectPaymentMethod("COD")
-		.clickOnNextButton()
-		.selectShippingMethod("Self delivery")
-		.clickOnNextButton()
-		.clickOnNextButton()
-		.clickOnBackToMarket();
-
-		/* See order details */
-		List<List<String>> orderData = sfHeader.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyOrdersSection()
-		.getOrderData();
-		
-		/* Use API to deliver the order */
-		String orderId = orderData.get(0).get(0).replaceAll("\\D", "");
-		confirmDeliverOrderByAPI(orderId);
+		buyProductThenDeliverOrder(randomProduct);
 		
 		/* Log into dashboard */
 		commonAction.openNewTab();
@@ -367,36 +415,7 @@ public class ProductReviewTest extends BaseTest {
 		String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(10);
 		int randomStar = new DataGenerator().generatNumberInBound(1, 6);
 		
-		/* Log into SF */
-		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
-		sfHeader.waitTillLoaderDisappear();
-
-		/* Buy product */
-		sfHeader.clickUserInfoIcon()
-		.changeLanguage(displayLanguage)
-		.searchWithFullName(randomProduct)
-		.clickSearchResult()
-		.waitTillLoaderDisappear();
-		
-		sfProductDetailPage.clickOnBuyNow()
-		.clickOnContinue()
-		.getFullName();
-		checkOutStep1.selectPaymentMethod("COD")
-		.clickOnNextButton()
-		.selectShippingMethod("Self delivery")
-		.clickOnNextButton()
-		.clickOnNextButton()
-		.clickOnBackToMarket();
-
-		/* See order details */
-		List<List<String>> orderData = sfHeader.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyOrdersSection()
-		.getOrderData();
-		
-		/* Use API to deliver the order */
-		String orderId = orderData.get(0).get(0).replaceAll("\\D", "");
-		confirmDeliverOrderByAPI(orderId);
+		String orderId = buyProductThenDeliverOrder(randomProduct);
 
 		/* Log into dashboard */
 		commonAction.openNewTab();
@@ -418,8 +437,6 @@ public class ProductReviewTest extends BaseTest {
 		commonAction.switchToWindow(1);
 		commonAction.refreshPage();
 		productReviewPage.navigate().approveReview(0);
-		
-		
 		
 		/* Get reviews on Dashboard */
 		List<List<String>> dbReviews = productReviewPage.getReviewTable();
@@ -472,19 +489,23 @@ public class ProductReviewTest extends BaseTest {
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
 		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
 		
-		/* Get reviews */
+		/* Absolute match */
 		productReviewPage.navigate().inputSearchTerm(searchTerm);
-		List<List<String>> dbReviews = productReviewPage.getAllReviewTable();
+		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm);
 		
-		/* Verify search results */
-		verifyResultMatchSearchTerm(dbReviews, searchTerm);
-		
-		/* Get reviews */
+		/* Partly match */
 		productReviewPage.navigate().inputSearchTerm(randomSearchProduct);
-		dbReviews = productReviewPage.getAllReviewTable();
+		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm);
 		
-		/* Verify search results */
-		verifyResultMatchSearchTerm(dbReviews, searchTerm);
+		/* Ignore case */
+		productReviewPage.navigate().inputSearchTerm(randomSearchProduct.toLowerCase());
+		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), randomSearchProduct.toLowerCase());
+		productReviewPage.navigate().inputSearchTerm(searchTerm.toLowerCase());
+		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm.toLowerCase());
+		productReviewPage.navigate().inputSearchTerm(randomSearchProduct.toUpperCase());
+		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), randomSearchProduct.toUpperCase());
+		productReviewPage.navigate().inputSearchTerm(searchTerm.toUpperCase());
+		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm.toUpperCase());
 	}	
 	
 	@Test
@@ -501,33 +522,51 @@ public class ProductReviewTest extends BaseTest {
 		
 		/* Sort reviews by low to high rating */
 		String sortCondition = "lowToHigh";
+		
 		List<Integer> expectedRating = sortRatingRetrievedFromAPI(initialRating, sortCondition);
+		
 		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		
 		List<Integer> actualRating = extractRatingFromReview(productReviewPage.getAllReviewTable());
+		
 		Assert.assertEquals(actualRating, expectedRating);
 		
 		/* Sort reviews by high to low rating */
 		sortCondition = "highToLow";
+		
 		expectedRating = sortRatingRetrievedFromAPI(initialRating, sortCondition);
+		
 		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		
 		actualRating = extractRatingFromReview(productReviewPage.getAllReviewTable());
+		
 		Assert.assertEquals(actualRating, expectedRating);		
 		
 		/* Sort reviews by new to old created date */
 		sortCondition = "newToOld";
+		
 		commonAction.refreshPage();
 		homePage.waitTillSpinnerDisappear1();
+		
 		List<List<String>> initialReviews = productReviewPage.getAllReviewTable();
+		
 		List<Date> expectedCreatedDate = sortCreatedDate(extractCreatedDateFromReview(initialReviews), sortCondition);
+		
 		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		
 		List<Date> actualCreatedDate = extractCreatedDateFromReview(productReviewPage.getAllReviewTable());
+		
 		Assert.assertEquals(actualCreatedDate, expectedCreatedDate);	
 		
 		/* Sort reviews by old to new created date */
 		sortCondition = "oldToNew";
+		
 		expectedCreatedDate = sortCreatedDate(extractCreatedDateFromReview(initialReviews), sortCondition);
+		
 		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		
 		actualCreatedDate = extractCreatedDateFromReview(productReviewPage.getAllReviewTable());
+		
 		Assert.assertEquals(actualCreatedDate, expectedCreatedDate);	
 		
 	}	

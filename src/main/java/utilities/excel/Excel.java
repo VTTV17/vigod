@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,6 +28,11 @@ public class Excel {
     public Sheet getSheet(String fileName, int sheetID) throws IOException {
         FileInputStream fileInput = new FileInputStream("%s/src/main/resources/excels/%s".formatted(System.getProperty("user.dir"), fileName));
         return new XSSFWorkbook(fileInput).getSheetAt(sheetID);
+    }
+    
+    public Sheet getSheet(File fileName, int sheetID) throws IOException {
+    	FileInputStream fileInput = new FileInputStream(String.valueOf(fileName));
+    	return new XSSFWorkbook(fileInput).getSheetAt(sheetID);
     }
 
     public Row getRow(String fileName, int sheetID, int rowID) throws IOException {
@@ -113,4 +119,12 @@ public class Excel {
             e.printStackTrace();
         }
     }
+
+    public boolean isCellBlank(Cell cell) {
+    	if (cell == null) {
+    		return true;
+    	}
+    	return false;
+    }    
+    
 }

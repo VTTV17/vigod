@@ -2,6 +2,7 @@ package api.dashboard.customers;
 
 import api.storefront.login.LoginSF;
 import api.storefront.signup.SignUp;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
@@ -22,6 +23,7 @@ public class Customers {
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
     String GET_CUSTOMER_LIST_IN_SEGMENT_PATH = "/beehiveservices/api/customer-profiles/%s/v2?segmentId=%s";
+    String GET_200_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=0&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
     public static String apiCustomerName;
     public static String apiCustomerTag;
     public static String apiCustomerMail;
@@ -193,4 +195,14 @@ public class Customers {
         segmentDetail.then().statusCode(200);
         return segmentDetail.jsonPath().getList("id");
     }
+    
+    public JsonPath getAllCustomerJsonPath() {
+    	Response response = api.get(GET_200_CUSTOMERS_PATH.formatted(apiStoreID), accessToken);
+    	response.then().statusCode(200);
+    	return response.jsonPath();
+    }
+    
+    public List<String> getAllCustomerNames() {
+    	return getAllCustomerJsonPath().getList("fullName");
+    }    
 }
