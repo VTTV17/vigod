@@ -75,7 +75,6 @@ public class CreateServiceTest extends BaseTest {
         serviceEdit = "service11";
         SF_URL = SF_ShopVi;
         serviceTestStatus = "Automation Service SVsUueLVdQjQ";
-        serviceDelete = "Automation update name cmbFm";
     }
 
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {
@@ -130,14 +129,14 @@ public class CreateServiceTest extends BaseTest {
         commonAction.sleepInMiliSecond(1000);
         home.clickLogout();
     }
-//    @Test(priority = 1)
+    @Test()
     public void CS01_VerifyText() throws Exception {
         testCaseId = "CS01";
         createService = loginDbAndGoToCreateServicePage();
         createService.verifyTextOfPage();
     }
 
-//    @Test(priority = 2)
+    @Test()
     public void CS02_CheckValidate() throws Exception {
         testCaseId = "CS02";
         createService = loginDbAndGoToCreateServicePage();
@@ -149,7 +148,7 @@ public class CreateServiceTest extends BaseTest {
                 .checkMaximumCharacterForSEODescriptionField();
     }
 
-//    @Test(priority = 3)
+    @Test()
     public void CS03_CreateNormalService() throws Exception {
         testCaseId = "CS03";
         createService = loginDbAndGoToCreateServicePage();
@@ -192,7 +191,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-//    @Test(priority = 4)
+    @Test()
     public void CS04_CreateServiceBelongTo1Collection() throws Exception {
         testCaseId = "CS04";
         createService = loginDbAndGoToCreateServicePage();
@@ -236,7 +235,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-//    @Test(priority = 5)
+    @Test()
     public void CS05_CreateServiceBelongToMultipleCollections() throws Exception {
         testCaseId = "CS05";
         createService = loginDbAndGoToCreateServicePage();
@@ -279,7 +278,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNewServiceDisplayInList(serviceName, sellingPrice, listingPrice);
     }
 
-//    @Test
+    @Test
     public void CS06_CreateListingPriceService() throws Exception {
         testCaseId = "CS06";
         createService = loginDbAndGoToCreateServicePage();
@@ -317,7 +316,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifyListingServiceDisplayInList(serviceName);
     }
 
-//    @Test
+    @Test
     public void CS07_CreateServiceWithSEOInfo() throws Exception {
         testCaseId = "CS07";
         createService = loginDbAndGoToCreateServicePage();
@@ -745,7 +744,6 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void ES07_DeleteServiceInServiceDetail() throws Exception {
         testCaseId = "ES07";
-//        serviceDelete = "Automation update name bERdP";
         loginAndNavigateToServiceManagement()
                 .goToEditService(serviceDelete)
                 .clickDeleteService()

@@ -38,6 +38,8 @@ public class CreateServiceCollection {
     WebElement COLLECTION_NAME;
     @FindBy(css = ".collection-form-editor-row-name b")
     List<WebElement> SERVICE_NAME_LIST;
+    @FindBy(css = ".btn-remove__row")
+    List<WebElement> DELETE_BTN_LIST;
     
     public CreateServiceCollection inputCollectionName(String name) {
     	commonAction.inputText(COLLECTION_NAME, name);
@@ -47,8 +49,9 @@ public class CreateServiceCollection {
     /*------------------Edit---------------*/
     public List<String> getListServiceName(){
         List<String> serviceNameList = new ArrayList<>();
-        for (WebElement el: SERVICE_NAME_LIST) {
-            serviceNameList.add(commonAction.getText(el));
+        while (SERVICE_NAME_LIST.size()>0){
+            serviceNameList.add(commonAction.getText(SERVICE_NAME_LIST.get(0)));
+            commonAction.clickElement(DELETE_BTN_LIST.get(0));
         }
         return serviceNameList;
     }
