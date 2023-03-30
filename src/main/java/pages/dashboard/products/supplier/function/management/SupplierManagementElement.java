@@ -5,9 +5,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class FunctionSupplierManagementElement {
+import java.util.List;
+
+public class SupplierManagementElement {
     WebDriver driver;
-    FunctionSupplierManagementElement(WebDriver driver) {
+    SupplierManagementElement(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
@@ -16,4 +18,7 @@ public class FunctionSupplierManagementElement {
 
     @FindBy(css = ".gs-button__green")
     WebElement HEADER_ADD_SUPPLIER_BTN;
+
+    @FindBy(css = ".gs-table-body-items strong")
+    List<WebElement> SUPPLIER_CODE;
 }

@@ -15,7 +15,8 @@ public class ProductPageElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    By HEADER_SELECTED_LANGUAGE = By.cssSelector(".language-selector .uik-select__valueWrapper");
+    @FindBy(css = ".language-selector .uik-select__valueWrapper")
+    WebElement HEADER_SELECTED_LANGUAGE;
 
     @FindBy(css = ".language-selector .uik-select__optionList .uik-select__label")
     List<WebElement> HEADER_LANGUAGE_LIST;

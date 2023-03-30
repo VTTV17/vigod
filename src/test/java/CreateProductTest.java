@@ -1,7 +1,4 @@
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
@@ -11,14 +8,21 @@ import java.io.File;
 
 import static pages.dashboard.products.all_products.ProductPage.language;
 import static pages.dashboard.products.all_products.ProductPage.uiIsDisplayOutOfStock;
+import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
+import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 // BH_4694, 4695, 4696, 4697, 4698, 4699, 4700, 4701, 4702, 4703, 4704, 7467, 7472, 3545,
 public class CreateProductTest extends BaseTest {
     @BeforeSuite
-    void setTcsFileName() {
+    @Parameters({"browser", "headless", "account", "password"})
+    void initPreCondition(@Optional("chrome") String browser,
+                          @Optional("true") String headless,
+                          @Optional(ADMIN_ACCOUNT_THANG) String account,
+                          @Optional(ADMIN_PASSWORD_THANG) String password) {
+
+        driver = new InitWebdriver().getDriver(browser, headless);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(account, password);
         tcsFileName = "check_product_detail_sf/Create product.xlsx".replace("/", File.separator);
-        driver = new InitWebdriver().getDriver("chrome", "true");
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
     }
 
     @BeforeGroups(groups = "Dashboard language = VIE")

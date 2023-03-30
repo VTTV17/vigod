@@ -1,5 +1,6 @@
 package api.dashboard.setting;
 
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 
@@ -26,24 +27,34 @@ public class BranchManagement {
 
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
+    
+    JsonPath getBranchInfoResponseJsonPath() {
+        Response branchInfo = new API().get(GET_ALL_BRANCH_PATH.formatted(apiStoreID), accessToken);
+        branchInfo.then().statusCode(200);
+        return branchInfo.jsonPath();
+    }
+
+    public List<Integer> getListBranchID() {
+        return getBranchInfoResponseJsonPath().getList("id");
+    }
 
     public void getBranchInformation() {
         Response branchInfo = new API().get(GET_ALL_BRANCH_PATH.formatted(apiStoreID), accessToken);
         branchInfo.then().statusCode(200);
 
-        apiBranchID = branchInfo.jsonPath().getList("id");
-        apiBranchName = branchInfo.jsonPath().getList("name");
-        apiBranchCode = branchInfo.jsonPath().getList("code");
-        apiBranchAddress = branchInfo.jsonPath().getList("address");
-        apiWardCode = branchInfo.jsonPath().getList("ward");
-        apiDistrictCode = branchInfo.jsonPath().getList("district");
-        apiCityCode = branchInfo.jsonPath().getList("city");
-        apiPhoneNumberFirst = branchInfo.jsonPath().getList("phoneNumberFirst");
-        apiCountryCode = branchInfo.jsonPath().getList("countryCode");
-        apiIsDefaultBranch = branchInfo.jsonPath().getList("default");
-        apiIsHideOnStoreFront = branchInfo.jsonPath().getList("hideOnStoreFront");
+        apiBranchID = getBranchInfoResponseJsonPath().getList("id");
+        apiBranchName = getBranchInfoResponseJsonPath().getList("name");
+        apiBranchCode = getBranchInfoResponseJsonPath().getList("code");
+        apiBranchAddress = getBranchInfoResponseJsonPath().getList("address");
+        apiWardCode = getBranchInfoResponseJsonPath().getList("ward");
+        apiDistrictCode = getBranchInfoResponseJsonPath().getList("district");
+        apiCityCode = getBranchInfoResponseJsonPath().getList("city");
+        apiPhoneNumberFirst = getBranchInfoResponseJsonPath().getList("phoneNumberFirst");
+        apiCountryCode = getBranchInfoResponseJsonPath().getList("countryCode");
+        apiIsDefaultBranch = getBranchInfoResponseJsonPath().getList("default");
+        apiIsHideOnStoreFront = getBranchInfoResponseJsonPath().getList("hideOnStoreFront");
         IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.get(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
-        apiAllBranchStatus = branchInfo.jsonPath().getList("branchStatus");
+        apiAllBranchStatus = getBranchInfoResponseJsonPath().getList("branchStatus");
         apiActiveBranches = new ArrayList<>();
         IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.get(i)));
 

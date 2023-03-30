@@ -1,8 +1,6 @@
+import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
@@ -12,14 +10,22 @@ import java.io.File;
 
 import static pages.dashboard.products.all_products.ProductPage.language;
 import static pages.dashboard.products.all_products.ProductPage.uiIsDisplayOutOfStock;
+import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
+import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 public class UpdateProductTest extends BaseTest {
 
     @BeforeSuite
-    void setTcsFileName() {
+    @Parameters({"browser", "headless", "account", "password"})
+    void initPreCondition(@Optional("chrome") String browser,
+                          @Optional("true") String headless,
+                          @Optional(ADMIN_ACCOUNT_THANG) String account,
+                          @Optional(ADMIN_PASSWORD_THANG) String password) {
+
+        new Login().loginToDashboardByMail(account, password);
+        driver = new InitWebdriver().getDriver(browser, headless);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(account, password);
         tcsFileName = "check_product_detail_sf/Update product.xlsx".replace("/", File.separator);
-        driver = new InitWebdriver().getDriver("chrome", "false");
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(sellerAccount, sellerPassword);
     }
 
     @BeforeGroups(groups = "Normal product - Without variation - VIE")
@@ -1193,10 +1199,5 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver).deleteProduct();
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation();
-    }
-
-    @AfterSuite
-    void tearDown() {
-        if (driver != null) driver.quit();
     }
 }

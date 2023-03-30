@@ -60,12 +60,21 @@ public class ProductInformation {
         return Lists.newReversedArrayList(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
     }
 
-    public void get(Integer productID) {
+    Response getProductInformationResponse(int productID) {
+        // get product information
+        return api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
+    }
+
+    public String getManageInventoryType(int productID) {
+        return getProductInformationResponse(productID).jsonPath().getString("inventoryManageType");
+    }
+
+    public void get(int productID) {
         // get branch id list
         if (apiBranchID == null) new BranchManagement().getBranchInformation();
 
-        // get product information
-        Response productInfo = api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
+        // get product response
+        Response productInfo = getProductInformationResponse(productID);
 
         // set JsonPath to get product info
         JsonPath productInfoJson = productInfo.jsonPath();

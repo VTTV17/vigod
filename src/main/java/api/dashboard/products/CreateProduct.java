@@ -4,6 +4,7 @@ import api.dashboard.customers.Customers;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,7 +72,44 @@ public class CreateProduct {
         if (apiTaxList == null) new VAT().getTaxList();
         if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
     }
+    JsonPath createWithoutVariationProductJsonPath(boolean isIMEIProduct, int... branchStock) {
+        // is not variation product
+        apiIsVariation = false;
 
+        // random some product information
+        // product name
+        apiProductName = "[%s] %s".formatted(apiDefaultLanguage, isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+        apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+
+        //product description
+        apiProductDescription = "[%s] product description".formatted(apiDefaultLanguage);
+
+        // product SEO
+        long epoch = Instant.now().toEpochMilli();
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(apiDefaultLanguage, epoch);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(apiDefaultLanguage, epoch);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(apiDefaultLanguage, epoch);
+        String seoURL = "%s%s".formatted(apiDefaultLanguage, epoch);
+
+        // product tax
+        apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
+
+        // generate product info
+        CreateProductBody productBody = new CreateProductBody();
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID, seoTitle, seoDescription, seoKeywords, seoURL),
+                productBody.withoutVariationInfo(isIMEIProduct, apiBranchID, apiBranchName, branchStock),
+                productBody.withoutVariationBranchConfig(apiBranchID));
+
+        // post without variation product
+        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
+        createProductResponse.then().statusCode(201);
+
+        return createProductResponse.jsonPath();
+    }
+
+    public int createWithoutVariationProductAndGetProductID(boolean isIMEIProduct, int... branchStock) {
+        return createWithoutVariationProductJsonPath(isIMEIProduct, branchStock).getInt("id");
+    }
 
     public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
         // is not variation product

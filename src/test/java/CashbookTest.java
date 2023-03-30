@@ -14,7 +14,7 @@ import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.SupplierAPI;
 import api.dashboard.setting.BranchManagement;
-import api.dashboard.setting.StaffAPI;
+import api.dashboard.setting.StaffManagement;
 import pages.dashboard.cashbook.Cashbook;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
@@ -48,7 +48,7 @@ public class CashbookTest extends BaseTest {
         new Login().loginToDashboardByMail(username, password);
         customerList = new Customers().getAllCustomerNames();
         supplierList = new SupplierAPI().getAllSupplierNames();
-        staffList = new StaffAPI().getAllStaffNames();
+        staffList = new StaffManagement().getAllStaffNames();
         othersList = new OthersGroupAPI().getAllOtherGroupNames();
         new BranchManagement().getBranchInformation();
         branchList = BranchManagement.apiActiveBranches;

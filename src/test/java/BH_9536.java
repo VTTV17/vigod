@@ -1,25 +1,31 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
+import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
+import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 import static utilities.api_body.product.CreateProductBody.apiIsDisplayOutOfStock;
 
 // BH_9536:Check to display/hide if out of stock at product detail
 public class BH_9536 extends BaseTest {
 
     @BeforeSuite
-    void initPreCondition() {
-        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+    @Parameters({"browser", "headless", "account", "password"})
+    void initPreCondition(@Optional("chrome") String browser,
+                          @Optional("true") String headless,
+                          @Optional(ADMIN_ACCOUNT_THANG) String account,
+                          @Optional(ADMIN_PASSWORD_THANG) String password) {
 
+        new Login().loginToDashboardByMail(account, password);
+        driver = new InitWebdriver().getDriver(browser, headless);
         tcsFileName = "check_product_detail_sf/BH_9536_Check to display if out of stock at product detail.xlsx".replace("/", File.separator);
-
-        driver = new InitWebdriver().getDriver("chrome", "true");
     }
 
     // G1: Normal product - without variation
@@ -368,10 +374,5 @@ public class BH_9536 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation();
-    }
-
-    @AfterSuite
-    void tearDown() {
-        if (driver != null) driver.quit();
     }
 }

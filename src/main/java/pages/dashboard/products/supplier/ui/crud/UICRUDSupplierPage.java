@@ -1,29 +1,31 @@
-package pages.dashboard.products.supplier.ui.create;
+package pages.dashboard.products.supplier.ui.crud;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.assert_customize.AssertCustomize;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 
-public class UICreateSupplierPage extends UICreateSupplierElement {
+public class UICRUDSupplierPage extends UICRUDSupplierElement {
 
-    Logger logger = LogManager.getLogger(UICreateSupplierPage.class);
+    Logger logger = LogManager.getLogger(UICRUDSupplierPage.class);
 
     WebDriverWait wait;
     Actions act;
 
-    AssertCustomize assertCustomize;
+    public AssertCustomize assertCustomize;
     public int countFail;
 
-    public UICreateSupplierPage(WebDriver driver) {
+    public UICRUDSupplierPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         act = new Actions(driver);
@@ -40,7 +42,7 @@ public class UICreateSupplierPage extends UICreateSupplierElement {
 
         // check page title
         String dbTitle = wait.until(visibilityOf(UI_PAGE_TITLE)).getText();
-        String ppTitle = getPropertiesValueByDBLang("products.supplier.addSupplier.header.pageTitle", language);
+        String ppTitle = (driver.getCurrentUrl().contains("/edit")) ? getPropertiesValueByDBLang("products.supplier.updateSupplier.header.pageTitle", language) : getPropertiesValueByDBLang("products.supplier.addSupplier.header.pageTitle", language);
         countFail = assertCustomize.assertEquals(countFail, dbTitle, ppTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
@@ -55,6 +57,14 @@ public class UICreateSupplierPage extends UICreateSupplierElement {
         String ppCancelBtn = getPropertiesValueByDBLang("products.supplier.addSupplier.header.cancelBtn", language);
         countFail = assertCustomize.assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Header - Cancel button.".formatted(language));
+
+        // check delete button
+        if (driver.getCurrentUrl().contains("/edit")) {
+            String dbDeleteBtn = wait.until(ExpectedConditions.visibilityOf(UI_DELETE_BTN)).getText();
+            String ppDeleteBtn = getPropertiesValueByDBLang("products.supplier.updateSupplier.header.deleteBtn", language);
+            countFail = assertCustomize.assertEquals(countFail, dbDeleteBtn, ppDeleteBtn, "[Failed][Header] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
+            logger.info("[UI][%s] Check Header - Delete button.".formatted(language));
+        }
     }
 
     void checkSupplierInformation(String language) throws Exception {
@@ -214,6 +224,60 @@ public class UICreateSupplierPage extends UICreateSupplierElement {
         }
     }
 
+    void checkOrderHistory(String language) throws Exception {
+        // check title
+        String dbTitle = wait.until(visibilityOf(UI_ORDER_HISTORY)).getText();
+        String ppTitle = getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.title", language);
+        countFail = assertCustomize.assertEquals(countFail, dbTitle, ppTitle, "[Failed][Order History] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        logger.info("[UI][%s] Check Order History - Title.".formatted(language));
+
+        // check search placeholder
+        String dbSearchPlaceholder = wait.until(visibilityOf(UI_SEARCH_ORDER_HISTORY_PLACEHOLDER)).getAttribute("placeholder");
+        String ppSearchPlaceholder = getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.searchPlaceholder", language);
+        countFail = assertCustomize.assertEquals(countFail, dbSearchPlaceholder, ppSearchPlaceholder, "[Failed][Order History] Search placeholder should be %s, but found %s.".formatted(ppSearchPlaceholder, dbSearchPlaceholder));
+        logger.info("[UI][%s] Check Order History - Search placeholder.".formatted(language));
+
+        // check order history table column
+        List<String> dbTableColumn = UI_ORDER_HISTORY_TABLE_COLUMN.stream().map(WebElement::getText).toList();
+        List<String> ppTableColumn = List.of(getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.0", language),
+                getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.1", language),
+                getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.2", language),
+                getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.3", language),
+                getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.4", language),
+                getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.5", language),
+                getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.table.column.6", language));
+        countFail = assertCustomize.assertEquals(countFail, dbTableColumn, ppTableColumn, "[Failed][Order History] Order history table should be %s, but found %s.".formatted(ppTableColumn, dbTableColumn));
+        logger.info("[UI][%s] Check Order History - Order history table.".formatted(language));
+    }
+
+    public void checkNoOrderHistory(String language) throws Exception {
+        // check no result
+        String dbNoResult = wait.until(visibilityOf(UI_NO_ORDER_HISTORY)).getText();
+        String ppNoResult = getPropertiesValueByDBLang("products.supplier.updateSupplier.orderHistory.noResult", language);
+        countFail = assertCustomize.assertEquals(countFail, dbNoResult, ppNoResult, "[Failed][Order History] No result should be %s, but found %s.".formatted(ppNoResult, dbNoResult));
+        logger.info("[UI][%s] Check Order History - No result.".formatted(language));
+    }
+
+    void checkSupplierSummary(String language) throws Exception {
+        // check title
+        String dbSupplierSummary = wait.until(visibilityOf(UI_SUPPLIER_SUMMARY)).getText();
+        String ppSupplierSummary = getPropertiesValueByDBLang("products.supplier.updateSupplier.supplierSummary.title", language);
+        countFail = assertCustomize.assertEquals(countFail, dbSupplierSummary, ppSupplierSummary, "[Failed][Supplier summary] Title should be %s, but found %s.".formatted(ppSupplierSummary, dbSupplierSummary));
+        logger.info("[UI][%s] Check Supplier summary - Title.".formatted(language));
+
+        // check status title
+        String dbStatusTitle = wait.until(visibilityOf(UI_SUPPLIER_STATUS_TITLE)).getText();
+        String ppStatusTitle = getPropertiesValueByDBLang("products.supplier.updateSupplier.supplierSummary.status.title", language);
+        countFail = assertCustomize.assertEquals(countFail, dbStatusTitle, ppStatusTitle, "[Failed][Supplier summary] Supplier status title should be %s, but found %s.".formatted(ppStatusTitle, dbStatusTitle));
+        logger.info("[UI][%s] Check Supplier summary - Supplier status title.".formatted(language));
+
+        // check status label
+        String dbStatusLabel = wait.until(visibilityOf(UI_SUPPLIER_STATUS_LABEL)).getText();
+        String ppStatusLabel = getPropertiesValueByDBLang("products.supplier.updateSupplier.supplierSummary.status.label", language);
+        countFail = assertCustomize.assertEquals(countFail, dbStatusLabel, ppStatusLabel, "[Failed][Supplier summary] Supplier status label should be %s, but found %s.".formatted(ppStatusLabel, dbStatusLabel));
+        logger.info("[UI][%s] Check Supplier summary - Supplier status label.".formatted(language));
+    }
+
     void checkOtherInformation(String language) throws Exception {
         // check title
         String dbOtherInformation = wait.until(visibilityOf(UI_OTHER_INFORMATION)).getText();
@@ -240,10 +304,65 @@ public class UICreateSupplierPage extends UICreateSupplierElement {
         logger.info("[UI][%s] Check Other information - Description.".formatted(language));
     }
 
+    public void checkConfirmDeleteSupplierPopup(String language) throws Exception {
+        // check title
+        String dbTitle = wait.until(visibilityOf(UI_CONFIRM_DELETE_SUPPLIER_POPUP_TITLE)).getText();
+        String ppTitle = getPropertiesValueByDBLang("products.supplier.updateSupplier.confirmDeleteSupplierPopup.title", language);
+        countFail = assertCustomize.assertEquals(countFail, dbTitle, ppTitle, "[Failed][Delete supplier confirm popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        logger.info("[UI][%s] Check Delete supplier confirm popup - Title.".formatted(language));
+
+        // check content
+        String dbContent = wait.until(visibilityOf(UI_CONFIRM_DELETE_SUPPLIER_POPUP_CONTENT)).getText();
+        String ppContent = getPropertiesValueByDBLang("products.supplier.updateSupplier.confirmDeleteSupplierPopup.content", language);
+        countFail = assertCustomize.assertEquals(countFail, dbContent, ppContent, "[Failed][Delete supplier confirm popup] Content should be %s, but found %s.".formatted(ppContent, dbContent));
+        logger.info("[UI][%s] Check Delete supplier confirm popup - Content.".formatted(language));
+
+        // check Delete button
+        String dbDeleteBtn = wait.until(visibilityOf(UI_CONFIRM_DELETE_SUPPLIER_POPUP_DELETE_BTN)).getText();
+        String ppDeleteBtn = getPropertiesValueByDBLang("products.supplier.updateSupplier.confirmDeleteSupplierPopup.deleteBtn", language);
+        countFail = assertCustomize.assertEquals(countFail, dbDeleteBtn, ppDeleteBtn, "[Failed][Delete supplier confirm popup] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
+        logger.info("[UI][%s] Check Delete supplier confirm popup - Delete button.".formatted(language));
+
+        // check Cancel button
+        String dbCancelBtn = wait.until(visibilityOf(UI_CONFIRM_DELETE_SUPPLIER_POPUP_CANCEL_BTN)).getText();
+        String ppCancelBtn = getPropertiesValueByDBLang("products.supplier.updateSupplier.confirmDeleteSupplierPopup.cancelBtn", language);
+        countFail = assertCustomize.assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Delete supplier confirm popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        logger.info("[UI][%s] Check Delete supplier confirm popup - Cancel button.".formatted(language));
+    }
+    public void checkErrorWhenLeaveRequiredFieldBlank(String language) throws Exception {
+        String dbSupplierBlank = wait.until(visibilityOf(UI_SUPPLIER_NAME_ERROR)).getText();
+        String ppSupplierBlank = getPropertiesValueByDBLang("products.supplier.addSupplier.error.supplierName.blank", language);
+        countFail = assertCustomize.assertEquals(countFail, dbSupplierBlank, ppSupplierBlank, "[Failed][Validate] Error when leave supplier name blank should be %s, but found %s.".formatted(ppSupplierBlank, dbSupplierBlank));
+        logger.info("[UI][%s] Check Validate - Leave supplier name blank.".formatted(language));
+    }
+
+    public void checkErrorWhenInputDuplicateSupplierCode(String language) throws Exception {
+        String dbSupplierCodeDuplicate = wait.until(visibilityOf(UI_SUPPLIER_CODE_ERROR)).getText();
+        String ppSupplierCodeDuplicate = getPropertiesValueByDBLang("products.supplier.addSupplier.error.supplierCode.duplicate", language);
+        countFail = assertCustomize.assertEquals(countFail, dbSupplierCodeDuplicate, ppSupplierCodeDuplicate, "[Failed][Validate] Error when input duplicate supplier code should be %s, but found %s.".formatted(ppSupplierCodeDuplicate, dbSupplierCodeDuplicate));
+        logger.info("[UI][%s] Check Validate - Input duplicate supplier code.".formatted(language));
+    }
+
+    public void checkErrorWhenInputInvalidFormatSupplierCode(String language) throws Exception {
+        String dbInvalidSupplierCode = wait.until(visibilityOf(UI_SUPPLIER_CODE_ERROR)).getText();
+        String ppInvalidSupplierCode = getPropertiesValueByDBLang("products.supplier.addSupplier.error.supplierCode.invalidFormat", language);
+        countFail = assertCustomize.assertEquals(countFail, dbInvalidSupplierCode, ppInvalidSupplierCode, "[Failed][Validate] Error when input invalid format supplier code should be %s, but found %s.".formatted(ppInvalidSupplierCode, dbInvalidSupplierCode));
+        logger.info("[UI][%s] Check Validate - Input invalid format supplier code .".formatted(language));
+    }
+
     public void checkUIAddSupplierPage(String language, boolean isVNSupplier) throws Exception {
         checkHeader(language);
         checkSupplierInformation(language);
         checkAddressInformation(language, isVNSupplier);
+        checkOtherInformation(language);
+    }
+
+    public void checkUIUpdateSupplierPage(String language, boolean isVNSupplier) throws Exception {
+        checkHeader(language);
+        checkSupplierInformation(language);
+        checkAddressInformation(language, isVNSupplier);
+        checkOrderHistory(language);
+        checkSupplierSummary(language);
         checkOtherInformation(language);
     }
 }

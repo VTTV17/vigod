@@ -1,4 +1,4 @@
-package pages.dashboard.products.supplier.ui.update;
+package pages.dashboard.products.supplier.ui.crud;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -7,9 +7,9 @@ import org.openqa.selenium.support.PageFactory;
 
 import java.util.List;
 
-class UIUpdateSupplierElement {
+class UICRUDSupplierElement {
     WebDriver driver;
-    UIUpdateSupplierElement(WebDriver driver) {
+    UICRUDSupplierElement(WebDriver driver) {
       this.driver = driver;
         PageFactory.initElements(driver, this);
     }
@@ -25,6 +25,9 @@ class UIUpdateSupplierElement {
 
     @FindBy(css = ".btn-cancel")
     WebElement UI_CANCEL_BTN;
+
+    @FindBy(css = ".gs-button__red--outline")
+    WebElement UI_DELETE_BTN;
 
     @FindBy(css = "[for = name]")
     WebElement UI_SUPPLIER_NAME;
@@ -48,10 +51,10 @@ class UIUpdateSupplierElement {
     WebElement UI_COUNTRY;
 
     @FindBy(xpath = "//*[@id = 'address']/parent::div/parent::div/preceding-sibling::div")
-    WebElement UI_ADDRESS;
+    WebElement UI_VN_ADDRESS;
 
     @FindBy(css = "#address")
-    WebElement UI_ADDRESS_PLACEHOLDER;
+    WebElement UI_VN_ADDRESS_PLACEHOLDER;
 
     @FindBy(css = "[for = province]")
     WebElement UI_VN_CITY;
@@ -71,6 +74,12 @@ class UIUpdateSupplierElement {
     @FindBy(css = "#ward option:nth-child(1)")
     WebElement UI_WARD_DEFAULT_OPTION;
 
+    @FindBy(xpath = "//*[@id = 'address']/parent::div/parent::div/preceding-sibling::div")
+    WebElement UI_NON_VN_STREET_ADDRESS;
+
+    @FindBy(css = "#address")
+    WebElement UI_NON_VN_STREET_ADDRESS_PLACEHOLDER;
+
     @FindBy(css = "[for = address2]")
     WebElement UI_NON_VN_ADDRESS2;
 
@@ -84,10 +93,10 @@ class UIUpdateSupplierElement {
     WebElement UI_NON_VN_CITY_PLACEHOLDER;
 
     @FindBy(css = "[for = province]")
-    WebElement UI_NON_VN_DISTRICT;
+    WebElement UI_NON_VN_STATE;
 
     @FindBy(css = "#province option:nth-child(1)")
-    WebElement UI_NON_VN_DISTRICT_DEFAULT_OPTION;
+    WebElement UI_NON_VN_STATE_DEFAULT_OPTION;
 
     @FindBy(css = "[for = zipCode]")
     WebElement UI_NON_VN_ZIPCODE;
@@ -104,6 +113,42 @@ class UIUpdateSupplierElement {
     @FindBy(css = "#staff option:nth-child(1)")
     WebElement UI_RESPONSIBLE_STAFF_DEFAULT_OPTION;
 
-    @FindBy(css = "//*[@id = 'staff']/parent::div/following-sibling::div[1]")
+    @FindBy(xpath = "//*[@id = 'staff']/parent::div/following-sibling::div[1]")
     WebElement UI_DESCRIPTION;
+
+    @FindBy(css = ".gs-search-box__wrapper h5")
+    WebElement UI_ORDER_HISTORY;
+
+    @FindBy(css = ".gs-search-box__wrapper .uik-input__input")
+    WebElement UI_SEARCH_ORDER_HISTORY_PLACEHOLDER;
+
+    @FindBy(css = ".gs-table-header-item")
+    List<WebElement> UI_ORDER_HISTORY_TABLE_COLUMN;
+
+    @FindBy(css = ".gs-table +* span")
+    WebElement UI_NO_ORDER_HISTORY;
+
+    @FindBy(css = ".suplier-page__supplier-status h5")
+    WebElement UI_SUPPLIER_SUMMARY;
+
+    @FindBy(css = ".suplier-page__supplier-status .title-label")
+    WebElement UI_SUPPLIER_STATUS_TITLE;
+
+    @FindBy(css = ".suplier-page__supplier-status .label-status")
+    WebElement UI_SUPPLIER_STATUS_LABEL;
+
+    @FindBy(css = ".modal-title")
+    WebElement UI_CONFIRM_DELETE_SUPPLIER_POPUP_TITLE;
+    @FindBy(css = ".modal-body")
+    WebElement UI_CONFIRM_DELETE_SUPPLIER_POPUP_CONTENT;
+    @FindBy(css = ".gs-button__red")
+    WebElement UI_CONFIRM_DELETE_SUPPLIER_POPUP_DELETE_BTN;
+    @FindBy(css = ".modal-footer .gs-button__red--outline")
+    WebElement UI_CONFIRM_DELETE_SUPPLIER_POPUP_CANCEL_BTN;
+
+    @FindBy(css = "#name +*")
+    WebElement UI_SUPPLIER_NAME_ERROR;
+
+    @FindBy(css = "#code +*")
+    WebElement UI_SUPPLIER_CODE_ERROR;
 }

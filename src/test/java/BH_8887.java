@@ -1,33 +1,27 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
-import api.storefront.signup.SignUp;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.storefront.detail_product.ProductDetailPage;
-import pages.storefront.login.LoginPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
-import static api.storefront.signup.SignUp.*;
-import static api.storefront.signup.SignUp.apiMail;
 import static java.lang.Thread.sleep;
+import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
+import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 public class BH_8887 extends BaseTest {
     @BeforeSuite
-    void initPreCondition() throws InterruptedException {
-        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+    @Parameters({"browser", "headless", "account", "password"})
+    void initPreCondition(@Optional("chrome") String browser,
+                          @Optional("true") String headless,
+                          @Optional(ADMIN_ACCOUNT_THANG) String account,
+                          @Optional(ADMIN_PASSWORD_THANG) String password) {
 
+        new Login().loginToDashboardByMail(account, password);
+        driver = new InitWebdriver().getDriver(browser, headless);
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
-
-        driver = new InitWebdriver().getDriver("chrome", "true");
-
-        if (apiMail != null) new SignUp().signUpByMail();
-
-        new LoginPage(driver).navigate().performLoginJS(apiMail, apiPassword);
     }
 
     @BeforeGroups(groups = "Normal product - Without variation")
@@ -445,10 +439,5 @@ public class BH_8887 extends BaseTest {
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation();
-    }
-
-    @AfterSuite
-    void tearDown() {
-        if (driver != null) driver.quit();
     }
 }

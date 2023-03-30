@@ -241,13 +241,10 @@ public class ProductPage extends ProductPageElement {
 
     void setLanguage() {
         // set dashboard language
-        WebElement selectedLanguage = driver.findElement(HEADER_SELECTED_LANGUAGE);
-        String currentLanguage = (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", selectedLanguage);
-        System.out.println(currentLanguage);
-        System.out.println(language);
+        String currentLanguage = ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").equals("vi") ? "VIE" : "ENG";
 
-        if (!currentLanguage.contains(language)) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", selectedLanguage);
+        if (!currentLanguage.equals(language)) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", HEADER_SELECTED_LANGUAGE);
             HEADER_LANGUAGE_LIST.stream().filter(webElement -> webElement.getText().contains(language)).findFirst().ifPresent(webElement -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement));
         }
     }

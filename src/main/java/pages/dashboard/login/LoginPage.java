@@ -33,8 +33,6 @@ public class LoginPage {
 
 	public String country;
 	public String countryCode;
-    public static String sellerAccount;
-    public static String sellerPassword;
 
     WebDriver driver;
     WebDriverWait wait;
@@ -189,8 +187,6 @@ public class LoginPage {
     }
 
     public LoginPage performLogin(String username, String password) {
-        sellerAccount = username;
-        sellerPassword = password;
     	inputEmailOrPhoneNumber(username);
     	inputPassword(password);
     	clickLoginBtn();

@@ -1,9 +1,8 @@
 package utilities.account;
 
 public class AccountTest {
-    public static String MAIL = "stgaboned@nbobd.com";
-    public static String PHONE = "0363530754";
-    public static String PASSWORD = "Abc@12345";
+    public final static String ADMIN_ACCOUNT_THANG = "stgauto@nbobd.com";
+    public final static String ADMIN_PASSWORD_THANG = "Abc@12345";
 
     // 10.10.0.15
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com

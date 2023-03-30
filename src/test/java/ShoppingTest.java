@@ -28,7 +28,7 @@
 //
 //    @BeforeSuite
 //    void initPreCondition() throws SQLException, InterruptedException {
-//        new Login().loginToDashboardByMail(sellerAccount, sellerPassword);
+//        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, sellerPassword);
 //
 //        new BranchManagement().getBranchInformation();
 //        new StoreInformation().getStoreInformation();
