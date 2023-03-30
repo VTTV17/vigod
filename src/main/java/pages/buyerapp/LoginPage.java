@@ -1,0 +1,330 @@
+package pages.buyerapp;
+
+import api.dashboard.login.Login;
+import api.dashboard.setting.BranchManagement;
+import api.dashboard.setting.StoreInformation;
+import api.dashboard.setting.VAT;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
+
+import pages.dashboard.signup.SignupPage;
+import pages.thirdparty.Facebook;
+import utilities.PropertiesUtil;
+import utilities.UICommonAction;
+
+import java.time.Duration;
+
+import static api.dashboard.login.Login.*;
+import static utilities.links.Links.*;
+
+public class LoginPage {
+
+	final static Logger logger = LogManager.getLogger(LoginPage.class);
+
+	public String country;
+	public String countryCode;
+    public static String sellerAccount;
+    public static String sellerPassword;
+
+    WebDriver driver;
+    WebDriverWait wait;
+    UICommonAction commonAction;
+
+    SoftAssert soft = new SoftAssert();
+
+    public LoginPage (WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commonAction = new UICommonAction(driver);
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy (css = ".login-widget")
+    WebElement SIGNIN_SCREEN_TXT;    
+    
+    @FindBy (css = ".forgot-page-wrapper")
+    WebElement SIGNIN_FORGOTPASSWORD_TXT;    
+    
+    @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
+    WebElement LANGUAGE;
+
+    @FindBy(css = ".login-widget__changeLanguage-english")
+    WebElement ENGLISH_LANGUAGE;    
+
+    @FindBy(css = ".login-widget__changeLanguage:nth-of-type(2)")
+    WebElement VIETNAMESE_LANGUAGE;    
+    
+    @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
+    WebElement COUNTRY_DROPDOWN;
+
+    @FindBy(css = "input[name='username']")
+    WebElement USERNAME;
+
+    @FindBy (css = "input[name='password']")
+    WebElement PASSWORD;
+
+    @FindBy (css = "button.gs-button")
+    WebElement LOGIN_BTN;
+
+    @FindBy (css = "#username + .invalid-feedback")
+    WebElement USER_ERROR;
+
+    @FindBy (css = "#password + .invalid-feedback")
+    WebElement PASSWORD_ERROR;
+
+    @FindBy (css = "div.alert__wrapper")
+    WebElement INVALID_USER_ERROR;
+
+    @FindBy (css = ".login-widget__btnSubmitFaceBook")
+    WebElement FACEBOOK_BTN;
+
+    @FindBy(css = "#email")
+    WebElement FACEBOOK_USERNAME;
+
+    @FindBy (css = "#pass")
+    WebElement FACEBOOK_PASSWORD;
+
+    @FindBy (css = "input[name='login']")
+    WebElement FACEBOOK_LOGIN_BTN;
+
+    @FindBy (css = "span.login-widget__tab:nth-child(2)")
+    WebElement STAFF_TAB;
+
+    @FindBy (css = "div.modal-content")
+    WebElement WARNING_POPUP;
+
+    @FindBy (css = ".login-widget__forgotPassword")
+    WebElement FORGOT_PASSWORD;
+
+    @FindBy (css = ".login-widget__btnSubmit")
+    WebElement CONTINUE_BTN;
+
+    @FindBy (css = "input[name='key']")
+    WebElement VERIFICATION_CODE;
+
+    @FindBy (css = ".alert__wrapper")
+    WebElement WRONG_CODE_ERROR;    
+    
+    @FindBy (css = ".btn-resend")
+    WebElement RESEND_OTP;
+
+    public LoginPage navigate() {
+        driver.get(DOMAIN + LOGIN_PATH);
+        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+        return this;
+    }
+
+    public LoginPage selectCountry(String country) {
+    	commonAction.clickElement(COUNTRY_DROPDOWN);
+    	driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
+    	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
+    	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
+    	this.country = selectedOption[0];
+    	this.countryCode = selectedOption[1];
+    	return this;
+    }
+
+    public LoginPage switchToStaffTab() {
+    	commonAction.clickElement(STAFF_TAB);
+    	logger.info("Switched to Staff Tab.");
+        return this;
+    }
+
+    public LoginPage clickFacebookBtn() {
+    	commonAction.clickElement(FACEBOOK_BTN);
+    	logger.info("Clicked on Facebook linktext.");
+        return this;
+    }
+
+    public LoginPage inputEmailOrPhoneNumber(String username) {
+    	commonAction.inputText(USERNAME, username);
+    	logger.info("Input '" + username + "' into Username field.");
+        return this;
+    }
+
+    public LoginPage inputPassword(String password) {
+    	commonAction.inputText(PASSWORD, password);
+    	logger.info("Input '" + password + "' into Password field.");
+        return this;
+    }
+
+    public LoginPage clickLoginBtn() {
+    	commonAction.clickElement(LOGIN_BTN);
+    	logger.info("Clicked on Login button.");
+        return this;
+    }
+
+    public LoginPage clickForgotPassword() {
+    	commonAction.clickElement(FORGOT_PASSWORD);
+    	logger.info("Clicked on Forgot Password linktext.");
+    	return this;
+    }
+
+    public LoginPage clickResendOTP() {
+    	commonAction.clickElement(RESEND_OTP);
+    	logger.info("Clicked on Resend linktext.");
+        return this;
+    }
+
+    public LoginPage clickContinueOrConfirmBtn() {
+    	commonAction.clickElement(CONTINUE_BTN);
+    	logger.info("Clicked on Continue/Confirm button.");
+    	return this;
+    }
+
+    public LoginPage inputVerificationCode(String verificationCode) {
+    	commonAction.inputText(VERIFICATION_CODE, verificationCode);
+    	logger.info("Input '" + verificationCode + "' into Verification Code field.");
+        return this;
+    }
+
+    public LoginPage performLogin(String username, String password) {
+        sellerAccount = username;
+        sellerPassword = password;
+    	inputEmailOrPhoneNumber(username);
+    	inputPassword(password);
+    	clickLoginBtn();
+        return this;
+    }
+
+    public LoginPage performLogin(String country, String username, String password) {
+    	selectCountry(country);
+    	inputEmailOrPhoneNumber(username);
+    	inputPassword(password);
+    	clickLoginBtn();
+    	return this;
+    }
+
+    public LoginPage performLoginWithFacebook(String username, String password) {
+    	String originalWindow = commonAction.getCurrentWindowHandle();
+
+    	clickFacebookBtn();
+
+    	for (String windowHandle : commonAction.getAllWindowHandles()) {
+    	    if(!originalWindow.contentEquals(windowHandle)) {
+    	        commonAction.switchToWindow(windowHandle);
+    	        break;
+    	    }
+    	}
+
+    	new Facebook(driver).performLogin(username, password);
+
+    	commonAction.switchToWindow(originalWindow);
+        return this;
+    }
+
+    public String getSelectedLanguage() {
+    	String selectedLanguage = commonAction.getText(LANGUAGE);
+    	logger.info("Retrieved selected language.");
+        return selectedLanguage;
+    }
+
+	/**
+	 * <p> Change language of Dashboard at Sign-up screen <p>
+	 * Example: selectDisplayLanguage("ENG")
+	 * @param language the desired language - either VIE or ENG
+	 */	
+	public LoginPage selectDisplayLanguage(String language) throws Exception {
+		commonAction.sleepInMiliSecond(1000);
+		if (language.contentEquals("ENG")) {
+			commonAction.clickElement(ENGLISH_LANGUAGE);
+		} else if (language.contentEquals("VIE")) {
+			commonAction.clickElement(VIETNAMESE_LANGUAGE);
+		} else {
+			throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
+		}
+		logger.info("Selected display language '%s'.".formatted(language));
+		return this;
+	}
+
+    public LoginPage verifyEmailOrPhoneNumberError(String errMessage) {
+        String text = commonAction.getText(USER_ERROR);
+        soft.assertEquals(text, errMessage, "[Login][Email or Phone Number] Message does not match.");
+        logger.info("verifyEmailOrPhoneNumberError completed");
+        return this;
+    }
+
+    public LoginPage verifyPasswordError(String errMessage) {
+        String text = commonAction.getText(PASSWORD_ERROR);
+        soft.assertEquals(text,errMessage, "[Login/Forgot Password][Password] Message does not match.");
+        logger.info("verifyPasswordError completed");
+        return this;
+    }
+
+    public LoginPage verifyEmailOrPasswordIncorrectError(String errMessage) {
+        String text = commonAction.getText(INVALID_USER_ERROR);
+        soft.assertEquals(text,errMessage, "[Login][Invalid Email/Password] Message does not match.");
+        logger.info("verifyEmailOrPasswordIncorrectError completed");
+        return this;
+    }
+
+    public void verifyLoginWithDeletedStaffAccount(String content) {
+        wait.until(ExpectedConditions.visibilityOf(WARNING_POPUP));
+        Assert.assertTrue(WARNING_POPUP.getText().contains(content),
+                "[Login][Deleted Staff Account] No warning popup has been shown");
+    }
+
+    public void completeVerify() {
+        soft.assertAll();
+    }
+
+    /* get dashboard information */
+    public void loginDashboardByJsAndGetStoreInformation(String username, String password) {
+        // access to dashboard to set cookie
+        driver.get(DOMAIN);
+
+        // login to dashboard
+        new Login().loginToDashboardByMail(username, password);
+
+        // login by js - local storage
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(accessToken));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('refreshToken', '%s')".formatted(refreshToken));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeId', %s)".formatted(apiStoreID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(sellerID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(sellerID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
+
+        logger.info("Set local storage successfully");
+
+        driver.navigate().refresh();
+
+        // get store information
+        new StoreInformation().getStoreInformation();
+
+        // get branch information
+        new BranchManagement().getBranchInformation();
+
+        // get tax information
+        new VAT().getTaxList();
+    }
+
+    public void verifyVerificationCodeError(String signupLanguage) throws Exception {
+        String text = commonAction.getText(WRONG_CODE_ERROR);
+    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
+    	soft.assertEquals(text,retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
+        logger.info("verifyVerificationCodeError completed");
+    }    
+    
+    public void verifyTextAtLoginScreen(String signinLanguage) throws Exception {
+        String text = commonAction.getText(SIGNIN_SCREEN_TXT);
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.screen.text", signinLanguage));
+        logger.info("verifyTextAtLoginScreen completed");
+    }
+    
+    public void verifyTextAtForgotPasswordScreen(String signinLanguage) throws Exception {
+    	String text = commonAction.getText(SIGNIN_FORGOTPASSWORD_TXT);
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text", signinLanguage));
+    	logger.info("verifyTextAtForgotPasswordScreen completed");
+    }
+    
+}
