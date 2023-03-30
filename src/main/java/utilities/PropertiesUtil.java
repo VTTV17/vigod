@@ -69,4 +69,42 @@ public class PropertiesUtil {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_VI_TEXT), propertyName);
         } else throw new Exception("Can't detect language.");
     }
+    public static String getEnvironmentFromConfig(){
+        try {
+            String env = getPropertyValue(initProperties(projectLocation+ getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + FILE_CONFIG), "environment");
+            return env;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static String getEnvironmentData(String propertyName)  {
+        String environment = getEnvironmentFromConfig();
+        String value;
+        switch (environment){
+            case "PROD":
+                try {
+                    value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_PROD), propertyName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "STAG":
+                try {
+                    value =  getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_STAG), propertyName);
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "CA":
+                try {
+                    value =  getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_CA), propertyName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            default: throw new RuntimeException("Environment not match.");
+        }
+        return value;
+    }
 }

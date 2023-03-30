@@ -72,9 +72,9 @@ public class CreateServiceTest extends BaseTest {
                 "<p style=\"text-align: center;\"><span class=\"fr-video fr-fvc fr-dvi fr-draggable\" contenteditable=\"false\"><iframe src=\"https://www.youtube.com/embed/pIgHZv5MBxE\" frameborder=\"0\" width=\"425\" height=\"350\" class=\"fr-draggable\"></iframe></span></p>" +
                 "</div></div>";
         passWordTestPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
-        serviceEdit = "service11";
+        serviceEdit = PropertiesUtil.getEnvironmentData("serviceTestEdit");
         SF_URL = SF_ShopVi;
-        serviceTestStatus = "Automation Service SVsUueLVdQjQ";
+        serviceTestStatus = PropertiesUtil.getEnvironmentData("serviceTestStatus");
     }
 
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {

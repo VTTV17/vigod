@@ -9,9 +9,11 @@ public class FileNameAndPath {
     public static final String FILE_CONFIG = "config.properties";
     public static final String FILE_DASHBOARD_EN_TEXT = "dashboard_en.properties";
     public static final String FILE_STOREFRONT_EN_TEXT = "storefront_en.properties";
-
     public static final String FILE_DASHBOARD_VI_TEXT = "dashboard_vi.properties";
     public static final String FILE_STOREFRONT_VI_TEXT = "storefront_vi.properties";
+    public static final String FILE_DATA_CA = "ca.properties";
+    public static final String FILE_DATA_PROD = "prod.properties";
+    public static final String FILE_DATA_STAG = "stag.properties";
     public static final String FILE_CREATE_SERVICE_TCS = "CreateService.xlsx";
     public static final String FILE_PERMISSION_PLAN_TCS = "PlanPermissionTcs.xlsx";
     public static final String FILE_IMAGE_1 = "cham-soc-mat.jpg";

@@ -1,5 +1,7 @@
 package utilities.account;
 
+import utilities.PropertiesUtil;
+
 public class AccountTest {
     public static String MAIL = "stgaboned@nbobd.com";
     public static String PHONE = "0363530754";
@@ -24,19 +26,25 @@ public class AccountTest {
     public static String DB_PASS = "R7LHffcgeEh2tpQ0qU2y";
     public static String DB_ITEM2_PASS = "ShogdBiPHcC67RDQ6H1u";
 
-    public static String USERNAME_INTERNALTOOL = "editor@mediastep.com";
-    public static String PASSWORD_INTERNALTOOL = "editor.mediastep@1";
-    public static String ADMIN_SHOP_VI_USERNAME = "0707159324";
-    public static String SF_SHOP_VI_PASSWORD = "Psso12!@";
-    public static String ADMIN_SHOP_VI_PASSWORD = "Psso124@";
-    public static String ADMIN_SHOP_COFFEE_PASSWORD = "Psso12!@";
-    public static String ADMIN_SHOP_COFFEE_USERNAME = "qcgosell01@gmail.com";
+    public static String USERNAME_INTERNALTOOL = PropertiesUtil.getEnvironmentData("internalUserName");
+    public static String PASSWORD_INTERNALTOOL = PropertiesUtil.getEnvironmentData("internalPass");
+    public static String ADMIN_SHOP_VI_USERNAME = PropertiesUtil.getEnvironmentData("adminShopViUserName");
+    public static String SF_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("sfShopViPass");
+    public static String ADMIN_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("adminShopViPass");
+    public static String ADMIN_SHOP_COFFEE_PASSWORD = PropertiesUtil.getEnvironmentData("adminShopCoffeePass");
+    public static String ADMIN_SHOP_COFFEE_USERNAME = PropertiesUtil.getEnvironmentData("adminShopCoffeeUserName");
     public static String ADMIN_CREATE_NEW_SHOP_PASSWORD = "fortesting!1";
-    public static String ADMIN_USERNAME_GOWEB = "automation0-shop89831@mailnesia.com";
-    public static String ADMIN_USERNAME_GOAPP = "automation0-shop39577@mailnesia.com";
-    public static String ADMIN_USERNAME_GOPOS = "automation0-shop59250@mailnesia.com";
-    public static String ADMIN_USERNAME_GOSOCIAL = "automation0-shop76064@mailnesia.com";
-    public static String ADMIN_USERNAME_GOLEAD = "automation0-shop96482@mailnesia.com";
+    public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
+    public static String ADMIN_USERNAME_GOAPP = PropertiesUtil.getEnvironmentData("adminGoAppUserName");
+    public static String ADMIN_USERNAME_GOPOS = PropertiesUtil.getEnvironmentData("adminGoPOSUserName");
+    public static String ADMIN_USERNAME_GOSOCIAL = PropertiesUtil.getEnvironmentData("adminGoSocialUserName");
+    public static String ADMIN_USERNAME_GOLEAD = PropertiesUtil.getEnvironmentData("adminGoLeadUserName");
+    public static String SF_USERNAME_VI_1 = PropertiesUtil.getEnvironmentData("buyer1");
+    public static String SF_USERNAME_VI_2 = PropertiesUtil.getEnvironmentData("buyer2");
+    public static String SF_USERNAME_VI_3 = PropertiesUtil.getEnvironmentData("buyer3");
+    public static String SF_USERNAME_VI_4= PropertiesUtil.getEnvironmentData("buyer4");
+    public static String SF_USERNAME_PHONE_VI_1 = PropertiesUtil.getEnvironmentData("buyerPhone1");
+    public static String SF_USERNAME_VI_5 = PropertiesUtil.getEnvironmentData("buyer5");
     
     //ATM Credentials
     public static String ATM_BANK = "NCB";
@@ -61,5 +69,4 @@ public class AccountTest {
     public static String SHOPEE_COUNTRY = "VN";
     public static String SHOPEE_USERNAME = "chicoseller.01@gmail.com";
     public static String SHOPEE_PASSWORD = "Medi@step01";
-
 }

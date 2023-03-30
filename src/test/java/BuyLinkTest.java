@@ -55,7 +55,7 @@ public class BuyLinkTest extends BaseTest {
     public void beforeClass() throws Exception {
         userNameDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passWordDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
-        userNameSF = "qcgosell01@gmail.com";
+        userNameSF = PropertiesUtil.getEnvironmentData("userSF1");
         passWordSF = AccountTest.SF_SHOP_VI_PASSWORD;
         languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
         languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
