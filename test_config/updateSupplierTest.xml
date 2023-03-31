@@ -5,24 +5,14 @@
         <classes>
             <class name="UpdateSupplierTest">
                 <methods>
-                    <!-- Language: VIE -->
-                    <include name="UP_SUPPLIER_VIE_01_ViewSupplierDetail" />
-                    <include name="UP_SUPPLIER_VIE_02_UpdateVNSupplier" />
-                    <include name="UP_SUPPLIER_VIE_03_UpdateNonVNSupplier" />
-                    <include name="UP_SUPPLIER_VIE_04_CheckErrorWhenLeaveRequiredFieldBlank" />
-                    <include name="UP_SUPPLIER_VIE_05_CheckErrorWhenInputDuplicateSupplierCode" />
-                    <include name="UP_SUPPLIER_VIE_06_CheckErrorWhenInputInvalidFormatSupplierCode" />
-                    <include name="UP_SUPPLIER_VIE_07_CheckOrderHistory" />
-                    <include name="UP_SUPPLIER_VIE_08_DeleteSupplier" />
-                    <!-- Language: ENG -->
-                    <include name="UP_SUPPLIER_ENG_01_ViewSupplierDetail" />
-                    <include name="UP_SUPPLIER_ENG_02_UpdateVNSupplier" />
-                    <include name="UP_SUPPLIER_ENG_03_UpdateNonVNSupplier" />
-                    <include name="UP_SUPPLIER_ENG_04_CheckErrorWhenLeaveRequiredFieldBlank" />
-                    <include name="UP_SUPPLIER_ENG_05_CheckErrorWhenInputDuplicateSupplierCode" />
-                    <include name="UP_SUPPLIER_ENG_06_CheckErrorWhenInputInvalidFormatSupplierCode" />
-                    <include name="UP_SUPPLIER_ENG_07_CheckOrderHistory" />
-                    <include name="UP_SUPPLIER_ENG_08_DeleteSupplier" />
+                    <include name="UP_SUPPLIER_01_ViewSupplierDetail" />
+                    <include name="UP_SUPPLIER_02_UpdateVNSupplier" />
+                    <include name="UP_SUPPLIER_03_UpdateNonVNSupplier" />
+                    <include name="UP_SUPPLIER_04_CheckErrorWhenLeaveRequiredFieldBlank" />
+                    <include name="UP_SUPPLIER_05_CheckErrorWhenInputDuplicateSupplierCode" />
+                    <include name="UP_SUPPLIER_06_CheckErrorWhenInputInvalidFormatSupplierCode" />
+                    <include name="UP_SUPPLIER_07_CheckOrderHistory" />
+                    <include name="UP_SUPPLIER_08_DeleteSupplier" />
 
                 </methods>
             </class> <!-- UpdateSupplierTest -->

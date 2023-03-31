@@ -79,7 +79,9 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void accessToProductDetailPageByProductIDAndCheckProductInformation() throws Exception {
+    public void accessToProductDetailPageByProductIDAndCheckProductInformation(String language) throws Exception {
+        // convert language to languageCode
+        String languageCode = language.equals("VIE") ? "vi" : "en";
         // get store language and others information
         if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
 
@@ -96,8 +98,8 @@ public class ProductDetailPage extends ProductDetailElement {
         // check product is display or not
         if (((maxStock != 0) || (showOutOfStock)) && bhStatus.equals("ACTIVE") && !deleted && onWeb) {
             // in-case in stock or setting show product when out of stock
-            // check if shop have multiple language, check all language should be shown exactly
-            for (String languageCode : apiSFLangList) {
+            // check language is published or not
+            if(apiSFLangList.contains(languageCode)) {
                 // check all information with language
                 if (languageCode.equals(apiDefaultLanguage) || !seoMap.get("url").get(languageCode).equals(seoMap.get("url").get(apiDefaultLanguage))) {
                     driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, uiProductID != 0 ? uiProductID : apiProductID));
@@ -110,16 +112,14 @@ public class ProductDetailPage extends ProductDetailElement {
                     commonAction.verifyPageLoaded(defaultProductNameMap.get(languageCode), defaultProductNameMap.get(languageCode));
 
                     if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
-                        checkUIInStock(languageCode);
-                        checkProductInformation(languageCode);
+                        checkUIInStock(language);
+                        checkProductInformation(language);
                     } else {
-                        checkUIOutOfStock(languageCode);
+                        checkUIOutOfStock(language);
 
                     }
                 }
-
-            }
-
+            } else logger.info("'%s' language is not published, please publish it and try again.".formatted(language));
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded

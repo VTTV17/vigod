@@ -1,7 +1,4 @@
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.supplier.function.crud.CRUDSupplierPage;
 import utilities.driver.InitWebdriver;
@@ -12,10 +9,8 @@ import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 public class UpdateSupplierTest extends BaseTest {
-    @BeforeSuite
-    @Parameters({"browser", "headless"})
-    void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless) {
+    @BeforeClass
+    void setup() {
 
         driver = new InitWebdriver().getDriver(browser, headless);
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
@@ -24,98 +19,50 @@ public class UpdateSupplierTest extends BaseTest {
 
     /* Language : VIE */
     @Test
-    void UP_SUPPLIER_VIE_01_ViewSupplierDetail() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_01";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkSupplierInformation();
+    void UP_SUPPLIER_01_ViewSupplierDetail() throws Exception {
+        testCaseId = "UP_SUPPLIER_01";
+        new CRUDSupplierPage(driver).setLanguage(language).checkSupplierInformation();
     }
 
     @Test
-    void UP_SUPPLIER_VIE_02_UpdateVNSupplier() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_02";
-        new CRUDSupplierPage(driver).setLanguage("VIE").updateSupplier(true);
+    void UP_SUPPLIER_02_UpdateVNSupplier() throws Exception {
+        testCaseId = "UP_SUPPLIER_02";
+        new CRUDSupplierPage(driver).setLanguage(language).updateSupplier(true);
     }
 
     @Test
-    void UP_SUPPLIER_VIE_03_UpdateNonVNSupplier() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_03";
-        new CRUDSupplierPage(driver).setLanguage("VIE").updateSupplier(false);
+    void UP_SUPPLIER_03_UpdateNonVNSupplier() throws Exception {
+        testCaseId = "UP_SUPPLIER_03";
+        new CRUDSupplierPage(driver).setLanguage(language).updateSupplier(false);
     }
 
     @Test
-    void UP_SUPPLIER_VIE_04_CheckErrorWhenLeaveRequiredFieldBlank() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_04";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkErrorWhenLeaveRequiredFieldBlank();
+    void UP_SUPPLIER_04_CheckErrorWhenLeaveRequiredFieldBlank() throws Exception {
+        testCaseId = "UP_SUPPLIER_04";
+        new CRUDSupplierPage(driver).setLanguage(language).checkErrorWhenLeaveRequiredFieldBlank();
     }
 
     @Test
-    void UP_SUPPLIER_VIE_05_CheckErrorWhenInputDuplicateSupplierCode() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_05";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkErrorWhenInputDuplicateSupplierCode();
+    void UP_SUPPLIER_05_CheckErrorWhenInputDuplicateSupplierCode() throws Exception {
+        testCaseId = "UP_SUPPLIER_05";
+        new CRUDSupplierPage(driver).setLanguage(language).checkErrorWhenInputDuplicateSupplierCode();
     }
 
     @Test
-    void UP_SUPPLIER_VIE_06_CheckErrorWhenInputInvalidFormatSupplierCode() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_06";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkErrorWhenInputInvalidFormatSupplierCode();
+    void UP_SUPPLIER_06_CheckErrorWhenInputInvalidFormatSupplierCode() throws Exception {
+        testCaseId = "UP_SUPPLIER_06";
+        new CRUDSupplierPage(driver).setLanguage(language).checkErrorWhenInputInvalidFormatSupplierCode();
     }
 
     @Test
-    void UP_SUPPLIER_VIE_07_CheckOrderHistory() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_07";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkOrderHistory();
+    void UP_SUPPLIER_07_CheckOrderHistory() throws Exception {
+        testCaseId = "UP_SUPPLIER_07";
+        new CRUDSupplierPage(driver).setLanguage(language).checkOrderHistory();
     }
 
     @Test
-    void UP_SUPPLIER_VIE_08_DeleteSupplier() throws Exception {
-        testCaseId = "UP_SUPPLIER_VIE_08";
-        new CRUDSupplierPage(driver).setLanguage("VIE").deleteSupplier();
-    }
-
-    /* Language : ENG */
-    @Test
-    void UP_SUPPLIER_ENG_01_ViewSupplierDetail() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_01";
-        new CRUDSupplierPage(driver).setLanguage("ENG").checkSupplierInformation();
-    }
-    @Test
-    void UP_SUPPLIER_ENG_02_UpdateVNSupplier() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_02";
-        new CRUDSupplierPage(driver).setLanguage("ENG").updateSupplier(true);
-    }
-
-    @Test
-    void UP_SUPPLIER_ENG_03_UpdateNonVNSupplier() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_03";
-        new CRUDSupplierPage(driver).setLanguage("ENG").updateSupplier(false);
-    }
-
-    @Test
-    void UP_SUPPLIER_ENG_04_CheckErrorWhenLeaveRequiredFieldBlank() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_04";
-        new CRUDSupplierPage(driver).setLanguage("ENG").checkErrorWhenLeaveRequiredFieldBlank();
-    }
-
-    @Test
-    void UP_SUPPLIER_ENG_05_CheckErrorWhenInputDuplicateSupplierCode() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_05";
-        new CRUDSupplierPage(driver).setLanguage("ENG").checkErrorWhenInputDuplicateSupplierCode();
-    }
-
-    @Test
-    void UP_SUPPLIER_ENG_06_CheckErrorWhenInputDuplicateSupplierCode() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_06";
-        new CRUDSupplierPage(driver).setLanguage("ENG").checkErrorWhenInputInvalidFormatSupplierCode();
-    }
-
-    @Test
-    void UP_SUPPLIER_ENG_07_CheckOrderHistory() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_07";
-        new CRUDSupplierPage(driver).setLanguage("ENG").checkOrderHistory();
-    }
-
-    @Test
-    void UP_SUPPLIER_ENG_08_DeleteSupplier() throws Exception {
-        testCaseId = "UP_SUPPLIER_ENG_08";
-        new CRUDSupplierPage(driver).setLanguage("ENG").deleteSupplier();
+    void UP_SUPPLIER_08_DeleteSupplier() throws Exception {
+        testCaseId = "UP_SUPPLIER_08";
+        new CRUDSupplierPage(driver).setLanguage(language).deleteSupplier();
     }
 }

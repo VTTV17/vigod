@@ -1,8 +1,6 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.driver.InitWebdriver;
@@ -16,11 +14,8 @@ import static utilities.api_body.product.CreateProductBody.apiIsHideStock;
 // BH_8616:Check to display/hide if out of stock at product detail
 public class BH_8616 extends BaseTest {
 
-    @BeforeSuite
-    @Parameters({"browser", "headless"})
-    void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless) {
-
+    @BeforeClass
+    void setup() {
         tcsFileName = "check_product_detail_sf/BH_8616_Check hide remaining stock on online store.xlsx".replace("/", File.separator);
         new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
@@ -40,7 +35,7 @@ public class BH_8616 extends BaseTest {
                         branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     @Test
@@ -56,7 +51,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     // G2: IMEI product - without variation
@@ -73,7 +68,7 @@ public class BH_8616 extends BaseTest {
                         branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     @Test
@@ -89,7 +84,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation();
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     // G3: Normal product - Variation
@@ -108,7 +103,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     @Test
@@ -126,7 +121,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     @Test
@@ -144,7 +139,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
     @Test
     // Pre-condition:
@@ -161,7 +156,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
 
@@ -181,7 +176,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     @Test
@@ -199,7 +194,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 
     @Test
@@ -217,7 +212,7 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
     @Test
     // Pre-condition:
@@ -234,6 +229,6 @@ public class BH_8616 extends BaseTest {
                 branchStock);
 
         new ProductDetailPage(driver)
-               .accessToProductDetailPageByProductIDAndCheckProductInformation();
+               .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
     }
 }

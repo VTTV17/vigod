@@ -6,17 +6,11 @@
             <class name="CreateSupplierTest">
                 <methods>
                     <!-- Language: VIE -->
-                    <include name="CR_SUPPLIER_VIE_01_CreateVNSupplier"/>
-                    <include name="CR_SUPPLIER_VIE_02_CreateNonVNSupplier"/>
-                    <include name="CR_SUPPLIER_VIE_03_CheckErrorWhenLeaveRequiredFieldBlank"/>
-                    <include name="CR_SUPPLIER_VIE_04_CheckErrorWhenInputDuplicateSupplierCode"/>
-                    <include name="CR_SUPPLIER_VIE_05_CheckErrorWhenInputInvalidFormatSupplierCode"/>
-                    <!-- Language: ENG -->
-                    <include name="CR_SUPPLIER_ENG_01_CreateVNSupplier"/>
-                    <include name="CR_SUPPLIER_ENG_02_CreateNonVNSupplier"/>
-                    <include name="CR_SUPPLIER_ENG_03_CheckErrorWhenLeaveRequiredFieldBlank"/>
-                    <include name="CR_SUPPLIER_ENG_04_CheckErrorWhenInputDuplicateSupplierCode"/>
-                    <include name="CR_SUPPLIER_ENG_05_CheckErrorWhenInputInvalidFormatSupplierCode"/>
+                    <include name="CR_SUPPLIER_01_CreateVNSupplier"/>
+                    <include name="CR_SUPPLIER_02_CreateNonVNSupplier"/>
+                    <include name="CR_SUPPLIER_03_CheckErrorWhenLeaveRequiredFieldBlank"/>
+                    <include name="CR_SUPPLIER_04_CheckErrorWhenInputDuplicateSupplierCode"/>
+                    <include name="CR_SUPPLIER_05_CheckErrorWhenInputInvalidFormatSupplierCode"/>
                 </methods>
             </class> <!-- CreateSupplierTest -->
         </classes>
