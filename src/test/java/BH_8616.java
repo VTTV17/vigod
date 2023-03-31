@@ -17,14 +17,12 @@ import static utilities.api_body.product.CreateProductBody.apiIsHideStock;
 public class BH_8616 extends BaseTest {
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "account", "password"})
+    @Parameters({"browser", "headless"})
     void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless,
-                          @Optional(ADMIN_ACCOUNT_THANG) String account,
-                          @Optional(ADMIN_PASSWORD_THANG) String password) {
+                          @Optional("true") String headless) {
 
         tcsFileName = "check_product_detail_sf/BH_8616_Check hide remaining stock on online store.xlsx".replace("/", File.separator);
-        new Login().loginToDashboardByMail(account, password);
+        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
     }
 

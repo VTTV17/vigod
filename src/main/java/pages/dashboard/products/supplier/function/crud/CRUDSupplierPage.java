@@ -46,7 +46,10 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     SupplierManagementPage supplierManagementPage;
     UICRUDSupplierPage uiCRUDSupplierPage;
     SupplierAPI sup = new SupplierAPI();
+    String supplierName;
     String supplierCode;
+    String phoneNumber;
+    String email;
 
     public CRUDSupplierPage(WebDriver driver) {
         super(driver);
@@ -60,9 +63,13 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     public CRUDSupplierPage setLanguage(String language) {
         this.language = language;
         // set dashboard language
+        commonAction.sleepInMiliSecond(1000);
+
+        System.out.println(((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')"));
+        System.out.println(language);
         String currentLanguage = ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").equals("vi") ? "VIE" : "ENG";
 
-        commonAction.sleepInMiliSecond(1000);
+
 
         if (!currentLanguage.equals(language)) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", HEADER_SELECTED_LANGUAGE);
@@ -236,7 +243,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         logger.info("Input description: %s".formatted(description));
     }
 
-    void completeCreateSupplier() {
+    void completeCRUSupplier() {
         act.moveToElement(HEADER_SAVE_BTN).click().build().perform();
         logger.info("Complete create supplier");
     }
@@ -249,7 +256,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputSupplierName("");
 
         // click Save button
-        completeCreateSupplier();
+        completeCRUSupplier();
 
         // check error when leave supplier name field blank
         uiCRUDSupplierPage.checkErrorWhenLeaveRequiredFieldBlank(language);
@@ -273,7 +280,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputSupplierCode(supplierCode);
 
         // click Save button
-        completeCreateSupplier();
+        completeCRUSupplier();
 
         // check error when input available supplier code
         uiCRUDSupplierPage.checkErrorWhenInputDuplicateSupplierCode(language);
@@ -292,7 +299,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputSupplierCode("a b");
 
         // click Save button
-        completeCreateSupplier();
+        completeCRUSupplier();
 
         // check error when input available supplier code
         uiCRUDSupplierPage.checkErrorWhenInputInvalidFormatSupplierCode(language);
@@ -314,15 +321,19 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         String epoch = String.valueOf(Instant.now().toEpochMilli());
 
         // input supplier name
-        inputSupplierName("[%s] Auto - Supplier %s - %s".formatted(language, isVNSupplier ? "VN" : "Non VN", epoch));
+        supplierName = Pattern.compile("([\\w\\W]{0,100})").matcher("[%s] Auto - Supplier %s - %s".formatted(language, isVNSupplier ? "VN" : "Non VN", epoch)).results().map(matchResult -> matchResult.group(1)).toList().get(0);
+        inputSupplierName(supplierName);
 
         // input supplier code
+        supplierCode = Pattern.compile("(\\w{0,12})").matcher("%s".formatted(epoch)).results().map(matchResult -> matchResult.group(1)).toList().get(0);
         inputSupplierCode("%s".formatted(epoch));
 
         // input supplier phone number
+        phoneNumber = Pattern.compile("(\\d{8,13})").matcher(epoch).results().map(matchResult -> matchResult.group(1)).toList().get(0);
         inputPhoneNumber(epoch);
 
         // input supplier email
+        email = Pattern.compile("([\\w\\W]{0,100})").matcher("%s@qa.team".formatted(epoch)).results().map(matchResult -> matchResult.group(1)).toList().get(0);
         inputEmail("%s@qa.team".formatted(epoch));
 
         // if country = Vietnam
@@ -364,7 +375,13 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputDescription("Descriptions %s".formatted(epoch));
 
         // click Save button to complete create supplier
-        completeCreateSupplier();
+        completeCRUSupplier();
+
+        // wait supplier management page loaded
+        commonAction.sleepInMiliSecond(3000);
+
+        // check information after create supplier
+        supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber, uiCRUDSupplierPage);
 
         verifyTest();
     }
@@ -389,15 +406,19 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         String epoch = String.valueOf(Instant.now().toEpochMilli());
 
         // input supplier name
-        inputSupplierName("[%s] Auto - Supplier %s - %s".formatted(language, isVNSupplier ? "VN" : "Non VN", epoch));
+        supplierName = Pattern.compile("([\\w\\W]{0,100})").matcher("[%s] Auto - Supplier %s - %s".formatted(language, isVNSupplier ? "VN" : "Non VN", epoch)).results().map(matchResult -> matchResult.group(1)).toList().get(0);
+        inputSupplierName(supplierName);
 
         // input supplier code
+        supplierCode = Pattern.compile("(\\w{0,12})").matcher("%s".formatted(epoch)).results().map(matchResult -> matchResult.group(1)).toList().get(0);
         inputSupplierCode("%s".formatted(epoch));
 
         // input supplier phone number
+        phoneNumber = Pattern.compile("(\\d{8,13})").matcher(epoch).results().map(matchResult -> matchResult.group(1)).toList().get(0);
         inputPhoneNumber(epoch);
 
         // input supplier email
+        email = Pattern.compile("([\\w\\W]{0,100})").matcher("%s@qa.team".formatted(epoch)).results().map(matchResult -> matchResult.group(1)).toList().get(0);
         inputEmail("%s@qa.team".formatted(epoch));
 
         // if country = Vietnam
@@ -439,7 +460,13 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputDescription("Descriptions %s".formatted(epoch));
 
         // click Save button to complete create supplier
-        completeCreateSupplier();
+        completeCRUSupplier();
+
+        // wait supplier management page loaded
+        commonAction.sleepInMiliSecond(3000);
+
+        // check information after update supplier
+        supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber, uiCRUDSupplierPage);
 
         verifyTest();
     }

@@ -3,8 +3,8 @@ package utilities.account;
 import utilities.PropertiesUtil;
 
 public class AccountTest {
-    public final static String ADMIN_ACCOUNT_THANG = "stgauto@nbobd.com";
-    public final static String ADMIN_PASSWORD_THANG = "Abc@12345";
+    public final static String ADMIN_ACCOUNT_THANG = PropertiesUtil.getEnvironmentData("adminShopThangAccount");
+    public final static String ADMIN_PASSWORD_THANG = PropertiesUtil.getEnvironmentData("adminShopThangPassword");
 
     // 10.10.0.15
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com

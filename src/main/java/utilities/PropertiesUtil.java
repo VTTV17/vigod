@@ -1,16 +1,17 @@
 package utilities;
 
-import org.testng.internal.Utils;
-
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Properties;
 
 import static utilities.file.FileNameAndPath.*;
 
 public class PropertiesUtil {
+    public static String environment;
+    public static String sfLanguage;
+    public static String dbLanguage;
     private static Properties initProperties(String propertyFile) throws IOException {
         Properties properties = new Properties();
         FileInputStream inputStream = null;
@@ -53,7 +54,7 @@ public class PropertiesUtil {
     }
 
     public static String getPropertiesValueByDBLang(String propertyName, String... language) throws Exception {
-        String lang = language.length == 0 ? getLanguageFromConfig("Dashboard") : language[0];
+        String lang = language.length == 0 ? PropertiesUtil.dbLanguage : language[0];
         if (lang.equalsIgnoreCase("ENG") || lang.equalsIgnoreCase("en")) {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_DASHBOARD_EN_TEXT), propertyName);
         } else if (lang.equalsIgnoreCase("VIE") || lang.equalsIgnoreCase("vi")) {
@@ -62,24 +63,28 @@ public class PropertiesUtil {
     }
 
     public static String getPropertiesValueBySFLang(String propertyName, String... language) throws Exception {
-        String lang = language.length == 0 ? getLanguageFromConfig("Storefront") : language[0];
+        String lang = language.length == 0 ? PropertiesUtil.dbLanguage : language[0];
         if (lang.equalsIgnoreCase("ENG") || lang.equalsIgnoreCase("en")) {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_EN_TEXT), propertyName);
         } else if (lang.equalsIgnoreCase("VIE") || lang.equalsIgnoreCase("vi")) {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_VI_TEXT), propertyName);
         } else throw new Exception("Can't detect language.");
     }
-    public static String getEnvironmentFromConfig(){
-        try {
-            String env = getPropertyValue(initProperties(projectLocation+ getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + FILE_CONFIG), "environment");
-            return env;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static void setEnvironment(String environment) {
+        PropertiesUtil.environment = environment;
     }
+
+    public static void setSFLanguage(String language) {
+        PropertiesUtil.sfLanguage = language;
+    }
+
+    public static void setDBLanguage(String language) {
+        PropertiesUtil.dbLanguage = language;
+    }
+
     public static String getEnvironmentData(String propertyName)  {
-        String environment = getEnvironmentFromConfig();
         String value;
+
         switch (environment){
             case "PROD":
                 try {

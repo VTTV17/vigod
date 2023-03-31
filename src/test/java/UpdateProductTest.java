@@ -16,15 +16,13 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 public class UpdateProductTest extends BaseTest {
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "account", "password"})
+    @Parameters({"browser", "headless"})
     void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless,
-                          @Optional(ADMIN_ACCOUNT_THANG) String account,
-                          @Optional(ADMIN_PASSWORD_THANG) String password) {
-
-        new Login().loginToDashboardByMail(account, password);
+                          @Optional("true") String headless) {
         driver = new InitWebdriver().getDriver(browser, headless);
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(account, password);
+        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+        driver = new InitWebdriver().getDriver(browser, headless);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/Update product.xlsx".replace("/", File.separator);
     }
 

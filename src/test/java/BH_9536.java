@@ -17,13 +17,11 @@ import static utilities.api_body.product.CreateProductBody.apiIsDisplayOutOfStoc
 public class BH_9536 extends BaseTest {
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "account", "password"})
+    @Parameters({"browser", "headless"})
     void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless,
-                          @Optional(ADMIN_ACCOUNT_THANG) String account,
-                          @Optional(ADMIN_PASSWORD_THANG) String password) {
+                          @Optional("true") String headless) {
 
-        new Login().loginToDashboardByMail(account, password);
+        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
         tcsFileName = "check_product_detail_sf/BH_9536_Check to display if out of stock at product detail.xlsx".replace("/", File.separator);
     }

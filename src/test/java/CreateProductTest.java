@@ -14,14 +14,12 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 // BH_4694, 4695, 4696, 4697, 4698, 4699, 4700, 4701, 4702, 4703, 4704, 7467, 7472, 3545,
 public class CreateProductTest extends BaseTest {
     @BeforeSuite
-    @Parameters({"browser", "headless", "account", "password"})
+    @Parameters({"browser", "headless"})
     void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless,
-                          @Optional(ADMIN_ACCOUNT_THANG) String account,
-                          @Optional(ADMIN_PASSWORD_THANG) String password) {
+                          @Optional("true") String headless) {
 
         driver = new InitWebdriver().getDriver(browser, headless);
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(account, password);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/Create product.xlsx".replace("/", File.separator);
     }
 

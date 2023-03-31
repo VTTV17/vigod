@@ -13,14 +13,12 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 public class UpdateSupplierTest extends BaseTest {
     @BeforeSuite
-    @Parameters({"browser", "headless", "account", "password"})
+    @Parameters({"browser", "headless"})
     void initPreCondition(@Optional("chrome") String browser,
-                          @Optional("true") String headless,
-                          @Optional(ADMIN_ACCOUNT_THANG) String account,
-                          @Optional(ADMIN_PASSWORD_THANG) String password) {
+                          @Optional("true") String headless) {
 
         driver = new InitWebdriver().getDriver(browser, headless);
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(account, password);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/Update supplier.xlsx".replace("/", File.separator);
     }
 
@@ -77,7 +75,7 @@ public class UpdateSupplierTest extends BaseTest {
     @Test
     void UP_SUPPLIER_ENG_01_ViewSupplierDetail() throws Exception {
         testCaseId = "UP_SUPPLIER_ENG_01";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkSupplierInformation();
+        new CRUDSupplierPage(driver).setLanguage("ENG").checkSupplierInformation();
     }
     @Test
     void UP_SUPPLIER_ENG_02_UpdateVNSupplier() throws Exception {
@@ -112,12 +110,12 @@ public class UpdateSupplierTest extends BaseTest {
     @Test
     void UP_SUPPLIER_ENG_07_CheckOrderHistory() throws Exception {
         testCaseId = "UP_SUPPLIER_ENG_07";
-        new CRUDSupplierPage(driver).setLanguage("VIE").checkOrderHistory();
+        new CRUDSupplierPage(driver).setLanguage("ENG").checkOrderHistory();
     }
 
     @Test
     void UP_SUPPLIER_ENG_08_DeleteSupplier() throws Exception {
         testCaseId = "UP_SUPPLIER_ENG_08";
-        new CRUDSupplierPage(driver).setLanguage("VIE").deleteSupplier();
+        new CRUDSupplierPage(driver).setLanguage("ENG").deleteSupplier();
     }
 }

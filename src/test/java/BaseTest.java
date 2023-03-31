@@ -1,12 +1,9 @@
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Parameters;
+import org.testng.annotations.*;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
-import utilities.driver.InitWebdriver;
 import utilities.excel.Excel;
 import utilities.screenshot.Screenshot;
 
@@ -19,17 +16,27 @@ public class BaseTest {
 
     String tcsFileName;
     String testCaseId;
+    String browser;
+    String headless;
+    String language;
 
-    @BeforeMethod
-    @Parameters()
-    public void setup() throws InterruptedException {
-        if (driver == null) driver = new InitWebdriver().getDriver("chrome", "true");
-        generate = new DataGenerator();
-        commonAction = new UICommonAction(driver);
+    @BeforeSuite
+    @Parameters({"browser", "headless", "environment", "sfLanguage", "dbLanguage"})
+    void getConfig(@Optional("chrome") String browser,
+                          @Optional("true") String headless,
+                          @Optional("STAG") String environment,
+                          @Optional("VIE") String language) {
+        this.browser = browser;
+        this.headless = headless;
+        this.language = language;
+
+        // set environment, language for Properties
+        PropertiesUtil.setEnvironment(environment);
+        PropertiesUtil.setDBLanguage(language);
+        PropertiesUtil.setSFLanguage(language);
     }
-
     @AfterMethod
-    public void tearDown(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws IOException {
         if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
         new Screenshot().takeScreenshot(driver);
     }
@@ -37,7 +44,7 @@ public class BaseTest {
     public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
         Excel excel = new Excel();
         int testCaseRow = excel.getRowCellByKey(fileName, sheetId, testCaseID).get(0);
-        int resultCellIndex = excel.getCellIndexByCellValue(fileName, sheetId, 0, "Result");
+        int resultCellIndex = excel.getCellIndexByCellValue(fileName, sheetId, 0, "Result %s".formatted(language));
         switch (result.getStatus()) {
             case ITestResult.SUCCESS -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "PASS");
             case ITestResult.SKIP -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "SKIP");
