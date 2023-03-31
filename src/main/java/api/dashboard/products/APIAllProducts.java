@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class APIAllProducts {
     API api = new API();
     public static String DASHBOARD_PRODUCT_LIST_PATH = "itemservice/api/store/dashboard/%storeID%/items-v2?langKey=vi&searchType=PRODUCT_NAME&searchSortItemEnum=null&searchItemName=&sort=%sort%&page=0&size=1000&inStock=false&saleChannel=&bhStatus=&branchIds=&shopeeId=&collectionId=%collectionId%&platform=&itemType=BUSINESS_PRODUCT";
-    public static String DASHBOAR_WHOLESALE_PRICE_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
+    public static String DASHBOAR_CONVERSION_UNIT_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
     public static String DASHBOARD_PRODUCT_DETAIL_PATH = "itemservice/api/beehive-items/%s?langKey=vi";
     public List<String> getProductListInCollectionByLatest(String storeID, String token, String collectionID) throws ParseException {
         Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%",collectionID).replaceAll("%sort%",""),token);
@@ -217,7 +217,7 @@ public class APIAllProducts {
     public int countProductItem(boolean hasConversionUnit, String productId, String token){
         int count;
         if(hasConversionUnit == true){
-            Response conversionItemRes = api.get(DASHBOAR_WHOLESALE_PRICE_ITEM_PATH.formatted(productId),token);
+            Response conversionItemRes = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productId),token);
             conversionItemRes.then().statusCode(200);
             System.out.println(conversionItemRes.prettyPrint());
             List<Integer> wholesaleProductIDList = conversionItemRes.jsonPath().getList("conversionItemList.id");
