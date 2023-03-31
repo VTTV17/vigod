@@ -1,5 +1,8 @@
 package utilities;
 
+import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Parameters;
 import org.testng.internal.Utils;
 
 import java.io.*;
@@ -11,6 +14,7 @@ import java.util.Properties;
 import static utilities.file.FileNameAndPath.*;
 
 public class PropertiesUtil {
+    public static String environment ="STAG";
     private static Properties initProperties(String propertyFile) throws IOException {
         Properties properties = new Properties();
         FileInputStream inputStream = null;
@@ -69,17 +73,18 @@ public class PropertiesUtil {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_VI_TEXT), propertyName);
         } else throw new Exception("Can't detect language.");
     }
-    public static String getEnvironmentFromConfig(){
-        try {
-            String env = getPropertyValue(initProperties(projectLocation+ getDirectorySlash("src") +getDirectorySlash("main") + getDirectorySlash("resources") + FILE_CONFIG), "environment");
-            return env;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void setEnvironment(String environment) {
+        PropertiesUtil.environment = environment;
     }
+
+//    @BeforeSuite
+//    @Parameters("environment")
+//    void setup(String environment) {
+//        new PropertiesUtil().setEnvironment(environment);
+//    }
+
     public static String getEnvironmentData(String propertyName)  {
-        String environment = getEnvironmentFromConfig();
-        String value;
+        String value = "";
         switch (environment){
             case "PROD":
                 try {
@@ -103,7 +108,7 @@ public class PropertiesUtil {
                     throw new RuntimeException(e);
                 }
                 break;
-            default: throw new RuntimeException("Environment not match.");
+            default: Assert.assertTrue(false,"Environment not match: "+environment);
         }
         return value;
     }
