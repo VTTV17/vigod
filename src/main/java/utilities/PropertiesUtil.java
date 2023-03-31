@@ -1,9 +1,13 @@
 package utilities;
 
+import org.testng.Assert;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static utilities.file.FileNameAndPath.*;
@@ -83,7 +87,7 @@ public class PropertiesUtil {
     }
 
     public static String getEnvironmentData(String propertyName)  {
-        String value;
+        String value = "";
 
         switch (environment){
             case "PROD":
@@ -108,7 +112,7 @@ public class PropertiesUtil {
                     throw new RuntimeException(e);
                 }
                 break;
-            default: throw new RuntimeException("Environment not match.");
+            default: Assert.assertTrue(false,"Environment not match: "+environment);
         }
         return value;
     }
