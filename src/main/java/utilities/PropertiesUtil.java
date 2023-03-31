@@ -21,7 +21,7 @@ public class PropertiesUtil {
         FileInputStream inputStream = null;
         try {
             inputStream = new FileInputStream(propertyFile);
-            properties.load(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            properties.load(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -89,30 +89,30 @@ public class PropertiesUtil {
     public static String getEnvironmentData(String propertyName)  {
         String value = "";
 
-        switch (environment){
-            case "PROD":
+        switch (environment) {
+            case "PROD" -> {
                 try {
                     value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_PROD), propertyName);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                break;
-            case "STAG":
+            }
+            case "STAG" -> {
                 try {
-                    value =  getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_STAG), propertyName);
+                    value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_STAG), propertyName);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                break;
-            case "CA":
+            }
+            case "CA" -> {
                 try {
-                    value =  getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_CA), propertyName);
+                    value = getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("environment") + FILE_DATA_CA), propertyName);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                break;
-            default: Assert.assertTrue(false,"Environment not match: "+environment);
+            }
+            default -> Assert.fail("Environment not match: " + environment);
         }
         return value;
     }
