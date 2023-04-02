@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,8 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -29,8 +31,11 @@ import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import pages.thirdparty.Mailnesia;
 import utilities.PropertiesUtil;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
+import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
+import utilities.driver.InitWebdriver;
 
 public class SignupStorefront extends BaseTest {
 	
@@ -38,7 +43,6 @@ public class SignupStorefront extends BaseTest {
 
 	SignupPage signupPage;
 
-	String signupLanguage;
 	String username;
 	String mail;
 	String phone;
@@ -48,18 +52,18 @@ public class SignupStorefront extends BaseTest {
 	String displayName;
 	String birthday;
 
-	String BUYER_MAIL_USERNAME;
-	String BUYER_MAIL_PASSWORD;
-	String BUYER_MAIL_COUNTRY;
-
-	String BUYER_PHONE_USERNAME;
-	String BUYER_PHONE_PASSWORD;
-	String BUYER_PHONE_COUNTRY;
-
-	String STORE_USERNAME;
-	String STORE_PASSWORD;
-	String STORE_COUNTRY;
-
+	JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
+	JsonNode data1 = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
+	String STORE_USERNAME = data.findValue("seller").findValue("mail").findValue("username").asText();
+	String STORE_PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
+	String STORE_COUNTRY = data.findValue("seller").findValue("mail").findValue("country").asText();
+	String BUYER_MAIL_USERNAME = data1.findValue("buyer").findValue("mail").findValue("username").asText();
+	String BUYER_MAIL_PASSWORD = data1.findValue("buyer").findValue("mail").findValue("password").asText();
+	String BUYER_MAIL_COUNTRY = data1.findValue("buyer").findValue("mail").findValue("country").asText();
+	String BUYER_PHONE_USERNAME = data1.findValue("buyer").findValue("phone").findValue("username").asText();
+	String BUYER_PHONE_PASSWORD = data1.findValue("buyer").findValue("phone").findValue("password").asText();
+	String BUYER_PHONE_COUNTRY = data1.findValue("buyer").findValue("phone").findValue("country").asText();	
+	
 	// This function generate test data for each test case
 	public void generateTestData() {
 		phone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits;
@@ -67,7 +71,6 @@ public class SignupStorefront extends BaseTest {
 		password = "fortesting!1";
 		country = processCountry();
 		countryCode = generate.getCountryCode(country);
-		signupLanguage = "ENG";
 		displayName = "Automation Buyer " + phone;
 		birthday = "21/02/1990";
 	}
@@ -115,25 +118,16 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertTrue(mailContent[1][3].contains(expectedVerificationCodeMessage));
 	}
 
-	@BeforeClass
-	public void readData() {
-		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-		JsonNode data1 = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
-		STORE_USERNAME = data.findValue("seller").findValue("mail").findValue("username").asText();
-		STORE_PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
-		STORE_COUNTRY = data.findValue("seller").findValue("mail").findValue("country").asText();
-		BUYER_MAIL_USERNAME = data1.findValue("buyer").findValue("mail").findValue("username").asText();
-		BUYER_MAIL_PASSWORD = data1.findValue("buyer").findValue("mail").findValue("password").asText();
-		BUYER_MAIL_COUNTRY = data1.findValue("buyer").findValue("mail").findValue("country").asText();
-		BUYER_PHONE_USERNAME = data1.findValue("buyer").findValue("phone").findValue("username").asText();
-		BUYER_PHONE_PASSWORD = data1.findValue("buyer").findValue("phone").findValue("password").asText();
-		BUYER_PHONE_COUNTRY = data1.findValue("buyer").findValue("phone").findValue("country").asText();
-	}
-
-	@BeforeMethod
-	public void setup() throws InterruptedException {
-		super.setup();
+	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		signupPage = new SignupPage(driver);
+		commonAction = new UICommonAction(driver);
+		generate = new DataGenerator();
+	}	
+	
+	@BeforeMethod
+	public void setup() {
+		instantiatePageObjects();
 		generateTestData();
 	}
 
@@ -146,12 +140,12 @@ public class SignupStorefront extends BaseTest {
 		/* Sign up */
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage)
+		.changeLanguage(language)
         .clickUserInfoIcon()
         .clickSignupIcon();
-		signupPage.verifyTextAtSignupScreen(signupLanguage);
+		signupPage.verifyTextAtSignupScreen();
 		signupPage.onlyFillOutSignupForm(country, username, password, displayName, birthday)
-		.verifyTextAtVerificationCodeScreen(username, signupLanguage);
+		.verifyTextAtVerificationCodeScreen(username);
 	}		
 	
 	@Test
@@ -160,22 +154,22 @@ public class SignupStorefront extends BaseTest {
 		
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyUsername", signupLanguage);
+		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyUsername");
 		signupPage.navigate().fillOutSignupForm(country, "", password, displayName, birthday);
 		signupPage.verifyEmailOrPhoneNumberError(error).completeVerify();
 
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyPassword", signupLanguage);
+		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyPassword");
 		signupPage.navigate().fillOutSignupForm(country, phone, "", displayName, birthday);
 		signupPage.verifyPasswordError(error).completeVerify();
 
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyDisplayName", signupLanguage);
+		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.emptyDisplayName");
 		signupPage.navigate().fillOutSignupForm(country, phone, password, "", birthday);
 		signupPage.verifyDisplayNameError(error).completeVerify();		
 		
 		mail = "automation_mail.com";
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.invalidUsernameFormat", signupLanguage);
+		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.invalidUsernameFormat");
 		signupPage.navigate().fillOutSignupForm(country, mail, password, displayName, birthday);
 		signupPage.verifyEmailOrPhoneNumberError(error).completeVerify();
 
@@ -255,9 +249,9 @@ public class SignupStorefront extends BaseTest {
 		
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.mailExists", signupLanguage);
+		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.mailExists");
 		signupPage.fillOutSignupForm(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD, displayName, birthday)
 		.verifyUsernameExistError(error).completeVerify();
 	}
@@ -269,9 +263,9 @@ public class SignupStorefront extends BaseTest {
 		
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.phoneExists", signupLanguage);
+		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.phoneExists");
 		signupPage.fillOutSignupForm(BUYER_PHONE_COUNTRY, BUYER_PHONE_USERNAME, BUYER_PHONE_PASSWORD, displayName, birthday)
 		.verifyUsernameExistError(error).completeVerify();
 	}
@@ -283,7 +277,7 @@ public class SignupStorefront extends BaseTest {
 		// Signup
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
@@ -317,7 +311,7 @@ public class SignupStorefront extends BaseTest {
 		// Log into Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear().selectLanguage("ENG");
 		
 		// Verify user info in Dashboard
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
@@ -344,14 +338,13 @@ public class SignupStorefront extends BaseTest {
 		password = "fortesting!1";
 		country = "Vietnam";
 		countryCode = generate.getCountryCode(country);
-		signupLanguage = "VIE";
 		displayName = "Automation Buyer " + phone;
 		birthday = "14/02/1990";
 		
 		// Signup
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
@@ -385,7 +378,7 @@ public class SignupStorefront extends BaseTest {
 		// Log into Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear().selectLanguage(language);
 		
 		// Verify user info in Dashboard
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
@@ -410,14 +403,13 @@ public class SignupStorefront extends BaseTest {
 		password = "fortesting!1";
 		country = "Vietnam";
 		countryCode = generate.getCountryCode(country);
-		signupLanguage = "VIE";
 		displayName = "Automation Buyer " + phone;
 		birthday = "15/02/1990";
 		
 		// Signup
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
@@ -451,7 +443,7 @@ public class SignupStorefront extends BaseTest {
 		// Log into Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear().selectLanguage(language);
 		
 		// Verify user info in Dashboard
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
@@ -475,7 +467,7 @@ public class SignupStorefront extends BaseTest {
 		// Signup
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
@@ -509,7 +501,7 @@ public class SignupStorefront extends BaseTest {
 		// Log into Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear().selectLanguage("ENG");
 		
 		// Verify user info in Dashboard
 		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
@@ -532,7 +524,7 @@ public class SignupStorefront extends BaseTest {
 		
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signupLanguage);
+		.changeLanguage(language);
 		
 		// Signup
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday);
@@ -542,8 +534,7 @@ public class SignupStorefront extends BaseTest {
 		String code = getVerificationCode(username);
 		
 		// Input wrong verification code
-		String error = "";
-		error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.wrongVerificationCode", signupLanguage);
+		String error = PropertiesUtil.getPropertiesValueBySFLang("signup.screen.error.wrongVerificationCode");
 		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickConfirmBtn();
 		signupPage.verifyVerificationCodeError(error).completeVerify();
 		
@@ -641,4 +632,10 @@ public class SignupStorefront extends BaseTest {
 		Assert.assertEquals(formattedBirthday, SF_Birthday);
 	}
 
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }	
+	
 }

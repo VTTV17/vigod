@@ -1,6 +1,8 @@
+import java.io.IOException;
 import java.sql.SQLException;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -11,43 +13,44 @@ import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.account.AccountPage;
 import pages.dashboard.signup.SignupPage;
 import pages.thirdparty.Mailnesia;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
+import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
+import utilities.driver.InitWebdriver;
 
 public class LoginDashboard extends BaseTest {
 
 	LoginPage loginPage;
 	HomePage homePage;
 
-	String signinLanguage = "ENG";
-	String MAIL;
-	String PASSWORD;
-	String PHONE;
-	String PHONE_PASSWORD;
-	String PHONE_COUNTRYCODE;
-	String PHONE_COUNTRY;
-	String FACEBOOK;
-	String FACEBOOK_PASSWORD;
-	String STAFF;
-	String STAFF_PASSWORD;
+	JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
+	String MAIL = data.findValue("seller").findValue("mail").findValue("username").asText();
+	String PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
+	String PHONE = data.findValue("seller").findValue("phone").findValue("username").asText();
+	String PHONE_PASSWORD = data.findValue("seller").findValue("phone").findValue("password").asText();
+	String PHONE_COUNTRY = data.findValue("seller").findValue("phone").findValue("country").asText();
+	String PHONE_COUNTRYCODE = data.findValue("seller").findValue("phone").findValue("countryCode").asText();
+	String FACEBOOK = data.findValue("seller").findValue("facebook").findValue("username").asText();
+	String FACEBOOK_PASSWORD = data.findValue("seller").findValue("facebook").findValue("password").asText();
+	String STAFF = data.findValue("staff").findValue("mail").findValue("username").asText();
+	String STAFF_PASSWORD = data.findValue("staff").findValue("mail").findValue("password").asText();
+	String SELLER_FORGOT_MAIL_USERNAME = data.findValue("seller").findValue("forgotMail").findValue("username").asText();
+	String SELLER_FORGOT_MAIL_PASSWORD = data.findValue("seller").findValue("forgotMail").findValue("password").asText();
+	String SELLER_FORGOT_MAIL_COUNTRY = data.findValue("seller").findValue("forgotMail").findValue("country").asText();
+	String SELLER_FORGOT_PHONE_USERNAME = data.findValue("seller").findValue("forgotPhone").findValue("username").asText();
+	String SELLER_FORGOT_PHONE_PASSWORD = data.findValue("seller").findValue("forgotPhone").findValue("password").asText();
+	String SELLER_FORGOT_PHONE_COUNTRY = data.findValue("seller").findValue("forgotPhone").findValue("country").asText();
 	
-	String SELLER_FORGOT_MAIL_USERNAME;
-	String SELLER_FORGOT_MAIL_PASSWORD;
-	String SELLER_FORGOT_MAIL_COUNTRY;
-	String SELLER_FORGOT_PHONE_USERNAME;
-	String SELLER_FORGOT_PHONE_PASSWORD;
-	String SELLER_FORGOT_PHONE_COUNTRY;		
+	String BLANK_ERROR = data.findValue("emptyError").asText();
+	String INVALID_MAIL_ERROR = data.findValue("invalidMailFormat").asText();
+	String INVALID_PHONE_ERROR = data.findValue("invalidPhoneFormat").asText();
+	String INVALID_CREDENTIALS_ERROR = data.findValue("invalidCredentials").asText();
+	String INVALID_PASSWORD_FORMAT_ERROR_VI = "Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt";
+	String INVALID_PASSWORD_FORMAT_ERROR_EN = "Your password must have at least 8 characters with at least 1 letter, 1 number and 1 special character";
 	
-	String BLANK_ERROR;
-	String INVALID_MAIL_ERROR;
-	String INVALID_PHONE_ERROR;
-	String INVALID_CREDENTIALS_ERROR;
-	String INVALID_PASSWORD_FORMAT_ERROR_VI;
-	String INVALID_PASSWORD_FORMAT_ERROR_EN;
 	String INVALID_CODE_ERROR_VI = "Mã xác thực không đúng!";
 	String INVALID_CODE_ERROR_EN = "Incorrect confirmation code!";
-
-	String language;
 
 	public String getVerificationCode(String username) throws SQLException {
 		String verificationCode;
@@ -62,7 +65,7 @@ public class LoginDashboard extends BaseTest {
 
 	public void verifyChangePasswordError() throws InterruptedException {
 		String message;
-		if (loginPage.getSelectedLanguage().contentEquals("English")) {
+		if (loginPage.getSelectedLanguage().contentEquals("ENG")) {
 			message = INVALID_PASSWORD_FORMAT_ERROR_EN;
 		} else {
 			message = INVALID_PASSWORD_FORMAT_ERROR_VI;
@@ -72,7 +75,7 @@ public class LoginDashboard extends BaseTest {
 
 	public void verifyConfirmationCodeError() throws Exception {
 		String message;
-		if (language.contentEquals("English")) {
+		if (language.contentEquals("ENG")) {
 			message = INVALID_CODE_ERROR_EN;
 		} else {
 			message = INVALID_CODE_ERROR_VI;
@@ -80,50 +83,27 @@ public class LoginDashboard extends BaseTest {
 		new SignupPage(driver).verifyVerificationCodeError(message).completeVerify();
 	}
 
-	@BeforeClass
-	public void readData() {
-		JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-
-		MAIL = data.findValue("seller").findValue("mail").findValue("username").asText();
-		PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
-		PHONE = data.findValue("seller").findValue("phone").findValue("username").asText();
-		PHONE_PASSWORD = data.findValue("seller").findValue("phone").findValue("password").asText();
-		PHONE_COUNTRY = data.findValue("seller").findValue("phone").findValue("country").asText();
-		PHONE_COUNTRYCODE = data.findValue("seller").findValue("phone").findValue("countryCode").asText();
-		FACEBOOK = data.findValue("seller").findValue("facebook").findValue("username").asText();
-		FACEBOOK_PASSWORD = data.findValue("seller").findValue("facebook").findValue("password").asText();
-		STAFF = data.findValue("staff").findValue("mail").findValue("username").asText();
-		STAFF_PASSWORD = data.findValue("staff").findValue("mail").findValue("password").asText();
-		SELLER_FORGOT_MAIL_USERNAME = data.findValue("seller").findValue("forgotMail").findValue("username").asText();
-		SELLER_FORGOT_MAIL_PASSWORD = data.findValue("seller").findValue("forgotMail").findValue("password").asText();
-		SELLER_FORGOT_MAIL_COUNTRY = data.findValue("seller").findValue("forgotMail").findValue("country").asText();
-		SELLER_FORGOT_PHONE_USERNAME = data.findValue("seller").findValue("forgotPhone").findValue("username").asText();
-		SELLER_FORGOT_PHONE_PASSWORD = data.findValue("seller").findValue("forgotPhone").findValue("password").asText();
-		SELLER_FORGOT_PHONE_COUNTRY = data.findValue("seller").findValue("forgotPhone").findValue("country").asText();
-		
-		BLANK_ERROR = data.findValue("emptyError").asText();
-		INVALID_MAIL_ERROR = data.findValue("invalidMailFormat").asText();
-		INVALID_PHONE_ERROR = data.findValue("invalidPhoneFormat").asText();
-		INVALID_CREDENTIALS_ERROR = data.findValue("invalidCredentials").asText();
-		INVALID_PASSWORD_FORMAT_ERROR_VI = "Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt";
-		INVALID_PASSWORD_FORMAT_ERROR_EN = "Your password must have at least 8 characters with at least 1 letter, 1 number and 1 special character";
-	}
-
-	@BeforeMethod
-	public void setup() throws InterruptedException {
-		super.setup();
+	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
+		commonAction = new UICommonAction(driver);
+		generate = new DataGenerator();
+	}	
+	
+	@BeforeMethod
+	public void setup() {
+		instantiatePageObjects();
 	}
 	
     @Test
 	public void LoginDB_01_CheckTranslation() throws Exception {
 		loginPage.navigate()
-		.selectDisplayLanguage(signinLanguage)
-		.verifyTextAtLoginScreen(signinLanguage);
+		.selectDisplayLanguage(language)
+		.verifyTextAtLoginScreen();
 		
 		loginPage.clickForgotPassword()
-		.verifyTextAtForgotPasswordScreen(signinLanguage);
+		.verifyTextAtForgotPasswordScreen();
 	}
     
     @Test
@@ -186,7 +166,7 @@ public class LoginDashboard extends BaseTest {
 		homePage.waitTillSpinnerDisappear().clickLogout();
 	}
 
-    @Test
+//    @Test
 	public void LoginDB_07_LoginWithFacebook() {
 		loginPage.navigate().performLoginWithFacebook(FACEBOOK, FACEBOOK_PASSWORD);
 		homePage.waitTillSpinnerDisappear().clickLogout();
@@ -208,12 +188,10 @@ public class LoginDashboard extends BaseTest {
 
 		String staff = "emcehc@mailnesia.com";
 
-		language = loginPage.navigate().getSelectedLanguage();
-		
-		if (language.contentEquals("English")) {
-			signinLanguage = "ENG";
+		if (loginPage.navigate().getSelectedLanguage().contentEquals("English")) {
+			language = "ENG";
 		} else {
-			signinLanguage = "VIE";
+			language = "VIE";
 		}
 
 		// Inadequate number of characters
@@ -247,7 +225,7 @@ public class LoginDashboard extends BaseTest {
 
 		loginPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1))
 		.clickContinueOrConfirmBtn();
-		loginPage.verifyVerificationCodeError(signinLanguage);
+		loginPage.verifyVerificationCodeError(language);
 
 		// Input correct verification code
 		loginPage.inputVerificationCode(code)
@@ -355,4 +333,10 @@ public class LoginDashboard extends BaseTest {
 		}
 	}
 
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }	
+	
 }

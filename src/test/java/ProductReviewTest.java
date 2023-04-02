@@ -4,6 +4,7 @@ import static utilities.account.AccountTest.ADMIN_USERNAME_GOPOS;
 import static utilities.account.AccountTest.ADMIN_USERNAME_GOSOCIAL;
 import static utilities.account.AccountTest.ADMIN_USERNAME_GOWEB;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,6 +17,8 @@ import java.util.Random;
 import java.util.Set;
 
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -33,9 +36,11 @@ import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.userprofile.MyOrders;
 import utilities.PropertiesUtil;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.data.DataGenerator;
 import utilities.data.FormatDate;
+import utilities.driver.InitWebdriver;
 
 public class ProductReviewTest extends BaseTest {
 
@@ -49,10 +54,7 @@ public class ProductReviewTest extends BaseTest {
 	CheckOutStep1 checkOutStep1;
 	MyOrders myOrderPage;
 
-	String displayLanguage = "ENG";
-
-	String randomProduct = "";
-
+	
 	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
 	String sellerUsername = sellerData.findValue("seller").findValue("mail").findValue("username").asText();
 	String sellerPassword = sellerData.findValue("seller").findValue("mail").findValue("password").asText();
@@ -62,14 +64,8 @@ public class ProductReviewTest extends BaseTest {
 	String buyerPassword = buyerData.findValue("buyer").findValue("phone").findValue("password").asText();
 	String buyerCountry = buyerData.findValue("buyer").findValue("phone").findValue("country").asText();
 
-	@BeforeClass
-	public void logIntoDashboardByAPI() {
-		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
-	}	
-	
-	@BeforeMethod
-	public void setup() throws InterruptedException {
-		super.setup();
+	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		dbLoginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		productReviewPage = new ProductReviews(driver);
@@ -77,9 +73,22 @@ public class ProductReviewTest extends BaseTest {
 		sfHeader = new HeaderSF(driver);
 		checkOutStep1 = new CheckOutStep1(driver);
 		sfProductDetailPage = new ProductDetailPage(driver);
-		
-		randomProduct = randomProduct();
-	}
+		commonAction = new UICommonAction(driver);
+	}	
+	
+	public void loginDashboard() {
+		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+	}	
+	
+	/**
+	 * Logs into SF and change user language
+	 */
+	public void loginSF() {
+		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
+		sfHeader.waitTillLoaderDisappear();
+		sfHeader.clickUserInfoIcon().changeLanguage(language);
+	}	
 
 	public String randomProduct() {
 		String[] pro1ducts = { "Fish Food", "Tetra Fish Food", "Dog Food", "Cat Food", "Bird Food" };
@@ -120,8 +129,8 @@ public class ProductReviewTest extends BaseTest {
      * @return
      * @throws Exception
      */
-	public String tranlateSortText(String condition, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("product.review.filter." + condition, displayLanguage);
+	public String tranlateSortText(String condition) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("product.review.filter." + condition);
 	}
 	
 	public List<Integer> sortRatingRetrievedFromAPI(List<Integer> ratings, String condition) throws Exception {
@@ -197,15 +206,10 @@ public class ProductReviewTest extends BaseTest {
     
 	public String buyProductThenDeliverOrder(String product) throws Exception {
 		/* Log into SF */
-		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
-		sfHeader.waitTillLoaderDisappear();
+		loginSF();
 
 		/* Buy product */
-		sfHeader.clickUserInfoIcon()
-		.changeLanguage(displayLanguage)
-		.searchWithFullName(product)
-		.clickSearchResult()
-		.waitTillLoaderDisappear();
+		sfHeader.searchWithFullName(product).clickSearchResult().waitTillLoaderDisappear();
 		
 		sfProductDetailPage.clickOnBuyNow()
 		.clickOnContinue()
@@ -235,15 +239,10 @@ public class ProductReviewTest extends BaseTest {
 		int randomStar = new DataGenerator().generatNumberInBound(1, 6);
 		
 		/* Log into SF */
-		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
-		sfHeader.waitTillLoaderDisappear();
+		loginSF();
 		
 		/* Buy product */
-		sfHeader.clickUserInfoIcon()
-		.changeLanguage(displayLanguage)
-		.searchWithFullName(product)
-		.clickSearchResult()
-		.waitTillLoaderDisappear();
+		sfHeader.searchWithFullName(product).clickSearchResult().waitTillLoaderDisappear();
 		
 		sfProductDetailPage.clickOnBuyNow()
 		.clickOnContinue()
@@ -269,8 +268,18 @@ public class ProductReviewTest extends BaseTest {
 		commonAction.refreshPage();
 		new MyOrders(driver).clickWriteReview(orderId)
 		.leaveReview(randomStar, "So good " + randomNumber, "Absolutely love the product " + randomNumber);
-	}  
+	}  	
 	
+	@BeforeClass
+	public void logIntoDashboardByAPI() {
+		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
+	}	
+	
+	@BeforeMethod
+	public void setup() throws InterruptedException {
+		instantiatePageObjects();
+	}
+
 	@Test
 	public void PR_00_PermissionToUseProductReviews() throws Exception {
 		
@@ -294,22 +303,22 @@ public class ProductReviewTest extends BaseTest {
 	public void PR_01_CheckTranslation() throws Exception {
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Check text at management screen */
-		productReviewPage.navigate().verifyTextAtReviewManagementScreen(displayLanguage);
+		productReviewPage.navigate().verifyTextAtReviewManagementScreen();
 	}    
     
 	public void PR_02_DisableProductReviews() throws Exception {
-
+		
+		String randomProduct = randomProduct();
+		
 		buyProductThenDeliverOrder(randomProduct);
 		
 		/* Log into dashboard */
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Disable reviews */
 		productReviewPage.navigate().disableProductReviews();
@@ -345,8 +354,7 @@ public class ProductReviewTest extends BaseTest {
 		int reviewIndex = 0;
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -380,8 +388,7 @@ public class ProductReviewTest extends BaseTest {
 		int reviewIndex = 0;
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -412,6 +419,7 @@ public class ProductReviewTest extends BaseTest {
 	@Test
 	public void PR_06_OnlyOneReviewEachOrder() throws Exception {
 		
+		String randomProduct = randomProduct();
 		String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(10);
 		int randomStar = new DataGenerator().generatNumberInBound(1, 6);
 		
@@ -420,8 +428,7 @@ public class ProductReviewTest extends BaseTest {
 		/* Log into dashboard */
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Disable/Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -458,8 +465,7 @@ public class ProductReviewTest extends BaseTest {
 	public void PR_07_NavigateToProductDetailOnSF() throws Exception {
 
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Enable reviews */
 		productReviewPage.navigate().enableProductReviews();
@@ -486,8 +492,7 @@ public class ProductReviewTest extends BaseTest {
         String searchTerm = randomSearchProduct.substring(0, randomSearchProduct.length()/2);
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+        loginDashboard();
 		
 		/* Absolute match */
 		productReviewPage.navigate().inputSearchTerm(searchTerm);
@@ -512,8 +517,7 @@ public class ProductReviewTest extends BaseTest {
 	public void PR_09_SortReviews() throws Exception {
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		loginDashboard();
 		
 		/* Get reviews */
 		productReviewPage.navigate();
@@ -525,7 +529,7 @@ public class ProductReviewTest extends BaseTest {
 		
 		List<Integer> expectedRating = sortRatingRetrievedFromAPI(initialRating, sortCondition);
 		
-		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		productReviewPage.selectSortCondition(tranlateSortText(sortCondition));
 		
 		List<Integer> actualRating = extractRatingFromReview(productReviewPage.getAllReviewTable());
 		
@@ -536,7 +540,7 @@ public class ProductReviewTest extends BaseTest {
 		
 		expectedRating = sortRatingRetrievedFromAPI(initialRating, sortCondition);
 		
-		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		productReviewPage.selectSortCondition(tranlateSortText(sortCondition));
 		
 		actualRating = extractRatingFromReview(productReviewPage.getAllReviewTable());
 		
@@ -552,7 +556,7 @@ public class ProductReviewTest extends BaseTest {
 		
 		List<Date> expectedCreatedDate = sortCreatedDate(extractCreatedDateFromReview(initialReviews), sortCondition);
 		
-		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		productReviewPage.selectSortCondition(tranlateSortText(sortCondition));
 		
 		List<Date> actualCreatedDate = extractCreatedDateFromReview(productReviewPage.getAllReviewTable());
 		
@@ -563,12 +567,18 @@ public class ProductReviewTest extends BaseTest {
 		
 		expectedCreatedDate = sortCreatedDate(extractCreatedDateFromReview(initialReviews), sortCondition);
 		
-		productReviewPage.selectSortCondition(tranlateSortText(sortCondition, displayLanguage));
+		productReviewPage.selectSortCondition(tranlateSortText(sortCondition));
 		
 		actualCreatedDate = extractCreatedDateFromReview(productReviewPage.getAllReviewTable());
 		
 		Assert.assertEquals(actualCreatedDate, expectedCreatedDate);	
 		
 	}	
+
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }
 	
 }

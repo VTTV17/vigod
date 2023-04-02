@@ -8,6 +8,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.testng.Assert;
 
+import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 import java.util.List;
@@ -46,7 +47,8 @@ public class AddCollectionDialog {
 	public AddCollectionDialog inputSearchTerm(String customerSegment) {
 		commonAction.inputText(SEARCH_BOX, customerSegment);
 		logger.info("Input '" + customerSegment + "' into Search box.");
-		commonAction.sleepInMiliSecond(1000);
+		new HomePage(driver).waitTillSpinnerDisappear1();
+//		commonAction.sleepInMiliSecond(1000);
 		return this;
 	}
 

@@ -86,8 +86,15 @@ public class CreateQuotation {
 	@FindBy(css = "div.modal-footer button.gs-button.gs-button__gray--outline.gs-button--undefined")
 	WebElement CANCEL_BTN;	
 
+	String PRODUCT_NAME_IN_RESULT = ".//*[contains(@class,'product-item-row__product-name') %s]";
+	String VARIATION_IN_RESULT = ".//*[contains(@class,'product-item-row__variation-name') %s]";
+	String PRODUCT_BARCODE_IN_RESULT = ".//code[' ' %s]";
+	String PRICE_IN_RESULT = ".//*[contains(@class,'product-item-row__price') %s]";
+	String CONV_UNIT_IN_RESULT = ".//p[' ' %s]";
+	
 	public CreateQuotation navigate() {
-		new HomePage(driver).navigateToPage("Orders", "Create Quotation");
+		homePage.navigateToPage("Orders", "Create Quotation");
+		homePage.hideFacebookBubble();
 		return this;
 	}	
 	
@@ -97,6 +104,11 @@ public class CreateQuotation {
 		return this;
 	}
 	
+	/**
+	 * 
+	 * @param searchBy Product/Barcode or Sản phẩm/Mã Vạch
+	 * @return
+	 */
 	public CreateQuotation selectSearchCondition(String searchBy) {
 		commonAction.clickElement(SEARCH_PRODUCT_BY);
 		By conditionXpath = By.xpath("./following-sibling::*//div[@class='uik-select__label' and text()='%s']".formatted(searchBy));
@@ -121,22 +133,32 @@ public class CreateQuotation {
 		return this;
 	}
 
+	/**
+	 * Retrieves the search results data
+	 * @return the list of lists containing search result information such as name, variation, barcode, price and conversion unit
+	 */
 	public List<List<String>> getSearchResults() {
+		//Wait till there are results on search results box
 		for (int i=0; i<10; i++) {
 			if (PRODUCT_SEARCH_RESULTS.size() >0) break; 
 			commonAction.sleepInMiliSecond(500);
 		}
 		
+		//Get data result data
 		List<List<String>> table = new ArrayList<>();
 		for (WebElement row : PRODUCT_SEARCH_RESULTS) {
 			List<String> rowData = new ArrayList<>();
-			rowData.add(row.findElement(By.xpath(".//*[contains(@class,'product-item-row__product-name')]")).getText()); //Get name
-			List<WebElement> variationList = row.findElements(By.xpath(".//*[contains(@class,'product-item-row__variation-name')]"));
+			rowData.add(row.findElement(By.xpath(PRODUCT_NAME_IN_RESULT.formatted(""))).getText()); //Get name
+			
+			List<WebElement> variationList = row.findElements(By.xpath(VARIATION_IN_RESULT.formatted("")));
 			String variationValue = variationList.size() >0 ? variationList.get(0).getText() : "";
 			rowData.add(variationValue); // Get variation
-			rowData.add(row.findElement(By.xpath(".//code")).getText()); // Get Barcode
-			rowData.add(row.findElement(By.xpath(".//*[contains(@class,'product-item-row__price')]")).getText()); //Get price
-			List<WebElement> conversionList = row.findElements(By.xpath(".//p"));
+			
+			rowData.add(row.findElement(By.xpath(PRODUCT_BARCODE_IN_RESULT.formatted(""))).getText()); // Get Barcode
+			
+			rowData.add(row.findElement(By.xpath(PRICE_IN_RESULT.formatted(""))).getText()); //Get price
+			
+			List<WebElement> conversionList = row.findElements(By.xpath(CONV_UNIT_IN_RESULT.formatted("")));
 			String conversionValue = conversionList.size() >0 ? conversionList.get(0).getText() : "";
 			rowData.add(conversionValue); // Get conversion unit
 			
@@ -144,16 +166,70 @@ public class CreateQuotation {
 		}
 		return table;
 	}		
+	
+	/**
+	 * Selects a product from search results based on the provided data to add to quotation
+	 * @param productData The list of strings containing product name, variation, barcode, price and conversion unit
+	 * <p>Eg. String[] pr = {"Product with variations", "L|Red", "", "", ""};
+	 * <p>selectProduct(Arrays.asList(pr));
+	 * @return
+	 */
+	public CreateQuotation selectProduct(List<String> productData) {
+		String name = productData.get(0);
+		String variation = productData.get(1);
+		String barcode = productData.get(2);
+		String price = productData.get(3);
+		String convUnit = productData.get(4);
+		
+		List<List<String>> results = getSearchResults();
+		
+		for(int i=0; i<results.size(); i++) {
+			if (!results.get(i).get(0).contentEquals(name)) continue;
+			
+			// If variation value is not provided, we proceed to next step
+			if (variation.length() >0) {
+				if (!results.get(i).get(1).contentEquals(variation)) continue;
+			}
+			// If barcode value is not provided, we proceed to next step
+			if (barcode.length() >0) {
+				if (!results.get(i).get(2).contentEquals(barcode)) continue;
+			}
+			// If price value is not provided, we proceed to next step
+			if (price.length() >0) {
+				if (!results.get(i).get(3).contentEquals(price)) continue;
+			}
+			// If conversion unit value is not provided, we proceed to next step
+			if (convUnit.length() >0) {
+				//Extract conversion unit value from string of "Unit: <conversion_unit>"
+				String retrievedConvUnit = results.get(i).get(4);
+				
+				if (retrievedConvUnit.length()==0) continue;
+				
+				String extractedConvUnit = retrievedConvUnit.substring(retrievedConvUnit.indexOf(":") + 3);
+				
+				if (!extractedConvUnit.contentEquals(convUnit)) continue;
+			}
+			commonAction.clickElement(PRODUCT_SEARCH_RESULTS.get(i));
+			
+			/**
+			 * Code to check if the product is selected goes here
+			 */
+			
+			break;
+		}
+		logger.info("Selected product: " + name);
+		return this;
+	}
 
 	public CreateQuotation selectProduct(String name) {
-		By productXpath = By.xpath("//*[contains(@class,'product-item-row__product-name') and text()='%s']".formatted(name));
+		By productXpath = By.xpath(PRODUCT_NAME_IN_RESULT.formatted("and text()='%s'".formatted(name)));
 		commonAction.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(productXpath)));
 		logger.info("Selected product: " + name);
 		return this;
 	}
 	
 	public CreateQuotation inputCustomerSearchTerm(String searchTerm) {
-		new HomePage(driver).hideFacebookBubble();
+		homePage.hideFacebookBubble();
 		commonAction.inputText(CUSTOMER_SEARCH_BOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Customer Search box.");
 		return this;
@@ -167,7 +243,7 @@ public class CreateQuotation {
 	}	
 	
 	public CreateQuotation clickExportQuotationBtn() {
-		new HomePage(driver).hideFacebookBubble();
+		homePage.hideFacebookBubble();
 		commonAction.clickElement(EXPORT_QUO_BTN);
 		logger.info("Clicked on 'Export Quotation' button.");
 		return this;
@@ -180,7 +256,7 @@ public class CreateQuotation {
 	}
 
 	public CreateQuotation removeItemFromListQuotation() {
-		new HomePage(driver).hideFacebookBubble();
+		homePage.hideFacebookBubble();
 		commonAction.clickElement(DELETE_ITEM_ICON);
 		logger.info("Clicked on Delete icon on list product quotation.");
 		return this;
@@ -297,36 +373,42 @@ public class CreateQuotation {
 		return table;
 	}	
 
-    public void verifyTextAtCreateQuotationScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtCreateQuotationScreen() throws Exception {
     	
     	String text = commonAction.getText(PAGE_TITLE).split("\n")[0];
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.title", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.title"), text);
   
     	text = commonAction.getText(SEARCH_PRODUCT_BY);
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchProductByName", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchProductByName"), text);
     	
     	text = commonAction.getElementAttribute(PRODUCT_SEARCH_BOX, "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchProductByName.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchProductByName.placeHolder"));
     	
     	text = commonAction.getText(TABLE_HEADER);
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.table.header", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.table.header"), text);
     
     	text = commonAction.getElementAttribute(CUSTOMER_SEARCH_BOX, "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchCustomer.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchCustomer.placeHolder"));
     	
     	text = commonAction.getText(MONEY_SUMMARY.get(0).findElement(By.tagName("p")));
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.subTotal", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.subTotal"), text);
     	
     	text = commonAction.getText(MONEY_SUMMARY.get(1).findElement(By.tagName("p")));
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.vat", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.vat"), text);
     	
     	text = commonAction.getText(MONEY_SUMMARY.get(2).findElement(By.tagName("b")));
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.total", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.total"), text);
     	
     	text = commonAction.getText(EXPORT_QUO_BTN);
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.exportBtn", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.exportBtn"), text);
 
     	logger.info("verifyTextAtCreateQuotationScreen completed");
+    }  		
+    
+    public void verifyErrorWhenSelectingProductWithConversionUnits() throws Exception {
+    	String text = homePage.getToastMessage();
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.error.addConversionUnits"), text);
+    	logger.info("verifyErrorWhenSelectingProductWithConversionUnits completed");
     }  		
 	
     /*Verify permission for certain feature*/
@@ -336,7 +418,7 @@ public class CreateQuotation {
 		} else if (permission.contentEquals("D")) {
 			Assert.assertFalse(commonAction.getCurrentURL().contains(url));
 		} else {
-			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+			Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
 		}
     }
 

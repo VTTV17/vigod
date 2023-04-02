@@ -182,8 +182,8 @@ public class Cashbook {
 	
 	public Cashbook selectGroup(String group) {
 		commonAction.clickElement(SENDERGROUP_DROPDOWN);
-		String xpath = ".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(group);
-		commonAction.clickElement(SENDERGROUP_DROPDOWN.findElement(By.xpath(xpath)));
+		By groupLocator = By.xpath(".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(group));
+		commonAction.clickElement(SENDERGROUP_DROPDOWN.findElement(groupLocator));
 		logger.info("Selected Sender/Recipient Group: %s.".formatted(group));
 		return this;
 	}
@@ -360,208 +360,206 @@ public class Cashbook {
 		return text;
 	}
 
-    public void verifyTextAtCashbookManagementScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtCashbookManagementScreen() throws Exception {
     	new HomePage(driver).hideFacebookBubble();
     	String text = commonAction.getText(PAGE_TITLE).split("\n")[0];
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.title", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.title"), text);
     	text = commonAction.getText(CREATE_RECEIPT_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.createReceiptBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.createReceiptBtn"));
     	text = commonAction.getText(CREATE_PAYMENT_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.createPaymentBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.createPaymentBtn"));
     	text = commonAction.getText(FILTER_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.filterBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.filterBtn"));
     	
     	text = commonAction.getText(CASHBOOKSUMMARY.get(0).findElement(By.xpath("./parent::*/preceding-sibling::*")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.openingBalance", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.openingBalance"));
     	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(0).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(TOOLTIP);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.openingBalance", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.openingBalance"));
     	
     	text = commonAction.getText(CASHBOOKSUMMARY.get(1).findElement(By.xpath("./parent::*/preceding-sibling::*")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalRevenue", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalRevenue"));
     	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(1).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(TOOLTIP);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalRevenue", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalRevenue"));
     	
     	text = commonAction.getText(CASHBOOKSUMMARY.get(2).findElement(By.xpath("./parent::*/preceding-sibling::*")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalExpenditure", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalExpenditure"));
     	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(2).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(TOOLTIP);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalExpenditure", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalExpenditure"));
     	    	
     	text = commonAction.getText(CASHBOOKSUMMARY.get(3).findElement(By.xpath("./parent::*/preceding-sibling::*")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.endingBalance", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.endingBalance"));
     	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(3).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
     	text = commonAction.getText(TOOLTIP);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.endingBalance", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.endingBalance"));
     	
     	text = commonAction.getElementAttribute(CASHBOOK_SEARCH_BOX, "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.searchBox", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.searchBox"));
     	
     	text = commonAction.getText(TABLEHEADER);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tableHeader", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tableHeader"));
     	
     	logger.info("verifyTextAtCashbookManagementScreen completed");
     }  	
 	
-    public void verifyTextAtCreateReceiptScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtCreateReceiptScreen() throws Exception {
     	String text = commonAction.getText(CREATE_RECEIPT_PAYMENT_MODAL_TITLE);
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.title", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.title"), text);
     	
     	text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.groupLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.groupLbl"));
     	
     	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl"));
     	text = commonAction.getElementAttribute(SENDER_NAME_DROPDOWN.findElement(By.xpath(".//input[contains(@id,'gs-dropdown-search')]")), "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl.customer.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl.customer.placeHolder"));
     	
     	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl"));
     	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath(".//div[@class='uik-select__valueWrapper']")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl.placeHolder"));
     	
     	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
     	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
     	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
     	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
     	text = commonAction.getElementAttribute(NOTE, "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl.placeHolder"));
     	
     	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
     	text = commonAction.getText(CANCEL_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
     	text = commonAction.getText(SAVE_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
     }  	
     
-    public void verifyTextAtReceiptTransactionIDScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtReceiptTransactionIDScreen() throws Exception {
     	/*
     	 * Remember to add code to verify pop-up title.
     	 */
     	
     	String text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.groupLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.groupLbl"));
     	
     	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl"));
     	
     	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl"));
     	
     	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
     	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
     	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
     	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
     	
     	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
     	text = commonAction.getText(CANCEL_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
     	text = commonAction.getText(SAVE_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtReceiptTransactionIDScreen completed");
     }  	
     
-    public void verifyTextAtCreatePaymentScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtCreatePaymentScreen() throws Exception {
     	String text = commonAction.getText(CREATE_RECEIPT_PAYMENT_MODAL_TITLE);
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.title", signupLanguage), text);
-    	
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.title"));
     	text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.groupLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.groupLbl"));
     	
     	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.nameLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.nameLbl"));
     	text = commonAction.getElementAttribute(SENDER_NAME_DROPDOWN.findElement(By.xpath(".//input[contains(@id,'gs-dropdown-search')]")), "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl.customer.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl.customer.placeHolder"));
     	
     	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl"));
     	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath(".//div[@class='uik-select__valueWrapper']")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl.placeHolder"));
     	
     	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
     	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
     	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
     	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
     	text = commonAction.getElementAttribute(NOTE, "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl.placeHolder", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl.placeHolder"));
     	
     	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
     	text = commonAction.getText(CANCEL_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
     	text = commonAction.getText(SAVE_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
     }  	
     
-    public void verifyTextAtPaymentTransactionIDScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtPaymentTransactionIDScreen() throws Exception {
     	/*
     	 * Remember to add code to verify pop-up title.
     	 */
     	
     	String text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.groupLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.groupLbl"));
     	
     	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.nameLbl", signupLanguage));
-    	
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.nameLbl"));
     	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl"));
     	
     	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
     	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
     	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
     	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
     	
     	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
     	text = commonAction.getText(CANCEL_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
     	text = commonAction.getText(SAVE_BTN);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
     }  	
@@ -659,9 +657,9 @@ public class Cashbook {
 		return this;
 	}    
 
-    public void verifyTextAtFilterContainer(String signupLanguage) throws Exception {
+    public void verifyTextAtFilterContainer() throws Exception {
     	String text = commonAction.getText(FILTER_DONE_BTN.findElement(By.xpath("./ancestor::div[contains(@class,'dropdown-menu-right')]")));
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.filterContainer", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.filterContainer"));
     	logger.info("verifyTextAtFilterContainer completed");
     }  		
 	

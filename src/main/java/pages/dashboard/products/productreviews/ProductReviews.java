@@ -211,40 +211,40 @@ public class ProductReviews {
 		return this;
 	}	
 
-    public void verifyTextAtReviewManagementScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtReviewManagementScreen() throws Exception {
     	homePage.hideFacebookBubble();
     	
     	String text = commons.getText(PAGE_TITLE).split("\n")[0];
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management"), text);
     	
     	text = commons.getText(ENABLE_PRODUCT_REVIEW_TOGGLE.findElement(By.xpath("./ancestor::div[@class=' gs-content-header-right-el']")));
-    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management.toggle.enable.product.review", signupLanguage), text);
+    	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management.toggle.enable.product.review"), text);
     	
     	text = commons.getElementAttribute(SEARCH_BOX, "placeholder");
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.searchBox", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.searchBox"));
     	
     	text = commons.getText(TABLEHEADER);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.table.header", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.table.header"));
 
     	if (isProductReviewsEnabled()) {
     		commons.clickElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
     		text = homePage.getToastMessage();
-        	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review", signupLanguage));
+        	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review"));
     	}
     	commons.hoverOverElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
     	commons.sleepInMiliSecond(500);
     	text = commons.getText(TOOLTIP);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review"));
     	
     	if (!isProductReviewsEnabled()) {
     		commons.clickElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
     		text = homePage.getToastMessage();
-        	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review", signupLanguage));
+        	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review"));
     	}
     	commons.hoverOverElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
     	commons.sleepInMiliSecond(500);
     	text = commons.getText(TOOLTIP);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review", signupLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review"));
     	
     	logger.info("verifyTextAtCashbookManagementScreen completed");
     }  		
