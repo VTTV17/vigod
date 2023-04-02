@@ -1,10 +1,14 @@
 package api.dashboard.products;
 
 import api.dashboard.login.Login;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.testng.collections.Lists;
 import utilities.api.API;
 import utilities.sort.SortData;
+
+import static api.dashboard.login.Login.accessToken;
+import static api.dashboard.login.Login.apiStoreID;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -228,4 +232,31 @@ public class APIAllProducts {
         return count;
     }
 
+	public JsonPath getProductConversionUnitJsonPath(int productID) {
+		Response response = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productID), accessToken);
+		response.then().statusCode(200);
+		return response.jsonPath();
+	}
+    
+	/**
+	 * Returns a list of conversion unit names for the given product ID.
+	 * @param productID the ID of the product to retrieve conversion units for
+	 * @return
+	 */
+    public List<String> getConversionUnitsOfProduct(int productID) {
+    	return getProductConversionUnitJsonPath(productID).getList("conversionItemList.unitName");
+    }        
+    
+	public JsonPath getAllProductJsonPath() {
+		Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(apiStoreID)).replaceAll("%collectionId%","").replaceAll("%sort%",""),accessToken);
+		response.then().statusCode(200);
+		response.jsonPath().prettyPeek();
+		return response.jsonPath();
+	}    
+	
+    public List<String> getAllProductNames() {
+    	return getAllProductJsonPath().getList("name");
+    }     
+	
+	
 }

@@ -1,5 +1,11 @@
 package pages.dashboard.customers.segments;
 
+import static utilities.character_limit.CharacterLimit.MAX_SEGMENT_NAME_LENGTH;
+import static utilities.character_limit.CharacterLimit.MIN_SEGMENT_NAME_LENGTH;
+
+import java.time.Duration;
+import java.util.List;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
@@ -11,17 +17,9 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
-
-import java.time.Duration;
-import java.util.List;
-
-import static utilities.character_limit.CharacterLimit.MAX_SEGMENT_NAME_LENGTH;
-import static utilities.character_limit.CharacterLimit.MIN_SEGMENT_NAME_LENGTH;
 
 public class CreateSegment {
 
@@ -32,8 +30,6 @@ public class CreateSegment {
 	UICommonAction commonAction;
 
 	public static String segmentName;
-
-	SoftAssert soft = new SoftAssert();
 
 	public CreateSegment(WebDriver driver) {
 		this.driver = driver;

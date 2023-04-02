@@ -1,106 +1,109 @@
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import api.dashboard.login.Login;
+import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.ProductInformation;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.orders.createquotation.CreateQuotation;
 import utilities.PropertiesUtil;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
+import utilities.driver.InitWebdriver;
 
 public class CreateQuotationTest extends BaseTest {
 
 	LoginPage dbLoginPage;
 	HomePage homePage;
 	CreateQuotation createQuotationPage;
-
-	String displayLanguage = "VIE";
-
-	String[] products = { "Product with wholesale pricing", "Product with IMEIs",
-			"Product with conversion units + wholesale pricing", "Product with variations + wholesale pricing",
-			"Product with variations + conversion units + wholesale pricing", "Product with variations",
-			"Product with SKU", "product2 with conversion units", "Product with IMEIs + variations" };
-
+	
+	List<String> productList;
+	List<Integer> productIDList;
+	List<List<String>> convUnitProductList;
+	
 	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
 	String sellerUsername = sellerData.findValue("seller").findValue("mail").findValue("username").asText();
 	String sellerPassword = sellerData.findValue("seller").findValue("mail").findValue("password").asText();
 	String sellerCountry = sellerData.findValue("seller").findValue("mail").findValue("country").asText();
 
 	
+	@BeforeClass
+	public void getDataByAPI() {
+        new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
+        productList = new APIAllProducts().getAllProductNames();
+        productIDList = new ProductInformation().getProductList();
+        convUnitProductList = new ProductInformation().getIdAndNameOfProductWithConversionUnits();
+	}		
+	
 	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		dbLoginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		createQuotationPage = new CreateQuotation(driver);
+		commonAction = new UICommonAction(driver);
 	}
 
 	@BeforeMethod
 	public void setup() throws InterruptedException {
-		super.setup();
 		instantiatePageObjects();
 	}
 	
 	/**
 	 * 
 	 * @param condition searchProductByName/searchProductByBarcode
-	 * @param displayLanguage
 	 * @return
 	 * @throws Exception
 	 */
-	public String tranlateSearchCondition(String condition, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("quotation.create." + condition, displayLanguage);
+	public String tranlateSearchCondition(String condition) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("quotation.create." + condition);
 	}
 	
 	public String randomSearchProduct() {
-		return products[(new Random().nextInt(0, products.length))];
+		return productList.get((new Random().nextInt(0, productList.size())));
 	}		
 
-	public List<Integer> getProductIDListByAPI() {
-		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
-		return new ProductInformation().getProductList();
-	}		
-	
 	public String randomSearchProductID() {
-		List<Integer> id = getProductIDListByAPI();
-        return String.valueOf(id.get((new Random().nextInt(0, id.size()))));
+        return String.valueOf(productIDList.get((new Random().nextInt(0, productIDList.size()))));
 	}	
+
+	public List<String> extractElementAtIndex(List<List<String>> results, int index) {
+	    return results.stream().map(list -> list.get(index)).collect(Collectors.toList());
+	}
 	
 	public List<String> extractProductNameFromSearchResults(List<List<String>> results) {
-		List<String> extractedNames = new ArrayList<>();
-		for (List<String> review : results) {
-			extractedNames.add(review.get(0));
-		}
-		return extractedNames;
+		return extractElementAtIndex(results, 0);
 	} 	
 	
 	public List<String> extractProductIDFromSearchResults(List<List<String>> results) {
-		List<String> extractedIDs = new ArrayList<>();
-		for (List<String> review : results) {
-			extractedIDs.add(review.get(2));
-		}
-		return extractedIDs;
+		return extractElementAtIndex(results, 2);
 	} 	
 	
-    public void verifyResultMatchNameSearchTerm(List<List<String>> resutls, String searchTerm){
-		Assert.assertNotEquals(resutls.size(), 0, "Number of found records");
-    	List<String> names = extractProductNameFromSearchResults(resutls);
+    public void verifyResultMatchNameSearchTerm(List<List<String>> results, String searchTerm){
+		Assert.assertNotEquals(results.size(), 0, "Number of found records");
+    	List<String> names = extractProductNameFromSearchResults(results);
     	for (String name : names) {
     		Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()));
     	}
     }
     
-    public void verifyResultMatchIDSearchTerm(List<List<String>> resutls, String searchTerm){
-    	Assert.assertNotEquals(resutls.size(), 0, "Number of found records");
-    	List<String> names = extractProductIDFromSearchResults(resutls);
-    	for (String name : names) {
-    		Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()));
+    public void verifyResultMatchIDSearchTerm(List<List<String>> results, String searchTerm){
+    	Assert.assertNotEquals(results.size(), 0, "Number of found records");
+    	List<String> ids = extractProductIDFromSearchResults(results);
+    	for (String id : ids) {
+    		Assert.assertTrue(id.toLowerCase().contains(searchTerm.toLowerCase()));
     	}
     }
 
@@ -109,10 +112,10 @@ public class CreateQuotationTest extends BaseTest {
 
 		/* Log into dashboard */
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Check text at management screen */
-		createQuotationPage.navigate().verifyTextAtCreateQuotationScreen(displayLanguage);
+		createQuotationPage.navigate().verifyTextAtCreateQuotationScreen();
 	}
 
 	@Test
@@ -120,14 +123,16 @@ public class CreateQuotationTest extends BaseTest {
 		
 		/* Log into dashboard */
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 		
 		createQuotationPage.navigate();
 		
 		/* Add products */
-		for (String product : products) {
+		for (int i=0; i<productList.size(); i++) {
+			String product = productList.get(i);
 			createQuotationPage.inputProductSearchTerm(product);
 			createQuotationPage.selectProduct(product);
+			if (i==9) break; 
 		}
 		
 		createQuotationPage.inputCustomerSearchTerm("");
@@ -156,14 +161,16 @@ public class CreateQuotationTest extends BaseTest {
 		
 		/* Log into dashboard */
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		createQuotationPage.navigate();
 		
 		/* Add products */
-		for (String product : products) {
+		for (int i=0; i<productList.size(); i++) {
+			String product = productList.get(i);
 			createQuotationPage.inputProductSearchTerm(product);
 			createQuotationPage.selectProduct(product);
+			if (i==9) break; 
 		}
 		
 		/* Select customer */
@@ -199,7 +206,7 @@ public class CreateQuotationTest extends BaseTest {
 		
 		/* Log into dashboard */
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 		
 		createQuotationPage.navigate();
 		
@@ -229,11 +236,11 @@ public class CreateQuotationTest extends BaseTest {
 		
 		/* Log into dashboard */
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 		
 		createQuotationPage.navigate();
 		
-		createQuotationPage.selectSearchCondition(tranlateSearchCondition("searchProductByBarcode", displayLanguage));
+		createQuotationPage.selectSearchCondition(tranlateSearchCondition("searchProductByBarcode"));
 		
 		createQuotationPage.inputProductSearchTerm(randomSearchID);
 		
@@ -245,19 +252,34 @@ public class CreateQuotationTest extends BaseTest {
 		
 		/* Log into dashboard */
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		createQuotationPage.navigate();
 		
-		for (String product : products) {
+		List<String> conv = convUnitProductList.get((new Random().nextInt(0, convUnitProductList.size())));
+		List<String> conversionUnits = new APIAllProducts().getConversionUnitsOfProduct(Integer.valueOf(conv.get(0)));
+		createQuotationPage.inputProductSearchTerm(conv.get(1));
+		createQuotationPage.selectProduct(Arrays.asList(conv.get(1),"", "", "", conversionUnits.get(0)));
+		createQuotationPage.verifyErrorWhenSelectingProductWithConversionUnits();
+		
+		for (int i=0; i<productList.size(); i++) {
+			String product = productList.get(i);
 			createQuotationPage.inputProductSearchTerm(product);
 			createQuotationPage.selectProduct(product);
+			if (i==9) break; 
 		}
 		
-		for (String product : products) {
+		for (int i=0; i<productList.size(); i++) {
 			createQuotationPage.removeItemFromListQuotation();
 			createQuotationPage.confirmProductRemoval();
+			if (i==9) break; 
 		}
 	}
 
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }
+	
 }

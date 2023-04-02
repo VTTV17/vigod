@@ -305,15 +305,15 @@ public class SignupPage extends GeneralSF {
         return this;
     }
     
-    public void verifyTextAtSignupScreen(String signupLanguage) throws Exception {
+    public void verifyTextAtSignupScreen() throws Exception {
         String text = commonAction.getText(SIGNUP_SCREEN_TXT);
-        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.screen.text", signupLanguage));
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.screen.text"));
         logger.info("verifyTextAtSignupScreen completed");
     }    
 
-    public void verifyTextAtVerificationCodeScreen(String username, String signupLanguage) throws Exception {
+    public void verifyTextAtVerificationCodeScreen(String username) throws Exception {
     	String text = commonAction.getText(VERIFICATION_CODE_SCREEN_TXT);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.verificationCode.text", signupLanguage).formatted(username));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueBySFLang("signup.verificationCode.text").formatted(username));
     	logger.info("verifyTextAtVerificationCodeScreen completed");
     }       
     

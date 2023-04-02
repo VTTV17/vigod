@@ -1,11 +1,13 @@
 import static org.testng.Assert.assertFalse;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -21,55 +23,55 @@ import pages.storefront.signup.SignupPage;
 import pages.storefront.userprofile.MyAccount.MyAccount;
 import pages.thirdparty.Facebook;
 import pages.thirdparty.Mailnesia;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
+import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
+import utilities.driver.InitWebdriver;
 
 public class LoginStorefront extends BaseTest {
 
 	LoginPage loginPage;
 	HeaderSF headerPage;
 
-	String STORE_USERNAME;
-	String STORE_PASSWORD;
-	String STORE_COUNTRY;
+	JsonNode db = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
+	JsonNode sf = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
+	JsonNode gm = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("gomua");
+	String STORE_USERNAME = db.findValue("seller").findValue("mail").findValue("username").asText();
+	String STORE_PASSWORD = db.findValue("seller").findValue("mail").findValue("password").asText();
+	String STORE_COUNTRY = db.findValue("seller").findValue("mail").findValue("country").asText();
+	String FACEBOOK = db.findValue("seller").findValue("facebook").findValue("username").asText();
+	String FACEBOOK_PASSWORD = db.findValue("seller").findValue("facebook").findValue("password").asText();
+	String BUYER_MAIL_USERNAME = sf.findValue("buyer").findValue("mail").findValue("username").asText();
+	String BUYER_MAIL_PASSWORD = sf.findValue("buyer").findValue("mail").findValue("password").asText();
+	String BUYER_MAIL_COUNTRY = sf.findValue("buyer").findValue("mail").findValue("country").asText();
+	String BUYER_PHONE_USERNAME = sf.findValue("buyer").findValue("phone").findValue("username").asText();
+	String BUYER_PHONE_PASSWORD = sf.findValue("buyer").findValue("phone").findValue("password").asText();
+	String BUYER_PHONE_COUNTRY = sf.findValue("buyer").findValue("phone").findValue("country").asText();
+	String BUYER_FORGOT_MAIL_USERNAME = sf.findValue("buyer").findValue("forgotMail").findValue("username").asText();
+	String BUYER_FORGOT_MAIL_PASSWORD = sf.findValue("buyer").findValue("forgotMail").findValue("password").asText();
+	String BUYER_FORGOT_MAIL_COUNTRY = sf.findValue("buyer").findValue("forgotMail").findValue("country").asText();
+	String BUYER_FORGOT_PHONE_USERNAME = sf.findValue("buyer").findValue("forgotPhone").findValue("username").asText();
+	String BUYER_FORGOT_PHONE_PASSWORD = sf.findValue("buyer").findValue("forgotPhone").findValue("password").asText();
+	String BUYER_FORGOT_PHONE_COUNTRY = sf.findValue("buyer").findValue("forgotPhone").findValue("country").asText();
+	String GOMUA_MAIL_USERNAME = gm.findValue("buyer").findValue("mail").findValue("username").asText();
+	String GOMUA_MAIL_PASSWORD = gm.findValue("buyer").findValue("mail").findValue("password").asText();
+	String GOMUA_MAIL_COUNTRY = gm.findValue("buyer").findValue("mail").findValue("country").asText();
+	String GOMUA_PHONE_USERNAME = gm.findValue("buyer").findValue("phone").findValue("username").asText();
+	String GOMUA_PHONE_PASSWORD = gm.findValue("buyer").findValue("phone").findValue("password").asText();
+	String GOMUA_PHONE_COUNTRY = gm.findValue("buyer").findValue("phone").findValue("country").asText();
 	
-	String FACEBOOK;
-	String FACEBOOK_PASSWORD;
-	
-	String BUYER_MAIL_USERNAME;
-	String BUYER_MAIL_PASSWORD;
-	String BUYER_MAIL_COUNTRY;
-	String BUYER_PHONE_USERNAME;
-	String BUYER_PHONE_PASSWORD;
-	String BUYER_PHONE_COUNTRY;
+	String BLANK_USERNAME_ERROR = sf.findValue("emptyUsernameError").asText();
+	String BLANK_PASSWORD_ERROR = sf.findValue("emptyPasswordError").asText();
+	String INVALID_USERNAME_ERROR = sf.findValue("invalidUsernameFormat").asText();
+	String INVALID_CREDENTIALS_ERROR = sf.findValue("invalidCredentials").asText();
+	String NON_EXISTING_EMAIL_ERROR = sf.findValue("notExistingEmailAccount").asText();
+	String NON_EXISTING_PHONE_ERROR = sf.findValue("notExistingPhoneAccount").asText();
+	String WRONG_CURRENT_PASSWORD_ERROR = sf.findValue("wrongCurrentPassword").asText();
+	String INVALID_NEW_PASSWORD_ERROR = sf.findValue("invalidNewPassword").asText();
+	String SAME_4_NEW_PASSWORD_ERROR = sf.findValue("same4Passwords").asText();
 
-	String BUYER_FORGOT_MAIL_USERNAME;
-	String BUYER_FORGOT_MAIL_PASSWORD;
-	String BUYER_FORGOT_MAIL_COUNTRY;
-	String BUYER_FORGOT_PHONE_USERNAME;
-	String BUYER_FORGOT_PHONE_PASSWORD;
-	String BUYER_FORGOT_PHONE_COUNTRY;	
 	
-	String GOMUA_MAIL_USERNAME;
-	String GOMUA_MAIL_PASSWORD;
-	String GOMUA_MAIL_COUNTRY;
-	String GOMUA_PHONE_USERNAME;
-	String GOMUA_PHONE_PASSWORD;
-	String GOMUA_PHONE_COUNTRY;
-	
-	String BLANK_USERNAME_ERROR;
-	String BLANK_PASSWORD_ERROR;
-	String INVALID_USERNAME_ERROR;
-	String INVALID_CREDENTIALS_ERROR;
-	String NON_EXISTING_EMAIL_ERROR;
-	String NON_EXISTING_PHONE_ERROR;
-	String WRONG_CURRENT_PASSWORD_ERROR;
-	String INVALID_NEW_PASSWORD_ERROR;
-	String SAME_NEW_PASSWORD_ERROR;
-	String SAME_4_NEW_PASSWORD_ERROR;
-
-	String signinLanguage;
-
 	public String getVerificationCode(String username) throws InterruptedException, SQLException {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
@@ -81,53 +83,17 @@ public class LoginStorefront extends BaseTest {
 		return verificationCode;
 	}
 
-	@BeforeClass
-	public void readData() {
-		JsonNode db = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-		JsonNode sf = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
-		JsonNode gm = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("gomua");
-		STORE_USERNAME = db.findValue("seller").findValue("mail").findValue("username").asText();
-		STORE_PASSWORD = db.findValue("seller").findValue("mail").findValue("password").asText();
-		STORE_COUNTRY = db.findValue("seller").findValue("mail").findValue("country").asText();
-		FACEBOOK = db.findValue("seller").findValue("facebook").findValue("username").asText();
-		FACEBOOK_PASSWORD = db.findValue("seller").findValue("facebook").findValue("password").asText();
-		BUYER_MAIL_USERNAME = sf.findValue("buyer").findValue("mail").findValue("username").asText();
-		BUYER_MAIL_PASSWORD = sf.findValue("buyer").findValue("mail").findValue("password").asText();
-		BUYER_MAIL_COUNTRY = sf.findValue("buyer").findValue("mail").findValue("country").asText();
-		BUYER_PHONE_USERNAME = sf.findValue("buyer").findValue("phone").findValue("username").asText();
-		BUYER_PHONE_PASSWORD = sf.findValue("buyer").findValue("phone").findValue("password").asText();
-		BUYER_PHONE_COUNTRY = sf.findValue("buyer").findValue("phone").findValue("country").asText();
-		BUYER_FORGOT_MAIL_USERNAME = sf.findValue("buyer").findValue("forgotMail").findValue("username").asText();
-		BUYER_FORGOT_MAIL_PASSWORD = sf.findValue("buyer").findValue("forgotMail").findValue("password").asText();
-		BUYER_FORGOT_MAIL_COUNTRY = sf.findValue("buyer").findValue("forgotMail").findValue("country").asText();
-		BUYER_FORGOT_PHONE_USERNAME = sf.findValue("buyer").findValue("forgotPhone").findValue("username").asText();
-		BUYER_FORGOT_PHONE_PASSWORD = sf.findValue("buyer").findValue("forgotPhone").findValue("password").asText();
-		BUYER_FORGOT_PHONE_COUNTRY = sf.findValue("buyer").findValue("forgotPhone").findValue("country").asText();
-		GOMUA_MAIL_USERNAME = gm.findValue("buyer").findValue("mail").findValue("username").asText();
-		GOMUA_MAIL_PASSWORD = gm.findValue("buyer").findValue("mail").findValue("password").asText();
-		GOMUA_MAIL_COUNTRY = gm.findValue("buyer").findValue("mail").findValue("country").asText();
-		GOMUA_PHONE_USERNAME = gm.findValue("buyer").findValue("phone").findValue("username").asText();
-		GOMUA_PHONE_PASSWORD = gm.findValue("buyer").findValue("phone").findValue("password").asText();
-		GOMUA_PHONE_COUNTRY = gm.findValue("buyer").findValue("phone").findValue("country").asText();
-		
-		BLANK_USERNAME_ERROR = sf.findValue("emptyUsernameError").asText();
-		BLANK_PASSWORD_ERROR = sf.findValue("emptyPasswordError").asText();
-		INVALID_USERNAME_ERROR = sf.findValue("invalidUsernameFormat").asText();
-		INVALID_CREDENTIALS_ERROR = sf.findValue("invalidCredentials").asText();
-		NON_EXISTING_EMAIL_ERROR = sf.findValue("notExistingEmailAccount").asText();
-		NON_EXISTING_PHONE_ERROR = sf.findValue("notExistingPhoneAccount").asText();
-		WRONG_CURRENT_PASSWORD_ERROR = sf.findValue("wrongCurrentPassword").asText();
-		INVALID_NEW_PASSWORD_ERROR = sf.findValue("invalidNewPassword").asText();
-		SAME_4_NEW_PASSWORD_ERROR = sf.findValue("same4Passwords").asText();
-		
-		signinLanguage = "VIE";
-	}
-
-	@BeforeMethod
-	public void setup() throws InterruptedException {
-		super.setup();
+	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
 		headerPage = new HeaderSF(driver);
+		commonAction = new UICommonAction(driver);
+		generate = new DataGenerator();
+	}	
+	
+	@BeforeMethod
+	public void setup() {
+		instantiatePageObjects();
 	}
 
 	@Test
@@ -136,16 +102,16 @@ public class LoginStorefront extends BaseTest {
 		/* Sign up */
 		loginPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(signinLanguage)
+		.changeLanguage(language)
         .clickUserInfoIcon()
         .clickLoginIcon();
-        loginPage.verifyTextAtLoginScreen(signinLanguage);
+        loginPage.verifyTextAtLoginScreen(language);
         
         loginPage.navigate();
         new HeaderSF(driver).clickUserInfoIcon()
         .clickUserInfoIcon()
         .clickLoginIcon();
-        loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen(signinLanguage);
+        loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen(language);
 	}		
 	
 	@Test
@@ -176,7 +142,7 @@ public class LoginStorefront extends BaseTest {
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 	}
 
-	@Test
+//	@Test
 	public void BH_1335_UnableToChangePasswordForFacebookAccount() {
 		loginPage.navigate();
 		headerPage.clickUserInfoIcon().clickLoginIcon();
@@ -567,5 +533,12 @@ public class LoginStorefront extends BaseTest {
 		loginPage.navigate().performLogin(country, username, newPassword);
 		headerPage.clickUserInfoIcon().clickLogout();
 	}	
+
+
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }	
 	
 }

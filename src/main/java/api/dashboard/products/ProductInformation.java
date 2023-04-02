@@ -289,4 +289,33 @@ public class ProductInformation {
                 .put(brName, IntStream.range(0, barcodeList.size())
                         .mapToObj(i -> "EXPIRED").toList()));
     }
+   
+    /**
+     * Retrieves a JSON path object containing all product data from the dashboard API.
+     * @return the JsonPath object containing product data retrieved from the dashboard API.
+     */
+	public JsonPath getAllProductJsonPath() {
+		Response response = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(apiStoreID)), accessToken);
+		response.then().statusCode(200);
+		return response.jsonPath();
+	}
+    
+	/**
+	 * Returns a list of product IDs and names for all products that have conversion units.
+	 * @return a List of Lists containing Strings, where each inner List contains the ID (as a String) and name of a product with conversion units.
+	 */
+	public List<List<String>> getIdAndNameOfProductWithConversionUnits() {
+		JsonPath productJsonPath = getAllProductJsonPath();
+		
+		List<Integer> id = productJsonPath.getList("findAll { it.hasConversion == true }.id");
+		List<String> name = productJsonPath.getList("findAll { it.hasConversion == true }.name");
+		
+		List<List<String>> productData = new ArrayList<>();
+		for (int i = 0; i < id.size(); i++) {
+		    productData.add(Arrays.asList(String.valueOf(id.get(i)), name.get(i)));
+		}
+		
+		return productData;
+	}    
+    
 }
