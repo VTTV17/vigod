@@ -226,9 +226,9 @@ public class LoginPage {
     }
 
 	/**
-	 * <p> Change language of Dashboard at Sign-up screen <p>
-	 * Example: selectDisplayLanguage("ENG")
-	 * @param language the desired language - either VIE or ENG
+	 * Selects the display language on the login page.
+	 * @param language the desired language to be displayed, either "ENG" or "VIE"
+	 * @throws Exception if an exception occurs during the execution of this method
 	 */	
 	public LoginPage selectDisplayLanguage(String language) throws Exception {
 		commonAction.sleepInMiliSecond(1000);
@@ -311,15 +311,15 @@ public class LoginPage {
         logger.info("verifyVerificationCodeError completed");
     }    
     
-    public void verifyTextAtLoginScreen(String signinLanguage) throws Exception {
+    public void verifyTextAtLoginScreen() throws Exception {
         String text = commonAction.getText(SIGNIN_SCREEN_TXT);
-        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.screen.text", signinLanguage));
+        Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.screen.text"));
         logger.info("verifyTextAtLoginScreen completed");
     }
     
-    public void verifyTextAtForgotPasswordScreen(String signinLanguage) throws Exception {
+    public void verifyTextAtForgotPasswordScreen() throws Exception {
     	String text = commonAction.getText(SIGNIN_FORGOTPASSWORD_TXT);
-    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text", signinLanguage));
+    	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text"));
     	logger.info("verifyTextAtForgotPasswordScreen completed");
     }
     

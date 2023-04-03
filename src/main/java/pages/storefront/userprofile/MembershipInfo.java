@@ -10,6 +10,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import pages.dashboard.home.HomePage;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -42,9 +44,8 @@ public class MembershipInfo {
 	WebElement MEMBERSHIP_TAB_CONTENT;
 	
 	public String getMembershipTitle() {
-		String value = commonAction.getText(MEMBERSHIP_TITLE);
-		logger.info("Retrieved Membership Title: " + value);
-		return value;
+		logger.info("Getting membership info...");
+		return commonAction.getText(MEMBERSHIP_TITLE).trim();
 	}
 	
 	public MembershipInfo clickMembershipTitle(String membership) {
@@ -75,5 +76,10 @@ public class MembershipInfo {
 		return value;
 	}
 
-
+    public void verifyMembershipTitle(boolean isMembership, String membershipTitle) throws Exception {
+        String expectedTitle = isMembership ? PropertiesUtil.getPropertiesValueBySFLang("userProfile.membership.membership").formatted(membershipTitle) : PropertiesUtil.getPropertiesValueBySFLang("userProfile.membership.notMembership");
+        Assert.assertEquals(expectedTitle, getMembershipTitle());
+        logger.info("verifyMembershipTitle completed");
+    }    
+    
 }

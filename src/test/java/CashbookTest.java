@@ -1,7 +1,11 @@
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -19,7 +23,9 @@ import pages.dashboard.cashbook.Cashbook;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import utilities.PropertiesUtil;
+import utilities.UICommonAction;
 import utilities.jsonFileUtility;
+import utilities.driver.InitWebdriver;
 
 public class CashbookTest extends BaseTest {
 
@@ -34,7 +40,6 @@ public class CashbookTest extends BaseTest {
 	List<String> branchList;
 	List<String> transactionIdList;
 	
-	String displayLanguage = "ENG";
 	String amount = "2000";
 	String note = "Simply a note";
 
@@ -44,7 +49,7 @@ public class CashbookTest extends BaseTest {
 	String country = sellerData.findValue("seller").findValue("mail").findValue("country").asText();
 
 	@BeforeClass
-	public void getDataByAPI() throws InterruptedException {
+	public void getDataByAPI() {
         new Login().loginToDashboardByMail(username, password);
         customerList = new Customers().getAllCustomerNames();
         supplierList = new SupplierAPI().getAllSupplierNames();
@@ -54,13 +59,18 @@ public class CashbookTest extends BaseTest {
         branchList = BranchManagement.apiActiveBranches;
         transactionIdList = new CashbookAPI().getAllTransactionCodes();
 	}	
-	
-	@BeforeMethod
-	public void setup() throws InterruptedException {
-		super.setup();
+
+	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
 		cashbookPage = new Cashbook(driver);
 		homePage = new HomePage(driver);
+		commonAction = new UICommonAction(driver);
+	}	
+	
+	@BeforeMethod
+	public void setup() {
+		instantiatePageObjects();
 	}
 	
 	public String getRandomListElement(List<String> list) {
@@ -103,38 +113,35 @@ public class CashbookTest extends BaseTest {
 	/**
 	 * 
 	 * @param group           customer/supplier/staff/others
-	 * @param displayLanguage VIE/ENG
 	 * @return
 	 * @throws Exception
 	 */
-	public String senderGroup(String group, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group." + group, displayLanguage);
+	public String senderGroup(String group) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group." + group);
 	}
 	
 	/**
 	 * 
 	 * @param revenue debtCollectionFromSupplier/debtCollectionFromCustomer/paymentForOrder/saleOfAssets/otherIncome
-	 * @param displayLanguage VIE/ENG
 	 * @return revenue text according to VIE/ENG
 	 * @throws Exception
 	 */
-	public String revenueSource(String revenue, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source." + revenue, displayLanguage);
+	public String revenueSource(String revenue) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source." + revenue);
 	}
 
 	/**
 	 * 
-	 * @param displayLanguage
 	 * @return a list of revenue sources
 	 * @throws Exception
 	 */
-	public String[] revenueSourceList(String displayLanguage) throws Exception {
+	public String[] revenueSourceList() throws Exception {
 		String[] list = {
-				revenueSource("debtCollectionFromSupplier", displayLanguage),
-				revenueSource("debtCollectionFromCustomer", displayLanguage),
-				revenueSource("paymentForOrder", displayLanguage),
-				revenueSource("saleOfAssets", displayLanguage),
-				revenueSource("otherIncome", displayLanguage),
+				revenueSource("debtCollectionFromSupplier"),
+				revenueSource("debtCollectionFromCustomer"),
+				revenueSource("paymentForOrder"),
+				revenueSource("saleOfAssets"),
+				revenueSource("otherIncome"),
 		};
 		return list;
 	}
@@ -142,33 +149,31 @@ public class CashbookTest extends BaseTest {
 	/**
 	 * 
 	 * @param expense paymentToShippingPartner/paymentForGoods/productionCost/costOfRawMaterials/debtPaymentToCustomer/rentalFee/utilities/salaries/sellingExpenses/otherCosts/refund
-	 * @param displayLanguage
 	 * @return
 	 * @throws Exception
 	 */
-	public String expenseType(String expense, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense." + expense, displayLanguage);
+	public String expenseType(String expense) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense." + expense);
 	}	
 	
 	/**
 	 * 
-	 * @param displayLanguage
 	 * @return a list of expense types
 	 * @throws Exception
 	 */
-	public String[] expenseTypeList(String displayLanguage) throws Exception {
+	public String[] expenseTypeList() throws Exception {
 		String[] list = {
-				expenseType("paymentToShippingPartner",displayLanguage),
-				expenseType("paymentForGoods",displayLanguage),
-				expenseType("productionCost",displayLanguage),
-				expenseType("costOfRawMaterials",displayLanguage),
-				expenseType("debtPaymentToCustomer",displayLanguage),
-				expenseType("rentalFee",displayLanguage),
-				expenseType("utilities",displayLanguage),
-				expenseType("salaries",displayLanguage),
-				expenseType("sellingExpenses",displayLanguage),
-				expenseType("otherCosts",displayLanguage),
-				expenseType("refund",displayLanguage),
+				expenseType("paymentToShippingPartner"),
+				expenseType("paymentForGoods"),
+				expenseType("productionCost"),
+				expenseType("costOfRawMaterials"),
+				expenseType("debtPaymentToCustomer"),
+				expenseType("rentalFee"),
+				expenseType("utilities"),
+				expenseType("salaries"),
+				expenseType("sellingExpenses"),
+				expenseType("otherCosts"),
+				expenseType("refund"),
 		};
 		return list;
 	}
@@ -176,57 +181,53 @@ public class CashbookTest extends BaseTest {
 	/**
 	 * 
 	 * @param method visa/atm/bankTransfer/cash/zalopay/momo
-	 * @param displayLanguage
 	 * @return
 	 * @throws Exception
 	 */
-	public String paymentMethod(String method, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod." + method, displayLanguage);
+	public String paymentMethod(String method) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod." + method);
 	}		
 	
-	public String randomPaymentMethod(String displayLanguage) throws Exception {
+	public String randomPaymentMethod() throws Exception {
 		String[] paymentMethod = { 
-				paymentMethod("visa", displayLanguage),
-				paymentMethod("atm", displayLanguage),
-				paymentMethod("bankTransfer", displayLanguage),
-				paymentMethod("cash", displayLanguage),
-				paymentMethod("zalopay", displayLanguage),
-				paymentMethod("momo", displayLanguage),
+				paymentMethod("visa"),
+				paymentMethod("atm"),
+				paymentMethod("bankTransfer"),
+				paymentMethod("cash"),
+				paymentMethod("zalopay"),
+				paymentMethod("momo"),
 		};
-		return paymentMethod[new Random().nextInt(0, paymentMethod.length)];
+		return getRandomListElement(Arrays.asList(paymentMethod));
 	}
 
 	/**
 	 * Allow accounting or not
 	 * @param yesOrNo yes/no
-	 * @param displayLanguage
 	 * @return
 	 * @throws Exception
 	 */
-	public String allowAccounting(String yesOrNo, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.accountChecked." + yesOrNo, displayLanguage);
+	public String allowAccounting(String yesOrNo) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.accountChecked." + yesOrNo);
 	}	
 	
 	/**
 	 * 
 	 * @param transactionType allExpenses/allRevenues
-	 * @param displayLanguage
 	 * @return
 	 * @throws Exception
 	 */
-	public String transactions(String transactionType, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.transaction." + transactionType, displayLanguage);
+	public String transactions(String transactionType) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.transaction." + transactionType);
 	}	
 	
 	/**
 	 * 
 	 * @param staff system/shopOwner
-	 * @param displayLanguage
 	 * @return
 	 * @throws Exception
 	 */
-	public String createdBy(String staff, String displayLanguage) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.createdBy." + staff, displayLanguage);
+	public String createdBy(String staff) throws Exception {
+		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.createdBy." + staff);
 	}	
 	
 	public void verifySummaryDataAfterReceiptCreated(List<Long> originalSummary, List<Long> laterSummary, boolean isAccountingChecked) {
@@ -278,60 +279,60 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_01_CheckTranslation() throws Exception {
 		
-		String group = senderGroup("customer", displayLanguage);
+		String group = senderGroup("customer");
 		String sender = randomCustomer();
 		String branch = randomBranch();
 		boolean isAccountingChecked = true;
 		
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 		
 		/* Verify text at cashbook management screen */
-		cashbookPage.navigate().verifyTextAtCashbookManagementScreen(displayLanguage);
+		cashbookPage.navigate().verifyTextAtCashbookManagementScreen();
 		
 		/* Verify text at create receipt screen */
-		cashbookPage.clickCreateReceiptBtn().verifyTextAtCreateReceiptScreen(displayLanguage);
+		cashbookPage.clickCreateReceiptBtn().verifyTextAtCreateReceiptScreen();
 		cashbookPage.clickCancelBtn();
-		cashbookPage.createReceipt(group, revenueSourceList(displayLanguage)[0], branch, randomPaymentMethod(displayLanguage), sender, amount, note, isAccountingChecked);
+		cashbookPage.createReceipt(group, revenueSourceList()[0], branch, randomPaymentMethod(), sender, amount, note, isAccountingChecked);
 		homePage.getToastMessage();
 		List<List<String>> records = cashbookPage.getRecords();
 		cashbookPage.clickRecord(records.get(0).get(0)); // Click on the first record on the list.
-		cashbookPage.verifyTextAtReceiptTransactionIDScreen(displayLanguage);
+		cashbookPage.verifyTextAtReceiptTransactionIDScreen();
 		cashbookPage.clickCancelBtn();
 		
 		/* Verify text at create payment screen */
-		cashbookPage.clickCreatePaymentBtn().verifyTextAtCreatePaymentScreen(displayLanguage);
+		cashbookPage.clickCreatePaymentBtn().verifyTextAtCreatePaymentScreen();
 		cashbookPage.clickCancelBtn();
-		cashbookPage.createPayment(group, expenseTypeList(displayLanguage)[0], branch, randomPaymentMethod(displayLanguage), sender, amount, note, isAccountingChecked);
+		cashbookPage.createPayment(group, expenseTypeList()[0], branch, randomPaymentMethod(), sender, amount, note, isAccountingChecked);
 		homePage.getToastMessage();
 		records = cashbookPage.getRecords();
 		cashbookPage.clickRecord(records.get(0).get(0)); // Click on the first record on the list.
-		cashbookPage.verifyTextAtPaymentTransactionIDScreen(displayLanguage);
+		cashbookPage.verifyTextAtPaymentTransactionIDScreen();
 		cashbookPage.clickCancelBtn();
 		
 		/* Verify text at filter container screen */
 		cashbookPage.clickFilterBtn();
-		cashbookPage.verifyTextAtFilterContainer(displayLanguage);
+		cashbookPage.verifyTextAtFilterContainer();
 		cashbookPage.clickFilterDoneBtn();
 	}	
 	
 	@Test
 	public void CB_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
 
-		String group = senderGroup("customer", displayLanguage);
+		String group = senderGroup("customer");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSourceList(displayLanguage)) {
+		for (String source : revenueSourceList()) {
 			String sender = randomCustomer();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -363,19 +364,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
 
-		String group = senderGroup("supplier", displayLanguage);
+		String group = senderGroup("supplier");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSourceList(displayLanguage)) {
+		for (String source : revenueSourceList()) {
 			String sender = randomSupplier();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -407,19 +408,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
 
-		String group = senderGroup("staff", displayLanguage);
+		String group = senderGroup("staff");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSourceList(displayLanguage)) {
+		for (String source : revenueSourceList()) {
 			String sender = randomStaff();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -451,19 +452,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
 
-		String group = senderGroup("others", displayLanguage);
+		String group = senderGroup("others");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create receipts */
 		cashbookPage.navigate();
-		for (String source : revenueSourceList(displayLanguage)) {
+		for (String source : revenueSourceList()) {
 			String sender = randomOthers();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -495,19 +496,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_06_CreatePaymentWhenRecipientGroupIsCustomer() throws Exception {
 
-		String group = senderGroup("customer", displayLanguage);
+		String group = senderGroup("customer");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseTypeList(displayLanguage)) {
+		for (String source : expenseTypeList()) {
 			String sender = randomCustomer();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -539,19 +540,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_07_CreatePaymentWhenRecipientGroupIsSupplier() throws Exception {
 
-		String group = senderGroup("supplier", displayLanguage);
+		String group = senderGroup("supplier");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseTypeList(displayLanguage)) {
+		for (String source : expenseTypeList()) {
 			String sender = randomSupplier();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -583,19 +584,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_08_CreatePaymentWhenRecipientGroupIsStaff() throws Exception {
 
-		String group = senderGroup("staff", displayLanguage);
+		String group = senderGroup("staff");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseTypeList(displayLanguage)) {
+		for (String source : expenseTypeList()) {
 			String sender = randomStaff();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -627,19 +628,19 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_09_CreatePaymentWhenRecipientGroupIsOthers() throws Exception {
 
-		String group = senderGroup("others", displayLanguage);
+		String group = senderGroup("others");
 		boolean isAccountingChecked = true;
 
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Create payments */
 		cashbookPage.navigate();
-		for (String source : expenseTypeList(displayLanguage)) {
+		for (String source : expenseTypeList()) {
 			String sender = randomOthers();
 			String branch = randomBranch();
-			String paymentMethod = randomPaymentMethod(displayLanguage);
+			String paymentMethod = randomPaymentMethod();
 
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -673,7 +674,7 @@ public class CashbookTest extends BaseTest {
 		
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 		
 		cashbookPage.navigate();
 		cashbookPage.clickResetDateRangerPicker();
@@ -699,7 +700,7 @@ public class CashbookTest extends BaseTest {
 		
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Filter */
 		cashbookPage.navigate();
@@ -707,7 +708,7 @@ public class CashbookTest extends BaseTest {
 		/* Filter by Accounting*/
 		cashbookPage.clickResetDateRangerPicker();
 		cashbookPage.clickFilterBtn();
-		cashbookPage.selectFilteredAccounting(allowAccounting("no", displayLanguage));
+		cashbookPage.selectFilteredAccounting(allowAccounting("no"));
 		cashbookPage.clickFilterDoneBtn();
 		
 		commonAction.sleepInMiliSecond(1000);
@@ -721,7 +722,7 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		cashbookPage.clickFilterBtn();
-		cashbookPage.selectFilteredAccounting(allowAccounting("yes", displayLanguage));
+		cashbookPage.selectFilteredAccounting(allowAccounting("yes"));
 		cashbookPage.clickFilterDoneBtn();
 		
 		commonAction.sleepInMiliSecond(1000);
@@ -757,7 +758,7 @@ public class CashbookTest extends BaseTest {
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
 		cashbookPage.clickFilterBtn();
-		cashbookPage.selectFilteredTransaction(transactions("allExpenses", displayLanguage));
+		cashbookPage.selectFilteredTransaction(transactions("allExpenses"));
 		cashbookPage.clickFilterDoneBtn();
 		
 		commonAction.sleepInMiliSecond(1000);
@@ -769,7 +770,7 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		cashbookPage.clickFilterBtn();
-		cashbookPage.selectFilteredTransaction(transactions("allRevenues", displayLanguage));
+		cashbookPage.selectFilteredTransaction(transactions("allRevenues"));
 		cashbookPage.clickFilterDoneBtn();
 		
 		commonAction.sleepInMiliSecond(1000);
@@ -782,7 +783,7 @@ public class CashbookTest extends BaseTest {
 		
 		
 		/* Filter by Expense type */
-		String filteredExpenseType = expenseType("productionCost", displayLanguage);
+		String filteredExpenseType = expenseType("productionCost");
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
@@ -799,7 +800,7 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		/* Filter by Revenue type */
-		String filteredRevenueType = revenueSource("saleOfAssets", displayLanguage); 
+		String filteredRevenueType = revenueSource("saleOfAssets"); 
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
@@ -832,7 +833,7 @@ public class CashbookTest extends BaseTest {
 			Assert.assertEquals(record.get(6), filteredStaff);
 		}
 		
-		filteredStaff = createdBy("shopOwner", displayLanguage); 
+		filteredStaff = createdBy("shopOwner"); 
 		cashbookPage.clickFilterBtn();
 		cashbookPage.selectFilteredCreatedBy(filteredStaff);
 		cashbookPage.clickFilterDoneBtn();
@@ -847,7 +848,7 @@ public class CashbookTest extends BaseTest {
 		
 		
 		/* Filter by Sender/Recipient Group */
-		String filteredGroup = senderGroup("customer", displayLanguage); 
+		String filteredGroup = senderGroup("customer"); 
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
@@ -865,7 +866,7 @@ public class CashbookTest extends BaseTest {
 			cashbookPage.clickCancelBtn();
 		}
 		
-		filteredGroup = senderGroup("staff", displayLanguage);
+		filteredGroup = senderGroup("staff");
 		cashbookPage.clickFilterBtn();
 		cashbookPage.selectFilteredGroup(filteredGroup);
 		cashbookPage.clickFilterDoneBtn();
@@ -881,7 +882,7 @@ public class CashbookTest extends BaseTest {
 		
 		
 		/* Filter by Sender/Recipient Name */
-		filteredGroup = senderGroup("customer", displayLanguage);
+		filteredGroup = senderGroup("customer");
 		String filteredName = "Anh Le"; 
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
@@ -899,7 +900,7 @@ public class CashbookTest extends BaseTest {
 			Assert.assertEquals(record.get(5), filteredName);
 		}
 		
-		filteredGroup = senderGroup("staff", displayLanguage);
+		filteredGroup = senderGroup("staff");
 		filteredName = "Staff A"; 
 		cashbookPage.clickFilterBtn();
 		cashbookPage.selectFilteredGroup(filteredGroup);
@@ -915,7 +916,7 @@ public class CashbookTest extends BaseTest {
 		
 
 		/* Filter by Payment methods */
-		String filteredPaymentMethod = paymentMethod("visa", displayLanguage); 
+		String filteredPaymentMethod = paymentMethod("visa"); 
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
@@ -942,19 +943,19 @@ public class CashbookTest extends BaseTest {
 		
 		/* Log into dashboard */
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(displayLanguage);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 
 		/* Combine filter conditions */
 		// 1-st combination of filter conditions
 		String branch = "My Shop Vietnam - Thu Duc Location"; 
-		String accounting = allowAccounting("no", displayLanguage);
-		String filteredTransaction = transactions("allExpenses", displayLanguage);
-		String filteredExpenseType = expenseType("rentalFee", displayLanguage); 
+		String accounting = allowAccounting("no");
+		String filteredTransaction = transactions("allExpenses");
+		String filteredExpenseType = expenseType("rentalFee"); 
 		String filteredStaff = "Staff B";
-		String filteredGroup = senderGroup("customer", displayLanguage);
+		String filteredGroup = senderGroup("customer");
 		String filteredName = "Anh Le"; 
-		String filteredPaymentMethod = paymentMethod("zalopay", displayLanguage); 
-		boolean isAccountingChecked = (accounting.contentEquals(allowAccounting("yes", displayLanguage))) ? true : false;
+		String filteredPaymentMethod = paymentMethod("zalopay"); 
+		boolean isAccountingChecked = (accounting.contentEquals(allowAccounting("yes"))) ? true : false;
 		
 		cashbookPage.navigate();
 		homePage.hideFacebookBubble();
@@ -989,8 +990,8 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		// 2-nd combination of filter conditions
-		filteredTransaction = transactions("allRevenues", displayLanguage);
-		filteredExpenseType = revenueSource("debtCollectionFromSupplier", displayLanguage); 
+		filteredTransaction = transactions("allRevenues");
+		filteredExpenseType = revenueSource("debtCollectionFromSupplier"); 
 		
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
@@ -1026,14 +1027,14 @@ public class CashbookTest extends BaseTest {
 		
 		// 3-rd combination of filter conditions
 		branch = "CN3"; 
-		accounting = allowAccounting("yes", displayLanguage);
-		filteredTransaction = transactions("allExpenses", displayLanguage);
-		filteredExpenseType = expenseType("costOfRawMaterials", displayLanguage); 
+		accounting = allowAccounting("yes");
+		filteredTransaction = transactions("allExpenses");
+		filteredExpenseType = expenseType("costOfRawMaterials"); 
 		filteredStaff = "Staff B";
-		filteredGroup = senderGroup("supplier", displayLanguage);
+		filteredGroup = senderGroup("supplier");
 		filteredName = "Tín Cường"; 
-		filteredPaymentMethod = paymentMethod("atm", displayLanguage); 
-		isAccountingChecked = (accounting.contentEquals(allowAccounting("yes", displayLanguage))) ? true : false;
+		filteredPaymentMethod = paymentMethod("atm"); 
+		isAccountingChecked = (accounting.contentEquals(allowAccounting("yes"))) ? true : false;
 		
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
@@ -1068,9 +1069,9 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		// 4-th combination of filter conditions
-		filteredTransaction = transactions("allRevenues", displayLanguage);
-		filteredExpenseType = revenueSource("saleOfAssets", displayLanguage); 
-		isAccountingChecked = (accounting.contentEquals(allowAccounting("yes", displayLanguage))) ? true : false;
+		filteredTransaction = transactions("allRevenues");
+		filteredExpenseType = revenueSource("saleOfAssets"); 
+		isAccountingChecked = (accounting.contentEquals(allowAccounting("yes"))) ? true : false;
 		
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
@@ -1103,4 +1104,11 @@ public class CashbookTest extends BaseTest {
 			cashbookPage.clickCancelBtn();
 		}
 	}
+
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }
+	
 }

@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -28,6 +30,7 @@ import pages.thirdparty.Mailnesia;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.jsonFileUtility;
+import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
 import utilities.excel.Excel;
@@ -93,6 +96,7 @@ public class SignupDashboard extends BaseTest {
 	}
 	
 	/**
+	 * Returns a language code for signup based on the country of origin.
 	 * @return "VIE" if country is Vietnam or "ENG" otherwise
 	 */
 	public String processSignupLanguage() {
@@ -349,11 +353,17 @@ public class SignupDashboard extends BaseTest {
 		}
 	}	
 	
-	@BeforeMethod
-	public void setup() throws InterruptedException {
-		super.setup();
+	public void instantiatePageObjects() {
+		driver = new InitWebdriver().getDriver(browser, headless);
 		signupPage = new SignupPage(driver);
 		homePage = new HomePage(driver);
+		commonAction = new UICommonAction(driver);
+		generate = new DataGenerator();
+	}	
+	
+	@BeforeMethod
+	public void setup() {
+		instantiatePageObjects();
 		generateTestData();
 	}
 	
@@ -1225,5 +1235,11 @@ public class SignupDashboard extends BaseTest {
 		/* Check mail */
 		verifyEmail(username, "COMPLETE");
 	}		
+
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }	
 	
 }
