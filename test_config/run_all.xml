@@ -14,8 +14,7 @@
         <suite-file path="createProductTest.xml"/>
         <suite-file path="updateProductTest.xml"/>
         <suite-file path="createSupplierTest.xml"/>
-        <suite-file path="updateSupplierTest.xml">
-        </suite-file>
+        <suite-file path="updateSupplierTest.xml"/>
     </suite-files>
 
 </suite>

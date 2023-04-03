@@ -21,7 +21,7 @@ public class BaseTest {
     String language;
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "environment", "sfLanguage", "dbLanguage"})
+    @Parameters({"browser", "headless", "environment", "language"})
     void getConfig(@Optional("chrome") String browser,
                           @Optional("true") String headless,
                           @Optional("STAG") String environment,
