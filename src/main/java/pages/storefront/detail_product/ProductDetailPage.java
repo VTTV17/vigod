@@ -112,10 +112,10 @@ public class ProductDetailPage extends ProductDetailElement {
                     commonAction.verifyPageLoaded(defaultProductNameMap.get(languageCode), defaultProductNameMap.get(languageCode));
 
                     if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
-                        checkUIInStock(language);
-                        checkProductInformation(language);
+                        checkUIInStock(languageCode);
+                        checkProductInformation(languageCode);
                     } else {
-                        checkUIOutOfStock(language);
+                        checkUIOutOfStock(languageCode);
 
                     }
                 }

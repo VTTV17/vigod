@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="GoSELL-Automation">
+        <classes>
+            <class name="SupplierManagementTest">
+                <methods>
+                    <include name="MN_SUPPLIER_01_CheckUI" />
+                    <include name="MN_SUPPLIER_02_CheckNavigateToAddSupplierPage" />
+                    <include name="MN_SUPPLIER_03_SearchSupplierByInvalidSupplierCode" />
+                    <include name="MN_SUPPLIER_04_SearchSupplierByValidSupplierCode" />
+                    <include name="MN_SUPPLIER_05_SearchSupplierByInvalidSupplierName" />
+                    <include name="MN_SUPPLIER_06_SearchSupplierByValidSupplierName" />
+                </methods>
+            </class> <!-- UpdateSupplierTest -->
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

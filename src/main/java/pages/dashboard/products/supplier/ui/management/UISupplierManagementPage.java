@@ -35,20 +35,20 @@ public class UISupplierManagementPage extends UISupplierManagementElement {
 
 	void checkHeader(String language) throws Exception {
 		// check page title
-		String dbTitle = wait.until(visibilityOf(UI_PAGE_TITLE)).getText();
-		String ppTitle = getPropertiesValueByDBLang("", language);
+		String dbTitle = wait.until(visibilityOf(UI_PAGE_TITLE)).getText().split("\n")[0];
+		String ppTitle = getPropertiesValueByDBLang("products.supplier.management.header.pageTitle", language);
 		countFail = assertCustomize.assertEquals(countFail, dbTitle, ppTitle, "[Failed][Supplier Management] Page title should be %s, but found %s.".formatted(ppTitle, dbTitle));
 		logger.info("[UI][%s] Check Supplier Management - Page title.".formatted(language));
 
 		// check Add supplier button
 		String dbAddSupplierBtn = wait.until(visibilityOf(UI_HEADER_ADD_SUPPLIER_BTN)).getText();
-		String ppAddSupplierBtn = getPropertiesValueByDBLang("", language);
+		String ppAddSupplierBtn = getPropertiesValueByDBLang("products.supplier.management.header.addSupplierBtn", language);
 		countFail = assertCustomize.assertEquals(countFail, dbAddSupplierBtn, ppAddSupplierBtn, "[Failed][Supplier Management] Add supplier button should be %s, but found %s.".formatted(ppAddSupplierBtn, dbAddSupplierBtn));
 		logger.info("[UI][%s] Check Supplier Management - Add supplier button.".formatted(language));
 
 		// check search box placeholder
-		String dbSearchBoxPlaceholder = wait.until(visibilityOf(UI_SEARCH_BOX_PLACEHOLDER)).getText();
-		String ppSearchBoxPlaceholder = getPropertiesValueByDBLang("", language);
+		String dbSearchBoxPlaceholder = wait.until(visibilityOf(UI_SEARCH_BOX_PLACEHOLDER)).getAttribute("placeholder");
+		String ppSearchBoxPlaceholder = getPropertiesValueByDBLang("products.supplier.management.header.searchBoxPlaceholder", language);
 		countFail = assertCustomize.assertEquals(countFail, dbSearchBoxPlaceholder, ppSearchBoxPlaceholder, "[Failed][Supplier Management] Search box placeholder should be %s, but found %s.".formatted(ppSearchBoxPlaceholder, dbSearchBoxPlaceholder));
 		logger.info("[UI][%s] Check Supplier Management - Search box placeholder.".formatted(language));
 	}
@@ -56,7 +56,10 @@ public class UISupplierManagementPage extends UISupplierManagementElement {
 	void checkSupplierTableList(String language) throws Exception {
 		// check table column
 		List<String> dbTableColumn = UI_SUPPLIER_TABLE_COLUMN.stream().map(WebElement::getText).toList();
-		String ppTableColumn = getPropertiesValueByDBLang("", language);
+		List<String> ppTableColumn = List.of(getPropertiesValueByDBLang("products.supplier.management.table.column.0", language),
+				getPropertiesValueByDBLang("products.supplier.management.table.column.1", language),
+				getPropertiesValueByDBLang("products.supplier.management.table.column.2", language),
+				getPropertiesValueByDBLang("products.supplier.management.table.column.3", language));
 		countFail = assertCustomize.assertEquals(countFail, dbTableColumn, ppTableColumn, "[Failed][Supplier Management] Supplier table list column title should be %s, but found %s.".formatted(ppTableColumn, dbTableColumn));
 		logger.info("[UI][%s] Check Supplier Management - Supplier table list column title.".formatted(language));
 	}
@@ -64,7 +67,7 @@ public class UISupplierManagementPage extends UISupplierManagementElement {
 	void checkNoSearchResult(String language) throws Exception {
 		// check no result
 		String dbNoResult = wait.until(visibilityOf(UI_NO_RESULT)).getText();
-		String ppNoResult = getPropertiesValueByDBLang("", language);
+		String ppNoResult = getPropertiesValueByDBLang("products.supplier.management.noSearchResult", language);
 		countFail = assertCustomize.assertEquals(countFail, dbNoResult, ppNoResult, "[Failed][Supplier Management] No search result should be %s, but found %s.".formatted(ppNoResult, dbNoResult));
 		logger.info("[UI][%s] Check Supplier Management - No search result.".formatted(language));
 	}

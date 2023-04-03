@@ -19,8 +19,6 @@ public class UpdateProductTest extends BaseTest {
     @BeforeClass
     void setup() {
         driver = new InitWebdriver().getDriver(browser, headless);
-        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
-        driver = new InitWebdriver().getDriver(browser, headless);
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/Update product.xlsx".replace("/", File.separator);
         ProductPage.language = language;

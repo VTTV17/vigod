@@ -214,12 +214,20 @@ public class SupplierManagementPage extends SupplierManagementElement {
 	}
 
 	public void checkSearchWithValidSupplierCode() {
-		// check available supplier or not, if no supplier, post API to create new supplier
 		List<String> listAvailableSupplier = getListSupplierCode();
-		if (listAvailableSupplier.size() == 0) new SupplierAPI().createSupplier();
+		if (listAvailableSupplier.size() == 0) {
+            // check available supplier or not, if no supplier, post API to create new supplier
+            new SupplierAPI().createSupplier();
 
-		// search supplier by invalid code
-		String keywords = String.valueOf(Instant.now().toEpochMilli());
+            // refresh page
+            driver.navigate().refresh();
+
+            // wait page loaded
+            commons.sleepInMiliSecond(3000);
+        }
+
+		// search supplier by valid code
+		String keywords = String.valueOf(getListSupplierCode().get(0));
 		searchSupplierByCode(keywords);
 
 		// wait result
@@ -227,11 +235,55 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
 		// get list supplier match search result
 		listAvailableSupplier = getListSupplierCode();
-		uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.size() == 0, "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
+        uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.stream().allMatch(supCode -> supCode.contains(keywords)), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
 		logger.info("Check Supplier Management - Search by valid supplier code.");
 
 		verifyTest();
 	}
+
+    public void checkSearchWithInvalidSupplierName() {
+        // search supplier by invalid name
+        String keywords = String.valueOf(Instant.now().toEpochMilli());
+        searchSupplierByName(keywords);
+
+        // wait result
+        commons.sleepInMiliSecond(1000);
+
+        // get list supplier match search result
+        List<String> listAvailableSupplier = getListSupplierName();
+        uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.size() == 0, "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
+        logger.info("Check Supplier Management - Search by invalid supplier name.");
+
+        verifyTest();
+    }
+
+    public void checkSearchWithValidSupplierName() {
+        List<String> listAvailableSupplier = getListSupplierCode();
+        if (listAvailableSupplier.size() == 0) {
+            // check available supplier or not, if no supplier, post API to create new supplier
+            new SupplierAPI().createSupplier();
+
+            // refresh page
+            driver.navigate().refresh();
+
+            // wait page loaded
+            commons.sleepInMiliSecond(3000);
+        }
+
+        // search supplier by valid name
+        String keywords = String.valueOf(getListSupplierName().get(0));
+        searchSupplierByName(keywords);
+
+        // wait result
+        commons.sleepInMiliSecond(1000);
+
+        // get list supplier match search result
+        listAvailableSupplier = getListSupplierName();
+        uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.stream().allMatch(supName -> supName.contains(keywords)), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
+        logger.info("Check Supplier Management - Search by valid supplier name.");
+
+        verifyTest();
+    }
 
 
 	void verifyTest() {
