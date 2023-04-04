@@ -9,7 +9,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import javax.lang.model.element.Element;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -471,24 +470,11 @@ public class UICommonAction {
 		String actualCopedText = (String) clipboard.getData(DataFlavor.stringFlavor);
 		return actualCopedText;
 	}
-	public By getByXpath(String locator) {
-		return By.xpath(locator);
-	}
-	public WebElement getElement(String locator) {
-		return driver.findElement(getByXpath(locator));
-	}
-	public List<WebElement> getElements(String locator) {
-		return driver.findElements(getByXpath(locator));
+	public List<WebElement> getElements(By by) {
+		return driver.findElements(by);
 	}
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
-	public void clickElement(String locator) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(getElement(locator))).click();
-		} catch (ElementNotInteractableException ex) {
-			logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
-			wait.until(ExpectedConditions.elementToBeClickable(getElement(locator))).click();
-		}
-	}
+
 }

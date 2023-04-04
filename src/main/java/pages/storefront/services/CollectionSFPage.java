@@ -56,7 +56,6 @@ public class CollectionSFPage {
     }
     public CollectionSFPage verifyCollectionPageTitle(String pageName){
         String titleActual = driver.getTitle();
-
         if(pageName.equals("All Services")){
             Assert.assertEquals(titleActual,"Service List");
         }else {

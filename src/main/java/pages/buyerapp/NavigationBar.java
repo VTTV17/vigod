@@ -11,22 +11,21 @@ import pages.buyerapp.search.BuyerSearchPage;
 import pages.buyerapp.shopcart.BuyerShopCartPage;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
+import utilities.UICommonMobile;
 
 import java.time.Duration;
 
-public class NavigationBar extends UICommonAction{
-    String el_home_icon = "//android.widget.FrameLayout[@content-desc='Trang chủ' or @content-desc='Home']/android.widget.ImageView";
-    String el_search_icon = "//android.widget.FrameLayout[@content-desc='Tìm kiếm' or @content-desc='Search']/android.widget.ImageView";
-    String el_shop_cart_icon = "//android.widget.FrameLayout[@content-desc='Giỏ hàng' or @content-desc='Cart']/android.widget.ImageView";
-    String el_noti_icon = "//android.widget.FrameLayout[@content-desc='Thông báo'@content-desc='Notification']/android.widget.ImageView";
-    String el_profile_icon = "//android.widget.FrameLayout[@content-desc='Tài khoản' or @content-desc='Account']/android.widget.ImageView";
+public class NavigationBar extends UICommonMobile {
+    By el_home_icon = By.xpath("//android.widget.FrameLayout[@content-desc='Trang chủ' or @content-desc='Home']/android.widget.ImageView");
+    By el_search_icon = By.xpath("//android.widget.FrameLayout[@content-desc='Tìm kiếm' or @content-desc='Search']/android.widget.ImageView");
+    By el_shop_cart_icon = By.xpath("//android.widget.FrameLayout[@content-desc='Giỏ hàng' or @content-desc='Cart']/android.widget.ImageView");
+    By el_noti_icon = By.xpath("//android.widget.FrameLayout[@content-desc='Thông báo'@content-desc='Notification']/android.widget.ImageView");
+    By el_profile_icon = By.xpath("//android.widget.FrameLayout[@content-desc='Tài khoản' or @content-desc='Account']/android.widget.ImageView");
 
     final static Logger logger = LogManager.getLogger(NavigationBar.class);
 
     WebDriver driver;
     WebDriverWait wait;
-    UICommonAction commons;
-
 
     public NavigationBar(WebDriver driver) {
         super(driver);
@@ -34,6 +33,7 @@ public class NavigationBar extends UICommonAction{
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
     public BuyerSearchPage tapOnSearchIcon(){
+        sleepInMiliSecond(2000);
         clickElement(el_search_icon);
         logger.info("Tap on search icon.");
         return new BuyerSearchPage(driver);
@@ -53,4 +53,5 @@ public class NavigationBar extends UICommonAction{
         logger.info("Tap on account icon.");
         return new BuyerAccountPage(driver);
     }
+
 }

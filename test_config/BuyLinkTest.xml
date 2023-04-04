@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="BuyLinkTest">
+        <classes>
+            <class name="BuyLinkTest">
+                <methods>
+                    <include name="BL01_CheckTextOnBuyLinkManagementPage"/>
+                    <include name="BL02_CheckTextOnCreateBuyLinkPage"/>
+                    <include name="BL03_CheckCreateBuyLinkWithoutDiscountAndCheckout"/>
+                    <include name="BL04_CheckBuyLinkFixAmountDiscountCodeAndCheckout"/>
+                    <include name="BL05_CheckBuyLinkPercentDiscountCodeAndCheckout"/>
+                    <include name="BL06_CreateBuyLinkWithFreeShippingDiscountCodeAndCheckout"/>
+                    <include name="BL07_CreateBuyLinkWithRewardDiscountCodeAndCheckout"/>
+                    <include name="BL08_CheckNoAccountAndCheckoutWithBuyLink"/>
+                    <include name="BL09_CheckNavigateToBuyLink_EnableGuestCheckout"/>
+                    <include name="BL10_CheckoutWithBuyLinkHasDiscountExpired"/>
+                    <include name="BL11_CheckoutWithBuyLinkHasDiscountExceedMaximumUse"/>
+                    <include name="BL12_CheckoutWithBuyLinkHasDiscountExceedMaximumUsePerUser"/>
+                    <include name="BL13_CheckoutWithBuyLinkHasDeletedProduct"/>
+                    <include name="BL14_CheckoutWithBuyLinkHasDeletedVariation"/>
+                    <include name="BL15_CheckTextByLanguageOnSF_InvalidBuyLink"/>
+                    <include name="BL16_CheckProductNameByLanguage_ValidBuyLink"/>
+                    <include name="BL17_CheckCopyLink"/>
+                    <include name="BL18_EditBuyLink"/>
+                    <include name="BL19_CheckDeleteBuyLink"/>
+                </methods>
+            </class>
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

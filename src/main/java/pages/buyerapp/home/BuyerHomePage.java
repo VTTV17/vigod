@@ -17,13 +17,10 @@ public class BuyerHomePage extends BuyerHomeElement {
 
     WebDriver driver;
     WebDriverWait wait;
-    UICommonAction commonAction;
-
 
     public BuyerHomePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        commonAction = new UICommonAction(driver);
     }
 
     public void searchProductByName() {

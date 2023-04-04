@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="CreateServiceTest">
+        <classes>
+            <class name="CreateServiceTest">
+                <methods>
+                    <include name="CS01_VerifyText"/>
+                    <include name="CS02_CheckValidate"/>
+                    <include name="CS03_CreateNormalService"/>
+                    <include name="CS04_CreateServiceBelongTo1Collection"/>
+                    <include name="CS05_CreateServiceBelongToMultipleCollections"/>
+                    <include name="CS06_CreateListingPriceService"/>
+                    <include name="CS07_CreateServiceWithSEOInfo"/>
+                    <include name="CS08_CreateServiceWithHTMLDescription"/>
+                    <include name="CS09_CheckServiceQuantity"/>
+                    <include name="CS10_CheckCreateServiceWithMaximumVariation"/>
+                    <include name="CS11_CheckCreateSVPermision"/>
+                    <include name="ES01_EditTranslation"/>
+                    <include name="ES02_AddEditRemoveSEOInfo"/>
+                    <include name="ES03_ActiveDeactiveService"/>
+                    <include name="ES04_UpdateServiceInfor"/>
+                    <include name="ES05_AddRemovePhotoForService"/>
+                    <include name="ES06_AddRemoveCollectionForService"/>
+                    <include name="ES07_DeleteServiceInServiceDetail"/>
+                    <include name="ES08_CheckEditSVPermision"/>
+                </methods>
+            </class> <!-- CreateServiceTest -->
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

@@ -1,4 +1,6 @@
+import org.testng.ITestResult;
 import org.testng.annotations.*;
+import pages.buyerapp.NavigationBar;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.service.CreateServicePage;
@@ -11,7 +13,11 @@ import pages.storefront.services.ServiceDetailPage;
 import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
+import utilities.screenshot.Screenshot;
 
+import java.io.IOException;
 import java.util.List;
 
 import static utilities.account.AccountTest.ADMIN_CREATE_NEW_SHOP_PASSWORD;
@@ -52,14 +58,13 @@ public class CreateServiceTest extends BaseTest {
     String serviceEdit;
     String serviceDelete;
     String serviceTestStatus;
-
     @BeforeClass
     public void beforeClass() throws Exception {
         userName = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passWord = AccountTest.ADMIN_SHOP_VI_PASSWORD;
-        languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
-        languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
-        sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
+        languageDB = language;
+        languageSF = language;
+        sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceCollection.allServicesPageTitle");
         tcsFileName = FILE_CREATE_SERVICE_TCS;
         htmlDescription = "<div class=\"ct_box_detail width_common\">" +
                 "<div style=\"font-size: 13px!important; font-family: arial, helvetica, sans-serif;color: black!important;\">" +
@@ -75,6 +80,16 @@ public class CreateServiceTest extends BaseTest {
         serviceEdit = PropertiesUtil.getEnvironmentData("serviceTestEdit");
         SF_URL = SF_ShopVi;
         serviceTestStatus = PropertiesUtil.getEnvironmentData("serviceTestStatus");
+        generate = new DataGenerator();
+    }
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, headless);
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        if (driver != null) driver.quit();
     }
 
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {

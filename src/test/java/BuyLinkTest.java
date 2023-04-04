@@ -7,7 +7,10 @@ import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.VAT;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
@@ -24,6 +27,11 @@ import pages.storefront.signup.SignupPage;
 import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
+
+import java.io.IOException;
+
 import static utilities.file.FileNameAndPath.FILE_BUY_LINK_TCS;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -57,13 +65,23 @@ public class BuyLinkTest extends BaseTest {
         passWordDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         userNameSF = PropertiesUtil.getEnvironmentData("userSF1");
         passWordSF = AccountTest.SF_SHOP_VI_PASSWORD;
-        languageDB = PropertiesUtil.getLanguageFromConfig("Dashboard");
-        languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
+        languageDB = language;
+        languageSF = language;
         new Login().loginToDashboardWithPhone("+84",AccountTest.ADMIN_SHOP_VI_USERNAME,AccountTest.ADMIN_SHOP_VI_PASSWORD);
         new BranchManagement().getBranchInformation();
         new VAT().getTaxList();
         shopDomain = SF_ShopVi;
         tcsFileName = FILE_BUY_LINK_TCS;
+        generate = new DataGenerator();
+    }
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, headless);
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        if (driver != null) driver.quit();
     }
     public void deleteNewestBuyLink(){
         Login login = new Login();

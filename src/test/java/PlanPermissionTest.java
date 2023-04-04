@@ -1,5 +1,8 @@
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.InternalTool;
 import pages.thirdparty.Mailnesia;
@@ -7,6 +10,10 @@ import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
 import pages.dashboard.signup.SignupPage;
+import utilities.UICommonAction;
+import utilities.account.AccountTest;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,7 +30,7 @@ public class PlanPermissionTest extends BaseTest {
     String userName_goPOS;
     String userName_goSocial;
     String userName_GoLead;
-    String password = "fortesting!1";
+    String password;
     String orderID;
     SignupPage signupPage;
     @BeforeClass
@@ -34,8 +41,18 @@ public class PlanPermissionTest extends BaseTest {
         userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
         userName_GoLead = ADMIN_USERNAME_GOLEAD;
         tcsFileName = FILE_PERMISSION_PLAN_TCS;
+        password = ADMIN_CREATE_NEW_SHOP_PASSWORD;
+        generate = new DataGenerator();
     }
-
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, headless);
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        if (driver != null) driver.quit();
+    }
     public void setupShop(String username, String storeName, String url, String contact, String pickupAddress, String province, String district, String ward) {
         signupPage.inputStoreName(storeName);
         if (url != "") {
@@ -64,6 +81,7 @@ public class PlanPermissionTest extends BaseTest {
         String pickupAddress = "12 Quang Trung";
         String storeName = "Automation Shop " + randomNumber;
         signupPage = new SignupPage(driver);
+        commonAction = new UICommonAction(driver);
         //Sign up
         signupPage.navigate()
                 .fillOutSignupForm(country, username, password, "");
