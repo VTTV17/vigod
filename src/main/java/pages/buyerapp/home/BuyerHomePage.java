@@ -14,12 +14,9 @@ public class BuyerHomePage {
 
     WebDriver driver;
     WebDriverWait wait;
-    UICommonAction commonAction;
-
 
     public BuyerHomePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        commonAction = new UICommonAction(driver);
     }
 }
