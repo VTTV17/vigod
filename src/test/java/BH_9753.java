@@ -19,6 +19,7 @@ public class BH_9753 extends BaseTest {
         new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
         tcsFileName = "check_product_detail_sf/BH_9753_Search and view branchs in product detail page.xlsx".replace("/", File.separator);
+        if (apiBranchID == null) new BranchManagement().getBranchInformation();
     }
 
     // G1: Normal product - without variation

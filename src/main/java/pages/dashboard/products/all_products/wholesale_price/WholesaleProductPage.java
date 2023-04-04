@@ -106,6 +106,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // open segment dropdown
         wait.until(visibilityOf(WITHOUT_VARIATION_CUSTOMER_SEGMENT_DROPDOWN)).click();
 
+        // wait segment dropdown show
+        commonAction.sleepInMiliSecond(1000);
+
         // check [UI] segment default value and search box placeholder
         checkSegmentInformation();
 
@@ -175,7 +178,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // wait and input buy from
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_BUY_FROM.get(i)));
             VARIATION_BUY_FROM.get(i).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-            System.out.println(uiWholesaleProductStock.get(varIndex));
             VARIATION_BUY_FROM.get(i).sendKeys(String.valueOf(uiWholesaleProductStock.get(varIndex)));
 
             // wait and input price per item
@@ -185,6 +187,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
             // open segment dropdown
             wait.until(visibilityOf(commonAction.refreshListElement(VARIATION_CUSTOMER_SEGMENT_DROPDOWN).get(i))).click();
+
+            // wait segment dropdown show
+            commonAction.sleepInMiliSecond(1000);
 
             // check [UI] segment default value and search box placeholder
             checkSegmentInformation();

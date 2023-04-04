@@ -33,7 +33,6 @@ import static api.dashboard.products.ProductReviews.isEnableReview;
 import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.*;
 import static api.dashboard.setting.StoreInformation.*;
-import static java.lang.Thread.sleep;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.ProductPage.uiProductID;
@@ -99,7 +98,7 @@ public class ProductDetailPage extends ProductDetailElement {
         if (((maxStock != 0) || (showOutOfStock)) && bhStatus.equals("ACTIVE") && !deleted && onWeb) {
             // in-case in stock or setting show product when out of stock
             // check language is published or not
-            if(apiSFLangList.contains(languageCode)) {
+            if (apiSFLangList.contains(languageCode)) {
                 // check all information with language
                 if (languageCode.equals(apiDefaultLanguage) || !seoMap.get("url").get(languageCode).equals(seoMap.get("url").get(apiDefaultLanguage))) {
                     driver.get("https://%s%s/%s/product/%s".formatted(apiStoreURL, SF_DOMAIN, languageCode, uiProductID != 0 ? uiProductID : apiProductID));
@@ -175,6 +174,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkBreadcrumbs(String language) throws Exception {
         // check breadcrumbs
+        commonAction.sleepInMiliSecond(3000);
         List<String> sfBreadCrumbs = BREAD_CRUMBS.stream().map(webElement -> webElement.getText().trim()).toList();
         List<List<String>> ppBreadCrumbs = new ArrayList<>();
         ppBreadCrumbs.add(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), defaultProductNameMap.get(language)));
@@ -350,20 +350,6 @@ public class ProductDetailPage extends ProductDetailElement {
         checkOthersInformation(language);
         checkFooter(language);
         checkMetaTag(language);
-    }
-
-    /**
-     * <p> countFail: The number of failure cases in this test</p>
-     * <p> If countFail > 0, some cases have been failed</p>
-     * <p> Reset countFail for the next test</p>
-     */
-    void completeVerify() {
-        if (countFail + ProductPage.countFail > 0) {
-            int count = countFail + ProductPage.countFail;
-            countFail = 0;
-            ProductPage.countFail = 0;
-            Assert.fail("[Failed] Fail %d cases".formatted(count));
-        }
     }
 
     public ShoppingCart clickOnBuyNow() {
@@ -674,47 +660,43 @@ public class ProductDetailPage extends ProductDetailElement {
         checkProductDescription(barcodeList.get(index), language);
 
         int numberOfDisplayBranches = IntStream.range(0, apiAllBranchStatus.size()).filter(i -> !apiIsHideOnStoreFront.get(i) && apiAllBranchStatus.get(i).equals("ACTIVE") && (branchStock.get(i) > 0)).mapToObj(i -> true).toList().size();
-        if (variationStatus.get(index).equals("ACTIVE")) {
-            if (numberOfDisplayBranches > 0) {
+        if (numberOfDisplayBranches > 0) {
 
-                // check Buy Now and Add To Cart button is shown
-                checkBuyNowAndAddToCartBtnIsShown(variationName);
+            // check Buy Now and Add To Cart button is shown
+            checkBuyNowAndAddToCartBtnIsShown(variationName);
 
-                // wait list branch visible
-                commonAction.waitElementList(BRANCH_NAME_LIST);
+            // wait list branch visible
+            commonAction.waitElementList(BRANCH_NAME_LIST);
 
-                // check flash sale for each branch
-                for (WebElement element : BRANCH_NAME_LIST) {
-                    // switch branch
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+            // check flash sale for each branch
+            for (WebElement element : BRANCH_NAME_LIST) {
+                // switch branch
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 
-                    // wait spinner loading if any
-                    commonAction.waitForElementInvisible(SPINNER, 15);
+                // wait spinner loading if any
+                commonAction.waitForElementInvisible(SPINNER, 15);
 
-                    // branch name
-                    String branch = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", element).toString();
+                // branch name
+                String branch = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", element).toString();
 
-                    // check branch stock quantity
-                    int id = BRANCH_NAME_LIST.indexOf(element);
-                    checkStock(isHideStock, id, branchStock.get(apiBranchName.indexOf(branch)));
+                // check branch stock quantity
+                int id = BRANCH_NAME_LIST.indexOf(element);
+                checkStock(isHideStock, id, branchStock.get(apiBranchName.indexOf(branch)));
 
-                    // check product price
-                    checkVariationPriceAndDiscount(index, listingPrice, sellingPrice, flashSalePrice, productDiscountCampaignPrice, wholesaleProductStock, wholesaleProductPrice, element.getText());
-                }
-                checkBranch(branchStock, variationName);
-            } else {
-                checkSoldOutMark(variationName);
-                checkBuyNowAndAddToCartBtnIsHidden(variationName);
+                // check product price
+                checkVariationPriceAndDiscount(index, listingPrice, sellingPrice, flashSalePrice, productDiscountCampaignPrice, wholesaleProductStock, wholesaleProductPrice, element.getText());
             }
+            checkBranch(branchStock, variationName);
         } else {
-
+            checkSoldOutMark(variationName);
+            checkBuyNowAndAddToCartBtnIsHidden(variationName);
         }
     }
 
     /**
      * Verify all information on the SF is shown correctly
      */
-    void checkProductInformation(String language) throws InterruptedException, IOException {
+    void checkProductInformation(String language) throws IOException {
         new CreatePromotion().getCurrentFlashSaleInformation(barcodeList, productSellingPrice)
                 .getCurrentDiscountCampaignInformation(barcodeList, productSellingPrice);
 
@@ -723,27 +705,33 @@ public class ProductDetailPage extends ProductDetailElement {
             // variation index
             int varIndex = variationListMap.get(language).indexOf(variationValue);
 
-            // switch variation if any
-            if (hasModel) {
-                // get variation value
-                String[] varName = variationValue.replace("|", " ").split(" ");
+            // ignore if variation inactive
+            if (variationStatus.get(varIndex).equals("ACTIVE")) {
+                // switch variation if any
+                if (hasModel) {
+                    // get variation value
+                    String[] varName = variationValue.replace("|", " ").split(" ");
 
-                // wait list variation value is visible
-                sleep(3000);
+                    // wait list variation value is visible
+                    commonAction.sleepInMiliSecond(3000);
 
-                // select variation
-                for (String var : varName) {
-                    LIST_VARIATION_VALUE.stream().filter(webElement -> ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString().contains(var)).findFirst().ifPresent(webElement -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement));
+                    // select variation
+                    for (String var : varName) {
+                        LIST_VARIATION_VALUE.stream().filter(webElement -> ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString().contains(var)).findFirst().ifPresent(webElement -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", webElement));
+                    }
+
+                    // wait spinner loading if any
+                    commonAction.waitForElementInvisible(SPINNER, 15);
+
+                    // wait page loaded
+                    commonAction.sleepInMiliSecond(3000);
                 }
 
-
-                // wait spinner loading if any
-                commonAction.waitForElementInvisible(SPINNER, 15);
+                // check product information
+                checkAllVariationsAndDiscount(varIndex, productListingPrice.get(varIndex), productSellingPrice.get(varIndex), apiFlashSalePrice.get(varIndex), apiDiscountCampaignPrice.get(varIndex), wholesaleProductStock.get(varIndex), wholesaleProductPrice.get(varIndex), productStockQuantityMap.get(barcodeList.get(varIndex)), language, variationValue);
             }
-
-            // check product information
-            checkAllVariationsAndDiscount(varIndex, productListingPrice.get(varIndex), productSellingPrice.get(varIndex), apiFlashSalePrice.get(varIndex), apiDiscountCampaignPrice.get(varIndex), wholesaleProductStock.get(varIndex), wholesaleProductPrice.get(varIndex), productStockQuantityMap.get(barcodeList.get(varIndex)), language, variationValue);
         }
+
     }
 
     void checkFilterAndSearchBranchIsShown(String... variationName) {

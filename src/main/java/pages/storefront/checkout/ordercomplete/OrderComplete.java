@@ -2,14 +2,10 @@ package pages.storefront.checkout.ordercomplete;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xpath.operations.Or;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import pages.storefront.checkout.checkoutstep2.CheckOutStep2;
-import pages.storefront.checkout.checkoutstep3.CheckOutStep3;
-import pages.storefront.checkout.checkoutstep3.CheckOutStep3Element;
 import utilities.UICommonAction;
 
 import java.time.Duration;

@@ -87,22 +87,40 @@ public class BranchManagement {
     }
 
     public void inactiveAllPaidBranches() {
+        // get current branch information
         getBranchInformation();
-        IntStream.range(1, apiBranchID.size()).forEachOrdered(i -> updateBranchInfo(apiBranchID.get(i), apiIsDefaultBranch.get(i), apiIsHideOnStoreFront.get(i), "INACTIVE"));
+
+        // inactive all paid branches
+        IntStream.range(1, apiBranchID.size()).forEachOrdered(i -> updateBranchInfo(apiBranchID.get(i), false, apiIsHideOnStoreFront.get(i), "INACTIVE"));
+
+        // get branch information after update
+        getBranchInformation();
     }
 
     public void activeAndShowAllPaidBranchesOnShopOnline() {
+        // get current branch information
         getBranchInformation();
-        IntStream.range(1, apiBranchID.size()).forEachOrdered(i -> updateBranchInfo(apiBranchID.get(i), apiIsDefaultBranch.get(i), false, "ACTIVE"));
+
+        // active and show all paid branches on shop online
+        IntStream.range(1, apiBranchID.size()).forEachOrdered(i -> updateBranchInfo(apiBranchID.get(i), false, false, "ACTIVE"));
+
+        // get branch information after update
+        getBranchInformation();
     }
 
     public BranchManagement hideFreeBranchOnShopOnline() {
+        // get current branch information
         getBranchInformation();
+
+        // hide free branch on shop online
         updateBranchInfo(apiBranchID.get(0), true, true, "ACTIVE");
         return this;
     }
     public BranchManagement showFreeBranchOnShopOnline() {
+        // get current branch information
         getBranchInformation();
+
+        // show free branch on shop online
         updateBranchInfo(apiBranchID.get(0), true, false, "ACTIVE");
         return this;
     }

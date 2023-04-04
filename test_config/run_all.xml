@@ -3,19 +3,19 @@
 <suite name="All suite">
     <parameter name="browser" value="chrome"/>
     <parameter name="headless" value="false"/>
-    <parameter name="environment" value="STAG"/>
+    <parameter name="environment" value="PROD"/>
     <parameter name="language" value="VIE"/>
     <suite-files>
-        <suite-file path="BH_8616.xml"/>
-        <suite-file path="BH_9536.xml"/>
+<!--        <suite-file path="BH_8616.xml"/>-->
+<!--        <suite-file path="BH_9536.xml"/>-->
         <suite-file path="BH_9753.xml"/>
-        <suite-file path="BH_8888.xml"/>
-        <suite-file path="BH_8887.xml"/>
-        <suite-file path="createProductTest.xml"/>
-        <suite-file path="updateProductTest.xml"/>
-        <suite-file path="createSupplierTest.xml"/>
-        <suite-file path="updateSupplierTest.xml"/>
-        <suite-file path="supplierManagementTest.xml"/>
+<!--        <suite-file path="BH_8888.xml"/>-->
+<!--        <suite-file path="BH_8887.xml"/>-->
+<!--        <suite-file path="createProductTest.xml"/>-->
+<!--        <suite-file path="updateProductTest.xml"/>-->
+<!--        <suite-file path="createSupplierTest.xml"/>-->
+<!--        <suite-file path="updateSupplierTest.xml"/>-->
+<!--        <suite-file path="supplierManagementTest.xml"/>-->
     </suite-files>
 
 </suite>

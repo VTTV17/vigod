@@ -115,7 +115,7 @@ public class WholesaleProductElement {
     @FindBy(css = ".search-box input")
     WebElement UI_SEGMENT_SEARCH_BOX_PLACEHOLDER;
 
-    @FindBy(css = "[for = ALL]")
+    @FindBy(css = "#ALL +*")
     WebElement UI_SEGMENT_ALL_CUSTOMERS;
 
     @FindBy(xpath = "//div[contains(@class,'gs-widget')]/descendant::span[1]")

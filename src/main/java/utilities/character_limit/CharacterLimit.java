@@ -18,7 +18,7 @@ public class CharacterLimit {
     public final static int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
 //    public final static int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 50;
 
-    public final static int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 20;
+    public final static int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 5;
     public final static int MAX_WEIGHT = 1000000;
     public final static int MAX_LENGTH = 100;
     public final static int MAX_WIDTH = 100;

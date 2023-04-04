@@ -1,7 +1,6 @@
 import api.dashboard.login.Login;
 import api.dashboard.products.CreateProduct;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.driver.InitWebdriver;
