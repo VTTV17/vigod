@@ -26,8 +26,6 @@ public class NavigationBar extends UICommonMobile {
 
     WebDriver driver;
     WebDriverWait wait;
-    UICommonAction commons;
-
 
     public NavigationBar(WebDriver driver) {
         super(driver);
@@ -35,6 +33,7 @@ public class NavigationBar extends UICommonMobile {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
     public BuyerSearchPage tapOnSearchIcon(){
+        sleepInMiliSecond(2000);
         clickElement(el_search_icon);
         logger.info("Tap on search icon.");
         return new BuyerSearchPage(driver);

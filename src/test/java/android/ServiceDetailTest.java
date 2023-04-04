@@ -36,8 +36,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void demo(){
-        BuyerGeneral general = new BuyerGeneral(driver);
-        general.waitLoadingDisappear();
+
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
