@@ -9,7 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import utilities.UICommonAction;
+import utilities.UICommonMobile;
 
 public class LoginPage {
 
@@ -17,12 +17,12 @@ public class LoginPage {
 
     WebDriver driver;
     WebDriverWait wait;
-    UICommonAction commonAction;
+    UICommonMobile commonAction;
 
     public LoginPage (WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        commonAction = new UICommonAction(driver);
+        commonAction = new UICommonMobile(driver);
     }
 
     By USERNAME = By.id("com.mediastep.GoSellForSeller.STG:id/edtUsername");
@@ -30,8 +30,16 @@ public class LoginPage {
     By TERM_CHECKBOX = By.id("com.mediastep.GoSellForSeller.STG:id/cbxTermAndPrivacy");
     By LOGIN_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/btnLogin");
     
+    By INVALID_PHONE_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorUsername");
+    
+    public LoginPage clickUsername() {
+    	commonAction.getElement(USERNAME, 5).click();
+    	logger.info("Clicked on Username field.");
+    	return this;
+    }    
+    
     public LoginPage inputUsername(String username) {
-    	WebElement txtUsername = commonAction.getElement(USERNAME);
+    	WebElement txtUsername = commonAction.getElement(USERNAME, 5);
     	txtUsername.clear();
     	txtUsername.sendKeys(username);
     	logger.info("Input '" + username + "' into Username field.");
@@ -39,7 +47,7 @@ public class LoginPage {
     }
 
     public LoginPage inputPassword(String password) {
-    	WebElement txtPassword = commonAction.getElement(PASSWORD);
+    	WebElement txtPassword = commonAction.getElement(PASSWORD, 5);
     	txtPassword.clear();
     	txtPassword.sendKeys(password);
     	logger.info("Input '" + password + "' into Password field.");
@@ -47,7 +55,7 @@ public class LoginPage {
     }
     
     public boolean isTermAgreementChecked() {
-    	boolean isChecked = commonAction.getElement(TERM_CHECKBOX).getAttribute("checked").equals("true");
+    	boolean isChecked = commonAction.getElement(TERM_CHECKBOX, 5).getAttribute("checked").equals("true");
     	logger.info("Is Term Agreement checkbox checked: " + isChecked);
     	return isChecked;
     }
@@ -56,21 +64,27 @@ public class LoginPage {
     	if (isTermAgreementChecked()) {
     		return this;
     	}
-    	commonAction.getElement(TERM_CHECKBOX).click();
+    	commonAction.getElement(TERM_CHECKBOX, 5).click();
     	logger.info("Clicked on Term Agreement checkbox.");
     	return this;
     }
 
     public LoginPage clickLoginBtn() {
-    	commonAction.getElement(LOGIN_BTN).click();
+    	commonAction.getElement(LOGIN_BTN, 5).click();
     	logger.info("Clicked on Login button.");
         return this;
     }
     
     public boolean isLoginBtnEnabled() {
-    	boolean isEnabled = commonAction.getElement(LOGIN_BTN).isEnabled();
+    	boolean isEnabled = commonAction.getElement(LOGIN_BTN, 5).isEnabled();
     	logger.info("Is Login button enabled: " + isEnabled);
     	return isEnabled;
+    }
+    
+    public String getUsernameError() {
+    	String text = commonAction.getElement(INVALID_PHONE_ERROR, 5).getText();
+    	logger.info("Retrieved error for username field: " + text);
+    	return text;
     }
 
 }

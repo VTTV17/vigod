@@ -9,7 +9,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import javax.lang.model.element.Element;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -482,6 +481,11 @@ public class UICommonAction {
 	}
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
+	}
+	
+	public WebElement getElement(By by, int inSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
+		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
 	}
 	public void clickElement(String locator) {
 		try {
