@@ -33,7 +33,7 @@ public class HomePage {
     By LOGOUT_ABORT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvLeftButton");
     
     public boolean isAccountTabDisplayed() {
-    	boolean isDisplayed = commonAction.getElement(ACCOUNT_TAB, 3).isDisplayed();
+    	boolean isDisplayed = commonAction.getElement(ACCOUNT_TAB, 5).isDisplayed();
     	logger.info("Is Account Tab displayed: " + isDisplayed);
     	return isDisplayed;
     }

@@ -121,7 +121,7 @@ public class LoginSellerApp {
     	
     	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
     	
-    	loginPage.inputUsername(PHONE).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn();
+    	loginPage.selectCountryCodeFromSearchBox(PHONE_COUNTRY).inputUsername(PHONE).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn();
     	Assert.assertTrue(homePage.isAccountTabDisplayed());
     	
     	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
