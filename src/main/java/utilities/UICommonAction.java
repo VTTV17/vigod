@@ -470,29 +470,11 @@ public class UICommonAction {
 		String actualCopedText = (String) clipboard.getData(DataFlavor.stringFlavor);
 		return actualCopedText;
 	}
-	public By getByXpath(String locator) {
-		return By.xpath(locator);
-	}
-	public WebElement getElement(String locator) {
-		return driver.findElement(getByXpath(locator));
-	}
-	public List<WebElement> getElements(String locator) {
-		return driver.findElements(getByXpath(locator));
+	public List<WebElement> getElements(By by) {
+		return driver.findElements(by);
 	}
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
-	
-	public WebElement getElement(By by, int inSeconds) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
-		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
-	}
-	public void clickElement(String locator) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(getElement(locator))).click();
-		} catch (ElementNotInteractableException ex) {
-			logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
-			wait.until(ExpectedConditions.elementToBeClickable(getElement(locator))).click();
-		}
-	}
+
 }

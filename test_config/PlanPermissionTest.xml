@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="PlanPermissionTest">
+        <classes>
+            <class name="PlanPermissionTest">
+                <methods>
+                    <include name="PP01_CheckPermissionGoWebWithExistentAccount"/>
+                    <include name="PP02_CheckPermissionGoWebWithNewAccount"/>
+<!--                    <include name="PP03_CheckPermissionGoAppWithExistentAccount"/>-->
+<!--                    <include name="PP04_CheckPermissionGoAppWithNewAccount"/>-->
+<!--                    <include name="PP05_CheckPermissionGoPOSWithExistentAccount"/>-->
+<!--                    <include name="PP06_CheckPermissionGoPosWithNewAccount"/>-->
+<!--                    <include name="PP07_CheckPermissionGoSocialWithExistentAccount"/>-->
+<!--                    <include name="PP08_CheckPermissionGoSocialWithNewAccount"/>-->
+<!--                    <include name="PP09_CheckPermissionGoLeadWithExistentAccount"/>-->
+<!--                    <include name="PP10_CheckPermissionGoLeadWithNewAccount"/>-->
+                </methods>
+            </class>
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

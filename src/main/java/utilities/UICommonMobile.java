@@ -21,28 +21,21 @@ public class UICommonMobile extends UICommonAction {
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	}
 
-	public void clickElement(WebElement element) {
-
+	public void clickElement(By bySelector) {
+		getElement(bySelector,5).click();
 	}
 	
-	public void inputText(WebElement element, String text) {
-
+	public void inputText(By bySelector, String text) {
+		WebElement el = getElement(bySelector,5);
+		el.clear();
+		getElement(bySelector).sendKeys(text);
 	}
 	
-	public String getText(WebElement element) {
-		String text = "";
-		logger.info("Text get: " + text);
+	public String getText(By bySelector) {
+		String text = getElement(bySelector,5).getText();
 		return text;
 	}	
-	
-	public WebElement getElement(String locator) {
-		return driver.findElement(getByXpath(locator));
-	}
-	
-	public List<WebElement> getElements(String locator) {
-		return driver.findElements(getByXpath(locator));
-	}
-	
+
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
