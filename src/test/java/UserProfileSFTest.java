@@ -1,4 +1,7 @@
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.home.HomePage;
@@ -12,8 +15,11 @@ import pages.storefront.userprofile.MyAddress;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.Constant;
 import utilities.PropertiesUtil;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
 import utilities.file.FileNameAndPath;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -90,8 +96,8 @@ public class UserProfileSFTest extends BaseTest {
 
     @BeforeClass
     public void getData() throws Exception {
-        languageDb = PropertiesUtil.getLanguageFromConfig("Dashboard");
-        languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
+        languageDb = language;
+        languageSF = language;
         userNameDb_ShopVi = ADMIN_SHOP_VI_USERNAME;
         userNameDb_ShopB = ADMIN_SHOP_COFFEE_USERNAME;
         userName_ChangeAddress = SF_USERNAME_VI_2;
@@ -139,6 +145,16 @@ public class UserProfileSFTest extends BaseTest {
         address2_Edit = "address 2 update non VN";
         cityInput_Edit = "city in non VN checkout";
         zipCode_Edit = "74747474";
+        generate = new DataGenerator();
+    }
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, headless);
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        if (driver != null) driver.quit();
     }
 
     public UserProfileInfo loginAndGoToUserProfile(String userName) {
