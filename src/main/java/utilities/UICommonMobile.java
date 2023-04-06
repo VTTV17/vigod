@@ -1,17 +1,25 @@
 package utilities;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Pause;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.PointerInput.MouseButton;
+import org.openqa.selenium.interactions.PointerInput.Origin;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
 
@@ -83,6 +91,86 @@ public class UICommonMobile extends UICommonAction {
 		}
 	}
 
+	/**
+	 * This method performs a tap action on the specified position on the screen using the given x and y coordinates.
+	 * @param x The x coordinate of the position to tap.
+	 * @param y The y coordinate of the position to tap.
+	 * @throws IllegalArgumentException if the platform is not recognized.
+	 */
+	public void tapByCoordinates(int x, int y) {
+		// Create new PointerInput objects for start and end positions
+		PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+		
+		// Create a new sequence for the tap gesture and add actions to it
+		Sequence tapPosition = new Sequence(finger,1);
+		tapPosition.addAction(finger.createPointerMove(Duration.ZERO, Origin.viewport(), x, y))
+				.addAction(finger.createPointerDown(MouseButton.LEFT.asArg()))
+				.addAction(finger.createPointerUp(MouseButton.LEFT.asArg()));
+		
+		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
+		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
+			((AppiumDriver)driver).perform(Arrays.asList(tapPosition));
+		} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
+			((IOSDriver)driver).perform(Arrays.asList(tapPosition));
+		} else {
+			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
+		}
+	}
+
+	/**
+	 * This method takes coordinates in percentage and performs a tap action on the mobile device.
+	 * @param x The x coordinate in percentage.
+	 * @param y The y coordinate in percentage.
+	 * @throws IllegalArgumentException If the platform is not recognized.
+	 */
+	public void tapByCoordinatesInPercent(double x, double y) {
+		// Get the size of the device screen
+		Dimension size = driver.manage().window().getSize();
+		
+		tapByCoordinates((int) (size.width * x), (int) (size.height * y));
+	}	
+	
+	/**
+	 * This method performs a swipe gesture on the device screen from the specified start coordinates to the specified end coordinates.
+	 * The start and end coordinates are defined as percentages of the device screen size, where (0.0, 0.0) is the top-left corner and (1.0, 1.0) is the bottom-right corner.
+	 * @param startX The X coordinate of the starting point of the swipe gesture in a percentage value.
+	 * @param startY The Y coordinate of the starting point of the swipe gesture in a percentage value.
+	 * @param endX The X coordinate of the ending point of the swipe gesture in a percentage value.
+	 * @param endY The Y coordinate of the ending point of the swipe gesture in a percentage value.
+	 * @throws IllegalArgumentException if the platform name obtained from the driver's capabilities is neither "android" nor "ios".
+	 */
+	public void swipeByCoordinatesInPercent(double startX, double startY, double endX, double endY) {
+		// Get the size of the device screen
+		Dimension size = driver.manage().window().getSize();
+
+		// Set start and end coordinates for the swipe
+		int startXCoordinate = (int) (size.width * startX);
+		int startYCoordinate = (int) (size.height * startY);
+		int endXCoordinate = (int) (size.width * endX);
+		int endYCoordinate = (int) (size.height * endY);
+
+		// Create new PointerInput objects for start and end positions
+		PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+
+		// Create a new sequence for the swipe gesture and add actions to it
+		Sequence swipeGesture = new Sequence(finger, 0);
+		swipeGesture.addAction(finger.createPointerMove(Duration.ofMillis(0), PointerInput.Origin.viewport(), startXCoordinate, startYCoordinate));
+		swipeGesture.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+		swipeGesture.addAction(new Pause(finger, Duration.ofMillis(100)));
+		swipeGesture.addAction(finger.createPointerMove(Duration.ofMillis(200), PointerInput.Origin.viewport(), endXCoordinate, endYCoordinate));
+		swipeGesture.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+		// Execute the swipe gesture on the device
+		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
+		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
+			((AppiumDriver)driver).perform(Arrays.asList(swipeGesture));
+		} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
+			((IOSDriver)driver).perform(Arrays.asList(swipeGesture));
+		} else {
+			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
+		}
+	}	
+	
 	public String getText(WebElement element) {
 		String text = element.getText();
 		return text;
