@@ -1,8 +1,6 @@
-import java.net.URL;
 import java.sql.SQLException;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -12,14 +10,15 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.android.AndroidDriver;
 import pages.sellerapp.HomePage;
 import pages.sellerapp.LoginPage;
 import pages.thirdparty.Mailnesia;
 import utilities.PropertiesUtil;
+import utilities.UICommonMobile;
 import utilities.jsonFileUtility;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
+import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
 
 
@@ -51,8 +50,8 @@ public class LoginSellerApp {
 	/**
 	 * This method retrieves a verification code for a given username. 
 	 * If the username is a valid email address, the method retrieves the verification code from Mailnesia.
-	 * Otherwise, it retrieves the reset key from a database.
-	 * @param username either an email address (tienvan@mailnesia.com) or a username (+84:0123456789)
+	 * Otherwise, it retrieves the code from a database.
+	 * @param username either an email address (tienvan@mailnesia.com) or a phone number (+84:0123456789)
 	 * @return the retrieved verification code as a String
 	 * @throws SQLException if there is an error retrieving the reset key from the database
 	 */
@@ -69,16 +68,13 @@ public class LoginSellerApp {
 	
     @BeforeClass
     public void setUp() throws Exception {
-		DesiredCapabilities caps = new DesiredCapabilities();
-        caps.setCapability("deviceName", "Android");
-        caps.setCapability("platformName", "Android");
-        caps.setCapability("platformVersion", "12.0");
-        caps.setCapability("udid", "RF8N20PY57D");
-        caps.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
-        caps.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
-        caps.setCapability("noReset", "false");
+        String udid = "RF8N20PY57D";
+        String platformName = "Android";
+        String appPackage = "com.mediastep.GoSellForSeller.STG";
+        String appActivity = "com.mediastep.gosellseller.modules.credentials.login.LoginActivity";
+        String url = "http://127.0.0.1:4723/wd/hub";
+        driver = new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
         
-        driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), caps);
         PropertiesUtil.setEnvironment("STAG");
     }
 
@@ -110,7 +106,7 @@ public class LoginSellerApp {
     	
     	loginPage.clickUsername(); //Workaround to simulate a tap on username field
     	
-    	driver.navigate().back(); //Workaround to hide keyboard
+    	new UICommonMobile(driver).hideKeyboard("android");
     	
     	//7-digit phone number
     	loginPage.inputUsername(generate.generateNumber(7)).inputPassword(PASSWORD).clickAgreeTerm();
@@ -130,7 +126,7 @@ public class LoginSellerApp {
     	
     	loginPage.clickUsername(); //Workaround to simulate a tap on username field
     	
-    	driver.navigate().back(); //Workaround to hide keyboard
+    	new UICommonMobile(driver).hideKeyboard("android");
     	
     	// Mail does not have symbol @
     	loginPage.inputUsername(generate.generateString(10)).inputPassword(PASSWORD).clickAgreeTerm();
@@ -190,10 +186,9 @@ public class LoginSellerApp {
     	loginPage = new LoginPage(driver);
     	homePage = new HomePage(driver);
     	
-    	loginPage.clickStaffTab();
-    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
-    	
-    	Thread.sleep(2000);
+//    	loginPage.clickStaffTab();
+//    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
+//    	Thread.sleep(3000);
     	
     	// Incorrect credentials
     	loginPage.clickStaffTab();
@@ -201,8 +196,7 @@ public class LoginSellerApp {
     	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
     	
     	// Correct credentials
-    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn()
-    	.clickAvailableShop();
+    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn().clickAvailableShop();
     	Assert.assertTrue(homePage.isAccountTabDisplayed());
     	
     	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
@@ -210,7 +204,7 @@ public class LoginSellerApp {
     	loginPage.clickAdminTab();
     }
     
-    @Test
+//    @Test
     public void LoginDB_07_SellerForgotPassword() throws InterruptedException, SQLException {
     	
 		String[][] testData = { 

@@ -79,7 +79,7 @@ public class LoginPage {
     	clickCountryCodeField();
     	inputCountryCodeToSearchBox(country);
     	
-    	commonAction.getElement(COUNTRY_SEARCHRESULT, defaultTimeout).click();
+    	commonAction.clickElement(COUNTRY_SEARCHRESULT);
     	logger.info("Selected country: " + country);
     	return this;
     }     
@@ -132,13 +132,13 @@ public class LoginPage {
     }
     
     public String getUsernameError() {
-    	String text = commonAction.getElement(USERNAME_ERROR, defaultTimeout).getText();
+    	String text = commonAction.getText(USERNAME_ERROR);
     	logger.info("Retrieved error for username field: " + text);
     	return text;
     }
     
     public String getPasswordError() {
-    	String text = commonAction.getElement(PASSWORD_ERROR, defaultTimeout).getText();
+    	String text = commonAction.getText(PASSWORD_ERROR);
     	logger.info("Retrieved error for password field: " + text);
     	return text;
     }
