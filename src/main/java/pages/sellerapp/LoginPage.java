@@ -27,6 +27,9 @@ public class LoginPage {
         commonAction = new UICommonMobile(driver);
     }
 
+    By ADMIN_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Quản trị viên' or @content-desc='Admin']/android.widget.TextView");
+    By STAFF_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Nhân viên' or @content-desc='Staff']");
+    
     By COUNTRYCODE = By.id("com.mediastep.GoSellForSeller.STG:id/edtCountry");
     By COUNTRY_SEARCHBOX = By.id("com.mediastep.GoSellForSeller.STG:id/edtCountriesSearch");
     By COUNTRY_SEARCHRESULT = By.id("com.mediastep.GoSellForSeller.STG:id/tvValue");
@@ -36,7 +39,50 @@ public class LoginPage {
     By TERM_CHECKBOX = By.id("com.mediastep.GoSellForSeller.STG:id/cbxTermAndPrivacy");
     By LOGIN_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/btnLogin");
     
-    By INVALID_USERNAME_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorUsername");
+    By FORGOTPASS_LINK = By.id("com.mediastep.GoSellForSeller.STG:id/tvForgetPassword");
+    By NEWPASSWORD = By.id("com.mediastep.GoSellForSeller.STG:id/edtNewPassword");
+    By SEND_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/rlSent");
+    By VERIFICATIONCODE = By.id("com.mediastep.GoSellForSeller.STG:id/edtVerifyCode");
+    By RESEND_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvResend");
+    
+    By AVAILABLESHOP_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/container");
+    
+    By USERNAME_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorUsername");
+    By PASSWORD_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorPassword");
+    
+    
+    public LoginPage clickAdminTab() {
+    	commonAction.getElement(ADMIN_TAB, defaultTimeout).click();
+    	logger.info("Clicked on Admin tab.");
+    	return this;
+    }    
+    
+    public LoginPage clickStaffTab() {
+    	commonAction.getElement(STAFF_TAB, defaultTimeout).click();
+    	logger.info("Clicked on Staff tab.");
+    	return this;
+    }    
+
+    public LoginPage clickCountryCodeField() {
+    	commonAction.getElement(COUNTRYCODE, defaultTimeout).click();
+    	logger.info("Clicked on Country code field.");
+        return this;
+    }    
+    
+    public LoginPage inputCountryCodeToSearchBox(String country) {
+    	commonAction.getElement(COUNTRY_SEARCHBOX, defaultTimeout).sendKeys(country);
+    	logger.info("Input Country code: " + country);
+    	return this;
+    }    
+    
+    public LoginPage selectCountryCodeFromSearchBox(String country) {
+    	clickCountryCodeField();
+    	inputCountryCodeToSearchBox(country);
+    	
+    	commonAction.clickElement(COUNTRY_SEARCHRESULT);
+    	logger.info("Selected country: " + country);
+    	return this;
+    }     
     
     public LoginPage clickUsername() {
     	commonAction.getElement(USERNAME, defaultTimeout).click();
@@ -45,9 +91,7 @@ public class LoginPage {
     }    
     
     public LoginPage inputUsername(String username) {
-    	WebElement txtUsername = commonAction.getElement(USERNAME, defaultTimeout);
-    	txtUsername.clear();
-    	txtUsername.sendKeys(username);
+    	commonAction.inputText(USERNAME, username);
     	logger.info("Input '" + username + "' into Username field.");
         return this;
     }
@@ -88,30 +132,49 @@ public class LoginPage {
     }
     
     public String getUsernameError() {
-    	String text = commonAction.getElement(INVALID_USERNAME_ERROR, defaultTimeout).getText();
+    	String text = commonAction.getText(USERNAME_ERROR);
     	logger.info("Retrieved error for username field: " + text);
     	return text;
     }
+    
+    public String getPasswordError() {
+    	String text = commonAction.getText(PASSWORD_ERROR);
+    	logger.info("Retrieved error for password field: " + text);
+    	return text;
+    }
 
-    public LoginPage clickCountryCodeField() {
-    	commonAction.getElement(COUNTRYCODE, defaultTimeout).click();
-    	logger.info("Clicked on Country code field.");
+    public LoginPage clickAvailableShop() {
+    	commonAction.getElement(AVAILABLESHOP_BTN, defaultTimeout).click();
+    	logger.info("Clicked on an available shop for staff.");
+        return this;
+    }    
+
+    public LoginPage clickForgotPassword() {
+    	commonAction.getElement(FORGOTPASS_LINK, defaultTimeout).click();
+    	logger.info("Clicked on Forgot Password link text.");
+    	return this;
+    } 
+    
+    public LoginPage inputNewPassword(String password) {
+    	WebElement txtPassword = commonAction.getElement(NEWPASSWORD, defaultTimeout);
+    	txtPassword.clear();
+    	txtPassword.sendKeys(password);
+    	logger.info("Input '" + password + "' into New Password field.");
         return this;
     }    
     
-    public LoginPage inputCountryCodeToSearchBox(String country) {
-    	commonAction.getElement(COUNTRY_SEARCHBOX, defaultTimeout).sendKeys(country);
-    	logger.info("Input Country code: " + country);
+    public LoginPage clickSendBtn() {
+    	commonAction.getElement(SEND_BTN, defaultTimeout).click();
+    	logger.info("Clicked on Send button.");
     	return this;
     }    
     
-    public LoginPage selectCountryCodeFromSearchBox(String country) {
-    	clickCountryCodeField();
-    	inputCountryCodeToSearchBox(country);
-    	
-    	commonAction.getElement(COUNTRY_SEARCHRESULT, defaultTimeout).click();
-    	logger.info("Selected country: " + country);
-    	return this;
-    }    
+    public LoginPage inputVerificationCode(String code) {
+    	WebElement txtPassword = commonAction.getElement(VERIFICATIONCODE, defaultTimeout);
+    	txtPassword.clear();
+    	txtPassword.sendKeys(code);
+    	logger.info("Input '" + code + "' into Verification Code field.");
+        return this;
+    }       
     
 }
