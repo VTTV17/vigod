@@ -16,7 +16,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.List;
 
 public class UICommonMobile extends UICommonAction {
 
@@ -51,7 +51,7 @@ public class UICommonMobile extends UICommonAction {
 	}
 	
 	public String getText(By bySelector) {
-		String text = "";
+		String text;
 		try {
 			text = getElement(bySelector,5).getText();
 		} catch(StaleElementReferenceException ex) {
@@ -104,9 +104,9 @@ public class UICommonMobile extends UICommonAction {
 
 		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
 		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
-			((AppiumDriver)driver).perform(Arrays.asList(tapPosition));
+			((AppiumDriver)driver).perform(List.of(tapPosition));
 		} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
-			((IOSDriver)driver).perform(Arrays.asList(tapPosition));
+			((IOSDriver)driver).perform(List.of(tapPosition));
 		} else {
 			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
 		}
@@ -158,17 +158,16 @@ public class UICommonMobile extends UICommonAction {
 		// Execute the swipe gesture on the device
 		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
 		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
-			((AppiumDriver)driver).perform(Arrays.asList(swipeGesture));
+			((AppiumDriver)driver).perform(List.of(swipeGesture));
 		} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
-			((IOSDriver)driver).perform(Arrays.asList(swipeGesture));
+			((IOSDriver)driver).perform(List.of(swipeGesture));
 		} else {
 			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
 		}
 	}
 
 	public String getText(WebElement element) {
-		String text = element.getText();
-		return text;
+		return element.getText();
 	}
 	public void clickElement(WebElement element) {
 		element.click();
