@@ -4,27 +4,55 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.UICommonAction;
+import org.testng.Assert;
+import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
+import java.util.List;
 
 public class BuyerSearchDetailPage extends UICommonMobile {
     final static Logger logger = LogManager.getLogger(BuyerSearchDetailPage.class);
     WebDriver driver;
     WebDriverWait wait;
-
-    public BuyerSearchDetailPage(WebDriver driver) {
+    public BuyerSearchDetailPage(WebDriver driver)  {
         super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
-    By el_search_results = By.xpath("//android.widget.TextView[contains(@resource-id,'adapter_hot_deal_item_name')]");
-    By el_search_input = By.xpath("//android.widget.AutoCompleteTextView[contains(@resource-id,'search_src_text')]");
+    By SEARCH_SUGGESTION = By.xpath("//android.widget.TextView[contains(@resource-id,'adapter_hot_deal_item_name')]");
+    By SEARCH_INPUT = By.xpath("//android.widget.AutoCompleteTextView[contains(@resource-id,'search_src_text')]");
+    By SEARCH_SUGGESTION_PRICE = By.xpath("//android.widget.TextView[contains(@resource-id,'adapter_hot_deal_item_promotion_price')]");
+    public By CANCEL_SEARCH = By.xpath("//android.widget.TextView[contains(@resource-id,'search_module_btn_cancel')]");
+
     public BuyerSearchDetailPage inputKeywordToSearch(String keyword){
-        inputText(el_search_input,keyword);
+        inputText(SEARCH_INPUT,keyword);
         logger.info("Input %s into search field".formatted(keyword));
+        sleepInMiliSecond(3000);
         return this;
+    }
+    public BuyerSearchDetailPage tapSearchSuggestion() {
+        List<WebElement> suggestions_el = getElements(SEARCH_SUGGESTION);
+        clickElement(suggestions_el.get(0));
+        return this;
+    }
+    public BuyerSearchDetailPage verifySearchSuggestion(String itemName, String price) throws Exception {
+
+        List<WebElement> suggestionsName_el = getElements(SEARCH_SUGGESTION);
+        List<WebElement> suggestionsPrice_el = getElements(SEARCH_SUGGESTION_PRICE);
+        Assert.assertEquals(getText(suggestionsName_el.get(0)).toLowerCase(),itemName.toLowerCase());
+        if(!price.equals("")){
+            String priceActual = getText(suggestionsPrice_el.get(0));
+            priceActual = String.join("",priceActual.split(","));
+            Assert.assertEquals(priceActual,price+" đ");
+        }else Assert.assertEquals(getText(suggestionsPrice_el.get(0)).toLowerCase(),PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.contactTxt"));
+        return this;
+    }
+    public BuyerSearchPage tapCancelSearch(){
+        clickElement(CANCEL_SEARCH);
+        logger.info("Tap on Cancel button.");
+        return new BuyerSearchPage(driver);
     }
 }
