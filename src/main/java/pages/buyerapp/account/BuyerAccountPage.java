@@ -27,7 +27,7 @@ public class BuyerAccountPage {
     
     By NAVIGATE_LOGIN_BTN = By.xpath("//*[contains(@resource-id,'id/fragment_tab_account_user_profile_tv_sign_in')]");
     By LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'id/rlLogout')]");
-    
+    By LANGUAGE_BTN = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'fragment_tab_account_user_profile_rl_language_container')]/android.widget.TextView");
     public BuyerAccountPage clickLoginBtn() {
     	commonAction.getElement(NAVIGATE_LOGIN_BTN, defaultTimeout).click();
     	logger.info("Clicked on Login button.");
@@ -39,5 +39,8 @@ public class BuyerAccountPage {
     	logger.info("Clicked on Log out button.");
     	return this;
     }    
-    
+    public BuyerChangeLanguage clickLanguageBtn(){
+        commonAction.clickElement(LANGUAGE_BTN);
+        return new BuyerChangeLanguage(driver);
+    }
 }
