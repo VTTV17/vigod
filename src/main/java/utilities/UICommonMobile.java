@@ -66,7 +66,7 @@ public class UICommonMobile extends UICommonAction {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
 		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
 	}
-	
+
 	/**
 	 * This function hides the keyboard either on an Android or IOS device, depending on the platform specified.
 	 * @param platform The platform of the device (either "android" or "ios")
@@ -82,5 +82,12 @@ public class UICommonMobile extends UICommonAction {
 			throw new IllegalArgumentException("Unknown platform: " + platform);
 		}
 	}
-	
+
+	public String getText(WebElement element) {
+		String text = element.getText();
+		return text;
+	}
+	public void clickElement(WebElement element) {
+		element.click();
+	}
 }
