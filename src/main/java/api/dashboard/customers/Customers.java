@@ -1,13 +1,13 @@
 package api.dashboard.customers;
 
 import api.storefront.login.LoginSF;
-import api.storefront.signup.SignUp;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static api.dashboard.login.Login.*;
 import static java.lang.Thread.sleep;
@@ -26,7 +26,6 @@ public class Customers {
     String GET_200_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=0&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
     public static String apiCustomerName;
     public static String apiCustomerTag;
-    public static String apiCustomerMail;
     public static int apiBuyerId;
     public static int apiProfileId;
 
@@ -115,13 +114,13 @@ public class Customers {
         return this;
     }
 
-    public Customers addCustomerTagForMailCustomer(String customerName) {
-        Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
-        searchCustomerByName.then().statusCode(200);
+    public Customers addCustomerTagForMailCustomer(String keywords) {
+        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, keywords, "EMAIL"), accessToken);
+        searchCustomerByEmail.then().statusCode(200);
 
-        apiBuyerId = Integer.parseInt(searchCustomerByName.jsonPath().getList("userId").get(0).toString());
-        apiProfileId = Integer.parseInt(searchCustomerByName.jsonPath().getList("id").get(0).toString());
-        apiCustomerMail = String.valueOf(searchCustomerByName.jsonPath().getList("email").get(0));
+        String customerName = Pattern.compile("fullName.{4}(\\w+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> matchResult.group(1)).toList().get(0);
+        apiBuyerId = Pattern.compile("userId.{4}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
+        apiProfileId = Pattern.compile("id.{3}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
         apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
         String body = """
                 {
@@ -150,7 +149,7 @@ public class Customers {
                      "taxCode": "",
                      "backupPhones": [],
                      "backupEmails": []
-                 }""".formatted(apiProfileId, customerName, apiCustomerMail, customerName, apiCustomerTag);
+                 }""".formatted(apiProfileId, customerName, keywords, customerName, apiCustomerTag);
         Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, apiStoreID), accessToken, body);
         updateCustomerProfile.then().statusCode(200);
         return this;
@@ -176,24 +175,28 @@ public class Customers {
         apiSegmentID = createSegment.jsonPath().getInt("id");
     }
 
-    public void createSegmentByAPI() throws InterruptedException {
-        // sign up SF account
-        if (apiCustomerName == null) new SignUp().signUpByMail();
-
+    public void createSegmentByAPI(String account, String password, String phoneCode) throws InterruptedException {
         // login SF to create new Customer in Dashboard
-        new LoginSF().LoginToSF();
+        new LoginSF().LoginToSF(account, password, phoneCode);
 
         // wait customer is added
         sleep(3000);
 
         // add tag and create segment by tag name
-        new Customers().addCustomerTagForMailCustomer(SignUp.apiCustomerName).createSegment();
+        new Customers().addCustomerTagForMailCustomer(account).createSegment();
     }
 
     public List<Integer> getListCustomerInSegment(Integer segmentID) {
         Response segmentDetail = api.get(GET_CUSTOMER_LIST_IN_SEGMENT_PATH.formatted(apiStoreID, segmentID), accessToken);
         segmentDetail.then().statusCode(200);
         return segmentDetail.jsonPath().getList("id");
+    }
+
+    public int getCustomerID(String keywords) {
+        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, keywords, "EMAIL"), accessToken);
+        searchCustomerByEmail.then().statusCode(200);
+
+        return Pattern.compile("id.{3}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
     }
     
     public JsonPath getAllCustomerJsonPath() {

@@ -2,40 +2,51 @@ package pages.buyerapp.home;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.UICommonAction;
+import utilities.UICommonMobile;
 
 import java.time.Duration;
+import java.util.List;
 
 public class BuyerHomePage extends BuyerHomeElement {
     final static Logger logger = LogManager.getLogger(BuyerHomePage.class);
 
     WebDriver driver;
     WebDriverWait wait;
+    UICommonMobile commonMobile;
 
     public BuyerHomePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commonMobile = new UICommonMobile(driver);
     }
 
-    public void searchProductByName() {
+    public BuyerHomePage waitHomepageLoaded() {
+        commonMobile.waitElementVisible(HEADER_STORE_LOGO);
+        return this;
+    }
 
-        try {
-            wait.until(ExpectedConditions.elementToBeClickable(HEADER_SEARCH_ICON)).click();
-        } catch (TimeoutException ex) {
-            logger.info(ex);
-            try {
-                wait.until(ExpectedConditions.elementToBeClickable(HEADER_SEARCH_ICON)).click();
-            } catch (TimeoutException ex1) {
-                logger.info(ex1);
-                wait.until(ExpectedConditions.elementToBeClickable(HEADER_SEARCH_ICON)).click();
-            }
-        }
+    public BuyerHomePage searchProductByName(String keywords) {
+        // click Search icon
+        commonMobile.click(HEADER_SEARCH_ICON);
+        logger.info("Open search screen");
 
+        // input search keywords
+        commonMobile.sendKeys(HEADER_SEARCH_BOX, keywords);
+        logger.info("Search with keywords: %s".formatted(keywords.split("\n")[0]));
+
+        return this;
+    }
+
+    public void navigateToProductDetailPage() {
+        // wait list product visible
+        commonMobile.waitListElementVisible(SEARCH_RESULT);
+
+        // click on the first result
+        List<WebElement> resultList =  driver.findElements(SEARCH_RESULT);
+        resultList.get(0).click();
     }
 }

@@ -20,6 +20,8 @@ import static api.dashboard.products.CreateProduct.apiVariationList;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
+import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
 import static utilities.character_limit.CharacterLimit.*;
 
 public class LoyaltyProgram {
@@ -37,7 +39,7 @@ public class LoyaltyProgram {
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
         int discountMaxAmount = nextInt(1000000) + 1;
 
-        if (apiSegmentID == 0) new Customers().createSegmentByAPI();
+        if (apiSegmentID == 0) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
 
         String body = """
                 {

@@ -24,6 +24,8 @@ import static api.dashboard.setting.BranchManagement.*;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
+import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
 import static utilities.character_limit.CharacterLimit.*;
 
 public class CreatePromotion {
@@ -61,7 +63,6 @@ public class CreatePromotion {
     public static Instant apiDiscountCodeStartTime;
     public static Instant apiDiscountCodeEndTime;
     public static String apiCouponCode;
-    public static Map<String, List<String>> apiDiscountCodeStatus;
     public static boolean apiIsLimitToOne;
     public static boolean apiIsLimitToUsage;
     public static int apiDiscountCodeType;
@@ -94,11 +95,6 @@ public class CreatePromotion {
         logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
         if (inProgressList != null)
             inProgressList.forEach(id -> new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, apiStoreID), accessToken).then().statusCode(200));
-
-        // update flash sale status
-        apiBranchName.forEach(brName -> apiFlashSaleStatus
-                .put(brName, IntStream.range(0, apiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
         return this;
     }
 
@@ -132,16 +128,16 @@ public class CreatePromotion {
                 // check in-stock
                 if (Collections.max(apiProductStockQuantity.get(varValue)) > 0) {
                     // sale stock
-                    apiFlashSaleStock.set(i, nextInt(Collections.max(apiProductStockQuantity.get(varValue))) + 1);
+                    int stock =  nextInt(Collections.max(apiProductStockQuantity.get(varValue))) + 1;
 
                     // purchase limit
-                    apiFlashSalePurchaseLimit.add(nextInt(apiFlashSaleStock.get(i)) + 1);
+                   int purchaseLimit = nextInt(stock + 1);
 
                     // variation model
                     int modelID = apiVariationModelID.get(i);
 
                     // variation price
-                    apiFlashSalePrice.set(i, nextLong(apiProductSellingPrice.get(i)));
+                    long price = nextLong(apiProductSellingPrice.get(i));
 
                     String flashSaleProduct = """
                             {
@@ -151,20 +147,20 @@ public class CreatePromotion {
                                         "price": "%s",
                                         "saleStock": "%s"
                                     }
-                            """.formatted(apiProductID, apiFlashSalePurchaseLimit.get(i), modelID, apiFlashSalePrice.get(i), apiFlashSaleStock.get(i));
+                            """.formatted(apiProductID, purchaseLimit, modelID, price, stock);
                     body.append(flashSaleProduct);
                     body.append(i == num - 1 ? "" : ",");
                 }
             }
         } else {
             // sale stock
-            apiFlashSaleStock.set(0, nextInt(Collections.max(apiProductStockQuantity.get(null))) + 1);
+            int stock = nextInt(Collections.max(apiProductStockQuantity.get(null))) + 1;
 
             // purchase limit
-            apiFlashSalePurchaseLimit.add(nextInt(apiFlashSaleStock.get(0)) + 1);
+            int purchaseLimit = nextInt(stock) + 1;
 
             // sale price
-            apiFlashSalePrice.set(0, nextLong(apiProductSellingPrice.get(0)));
+            long price = nextLong(apiProductSellingPrice.get(0));
 
 
             String flashSaleProduct = """
@@ -174,7 +170,7 @@ public class CreatePromotion {
                                 "price": "%s",
                                 "saleStock": "%s"
                             }
-                    """.formatted(apiProductID, apiFlashSalePurchaseLimit.get(0), apiFlashSalePrice.get(0), apiFlashSaleStock.get(0));
+                    """.formatted(apiProductID, purchaseLimit, price, stock);
             body.append(flashSaleProduct);
         }
         body.append("]}");
@@ -200,7 +196,10 @@ public class CreatePromotion {
         JsonPath flashSaleDetailJson = flashSaleDetail.jsonPath();
 
         // init flash sale stock list
-        if (apiFlashSaleStock == null) barcodeList.forEach(barcode -> apiFlashSaleStock.add(0));
+        if (apiFlashSaleStock == null) {
+            apiFlashSaleStock = new ArrayList<>();
+            barcodeList.forEach(barcode -> apiFlashSaleStock.add(0));
+        }
 
         // update flash sale status map
         String status = flashSaleDetailJson.getString("status");
@@ -228,12 +227,16 @@ public class CreatePromotion {
         if (scheduleList != null) flashSaleList.addAll(scheduleList);
 
         // init flash sale status map
-        if (apiFlashSaleStatus.keySet().size() == 0)
+        if (apiFlashSaleStatus == null || apiFlashSaleStatus.keySet().size() == 0) {
+            apiFlashSaleStatus = new HashMap<>();
             apiBranchName.forEach(brName -> apiFlashSaleStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
+        }
 
         // init flash sale price list
-        if (apiFlashSalePrice.size() == 0)
+        if (apiFlashSalePrice == null || apiFlashSalePrice.size() == 0) {
+            apiFlashSalePrice = new ArrayList<>();
             barcodeList.forEach(barcode -> apiFlashSalePrice.add(sellingPrice.get(barcodeList.indexOf(barcode))));
+        }
 
         flashSaleList.forEach(flsID -> getFlashSaleInformation(flsID, barcodeList));
 
@@ -251,10 +254,6 @@ public class CreatePromotion {
             new API().delete(DELETE_DISCOUNT_PATH + campaignID, accessToken).then().statusCode(200);
         }
 
-        //update product discount campaign status
-        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
-                .put(brName, IntStream.range(0, apiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
     }
 
     public CreatePromotion createProductDiscountCampaign(int... time) throws InterruptedException {
@@ -283,9 +282,9 @@ public class CreatePromotion {
         apiProductDiscountCouponValue = productDiscountCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextLong(minFixAmount) + 1;
 
         // set product campaign discount price
-        IntStream.range(0, apiProductSellingPrice.size()).forEach(i -> apiDiscountCampaignPrice.set(i, (productDiscountCouponType == 0)
-                ? ((apiProductSellingPrice.get(i) * (100 - apiProductDiscountCouponValue)) / 100)
-                : (Math.max(0, apiProductSellingPrice.get(i) - apiProductDiscountCouponValue))));
+//        IntStream.range(0, apiProductSellingPrice.size()).forEach(i -> apiDiscountCampaignPrice.set(i, (productDiscountCouponType == 0)
+//                ? ((apiProductSellingPrice.get(i) * (100 - apiProductDiscountCouponValue)) / 100)
+//                : (Math.max(0, apiProductSellingPrice.get(i) - apiProductDiscountCouponValue))));
 
         // init coupon type value
         StringBuilder body = new StringBuilder("""
@@ -306,7 +305,7 @@ public class CreatePromotion {
         // segment type:
         // 0: all customers
         // 1: specific segment
-        if (apiSegmentID == 0) new Customers().createSegmentByAPI();
+        if (apiSegmentID == 0) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         int segmentConditionType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE);
         String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
         String segmentConditionValue = segmentConditionType == 0 ? "" : """
@@ -370,16 +369,11 @@ public class CreatePromotion {
             nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
         String applicableCondition;
         String applicableConditionValue = "";
-        List<String> productDiscountCampaignApplicableBranch;
         if (apiProductDiscountCampaignBranchConditionType == 0) {
-            productDiscountCampaignApplicableBranch = apiBranchName;
             applicableCondition = "APPLIES_TO_BRANCH_ALL_BRANCHES";
         } else {
             List<Integer> activeBranchList = IntStream.range(0, apiBranchID.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).mapToObj(i -> apiBranchID.get(i)).toList();
             int brID = activeBranchList.get(nextInt(activeBranchList.size()));
-
-            productDiscountCampaignApplicableBranch = new ArrayList<>();
-            productDiscountCampaignApplicableBranch.add(apiBranchName.get(apiBranchID.indexOf(brID)));
 
             applicableCondition = "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
             applicableConditionValue = """
@@ -403,10 +397,6 @@ public class CreatePromotion {
         logger.debug("create product discount campaign");
         logger.debug(createProductDiscountCampaign.asPrettyString());
 
-        // update product discount campaign status
-        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
-                .put(brName, IntStream.range(0, apiIsVariation ? apiVariationList.size() : 1)
-                        .mapToObj(i -> productDiscountCampaignApplicableBranch.contains(brName) ? "SCHEDULE" : "EXPIRED").toList()));
         return this;
     }
 
@@ -457,7 +447,7 @@ public class CreatePromotion {
         if (appliesToProduct && appliesToCustomer) {
             apiBranchName.forEach(brName -> {
                 List<String> branchStatus = new ArrayList<>(apiDiscountCampaignStatus.get(brName));
-                IntStream.range(0, barcodeList.size()).filter(i -> appliesToBranch.contains(brName)).forEachOrdered(i -> new ArrayList<>(apiDiscountCampaignStatus.get(brName)).set(i, status));
+                IntStream.range(0, barcodeList.size()).filter(i -> appliesToBranch.contains(brName)).forEachOrdered(i -> branchStatus.set(i, status));
                 apiDiscountCampaignStatus.put(brName, branchStatus);
             });
         }
@@ -472,15 +462,16 @@ public class CreatePromotion {
         if (scheduleList != null) discountCampaignList.addAll(scheduleList);
 
         // init discount campaign price
-        if (apiDiscountCampaignPrice.size() == 0) {
+        if (apiDiscountCampaignPrice == null || apiDiscountCampaignPrice.size() == 0) {
             apiDiscountCampaignPrice = new ArrayList<>();
             apiDiscountCampaignPrice.addAll(sellingPrice);
         }
 
         // init discount campaign status
-        if (apiDiscountCampaignStatus.keySet().size() == 0)
+        if (apiDiscountCampaignStatus == null || apiDiscountCampaignStatus.keySet().size() == 0) {
+            apiDiscountCampaignStatus = new HashMap<>();
             apiBranchName.forEach(brName -> apiDiscountCampaignStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
-
+        }
         discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, barcodeList));
     }
 
@@ -551,7 +542,7 @@ public class CreatePromotion {
         // 1: specific segment
 //        int segmentConditionType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_SEGMENT_TYPE);
         int segmentConditionType = apiSegmentConditionType;
-        if (apiSegmentID == 0) new Customers().createSegmentByAPI();
+        if (apiSegmentID == 0) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
         String segmentConditionValue = segmentConditionType == 0 ? "" : """
                 {

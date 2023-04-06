@@ -1,10 +1,13 @@
 package api.dashboard.products;
 
+import api.dashboard.customers.Customers;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.testng.collections.Lists;
 import utilities.api.API;
+import utilities.model.wholesaleProduct.WholesaleProductAnalyzedData;
+import utilities.model.wholesaleProduct.WholesaleProductRawData;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -13,17 +16,15 @@ import java.util.stream.IntStream;
 
 import static api.dashboard.login.Login.accessToken;
 import static api.dashboard.login.Login.apiStoreID;
-import static api.dashboard.marketing.LoyaltyProgram.apiMembershipStatus;
-import static api.dashboard.products.CreateProduct.*;
-import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.apiBranchID;
-import static api.dashboard.setting.BranchManagement.apiBranchName;
+import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
 
 public class ProductInformation {
     String GET_DASHBOARD_PRODUCT_LIST = "/itemservice/api/store/dashboard/storeID/items-v2?itemType=BUSINESS_PRODUCT&size=100&sort=lastModifiedDate%2Cdesc";
     String GET_PRODUCT_INFORMATION = "/itemservice/api/beehive-items/%s";
     String GET_PRODUCT_COLLECTION = "/itemservice/api/collections/products/%s";
     String GET_COLLECTION_LANGUAGE = "/itemservice/api/collection-languages/collection/%s";
+    String GET_WHOLESALE_PRODUCT_DETAIL_PATH = "/itemservice/api/item/wholesale-pricing/edit/%s?langKey=vi&page=0&size=100";
     API api = new API();
     public static Map<String, String> variationNameMap;
     public static Map<String, List<String>> variationListMap;
@@ -67,6 +68,17 @@ public class ProductInformation {
 
     public String getManageInventoryType(int productID) {
         return getProductInformationResponse(productID).jsonPath().getString("inventoryManageType");
+    }
+
+    public List<String> getProductBarcode(int productID) {
+        Response res = getProductInformationResponse(productID);
+        res.then().statusCode(200);
+        return res.jsonPath().getBoolean("hasModel") ? res.jsonPath().getList("models.barcode") : List.of(res.jsonPath().getString("barcode"));
+    }
+
+    public List<Long> getProductSellingPrice(int productID) {
+        Response res = getProductInformationResponse(productID);
+        return productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
     }
 
     public void get(int productID) {
@@ -235,61 +247,81 @@ public class ProductInformation {
                 collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
             }
 
-            initDiscountInformation();
+//            initDiscountInformation();
         }
     }
 
-    void initDiscountInformation() {
-        // init wholesale product status
-        apiWholesaleProductStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiWholesaleProductStatus
-                .put(brName, IntStream.range(0, barcodeList.size())
-                        .mapToObj(i -> false).toList()));
+    /**
+     * return {barcode, list segment, list price, list stock}
+     */
+    public WholesaleProductAnalyzedData getWholesaleProductConfig(int productID) {
+        /* get wholesale product raw data from API */
+        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productID), accessToken);
+        wholesaleProductInfo.then().statusCode(200);
+        // get sale barcode group list
+        List<String> barcodeList = wholesaleProductInfo.jsonPath().getList("lstResult.itemModelIds");
+        // get sale price list
+        List<Long> salePrice = Pattern.compile("price.{3}(\\d+)").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        // get sale stock list
+        List<Integer> saleStock = Pattern.compile("minQuatity.{3}(\\d+)").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList();
+        // get sale segment group list
+        List<String> segmentList = Pattern.compile("segmentIds.{4}((\\d+,*)+|\\w{3})").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> matchResult.group(1)).toList();
+        // get number config per group barcode
+        List<Integer> totalElements = Pattern.compile("totalElements.{3}(\\d+)").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList();
 
-        // init flash sale status
-        apiFlashSaleStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiFlashSaleStatus
-                .put(brName, IntStream.range(0, barcodeList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
+        /* raw data */
+        List<WholesaleProductRawData> configs = new ArrayList<>();
+        int index = 0;
+        int customerID = new Customers().getCustomerID(BUYER_ACCOUNT_THANG);
+        for (int i = 0; i < totalElements.size(); i++) {
+            WholesaleProductRawData wholesaleRawData = new WholesaleProductRawData();
+            wholesaleRawData.setBarcode(barcodeList.get(i));
+            List<Long> priceList = new ArrayList<>();
+            List<Integer> stockList = new ArrayList<>();
+            for (int id = index; id < index + totalElements.get(i); id++)
+                if (segmentList.get(id).equals("ALL") || Arrays.stream(segmentList.get(i).split(",")).toList().stream().map(segID -> new Customers().getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
+                    priceList.add(salePrice.get(id));
+                    stockList.add(saleStock.get(id));
+                }
+            wholesaleRawData.setPrice(priceList);
+            wholesaleRawData.setStock(stockList);
+            if (stockList.size() > 0) configs.add(wholesaleRawData);
+            index += totalElements.get(i);
+        }
 
-        // init discount campaign status
-        apiDiscountCampaignStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
-                .put(brName, IntStream.range(0, barcodeList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
+        /* analyze data */
+        // get product barcode list
+        List<String> productBarcodeList = new ArrayList<>(new ProductInformation().getProductBarcode(productID));
+        productBarcodeList.replaceAll(barcode -> barcode.replace("-", "_"));
 
-        // init flash sale price
-        apiFlashSalePrice = new ArrayList<>();
-        apiFlashSalePrice.addAll(productSellingPrice);
+        // get branch name
+        List<String> branchNameList = new BranchManagement().getListBranchName();
 
-        // init flash sale stock
-        apiFlashSaleStock = new ArrayList<>();
-        barcodeList.forEach(barcode -> apiFlashSaleStock.add(Collections.max(productStockQuantityMap.get(barcode))));
+        // init wholesale product status map
+        Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
 
-        // init product discount campaign price
-        apiDiscountCampaignPrice = new ArrayList<>();
-        apiDiscountCampaignPrice.addAll(productSellingPrice);
+        List<String> saleBarcode = configs.stream().flatMap(wpConfig -> Arrays.stream(wpConfig.getBarcode().split(","))).distinct().toList();
 
-        // init wholesale product price, rate and stock
-        apiWholesaleProductPrice = new ArrayList<>();
-        apiWholesaleProductPrice.addAll(productSellingPrice);
+        // if variation has wholesale product => set status = true
+        branchNameList.forEach(brName -> wholesaleProductStatus
+                .put(brName, productBarcodeList.stream().map(saleBarcode::contains).toList()));
 
-        apiWholesaleProductStock = new ArrayList<>();
-        barcodeList.forEach(barcode -> apiWholesaleProductStock.add(Collections.max(productStockQuantityMap.get(barcode))));
+        // get wholesale product price
+        List<Long> wholesaleProductPrice = new ArrayList<>(getProductSellingPrice(productID));
+        configs.forEach(wpConfig -> wholesaleProductPrice.set(productBarcodeList.indexOf(wpConfig.getBarcode()), wpConfig.getPrice().get(0)));
 
-        // discount code
-        apiDiscountCodeStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiDiscountCodeStatus
-                .put(brName, IntStream.range(0, barcodeList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
+        // get wholesale product stock
+        List<Integer> wholesaleProductStock = new ArrayList<>();
+        IntStream.range(0, productBarcodeList.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
+        configs.forEach(wpConfig -> wholesaleProductStock.set(productBarcodeList.indexOf(wpConfig.getBarcode()), wpConfig.getStock().get(0)));
 
-        // membership
-        apiMembershipStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiMembershipStatus
-                .put(brName, IntStream.range(0, barcodeList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
+        WholesaleProductAnalyzedData analyzedData = new WholesaleProductAnalyzedData();
+        analyzedData.setStatusMap(wholesaleProductStatus);
+        analyzedData.setPriceList(wholesaleProductPrice);
+        analyzedData.setStockList(wholesaleProductStock);
+        return analyzedData;
     }
-   
+
     /**
      * Retrieves a JSON path object containing all product data from the dashboard API.
      * @return the JsonPath object containing product data retrieved from the dashboard API.

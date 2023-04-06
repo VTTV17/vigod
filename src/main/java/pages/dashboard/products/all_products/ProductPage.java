@@ -23,24 +23,21 @@ import utilities.data.DataGenerator;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static api.dashboard.marketing.LoyaltyProgram.apiMembershipStatus;
 import static api.dashboard.products.CreateProduct.apiProductID;
 import static api.dashboard.products.ProductInformation.*;
-import static api.dashboard.promotion.CreatePromotion.*;
 import static api.dashboard.setting.BranchManagement.apiActiveBranches;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
-import static api.dashboard.setting.StoreInformation.*;
+import static api.dashboard.setting.StoreInformation.apiDefaultLanguage;
+import static api.dashboard.setting.StoreInformation.apiStoreLanguageList;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
-import static pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.api_body.product.CreateProductBody.apiIsIMEIProduct;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
@@ -1078,59 +1075,59 @@ public class ProductPage extends ProductPageElement {
         Assert.assertFalse(isDisplay, "[Failed][Update product] Can not update product.");
     }
 
-    void initDiscountInformation() {
-        // init wholesale product status
-        uiWholesaleProductStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> uiWholesaleProductStatus
-                .put(brName, IntStream.range(0, uiVariationList.size())
-                        .mapToObj(i -> false).toList()));
-
-        // init flash sale status
-        apiFlashSaleStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiFlashSaleStatus
-                .put(brName, IntStream.range(0, uiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
-
-        // init discount campaign status
-        apiDiscountCampaignStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
-                .put(brName, IntStream.range(0, uiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
-
-        // init flash sale price
-        apiFlashSalePrice = new ArrayList<>();
-        apiFlashSalePrice.addAll(productSellingPrice);
-
-        // init flash sale stock
-        apiFlashSaleStock = new ArrayList<>();
-        uiVariationList.forEach(varName -> apiFlashSaleStock.add(Collections.max(uiProductStockQuantity.get(varName))));
-
-        // init product discount campaign price
-        apiDiscountCampaignPrice = new ArrayList<>();
-        apiDiscountCampaignPrice.addAll(productSellingPrice);
-
-        // init wholesale product price, rate and stock
-        uiWholesaleProductPrice = new ArrayList<>();
-        uiWholesaleProductPrice.addAll(productSellingPrice);
-
-        uiWholesaleProductRate = new ArrayList<>();
-        IntStream.range(0, uiWholesaleProductPrice.size()).forEach(i -> uiWholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) uiWholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
-
-        uiWholesaleProductStock = new ArrayList<>();
-        uiVariationList.forEach(varName -> uiWholesaleProductStock.add(Collections.max(uiProductStockQuantity.get(varName))));
-
-        // discount code
-        apiDiscountCodeStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiDiscountCodeStatus
-                .put(brName, IntStream.range(0, uiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
-
-        // membership
-        apiMembershipStatus = new HashMap<>();
-        apiBranchName.forEach(brName -> apiMembershipStatus
-                .put(brName, IntStream.range(0, uiVariationList.size())
-                        .mapToObj(i -> "EXPIRED").toList()));
-    }
+//    void initDiscountInformation() {
+//        // init wholesale product status
+//        uiWholesaleProductStatus = new HashMap<>();
+//        apiBranchName.forEach(brName -> uiWholesaleProductStatus
+//                .put(brName, IntStream.range(0, uiVariationList.size())
+//                        .mapToObj(i -> false).toList()));
+//
+//        // init flash sale status
+//        apiFlashSaleStatus = new HashMap<>();
+//        apiBranchName.forEach(brName -> apiFlashSaleStatus
+//                .put(brName, IntStream.range(0, uiVariationList.size())
+//                        .mapToObj(i -> "EXPIRED").toList()));
+//
+//        // init discount campaign status
+//        apiDiscountCampaignStatus = new HashMap<>();
+//        apiBranchName.forEach(brName -> apiDiscountCampaignStatus
+//                .put(brName, IntStream.range(0, uiVariationList.size())
+//                        .mapToObj(i -> "EXPIRED").toList()));
+//
+//        // init flash sale price
+//        apiFlashSalePrice = new ArrayList<>();
+//        apiFlashSalePrice.addAll(productSellingPrice);
+//
+//        // init flash sale stock
+//        apiFlashSaleStock = new ArrayList<>();
+//        uiVariationList.forEach(varName -> apiFlashSaleStock.add(Collections.max(uiProductStockQuantity.get(varName))));
+//
+//        // init product discount campaign price
+//        apiDiscountCampaignPrice = new ArrayList<>();
+//        apiDiscountCampaignPrice.addAll(productSellingPrice);
+//
+//        // init wholesale product price, rate and stock
+//        uiWholesaleProductPrice = new ArrayList<>();
+//        uiWholesaleProductPrice.addAll(productSellingPrice);
+//
+//        uiWholesaleProductRate = new ArrayList<>();
+//        IntStream.range(0, uiWholesaleProductPrice.size()).forEach(i -> uiWholesaleProductRate.add(Float.valueOf(new DecimalFormat("#.##").format((1 - (float) uiWholesaleProductPrice.get(i) / productSellingPrice.get(i)) * 100))));
+//
+//        uiWholesaleProductStock = new ArrayList<>();
+//        uiVariationList.forEach(varName -> uiWholesaleProductStock.add(Collections.max(uiProductStockQuantity.get(varName))));
+//
+//        // discount code
+//        apiDiscountCodeStatus = new HashMap<>();
+//        apiBranchName.forEach(brName -> apiDiscountCodeStatus
+//                .put(brName, IntStream.range(0, uiVariationList.size())
+//                        .mapToObj(i -> "EXPIRED").toList()));
+//
+//        // membership
+//        apiMembershipStatus = new HashMap<>();
+//        apiBranchName.forEach(brName -> apiMembershipStatus
+//                .put(brName, IntStream.range(0, uiVariationList.size())
+//                        .mapToObj(i -> "EXPIRED").toList()));
+//    }
 
     public void configWholesaleProduct() throws Exception {
         if (uiIsVariation) new WholesaleProductPage(driver)
@@ -1165,7 +1162,7 @@ public class ProductPage extends ProductPageElement {
         inputWithoutVariationStock(branchStock);
         inputWithoutVariationProductSKU();
         completeCreateProduct();
-        initDiscountInformation();
+//        initDiscountInformation();
 
         return this;
     }
@@ -1183,7 +1180,7 @@ public class ProductPage extends ProductPageElement {
         inputVariationStock(increaseNum, branchStock);
         inputVariationSKU();
         completeCreateProduct();
-        initDiscountInformation();
+//        initDiscountInformation();
 
         return this;
     }
@@ -1200,7 +1197,7 @@ public class ProductPage extends ProductPageElement {
         updateWithoutVariationStock(newBranchStock);
         updateWithoutVariationProductSKU();
         completeUpdateProduct();
-        initDiscountInformation();
+//        initDiscountInformation();
 
         return this;
     }
@@ -1219,7 +1216,7 @@ public class ProductPage extends ProductPageElement {
         updateVariationSKU();
         completeUpdateProduct();
 
-        initDiscountInformation();
+//        initDiscountInformation();
 
         return this;
     }

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import static api.dashboard.customers.Customers.apiSegmentName;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -22,6 +23,8 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.ProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
+import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
+import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
 import static utilities.links.Links.DOMAIN;
 
 public class WholesaleProductPage extends WholesaleProductElement {
@@ -31,9 +34,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     Actions act;
     Logger logger = LogManager.getLogger(WholesaleProductPage.class);
 
-    public static Map<String, List<Boolean>> uiWholesaleProductStatus;
     public static List<Long> uiWholesaleProductPrice;
-    public static List<Float> uiWholesaleProductRate;
     public static List<Integer> uiWholesaleProductStock;
 
     public WholesaleProductPage(WebDriver driver) {
@@ -77,6 +78,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
     int numOfWholesaleProduct;
 
     public WholesaleProductPage getWholesaleProductInfo() {
+        uiWholesaleProductPrice = new ArrayList<>(productSellingPrice);
+        uiWholesaleProductStock = new ArrayList<>();
+        IntStream.range(0, uiWholesaleProductPrice.size()).forEachOrdered(i -> uiWholesaleProductStock.add(0));
         numOfWholesaleProduct = nextInt(uiVariationList.size()) + 1;
         for (int i = 0; i < numOfWholesaleProduct; i++) {
             uiWholesaleProductPrice.set(i, nextLong(productSellingPrice.get(i)) + 1);
@@ -113,7 +117,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         checkSegmentInformation();
 
         // search segment
-        if (apiSegmentName == null) new Customers().createSegmentByAPI();
+        if (apiSegmentName == null) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
         act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(apiSegmentName));
 

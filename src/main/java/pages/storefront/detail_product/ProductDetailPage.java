@@ -18,6 +18,7 @@ import pages.storefront.shoppingcart.ShoppingCart;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.data.DataGenerator;
+import utilities.model.wholesaleProduct.WholesaleProductAnalyzedData;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -36,7 +37,6 @@ import static api.dashboard.setting.StoreInformation.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static pages.dashboard.products.all_products.ProductPage.uiProductID;
-import static pages.dashboard.products.all_products.wholesale_price.WholesaleProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueBySFLang;
 import static utilities.links.Links.SF_DOMAIN;
 import static utilities.links.Links.STORE_CURRENCY;
@@ -49,30 +49,19 @@ public class ProductDetailPage extends ProductDetailElement {
     Logger logger = LogManager.getLogger(ProductDetailPage.class);
     UICommonAction commonAction;
     boolean isMultipleLanguage;
-
-    List<Integer> wholesaleProductStock = new ArrayList<>();
-    List<Long> wholesaleProductPrice = new ArrayList<>();
-    Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
+    ProductInformation productInfo;
 
     public ProductDetailPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+        productInfo = new ProductInformation();
     }
 
     public String getProductName() {
         String name = commonAction.getText(PRODUCT_NAME);
         logger.info("Retrieved product name: " + name);
         return name;
-    }
-
-    void getProductDiscountInformation() {
-        // wholesale product config
-        wholesaleProductStock.addAll(uiWholesaleProductStock != null ? uiWholesaleProductStock : apiWholesaleProductStock);
-
-        wholesaleProductPrice.addAll(uiWholesaleProductPrice != null ? uiWholesaleProductPrice : apiWholesaleProductPrice);
-
-        wholesaleProductStatus.putAll(uiWholesaleProductStatus != null ? uiWholesaleProductStatus : apiWholesaleProductStatus);
     }
 
     /**
@@ -88,8 +77,13 @@ public class ProductDetailPage extends ProductDetailElement {
         driver.get("https://%s%s/".formatted(apiStoreURL, SF_DOMAIN));
 
         // get product information
-        new ProductInformation().get(uiProductID != 0 ? uiProductID : apiProductID);
-        getProductDiscountInformation();
+        int productID = uiProductID != 0 ? uiProductID : apiProductID;
+
+        productInfo.get(productID);
+        WholesaleProductAnalyzedData wholesaleConfig = productInfo.getWholesaleProductConfig(productID);
+        apiWholesaleProductPrice = wholesaleConfig.getPriceList();
+        apiWholesaleProductStock = wholesaleConfig.getStockList();
+        apiWholesaleProductStatus = wholesaleConfig.getStatusMap();
 
         // get max stock
         int maxStock = Collections.max(productStockQuantityMap.values().stream().map(Collections::max).toList());
@@ -728,7 +722,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 }
 
                 // check product information
-                checkAllVariationsAndDiscount(varIndex, productListingPrice.get(varIndex), productSellingPrice.get(varIndex), apiFlashSalePrice.get(varIndex), apiDiscountCampaignPrice.get(varIndex), wholesaleProductStock.get(varIndex), wholesaleProductPrice.get(varIndex), productStockQuantityMap.get(barcodeList.get(varIndex)), language, variationValue);
+                checkAllVariationsAndDiscount(varIndex, productListingPrice.get(varIndex), productSellingPrice.get(varIndex), apiFlashSalePrice.get(varIndex), apiDiscountCampaignPrice.get(varIndex), apiWholesaleProductStock.get(varIndex), apiWholesaleProductPrice.get(varIndex), productStockQuantityMap.get(barcodeList.get(varIndex)), language, variationValue);
             }
         }
 
@@ -791,11 +785,11 @@ public class ProductDetailPage extends ProductDetailElement {
      * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
      */
     Map<String, List<String>> getSalePriceMap() {
-        return apiBranchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, apiFlashSaleStatus.get(brName).size()).mapToObj(i -> apiFlashSaleStatus.get(brName).get(i).equals("IN_PROGRESS") ? "FLASH SALE" : (apiFlashSaleStatus.get(brName).get(i).equals("SCHEDULE") ? (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? (!hasModel ? "DISCOUNT CAMPAIGN" : "SELLING PRICE") : (wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")) : (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : (wholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")))).toList(), (a, b) -> b));
+        return apiBranchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, apiFlashSaleStatus.get(brName).size()).mapToObj(i -> apiFlashSaleStatus.get(brName).get(i).equals("IN_PROGRESS") ? "FLASH SALE" : (apiFlashSaleStatus.get(brName).get(i).equals("SCHEDULE") ? (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? (!hasModel ? "DISCOUNT CAMPAIGN" : "SELLING PRICE") : (apiWholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")) : (apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : (apiWholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE")))).toList(), (a, b) -> b));
     }
 
     Map<String, List<String>> getSaleDisplayMap() {
-        return apiBranchName.stream().collect(Collectors.toMap(s1 -> s1, s1 -> IntStream.range(0, apiFlashSaleStatus.get(s1).size()).mapToObj(i -> !apiFlashSaleStatus.get(s1).get(i).equals("EXPIRED") ? "FLASH SALE" : apiDiscountCampaignStatus.get(s1).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductStatus.get(s1).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
+        return apiBranchName.stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, apiFlashSaleStatus.get(brName).size()).mapToObj(i -> !apiFlashSaleStatus.get(brName).get(i).equals("EXPIRED") ? "FLASH SALE" : apiDiscountCampaignStatus.get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : apiWholesaleProductStatus.get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
     }
 
     public boolean isReviewTabDisplayed() {

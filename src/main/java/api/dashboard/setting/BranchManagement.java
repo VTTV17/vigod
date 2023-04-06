@@ -37,6 +37,9 @@ public class BranchManagement {
     public List<Integer> getListBranchID() {
         return getBranchInfoResponseJsonPath().getList("id");
     }
+    public List<String> getListBranchName() {
+        return getBranchInfoResponseJsonPath().getList("name");
+    }
 
     public void getBranchInformation() {
         Response branchInfo = new API().get(GET_ALL_BRANCH_PATH.formatted(apiStoreID), accessToken);

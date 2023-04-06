@@ -1,15 +1,16 @@
 package utilities;
 
-import java.time.Duration;
-import java.util.List;
-
+import io.appium.java_client.android.AndroidDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class UICommonMobile extends UICommonAction {
 
@@ -32,8 +33,7 @@ public class UICommonMobile extends UICommonAction {
 	}
 	
 	public String getText(By bySelector) {
-		String text = getElement(bySelector,5).getText();
-		return text;
+		return getElement(bySelector,5).getText();
 	}	
 
 	public WebElement getElement(By by) {
@@ -44,5 +44,32 @@ public class UICommonMobile extends UICommonAction {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
 		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
 	}
-	
+
+	public void waitSplashScreenLoaded() {
+		String currentActivity = ((AndroidDriver) driver).currentActivity();
+		new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
+			AndroidDriver andDriver = (AndroidDriver) driver;
+			assert andDriver != null;
+			return !andDriver.currentActivity().equals(currentActivity);
+		});
+	}
+
+	public void sendKeys(By locator, String text) {
+		wait.until(ExpectedConditions.elementToBeClickable(locator));
+		WebElement element = driver.findElement(locator);
+		element.clear();
+		element.sendKeys(text);
+	}
+
+	public void click(By locator) {
+		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+	}
+
+	public void waitElementVisible(By locator) {
+		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+
+	public void waitListElementVisible(By locator) {
+		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
 }

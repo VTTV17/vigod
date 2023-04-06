@@ -5,7 +5,8 @@ import utilities.PropertiesUtil;
 public class AccountTest {
     public final static String ADMIN_ACCOUNT_THANG = PropertiesUtil.getEnvironmentData("adminShopThangAccount");
     public final static String ADMIN_PASSWORD_THANG = PropertiesUtil.getEnvironmentData("adminShopThangPassword");
-
+    public final static String BUYER_ACCOUNT_THANG = PropertiesUtil.getEnvironmentData("buyerShopThangAccount");
+    public final static String BUYER_PASSWORD_THANG = PropertiesUtil.getEnvironmentData("buyerShopThangPassword");
     // 10.10.0.15
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com
     public static String DB_HOST = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
@@ -41,10 +42,10 @@ public class AccountTest {
     public static String SF_USERNAME_VI_1 = PropertiesUtil.getEnvironmentData("buyer1");
     public static String SF_USERNAME_VI_2 = PropertiesUtil.getEnvironmentData("buyer2");
     public static String SF_USERNAME_VI_3 = PropertiesUtil.getEnvironmentData("buyer3");
-    public static String SF_USERNAME_VI_4= PropertiesUtil.getEnvironmentData("buyer4");
+    public static String SF_USERNAME_VI_4 = PropertiesUtil.getEnvironmentData("buyer4");
     public static String SF_USERNAME_PHONE_VI_1 = PropertiesUtil.getEnvironmentData("buyerPhone1");
     public static String SF_USERNAME_VI_5 = PropertiesUtil.getEnvironmentData("buyer5");
-    
+
     //ATM Credentials
     public static String ATM_BANK = "NCB";
     public static String ATM_CARDNUMBER = "9704198526191432198";
