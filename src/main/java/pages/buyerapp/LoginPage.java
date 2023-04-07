@@ -58,5 +58,10 @@ public class LoginPage {
     	logger.info("Clicked on Login button.");
         return this;
     }
-    
+    public LoginPage performLogin(String userName, String pass){
+        inputUsername(userName);
+        inputPassword(pass);
+        clickLoginBtn();
+        return this;
+    }
 }
