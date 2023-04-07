@@ -8,6 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import pages.buyerapp.LoginPage;
 import utilities.UICommonMobile;
 
 public class BuyerAccountPage {
@@ -28,10 +29,10 @@ public class BuyerAccountPage {
     By NAVIGATE_LOGIN_BTN = By.xpath("//*[contains(@resource-id,'id/fragment_tab_account_user_profile_tv_sign_in')]");
     By LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'id/rlLogout')]");
     By LANGUAGE_BTN = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'fragment_tab_account_user_profile_rl_language_container')]/android.widget.TextView");
-    public BuyerAccountPage clickLoginBtn() {
+    public LoginPage clickLoginBtn() {
     	commonAction.getElement(NAVIGATE_LOGIN_BTN, defaultTimeout).click();
     	logger.info("Clicked on Login button.");
-        return this;
+        return new LoginPage(driver);
     }    
     
     public BuyerAccountPage clickLogoutBtn() {

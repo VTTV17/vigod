@@ -23,5 +23,7 @@ public class BuyerServiceDetailElement {
     By DESCRIPTION_TITLE = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'activity_service_detail_description')]/android.widget.LinearLayout/android.widget.TextView");
     By LOCATION_TITLE = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'activity_service_detail_locations')]/android.widget.LinearLayout/android.widget.TextView");
     By SIMILAR_TITLE = By.xpath("//android.widget.LinearLayout[contains(@resource-id,'service_detail_content_similar_ll_container')]/android.widget.TextView");
+    By REQUIRE_LOGIN_POPUP = By.xpath("//android.widget.LinearLayout[contains(@resource-id,'fragment_ask_for_login_or_create_new_account_dialog_ll_content_layout')]");
+    By CONTACT_POPUP = By.xpath("//android.widget.LinearLayout[contains(@resource-id,'popup_contact_rl_container')]");
 
 }
