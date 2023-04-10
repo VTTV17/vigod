@@ -1,5 +1,6 @@
 package api.dashboard.marketing;
 
+import api.dashboard.products.CreateProduct;
 import utilities.api.API;
 
 import java.util.Collections;
@@ -18,8 +19,8 @@ public class LoyaltyPoint {
     public void changeLoyaltyPointSetting(int... setting) {
         int loyaltyPointID = new API().get(LOYALTY_POINT_PATH + apiStoreID, accessToken).jsonPath().getInt("id");
         apiRatePoint = setting.length > 0 ? setting[0] : nextInt(10) + 1;
-        apiRateAmount = setting.length > 1 ? setting[1] : (apiIsVariation ? Collections.max(apiProductSellingPrice)/2 : apiProductSellingPrice.get(0)/2);
-        apiExchangeAmount = setting.length > 2 ? setting[2] : (apiIsVariation ? Collections.max(apiProductSellingPrice)/2 : apiProductSellingPrice.get(0)/2);
+        apiRateAmount = setting.length > 1 ? setting[1] : (new CreateProduct().isHasModel() ? Collections.max(apiProductSellingPrice)/2 : apiProductSellingPrice.get(0)/2);
+        apiExchangeAmount = setting.length > 2 ? setting[2] : (new CreateProduct().isHasModel() ? Collections.max(apiProductSellingPrice)/2 : apiProductSellingPrice.get(0)/2);
         String body = """
                 {
                     "clearPoint": false,

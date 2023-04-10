@@ -1,4 +1,4 @@
-package utilities.model.wholesaleProduct;
+package utilities.model.dashboard.products.wholesaleProduct;
 
 import lombok.Data;
 

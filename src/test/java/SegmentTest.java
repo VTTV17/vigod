@@ -11,7 +11,6 @@ import utilities.data.DataGenerator;
 import java.util.List;
 
 import static api.dashboard.login.Login.*;
-import static api.dashboard.products.CreateProduct.apiProductID;
 import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang3.RandomStringUtils.random;
@@ -172,7 +171,7 @@ public class SegmentTest {
                     "directDiscount": null,
                     "customerId": %s,
                     "inStore": true
-                }""".formatted(buyerID, profileID, apiProductID, apiBranchID.get(0), customerName, customerPhoneNum, apiStoreID, apiBranchID.get(0), profileID);
+                }""".formatted(buyerID, profileID, new CreateProduct().getProductID(), apiBranchID.get(0), customerName, customerPhoneNum, apiStoreID, apiBranchID.get(0), profileID);
         Response createOrderResponse = new API().post(CREATE_POS_ORDER_PATH, accessToken, body);
         createOrderResponse.prettyPrint();
         createOrderResponse.then().statusCode(201);

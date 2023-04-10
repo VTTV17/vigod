@@ -1,5 +1,6 @@
 package pages.dashboard.products.all_products;
 
+import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
@@ -28,7 +29,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static api.dashboard.products.CreateProduct.apiProductID;
 import static api.dashboard.products.ProductInformation.*;
 import static api.dashboard.setting.BranchManagement.apiActiveBranches;
 import static api.dashboard.setting.BranchManagement.apiBranchName;
@@ -276,7 +276,7 @@ public class ProductPage extends ProductPageElement {
 
     public ProductPage navigateToUpdateProductPage() throws Exception {
         // get product id
-        uiProductID = apiProductID;
+        uiProductID = new CreateProduct().getProductID();
 
         // get product information
         new ProductInformation().get(uiProductID);
@@ -940,7 +940,7 @@ public class ProductPage extends ProductPageElement {
     /* Active/Deactivate product */
     public ProductPage changeProductStatus(String status) {
         // get product id
-        uiProductID = apiProductID;
+        uiProductID = new CreateProduct().getProductID();
 
         // get product information
         new ProductInformation().get(uiProductID);
@@ -968,7 +968,7 @@ public class ProductPage extends ProductPageElement {
 
     public void deleteProduct() throws Exception {
         // get product id
-        uiProductID = apiProductID;
+        uiProductID = new CreateProduct().getProductID();
 
         // get product information
         new ProductInformation().get(uiProductID);
@@ -1224,7 +1224,7 @@ public class ProductPage extends ProductPageElement {
     public void changeVariationStatus() {
         // update variation product name and description
         // get current product information
-        new ProductInformation().get(apiProductID);
+        new ProductInformation().get(new CreateProduct().getProductID());
 
         // update variation status
         for (String barcode : barcodeList)
@@ -1236,7 +1236,7 @@ public class ProductPage extends ProductPageElement {
 
         // update variation product name and description
         // get current product information
-        new ProductInformation().get(apiProductID);
+        new ProductInformation().get(new CreateProduct().getProductID());
 
         for (String barcode : barcodeList)
             new VariationDetailPage(driver, barcode).updateVariationProductNameAndDescription(language, variationStatus.get(barcodeList.indexOf(barcode)));
@@ -1247,10 +1247,10 @@ public class ProductPage extends ProductPageElement {
         setLanguage();
 
         // get product information
-        new ProductInformation().get(apiProductID);
+        new ProductInformation().get(new CreateProduct().getProductID());
 
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(apiProductID)));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(new CreateProduct().getProductID())));
 
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
@@ -1337,10 +1337,10 @@ public class ProductPage extends ProductPageElement {
         uiIsShowOnWeb = false;
 
         // get product information
-        new ProductInformation().get(apiProductID);
+        new ProductInformation().get(new CreateProduct().getProductID());
 
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(apiProductID)));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(new CreateProduct().getProductID())));
 
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");

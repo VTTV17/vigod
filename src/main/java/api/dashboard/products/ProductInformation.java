@@ -1,22 +1,23 @@
 package api.dashboard.products;
 
 import api.dashboard.customers.Customers;
+import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.testng.collections.Lists;
 import utilities.api.API;
-import utilities.model.wholesaleProduct.WholesaleProductAnalyzedData;
-import utilities.model.wholesaleProduct.WholesaleProductRawData;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
+import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductRawData;
 
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.apiStoreID;
-import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
 
 public class ProductInformation {
@@ -50,12 +51,19 @@ public class ProductInformation {
     public static boolean inStore;
     public static boolean inGosocial;
     public static Map<Integer, Map<String, String>> collectionNameMap;
+    LoginDashboardInfo loginInfo;
+    BranchInfo branchInfo;
+
+    {
+        loginInfo = new Login().getInfo();
+        branchInfo = new BranchManagement().getInfo();
+    }
 
     /**
      * Return list product id has remaining stock > 0
      */
     public List<Integer> getProductList() {
-        Response dashboardProductList = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(apiStoreID)), accessToken);
+        Response dashboardProductList = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(loginInfo.getStoreID())), loginInfo.getAccessToken());
         dashboardProductList.then().statusCode(200);
         JsonPath productListJson = dashboardProductList.jsonPath();
         return Lists.newReversedArrayList(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
@@ -63,7 +71,7 @@ public class ProductInformation {
 
     Response getProductInformationResponse(int productID) {
         // get product information
-        return api.get(GET_PRODUCT_INFORMATION.formatted(productID), accessToken);
+        return api.get(GET_PRODUCT_INFORMATION.formatted(productID), loginInfo.getAccessToken());
     }
 
     public String getManageInventoryType(int productID) {
@@ -78,12 +86,14 @@ public class ProductInformation {
 
     public List<Long> getProductSellingPrice(int productID) {
         Response res = getProductInformationResponse(productID);
-        return productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        boolean hasModel = res.jsonPath().getBoolean("hasModel");
+        productSellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        if (hasModel)
+            productSellingPrice = IntStream.range(1, productSellingPrice.size()).mapToObj(i -> productSellingPrice.get(i)).toList();
+        return productSellingPrice;
     }
 
     public void get(int productID) {
-        // get branch id list
-        if (apiBranchID == null) new BranchManagement().getBranchInformation();
 
         // get product response
         Response productInfo = getProductInformationResponse(productID);
@@ -160,7 +170,7 @@ public class ProductInformation {
                 productDescriptionMap.put(barcodeList.get(0), defaultProductDescriptionMap);
 
                 // get stock
-                productStockQuantityMap = Map.of(barcodeList.get(0), apiBranchID.stream().map(IntStream.range(0, productInfoJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getInt("branches[%s].branchId".formatted(i)), i -> productInfoJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList());
+                productStockQuantityMap = Map.of(barcodeList.get(0), branchInfo.getBranchID().stream().map(IntStream.range(0, productInfoJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> productInfoJson.getInt("branches[%s].branchId".formatted(i)), i -> productInfoJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList());
 
                 // get variation status
                 variationStatus = List.of(productInfoJson.getString("bhStatus"));
@@ -228,35 +238,238 @@ public class ProductInformation {
                     }
 
                     // get variation stock
-                    productStockQuantityMap.put(barcodeList.get(modelsID), apiBranchID.stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
+                    productStockQuantityMap.put(barcodeList.get(modelsID), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
 
                     // get variation status
                     variationStatus.add(productInfoJson.getString("models[%s].status".formatted(modelsID)));
                 }
             }
 
-            Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), accessToken);
+            Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());
             collectionsList.then().statusCode(200);
             List<Integer> collectionIDList = collectionsList.jsonPath().getList("id");
 
             collectionNameMap = new HashMap<>();
             for (int colID : collectionIDList) {
-                Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), accessToken);
+                Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), loginInfo.getAccessToken());
                 collectionLanguage.then().statusCode(200);
                 JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
                 collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
             }
 
-//            initDiscountInformation();
         }
+    }
+
+    public ProductInfo getInfo(int productID) {
+        // get product response
+        Response res = getProductInformationResponse(productID);
+
+        // set JsonPath to get product info
+        JsonPath resJson = res.jsonPath();
+
+        // init product info model
+        ProductInfo prdInfo = new ProductInfo();
+
+        // set deleted
+        prdInfo.setDeleted(resJson.getString("message") != null);
+
+        // if product is not deleted, get product information
+        if ((!prdInfo.isDeleted())) {
+            // check response API 200
+            res.then().statusCode(200);
+
+            // set product name
+            prdInfo.setDefaultProductNameMap(IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].name".formatted(i)), (a, b) -> b)));
+
+            // set product description
+            prdInfo.setDefaultProductDescriptionMap(IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].description".formatted(i)), (a, b) -> b)));
+
+            // get SEO config from response
+            Map<String, Map<String, String>> seoMap = new HashMap<>();
+            seoMap.put("title", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoTitle".formatted(i)) != null ? resJson.getString("languages[%s].seoTitle".formatted(i)) : "", (a, b) -> b)));
+            seoMap.put("description", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoDescription".formatted(i)) != null ? resJson.getString("languages[%s].seoDescription".formatted(i)) : "", (a, b) -> b)));
+            seoMap.put("keywords", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoKeywords".formatted(i)) != null ? resJson.getString("languages[%s].seoKeywords".formatted(i)) : "", (a, b) -> b)));
+            seoMap.put("url", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoUrl".formatted(i)) != null ? resJson.getString("languages[%s].seoUrl".formatted(i)) : "", (a, b) -> b)));
+            // set SEO map
+            prdInfo.setSeoMap(seoMap);
+
+            // set hasModel
+            prdInfo.setHasModel(resJson.getBoolean("hasModel"));
+
+            // set SF/Buyer app config
+            prdInfo.setShowOutOfStock(resJson.getBoolean("showOutOfStock"));
+            prdInfo.setHideStock(resJson.getBoolean("isHideStock"));
+            prdInfo.setEnabledListing(resJson.getBoolean("enabledListing"));
+
+            // set product platform
+            prdInfo.setOnApp(resJson.getBoolean("onApp"));
+            prdInfo.setOnWeb(resJson.getBoolean("onWeb"));
+            prdInfo.setInStore(resJson.getBoolean("inStore"));
+            prdInfo.setInGosocial(resJson.getBoolean("inGosocial"));
+
+            // set product status
+            prdInfo.setBhStatus(resJson.getString("bhStatus"));
+
+            // manage inventory
+            prdInfo.setManageInventoryByIMEI(resJson.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
+
+            // get price from response
+            List<Long> listingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+            List<Long> sellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+            // set price
+            prdInfo.setProductListingPrice(prdInfo.isHasModel() ? IntStream.range(1, listingPrice.size()).mapToObj(listingPrice::get).toList() : listingPrice);
+            prdInfo.setProductSellingPrice(prdInfo.isHasModel() ? IntStream.range(1, sellingPrice.size()).mapToObj(sellingPrice::get).toList() : sellingPrice);
+
+            if (prdInfo.isHasModel()) {
+                // set barcode list
+                prdInfo.setBarcodeList(resJson.getList("models.barcode"));
+
+                // get variation name map
+                Map<String, String> variationNameMap = new HashMap<>();
+                IntStream.range(0, resJson.getList("models[0].languages.language").size()).forEach(langID -> variationNameMap.put(resJson.getString("models[0].languages[%s].language".formatted(langID)), resJson.getString("models[0].languages[%s].label".formatted(langID))));
+                // set variation map
+                prdInfo.setVariationNameMap(variationNameMap);
+
+                // init variation list map
+                Map<String, List<String>> variationListMap = new HashMap<>();
+
+                // init product stock map
+                Map<String, List<Integer>> productStockQuantityMap = new HashMap<>();
+
+                // init variation status
+                List<String> variationStatus = new ArrayList<>();
+
+                // init product name map
+                Map<String, Map<String, String>> productNameMap = new HashMap<>();
+
+                // init product description map
+                Map<String, Map<String, String>> productDescriptionMap = new HashMap<>();
+
+                // get variation info
+                for (int modelsID = 0; modelsID < resJson.getList("models.languages").size(); modelsID++) {
+
+                    // get variation list map
+                    Map<String, String> nameMap = new HashMap<>();
+                    Map<String, String> descriptionMap = new HashMap<>();
+                    for (int langID = 0; langID < resJson.getList("models[%s].languages.language".formatted(modelsID)).size(); langID++) {
+                        // get language
+                        String language = resJson.getString("models[%s].languages[%s].language".formatted(modelsID, langID));
+
+                        // add new variation value
+                        List<String> variationList = new ArrayList<>();
+                        if (variationListMap.get(language) != null)
+                            variationList.addAll(variationListMap.get(language));
+                        variationList.add(resJson.getString("models[%s].languages[%s].name".formatted(modelsID, langID)));
+
+                        // add to map
+                        variationListMap.put(language, variationList);
+
+                        // get name map
+                        nameMap.put(language, resJson.getString("models[%s].languages[%s].versionName".formatted(modelsID, langID)));
+
+                        // get description map
+                        descriptionMap.put(language, resJson.getString("models[%s].languages[%s].description".formatted(modelsID, langID)));
+                    }
+
+                    // if variation product name
+                    nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).equals("")).forEachOrdered(language -> nameMap.put(language, prdInfo.getDefaultProductNameMap().get(language)));
+                    productNameMap.put(prdInfo.getBarcodeList().get(modelsID), nameMap);
+
+                    // get variation product description
+                    descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).equals("")).forEach(language -> descriptionMap.put(language, prdInfo.getDefaultProductDescriptionMap().get(language)));
+                    productDescriptionMap.put(prdInfo.getBarcodeList().get(modelsID), descriptionMap);
+
+                    // get variation branch stock
+                    Map<Integer, Integer> varStock = new HashMap<>();
+                    for (int brID = 0; brID < resJson.getList("models[0].branches.branchId").size(); brID++) {
+                        varStock.put(resJson.getInt("models[%s].branches[%s].branchId".formatted(modelsID, brID)), resJson.getInt("models[%s].branches[%s].totalItem".formatted(modelsID, brID)));
+                    }
+
+                    // get variation stock
+                    productStockQuantityMap.put(prdInfo.getBarcodeList().get(modelsID), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
+
+                    // get variation status
+                    variationStatus.add(resJson.getString("models[%s].status".formatted(modelsID)));
+                }
+                // set variation list map
+                prdInfo.setVariationListMap(variationListMap);
+
+                // set product quantity map
+                prdInfo.setProductStockQuantityMap(productStockQuantityMap);
+
+                // set variation status list
+                prdInfo.setVariationStatus(variationStatus);
+
+                // set variation product name map
+                prdInfo.setProductNameMap(productNameMap);
+
+                // set variation product description map
+                prdInfo.setProductDescriptionMap(productDescriptionMap);
+
+            } else {
+                // set barcode list
+                prdInfo.setBarcodeList(List.of(resJson.getString("barcode")));
+
+                // get variation name map
+                Map<String, String> variationNameMap = new HashMap<>();
+                variationNameMap.put("en", null);
+                variationNameMap.put("vi", null);
+                // set variation name map
+                prdInfo.setVariationNameMap(variationNameMap);
+
+                // get variation list map
+                Map<String, List<String>> variationListMap = new HashMap<>();
+                List<String> noVar = new ArrayList<>();
+                noVar.add(null);
+                variationListMap.put("en", noVar);
+                variationListMap.put("vi", noVar);
+                // set variation list map
+                prdInfo.setVariationListMap(variationListMap);
+
+                // get variation product name
+                Map<String, Map<String, String>> productNameMap = new HashMap<>();
+                productNameMap.put(prdInfo.getBarcodeList().get(0), prdInfo.getDefaultProductNameMap());
+                //set variation product name
+                prdInfo.setProductNameMap(productNameMap);
+
+                // get product description
+                Map<String, Map<String, String>> productDescriptionMap = new HashMap<>();
+                productDescriptionMap.put(prdInfo.getBarcodeList().get(0), prdInfo.getDefaultProductDescriptionMap());
+                // set variation product description
+                prdInfo.setProductDescriptionMap(productDescriptionMap);
+
+                // set stock
+                prdInfo.setProductStockQuantityMap(Map.of(prdInfo.getBarcodeList().get(0), branchInfo.getBranchID().stream().map(IntStream.range(0, resJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> resJson.getInt("branches[%s].branchId".formatted(i)), i -> resJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList()));
+
+
+                // set variation status
+                prdInfo.setVariationStatus(List.of(resJson.getString("bhStatus")));
+            }
+
+            Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());
+            collectionsList.then().statusCode(200);
+            List<Integer> collectionIDList = collectionsList.jsonPath().getList("id");
+
+            Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();
+            for (int colID : collectionIDList) {
+                Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), loginInfo.getAccessToken());
+                collectionLanguage.then().statusCode(200);
+                JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
+                collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
+            }
+
+            // set collection name map
+            prdInfo.setCollectionNameMap(collectionNameMap);
+        }
+        return prdInfo;
     }
 
     /**
      * return {barcode, list segment, list price, list stock}
      */
-    public WholesaleProductAnalyzedData getWholesaleProductConfig(int productID) {
+    public WholesaleProductInfo wholesaleProductInfo(int productID) {
         /* get wholesale product raw data from API */
-        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productID), accessToken);
+        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productID), loginInfo.getAccessToken());
         wholesaleProductInfo.then().statusCode(200);
         // get sale barcode group list
         List<String> barcodeList = wholesaleProductInfo.jsonPath().getList("lstResult.itemModelIds");
@@ -295,7 +508,7 @@ public class ProductInformation {
         productBarcodeList.replaceAll(barcode -> barcode.replace("-", "_"));
 
         // get branch name
-        List<String> branchNameList = new BranchManagement().getListBranchName();
+        List<String> branchNameList = new BranchManagement().getInfo().getBranchName();
 
         // init wholesale product status map
         Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();
@@ -315,7 +528,7 @@ public class ProductInformation {
         IntStream.range(0, productBarcodeList.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
         configs.forEach(wpConfig -> wholesaleProductStock.set(productBarcodeList.indexOf(wpConfig.getBarcode()), wpConfig.getStock().get(0)));
 
-        WholesaleProductAnalyzedData analyzedData = new WholesaleProductAnalyzedData();
+        WholesaleProductInfo analyzedData = new WholesaleProductInfo();
         analyzedData.setStatusMap(wholesaleProductStatus);
         analyzedData.setPriceList(wholesaleProductPrice);
         analyzedData.setStockList(wholesaleProductStock);
@@ -324,30 +537,32 @@ public class ProductInformation {
 
     /**
      * Retrieves a JSON path object containing all product data from the dashboard API.
+     *
      * @return the JsonPath object containing product data retrieved from the dashboard API.
      */
-	public JsonPath getAllProductJsonPath() {
-		Response response = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(apiStoreID)), accessToken);
-		response.then().statusCode(200);
-		return response.jsonPath();
-	}
-    
-	/**
-	 * Returns a list of product IDs and names for all products that have conversion units.
-	 * @return a List of Lists containing Strings, where each inner List contains the ID (as a String) and name of a product with conversion units.
-	 */
-	public List<List<String>> getIdAndNameOfProductWithConversionUnits() {
-		JsonPath productJsonPath = getAllProductJsonPath();
-		
-		List<Integer> id = productJsonPath.getList("findAll { it.hasConversion == true }.id");
-		List<String> name = productJsonPath.getList("findAll { it.hasConversion == true }.name");
-		
-		List<List<String>> productData = new ArrayList<>();
-		for (int i = 0; i < id.size(); i++) {
-		    productData.add(Arrays.asList(String.valueOf(id.get(i)), name.get(i)));
-		}
-		
-		return productData;
-	}    
-    
+    public JsonPath getAllProductJsonPath() {
+        Response response = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(loginInfo.getStoreID())), loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        return response.jsonPath();
+    }
+
+    /**
+     * Returns a list of product IDs and names for all products that have conversion units.
+     *
+     * @return a List of Lists containing Strings, where each inner List contains the ID (as a String) and name of a product with conversion units.
+     */
+    public List<List<String>> getIdAndNameOfProductWithConversionUnits() {
+        JsonPath productJsonPath = getAllProductJsonPath();
+
+        List<Integer> id = productJsonPath.getList("findAll { it.hasConversion == true }.id");
+        List<String> name = productJsonPath.getList("findAll { it.hasConversion == true }.name");
+
+        List<List<String>> productData = new ArrayList<>();
+        for (int i = 0; i < id.size(); i++) {
+            productData.add(Arrays.asList(String.valueOf(id.get(i)), name.get(i)));
+        }
+
+        return productData;
+    }
+
 }

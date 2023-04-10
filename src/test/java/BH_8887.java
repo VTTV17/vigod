@@ -5,19 +5,20 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
+import pages.storefront.login.LoginPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
 import static java.lang.Thread.sleep;
-import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
-import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
+import static utilities.account.AccountTest.*;
 
 public class BH_8887 extends BaseTest {
     @BeforeClass
     void setup() {
         new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
+        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
     }
 

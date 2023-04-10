@@ -5,13 +5,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
+import pages.storefront.login.LoginPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;
 
 import static java.lang.Thread.sleep;
-import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
-import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
+import static utilities.account.AccountTest.*;
+import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
 
 public class BH_8888 extends BaseTest {
 
@@ -19,6 +20,7 @@ public class BH_8888 extends BaseTest {
     void setup() {
         new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
+        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/BH_8888_View wholesale product at product detail.xlsx".replace("/", File.separator);
     }
 

@@ -1,5 +1,6 @@
 package pages.storefront.login;
 
+import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -112,8 +113,8 @@ public class LoginPage {
         wait.until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE1));
         return this;
     }
-    public LoginPage navigate(String... domain) {
-        driver.get(domain.length > 0 ? domain[0] : "https://%s%s/".formatted(apiStoreURL, SF_DOMAIN));
+    public LoginPage navigate(String domain) {
+        driver.get(domain);
         logger.debug("Page title is: "+driver.getTitle());
         return this;
     }
@@ -279,6 +280,8 @@ public class LoginPage {
     }
 
     public void performLoginJS(String username, String password) {
+        if (apiStoreURL == null) new StoreInformation().getStoreInformation();
+        navigate("https://%s%s/".formatted(apiStoreURL, SF_DOMAIN));
         new GeneralSF(driver).waitTillLoaderDisappear();
         new HeaderSF(driver).clickUserInfoIconJS()
                 .clickLoginIconJS();

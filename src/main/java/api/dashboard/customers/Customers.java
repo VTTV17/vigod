@@ -34,7 +34,7 @@ public class Customers {
 
     public static String apiSegmentName;
 
-    public static int apiSegmentID;
+    static int apiSegmentID;
 
     API api = new API();
 
@@ -173,6 +173,10 @@ public class Customers {
         createSegment.prettyPrint();
         createSegment.then().statusCode(200);
         apiSegmentID = createSegment.jsonPath().getInt("id");
+    }
+
+    public int getSegmentID() {
+        return apiSegmentID;
     }
 
     public void createSegmentByAPI(String account, String password, String phoneCode) throws InterruptedException {

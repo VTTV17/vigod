@@ -1,6 +1,7 @@
 package api.dashboard.products;
 
 import api.dashboard.customers.Customers;
+import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
@@ -11,17 +12,14 @@ import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.api_body.product.CreateProductBody;
 import utilities.data.DataGenerator;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.setting.Tax.TaxInfo;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
+import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
 import java.time.Instant;
 import java.util.*;
 
-import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.apiStoreID;
-import static api.dashboard.setting.BranchManagement.apiBranchID;
-import static api.dashboard.setting.BranchManagement.apiBranchName;
-import static api.dashboard.setting.StoreInformation.apiDefaultLanguage;
-import static api.dashboard.setting.StoreInformation.apiStoreLanguageList;
-import static api.dashboard.setting.VAT.apiTaxList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
@@ -37,65 +35,64 @@ public class CreateProduct {
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
 
     // product info
-    public static Map<String, List<String>> apiVariationMap;
     public static List<String> apiVariationList;
     public static List<Integer> apiVariationModelID;
     public static Map<String, List<Integer>> apiProductStockQuantity;
-    public static List<Long> apiProductListingPrice;
     public static List<Long> apiProductSellingPrice;
 
     // wholesale product price
-    public static List<Long> apiWholesaleProductPrice;
     public static List<Float> apiWholesaleProductRate;
-    public static List<Integer> apiWholesaleProductStock;
-    public static Map<String, List<Boolean>> apiWholesaleProductStatus;
-    public static boolean apiIsVariation;
-    public static int apiProductID = 0;
-    public static String apiProductName;
-    public static String apiProductDescription;
-    public static int apiTaxID;
 
     public static int apiCollectionID;
-    public static String apiCollectionName;
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
 
-    public CreateProduct() {
-        if (apiBranchID == null) new BranchManagement().getBranchInformation();
-        if (apiTaxList == null) new VAT().getTaxList();
-        if (apiStoreLanguageList == null) new StoreInformation().getStoreInformation();
+    LoginDashboardInfo loginInfo;
+    TaxInfo taxInfo;
+    BranchInfo branchInfo;
+    StoreInfo storeInfo;
+    static String productName;
+    static String productDescription;
+    static boolean hasModel;
+    static int productID;
+
+    {
+        loginInfo = new Login().getInfo();
+        taxInfo = new VAT().getInfo();
+        branchInfo = new BranchManagement().getInfo();
+        storeInfo = new StoreInformation().getInfo();
     }
+
     JsonPath createWithoutVariationProductJsonPath(boolean isIMEIProduct, int... branchStock) {
         // is not variation product
-        apiIsVariation = false;
+        hasModel = false;
 
         // random some product information
         // product name
-        apiProductName = "[%s] %s".formatted(apiDefaultLanguage, isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
-        apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        CreateProduct.productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
 
         //product description
-        apiProductDescription = "[%s] product description".formatted(apiDefaultLanguage);
+        CreateProduct.productDescription = "[%s] product description".formatted(storeInfo.getDefaultLanguage());
 
         // product SEO
         long epoch = Instant.now().toEpochMilli();
-        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(apiDefaultLanguage, epoch);
-        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(apiDefaultLanguage, epoch);
-        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(apiDefaultLanguage, epoch);
-        String seoURL = "%s%s".formatted(apiDefaultLanguage, epoch);
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoURL = "%s%s".formatted(storeInfo.getDefaultLanguage(), epoch);
 
         // product tax
-        apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
+        int taxID = taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size()));
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID, seoTitle, seoDescription, seoKeywords, seoURL),
-                productBody.withoutVariationInfo(isIMEIProduct, apiBranchID, apiBranchName, branchStock),
-                productBody.withoutVariationBranchConfig(apiBranchID));
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, seoTitle, seoDescription, seoKeywords, seoURL),
+                productBody.withoutVariationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), branchStock),
+                productBody.withoutVariationBranchConfig(branchInfo.getBranchID()));
 
         // post without variation product
-        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
+        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, loginInfo.getAccessToken(), body);
         createProductResponse.then().statusCode(201);
 
         return createProductResponse.jsonPath();
@@ -107,58 +104,41 @@ public class CreateProduct {
 
     public CreateProduct createWithoutVariationProduct(boolean isIMEIProduct, int... branchStock) {
         // is not variation product
-        apiIsVariation = false;
+        hasModel = false;
 
         // random some product information
         // product name
-        apiProductName = "[%s] %s".formatted(apiDefaultLanguage, isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
-        apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        CreateProduct.productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
 
         //product description
-        apiProductDescription = "[%s] product description".formatted(apiDefaultLanguage);
+        CreateProduct.productDescription = "[%s] product description".formatted(storeInfo.getDefaultLanguage());
 
         // product SEO
         long epoch = Instant.now().toEpochMilli();
-        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(apiDefaultLanguage, epoch);
-        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(apiDefaultLanguage, epoch);
-        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(apiDefaultLanguage, epoch);
-        String seoURL = "%s%s".formatted(apiDefaultLanguage, epoch);
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoURL = "%s%s".formatted(storeInfo.getDefaultLanguage(), epoch);
 
         // product tax
-        apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
+        int taxID = taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size()));
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID, seoTitle, seoDescription, seoKeywords, seoURL),
-                productBody.withoutVariationInfo(isIMEIProduct, apiBranchID, apiBranchName, branchStock),
-                productBody.withoutVariationBranchConfig(apiBranchID));
-
-        // get product stock and price
-        apiVariationList = new ArrayList<>();
-        apiVariationList.addAll(productBody.variationList);
-
-        apiProductSellingPrice = new ArrayList<>();
-        apiProductSellingPrice.addAll(productBody.productSellingPrice);
-
-        apiProductListingPrice = new ArrayList<>();
-        apiProductListingPrice.addAll(productBody.productListingPrice);
-
-        apiProductStockQuantity = new HashMap<>();
-        productBody.productStockQuantity.keySet().forEach(key -> apiProductStockQuantity.put(key, productBody.productStockQuantity.get(key)));
-
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, seoTitle, seoDescription, seoKeywords, seoURL),
+                productBody.withoutVariationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), branchStock),
+                productBody.withoutVariationBranchConfig(branchInfo.getBranchID()));
+        
         // post without variation product
-        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
+        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, loginInfo.getAccessToken(), body);
         if (createProductResponse.getStatusCode() != 201) {
             logger.error(body);
             logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
         }
         createProductResponse.then().statusCode(201);
 
-        // get apiProductID for another test
-        apiProductID = createProductResponse.jsonPath().getInt("id");
-
-        // init discount information
-//        initDiscountInformation();
+        // get productID for another test
+        productID = createProductResponse.jsonPath().getInt("id");
 
 
         return this;
@@ -166,51 +146,34 @@ public class CreateProduct {
 
     public CreateProduct createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
         // is variation product
-        apiIsVariation = true;
+        hasModel = true;
 
         // random some product information
         // product name
-        apiProductName = "[%s] %s".formatted(apiDefaultLanguage, isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - "));
-        apiProductName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        CreateProduct.productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isIMEIProduct ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
 
         //product description
-        apiProductDescription = "[%s] product description".formatted(apiDefaultLanguage);
+        CreateProduct.productDescription = "[%s] product description".formatted(storeInfo.getDefaultLanguage());
 
         // product SEO
         long epoch = Instant.now().toEpochMilli();
-        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(apiDefaultLanguage, epoch);
-        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(apiDefaultLanguage, epoch);
-        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(apiDefaultLanguage, epoch);
-        String seoURL = "%s%s".formatted(apiDefaultLanguage, epoch);
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String seoURL = "%s%s".formatted(storeInfo.getDefaultLanguage(), epoch);
 
         // product tax
-        apiTaxID = apiTaxList.get(nextInt(apiTaxList.size()));
+        int taxID = taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size()));
 
         // create body
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, apiProductName, STORE_CURRENCY, apiProductDescription, apiTaxID, seoTitle, seoDescription, seoKeywords, seoURL),
-                productBody.variationInfo(isIMEIProduct, apiBranchID, apiBranchName, increaseNum, branchStock),
-                productBody.variationBranchConfig(apiBranchID));
-
-        // get product stock and price
-        apiVariationMap = new HashMap<>();
-        productBody.variationMap.keySet().forEach(key -> apiVariationMap.put(key, productBody.variationMap.get(key)));
-
-        apiVariationList = new ArrayList<>();
-        apiVariationList.addAll(productBody.variationList);
-
-        apiProductSellingPrice = new ArrayList<>();
-        apiProductSellingPrice.addAll(productBody.productSellingPrice);
-
-        apiProductListingPrice = new ArrayList<>();
-        apiProductListingPrice.addAll(productBody.productListingPrice);
-
-        apiProductStockQuantity = new HashMap<>();
-        productBody.productStockQuantity.keySet().forEach(key -> apiProductStockQuantity.put(key, productBody.productStockQuantity.get(key)));
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, seoTitle, seoDescription, seoKeywords, seoURL),
+                productBody.variationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), increaseNum, branchStock),
+                productBody.variationBranchConfig(branchInfo.getBranchID()));
 
 
         // post without variation product
-        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, accessToken, body);
+        Response createProductResponse = api.post(API_POST_PRODUCT_PATH, loginInfo.getAccessToken(), body);
         if (createProductResponse.getStatusCode() != 201) {
             logger.error(body);
             logger.error("An occurred when create product. Debug log: \n%s".formatted(createProductResponse.asPrettyString()));
@@ -219,23 +182,39 @@ public class CreateProduct {
         // if pre-condition can not complete -> skip test
         createProductResponse.then().statusCode(201);
 
-        // get apiProductID for another test
-        apiProductID = createProductResponse.jsonPath().getInt("id");
+        // get productID for another test
+        productID = createProductResponse.jsonPath().getInt("id");
 
         // get variation modelID
         apiVariationModelID = createProductResponse.jsonPath().getList("models.id");
 
         return this;
     }
+    
+    public int getProductID() {
+        return productID;
+    }
+
+    public String getProductName() {
+        return CreateProduct.productName;
+    }
+
+    public String getProductDescription() {
+        return CreateProduct.productDescription;
+    }
+    
+    public boolean isHasModel() {
+        return CreateProduct.hasModel;
+    }
 
     public CreateProduct addWholesalePriceProduct() {
         StringBuilder body = new StringBuilder("""
                 {
                     "itemId": "%s",
-                    "lstWholesalePricingDto": [""".formatted(apiProductID));
-        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(Customers.apiSegmentID);
-        int num = apiIsVariation ? nextInt(apiVariationList.size()) + 1 : 1;
-        if (apiIsVariation) {
+                    "lstWholesalePricingDto": [""".formatted(productID));
+        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers().getSegmentID());
+        int num = hasModel ? nextInt(apiVariationList.size()) + 1 : 1;
+        if (hasModel) {
             for (int i = 0; i < num; i++) {
                 long price = nextLong(apiProductSellingPrice.get(i)) + 1;
                 int stock = nextInt(Collections.max(apiProductStockQuantity.get(apiVariationList.get(i)))) + 1;
@@ -251,7 +230,7 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, stock, "%s_%s".formatted(apiProductID, apiVariationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, apiProductID);
+                        }""".formatted(title, stock, "%s_%s".formatted(productID, apiVariationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, productID);
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
@@ -270,19 +249,19 @@ public class CreateProduct {
                         "segmentIds": "%s",
                         "itemId": "%s",
                         "action": null
-                    }""".formatted(title, stock, apiProductID, STORE_CURRENCY, price, segmentIDs, apiProductID);
+                    }""".formatted(title, stock, productID, STORE_CURRENCY, price, segmentIDs, productID);
             body.append(variationWholesaleConfig);
         }
         body.append("]}");
 
-        Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, accessToken, String.valueOf(body));
+        Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, loginInfo.getAccessToken(), String.valueOf(body));
         addWholesale.then().statusCode(200);
 
         return this;
     }
 
     public void createCollection() {
-        apiCollectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {
                     "name": "%s",
@@ -303,8 +282,8 @@ public class CreateProduct {
                     "lstProduct": [],
                     "itemType": "BUSINESS_PRODUCT",
                     "bcStoreId": "%s"
-                }""".formatted(apiCollectionName, apiStoreID);
-        Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + apiStoreID, accessToken, body);
+                }""".formatted(collectionName, loginInfo.getStoreID());
+        Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), body);
 
         createCollection.then().statusCode(200);
 

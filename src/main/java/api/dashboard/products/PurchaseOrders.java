@@ -13,7 +13,9 @@ public class PurchaseOrders {
     JsonPath createPurchaseOrderJsonPath() {
         SupplierAPI sup = new SupplierAPI();
         int supplierId = sup.getListSupplierID("").size() == 0 ? sup.createSupplierAndGetSupplierID() : sup.getListSupplierID("").get(0);
-        int branchId = new BranchManagement().getListBranchID().get(0);
+        int branchId = new BranchManagement().getInfo() // get branch info
+                .getBranchID() // get list branch ID
+                .get(0); // get first branch in list
         int itemId = new CreateProduct().createWithoutVariationProductAndGetProductID(false);
         String inventoryManageType = new ProductInformation().getManageInventoryType(itemId);
         String body = """

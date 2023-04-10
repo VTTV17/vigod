@@ -1,28 +1,20 @@
 package api.dashboard.marketing;
 
 import api.dashboard.customers.Customers;
+import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import utilities.api.API;
-import utilities.data.DataGenerator;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static api.dashboard.customers.Customers.apiSegmentID;
-import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.apiStoreID;
-import static api.dashboard.products.CreateProduct.apiVariationList;
-import static api.dashboard.setting.BranchManagement.apiBranchName;
+import utilities.api.API;
+import utilities.data.DataGenerator;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
 import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
-import static utilities.character_limit.CharacterLimit.*;
+import static utilities.character_limit.CharacterLimit.MAX_MEMBERSHIP_DESCRIPTION_LENGTH;
+import static utilities.character_limit.CharacterLimit.MAX_PERCENT_DISCOUNT;
 
 public class LoyaltyProgram {
 	
@@ -31,15 +23,18 @@ public class LoyaltyProgram {
 	String CREATE_MEMBERSHIP_PATH = "/beehiveservices/api/memberships";
 	String GET_ALL_MEMBERSHIP_PATH = CREATE_MEMBERSHIP_PATH + "?sellerId=%s&sort=priority,asc&page=0&size=100";
 	String DELETE_MEMBERSHIP_PATH = CREATE_MEMBERSHIP_PATH + "/%s?sellerId=%s";
-	
-    public static Map<String, List<String>> apiMembershipStatus;
+    
+    LoginDashboardInfo loginInfo;
+    {
+        loginInfo = new Login().getInfo();
+    }
     public void createNewMembership() throws InterruptedException {
         String name = "Auto - Membership - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String description = randomAlphabetic(nextInt(MAX_MEMBERSHIP_DESCRIPTION_LENGTH));
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
         int discountMaxAmount = nextInt(1000000) + 1;
 
-        if (apiSegmentID == 0) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers().getSegmentID() == 0) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
 
         String body = """
                 {
@@ -56,13 +51,10 @@ public class LoyaltyProgram {
                         "imageUUID": "",
                         "extension": ""
                     }
-                }""".formatted(name, description, apiSegmentID, apiStoreID, discountPercent, discountMaxAmount);
+                }""".formatted(name, description, new Customers().getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
 
-        new API().post(CREATE_MEMBERSHIP_PATH, accessToken, body).then().statusCode(200);
-
-        apiBranchName.forEach(brName -> apiMembershipStatus
-                .put(brName, IntStream.range(0, apiVariationList.size())
-                        .mapToObj(i -> "IN_PROGRESS").toList()));
+        new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body).then().statusCode(200);
+        
     }
     
     /**
@@ -70,7 +62,7 @@ public class LoyaltyProgram {
      * @return JsonPath object representing all membership data
      */
     public JsonPath getAllMembershipJsonPath() {
-    	Response response = new API().get(GET_ALL_MEMBERSHIP_PATH.formatted(apiStoreID), accessToken);
+    	Response response = new API().get(GET_ALL_MEMBERSHIP_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
     	response.then().statusCode(200);
     	return response.jsonPath();
     }
@@ -89,7 +81,7 @@ public class LoyaltyProgram {
      * @param membershipId the ID of the membership to be deleted
      */
     public void deleteMembership(int membershipId) {
-    	new API().delete(DELETE_MEMBERSHIP_PATH.formatted(membershipId,apiStoreID), accessToken).then().statusCode(200);
+    	new API().delete(DELETE_MEMBERSHIP_PATH.formatted(membershipId,loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200);
     	logger.info("Deleted membership with id: " + membershipId);
     }        
     
