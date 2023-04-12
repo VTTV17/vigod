@@ -71,4 +71,24 @@ public class BuyerServiceDetail extends UICommonMobile {
         logger.info("Verify book now button show.");
         return this;
     }
+    public BuyerServiceDetail tapOnBookingNow(){
+        clickElement(serviceDetailEl.BOOK_NOW_BTN);
+        logger.info("Tap on booking now button.");
+        return this;
+    }
+    public BuyerServiceDetail tapOnContactNow(){
+        clickElement(serviceDetailEl.CONTACT_NOW_BTN);
+        logger.info("Tap on contact now button.");
+        return this;
+    }
+    public BuyerServiceDetail verifyRequireLoginPopUpShow(){
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.REQUIRE_LOGIN_POPUP)),"Require login popup not show.");
+        logger.info("Verify require login popup show.");
+        return this;
+    }
+    public BuyerServiceDetail verifyContactPopUpShow(){
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.CONTACT_POPUP)),"Contact popup not show.");
+        logger.info("Verify contact popup show.");
+        return this;
+    }
 }
