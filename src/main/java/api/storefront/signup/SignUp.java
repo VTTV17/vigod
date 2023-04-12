@@ -14,7 +14,6 @@ import utilities.driver.InitWebdriver;
 import java.sql.SQLException;
 import java.time.Instant;
 
-import static api.dashboard.setting.StoreInformation.apiStoreURL;
 import static io.restassured.RestAssured.given;
 import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
@@ -26,12 +25,10 @@ public class SignUp {
 
     String ACTIVE_PATH = "/api/activate";
 
-    public static String apiGuestToken;
-    public static String apiPhoneNumber;
-    public static String apiMail;
-    public static String apiPhoneCode;
-    public static String apiPassword;
-    public static String apiCustomerName;
+    private String guestToken;
+    private String phoneCode;
+    private String password;
+    private String customerName;
 
     public void getGuestToken() {
         String body = """
@@ -45,15 +42,15 @@ public class SignUp {
                 .body(body)
                 .post(GUEST_TOKEN_PATH);
         guestResponse.then().statusCode(201);
-        apiGuestToken = guestResponse.jsonPath().getString("accessToken");
+        guestToken = guestResponse.jsonPath().getString("accessToken");
     }
 
     public void signUpByPhoneNumber(String... phone) throws SQLException {
         getGuestToken();
-        apiCustomerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
-        apiPhoneNumber = (phone.length > 0) ? phone[0] : String.valueOf(Instant.now().toEpochMilli());
-        apiPhoneCode = (phone.length > 1) ? phone[1] : "+84";
-        apiPassword = "Abc@12345";
+        customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
+        String apiPhoneNumber = (phone.length > 0) ? phone[0] : String.valueOf(Instant.now().toEpochMilli());
+        phoneCode = (phone.length > 1) ? phone[1] : "+84";
+        password = "Abc@12345";
         String signupBody = """
                 {
                     "displayName": "%s",
@@ -62,8 +59,8 @@ public class SignUp {
                         "countryCode": "%s",
                         "phoneNumber": "%s"
                     }
-                }""".formatted(apiCustomerName, apiPassword, apiPhoneCode, apiPhoneNumber);
-        Response signUpResponse = new API().post(SIGN_UP_PHONE_PATH, apiGuestToken, signupBody);
+                }""".formatted(customerName, password, phoneCode, apiPhoneNumber);
+        Response signUpResponse = new API().post(SIGN_UP_PHONE_PATH, guestToken, signupBody);
 
         signUpResponse.then().statusCode(200);
 
@@ -78,23 +75,23 @@ public class SignUp {
                     "userId": %s
                 }""".formatted(activeCode, userID);
 
-        new API().login("https://%s%s%s".formatted(apiStoreURL, SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
+        new API().login("https://%s%s%s".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
     }
 
     public void signUpByMail() throws InterruptedException {
         getGuestToken();
-        apiCustomerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
-        apiMail = "%s@qa.team".formatted(Instant.now().toEpochMilli());
-        apiPassword = "Abc@12345";
-        apiPhoneCode = "+84";
+        customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
+        String apiMail = "%s@qa.team".formatted(Instant.now().toEpochMilli());
+        password = "Abc@12345";
+        phoneCode = "+84";
         String signupBody = """
                 {
                      "displayName": "%s",
                      "password": "%s",
                      "locationCode": "VN",
                      "email": "%s"
-                 }""".formatted(apiCustomerName, apiPassword, apiMail);
-        Response signUpResponse = new API().post(SIGN_UP_MAIL_PATH, apiGuestToken, signupBody);
+                 }""".formatted(customerName, password, apiMail);
+        Response signUpResponse = new API().post(SIGN_UP_MAIL_PATH, guestToken, signupBody);
 
         signUpResponse.then().statusCode(200);
 
@@ -121,7 +118,6 @@ public class SignUp {
                     "userId": %s
                 }""".formatted(activeCode, userID);
 
-        if (apiStoreURL == null) new StoreInformation().getStoreInformation();
-        new API().login("https://%s%s%s".formatted(apiStoreURL, SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
+        new API().login("https://%s%s%s".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
     }
 }

@@ -1,9 +1,6 @@
 package pages.dashboard.login;
 
 import api.dashboard.login.Login;
-import api.dashboard.setting.BranchManagement;
-import api.dashboard.setting.StoreInformation;
-import api.dashboard.setting.VAT;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -16,15 +13,13 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
-import pages.dashboard.signup.SignupPage;
 import pages.thirdparty.Facebook;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import java.time.Duration;
 
-import static api.dashboard.login.Login.*;
 import static utilities.links.Links.*;
 
 public class LoginPage {
@@ -282,26 +277,20 @@ public class LoginPage {
         // login to dashboard
         new Login().loginToDashboardByMail(username, password);
 
+        // init login information model
+        LoginDashboardInfo loginInfo = new Login().getInfo();
+
         // login by js - local storage
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(accessToken));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('refreshToken', '%s')".formatted(refreshToken));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeId', %s)".formatted(apiStoreID));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(sellerID));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(sellerID));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('refreshToken', '%s')".formatted(loginInfo.getRefreshToken()));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeId', %s)".formatted(loginInfo.getStoreID()));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getSellerID()));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getSellerID()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
 
         logger.info("Set local storage successfully");
 
         driver.navigate().refresh();
-
-        // get store information
-        new StoreInformation().getStoreInformation();
-
-        // get branch information
-        new BranchManagement().getBranchInformation();
-
-        // get tax information
-        new VAT().getTaxList();
     }
 
     public void verifyVerificationCodeError(String signupLanguage) throws Exception {

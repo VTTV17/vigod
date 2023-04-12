@@ -1,5 +1,6 @@
 package pages.dashboard.products.all_products.variation_detail;
 
+import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -8,19 +9,17 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static api.dashboard.products.ProductInformation.*;
-import static api.dashboard.setting.StoreInformation.apiDefaultLanguage;
-import static api.dashboard.setting.StoreInformation.apiStoreLanguageList;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
-import static pages.dashboard.products.all_products.ProductPage.countFail;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.links.Links.DOMAIN;
 
@@ -29,12 +28,17 @@ public class VariationDetailPage extends VariationDetailElement {
     UICommonAction commonAction;
     String barcode;
     Logger logger = LogManager.getLogger(VariationDetailPage.class);
+    int countFail;
+    StoreInfo storeInfo= new StoreInformation().getInfo();
+    ProductInfo productInfo;
 
-    public VariationDetailPage(WebDriver driver, String barcode) {
+    public VariationDetailPage(WebDriver driver, String barcode, ProductInfo productInfo) {
         super(driver);
         this.barcode = barcode;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+        countFail = new ProductPage(driver).getCountFail();
+        this.productInfo = productInfo;
     }
 
     void navigateToVariationDetailPage() {
@@ -48,7 +52,7 @@ public class VariationDetailPage extends VariationDetailElement {
     void updateVariationProductName() {
         wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_VERSION_NAME));
         PRODUCT_VERSION_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        PRODUCT_VERSION_NAME.sendKeys("[Update][%s][%s] product version name".formatted(apiDefaultLanguage, variationListMap.get(apiDefaultLanguage).get(barcodeList.indexOf(barcode))));
+        PRODUCT_VERSION_NAME.sendKeys("[Update][%s][%s] product version name".formatted(storeInfo.getDefaultLanguage(), productInfo.getVariationListMap().get(storeInfo.getDefaultLanguage()).get(productInfo.getBarcodeList().indexOf(barcode))));
         logger.info("Update product version name.");
     }
 
@@ -60,7 +64,7 @@ public class VariationDetailPage extends VariationDetailElement {
         if (!reuseDescription) {
             wait.until(ExpectedConditions.elementToBeClickable(DESCRIPTION));
             DESCRIPTION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-            DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(apiDefaultLanguage, variationListMap.get(apiDefaultLanguage).get(barcodeList.indexOf(barcode))));
+            DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(storeInfo.getDefaultLanguage(), productInfo.getVariationListMap().get(storeInfo.getDefaultLanguage()).get(productInfo.getBarcodeList().indexOf(barcode))));
         }
         logger.info("Update product description.");
     }
@@ -72,20 +76,22 @@ public class VariationDetailPage extends VariationDetailElement {
         commonAction.sleepInMiliSecond(5000);
     }
 
-    void updateVariationTranslation(String language) {
+    void updateVariationTranslation(String language) throws Exception {
         wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_BTN)).click();
         logger.info("Open edit translation popup.");
 
         wait.until(visibilityOf(POPUP));
 
+        checkUIEditTranslationPopup(language);
+
         wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_PRODUCT_NAME));
         EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys("[Update][%s][%s] Product version name".formatted(language, variationListMap.get(language).get(barcodeList.indexOf(barcode))));
+        EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys("[Update][%s][%s] Product version name".formatted(language, productInfo.getVariationListMap().get(language).get(productInfo.getBarcodeList().indexOf(barcode))));
         logger.info("Edit translation for product version name.");
 
         wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_DESCRIPTION));
         EDIT_TRANSLATION_POPUP_DESCRIPTION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        EDIT_TRANSLATION_POPUP_DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(language, variationListMap.get(language).get(barcodeList.indexOf(barcode))));
+        EDIT_TRANSLATION_POPUP_DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(language, productInfo.getVariationListMap().get(language).get(productInfo.getBarcodeList().indexOf(barcode))));
         logger.info("Edit translation for product description.");
 
         commonAction.sleepInMiliSecond(1000);
@@ -99,14 +105,14 @@ public class VariationDetailPage extends VariationDetailElement {
         updateVariationProductName();
         updateVariationProductDescription();
         completeUpdateProductVersionNameAndDescription();
-        List<String> langList = new ArrayList<>(apiStoreLanguageList);
-        langList.remove(apiDefaultLanguage);
-        langList.forEach(this::updateVariationTranslation);
+        List<String> langList = new ArrayList<>(storeInfo.getStoreLanguageList());
+        langList.remove(storeInfo.getDefaultLanguage());
+        for (String lang : langList) updateVariationTranslation(lang);
     }
 
     public void changeVariationStatus(String status) {
         navigateToVariationDetailPage();
-        if (!status.equals(variationStatus.get(barcodeList.indexOf(barcode))))
+        if (!status.equals(productInfo.getVariationStatus().get(productInfo.getBarcodeList().indexOf(barcode))))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DEACTIVATE_BTN);
         logger.info("Update variation status.");
     }
@@ -252,7 +258,7 @@ public class VariationDetailPage extends VariationDetailElement {
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.variationDetail.editTranslationPopup.title", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Edit translation popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Edit translation popup - Title.".formatted(language));
-        
+
         // check information
         String dbInformation = wait.until(visibilityOf(UI_EDIT_TRANSLATION_POPUP_INFORMATION)).getText();
         String ppInformation = getPropertiesValueByDBLang("products.allProducts.updateProduct.variationDetail.editTranslationPopup.information", language);
@@ -277,7 +283,7 @@ public class VariationDetailPage extends VariationDetailElement {
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.variationDetail.editTranslationPopup.saveBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Edit translation popup] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s] Check Edit translation popup - Save button.".formatted(language));
-        
+
         String dbCancelBtn = wait.until(visibilityOf(UI_EDIT_TRANSLATION_POPUP_CANCEL_BTN)).getText();
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.variationDetail.editTranslationPopup.cancelBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Edit translation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));

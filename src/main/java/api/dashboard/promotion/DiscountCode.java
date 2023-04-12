@@ -5,30 +5,34 @@ import api.dashboard.setting.BranchManagement;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.combine.Combination;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.apiStoreID;
-import static api.dashboard.setting.BranchManagement.apiBranchID;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 
 public class DiscountCode {
+    LoginDashboardInfo loginInfo;
+    BranchInfo brInfo;
+    {
+        loginInfo = new Login().getInfo();
+        brInfo = new BranchManagement().getInfo();
+    }
     public void createDiscountCode(String account, String password) {
         int index = 1;
         new Login().loginToDashboardByMail(account, password);
-        new BranchManagement().getBranchInformation();
         API api = new API();
-        Response segmentList = api.get("/beehiveservices/api/segments/store/%s?page=0&size=100".formatted(apiStoreID), accessToken);
+        Response segmentList = api.get("/beehiveservices/api/segments/store/%s?page=0&size=100".formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         segmentList.then().statusCode(200);
 
-        Response productList = api.get("/itemservice/api/store/dashboard/%s/items-v2?langKey=vi&page=0&size=100".formatted(apiStoreID), accessToken);
+        Response productList = api.get("/itemservice/api/store/dashboard/%s/items-v2?langKey=vi&page=0&size=100".formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         productList.then().statusCode(200);
 
-        Response collectionList = api.get("/itemservice/api/collections/list/%s?page=0&size=100&itemType=BUSINESS_PRODUCT".formatted(apiStoreID), accessToken);
+        Response collectionList = api.get("/itemservice/api/collections/list/%s?page=0&size=100&itemType=BUSINESS_PRODUCT".formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         collectionList.then().statusCode(200);
 
         List<Integer> segmentIDList = segmentList.jsonPath().getList("id");
@@ -178,7 +182,7 @@ public class DiscountCode {
                                                 String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
                                                         {
                                                             "conditionValue": "%s"
-                                                        }""".formatted(apiBranchID.get(nextInt(apiBranchID.size())));
+                                                        }""".formatted(brInfo.getBranchID().get(nextInt(brInfo.getBranchID().size())));
                                                 String applicableBranch = """
                                                         {
                                                             "conditionOption": "%s",
@@ -227,13 +231,13 @@ public class DiscountCode {
                                                                         "feeShippingType": "FIXED_AMOUNT",
                                                                         "enabledRewards": %s,
                                                                         "rewardsDescription": "%s",
-                                                                        "conditions": [""".formatted(name10, apiStoreID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
+                                                                        "conditions": [""".formatted(name10, loginInfo.getStoreID(), activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
                                                             appliesToCondition +
                                                             minimumRequirement +
                                                             applicableBranch +
                                                             platform +
                                                             "]}]}";
-                                                    Response res = new API().post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, String.valueOf(body));
+                                                    Response res = new API().post(CREATE_PRODUCT_DISCOUNT_PATH, loginInfo.getAccessToken(), body);
 
                                                     res.then().statusCode(200);
                                                     System.out.println(index);
@@ -304,7 +308,7 @@ public class DiscountCode {
                                             String applicableConditionValue = applicableBranchCondition == 0 ? "" : """
                                                     {
                                                         "conditionValue": "%s"
-                                                    }""".formatted(apiBranchID.get(nextInt(apiBranchID.size())));
+                                                    }""".formatted(brInfo.getBranchID().get(nextInt(brInfo.getBranchID().size())));
                                             String applicableBranch = """
                                                     {
                                                         "conditionOption": "%s",
@@ -353,13 +357,13 @@ public class DiscountCode {
                                                                     "feeShippingType": "FIXED_AMOUNT",
                                                                     "enabledRewards": %s,
                                                                     "rewardsDescription": "%s",
-                                                                    "conditions": [""".formatted(name10, apiStoreID, activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
+                                                                    "conditions": [""".formatted(name10, loginInfo.getStoreID(), activeDate, expiredDate, couponCode, couponLimitToOne, couponLimitedUsage, couponTotal, couponTypeLabel, couponValue, freeShippingProviders, enabledRewards, rewardsDescription) + segmentCondition +
                                                         appliesToCondition +
                                                         minimumRequirement +
                                                         applicableBranch +
                                                         platform +
                                                         "]}]}";
-                                                Response res = new API().post(CREATE_PRODUCT_DISCOUNT_PATH, accessToken, body);
+                                                Response res = new API().post(CREATE_PRODUCT_DISCOUNT_PATH, loginInfo.getAccessToken(), body);
 
                                                 res.then().statusCode(200);
                                                 System.out.println(index);

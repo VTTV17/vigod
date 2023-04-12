@@ -1,16 +1,16 @@
 package api.dashboard.orders;
 
-import static api.dashboard.login.Login.accessToken;
-
+import api.dashboard.login.Login;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 public class OrderAPI {
 	final static Logger logger = LogManager.getLogger(OrderAPI.class);
 	
 	API api = new API();
+	LoginDashboardInfo loginInfo = new Login().getInfo();
 
 	public static String CONFIRM_ORDER_PATH = "orderservices2/api/shop/bc-orders/confirm";
 	public static String DELIVER_ORDER_PATH = "orderservices2/api/shop/bc-orders/%s/status/delivered";
@@ -25,12 +25,12 @@ public class OrderAPI {
 				"height": 1,
 				"itemIMEISerials": []
 				        }""".formatted(orderID);
-		api.post(CONFIRM_ORDER_PATH, accessToken, body).then().statusCode(200);
+		api.post(CONFIRM_ORDER_PATH,  loginInfo.getAccessToken(), body).then().statusCode(200);
 		logger.info("Confirmed order: " + orderID);
 	}
 
 	public void deliverOrder(String orderID) {
-		api.post(DELIVER_ORDER_PATH.formatted(orderID), accessToken, "{}").then().statusCode(200);
+		api.post(DELIVER_ORDER_PATH.formatted(orderID),  loginInfo.getAccessToken(), "{}").then().statusCode(200);
 		logger.info("Delivered order: " + orderID);
 	}
 

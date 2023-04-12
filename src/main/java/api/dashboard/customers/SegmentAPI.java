@@ -1,14 +1,12 @@
 package api.dashboard.customers;
 
-import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.apiStoreID;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 public class SegmentAPI {
 	final static Logger logger = LogManager.getLogger(SegmentAPI.class);
@@ -17,10 +15,11 @@ public class SegmentAPI {
     String DELETE_SEGMENT_PATH = "/beehiveservices/api/segments/delete/%s/%s";
     API api = new API();
 
-    
+    LoginDashboardInfo loginInfo = new Login().getInfo();
+
     
     public JsonPath getAllSegmentJsonPath() {
-    	Response response = api.get(GET_SEGMENT_LIST.formatted(apiStoreID), accessToken);
+    	Response response = api.get(GET_SEGMENT_LIST.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
     	response.then().statusCode(200);
     	return response.jsonPath();
     }
@@ -39,7 +38,7 @@ public class SegmentAPI {
      * @param segmentId The ID of the segment to be deleted.
      */
     public void deleteSegment(int segmentId) {
-    	new API().delete(DELETE_SEGMENT_PATH.formatted(apiStoreID, segmentId), accessToken).then().statusCode(200);
+    	new API().delete(DELETE_SEGMENT_PATH.formatted(loginInfo.getStoreID(), segmentId), loginInfo.getAccessToken()).then().statusCode(200);
     	logger.info("Deleted customer segment with id: " + segmentId);
     }     
     

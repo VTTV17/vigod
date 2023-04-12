@@ -1,15 +1,17 @@
 package api.dashboard.products;
 
+import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
-
-import static api.dashboard.login.Login.*;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 public class PurchaseOrders {
     API api = new API();
+    LoginDashboardInfo loginInfo = new Login().getInfo();
     String CREATE_PURCHASE_ORDER_PATH = "/itemservice/api/purchase-orders";
+
     JsonPath createPurchaseOrderJsonPath() {
         SupplierAPI sup = new SupplierAPI();
         int supplierId = sup.getListSupplierID("").size() == 0 ? sup.createSupplierAndGetSupplierID() : sup.getListSupplierID("").get(0);
@@ -17,7 +19,7 @@ public class PurchaseOrders {
                 .getBranchID() // get list branch ID
                 .get(0); // get first branch in list
         int itemId = new CreateProduct().createWithoutVariationProductAndGetProductID(false);
-        String inventoryManageType = new ProductInformation().getManageInventoryType(itemId);
+        String inventoryManageType = new ProductInformation().getInfo(itemId).isManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
         String body = """
                 {
                     "note": "",
@@ -45,9 +47,9 @@ public class PurchaseOrders {
                             "inventoryManageType": "%s"
                         }
                     ]
-                }""".formatted(supplierId, apiStoreID, sellerID, branchId, itemId, inventoryManageType);
+                }""".formatted(supplierId, loginInfo.getStoreID(), new Login().getInfo().getSellerID(), branchId, itemId, inventoryManageType);
 
-        Response createPurchaseOrder = api.post(CREATE_PURCHASE_ORDER_PATH, accessToken, body);
+        Response createPurchaseOrder = api.post(CREATE_PURCHASE_ORDER_PATH, loginInfo.getAccessToken(), body);
         createPurchaseOrder.then().statusCode(201);
 
         return createPurchaseOrder.jsonPath();

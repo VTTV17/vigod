@@ -1,12 +1,9 @@
-import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.marketing.APIBuyLink;
 import api.dashboard.onlineshop.APIPreferences;
 import api.dashboard.products.APIEditProduct;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.promotion.CreatePromotion;
-import api.dashboard.setting.BranchManagement;
-import api.dashboard.setting.VAT;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -68,8 +65,6 @@ public class BuyLinkTest extends BaseTest {
         languageDB = language;
         languageSF = language;
         new Login().loginToDashboardWithPhone("+84",AccountTest.ADMIN_SHOP_VI_USERNAME,AccountTest.ADMIN_SHOP_VI_PASSWORD);
-        new BranchManagement().getBranchInformation();
-        new VAT().getTaxList();
         shopDomain = SF_ShopVi;
         tcsFileName = FILE_BUY_LINK_TCS;
         generate = new DataGenerator();
@@ -166,7 +161,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         discountAmount = CreatePromotion.apiCouponValue;
         if(productPrice<discountAmount){
             discountAmount = productPrice;
@@ -216,7 +211,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
         discountAmount = percent*productPrice/100;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
@@ -263,7 +258,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
 
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
@@ -308,7 +303,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         double percent = CreatePromotion.apiCouponValue;
         discountAmount = productPrice*percent/100;
 
@@ -426,7 +421,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         discountAmount = CreatePromotion.apiCouponValue;
         int discountId = CreatePromotion.apiDiscountId;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
@@ -468,7 +463,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
         discountAmount = percent*productPrice/100;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
@@ -522,7 +517,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
         discountAmount = percent*productPrice/100;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
@@ -748,7 +743,7 @@ public class BuyLinkTest extends BaseTest {
         new CreatePromotion().createProductDiscountCode(0);
         discountCodeName = CreatePromotion.apiDiscountName;
         productName = new String[]{new CreateProduct().getProductName()};
-        productPrice = CreateProduct.apiProductSellingPrice.get(0);
+        productPrice = new CreateProduct().getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
         discountAmount = percent*productPrice/100;
         //edit buy link with discount

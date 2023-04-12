@@ -18,7 +18,9 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -33,17 +35,6 @@ public class CreateProduct {
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
     String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
-
-    // product info
-    public static List<String> apiVariationList;
-    public static List<Integer> apiVariationModelID;
-    public static Map<String, List<Integer>> apiProductStockQuantity;
-    public static List<Long> apiProductSellingPrice;
-
-    // wholesale product price
-    public static List<Float> apiWholesaleProductRate;
-
-    public static int apiCollectionID;
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
@@ -52,10 +43,13 @@ public class CreateProduct {
     TaxInfo taxInfo;
     BranchInfo branchInfo;
     StoreInfo storeInfo;
-    static String productName;
-    static String productDescription;
-    static boolean hasModel;
-    static int productID;
+    private static String productName;
+    private static String productDescription;
+    private static boolean hasModel;
+    private static int productID;
+    private static List<Integer> variationModelID;
+    private static int collectionID;
+    private boolean manageByIMEI;
 
     {
         loginInfo = new Login().getInfo();
@@ -64,9 +58,30 @@ public class CreateProduct {
         storeInfo = new StoreInformation().getInfo();
     }
 
+    boolean showOutOfStock = true;
+    boolean hideStock = false;
+    boolean enableListing = false;
+    boolean showOnApp = true;
+    boolean showOnWeb = true;
+    boolean showInStore = true;
+    boolean showInGoSocial = true;
+
+    public CreateProduct setShowOutOfStock(boolean showOutOfStock) {
+        this.showOutOfStock = showOutOfStock;
+        return this;
+    }
+
+    public CreateProduct setHideStock(boolean hideStock) {
+        this.hideStock = hideStock;
+        return this;
+    }
+
     JsonPath createWithoutVariationProductJsonPath(boolean isIMEIProduct, int... branchStock) {
         // is not variation product
         hasModel = false;
+
+        // manage by IMEI
+        manageByIMEI = isIMEIProduct;
 
         // random some product information
         // product name
@@ -87,7 +102,7 @@ public class CreateProduct {
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, seoTitle, seoDescription, seoKeywords, seoURL),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, showOutOfStock, hideStock, enableListing, showOnApp, showOnWeb, showInStore, showInGoSocial, seoTitle, seoDescription, seoKeywords, seoURL),
                 productBody.withoutVariationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), branchStock),
                 productBody.withoutVariationBranchConfig(branchInfo.getBranchID()));
 
@@ -106,6 +121,9 @@ public class CreateProduct {
         // is not variation product
         hasModel = false;
 
+        // manage by IMEI
+        manageByIMEI = isIMEIProduct;
+
         // random some product information
         // product name
         CreateProduct.productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
@@ -125,10 +143,10 @@ public class CreateProduct {
 
         // generate product info
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, seoTitle, seoDescription, seoKeywords, seoURL),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, showOutOfStock, hideStock, enableListing, showOnApp, showOnWeb, showInStore, showInGoSocial, seoTitle, seoDescription, seoKeywords, seoURL),
                 productBody.withoutVariationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), branchStock),
                 productBody.withoutVariationBranchConfig(branchInfo.getBranchID()));
-        
+
         // post without variation product
         Response createProductResponse = api.post(API_POST_PRODUCT_PATH, loginInfo.getAccessToken(), body);
         if (createProductResponse.getStatusCode() != 201) {
@@ -139,14 +157,15 @@ public class CreateProduct {
 
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
-
-
         return this;
     }
 
     public CreateProduct createVariationProduct(boolean isIMEIProduct, int increaseNum, int... branchStock) {
         // is variation product
         hasModel = true;
+
+        // manage by IMEI
+        manageByIMEI = isIMEIProduct;
 
         // random some product information
         // product name
@@ -167,7 +186,7 @@ public class CreateProduct {
 
         // create body
         CreateProductBody productBody = new CreateProductBody();
-        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, seoTitle, seoDescription, seoKeywords, seoURL),
+        String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, showOutOfStock, hideStock, enableListing, showOnApp, showOnWeb, showInStore, showInGoSocial, seoTitle, seoDescription, seoKeywords, seoURL),
                 productBody.variationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), increaseNum, branchStock),
                 productBody.variationBranchConfig(branchInfo.getBranchID()));
 
@@ -186,13 +205,13 @@ public class CreateProduct {
         productID = createProductResponse.jsonPath().getInt("id");
 
         // get variation modelID
-        apiVariationModelID = createProductResponse.jsonPath().getList("models.id");
+        variationModelID = createProductResponse.jsonPath().getList("models.id");
 
         return this;
     }
-    
+
     public int getProductID() {
-        return productID;
+        return CreateProduct.productID;
     }
 
     public String getProductName() {
@@ -202,9 +221,29 @@ public class CreateProduct {
     public String getProductDescription() {
         return CreateProduct.productDescription;
     }
-    
+
     public boolean isHasModel() {
         return CreateProduct.hasModel;
+    }
+
+    public List<Integer> getVariationModelID() {
+        return CreateProduct.variationModelID;
+    }
+
+    public List<Long> getProductSellingPrice() {
+        return new CreateProductBody().getProductSellingPrice();
+    }
+
+    public Map<String, List<Integer>> getProductStockQuantity() {
+        return new CreateProductBody().getProductStockQuantity();
+    }
+
+    public List<String> getVariationList() {
+        return new CreateProductBody().getVariationList();
+    }
+
+    public boolean isManageByIMEI() {
+        return manageByIMEI;
     }
 
     public CreateProduct addWholesalePriceProduct() {
@@ -213,11 +252,11 @@ public class CreateProduct {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productID));
         String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers().getSegmentID());
-        int num = hasModel ? nextInt(apiVariationList.size()) + 1 : 1;
+        int num = hasModel ? nextInt(variationModelID.size()) + 1 : 1;
         if (hasModel) {
             for (int i = 0; i < num; i++) {
-                long price = nextLong(apiProductSellingPrice.get(i)) + 1;
-                int stock = nextInt(Collections.max(apiProductStockQuantity.get(apiVariationList.get(i)))) + 1;
+                long price = nextLong(getProductSellingPrice().get(i)) + 1;
+                int stock = nextInt(Collections.max(getProductStockQuantity().get(getVariationList().get(i)))) + 1;
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
                         {
@@ -230,14 +269,14 @@ public class CreateProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, stock, "%s_%s".formatted(productID, apiVariationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, productID);
+                        }""".formatted(title, stock, "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, productID);
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            long price = nextLong(apiProductSellingPrice.get(0)) + 1;
-            int stock = nextInt(Collections.max(apiProductStockQuantity.get(null))) + 1;
+            long price = nextLong(getProductSellingPrice().get(0)) + 1;
+            int stock = nextInt(Collections.max(getProductStockQuantity().get(null))) + 1;
             String variationWholesaleConfig = """
                     {
                         "id": null,
@@ -287,6 +326,10 @@ public class CreateProduct {
 
         createCollection.then().statusCode(200);
 
-        apiCollectionID = createCollection.jsonPath().getInt("id");
+        collectionID = createCollection.jsonPath().getInt("id");
+    }
+
+    public int getCollectionID() {
+        return CreateProduct.collectionID;
     }
 }

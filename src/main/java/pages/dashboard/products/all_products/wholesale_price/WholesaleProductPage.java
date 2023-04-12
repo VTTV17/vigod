@@ -7,6 +7,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
@@ -17,11 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static api.dashboard.customers.Customers.apiSegmentName;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
-import static pages.dashboard.products.all_products.ProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
 import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
@@ -34,18 +33,34 @@ public class WholesaleProductPage extends WholesaleProductElement {
     Actions act;
     Logger logger = LogManager.getLogger(WholesaleProductPage.class);
 
-    public static List<Long> uiWholesaleProductPrice;
-    public static List<Integer> uiWholesaleProductStock;
+    private List<Long> wholesaleProductPrice;
+    private List<Integer> wholesaleProductStock;
+    int productID;
+    ProductPage productPage;
+    List<String> variationList;
+    Map<String, List<Integer>> productStockQuantity;
+    int countFail;
+    String language;
+    boolean hasModel;
+    List<Long> productSellingPrice;
 
     public WholesaleProductPage(WebDriver driver) {
         super(driver);
         commonAction = new UICommonAction(driver);
         act = new Actions(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        productPage = new ProductPage(driver);
+        productID = productPage.getProductID();
+        variationList = productPage.getVariationList();
+        productStockQuantity = productPage.getProductStockQuantity();
+        countFail = productPage.getCountFail();
+        language = productPage.getLanguage();
+        hasModel = productPage.isHasModel();
+        productSellingPrice = productPage.getProductSellingPrice();
     }
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm giá bán sỉ", "Add Wholesale Pricing");
@@ -78,13 +93,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
     int numOfWholesaleProduct;
 
     public WholesaleProductPage getWholesaleProductInfo() {
-        uiWholesaleProductPrice = new ArrayList<>(productSellingPrice);
-        uiWholesaleProductStock = new ArrayList<>();
-        IntStream.range(0, uiWholesaleProductPrice.size()).forEachOrdered(i -> uiWholesaleProductStock.add(0));
-        numOfWholesaleProduct = nextInt(uiVariationList.size()) + 1;
+        wholesaleProductPrice = new ArrayList<>(productSellingPrice);
+        wholesaleProductStock = new ArrayList<>();
+        IntStream.range(0, wholesaleProductPrice.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
+        numOfWholesaleProduct = nextInt(variationList.size()) + 1;
         for (int i = 0; i < numOfWholesaleProduct; i++) {
-            uiWholesaleProductPrice.set(i, nextLong(productSellingPrice.get(i)) + 1);
-            uiWholesaleProductStock.set(i, nextInt(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1)) + 1);
+            wholesaleProductPrice.set(i, nextLong(productSellingPrice.get(i)) + 1);
+            wholesaleProductStock.set(i, nextInt(Math.max(Collections.max(productStockQuantity.get(variationList.get(i))), 1)) + 1);
         }
         return this;
     }
@@ -100,12 +115,12 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // wait and input buy from
         wait.until(visibilityOf(WITHOUT_VARIATION_BUY_FROM));
         WITHOUT_VARIATION_BUY_FROM.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        WITHOUT_VARIATION_BUY_FROM.sendKeys(String.valueOf(uiWholesaleProductStock.get(0)));
+        WITHOUT_VARIATION_BUY_FROM.sendKeys(String.valueOf(wholesaleProductStock.get(0)));
 
         // wait and input price per item
         wait.until(visibilityOf(WITHOUT_VARIATION_PRICE_PER_ITEM));
         WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(String.valueOf(uiWholesaleProductPrice.get(0)));
+        WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(String.valueOf(wholesaleProductPrice.get(0)));
 
         // open segment dropdown
         wait.until(visibilityOf(WITHOUT_VARIATION_CUSTOMER_SEGMENT_DROPDOWN)).click();
@@ -117,9 +132,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
         checkSegmentInformation();
 
         // search segment
-        if (apiSegmentName == null) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers().getSegmentName() == null) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(apiSegmentName));
+        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers().getSegmentName()));
 
         // select segment
         wait.until(visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();
@@ -154,7 +169,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // close Add variation popup
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_ADD_VARIATION_POPUP_OK_BTN)).click();
 
-            variationSaleList.add("%s,".formatted(uiVariationList.get(i).replace("|", " ")));
+            variationSaleList.add("%s,".formatted(variationList.get(i).replace("|", " ")));
         }
     }
 
@@ -182,12 +197,12 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // wait and input buy from
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_BUY_FROM.get(i)));
             VARIATION_BUY_FROM.get(i).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-            VARIATION_BUY_FROM.get(i).sendKeys(String.valueOf(uiWholesaleProductStock.get(varIndex)));
+            VARIATION_BUY_FROM.get(i).sendKeys(String.valueOf(wholesaleProductStock.get(varIndex)));
 
             // wait and input price per item
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_PRICE_PER_ITEM.get(i)));
             VARIATION_PRICE_PER_ITEM.get(i).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-            VARIATION_PRICE_PER_ITEM.get(i).sendKeys(String.valueOf(uiWholesaleProductPrice.get(varIndex)));
+            VARIATION_PRICE_PER_ITEM.get(i).sendKeys(String.valueOf(wholesaleProductPrice.get(varIndex)));
 
             // open segment dropdown
             wait.until(visibilityOf(commonAction.refreshListElement(VARIATION_CUSTOMER_SEGMENT_DROPDOWN).get(i))).click();
@@ -201,7 +216,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // search segment
             commonAction.sleepInMiliSecond(1000);
             wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(apiSegmentName));
+            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers().getSegmentName()));
 
             // select segment
             wait.until(visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();
@@ -249,7 +264,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
         logger.info("[UI][%s] Check Header - Go back to product detail.".formatted(language));
 
-        if (uiIsVariation) {
+        if (hasModel) {
             // check page title
             String dbPageTitle = wait.until(visibilityOf(UI_HEADER_PAGE_TITLE)).getText();
             String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.pageTitle", language);
@@ -280,7 +295,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         // check UI when no wholesale config
         String dbNoConfig = wait.until(visibilityOf(UI_NO_WHOLESALE_CONFIG)).getText();
-        String ppNoConfig = uiIsVariation ? getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.variation", language)
+        String ppNoConfig = hasModel ? getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.variation", language)
                 : getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.withoutVariation", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoConfig, ppNoConfig, "[Failed][Wholesale config table] UI when no wholesale config should be %s, but found %s.".formatted(ppNoConfig, dbNoConfig));
         logger.info("[UI][%s] Check Wholesale config table - UI when no wholesale config.".formatted(language));

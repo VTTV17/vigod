@@ -10,21 +10,10 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class VAT {
-    public static List<Integer> apiTaxList;
-    public static List<Float> apiTaxRate;
     LoginDashboardInfo loginInfo;
 
     {
         loginInfo = new Login().getInfo();
-    }
-
-    public void getTaxList() {
-        String API_TAX_LIST_PATH = "/storeservice/api/tax-settings/store/%s";
-        Response taxResponse = new API().get(API_TAX_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        taxResponse.then().statusCode(200);
-        apiTaxList = taxResponse.jsonPath().getList("id");
-        apiTaxRate = taxResponse.jsonPath().getList("rate");
-        IntStream.range(0, apiTaxRate.size()).filter(i -> apiTaxRate.get(i) == null).forEachOrdered(i -> apiTaxRate.set(i, 0F));
     }
 
     public TaxInfo getInfo() {

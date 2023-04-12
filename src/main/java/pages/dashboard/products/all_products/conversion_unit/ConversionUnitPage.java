@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 
@@ -16,7 +17,6 @@ import java.util.List;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
-import static pages.dashboard.products.all_products.ProductPage.*;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.character_limit.CharacterLimit.MAX_CONVERSION_UNIT_NAME;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
@@ -27,16 +27,22 @@ public class ConversionUnitPage extends ConversionUnitElement {
     WebDriverWait wait;
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger(ConversionUnitPage.class);
+    ProductPage productPage;
+    int countFail;
+    String language;
 
     public ConversionUnitPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+        productPage = new ProductPage(driver);
+        language = productPage.getLanguage();
+        countFail = productPage.getCountFail();
     }
 
     public ConversionUnitPage navigateToConversionUnitPage() throws Exception {
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(uiProductID)));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productPage.getProductID())));
 
         // wait page loaded
         commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
@@ -48,7 +54,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check [UI] after check on Add Conversion Unit checkbox
         checkConversionUnitConfig();
 
-        if (uiIsIMEIProduct)
+        if (productPage.isManageByIMEI())
             logger.info("Not support conversion unit for product managed by IMEI/Serial at this time.");
         else {
             // click Configure button
@@ -69,7 +75,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
     /* Without variation config */
     public void addConversionUnitWithoutVariation() throws Exception {
-        if (!uiIsIMEIProduct) {
+        if (!productPage.isManageByIMEI()) {
             // click Select Unit button
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
 
@@ -94,7 +100,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
             // input conversion unit quantity
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_QUANTITY)).clear();
-            WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(null)), 1), MAX_PRICE/ productListingPrice.get(0))));
+            WITHOUT_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(productPage.getProductStockQuantity().get(null)), 1), MAX_PRICE/ productPage.getProductListingPrice().get(0))));
 
             // click Save button
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SAVE_BTN)).click();
@@ -103,9 +109,9 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
     /* Variation config */
     public void addConversionUnitVariation() throws Exception {
-        if (!uiIsIMEIProduct) {
+        if (!productPage.isManageByIMEI()) {
             // number of conversion unit
-            int numberOfConversionUnit = nextInt(uiVariationList.size()) + 1;
+            int numberOfConversionUnit = nextInt(productPage.getVariationList().size()) + 1;
 
             // select variation
             for (int i = 0; i < numberOfConversionUnit; i++) {
@@ -163,7 +169,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
                 // input conversion unit quantity
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_QUANTITY)).clear();
-                CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(uiProductStockQuantity.get(uiVariationList.get(i))), 1), MAX_PRICE/ productListingPrice.get(i))));
+                CONFIGURE_FOR_EACH_VARIATION_QUANTITY.sendKeys(String.valueOf(Math.min(Math.max(Collections.max(productPage.getProductStockQuantity().get(productPage.getVariationList().get(i))), 1), MAX_PRICE/ productPage.getProductListingPrice().get(i))));
 
                 // click Save button
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SAVE_BTN)).click();
@@ -181,7 +187,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
     /* check UI function */
     void checkConversionUnitConfig() throws Exception {
         // check IMEI product
-        if (uiIsIMEIProduct) {
+        if (productPage.isManageByIMEI()) {
             // check conversion unit for product manage inventory by IMEI/Serial number
             String dbConversionUnitForIMEI = wait.until(visibilityOf(UI_CONVERSION_UNIT_FOR_IMEI_NOTICE)).getText();
             String ppConversionUnitForIMEI = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.conversionUnitForIMEI", language);
@@ -210,7 +216,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         logger.info("[UI][%s] Check Header - Go back to product detail page.".formatted(language));
 
         // check flex-UI for variation/without variation
-        if (uiIsVariation) {
+        if (productPage.isHasModel()) {
             // check page title
             String dbPageTitle = wait.until(visibilityOf(UI_HEADER_VARIATION_PAGE_TITLE)).getText();
             String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.pageTitle", language);
@@ -346,7 +352,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
     }
 
     void checkVariationConfigPageHeader() throws Exception {
-        // check header - Go back to setup conversion unit page link text
+        // check header - Go back to set up conversion unit page link text
         String dbGoBackToSetupConversionUnitPage = wait.until(visibilityOf(UI_VARIATION_CONFIG_PAGE_GO_BACK_TO_SETUP_CONVERSION_UNIT)).getText();
         String ppGoBackToSetupConversionUnitPage = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.goBackToSetupConversionUnit", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToSetupConversionUnitPage, ppGoBackToSetupConversionUnitPage, "[Failed][Variation config page][Header] Go back to setup conversion unit page link text should be %s, but found %s.".formatted(ppGoBackToSetupConversionUnitPage, dbGoBackToSetupConversionUnitPage));

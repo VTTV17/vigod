@@ -65,11 +65,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         // set dashboard language
         commonAction.sleepInMiliSecond(1000);
 
-        System.out.println(((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')"));
-        System.out.println(language);
         String currentLanguage = ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").equals("vi") ? "VIE" : "ENG";
-
-
 
         if (!currentLanguage.equals(language)) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", HEADER_SELECTED_LANGUAGE);

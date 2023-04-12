@@ -1,15 +1,14 @@
 package api.dashboard.products;
 
+import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static api.dashboard.login.Login.accessToken;
-import static api.dashboard.login.Login.apiStoreID;
 
 public class SupplierAPI {
     String GET_SUPPLIER_LIST = "/itemservice/api/suppliers/store/%s?page=0&size=100&nameOrCode=%s";
@@ -17,9 +16,10 @@ public class SupplierAPI {
     String SUPPLIER_DETAIL_PATH = "/itemservice/api/suppliers/%s";
     String GET_SUPPLIER_ORDER_HISTORY_PATH = "/itemservice/api/purchase-orders/store-id/%s?searchBy=id&purchaseId=%s&supplierId=%s&page=0&size=5&sort=id,desc";
     API api = new API();
+    LoginDashboardInfo loginInfo = new Login().getInfo();
 
     public JsonPath getAllSupplierJsonPath(String supplierCode) {
-        Response response = api.get(GET_SUPPLIER_LIST.formatted(apiStoreID, supplierCode), accessToken);
+        Response response = api.get(GET_SUPPLIER_LIST.formatted(loginInfo.getStoreID(), supplierCode), loginInfo.getAccessToken());
         response.then().statusCode(200);
         return response.jsonPath();
     }
@@ -52,8 +52,8 @@ public class SupplierAPI {
                     "countryCode": "VN",
                     "zipCode": "",
                     "cityName": ""
-                }""".formatted(apiStoreID);
-        Response createSupplierResponse = api.post(CREATE_SUPPLIER_PATH, accessToken, body);
+                }""".formatted(loginInfo.getStoreID());
+        Response createSupplierResponse = api.post(CREATE_SUPPLIER_PATH, loginInfo.getAccessToken(), body);
         createSupplierResponse.then().statusCode(201);
 
         return createSupplierResponse.jsonPath();
@@ -67,7 +67,7 @@ public class SupplierAPI {
     }
 
     public JsonPath getSupplierInformationJsonPath(int supplierID) {
-        Response supInfo = api.get(SUPPLIER_DETAIL_PATH.formatted(supplierID), accessToken);
+        Response supInfo = api.get(SUPPLIER_DETAIL_PATH.formatted(supplierID), loginInfo.getAccessToken());
         supInfo.then().statusCode(200);
         return supInfo.jsonPath();
     }
@@ -97,7 +97,7 @@ public class SupplierAPI {
     }
 
     public List<String> getListOrderId(String keyword, int supplierId) {
-        Response getListOrderID = api.get(GET_SUPPLIER_ORDER_HISTORY_PATH.formatted(apiStoreID, keyword, supplierId), accessToken);
+        Response getListOrderID = api.get(GET_SUPPLIER_ORDER_HISTORY_PATH.formatted(loginInfo.getStoreID(), keyword, supplierId), loginInfo.getAccessToken());
         getListOrderID.then().statusCode(200);
         return getListOrderID.jsonPath().getList("purchaseId");
     }

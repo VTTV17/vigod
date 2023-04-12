@@ -1,35 +1,42 @@
 package utilities.api_body.product;
 
+import api.dashboard.setting.StoreInformation;
 import org.apache.commons.lang.math.JVMRandom;
 import utilities.data.DataGenerator;
+import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static api.dashboard.setting.StoreInformation.apiDefaultLanguage;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 
 public class CreateProductBody {
-    public Map<String, List<String>> variationMap;
-    public List<String> variationList;
-    public List<Long> productListingPrice;
-    public List<Long> productSellingPrice;
+    private static List<String> variationList;
+    List<Long> productListingPrice;
+    private static List<Long> productSellingPrice;
     // String: variation name, List: stock quantity per each branch
-    public Map<String, List<Integer>> productStockQuantity = new HashMap<>();
-    public static boolean apiIsIMEIProduct;
-    public static boolean apiIsDisplayOutOfStock = true;
-    public static boolean apiIsHideStock = false;
-    public static boolean apiIsEnableListing = false;
-    public static boolean apiIsShowOnApp = true;
-    public static boolean apiIsShowOnWeb = true;
-    public static boolean apiIsShowInStore = true;
-    public static boolean apiIsShowInGosocial = true;
+    private static Map<String, List<Integer>> productStockQuantity = new HashMap<>();
 
-    public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID, String seoTitle, String seoDescription, String seoKeywords, String seoURL) {
-        apiIsIMEIProduct = isIMEIProduct;
+    public List<String> getVariationList() {
+        return CreateProductBody.variationList;
+    }
+
+    public List<Long> getProductSellingPrice() {
+        return CreateProductBody.productSellingPrice;
+    }
+
+    public Map<String, List<Integer>> getProductStockQuantity() {
+        return CreateProductBody.productStockQuantity;
+    }
+
+
+    public String productInfo(boolean isIMEIProduct, String name, String currency, String description, int taxID, boolean showOutOfStock, boolean hideStock, boolean enableListing, boolean showOnApp, boolean showOnWeb, boolean showInStore, boolean showInGoSocial, String seoTitle, String seoDescription, String seoKeywords, String seoURL) {
         return """
                 {
                     "name": "%s",
@@ -83,26 +90,28 @@ public class CreateProductBody {
                         "length": 10,
                         "width": 10
                     },
-                """.formatted(name, currency, description, taxID, apiIsDisplayOutOfStock, apiIsHideStock, apiIsEnableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", apiIsShowOnApp, apiIsShowOnWeb, apiIsShowInStore, apiIsShowInGosocial, seoTitle, seoDescription, seoKeywords, seoURL);
+                """.formatted(name, currency, description, taxID, showOutOfStock, hideStock, enableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", showOnApp, showOnWeb, showInStore, showInGoSocial, seoTitle, seoDescription, seoKeywords, seoURL);
     }
 
     public String variationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int increaseNum, int... branchStockQuantity) {
+        // get store information
+        StoreInfo storeInfo = new StoreInformation().getInfo();
 
         // generate variation map
-        variationMap = new DataGenerator().randomVariationMap();
+        Map<String, List<String>> variationMap = new DataGenerator().randomVariationMap();
 
         // get variation name
         List<String> varName = new ArrayList<>(variationMap.keySet());
-        String variationName = IntStream.range(1, varName.size()).mapToObj(i -> "|%s_%s".formatted(apiDefaultLanguage, varName.get(i))).collect(Collectors.joining("", "%s_%s".formatted(apiDefaultLanguage, varName.get(0)), ""));
+        String variationName = IntStream.range(1, varName.size()).mapToObj(i -> "|%s_%s".formatted(storeInfo.getDefaultLanguage(), varName.get(i))).collect(Collectors.joining("", "%s_%s".formatted(storeInfo.getDefaultLanguage(), varName.get(0)), ""));
 
         // get variation value
         List<List<String>> varValue = new ArrayList<>(variationMap.values());
         variationList = new ArrayList<>();
-        varValue.get(0).forEach(var -> variationList.add("%s_%s".formatted(apiDefaultLanguage, var)));
+        varValue.get(0).forEach(var -> variationList.add("%s_%s".formatted(storeInfo.getDefaultLanguage(), var)));
         if (varValue.size() > 1)
             IntStream.range(1, varValue.size())
                     .forEachOrdered(i -> variationList = new DataGenerator()
-                            .mixVariationValue(variationList, varValue.get(i), apiDefaultLanguage));
+                            .mixVariationValue(variationList, varValue.get(i), storeInfo.getDefaultLanguage()));
 
         // random variation listing price
         productListingPrice = new ArrayList<>();

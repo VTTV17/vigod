@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
-import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.notNullValue;
 import static utilities.links.Links.URI;
 
@@ -19,10 +18,8 @@ public class Login {
     private static String account;
     private static String password;
     public static String accessToken;
-    public static String refreshToken;
+
     public static int apiStoreID;
-    public static String apiStoreName;
-    public static int sellerID;
     API api = new API();
 
     Response getLoginResponse(String account, String password) {
@@ -48,14 +45,7 @@ public class Login {
         Login.password = password;
 
         // get login response
-        Response loginResponse = getLoginResponse(account, password);
-
-        // else get accessToken, apiStoreID, apiStoreName
-        accessToken = loginResponse.jsonPath().getString("accessToken");
-        refreshToken = loginResponse.jsonPath().getString("refreshToken");
-        apiStoreID = loginResponse.jsonPath().getInt("store.id");
-        apiStoreName = loginResponse.jsonPath().getString("store.name");
-        sellerID = loginResponse.jsonPath().getInt("id");
+        getLoginResponse(account, password);
     }
 
     public LoginDashboardInfo getInfo() {
@@ -91,7 +81,6 @@ public class Login {
      * @return Map with keys: accessToken, apiStoreID
      */
     public Map<String, String> loginToDashboardWithPhone(String countryCode, String phoneNumber, String password) {
-        String token = new Login().getInfo().getAccessToken();
         RestAssured.baseURI = URI;
         String body = """
                 {

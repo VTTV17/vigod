@@ -12,19 +12,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class BranchManagement {
-    List<String> apiBranchCode;
-    List<String> apiBranchAddress;
-    List<String> apiWardCode;
-    List<String> apiDistrictCode;
-    List<String> apiCityCode;
-    List<String> apiPhoneNumberFirst;
-    List<String> apiCountryCode;
-    List<Boolean> apiIsDefaultBranch;
-    public static List<Integer> apiBranchID;
-    public static List<String> apiBranchName;
-    public static List<Boolean> apiIsHideOnStoreFront;
-    public static List<String> apiAllBranchStatus;
-    public static List<String> apiActiveBranches;
 
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
@@ -39,24 +26,24 @@ public class BranchManagement {
         return branchRes.jsonPath();
     }
 
-    public void getBranchInformation() {
-        apiBranchID = getBranchInfoResponseJsonPath().getList("id");
-        apiBranchName = getBranchInfoResponseJsonPath().getList("name");
-        apiBranchCode = getBranchInfoResponseJsonPath().getList("code");
-        apiBranchAddress = getBranchInfoResponseJsonPath().getList("address");
-        apiWardCode = getBranchInfoResponseJsonPath().getList("ward");
-        apiDistrictCode = getBranchInfoResponseJsonPath().getList("district");
-        apiCityCode = getBranchInfoResponseJsonPath().getList("city");
-        apiPhoneNumberFirst = getBranchInfoResponseJsonPath().getList("phoneNumberFirst");
-        apiCountryCode = getBranchInfoResponseJsonPath().getList("countryCode");
-        apiIsDefaultBranch = getBranchInfoResponseJsonPath().getList("default");
-        apiIsHideOnStoreFront = getBranchInfoResponseJsonPath().getList("hideOnStoreFront");
-        IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.get(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
-        apiAllBranchStatus = getBranchInfoResponseJsonPath().getList("branchStatus");
-        apiActiveBranches = new ArrayList<>();
-        IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.get(i)));
-
-    }
+//    public void getBranchInformation() {
+//        apiBranchID = getBranchInfoResponseJsonPath().getList("id");
+//        apiBranchName = getBranchInfoResponseJsonPath().getList("name");
+//        apiBranchCode = getBranchInfoResponseJsonPath().getList("code");
+//        apiBranchAddress = getBranchInfoResponseJsonPath().getList("address");
+//        apiWardCode = getBranchInfoResponseJsonPath().getList("ward");
+//        apiDistrictCode = getBranchInfoResponseJsonPath().getList("district");
+//        apiCityCode = getBranchInfoResponseJsonPath().getList("city");
+//        apiPhoneNumberFirst = getBranchInfoResponseJsonPath().getList("phoneNumberFirst");
+//        apiCountryCode = getBranchInfoResponseJsonPath().getList("countryCode");
+//        apiIsDefaultBranch = getBranchInfoResponseJsonPath().getList("default");
+//        apiIsHideOnStoreFront = getBranchInfoResponseJsonPath().getList("hideOnStoreFront");
+//        IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.get(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
+//        apiAllBranchStatus = getBranchInfoResponseJsonPath().getList("branchStatus");
+//        apiActiveBranches = new ArrayList<>();
+//        IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.get(i)));
+//
+//    }
 
     public BranchInfo getInfo() {
         // init branch info model
@@ -166,9 +153,6 @@ public class BranchManagement {
 
         // inactive all paid branches
         IntStream.range(1, brInfo.getBranchID().size()).forEachOrdered(i -> updateBranchInfo(brInfo.getBranchID().get(i), false, brInfo.getIsHideOnStoreFront().get(i), "INACTIVE"));
-
-        // get branch information after update
-        getBranchInformation();
     }
 
     public void activeAndShowAllPaidBranchesOnShopOnline() {
@@ -177,9 +161,6 @@ public class BranchManagement {
 
         // active and show all paid branches on shop online
         IntStream.range(1, brInfo.getBranchID().size()).forEachOrdered(i -> updateBranchInfo(brInfo.getBranchID().get(i), false, false, "ACTIVE"));
-
-        // get branch information after update
-        getBranchInformation();
     }
 
     public BranchManagement hideFreeBranchOnShopOnline() {

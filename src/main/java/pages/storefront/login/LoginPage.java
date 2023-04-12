@@ -20,7 +20,6 @@ import pages.storefront.signup.SignupPage;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
-import static api.dashboard.setting.StoreInformation.apiStoreURL;
 import static utilities.links.Links.*;
 
 import java.time.Duration;
@@ -280,8 +279,7 @@ public class LoginPage {
     }
 
     public void performLoginJS(String username, String password) {
-        if (apiStoreURL == null) new StoreInformation().getStoreInformation();
-        navigate("https://%s%s/".formatted(apiStoreURL, SF_DOMAIN));
+        navigate("https://%s%s/".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN));
         new GeneralSF(driver).waitTillLoaderDisappear();
         new HeaderSF(driver).clickUserInfoIconJS()
                 .clickLoginIconJS();

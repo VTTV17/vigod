@@ -12,40 +12,6 @@ import java.util.stream.IntStream;
 public class StoreInformation {
     String API_STORE_INFO_PATH = "/storeservice/api/stores/%s";
     String API_STORE_LANGUAGE_PATH = "/storeservice/api/store-language/store/%s/all";
-    public static String apiStoreURL;
-    public static String apiStoreLogo;
-    public static String apiDefaultLanguage;
-    public static List<String> apiStoreLanguageList;
-    public static List<String> apiSFLangList;
-    public void getStoreInformation() {
-        // get login dashboard information
-        LoginDashboardInfo loginInfo = new Login().getInfo();
-
-        // get storeURL
-        Response storeRes = new API().get(API_STORE_INFO_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        storeRes.then().statusCode(200);
-
-        // set store url
-        apiStoreURL = storeRes.jsonPath().getString("url");
-
-        // set store logo
-        apiStoreLogo = storeRes.jsonPath().getString("storeImage.fullUrl");
-
-        // set store default language
-        apiDefaultLanguage = storeRes.jsonPath().getString("countryCode").equals("VN") ? "vi" : "en";
-
-        // get store language list
-        Response languageRes = new API().get(API_STORE_LANGUAGE_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        languageRes.then().statusCode(200);
-        List<Boolean> publishLangList = languageRes.jsonPath().getList("published");
-
-        // set all store languages
-        apiStoreLanguageList = languageRes.jsonPath().getList("langCode");
-
-        // set published language
-        apiSFLangList = IntStream.range(0, publishLangList.size()).filter(publishLangList::get).mapToObj(apiStoreLanguageList::get).toList();
-    }
-
     public StoreInfo getInfo() {
         // get login dashboard information
         LoginDashboardInfo loginInfo = new Login().getInfo();

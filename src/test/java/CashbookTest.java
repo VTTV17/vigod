@@ -55,8 +55,7 @@ public class CashbookTest extends BaseTest {
         supplierList = new SupplierAPI().getAllSupplierNames();
         staffList = new StaffManagement().getAllStaffNames();
         othersList = new OthersGroupAPI().getAllOtherGroupNames();
-        new BranchManagement().getBranchInformation();
-        branchList = BranchManagement.apiActiveBranches;
+        branchList = new BranchManagement().getInfo().getActiveBranches();
         transactionIdList = new CashbookAPI().getAllTransactionCodes();
 	}	
 

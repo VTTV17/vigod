@@ -1,15 +1,16 @@
 package api.dashboard.customers;
 
+import api.dashboard.login.Login;
 import api.storefront.login.LoginSF;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static api.dashboard.login.Login.*;
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -24,24 +25,22 @@ public class Customers {
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
     String GET_CUSTOMER_LIST_IN_SEGMENT_PATH = "/beehiveservices/api/customer-profiles/%s/v2?segmentId=%s";
     String GET_200_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=0&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
-    public static String apiCustomerName;
-    public static String apiCustomerTag;
-    public static int apiBuyerId;
-    public static int apiProfileId;
+    private String customerTag;
+    private static int profileId;
 
-    public static String apiCustomerPhoneCode;
-    public static String apiCustomerPhoneNum;
+    private String customerPhoneNum;
 
-    public static String apiSegmentName;
+    private static String segmentName;
 
-    static int apiSegmentID;
+    private static int segmentID;
+    LoginDashboardInfo loginInfo = new Login().getInfo();
 
     API api = new API();
 
     public Customers createNewCustomer() {
-        apiCustomerName = randomAlphabetic(nextInt(MAX_CUSTOMER_NAME) + 1);
-        apiCustomerPhoneNum = random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + MIN_PHONE_NUMBER), false, true);
-        apiCustomerTag = randomAlphabetic(nextInt(MAX_CUSTOMER_TAG_LENGTH) + 1);
+        String apiCustomerName = randomAlphabetic(nextInt(MAX_CUSTOMER_NAME) + 1);
+        customerPhoneNum = random(nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + MIN_PHONE_NUMBER), false, true);
+        customerTag = randomAlphabetic(nextInt(MAX_CUSTOMER_TAG_LENGTH) + 1);
         String body = """
                 {
                     "name": "%s",
@@ -61,24 +60,23 @@ public class Customers {
                     "countryCode": "VN",
                     "storeName": "%s",
                     "langKey": "en"
-                }""".formatted(apiCustomerName, apiCustomerPhoneNum, apiCustomerTag, apiStoreName);
+                }""".formatted(apiCustomerName, customerPhoneNum, customerTag, loginInfo.getStoreName());
 
-        Response createCustomerResponse = api.post(CREATE_POS_CUSTOMER_PATH + apiStoreID, accessToken, body);
+        Response createCustomerResponse = api.post(CREATE_POS_CUSTOMER_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), body);
         createCustomerResponse.then().statusCode(200);
-        apiBuyerId = createCustomerResponse.jsonPath().getInt("userId");
-        apiProfileId = createCustomerResponse.jsonPath().getInt("id");
+        createCustomerResponse.jsonPath().getInt("userId");
+        profileId = createCustomerResponse.jsonPath().getInt("id");
         return this;
     }
 
     public Customers addCustomerTagForPhoneCustomer(String customerName) {
-        Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, customerName), accessToken);
+        Response searchCustomerByName = new API().get("%s%s/v2?keyword=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), customerName), loginInfo.getAccessToken());
         searchCustomerByName.then().statusCode(200);
 
-        apiBuyerId = Integer.parseInt(searchCustomerByName.jsonPath().getList("userId").get(0).toString());
-        apiProfileId = Integer.parseInt(searchCustomerByName.jsonPath().getList("id").get(0).toString());
-        apiCustomerPhoneCode = String.valueOf(searchCustomerByName.jsonPath().getList("phone").get(0)).replace("(", "").replace(")", " ").split(" ")[0];
-        apiCustomerPhoneNum = String.valueOf(searchCustomerByName.jsonPath().getList("phone").get(0)).replace(")", " ").split(" ")[1];
-        apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
+        profileId = Integer.parseInt(searchCustomerByName.jsonPath().getList("id").get(0).toString());
+        String apiCustomerPhoneCode = String.valueOf(searchCustomerByName.jsonPath().getList("phone").get(0)).replace("(", "").replace(")", " ").split(" ")[0];
+        customerPhoneNum = String.valueOf(searchCustomerByName.jsonPath().getList("phone").get(0)).replace(")", " ").split(" ")[1];
+        customerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
 
         String body = """
                 {
@@ -108,20 +106,19 @@ public class Customers {
                     "taxCode": "",
                     "backupPhones": [],
                     "backupEmails": []
-                }""".formatted(apiProfileId, customerName, apiCustomerPhoneCode, customerName, apiCustomerPhoneNum, apiCustomerTag);
-        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, apiStoreID), accessToken, body);
+                }""".formatted(profileId, customerName, apiCustomerPhoneCode, customerName, customerPhoneNum, customerTag);
+        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken(), body);
         updateCustomerProfile.then().statusCode(200);
         return this;
     }
 
     public Customers addCustomerTagForMailCustomer(String keywords) {
-        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, keywords, "EMAIL"), accessToken);
+        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), keywords, "EMAIL"), loginInfo.getAccessToken());
         searchCustomerByEmail.then().statusCode(200);
 
         String customerName = Pattern.compile("fullName.{4}(\\w+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> matchResult.group(1)).toList().get(0);
-        apiBuyerId = Pattern.compile("userId.{4}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
-        apiProfileId = Pattern.compile("id.{3}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
-        apiCustomerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
+        profileId = Pattern.compile("id.{3}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
+        customerTag = "AutoTag" + new DataGenerator().generateDateTime("ddMMHHmmss");
         String body = """
                 {
                      "id": "%s",
@@ -149,14 +146,14 @@ public class Customers {
                      "taxCode": "",
                      "backupPhones": [],
                      "backupEmails": []
-                 }""".formatted(apiProfileId, customerName, keywords, customerName, apiCustomerTag);
-        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, apiStoreID), accessToken, body);
+                 }""".formatted(profileId, customerName, keywords, customerName, customerTag);
+        Response updateCustomerProfile = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken(), body);
         updateCustomerProfile.then().statusCode(200);
         return this;
     }
 
     public void createSegment() {
-        apiSegmentName = "Auto - Segment - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        segmentName = "Auto - Segment - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {
                     "name": "%s",
@@ -168,15 +165,19 @@ public class Customers {
                         }
                     ]
                 }
-                """.formatted(apiSegmentName, apiCustomerTag);
-        Response createSegment = api.post(CREATE_SEGMENT_PATH + apiStoreID, accessToken, body);
+                """.formatted(segmentName, customerTag);
+        Response createSegment = api.post(CREATE_SEGMENT_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), body);
         createSegment.prettyPrint();
         createSegment.then().statusCode(200);
-        apiSegmentID = createSegment.jsonPath().getInt("id");
+        segmentID = createSegment.jsonPath().getInt("id");
     }
 
     public int getSegmentID() {
-        return apiSegmentID;
+        return Customers.segmentID;
+    }
+
+    public String getSegmentName() {
+        return Customers.segmentName;
     }
 
     public void createSegmentByAPI(String account, String password, String phoneCode) throws InterruptedException {
@@ -191,25 +192,29 @@ public class Customers {
     }
 
     public List<Integer> getListCustomerInSegment(Integer segmentID) {
-        Response segmentDetail = api.get(GET_CUSTOMER_LIST_IN_SEGMENT_PATH.formatted(apiStoreID, segmentID), accessToken);
+        Response segmentDetail = api.get(GET_CUSTOMER_LIST_IN_SEGMENT_PATH.formatted(loginInfo.getStoreID(), segmentID), loginInfo.getAccessToken());
         segmentDetail.then().statusCode(200);
         return segmentDetail.jsonPath().getList("id");
     }
 
     public int getCustomerID(String keywords) {
-        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, apiStoreID, keywords, "EMAIL"), accessToken);
+        Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), keywords, "EMAIL"), loginInfo.getAccessToken());
         searchCustomerByEmail.then().statusCode(200);
 
         return Pattern.compile("id.{3}(\\d+)").matcher(searchCustomerByEmail.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
     }
-    
-    public JsonPath getAllCustomerJsonPath() {
-    	Response response = api.get(GET_200_CUSTOMERS_PATH.formatted(apiStoreID), accessToken);
-    	response.then().statusCode(200);
-    	return response.jsonPath();
+
+    public int getProfileId() {
+        return Customers.profileId;
     }
-    
+
+    public JsonPath getAllCustomerJsonPath() {
+        Response response = api.get(GET_200_CUSTOMERS_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        return response.jsonPath();
+    }
+
     public List<String> getAllCustomerNames() {
-    	return getAllCustomerJsonPath().getList("fullName");
-    }    
+        return getAllCustomerJsonPath().getList("fullName");
+    }
 }

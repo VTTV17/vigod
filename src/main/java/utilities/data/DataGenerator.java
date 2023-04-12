@@ -1,10 +1,8 @@
 package utilities.data;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
 import utilities.jsonFileUtility;
 
 import java.time.LocalDateTime;
@@ -12,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static utilities.character_limit.CharacterLimit.*;
 
@@ -166,5 +166,26 @@ public class DataGenerator {
             }
         }
         return mixedVariationValueList;
+    }
+
+    public String getVariationName(Map<String, List<String>> variationMap, String language) {
+        // get variation name
+        List<String> varName = new ArrayList<>(variationMap.keySet());
+        return IntStream.range(1, varName.size()).mapToObj(i -> "|%s_%s".formatted(language, varName.get(i))).collect(Collectors.joining("", "%s_%s".formatted(language, varName.get(0)), ""));
+    }
+
+    public List<String> getVariationList(Map<String, List<String>> variationMap, String language) {
+        List<List<String>> varValue = new ArrayList<>(variationMap.values());
+        List<String> variationList = new ArrayList<>();
+        for (String var : varValue.get(0)) {
+            variationList.add("%s_%s".formatted(language, var));
+        }
+        if (varValue.size() > 1) {
+            for (int i = 1; i < varValue.size(); i++) {
+                variationList = new DataGenerator()
+                        .mixVariationValue(variationList, varValue.get(i), language);
+            }
+        }
+        return variationList;
     }
 }
