@@ -119,12 +119,24 @@ public class StoreInformation {
     	logger.info("Input '" + phone + "' into Hotline field.");
     	return this;
     }    
+
+    public String getHoline() {
+    	String value = commonAction.getElementAttribute(HOTLINE, "value");
+    	logger.info("Retrieved Hotline: " + value);
+    	return value;
+    }      
     
     public StoreInformation inputEmail(String email) {
     	commonAction.inputText(EMAIL, email);
     	logger.info("Input '" + email + "' into Email field.");
     	return this;
     }
+
+    public String getEmail() {
+    	String value = commonAction.getElementAttribute(EMAIL, "value");
+    	logger.info("Retrieved Hotline: " + value);
+    	return value;
+    }     
     
     public StoreInformation inputStoreAdress(String address) {
     	commonAction.inputText(ADDRESS, address);

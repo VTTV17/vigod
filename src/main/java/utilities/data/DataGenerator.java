@@ -29,6 +29,10 @@ public class DataGenerator {
         return random_integer;
     }
     
+    /**
+     * Returns a list of all the countries in the countryCodes.json file as Strings.
+     * @return a List of all the countries in the countryCodes.json file
+     */
     public List<String> getCountryList() {
 		JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json");
 		Iterator<String> it = data.fieldNames();
@@ -40,9 +44,9 @@ public class DataGenerator {
     }
     
     /**
-     * 
-     * @param country
-     * @return country code of the input country
+     * Returns the country code for a given country name as a String
+     * @param country the name of the country to get the code for
+     * @return the country code for the given country, or null if it is not found
      */
     public String getCountryCode(String country) {
     	JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
@@ -89,6 +93,12 @@ public class DataGenerator {
         }
         return listNumber;
     }
+    
+    /**
+     * Generates a random number with the specified number of digits using the current epoch time as a seed.
+     * @param numberOfDigits the number of digits in the random number to be generated
+     * @return the randomly generated number as a String
+     */
     public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
         long time = System.currentTimeMillis();
         System.out.println("Current Epoch time is: " + time);

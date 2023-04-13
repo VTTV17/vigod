@@ -215,6 +215,11 @@ public class Customers {
     }
 
     public List<String> getAllCustomerNames() {
-        return getAllCustomerJsonPath().getList("fullName");
-    }
+    	return getAllCustomerJsonPath().getList("fullName");
+    }    
+    
+    public List<String> getAllAccountCustomer() {
+    	List<String> name = getAllCustomerJsonPath().getList("findAll { it.guest == false }.fullName");
+    	return name;
+    }    
 }
