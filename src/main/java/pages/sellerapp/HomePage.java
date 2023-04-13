@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.asserts.SoftAssert;
 
 import utilities.UICommonMobile;
 
@@ -18,8 +17,6 @@ public class HomePage {
     WebDriver driver;
     WebDriverWait wait;
     UICommonMobile commonAction;
-
-    SoftAssert soft = new SoftAssert();
 
     public HomePage (WebDriver driver) {
         this.driver = driver;
