@@ -283,11 +283,11 @@ public class CreatePromotion {
 
         // start date
         int startMin = time.length > 0 ? time[0] : nextInt(60);
-        Instant apiDiscountCampaignStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
+        Instant discountCampaignStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
 
         // end date
         int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
-        Instant apiDiscountCampaignEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
+        Instant discountCampaignEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
 
         // coupon type
         // 0: percentage
@@ -297,7 +297,7 @@ public class CreatePromotion {
 
         // coupon value
         long minFixAmount = Collections.min(new CreateProduct().getProductSellingPrice());
-        long apiProductDiscountCouponValue = productDiscountCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextLong(minFixAmount) + 1;
+        long productDiscountCouponValue = productDiscountCouponType == 0 ? nextInt(MAX_PERCENT_DISCOUNT) + 1 : nextLong(minFixAmount) + 1;
 
         // init coupon type value
         StringBuilder body = new StringBuilder("""
@@ -312,7 +312,7 @@ public class CreatePromotion {
                             "couponValue": "%s",
                             "expiredDate": "%s",
                             "type": "WHOLE_SALE",
-                            "conditions": [""".formatted(name, loginInfo.getStoreID(), apiDiscountCampaignStartTime, couponTypeLabel, apiProductDiscountCouponValue, apiDiscountCampaignEndTime));
+                            "conditions": [""".formatted(name, loginInfo.getStoreID(), discountCampaignStartTime, couponTypeLabel, productDiscountCouponValue, discountCampaignEndTime));
 
         // init segment condition
         // segment type:
@@ -425,7 +425,7 @@ public class CreatePromotion {
 
         /* Get discount campaign information */
         // get couponType
-        String couponType = discountCampaignDetailJson.getString("discounts.couponType");
+        String couponType = discountCampaignDetailJson.getString("discounts[0].couponType");
 
         // get coupon value
         long couponValue = Pattern.compile("couponValue.{4}(\\d+)").matcher(discountCampaignDetail.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList().get(0);
@@ -454,7 +454,7 @@ public class CreatePromotion {
         discountCampaignMinQuantity = conditionValueMap.get("MINIMUM_REQUIREMENTS").get(0);
 
         // update discount campaign price
-        discountCampaignPrice.replaceAll(price -> couponType.equals("FIXED_AMOUNT") ? (((price - couponValue) > 0) ? (price - couponValue) : 0) : ((price * (100 - couponValue)) / 100));
+        discountCampaignPrice.replaceAll(price -> couponType.equals("FIXED_AMOUNT") ? (price > couponValue) ? (price - couponValue) : 0 : (price * (100 - couponValue)) / 100);
 
         // update discount campaign status
         List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH") ? conditionValueMap.get("APPLIES_TO_BRANCH").stream().map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID))).toList() : brInfo.getBranchName();
@@ -482,10 +482,8 @@ public class CreatePromotion {
         if (scheduleList != null) discountCampaignList.addAll(scheduleList);
 
         // init discount campaign price
-        if (discountCampaignPrice == null || discountCampaignPrice.size() == 0) {
-            discountCampaignPrice = new ArrayList<>();
-            discountCampaignPrice.addAll(sellingPrice);
-        }
+        if (discountCampaignPrice == null || discountCampaignPrice.size() == 0)
+            discountCampaignPrice = new ArrayList<>(sellingPrice);
 
         // init discount campaign status
         if (discountCampaignStatus == null || discountCampaignStatus.keySet().size() == 0 || discountCampaignList.size() == 0) {
