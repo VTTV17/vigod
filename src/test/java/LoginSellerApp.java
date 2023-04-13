@@ -204,7 +204,7 @@ public class LoginSellerApp {
     	loginPage.clickAdminTab();
     }
     
-//    @Test
+    @Test
     public void LoginDB_07_SellerForgotPassword() throws InterruptedException, SQLException {
     	
 		String[][] testData = { 
@@ -220,7 +220,7 @@ public class LoginSellerApp {
 			String username = row[1];
 			String password = row[2];
 
-			String newPassword =  password + generate.generateNumber(4);
+			String newPassword =  password + generate.generateNumber(6);
 			
 	    	loginPage.clickForgotPassword().inputUsername(username).inputNewPassword(newPassword).clickSendBtn();
 	    	
