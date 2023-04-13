@@ -60,6 +60,10 @@ public class UICommonMobile extends UICommonAction {
 		}
 		return text;
 	}	
+	
+	public boolean isElementEnabled(By bySelector) {
+		return getElement(bySelector, 5).isEnabled();
+	}	
 
 	public WebElement getElement(By by) {
 		return driver.findElement(by);

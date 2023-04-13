@@ -97,9 +97,7 @@ public class LoginPage {
     }
 
     public LoginPage inputPassword(String password) {
-    	WebElement txtPassword = commonAction.getElement(PASSWORD, defaultTimeout);
-    	txtPassword.clear();
-    	txtPassword.sendKeys(password);
+    	commonAction.inputText(PASSWORD, password);
     	logger.info("Input '" + password + "' into Password field.");
         return this;
     }

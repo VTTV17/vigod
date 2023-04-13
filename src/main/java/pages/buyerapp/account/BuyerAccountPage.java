@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import pages.buyerapp.LoginPage;
+import pages.buyerapp.SignupPage;
 import utilities.UICommonMobile;
 
 public class BuyerAccountPage {
@@ -26,13 +27,20 @@ public class BuyerAccountPage {
         commonAction = new UICommonMobile(driver);
     }
     
-    By NAVIGATE_LOGIN_BTN = By.xpath("//*[contains(@resource-id,'id/fragment_tab_account_user_profile_tv_sign_in')]");
+    By NAVIGATE_LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'sign_in')]");
+    By NAVIGATE_SIGNUP_BTN = By.xpath("//*[ends-with(@resource-id,'sign_up')]");
     By LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'id/rlLogout')]");
     By LANGUAGE_BTN = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'fragment_tab_account_user_profile_rl_language_container')]/android.widget.TextView");
     public LoginPage clickLoginBtn() {
     	commonAction.getElement(NAVIGATE_LOGIN_BTN, defaultTimeout).click();
     	logger.info("Clicked on Login button.");
         return new LoginPage(driver);
+    }    
+    
+    public SignupPage clickSignupBtn() {
+    	commonAction.getElement(NAVIGATE_SIGNUP_BTN, defaultTimeout).click();
+    	logger.info("Clicked on Signup button.");
+    	return new SignupPage(driver);
     }    
     
     public BuyerAccountPage clickLogoutBtn() {
