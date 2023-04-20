@@ -4,19 +4,24 @@ import api.dashboard.login.Login;
 import api.dashboard.products.APIEditProduct;
 import api.dashboard.services.CreateServiceAPI;
 import api.dashboard.services.EditServiceAPI;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import pages.buyerapp.BuyerGeneral;
 import pages.buyerapp.NavigationBar;
+import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.buyerapp.servicedetail.BuyerServiceDetail;
 import pages.buyerapp.servicedetail.SelectLocationPage;
+import pages.storefront.GeneralSF;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -32,9 +37,10 @@ public class ServiceDetailTest {
     String buyer;
     String passBuyer;
     String selectLocationTitle;
+    String serviceNormalId;
     @BeforeClass
     public void setUp() throws Exception {
-        String udid = "10.10.2.193:5555";
+        String udid = "R5CR92R4K7V";
         String platformName = "Android";
         String appPackage = "com.mediastep.shop0037";
         String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
@@ -48,6 +54,7 @@ public class ServiceDetailTest {
         driver = new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
         serviceNormalCheck = "Service automation to check";
         serviceListingCheck = "Service listing automation EIKpJC";
+        serviceNormalId = "1067881";
         buyer = AccountTest.SF_USERNAME_VI_1;
         passBuyer = AccountTest.SF_SHOP_VI_PASSWORD;
         selectLocationTitle = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.selectLocationTitle");
@@ -56,23 +63,24 @@ public class ServiceDetailTest {
     public void tearDown(){
         driver.quit();
     }
-    @AfterMethod
-    public void restartApp(){
-        ((AndroidDriver) driver).resetApp();
-    }
+//    @AfterMethod
+//    public void restartApp(){
+//        ((AndroidDriver) driver).resetApp();
+//    }
     @Test
-    public void SD01_checkNormalService() throws Exception {
+    public void SD01_CheckNormalService() throws Exception {
         //call api create service
         String searchKeyword = generator.generateString(6) ;
         String serviceName = "Service automation "+ searchKeyword;
         String serviceDescription = serviceName + " description";
         int listingPrice = Integer.parseInt("3"+generator.generateNumber(5));
         int sellingPrice = Integer.parseInt("2"+generator.generateNumber(5));
-        String[] location = new String[]{"thu duc","quan 1", "quan 2", "an 7"};
+        String[] location = new String[]{"thu duc","quan 1", "quan 2", "an 7","quan 2","quan 6","quan 8","quan 9"};
         String[] times = new String[]{"10:11","12:10"};
         boolean enableListing = false;
-        new CreateServiceAPI().createServiceAPI(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
+        Map<String, String> serviceInfo = new CreateServiceAPI().createServiceAPI(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
         serviceNormalCheck = serviceName;
+        serviceNormalId = serviceInfo.get("serviceId");
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -83,12 +91,14 @@ public class ServiceDetailTest {
         serviceDetail = new BuyerServiceDetail(driver);
         serviceDetail.verifyServiceName(serviceName)
                 .verifyServicePrice(sellingPrice +" đ")
+                .verifyLocationNumber(location.length)
                 .verifyServiceDescription(serviceDescription)
                 .verifyLocations(location)
-                .verifyBookNowBtnDisplay();
+                .verifyBookNowBtnDisplay()
+                .verifyAddToCartBtnShow();
     }
     @Test
-    public void SD02_checkListingService() throws Exception {
+    public void SD02_CheckListingService() throws Exception {
         //call api create service
         String serviceName = "Service listing automation " + generator.generateString(6);
         String serviceDescription = serviceName + " description";
@@ -108,12 +118,14 @@ public class ServiceDetailTest {
         serviceDetail = new BuyerServiceDetail(driver);
         serviceDetail.verifyServiceName(serviceName)
                 .verifyPriceNotDisplay()
+                .verifyLocationNumber(location.length)
                 .verifyServiceDescription(serviceDescription)
                 .verifyLocations(location)
-                .verifyContactNowBtnDisplay();
+                .verifyContactNowBtnDisplay()
+                .verifyAddToCartBtnNotShow();
     }
     @Test
-    public void SD03_checkServiceDetailAfterEditTranslation() throws Exception {
+    public void SD03_CheckServiceDetailAfterEditTranslation() throws Exception {
         //call api create service
         String keyword = generator.generateString(6);
         String serviceName = "Service automation " + keyword;
@@ -149,7 +161,7 @@ public class ServiceDetailTest {
                 .verifyLocations(locationEditArr);
     }
     @Test
-    public void SD04_checkGuestTapOnBookNow(){
+    public void SD04_CheckGuestTapOnBookNow(){
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -160,7 +172,7 @@ public class ServiceDetailTest {
                 .verifyRequireLoginPopUpShow();
     }
     @Test
-    public void SD05_checkCustomerTapOnBookNow(){
+    public void SD05_CheckCustomerTapOnBookNow(){
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnAccountIcon()
                         .clickLoginBtn()
@@ -174,7 +186,7 @@ public class ServiceDetailTest {
         new SelectLocationPage(driver).verifyPageTitle(selectLocationTitle);
     }
     @Test
-    public void SD06_checkTapOnContactNow(){
+    public void SD06_CheckTapOnContactNow(){
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -183,5 +195,131 @@ public class ServiceDetailTest {
         serviceDetail = new BuyerServiceDetail(driver);
         serviceDetail.tapOnContactNow()
                 .verifyContactPopUpShow();
+    }
+    @Test
+    public void SD07_CheckTextByLanguage() throws Exception {
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceNormalCheck)
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.verifyTextByLanguage()
+                .verifyTextBookNowOrContactNowBtn(false);
+        //
+        new BuyerGeneral(driver).clickOnBackIcon();
+        new BuyerSearchDetailPage(driver).tapCancelSearch();
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceListingCheck)
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.verifyTextByLanguage()
+                .verifyTextBookNowOrContactNowBtn(true);
+    }
+    @Test
+    public void SD08_CheckSimilarSectionDisplay(){
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceNormalCheck)
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.verifySimilarSectionDisplay();
+    }
+    @Test
+    public void SD09_CheckWhenTapOnDescriptionLocationSimilar(){
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceNormalCheck)
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.tapSimilarTab()
+                .verifySimilarectionShow()
+                .tapDescriptionTab()
+                .verifyDescriptionSectionShow()
+                .tapLocationsTab()
+                .verifyLocationSectionShow();
+    }
+    @Test
+    public void SD10_CheckGuestTapAddToCart(){
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceNormalCheck)
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.tapAddToCart()
+                .verifyRequireLoginPopUpShow();
+    }
+    @Test
+    public void SD11_CheckCustomerTapAddToCart(){
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .clickLoginBtn()
+                .performLogin(buyer,passBuyer);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceNormalCheck)
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.tapAddToCart();
+        new SelectLocationPage(driver).verifyPageTitle(selectLocationTitle);
+    }
+    @Test
+    public void SD12_CheckServiceInfoAfterUpdate() throws Exception {
+        //Call api edit service
+        String serviceName = "Edit Service automation "+ generator.generateString(6);
+        String serviceDescription = serviceName + "update description";
+        int listingPrice = Integer.parseInt("3"+generator.generateNumber(5));
+        int sellingPrice = Integer.parseInt("2"+generator.generateNumber(5));
+        String[] locations = new String[]{"tan binh","phu nhan", "go vap"};
+        String[] times = new String[]{"15:11","17:10"};
+        EditServiceAPI editServiceAPI = new EditServiceAPI();
+        editServiceAPI.setServiceNameEdit(serviceName);
+        editServiceAPI.setServiceDescriptionEdit(serviceDescription);
+        editServiceAPI.setListingPriceEdit(listingPrice);
+        editServiceAPI.setSellingPriceEdit(sellingPrice);
+        editServiceAPI.setLocations(locations);
+        editServiceAPI.setTimes(times);
+        editServiceAPI.setActiveStatus(true);
+        editServiceAPI.updateService(serviceNormalId);
+        //Go to app to check
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceName)
+                .verifySearchSuggestion(serviceName, String.valueOf(sellingPrice))
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.verifyServiceName(serviceName)
+                .verifyServicePrice(sellingPrice +" đ")
+                .verifyLocationNumber(locations.length)
+                .verifyServiceDescription(serviceDescription)
+                .verifyLocations(locations);
+    }
+    @Test
+    public void SD13_CheckServiceAfterDeactiveActive() throws JsonProcessingException {
+        //Call api edit service to deactive service
+        EditServiceAPI editServiceAPI = new EditServiceAPI();
+        editServiceAPI.setActiveStatus(false);
+        editServiceAPI.updateService("1063035");
+        //Check on SF when service deactive
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch("Service automation jVIBUx")
+                .verifySearchNotFound("Service automation jVIBUx");
+        //Call api edit service to active service
+        editServiceAPI = new EditServiceAPI();
+        editServiceAPI.setActiveStatus(true);
+        editServiceAPI.updateService("1063035");
+        //Check on SF when service active
+        new BuyerSearchDetailPage(driver).inputKeywordToSearch("Service automation jVIBUx")
+                .tapSearchSuggestion();
+        serviceDetail = new BuyerServiceDetail(driver);
+        serviceDetail.verifyServiceName("Service automation jVIBUx");
     }
 }

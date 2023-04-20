@@ -30,16 +30,17 @@ public class BuyerSearchDetailPage extends UICommonMobile {
     public BuyerSearchDetailPage inputKeywordToSearch(String keyword){
         inputText(SEARCH_INPUT,keyword);
         logger.info("Input %s into search field".formatted(keyword));
-        sleepInMiliSecond(3000);
+//        sleepInMiliSecond(3000);
         return this;
     }
     public BuyerSearchDetailPage tapSearchSuggestion() {
+        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
         List<WebElement> suggestions_el = getElements(SEARCH_SUGGESTION);
         clickElement(suggestions_el.get(0));
         return this;
     }
     public BuyerSearchDetailPage verifySearchSuggestion(String itemName, String price) throws Exception {
-
+        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
         List<WebElement> suggestionsName_el = getElements(SEARCH_SUGGESTION);
         List<WebElement> suggestionsPrice_el = getElements(SEARCH_SUGGESTION_PRICE);
         Assert.assertEquals(getText(suggestionsName_el.get(0)).toLowerCase(),itemName.toLowerCase());
@@ -54,5 +55,16 @@ public class BuyerSearchDetailPage extends UICommonMobile {
         clickElement(CANCEL_SEARCH);
         logger.info("Tap on Cancel button.");
         return new BuyerSearchPage(driver);
+    }
+    public BuyerSearchDetailPage verifySearchNotFound(String itemName){
+        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
+        List<WebElement> suggestionsName_el = getElements(SEARCH_SUGGESTION);
+        for (int i=0;i<suggestionsName_el.size();i++){
+            if(getText(suggestionsName_el.get(i)).equalsIgnoreCase(itemName)){
+                Assert.assertFalse(true,"Search has result.");
+            }
+        }
+        Assert.assertFalse(false,"Search result: No item match keyword");
+        return this;
     }
 }

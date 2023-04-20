@@ -57,15 +57,13 @@ public class APIAllProducts {
 
     /**
      *
-     * @param token
-     * @param storeID
      * @param operator: contains, is equal to, starts with, ends with.
      * @param value
      * @return Map with keys: productCreatedDateMap, CountItem, productCountItemMap
      * @throws ParseException
      */
-    public Map getMapOfProductCreateDateMatchTitleCondition(String token, String storeID, String operator, String value) throws ParseException {
-        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%","").replaceAll("%sort%","lastModifiedDate,desc"),token);
+    public Map getMapOfProductCreateDateMatchTitleCondition(String operator, String value) throws Exception {
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%","").replaceAll("%sort%","lastModifiedDate,desc"),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<String> productNameList = response.jsonPath().getList("name");
         List<String> createdDateList = response.jsonPath().getList("createdDate");
@@ -79,39 +77,41 @@ public class APIAllProducts {
             String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
             Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
             switch (operator){
-                case "contains":
+                case "contains","bao gồm":
                     if (productNameList.get(i).contains(value)){
                         String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                         productCreatedDateMap.put(productName,date);
-                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                         count = count + countConversionItem;
                         productCountItemMap.put(productName,countConversionItem);
                     }
                     break;
-                case "is equal to":
+                case "is equal to","tương đương":
                     if (productNameList.get(i).equals(value)){
                         String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                         productCreatedDateMap.put(productName,date);
-                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                         count = count + countConversionItem;
                         productCountItemMap.put(productName,countConversionItem);                    }
                     break;
-                case "starts with":
+                case "starts with","bắt đầu bằng":
                     if (productNameList.get(i).startsWith(value)){
                         String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                         productCreatedDateMap.put(productName,date);
-                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                         count = count + countConversionItem;
                         productCountItemMap.put(productName,countConversionItem);                    }
                     break;
-                case "ends with":
+                case "ends with","kết thúc bằng":
                     if (productNameList.get(i).endsWith(value)){
                         String productName = productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                         productCreatedDateMap.put(productName,date);
-                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                        int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                         count = count + countConversionItem;
                         productCountItemMap.put(productName,countConversionItem);                    }
                     break;
+                default: throw new Exception("Operator not match");
+
             }
         }
         Map productCollectionInfo = new HashMap<>();
@@ -132,13 +132,13 @@ public class APIAllProducts {
         }
         return time;
     }
-    public Map getProductMatchPriceCondition(String token, String storeID, String operator, long value) throws ParseException {
-        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%","").replaceAll("%sort%","lastModifiedDate,desc"),token);
+    public Map getProductMatchPriceCondition(String operator, long value) throws ParseException {
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%","").replaceAll("%sort%","lastModifiedDate,desc"),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<String> productNameList = response.jsonPath().getList("name");
         List<Integer> productIDList = response.jsonPath().getList("id");
         List<String> createdDateList = response.jsonPath().getList("createdDate");
-        List<Float> priceMainList = response.jsonPath().getList("newPrice");
+        List<Float> priceMainList = response.jsonPath().getList("newPrice",Float.class);
         List<Boolean> hasConversionList = response.jsonPath().getList("hasConversion");
         List<Integer> variationNumberList = response.jsonPath().getList("variationNumber");
         SimpleDateFormat formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -148,8 +148,8 @@ public class APIAllProducts {
         for (int i=0; i<productNameList.size();i++){
             List<Long> productPriceList = new ArrayList<>();
             if(variationNumberList.get(i)!= 0){
-                Response productDetailResp = api.get(DASHBOARD_PRODUCT_DETAIL_PATH.formatted(productIDList.get(i)),token);
-                List<Float>productVariationPriceList = productDetailResp.jsonPath().getList("models.newPrice");
+                Response productDetailResp = api.get(DASHBOARD_PRODUCT_DETAIL_PATH.formatted(productIDList.get(i)),loginInfo.getAccessToken());
+                List<Float>productVariationPriceList = productDetailResp.jsonPath().getList("models.newPrice",Float.class);
                 for (Float productVariationPrice: productVariationPriceList) {
                     productPriceList.add(productVariationPrice.longValue()); //get prices in case has variation
                 }
@@ -163,33 +163,33 @@ public class APIAllProducts {
                 String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
                 Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
                 switch (operator){
-                    case "is greater than":
+                    case "is greater than","lớn hơn":
                         if (productPrice > value){
                             isChecked = true;
                             String productName= productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                             productCreatedDateMap.put(productName,date);
-                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                             count = count + countConversionItem;
                             productCountItemMap.put(productName,countConversionItem);
                         }
                         break;
-                    case "is less than":
+                    case "is less than","nhỏ hơn":
                         if (productPrice < value){
                             isChecked = true;
                             String productName= productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                             productCreatedDateMap.put(productName,date);
-                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                             count = count + countConversionItem;
                             productCountItemMap.put(productName,countConversionItem);
                         }
                         break;
-                    case "is equal to":
+                    case "is equal to","bằng với":
                         if ( productPrice == value){
                             isChecked = true;
                             System.out.println(i+"--"+productPrice);
                             String productName= productNameList.get(i).toLowerCase().replaceAll("\\s+"," ").trim();
                             productCreatedDateMap.put(productName,date);
-                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString(),token);
+                            int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                             count = count + countConversionItem;
                             productCountItemMap.put(productName,countConversionItem);
                         }
@@ -219,10 +219,10 @@ public class APIAllProducts {
         return reverseView;
     }
 
-    public int countProductItem(boolean hasConversionUnit, String productId, String token){
+    public int countProductItem(boolean hasConversionUnit, String productId){
         int count;
         if(hasConversionUnit == true){
-            Response conversionItemRes = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productId),token);
+            Response conversionItemRes = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productId),loginInfo.getAccessToken());
             conversionItemRes.then().statusCode(200);
             System.out.println(conversionItemRes.prettyPrint());
             List<Integer> wholesaleProductIDList = conversionItemRes.jsonPath().getList("conversionItemList.id");

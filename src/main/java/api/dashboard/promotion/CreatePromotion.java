@@ -680,9 +680,9 @@ public class CreatePromotion {
         apiDiscountId = response.jsonPath().getInt("discounts[0].id");
     }
 
-    public void endEarlyDiscount(String token, int discountId, int storeId) {
-        String path = END_EARLY_DISCOUNT_CODE_PATH.formatted(discountId, storeId);
-        Response response = api.put(path, token);
+    public void endEarlyDiscount(int discountId) {
+        String path = END_EARLY_DISCOUNT_CODE_PATH.formatted(discountId, loginInfo.getStoreID());
+        Response response = api.put(path, loginInfo.getAccessToken());
         response.then().statusCode(200);
         logger.info("Call api to end early discount.");
     }
