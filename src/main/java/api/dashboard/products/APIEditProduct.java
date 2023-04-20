@@ -1,15 +1,18 @@
 package api.dashboard.products;
 
+import api.dashboard.login.Login;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import static api.dashboard.login.Login.accessToken;
 
 public class APIEditProduct {
     API api = new API();
     final static Logger logger = LogManager.getLogger(APIEditProduct.class);
+    LoginDashboardInfo loginInfo = new Login().getInfo();
 
     public static String ITEM_LANGUAGES_PATH = "itemservice/api/item-languages";
     public static String DELETE_ITEM_PATH = "itemservice/api/items/%s";
@@ -30,13 +33,13 @@ public class APIEditProduct {
                 "seoTitle":"",
                 "seoUrl":""
                 }""".formatted(description,itemID,lang,productName);
-        Response menuItemRespone = api.put(ITEM_LANGUAGES_PATH,accessToken,body);
+        Response menuItemRespone = api.put(ITEM_LANGUAGES_PATH,loginInfo.getAccessToken(),body);
         menuItemRespone.then().statusCode(200);
         logger.info("Update translation successful.");
     }
-    public void deleteProduct(String token, int productId){
+    public void deleteProduct(int productId){
         String path = DELETE_ITEM_PATH.formatted(productId);
-        Response response = api.delete(path,token);
+        Response response = api.delete(path,loginInfo.getAccessToken());
         System.out.println(response.prettyPrint());
         response.then().statusCode(200);
         logger.info("Delete product: "+productId);

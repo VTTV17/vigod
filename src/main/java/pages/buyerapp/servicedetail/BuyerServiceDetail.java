@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -89,6 +90,78 @@ public class BuyerServiceDetail extends UICommonMobile {
     public BuyerServiceDetail verifyContactPopUpShow(){
         Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.CONTACT_POPUP)),"Contact popup not show.");
         logger.info("Verify contact popup show.");
+        return this;
+    }
+    public BuyerServiceDetail verifyAddToCartBtnNotShow(){
+        Assert.assertTrue(isElementNotDisplay(getElements(serviceDetailEl.ADD_TO_CART)));
+        logger.info("Verify add to cart not show.");
+        return this;
+    }
+    public BuyerServiceDetail verifyAddToCartBtnShow(){
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.ADD_TO_CART)));
+        logger.info("Verify add to cart show.");
+        return this;
+    }
+    public BuyerServiceDetail verifyTextByLanguage() throws Exception {
+        Assert.assertEquals(getText(serviceDetailEl.DESCRIPTION_TAB), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.descriptionMobile"));
+        Assert.assertEquals(getText(serviceDetailEl.LOCATION_TAB), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.locationsTab"));
+        Assert.assertEquals(getText(serviceDetailEl.SIMILAR_TAB), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.similarServices"));
+        Assert.assertEquals(getText(serviceDetailEl.DESCRIPTION_TITLE), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.descriptionMobile"));
+        swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        Assert.assertEquals(getText(serviceDetailEl.LOCATION_TITLE), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.locationTitle"));
+        Assert.assertEquals(getText(serviceDetailEl.SIMILAR_TITLE), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.similarServices"));
+        return this;
+    }
+    public BuyerServiceDetail verifyTextBookNowOrContactNowBtn(boolean isEnableListing) throws Exception {
+        if(isEnableListing){
+            Assert.assertEquals(getText(serviceDetailEl.CONTACT_NOW_BTN), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.contactNowBtn"));
+        }else Assert.assertEquals(getText(serviceDetailEl.BOOK_NOW_BTN), PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.bookNowBtn"));
+        return this;
+    }
+    public BuyerServiceDetail verifyLocationNumber(int quantityExpected) throws Exception {
+        Assert.assertEquals(getText(serviceDetailEl.LOCATION_NUMBER),PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.locationNumber").formatted(quantityExpected));
+        return this;
+    }
+    public BuyerServiceDetail verifySimilarSectionDisplay(){
+        sleepInMiliSecond(1000);
+        swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.SIMILAR_ITEM_LIST)));
+        logger.info("Check similar item list show.");
+        return this;
+    }
+    public BuyerServiceDetail tapDescriptionTab(){
+        clickElement(serviceDetailEl.DESCRIPTION_TAB);
+        logger.info("Tap on description tab.");
+        return this;
+    }
+    public BuyerServiceDetail tapLocationsTab(){
+        clickElement(serviceDetailEl.LOCATION_TAB);
+        logger.info("Tap on locations tab.");
+        return this;
+    }
+    public BuyerServiceDetail tapSimilarTab(){
+        clickElement(serviceDetailEl.SIMILAR_TAB);
+        logger.info("Tap on services similar tab.");
+        return this;
+    }
+    public BuyerServiceDetail verifyDescriptionSectionShow(){
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.DESCRIPTION_SECTION)));
+        logger.info("Verify description section is shown");
+        return this;
+    }
+    public BuyerServiceDetail verifyLocationSectionShow(){
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.LOCATION_SECTION)));
+        logger.info("Verify location section is shown");
+        return this;
+    }
+    public BuyerServiceDetail verifySimilarectionShow(){
+        Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.SIMILAR_ITEM_LIST)));
+        logger.info("Verify similar section is shown");
+        return this;
+    }
+    public BuyerServiceDetail tapAddToCart(){
+        clickElement(serviceDetailEl.ADD_TO_CART);
+        logger.info("Tap on Add to cart button.");
         return this;
     }
 }
