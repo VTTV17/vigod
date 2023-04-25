@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -54,9 +53,9 @@ public class CashbookTest extends BaseTest {
 	}	
 
 	public void getLoginInfo() {
-		username = AccountTest.ADMIN_ACCOUNT_THANG;
-		password = AccountTest.ADMIN_PASSWORD_THANG;
-		country = "Vietnam";
+		username = AccountTest.ADMIN_USERNAME_TIEN;
+		password = AccountTest.ADMIN_PASSWORD_TIEN;
+		country = AccountTest.ADMIN_COUNTRY_TIEN;
 	}		
 	
 	public void getDataByAPI() {
