@@ -29,6 +29,20 @@ public class Cashbook {
 	WebDriverWait wait;
 	UICommonAction commonAction;
 
+	public static final int OPENINGBALANCE_IDX = 0;
+	public static final int TOTALREVENUE_IDX = 1;
+	public static final int TOTALEXPENDITURE_IDX = 2;
+	public static final int ENDINGBALANCE_IDX = 3;
+	
+	public static final int TRANSACTIONCODE_COL = 0;
+	public static final int CREATEDDATE_COL = 1;
+	public static final int BRANCH_COL = 2;
+	public static final int REVENUETYPE_COL = 3;
+	public static final int EXPENSETYPE_COL = 4;
+	public static final int NAME_COL = 5;
+	public static final int CREATEDBY_COL = 6;
+	public static final int AMOUNT_COL = 7;
+	
 	String otherVIE = null;
 	String otherENG = null;
 	
@@ -146,15 +160,24 @@ public class Cashbook {
 		}
 		return summary;
 	}
+	
+	public List<String> getSpecificRecord(int index) {
+		for (int i=0; i<6; i++) {
+			if (!CASHBOOK_RECORDS.isEmpty()) break;
+			commonAction.sleepInMiliSecond(500);
+		}
+		
+		List<String> rowData = new ArrayList<>();
+		for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {
+			rowData.add(column.getText());
+		}
+		return rowData;
+	}
 
 	public List<List<String>> getRecords() {
 		List<List<String>> table = new ArrayList<>();
-		for (WebElement row : CASHBOOK_RECORDS) {
-			List<String> rowData = new ArrayList<>();
-			for (WebElement column : row.findElements(By.xpath("./td"))) {
-				rowData.add(column.getText());
-			}
-			table.add(rowData);
+		for (int i=0; i<CASHBOOK_RECORDS.size(); i++) {
+			table.add(getSpecificRecord(i));
 		}
 		return table;
 	}
@@ -194,8 +217,13 @@ public class Cashbook {
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
 		WebElement sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
-		commonAction.sleepInMiliSecond(500);
+		
+		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
+		
+		//The element will go stale after the delay, so we fetch the element again
+		sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
 		commonAction.clickElement(sender);
+		
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}
@@ -207,6 +235,18 @@ public class Cashbook {
 		commonAction.clickElement(sender);
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
+	}
+	
+	/**
+	 * This method returns an array of strings representing the values of a dropdown list for revenue source.
+	 * @return An array of strings representing the dropdown values
+	 */
+	public String[] getSourceDropdownValues() {
+		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
+		String text = commonAction.getText(driver.findElement(By.cssSelector(".uik-select__optionListWrapper")));
+		String[] values = text.split("\n");
+		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
+		return values;
 	}
 
 	public Cashbook selectRevenueExpense(String revenueExpense) {
@@ -225,6 +265,18 @@ public class Cashbook {
 		return this;
 	}
 
+	/**
+	 * This method returns an array of strings representing the values of a dropdown list for payment methods.
+	 * @return An array of strings representing the dropdown values
+	 */
+	public String[] getPaymentMethodDropdownValues() {
+		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN);
+		String text = commonAction.getText(driver.findElement(By.cssSelector(".uik-select__optionListWrapper")));
+		String[] values = text.split("\n");
+		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN);
+		return values;
+	}	
+	
 	public Cashbook selectPaymentMethod(String paymentMethod) {
 		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN);
 		String xpath = ".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(paymentMethod);
@@ -568,6 +620,7 @@ public class Cashbook {
 		commonAction.clickElement(DATE_RANGER_PICKER);
 		commonAction.clickElement(DATE_RANGER_PICKER_RESET_BTN);
 		logger.info("Clicked on Reset Time ranger picker button.");
+		commonAction.sleepInMiliSecond(1000);
 		return this;
 	}    
 	
@@ -633,11 +686,44 @@ public class Cashbook {
 		return this;
 	}	
 	
-	public Cashbook selectFilteredName(String name) {
+	public Cashbook selectFilteredName1(String name) {
 		commonAction.clickElement(FILTER_CONDITION.get(7));
 		String xpath = ".//div[@class='option-item ' and text()='%s']".formatted(name);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
 		commonAction.clickElement(FILTER_CONDITION.get(7).findElement(By.xpath(xpath)));
+		logger.info("Selected filtered Sender/Recipient name: %s.".formatted(name));
+		return this;
+	}	
+	
+	public Cashbook selectFilteredName(String name) {
+		commonAction.clickElement(FILTER_CONDITION.get(7));
+		
+		By optionLocator = By.xpath("//div[@class='option-item ']");
+		By targetedOption = By.xpath(".//div[@class='option-item ' and text()='%s']".formatted(name));
+		
+		int previousSize = -1;
+		int currentSize = 0;
+		
+		for (int i=0; i<5; i++) {
+			commonAction.sleepInMiliSecond(1000);
+			if (!driver.findElements(optionLocator).isEmpty()) break;
+		}
+
+		while (previousSize != currentSize) {
+			
+			List<WebElement> options = driver.findElements(optionLocator);
+			commonAction.scrollToElement(options.get(options.size()-1));
+			commonAction.sleepInMiliSecond(1500);
+	
+			previousSize = currentSize;
+			currentSize = driver.findElements(optionLocator).size();
+			
+			if (!driver.findElements(targetedOption).isEmpty()) {
+				commonAction.clickElement(FILTER_CONDITION.get(7).findElement(targetedOption));
+				break;
+			}
+		}
+
 		logger.info("Selected filtered Sender/Recipient name: %s.".formatted(name));
 		return this;
 	}	
