@@ -9,6 +9,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import io.appium.java_client.AppiumDriver;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.SignupPage;
@@ -16,6 +18,7 @@ import pages.buyerapp.account.BuyerAccountPage;
 import pages.thirdparty.Mailnesia;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
+import utilities.jsonFileUtility;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitAppiumDriver;
@@ -41,6 +44,19 @@ public class SignupBuyerApp {
 	String displayName;
 	String birthday;
 
+	JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
+	JsonNode data1 = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
+	String STORE_USERNAME = data.findValue("seller").findValue("mail").findValue("username").asText();
+	String STORE_PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
+	String STORE_COUNTRY = data.findValue("seller").findValue("mail").findValue("country").asText();
+	String BUYER_MAIL_USERNAME = data1.findValue("buyer").findValue("mail").findValue("username").asText();
+	String BUYER_MAIL_PASSWORD = data1.findValue("buyer").findValue("mail").findValue("password").asText();
+	String BUYER_MAIL_COUNTRY = data1.findValue("buyer").findValue("mail").findValue("country").asText();
+	String BUYER_PHONE_USERNAME = data1.findValue("buyer").findValue("phone").findValue("username").asText();
+	String BUYER_PHONE_PASSWORD = data1.findValue("buyer").findValue("phone").findValue("password").asText();
+	String BUYER_PHONE_COUNTRY = data1.findValue("buyer").findValue("phone").findValue("country").asText();		
+	
+	
 	/**
 	 * This method retrieves a verification code for a given username. 
 	 * If the username is a valid email address, the method retrieves the verification code from Mailnesia.
@@ -215,7 +231,7 @@ public class SignupBuyerApp {
     
     @Test
     public void Signup_06_WrongVerificationCodeForEmailAccount() throws SQLException {
-    	username = phone;
+    	username = mail;
     	
     	navigationBar = new NavigationBar(driver);
     	accountTab = new BuyerAccountPage(driver);
@@ -224,7 +240,6 @@ public class SignupBuyerApp {
     	navigationBar.tapOnAccountIcon().clickSignupBtn();
     	
     	signupPage.clickMailTab();
-//    	signupPage.clickPhoneTab();
     	
     	signupPage.inputUsername(username);
     	signupPage.inputPassword(password);
@@ -239,16 +254,238 @@ public class SignupBuyerApp {
 			code = getVerificationCode(username);
 			driverWeb.quit();
 		} else {
-			code = getVerificationCode(generate.getCountryCode(country)+":"+username);
+			code = getVerificationCode(countryCode+":"+username);
 		}
     	
 		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1));
 		signupPage.clickVerifyBtn();
-		signupPage.getVerificationCodeError();
+		Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+		
+    	driver.navigate().back();
+    	driver.navigate().back();
+    }
+    
+    @Test
+    public void Signup_07_WrongVerificationCodeForPhoneAccount() throws SQLException {
+    	username = phone;
+    	
+    	navigationBar = new NavigationBar(driver);
+    	accountTab = new BuyerAccountPage(driver);
+    	signupPage = new SignupPage(driver);
+    	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
+    	signupPage.clickPhoneTab();
+    	
+    	signupPage.inputUsername(username);
+    	signupPage.inputPassword(password);
+    	signupPage.inputDisplayName(displayName);
+    	signupPage.inputBirthday(birthday);
+    	signupPage.clickAgreeTermBtn();
+    	signupPage.clickContinueBtn();
+    	
+    	String code = "";
+    	if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
+    		driverWeb = new InitWebdriver().getDriver("chrome");
+    		code = getVerificationCode(username);
+    		driverWeb.quit();
+    	} else {
+    		code = getVerificationCode(countryCode+":"+username);
+    	}
+    	
+    	signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1));
+    	signupPage.clickVerifyBtn();
+    	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
     	
     	driver.navigate().back();
     	driver.navigate().back();
     }
+    
+//    @Test
+    public void Signup_08_ResendVerificationCodeForMailAccount() throws SQLException, InterruptedException {
+    	username = "auto0-buyer1371379583@mailnesia.com";
+    	
+    	navigationBar = new NavigationBar(driver);
+    	accountTab = new BuyerAccountPage(driver);
+    	signupPage = new SignupPage(driver);
+    	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
+    	signupPage.clickMailTab();
+    	
+    	signupPage.inputUsername(username);
+    	signupPage.inputPassword(password);
+    	signupPage.inputDisplayName(displayName);
+    	signupPage.inputBirthday(birthday);
+    	signupPage.clickAgreeTermBtn();
+    	signupPage.clickContinueBtn();
+    	
+    	String code = "";
+    	if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
+    		driverWeb = new InitWebdriver().getDriver("chrome");
+    		code = getVerificationCode(username);
+    		driverWeb.quit();
+    	} else {
+    		code = getVerificationCode(countryCode+":"+username);
+    	}
+    	
+    	signupPage.clickResendBtn();
+    	
+    	Assert.assertEquals(signupPage.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra email");
+    	
+    	String newCode = "";
+    	if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
+    		Thread.sleep(10000);
+    		driverWeb = new InitWebdriver().getDriver("chrome");
+    		newCode = getVerificationCode(username);
+    		driverWeb.quit();
+    	} else {
+    		Thread.sleep(2000);
+    		newCode = getVerificationCode(countryCode+":"+username);
+    	}
+    	
+    	Assert.assertNotEquals(newCode, code, "Resent code");
+    	
+    	signupPage.inputVerificationCode(code);
+    	signupPage.clickVerifyBtn();
+    	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	
+    	driver.navigate().back();
+    	driver.navigate().back();
+    }
+    
+//    @Test
+    public void Signup_09_ResendVerificationCodeForPhoneAccount() throws SQLException, InterruptedException {
+    	username = "1367214474";
+    	
+    	navigationBar = new NavigationBar(driver);
+    	accountTab = new BuyerAccountPage(driver);
+    	signupPage = new SignupPage(driver);
+    	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
+    	signupPage.clickPhoneTab();
+    	
+    	signupPage.inputUsername(username);
+    	signupPage.inputPassword(password);
+    	signupPage.inputDisplayName(displayName);
+    	signupPage.inputBirthday(birthday);
+    	signupPage.clickAgreeTermBtn();
+    	signupPage.clickContinueBtn();
+    	
+    	String code = "";
+    	if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
+    		driverWeb = new InitWebdriver().getDriver("chrome");
+    		code = getVerificationCode(username);
+    		driverWeb.quit();
+    	} else {
+    		code = getVerificationCode(countryCode+":"+username);
+    	}
+    	
+    	signupPage.clickResendBtn();
+    	
+    	Assert.assertEquals(signupPage.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra SMS");
+    	
+    	String newCode = "";
+    	if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
+    		Thread.sleep(10000);
+    		driverWeb = new InitWebdriver().getDriver("chrome");
+    		newCode = getVerificationCode(username);
+    		driverWeb.quit();
+    	} else {
+    		Thread.sleep(2000);
+    		newCode = getVerificationCode(countryCode+":"+username);
+    	}
+    	
+    	Assert.assertNotEquals(newCode, code, "Resent code");
+    	
+    	signupPage.inputVerificationCode(code);
+    	signupPage.clickVerifyBtn();
+    	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	
+    	driver.navigate().back();
+    	driver.navigate().back();
+    }
+
+    @Test
+    public void Signup_10_ExistingEmailAccount() throws SQLException, InterruptedException {
+    	username = BUYER_MAIL_USERNAME;
+    	
+    	navigationBar = new NavigationBar(driver);
+    	accountTab = new BuyerAccountPage(driver);
+    	signupPage = new SignupPage(driver);
+    	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
+    	signupPage.clickMailTab();
+    	
+    	signupPage.inputUsername(username);
+    	signupPage.inputPassword(password);
+    	signupPage.inputDisplayName(displayName);
+    	signupPage.inputBirthday(birthday);
+    	signupPage.clickAgreeTermBtn();
+    	signupPage.clickContinueBtn();
+    	
+    	Assert.assertEquals(signupPage.getUsernameError(), "Email đã tồn tại");
+    	
+    	driver.navigate().back();
+    }  
+    
+    @Test
+    public void Signup_11_ExistingPhoneAccount() throws SQLException, InterruptedException {
+    	username = BUYER_PHONE_USERNAME;
+    	
+    	navigationBar = new NavigationBar(driver);
+    	accountTab = new BuyerAccountPage(driver);
+    	signupPage = new SignupPage(driver);
+    	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
+    	signupPage.clickPhoneTab();
+    	
+    	signupPage.selectCountryCodeFromSearchBox(BUYER_PHONE_COUNTRY);
+    	new UICommonMobile(driver).hideKeyboard("android");
+    	
+    	signupPage.inputUsername(username);
+    	signupPage.inputPassword(password);
+    	signupPage.inputDisplayName(displayName);
+    	signupPage.inputBirthday(birthday);
+    	signupPage.clickAgreeTermBtn();
+    	signupPage.clickContinueBtn();
+    	
+    	Assert.assertEquals(signupPage.getUsernameError(), "Số điện thoại đã tồn tại");
+    	
+    	driver.navigate().back();
+    }    
+    
+    @Test
+    public void Signup_12_LocalEmailAccount() throws SQLException {
+    	country = "Vietnam";
+    	countryCode = generate.getCountryCode(country);
+    	username = mail;
+    	
+    	navigationBar = new NavigationBar(driver);
+    	accountTab = new BuyerAccountPage(driver);
+    	signupPage = new SignupPage(driver);
+    	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
+    	signupPage.clickMailTab();
+    	
+    	signupPage.selectCountryCodeFromSearchBox(BUYER_PHONE_COUNTRY);
+    	new UICommonMobile(driver).hideKeyboard("android");
+    	
+    	signupPage.inputUsername(username);
+    	signupPage.inputPassword(password);
+    	signupPage.inputDisplayName(displayName);
+    	signupPage.inputBirthday(birthday);
+    	signupPage.clickAgreeTermBtn();
+    	signupPage.clickContinueBtn();
+    	
+    	Assert.assertEquals(signupPage.getUsernameError(), "Số điện thoại đã tồn tại");
+    	
+    	driver.navigate().back();
+    }    
     
     @AfterClass
     public void tearDown(){
