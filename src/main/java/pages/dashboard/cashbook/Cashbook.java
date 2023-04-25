@@ -361,8 +361,8 @@ public class Cashbook {
 	}
 
 	public Cashbook clickRecord(String recordID) {
-		WebElement record = driver.findElement(By.xpath("//td[text()='%s']".formatted(recordID)));
-		commonAction.clickElement(record);
+		By record = By.xpath("//td[text()='%s']".formatted(recordID));
+		commonAction.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(record)));
 		logger.info("Clicked on cashbook record '%s'.".formatted(recordID));
 		return this;
 	}

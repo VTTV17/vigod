@@ -34,6 +34,9 @@ public class AccountTest {
     public static String ADMIN_SHOP_COFFEE_PASSWORD = PropertiesUtil.getEnvironmentData("adminShopCoffeePass");
     public static String ADMIN_SHOP_COFFEE_USERNAME = PropertiesUtil.getEnvironmentData("adminShopCoffeeUserName");
     public static String ADMIN_CREATE_NEW_SHOP_PASSWORD = "fortesting!1";
+    public static String ADMIN_COUNTRY_TIEN = PropertiesUtil.getEnvironmentData("adminCountryShopTien");
+    public static String ADMIN_USERNAME_TIEN = PropertiesUtil.getEnvironmentData("adminUsernameShopTien");
+    public static String ADMIN_PASSWORD_TIEN = PropertiesUtil.getEnvironmentData("adminPasswordShopTien");
     public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
     public static String ADMIN_USERNAME_GOAPP = PropertiesUtil.getEnvironmentData("adminGoAppUserName");
     public static String ADMIN_USERNAME_GOPOS = PropertiesUtil.getEnvironmentData("adminGoPOSUserName");
