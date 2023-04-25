@@ -333,6 +333,7 @@ public class CreateServicePage extends HomePage{
     /*------------Edit---------------------*/
     public CreateServicePage clickEditTranslation(){
         waitTillLoadingDotsDisappear();
+        commons.sleepInMiliSecond(1000);
         commons.clickElement(createServiceUI.EDIT_TRANSLATION_BTN);
         logger.info("Click on edit translation button.");
         return this;
@@ -411,12 +412,20 @@ public class CreateServicePage extends HomePage{
         return des;
     }
     public CreateServicePage updateServiceStatus(String activeOrDeactive){
+        String activeTxt = "";
+        String inactiveTxt = "";
+        try {
+            activeTxt = PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus");
+            inactiveTxt = PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if(activeOrDeactive.equalsIgnoreCase("active")){
-            if(commons.getText(createServiceUI.STATUS).equalsIgnoreCase("inactive")){
+            if(commons.getText(createServiceUI.STATUS).equalsIgnoreCase(inactiveTxt)){
                 commons.clickElement(createServiceUI.ACTIVE_DEACTIVE_BTN);
             }
         }else if(activeOrDeactive.equalsIgnoreCase("inactive")){
-            if(commons.getText(createServiceUI.STATUS).equalsIgnoreCase("active")){
+            if(commons.getText(createServiceUI.STATUS).equalsIgnoreCase(activeTxt)){
                 commons.clickElement(createServiceUI.ACTIVE_DEACTIVE_BTN);
             }
         }

@@ -4,6 +4,7 @@ import api.dashboard.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.services.ServiceInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ public class CreateServiceAPI {
     String CREATE_SERVICE_PATH = "/itemservice/api/service/items";
     API api = new API();
     LoginDashboardInfo loginInfo = new Login().getInfo();
+    ServiceInfo serviceInfo = new ServiceInfo();
     /**
      *
      * @param name
@@ -23,7 +25,7 @@ public class CreateServiceAPI {
      * @param isEnableListingService
      * @return map with keys: "serviceId".
      */
-    public Map createServiceAPI(String name, String description, int listingPrice, int sellingPrice, String[] locations, String[] times, boolean isEnableListingService) {
+    public ServiceInfo createService(String name, String description, int listingPrice, int sellingPrice, String[] locations, String[] times, boolean isEnableListingService) {
         StringBuilder createServiceBody = new StringBuilder("""
                 {
                 	"name": "%s",
@@ -88,11 +90,13 @@ public class CreateServiceAPI {
                     "inventoryCurrent": 0,
                     "inventoryActionType": "FROM_CREATE_AT_ITEM_SCREEN"
                 }""".formatted(isEnableListingService));
+        System.out.println(createServiceBody);
         Response response =  api.post(CREATE_SERVICE_PATH,loginInfo.getAccessToken(),createServiceBody.toString());
+        System.out.println(response.prettyPrint());
         response.then().statusCode(201);
-        Map result = new HashMap<>();
-        result.put("serviceId",response.jsonPath().getInt("id"));
-        return result;
+        serviceInfo.setServiceId(response.jsonPath().getInt("id"));
+        serviceInfo.setServiceName(response.jsonPath().getString("name"));
+        return serviceInfo;
     }
 
 

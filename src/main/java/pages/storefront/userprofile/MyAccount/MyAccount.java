@@ -335,7 +335,7 @@ public class MyAccount extends HeaderSF {
     public MyAccount checkErrorWhenInputOtherPhoneWithExistingValue() throws Exception {
         DataGenerator dataGenerator = new DataGenerator();
         String phone = "01"+dataGenerator.generateNumber(6);
-        addOtherPhones("Other Phone Invalid","+84",phone,phone);
+        addOtherPhones("Other Phone","+84",phone,phone);
         Assert.assertEquals(commonAction.getText(myAccountUI.ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherPhone.existOtherPhoneError"));
         commonAction.clickElement(myAccountUI.CANCEL_BTN_ADD_OTHER_PHONE);
         logger.info("Check error when input other phone with existing value.");
@@ -397,6 +397,7 @@ public class MyAccount extends HeaderSF {
         Map<String,String> otherPhoneMap = new HashMap<>();
         String[] phoneCodeList = {"+84", "+1", "+95", "+86", "+93", "+35818", "+355"};
         DataGenerator dataGenerator = new DataGenerator();
+        commonAction.sleepInMiliSecond(2000);
         for(int i=0; i<myAccountUI.OTHER_PHONE_LIST.size();i++){
             commonAction.clickElement(myAccountUI.OTHER_PHONE_LIST.get(i));
             commonAction.sleepInMiliSecond(1000);

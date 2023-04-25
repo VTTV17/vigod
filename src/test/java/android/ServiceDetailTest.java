@@ -5,10 +5,8 @@ import api.dashboard.products.APIEditProduct;
 import api.dashboard.services.CreateServiceAPI;
 import api.dashboard.services.EditServiceAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.buyerapp.BuyerGeneral;
@@ -16,12 +14,11 @@ import pages.buyerapp.NavigationBar;
 import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.buyerapp.servicedetail.BuyerServiceDetail;
 import pages.buyerapp.servicedetail.SelectLocationPage;
-import pages.storefront.GeneralSF;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.services.ServiceInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -78,9 +75,9 @@ public class ServiceDetailTest {
         String[] location = new String[]{"thu duc","quan 1", "quan 2", "an 7","quan 2","quan 6","quan 8","quan 9"};
         String[] times = new String[]{"10:11","12:10"};
         boolean enableListing = false;
-        Map<String, String> serviceInfo = new CreateServiceAPI().createServiceAPI(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
+        ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
         serviceNormalCheck = serviceName;
-        serviceNormalId = serviceInfo.get("serviceId");
+        serviceNormalId = String.valueOf(serviceInfo.getServiceId());
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -107,7 +104,7 @@ public class ServiceDetailTest {
         String[] location = new String[]{"thu duc", "quan 1", "quan 2"};
         String[] times = new String[]{"10:11", "12:10"};
         boolean enableListing = true;
-        new CreateServiceAPI().createServiceAPI(serviceName, serviceDescription, listingPrice, sellingPrice, location, times, enableListing);
+        new CreateServiceAPI().createService(serviceName, serviceDescription, listingPrice, sellingPrice, location, times, enableListing);
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -135,9 +132,9 @@ public class ServiceDetailTest {
         String[] location = new String[]{"thu duc", "quan 1", "quan 2"};
         String[] times = new String[]{"10:11", "12:10"};
         boolean enableListing = false;
-        Map serviceInfo = new CreateServiceAPI().createServiceAPI(serviceName, serviceDescription, listingPrice, sellingPrice, location, times, enableListing);
-        serviceListingCheck = serviceName;
-        int serviceId = (int) serviceInfo.get("serviceId");
+        ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName, serviceDescription, listingPrice, sellingPrice, location, times, enableListing);
+        serviceListingCheck = serviceInfo.getServiceName();
+        int serviceId = (int) serviceInfo.getServiceId();
         serviceName = serviceName + " updated en";
         serviceDescription = serviceDescription +" updated en.";
         new APIEditProduct().ediTranslation(serviceId,serviceDescription,serviceName,"ENG");

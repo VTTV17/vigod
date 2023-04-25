@@ -185,6 +185,7 @@ public class ServiceDetailPage {
         return this;
     }
     public ServiceDetailPage verifyServiceImagesDisplay(){
+        commons.sleepInMiliSecond(3000);
         if(SERVICE_IMGS.size()>0){
             Assert.assertTrue(commons.isElementDisplay(SERVICE_IMGS.get(0)),"Image not display.");
         }else Assert.assertTrue(false,"Image element not found");
@@ -201,6 +202,7 @@ public class ServiceDetailPage {
        return this;
     }
     public ServiceDetailPage verifyServiceListSize(int expected){
+        commons.sleepInMiliSecond(1000);
         Assert.assertEquals(SERVICE_IMGS_THUMB.size(),expected);
         logger.info("Verify service image thumbnail list size");
         return this;

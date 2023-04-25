@@ -275,6 +275,7 @@ public class SignupPage extends GeneralSF {
     }
     public SignupPage navigateToSignUp(String domain) {
         commonAction.navigateToURL(domain);
+        commonAction.sleepInMiliSecond(1000);
         new HeaderSF(driver).clickUserInfoIcon()
                 .clickSignupIcon();
         return this;

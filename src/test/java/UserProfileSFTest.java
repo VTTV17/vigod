@@ -1,3 +1,5 @@
+import api.dashboard.login.Login;
+import api.dashboard.products.CreateProduct;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -25,6 +27,7 @@ import java.util.Map;
 
 import static utilities.account.AccountTest.*;
 import static utilities.character_limit.CharacterLimit.MAX_CHAR_ADDRESS;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.*;
 
 public class UserProfileSFTest extends BaseTest {
@@ -95,7 +98,7 @@ public class UserProfileSFTest extends BaseTest {
     String userName_PhoneAccount_EditInfo_HasBirthday;
 
     @BeforeClass
-    public void getData() throws Exception {
+    public void getData() {
         languageDb = language;
         languageSF = language;
         userNameDb_ShopVi = ADMIN_SHOP_VI_USERNAME;
@@ -112,8 +115,11 @@ public class UserProfileSFTest extends BaseTest {
         shopDomain = SF_ShopVi;
         shopDomainB = SF_COFFEE;
         fullName_UpdateAddress = PropertiesUtil.getEnvironmentData("buyerName3");
-        productIDToBuyNow = PropertiesUtil.getEnvironmentData("productIdToBuyNow");
-        productIDToBuyNowShopB = PropertiesUtil.getEnvironmentData("productIdToBuyNowShopCoffee");
+        MAX_PRICE = 9999999L;
+        new Login().loginToDashboardWithPhone("+84",userNameDb_ShopVi,passWordDashboard);
+        productIDToBuyNow = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,10).getProductID());
+        new Login().loginToDashboardByMail(userNameDb_ShopB,passWordDashboardShopB);
+        productIDToBuyNowShopB = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,10).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
         membershipLevel = "Thanh Vien Vang";
         barcodeNumber = PropertiesUtil.getEnvironmentData("barcodeBuyer1");
@@ -405,19 +411,19 @@ public class UserProfileSFTest extends BaseTest {
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressEmpty()
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .inputAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .clickOnSave();
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomainB, productIDToBuyNowShopB)
                 .clickOnBuyNow()
                 .clickOnContinue()
-                .verifyAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout);
+                .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout);
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
         allCustomers = new AllCustomers(driver);
         allCustomers.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
-                .verifyAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .clickLogout();
         myAddress = goToUserProfile()
                 .clickMyAddressSection()

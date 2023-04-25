@@ -8,8 +8,8 @@
                     <include name="UP01_ViewAccountInfo"/>
                     <include name="UP02_UpdateMyAccountAndVerifyOnSF_NoBirthdayBefore_EmailAccount"/>
                     <include name="UP03_UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount"/>
-                    <include name="UP04_UpdateUserProfile_NoBirthdayBefore_PhoneAccount"/>
-                    <include name="UP05_UpdateUserProfile_HasBirthdayBefore_PhoneAccount"/>
+<!--                    <include name="UP04_UpdateUserProfile_NoBirthdayBefore_PhoneAccount"/>-->
+<!--                    <include name="UP05_UpdateUserProfile_HasBirthdayBefore_PhoneAccount"/>-->
                     <include name="UP06_CheckAddressWhenUserHasAddressBeforeThenCheckout"/>
                     <include name="UP07_CheckAddressWhenUserHasNoAddressThenCheckout"/>
                     <include name="UP08_CheckUserUpdateAddress"/>

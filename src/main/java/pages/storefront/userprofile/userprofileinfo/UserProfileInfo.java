@@ -43,6 +43,7 @@ public class UserProfileInfo extends HeaderSF {
         commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
         logger.info("Clicked on My Address section.");
         waitTillLoaderDisappear();
+        commonAction.sleepInMiliSecond(2000);
         return new MyAddress(driver);
     }
     

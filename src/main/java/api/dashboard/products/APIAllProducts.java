@@ -22,8 +22,15 @@ public class APIAllProducts {
     public static String DASHBOARD_PRODUCT_LIST_PATH = "itemservice/api/store/dashboard/%storeID%/items-v2?langKey=vi&searchType=PRODUCT_NAME&searchSortItemEnum=null&searchItemName=&sort=%sort%&page=0&size=1000&inStock=false&saleChannel=&bhStatus=&branchIds=&shopeeId=&collectionId=%collectionId%&platform=&itemType=BUSINESS_PRODUCT";
     public static String DASHBOAR_CONVERSION_UNIT_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
     public static String DASHBOARD_PRODUCT_DETAIL_PATH = "itemservice/api/beehive-items/%s?langKey=vi";
-    public List<String> getProductListInCollectionByLatest(String storeID, String token, String collectionID) throws ParseException {
-        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%",collectionID).replaceAll("%sort%",""),token);
+
+    /**
+     *
+     * @param collectionID
+     * @return product list sorted by newest "createdDate" object
+     * @throws ParseException
+     */
+    public List<String> getProductListInCollectionByLatest(String collectionID) throws ParseException {
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",collectionID).replaceAll("%sort%",""),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<String> createdDateList = response.jsonPath().getList("createdDate");
         SimpleDateFormat  formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -38,8 +45,8 @@ public class APIAllProducts {
         List<String> reverseView = Lists.newReversedArrayList(productSorted);
         return reverseView;
     }
-    public Map<String,Date> getProductCreatedDateMapByProductName(String storeID, String token, int collectionID,String productName) throws ParseException {
-        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",storeID).replaceAll("%collectionId%",String.valueOf(collectionID)).replaceAll("%sort%",""),token);
+    public Map<String,Date> getProductCreatedDateMapByProductName(int collectionID,String productName) throws ParseException {
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",String.valueOf(collectionID)).replaceAll("%sort%",""),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<String> createdDateList = response.jsonPath().getList("createdDate");
         SimpleDateFormat  formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
