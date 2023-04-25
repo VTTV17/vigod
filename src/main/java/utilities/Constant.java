@@ -8,5 +8,6 @@ public class Constant {
     public static final String TEXT_256_CHAR = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has sur";
     public static final String BUYLINK_MENU_ITEM_NAME = "Buy Link";
     public static final String MARKETING_MENU_ITEM_NAME = "Marketing";
+    public static final int PAGE_SIZE_SF_COLLECTION = 20;
 
 }

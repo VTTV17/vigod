@@ -67,7 +67,7 @@ public class PropertiesUtil {
     }
 
     public static String getPropertiesValueBySFLang(String propertyName, String... language) throws Exception {
-        String lang = language.length == 0 ? PropertiesUtil.dbLanguage : language[0];
+        String lang = language.length == 0 ? PropertiesUtil.sfLanguage : language[0];
         if (lang.equalsIgnoreCase("ENG") || lang.equalsIgnoreCase("en")) {
             return getPropertyValue(initProperties(projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("i18n") + FILE_STOREFRONT_EN_TEXT), propertyName);
         } else if (lang.equalsIgnoreCase("VIE") || lang.equalsIgnoreCase("vi")) {

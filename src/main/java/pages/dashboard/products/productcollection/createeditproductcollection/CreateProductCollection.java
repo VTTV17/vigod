@@ -196,6 +196,7 @@ public class CreateProductCollection extends HomePage {
         }
         for (int i = 0; i < productListSize; i++) {
             if (i < priorityList.size()) {
+                common.sleepInMiliSecond(1000);
                 common.inputText(createCollectionUI.PRIORITIES_INPUT.get(i), String.valueOf(priorityList.get(i)));
                 productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(), priorityList.get(i));
             } else {
@@ -294,10 +295,10 @@ public class CreateProductCollection extends HomePage {
         selectCollectionType("Manual");
         selectProductWithKeyword(productList);
         productPriorityMap = inputPriority(isSetPriorityForAll, canSetDuplicatePriority);
-        clickOnSaveBTN(); //click outside
+//        clickOnSaveBTN(); //click outside
         clickOnSaveBTN();
-        logger.info("Create manual collection without SEO, has priority successfully.");
         clickOnClose();
+        logger.info("Create manual collection without SEO, has priority successfully.");
         waitTillSpinnerDisappear();
         return new ProductCollectionManagement(driver);
     }
@@ -321,7 +322,7 @@ public class CreateProductCollection extends HomePage {
         return sortedMap.keySet().stream().toList();
     }
 
-    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, String storeID, String token, int collectionID) throws ParseException {
+    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, int collectionID) throws ParseException {
         logger.debug("Sort start.");
         Map<String, Integer> sortedMap = SortData.sortMapByValue(productPriorityMap);
         List<String> sortedList = new ArrayList<>();
@@ -341,8 +342,8 @@ public class CreateProductCollection extends HomePage {
                 productKey2 = sortedMap.keySet().toArray()[i+1].toString();
             }
             if (value1 == value2) {
-                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey1));
-                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey2));
+                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(collectionID, productKey1));
+                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(collectionID, productKey2));
                 if(i == values.size()-1){
                     sortedList.addAll(apiAllProducts.getProductListCollection_SortNewest(productUpdatedMap));
                 }
@@ -410,13 +411,11 @@ public class CreateProductCollection extends HomePage {
         return new ProductCollectionManagement(driver);
     }
     /**
-     * @param token
-     * @param storeId
      * @param condition: (Product price/Product title)-(is greater than/less than/is equal to/starts with/ends with/contains)-(value)
      * @return Map: productExpectedList, CountItem
      * @throws ParseException
      */
-    public Map productsBelongCollectionExpected_OneCondition(String token, String storeId, String condition) throws Exception {
+    public Map productsBelongCollectionExpected_OneCondition(String condition) throws Exception {
         APIAllProducts apiAllProducts = new APIAllProducts();
         String conditionField = condition.split("-")[0];
         String operater = condition.split("-")[1];
@@ -440,14 +439,12 @@ public class CreateProductCollection extends HomePage {
     }
 
     /**
-     * @param token
-     * @param storeId
      * @param conditionType: All conditions, Any condition
      * @param conditions:    (Product price/Product title)-(is greater than/less than/is equal to/starts with/ends with/contains)-(value)
      * @return Map with keys: productExpectedList, CountItem
      * @throws ParseException
      */
-    public Map productsBelongCollectionExpected_MultipleCondition(String token, String storeId, String conditionType, String... conditions) throws Exception {
+    public Map productsBelongCollectionExpected_MultipleCondition(String conditionType, String... conditions) throws Exception {
         APIAllProducts apiAllProducts = new APIAllProducts();
         int countItemExpected = 0;
         Map mergeProductMap = new HashMap<>();

@@ -2,7 +2,11 @@ import api.dashboard.login.Login;
 import api.dashboard.onlineshop.APIMenus;
 import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.APIProductCollection;
+import api.storefront.header.APIHeader;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
@@ -21,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
 import static utilities.account.AccountTest.*;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -35,7 +40,7 @@ public class ProductCollectionTest extends BaseTest {
     String collectionName = "";
     String[] productList = {};
     String domainSF;
-    String menuID;
+    int menuID;
     Login loginAPI;
     String token = "";
     String storeId = "";
@@ -78,7 +83,8 @@ public class ProductCollectionTest extends BaseTest {
         userNameDb = ADMIN_SHOP_VI_USERNAME;
         passwordDb = ADMIN_SHOP_VI_PASSWORD;
         domainSF = SF_ShopVi;
-        menuID = "7587";
+        new Login().loginToDashboardWithPhone("+84",userNameDb,passwordDb);
+        menuID = new APIHeader().getCurrentMenuId();
         userName_goWeb = ADMIN_USERNAME_GOWEB;
         userName_goApp = ADMIN_USERNAME_GOAPP;
         userName_goPOS = ADMIN_USERNAME_GOPOS;
@@ -102,9 +108,16 @@ public class ProductCollectionTest extends BaseTest {
         equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
         allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
         anyConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
-        driver = new InitWebdriver().getDriver(browser,"false");
     }
-
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, "false");
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+//        if (driver != null) driver.quit();
+    }
     public void callLoginAPI() {
         loginAPI = new Login();
         loginAPI.loginToDashboardWithPhone("+84", userNameDb, passwordDb);
@@ -118,13 +131,13 @@ public class ProductCollectionTest extends BaseTest {
         productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         menu = new APIMenus();
-        menu.CreateMenuItemParent(token, menuID, collectIDNewest, collectionName);
+        menu.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
     }
 
     public void callDeleteMenuItemAndCollectionAPI(String collectionName) throws Exception {
         callLoginAPI();
         menu = new APIMenus();
-        menu.deleteMenuItem(storeId, token, menuID, collectionName);
+        menu.deleteMenuItem(menuID, collectionName);
         APIProductCollection productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         APIProductCollection productCollection = new APIProductCollection();
@@ -161,9 +174,9 @@ public class ProductCollectionTest extends BaseTest {
         List<String> productListSorted;
         APIAllProducts apiAllProducts = new APIAllProducts();
         if (hasSetPriority) {
-            productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
+            productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         } else {
-            productListSorted = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
+            productListSorted = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         }
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
@@ -181,11 +194,11 @@ public class ProductCollectionTest extends BaseTest {
         callLoginAPI();
         CreateProductCollection createProductCollection = new CreateProductCollection(driver);
         if (conditions.length > 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(token, storeId, conditionType, conditions);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(conditionType, conditions);
             productExpectedList = (List<String>) productBelongCollectionMap.get("productExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else if (conditions.length == 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(token, storeId, conditions[0]);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(conditions[0]);
             System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
             productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
@@ -202,7 +215,7 @@ public class ProductCollectionTest extends BaseTest {
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(3),productExpectedList);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productExpectedList.size()/PAGE_SIZE_SF_COLLECTION +1),productExpectedList);
     }
 
     public void editAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
@@ -214,11 +227,11 @@ public class ProductCollectionTest extends BaseTest {
         callLoginAPI();
         CreateProductCollection createProductCollection = new CreateProductCollection(driver);
         if (allCondition.length > 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(token, storeId, conditionType, allCondition);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(conditionType, allCondition);
             productExpectedList = (List<String>) productBelongCollectionMap.get("productExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else if (allCondition.length == 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(token, storeId, conditions[0]);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition( conditions[0]);
             System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
             productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
@@ -276,7 +289,7 @@ public class ProductCollectionTest extends BaseTest {
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         System.out.println("collectIDNewest: " + collectIDNewest);
         APIAllProducts apiAllProducts = new APIAllProducts();
-        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
+        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListExpected)
                 .verifySEOInfo("", "", "", collectionName);
@@ -284,7 +297,6 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectionName);
         //product list: add some product, input priority
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-//        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, true, true)
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
@@ -293,7 +305,7 @@ public class ProductCollectionTest extends BaseTest {
         collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         navigateSFAndGoToCollectionPage(collectionName);
         System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
-        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
+        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
 //        collectionNameEditManual = collectionName;
@@ -317,7 +329,7 @@ public class ProductCollectionTest extends BaseTest {
         APIProductCollection productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         APIAllProducts apiAllProducts = new APIAllProducts();
-        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
+        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
@@ -377,7 +389,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_09_BH_4792_CreateAutomationProductCollectionWithPriceGreaterThanNumber() throws Exception {
-        condition = productPriceTxt+"-"+greaterThanTxt+"-500000";
+        condition = productPriceTxt+"-"+greaterThanTxt+"-50000000000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -418,14 +430,13 @@ public class ProductCollectionTest extends BaseTest {
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, false, true)
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
+        System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
         callCreateMenuItemParentAPI(collectionName);
-        navigateSFAndGoToCollectionPage(collectionName);
         callLoginAPI();
         APIProductCollection productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         navigateSFAndGoToCollectionPage(collectionName);
-        System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
-        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
+        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
         collectNameEditPriority = collectionName;

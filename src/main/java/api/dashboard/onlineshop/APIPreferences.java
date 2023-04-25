@@ -12,6 +12,11 @@ public class APIPreferences {
     final static Logger logger = LogManager.getLogger(APIPreferences.class);
     API api = new API();
     LoginDashboardInfo loginInfo = new Login().getInfo();
+
+    /**
+     * To set up turn on or turn off checkout with guest
+     * @param isEnable true or false
+     */
     public void setUpGuestCheckout (boolean isEnable){
         String path = ENABLE_GUEST_CHECKOUT_PATH.formatted(loginInfo.getStoreID(),isEnable);
         Response response = api.put(path,loginInfo.getAccessToken());

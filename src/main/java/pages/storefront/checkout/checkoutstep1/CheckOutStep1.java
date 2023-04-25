@@ -71,7 +71,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 verifyCityProvince(String expectedCityProvince) {
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(2000);
         String cityProvince = commonAction.getDropDownSelectedValue(checkOutStep1UI.CITY_PROVINCE_DROPDOWN);
         Assert.assertEquals(cityProvince, expectedCityProvince);
         logger.info("Verify city/province: %s".formatted(cityProvince));
@@ -250,7 +250,7 @@ public class CheckOutStep1 extends GeneralSF {
     }
 
     public CheckOutStep1 verifyAddressInfo_NonVN(String country, String address, String address2, String state, String city, String zipCode) {
-        commonAction.sleepInMiliSecond(2000);
+        commonAction.sleepInMiliSecond(3000);
         verifyCountrySelectedValue(country);
         verifyAddress(address);
         verifyAddress2(address2);
