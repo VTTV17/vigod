@@ -6,10 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 
 import utilities.UICommonMobile;
 
@@ -29,6 +27,11 @@ public class SignupPage {
         commonAction = new UICommonMobile(driver);
     }
     
+    By COUNTRYCODE = By.xpath("//*[ends-with(@resource-id,'country_code')]");
+    By MAGNIFIER = By.xpath("//*[ends-with(@resource-id,'btn_search')]");
+    By COUNTRY_SEARCHBOX = By.xpath("//*[ends-with(@resource-id,'search_src_text')]");
+    By COUNTRY_SEARCHRESULT = By.xpath("//*[ends-with(@resource-id,'country_code_list_tv_title')]");
+    
     By MAIL_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[1]");
     By PHONE_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
     
@@ -47,6 +50,8 @@ public class SignupPage {
     By VERIFICATIONCODE = By.xpath("//*[ends-with(@resource-id,'verify_code_edittext')]");
     By RESEND_BTN = By.xpath("//*[ends-with(@resource-id,'verify_code_resend_action')]");
     By VERIFY_BTN = By.xpath("//*[ends-with(@resource-id,'verify_code_action')]");
+
+    By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
     
 
     public SignupPage clickMailTab() {
@@ -60,6 +65,43 @@ public class SignupPage {
     	logger.info("Clicked on Phone tab.");
     	return this;
     }
+
+    public SignupPage clickCountryCodeField() {
+    	commonAction.clickElement(COUNTRYCODE);
+    	logger.info("Clicked on Country code field.");
+        return this;
+    }    
+    
+    public SignupPage clickMagnifierIcon() {
+    	commonAction.clickElement(MAGNIFIER);
+    	logger.info("Clicked on Magnifier icon.");
+    	return this;
+    }    
+    
+    public SignupPage inputCountryCodeToSearchBox(String country) {
+    	commonAction.getElement(COUNTRY_SEARCHBOX).sendKeys(country);
+    	logger.info("Input Country code: " + country);
+    	return this;
+    }    
+    
+    public SignupPage selectCountryCodeFromSearchBox(String country) {
+    	clickCountryCodeField();
+    	clickMagnifierIcon();
+    	inputCountryCodeToSearchBox(country);
+    	
+    	for (int i=0; i<6; i++) {
+    		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    	}
+    	
+    	commonAction.clickElement(COUNTRY_SEARCHRESULT);
+    	logger.info("Selected country: " + country);
+    	return this;
+    }        
     
     public SignupPage clickUsername() {
     	commonAction.clickElement(new ByChained(USERNAME, TEXTBOX));
@@ -133,10 +175,15 @@ public class SignupPage {
     	return this;
     }    
 
-
     public String getVerificationCodeError() {
-    	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, TEXTBOX, By.xpath("preceding-sibling::*")));
+    	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, By.xpath("//*[contains(@class,'TextView')]")));
     	logger.info("Retrieved error for verification field: " + text);
+    	return text;
+    }    
+    
+    public String getToastMessage() {
+    	String text = commonAction.getText(TOASTMESSAGE);
+    	logger.info("Retrieved toast message: " + text);
     	return text;
     }    
     

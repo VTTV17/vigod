@@ -62,7 +62,6 @@ public class CashbookTest extends BaseTest {
 	public void getDataByAPI() {
         new Login().loginToDashboardByMail(username, password);
         customerList = new Customers().getAllCustomerNames();
-        Collections.sort(customerList);
         supplierList = new SupplierAPI().getAllSupplierNames();
         staffList = new StaffManagement().getAllStaffNames();
         othersList = new OthersGroupAPI().getAllOtherGroupNames();
