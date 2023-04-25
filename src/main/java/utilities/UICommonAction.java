@@ -444,6 +444,10 @@ public class UICommonAction {
 		JavascriptExecutor executor= (JavascriptExecutor)driver;
 		executor.executeScript( "window.scrollTo(0,0)");
 	}
+	public void scrollToElement(WebElement element) {
+		JavascriptExecutor executor= (JavascriptExecutor)driver;
+		executor.executeScript("arguments[0].scrollIntoView(true);", element);
+	}
 	public void refreshPage(){
 		driver.navigate().refresh();
 		logger.debug("Refreshed page.");
