@@ -9,11 +9,11 @@ import java.util.List;
 public class MigrateData {
     API api = new API();
     String URI = "https://api.beecow.com";
-    int storeID;
+    int storeID = 268802;
     String username = "ketoankho.vlive@gmail.com";
     String password = "xfmJgebl";
     String commissionId;
-    String loginPath = "/api/authenticate/store/email/gosell";
+    String loginPath = "/api/authenticate/mobile";
     String createCommissionPath = "/affiliateservice/api/commissions/";
     String accessToken;
 
@@ -26,8 +26,8 @@ public class MigrateData {
                     "rememberMe": true
                 }""".formatted(username, password);
         Response loginRes = api.login(loginPath, body);
+        loginRes.then().statusCode(200);
         accessToken = loginRes.jsonPath().getString("accessToken");
-        storeID = loginRes.jsonPath().getInt("store.id");
     }
     void createRevenueCommission() {
         String body = """
