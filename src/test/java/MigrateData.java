@@ -32,18 +32,34 @@ public class MigrateData {
     void createRevenueCommission() {
         String body = """
                 {
-                    "name": "Revenue commission for all partner",
-                    "typeCommission": "REVENUE_COMMISSION",
-                    "rate": 0,
-                    "storeId": "%s",
-                    "accumulateCommissionList": [
-                        {
-                            "rate": "3",
-                            "revenueFrom": "1000000"
-                        }
-                    ],
-                    "timeFrame": "MONTHLY"
-                }""".formatted(storeID);
+                     "name": "Revenue commission for all partner",
+                     "typeCommission": "REVENUE_COMMISSION",
+                     "rate": 0,
+                     "storeId": "%s",
+                     "accumulateCommissionList": [
+                         {
+                             "rate": "30",
+                             "revenueFrom": "5000000"
+                         },
+                         {
+                             "rate": "35",
+                             "revenueFrom": "10000000"
+                         },
+                         {
+                             "rate": "37",
+                             "revenueFrom": "50000000"
+                         },
+                         {
+                             "rate": "40",
+                             "revenueFrom": "180000000"
+                         },
+                         {
+                             "rate": "43",
+                             "revenueFrom": "600000000"
+                         }
+                     ],
+                     "timeFrame": "MONTHLY"
+                 }""".formatted(storeID);
 
         Response cRes = api.post(createCommissionPath, accessToken, body);
         cRes.then().statusCode(201);
