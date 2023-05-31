@@ -8,10 +8,12 @@ import java.util.List;
 
 public class MigrateData {
     API api = new API();
-    String URI = "https://api.beecow.com";
-    int storeID = 268802;
-    String username = "ketoankho.vlive@gmail.com";
-    String password = "xfmJgebl";
+    String URI = "https://api.beecow.info";
+    int storeID = 127103;
+    //    String username = "ketoankho.vlive@gmail.com";
+//    String password = "xfmJgebl";
+    String username = "newstaff@qa.team";
+    String password = "Abc@12345";
     String commissionId;
     String loginPath = "/api/authenticate/mobile";
     String createCommissionPath = "/affiliateservice/api/commissions/";
@@ -26,9 +28,16 @@ public class MigrateData {
                     "rememberMe": true
                 }""".formatted(username, password);
         Response loginRes = api.login(loginPath, body);
-        loginRes.then().statusCode(200);
         accessToken = loginRes.jsonPath().getString("accessToken");
     }
+
+    void getStaffAccessToken() {
+        String switchStaffPath = "/api/authenticate/store/%s/switch-staff".formatted(storeID);
+        Response staffRes = api.post(switchStaffPath, accessToken);
+        staffRes.prettyPrint();
+        accessToken = staffRes.jsonPath().getString("accessToken");
+    }
+
     void createRevenueCommission() {
         String body = """
                 {
@@ -76,8 +85,9 @@ public class MigrateData {
 
     PartnerInformationModel getPartnerInformation(String partnerId, String commissionId) {
         PartnerInformationModel pModel = new PartnerInformationModel();
-        String partnerInfoPath = "/affiliateservice/api/partners/%s/pid/partnerId".formatted(storeID);
-        Response pRes = api.get(partnerInfoPath.replace("partnerId", partnerId), accessToken);
+        String partnerInfoPath = "/affiliateservice/api/partners/%s/pid/%s".formatted(storeID, partnerId);
+        Response pRes = api.get(partnerInfoPath, accessToken);
+        pRes.prettyPrint();
         pRes.then().statusCode(200);
         JsonPath pInfo = pRes.jsonPath();
 
@@ -89,7 +99,7 @@ public class MigrateData {
         pModel.setPhoneNumber(pInfo.getString("phoneNumber"));
         pModel.setAddress(pInfo.getString("address"));
         pModel.setWardCode(pInfo.getString("wardCode") == null ? "" : pInfo.getString("wardCode"));
-        pModel.setDistrictCode(pInfo.getString("districtCode")== null ? "" : pInfo.getString("districtCode"));
+        pModel.setDistrictCode(pInfo.getString("districtCode") == null ? "" : pInfo.getString("districtCode"));
         pModel.setCityCode(pInfo.getString("cityCode") == null ? "" : pInfo.getString("cityCode"));
         pModel.setCountryCode(pInfo.getString("countryCode"));
         pModel.setPartnerCode(pInfo.getString("partnerCode"));
@@ -175,6 +185,7 @@ public class MigrateData {
     @Test
     void migrateTaxRateAndCommissionType() {
         loginDashboard(username, password);
+        getStaffAccessToken();
         createRevenueCommission();
         List<String> pId = getAllDropShipId();
         System.out.println(pId);
