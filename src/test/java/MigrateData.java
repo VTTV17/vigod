@@ -1,6 +1,7 @@
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import utilities.api.API;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public class MigrateData {
     API api = new API();
     String URI = "https://api.beecow.info";
-    int storeID = 127103;
+    int storeID;
     //    String username = "ketoankho.vlive@gmail.com";
 //    String password = "xfmJgebl";
     String username = "newstaff@qa.team";
@@ -18,6 +19,7 @@ public class MigrateData {
     String loginPath = "/api/authenticate/mobile";
     String createCommissionPath = "/affiliateservice/api/commissions/";
     String accessToken;
+    String userId;
 
     void loginDashboard(String username, String password) {
         RestAssured.baseURI = URI;
@@ -29,13 +31,23 @@ public class MigrateData {
                 }""".formatted(username, password);
         Response loginRes = api.login(loginPath, body);
         accessToken = loginRes.jsonPath().getString("accessToken");
+        loginRes.then().statusCode(200);
+        userId = loginRes.jsonPath().getString("id");
+    }
+
+    void getStoreID() {
+        String storeInfoPath = "/storeservice/api/store-staffs/user/%s".formatted(userId);
+        Response storeRes = api.get(storeInfoPath, accessToken);
+        storeRes.then().statusCode(200);
+        storeID = storeRes.jsonPath().getInt("id[0]");
     }
 
     void getStaffAccessToken() {
         String switchStaffPath = "/api/authenticate/store/%s/switch-staff".formatted(storeID);
         Response staffRes = api.post(switchStaffPath, accessToken);
-        staffRes.prettyPrint();
         accessToken = staffRes.jsonPath().getString("accessToken");
+        staffRes.prettyPrint();
+        storeID = staffRes.jsonPath().getInt("store.id");
     }
 
     void createRevenueCommission() {
@@ -87,7 +99,6 @@ public class MigrateData {
         PartnerInformationModel pModel = new PartnerInformationModel();
         String partnerInfoPath = "/affiliateservice/api/partners/%s/pid/%s".formatted(storeID, partnerId);
         Response pRes = api.get(partnerInfoPath, accessToken);
-        pRes.prettyPrint();
         pRes.then().statusCode(200);
         JsonPath pInfo = pRes.jsonPath();
 
@@ -176,19 +187,20 @@ public class MigrateData {
                 pModel.getTaxId(),
                 pModel.getId());
         Response rs = api.put(updatePartnerPath, accessToken, body);
-        System.out.println(body);
-        rs.prettyPrint();
         System.out.printf("%s: %s%n", partnerId, rs.getStatusCode());
 
     }
 
+    @BeforeSuite
+    void setup() {
+        loginDashboard(username, password);
+        getStoreID();
+        getStaffAccessToken();
+    }
     @Test
     void migrateTaxRateAndCommissionType() {
-        loginDashboard(username, password);
-        getStaffAccessToken();
         createRevenueCommission();
         List<String> pId = getAllDropShipId();
-        System.out.println(pId);
         for (String p : pId) {
             updatePartnerInformation(p, commissionId);
         }
