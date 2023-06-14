@@ -295,7 +295,7 @@ public class CreateProductCollection extends HomePage {
         selectCollectionType("Manual");
         selectProductWithKeyword(productList);
         productPriorityMap = inputPriority(isSetPriorityForAll, canSetDuplicatePriority);
-//        clickOnSaveBTN(); //click outside
+        clickOnSaveBTN(); //click outside
         clickOnSaveBTN();
         clickOnClose();
         logger.info("Create manual collection without SEO, has priority successfully.");

@@ -81,7 +81,7 @@ public class CreateProductCollectionElement {
     WebElement COLLECTION_NAME_LBL;
     @FindBy(xpath = "//label[@for='collectionName']//following-sibling::label")
     WebElement IMAGES_LBL;
-    @FindBy(xpath = "//input[@type='file']/following-sibling::p[2]")
+    @FindBy(xpath = "//input[@type='file']/following-sibling::div[2]")
     WebElement DRAG_DROP_PHOTO_TXT;
     @FindBy(xpath = "(//fieldset[@name='collectionType']/preceding::div//h3)[last()]")
     WebElement COLLECTION_TYPE_TITLE;

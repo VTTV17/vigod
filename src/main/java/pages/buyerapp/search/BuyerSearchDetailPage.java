@@ -34,7 +34,7 @@ public class BuyerSearchDetailPage extends UICommonMobile {
         return this;
     }
     public BuyerSearchDetailPage tapSearchSuggestion() {
-        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
+        waitForElementVisible(getElement(SEARCH_SUGGESTION,15));
         List<WebElement> suggestions_el = getElements(SEARCH_SUGGESTION);
         clickElement(suggestions_el.get(0));
         return this;

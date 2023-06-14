@@ -117,9 +117,9 @@ public class UserProfileSFTest extends BaseTest {
         fullName_UpdateAddress = PropertiesUtil.getEnvironmentData("buyerName3");
         MAX_PRICE = 9999999L;
         new Login().loginToDashboardWithPhone("+84",userNameDb_ShopVi,passWordDashboard);
-        productIDToBuyNow = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,10).getProductID());
+        productIDToBuyNow = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,30).getProductID());
         new Login().loginToDashboardByMail(userNameDb_ShopB,passWordDashboardShopB);
-        productIDToBuyNowShopB = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,10).getProductID());
+        productIDToBuyNowShopB = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,30).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
         membershipLevel = "Thanh Vien Vang";
         barcodeNumber = PropertiesUtil.getEnvironmentData("barcodeBuyer1");
