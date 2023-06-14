@@ -95,7 +95,11 @@ public class CreateServiceAPI {
         System.out.println(response.prettyPrint());
         response.then().statusCode(201);
         serviceInfo.setServiceId(response.jsonPath().getInt("id"));
-        serviceInfo.setServiceName(response.jsonPath().getString("name"));
+        serviceInfo.setServiceName(name);
+        serviceInfo.setSellingPrice(sellingPrice);
+        serviceInfo.setLocations(locations);
+        serviceInfo.setTimes(times);
+        serviceInfo.setServiceDescription(description);
         return serviceInfo;
     }
 

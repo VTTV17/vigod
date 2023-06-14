@@ -77,7 +77,7 @@ public class BuyLinkTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
 
     public void deleteNewestBuyLink(){

@@ -36,6 +36,7 @@ public class BuyerServiceDetail extends UICommonMobile {
         return this;
     }
     public BuyerServiceDetail verifyLocations(String... locationsExpected) {
+        tapLocationsTab();
         List<WebElement> locationEls= getElements(serviceDetailEl.LOCATIONS);
         List<String> locationsActual = new ArrayList<>();
         List<String> locationsExList = new ArrayList<>();

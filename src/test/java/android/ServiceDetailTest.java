@@ -4,9 +4,12 @@ import api.dashboard.login.Login;
 import api.dashboard.products.APIEditProduct;
 import api.dashboard.services.CreateServiceAPI;
 import api.dashboard.services.EditServiceAPI;
+import api.dashboard.services.ServiceInfoAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.buyerapp.BuyerGeneral;
@@ -15,6 +18,7 @@ import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.buyerapp.servicedetail.BuyerServiceDetail;
 import pages.buyerapp.servicedetail.SelectLocationPage;
 import utilities.PropertiesUtil;
+import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
@@ -34,7 +38,11 @@ public class ServiceDetailTest {
     String buyer;
     String passBuyer;
     String selectLocationTitle;
-    String serviceNormalId;
+    int serviceNormalId;
+    String[] locations;
+    String[] times;
+    String serviceDescription;
+    int sellingPrice;
     @BeforeClass
     public void setUp() throws Exception {
         String udid = "R5CR92R4K7V";
@@ -49,96 +57,91 @@ public class ServiceDetailTest {
         passDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         new Login().loginToDashboardWithPhone("+84",userDb,passDb);
         driver = new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
-        serviceNormalCheck = "Service automation to check";
-        serviceListingCheck = "Service listing automation EIKpJC";
-        serviceNormalId = "1067881";
         buyer = AccountTest.SF_USERNAME_VI_1;
         passBuyer = AccountTest.SF_SHOP_VI_PASSWORD;
         selectLocationTitle = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.selectLocationTitle");
+        ServiceInfo serviceInfo = callAPICreateService(false);
+        serviceNormalCheck = serviceInfo.getServiceName();
+        serviceNormalId = serviceInfo.getServiceId();
+        sellingPrice = serviceInfo.getSellingPrice();
+        locations = serviceInfo.getLocations();
+        serviceDescription = serviceInfo.getServiceDescription();
     }
     @AfterClass
     public void tearDown(){
         driver.quit();
     }
-//    @AfterMethod
-//    public void restartApp(){
-//        ((AndroidDriver) driver).resetApp();
-//    }
-    @Test
-    public void SD01_CheckNormalService() throws Exception {
-        //call api create service
-        String searchKeyword = generator.generateString(6) ;
-        String serviceName = "Service automation "+ searchKeyword;
+    @AfterMethod
+    public void restartApp(){
+        ((AndroidDriver) driver).resetApp();
+        new UICommonMobile(driver).waitSplashScreenLoaded();
+    }
+    public ServiceInfo callAPICreateService(boolean enableListing){
+        String serviceName = "Service automation "+ generator.generateString(6);
         String serviceDescription = serviceName + " description";
         int listingPrice = Integer.parseInt("3"+generator.generateNumber(5));
         int sellingPrice = Integer.parseInt("2"+generator.generateNumber(5));
-        String[] location = new String[]{"thu duc","quan 1", "quan 2", "an 7","quan 2","quan 6","quan 8","quan 9"};
-        String[] times = new String[]{"10:11","12:10"};
-        boolean enableListing = false;
+        String[] location = new String[]{"quan 1", "quan 2","quan 8","quan 9"};
+        String[] times = new String[]{"21:11","22:10"};
         ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
-        serviceNormalCheck = serviceName;
-        serviceNormalId = String.valueOf(serviceInfo.getServiceId());
+        return serviceInfo;
+    }
+    public void callAPIDeleteService(int serviceId){
+        new ServiceInfoAPI().deleteService(serviceId);
+    }
+    @Test
+    public void SD01_CheckNormalService() throws Exception {
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
-                .inputKeywordToSearch(searchKeyword)
-                .verifySearchSuggestion(serviceName, String.valueOf(sellingPrice))
+                .inputKeywordToSearch(serviceNormalCheck)
+                .verifySearchSuggestion(serviceNormalCheck, String.valueOf(sellingPrice))
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
-        serviceDetail.verifyServiceName(serviceName)
+        serviceDetail.verifyServiceName(serviceNormalCheck)
                 .verifyServicePrice(sellingPrice +" đ")
-                .verifyLocationNumber(location.length)
+                .verifyLocationNumber(locations.length)
                 .verifyServiceDescription(serviceDescription)
-                .verifyLocations(location)
+                .verifyLocations(locations)
                 .verifyBookNowBtnDisplay()
                 .verifyAddToCartBtnShow();
     }
     @Test
     public void SD02_CheckListingService() throws Exception {
         //call api create service
-        String serviceName = "Service listing automation " + generator.generateString(6);
-        String serviceDescription = serviceName + " description";
-        int listingPrice = Integer.parseInt("3" + generator.generateNumber(5));
-        int sellingPrice = Integer.parseInt("2" + generator.generateNumber(5));
-        String[] location = new String[]{"thu duc", "quan 1", "quan 2"};
-        String[] times = new String[]{"10:11", "12:10"};
-        boolean enableListing = true;
-        new CreateServiceAPI().createService(serviceName, serviceDescription, listingPrice, sellingPrice, location, times, enableListing);
+        ServiceInfo serviceInfo = callAPICreateService(true);
+        serviceListingCheck = serviceInfo.getServiceName();
+        String[] locations = serviceInfo.getLocations();
+        String serviceDescription = serviceInfo.getServiceDescription();
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
-                .inputKeywordToSearch(serviceName)
-                .verifySearchSuggestion(serviceName,"")
+                .inputKeywordToSearch(serviceListingCheck)
+                .verifySearchSuggestion(serviceListingCheck,"")
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
-        serviceDetail.verifyServiceName(serviceName)
+        serviceDetail.verifyServiceName(serviceListingCheck)
                 .verifyPriceNotDisplay()
-                .verifyLocationNumber(location.length)
+                .verifyLocationNumber(locations.length)
                 .verifyServiceDescription(serviceDescription)
-                .verifyLocations(location)
+                .verifyLocations(locations)
                 .verifyContactNowBtnDisplay()
                 .verifyAddToCartBtnNotShow();
     }
     @Test
     public void SD03_CheckServiceDetailAfterEditTranslation() throws Exception {
         //call api create service
+        ServiceInfo serviceInfo = callAPICreateService(false);
+        int serviceId = serviceInfo.getServiceId();
+        int sellingPrice = serviceInfo.getSellingPrice();
+        String serviceDescription = serviceInfo.getServiceDescription();
         String keyword = generator.generateString(6);
-        String serviceName = "Service automation " + keyword;
-        String serviceDescription = serviceName + " description";
-        int listingPrice = Integer.parseInt("3" + generator.generateNumber(5));
-        int sellingPrice = Integer.parseInt("2" + generator.generateNumber(5));
-        String[] location = new String[]{"thu duc", "quan 1", "quan 2"};
-        String[] times = new String[]{"10:11", "12:10"};
-        boolean enableListing = false;
-        ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName, serviceDescription, listingPrice, sellingPrice, location, times, enableListing);
-        serviceListingCheck = serviceInfo.getServiceName();
-        int serviceId = (int) serviceInfo.getServiceId();
-        serviceName = serviceName + " updated en";
+        String serviceName = "Update translator "+ keyword;
         serviceDescription = serviceDescription +" updated en.";
         new APIEditProduct().ediTranslation(serviceId,serviceDescription,serviceName,"ENG");
-        List<String> locationsEdit = new EditServiceAPI().editTranslationServiceLocations(String.valueOf(serviceId));
+        List<String> locationsEdit = new EditServiceAPI().editTranslationServiceLocations(serviceId);
         String[] locationEditArr = new String[locationsEdit.size()];
         locationsEdit.toArray(locationEditArr);
         //Check on buyer app
@@ -149,13 +152,14 @@ public class ServiceDetailTest {
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
-                .inputKeywordToSearch(keyword)
+                .inputKeywordToSearch(serviceName)
                 .verifySearchSuggestion(serviceName, String.valueOf(sellingPrice))
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
         serviceDetail.verifyServiceName(serviceName)
                 .verifyServiceDescription(serviceDescription)
                 .verifyLocations(locationEditArr);
+        callAPIDeleteService(serviceId);
     }
     @Test
     public void SD04_CheckGuestTapOnBookNow(){
@@ -170,6 +174,16 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD05_CheckCustomerTapOnBookNow(){
+        //call api if serviceName = null
+        if(serviceNormalCheck == null){
+            ServiceInfo serviceInfo = callAPICreateService(false);
+            serviceNormalCheck = serviceInfo.getServiceName();
+            serviceNormalId = serviceInfo.getServiceId();
+            sellingPrice = serviceInfo.getSellingPrice();
+            locations = serviceInfo.getLocations();
+            serviceDescription = serviceInfo.getServiceDescription();
+        }
+
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnAccountIcon()
                         .clickLoginBtn()
@@ -267,6 +281,8 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD12_CheckServiceInfoAfterUpdate() throws Exception {
+        //Call api create service
+        ServiceInfo createService = callAPICreateService(false);
         //Call api edit service
         String serviceName = "Edit Service automation "+ generator.generateString(6);
         String serviceDescription = serviceName + "update description";
@@ -282,7 +298,7 @@ public class ServiceDetailTest {
         editServiceAPI.setLocations(locations);
         editServiceAPI.setTimes(times);
         editServiceAPI.setActiveStatus(true);
-        editServiceAPI.updateService(serviceNormalId);
+        editServiceAPI.updateService(createService.getServiceId());
         //Go to app to check
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -296,27 +312,29 @@ public class ServiceDetailTest {
                 .verifyLocationNumber(locations.length)
                 .verifyServiceDescription(serviceDescription)
                 .verifyLocations(locations);
+        callAPIDeleteService(createService.getServiceId());
     }
     @Test
     public void SD13_CheckServiceAfterDeactiveActive() throws JsonProcessingException {
         //Call api edit service to deactive service
         EditServiceAPI editServiceAPI = new EditServiceAPI();
         editServiceAPI.setActiveStatus(false);
-        editServiceAPI.updateService("1063035");
+        editServiceAPI.updateService(serviceNormalId);
         //Check on SF when service deactive
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
-                .inputKeywordToSearch("Service automation jVIBUx")
-                .verifySearchNotFound("Service automation jVIBUx");
+                .inputKeywordToSearch(serviceNormalCheck)
+                .verifySearchNotFound(serviceNormalCheck);
         //Call api edit service to active service
         editServiceAPI = new EditServiceAPI();
         editServiceAPI.setActiveStatus(true);
-        editServiceAPI.updateService("1063035");
+        editServiceAPI.updateService(serviceNormalId);
         //Check on SF when service active
-        new BuyerSearchDetailPage(driver).inputKeywordToSearch("Service automation jVIBUx")
+        new BuyerSearchDetailPage(driver).inputKeywordToSearch(serviceNormalCheck)
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
-        serviceDetail.verifyServiceName("Service automation jVIBUx");
+        serviceDetail.verifyServiceName(serviceNormalCheck);
+        callAPIDeleteService(serviceNormalId);
     }
 }

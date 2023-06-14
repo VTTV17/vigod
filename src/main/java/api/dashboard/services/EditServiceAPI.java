@@ -70,7 +70,7 @@ public class EditServiceAPI {
     public void setEnableListingStatus(boolean isEnableListing){
         this.isEnableListing = isEnableListing;
     }
-    public List<String> editTranslationServiceLocations(String serviceId) {
+    public List<String> editTranslationServiceLocations(int serviceId) {
 
         Response serviceInfoRes = new ServiceInfoAPI().getServiceDetail(serviceId);
         List<Integer> serviceModelIds = serviceInfoRes.jsonPath().getList("models.id");
@@ -111,7 +111,7 @@ public class EditServiceAPI {
      * @param serviceId
      * @throws JsonProcessingException
      */
-    public void updateService(String serviceId) throws JsonProcessingException {
+    public void updateService(int serviceId) throws JsonProcessingException {
         Response serviceInfoRes = new ServiceInfoAPI().getServiceDetail(serviceId);
         Map<String, Object> serviceInfoMapping = new ObjectMapper().readValue(serviceInfoRes.body().asString(), HashMap.class);
         String serviceNamEdit = (String) serviceInfoMapping.get("name");
@@ -155,7 +155,6 @@ public class EditServiceAPI {
                     "promotion": {
                         "beecowSuggest": false
                     },
-                     "models": [
                 """);
         String models = """
                 {   "name": "%s",
@@ -189,7 +188,7 @@ public class EditServiceAPI {
             int discount = sellingPrice*100/ listingPrice;
             for (int i = 0; i < locations.length; i++) {
                 for (int j = 0; j < times.length; j++) {
-                    editServiceBody.append(models.formatted(locations[i] + "|" + times[j], sellingPrice, listingPrice,discount));
+                    editServiceBody.append(models.formatted(locations[i] + "|" + times[j], listingPrice,sellingPrice,discount));
                     if (i == locations.length - 1 && j == times.length - 1) {
                         editServiceBody.append("],");
                     } else editServiceBody.append(",");
@@ -228,6 +227,7 @@ public class EditServiceAPI {
                       "inventoryActionType": "FROM_UPDATE_AT_ITEM_SCREEN"
                   }
                 """.formatted(isEnableListing,activeStatus));
+        System.out.println("body edit: "+editServiceBody);
         Response response = api.put(EDIT_SERVICE_PATH,loginInfo.getAccessToken(),editServiceBody.toString());
         System.out.println(response.prettyPrint());
         response.then().statusCode(200);
