@@ -198,4 +198,49 @@ public class DataGenerator {
         }
         return variationList;
     }
+
+    /**
+     * Generates a Vietnamese phone number based on Epoch time
+     * @return a {@code String} representing the randomly generated phone number
+     */
+	public String randomVNPhone() {
+		String phone = randomNumberGeneratedFromEpochTime(10);
+		String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
+		if (phone.matches("^0[1-9]\\d+")) {
+			return phone;
+		} 
+		if (phone.matches("^(0|[1-9])0\\d+")) {
+			return "0" + nonZeroDigit + phone.substring(2);
+		} 
+		if (phone.matches("^[1-9][1-9]\\d+")) {
+			return "0" + phone.substring(1);
+		}
+		return phone;
+	}	 
+	
+    /**
+     * Generates a foreign phone number based on Epoch time
+     * @return a {@code String} representing the randomly generated phone number
+     */
+	public String randomForeignPhone() {
+		String phone = randomNumberGeneratedFromEpochTime(10);
+		String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
+		if (phone.matches("^[1-9]\\d+")) {
+			return phone;
+		} 
+		if (phone.matches("^0\\d+")) {
+			return nonZeroDigit + phone.substring(1);
+		}
+		return phone;
+	}
+	
+	/**
+	 * Generates a random phone number based on the specified country
+	 * @param country a {@code String} representing the name of the country
+	 * @return a {@code String} representing the randomly generated phone number
+	 */
+	public String randomPhoneByCountry(String country) {
+		return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
+	}	
+    
 }
