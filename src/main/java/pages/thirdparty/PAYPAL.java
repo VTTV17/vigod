@@ -43,8 +43,8 @@ public class PAYPAL {
 	@FindBy(id = "btnLogin")
 	WebElement LOGIN_BTN;
 
-	@FindBy(id = "confirmButtonTop")
-	WebElement PAYNOW_BTN;
+	@FindBy(id = "payment-submit-btn")
+	WebElement COMPLETE_PURCHASE_BTN;
 
 	public PAYPAL inputUsername(String username) {
 		commonAction.inputText(USERNAME, username);
@@ -70,12 +70,12 @@ public class PAYPAL {
 		return this;
 	}
 
-	public PAYPAL clickPayNow() {
+	public PAYPAL clickCompletePurchase() {
 		// Without the 2 consecutive lines below, the new tab won't disappear on its own
 //		wait.until(ExpectedConditions.visibilityOf(PAYNOW_BTN));
 //		commonAction.sleepInMiliSecond(10000); 
-		commonAction.clickElement(PAYNOW_BTN);
-		logger.info("Clicked on 'Pay Now' button.");
+		commonAction.clickElement(COMPLETE_PURCHASE_BTN);
+		logger.info("Clicked on 'Complete Purchase' button.");
 		return this;
 	}
 
@@ -84,7 +84,7 @@ public class PAYPAL {
 		clickNext();
 		inputPassword(PAYPAL_PASSWORD);
 		clickLogin();
-		clickPayNow();
+		clickCompletePurchase();
 		return this;
 	}
 	
@@ -93,7 +93,7 @@ public class PAYPAL {
 		clickNext();
 		inputPassword(password);
 		clickLogin();
-		clickPayNow();
+		clickCompletePurchase();
 		return this;
 	}
 
