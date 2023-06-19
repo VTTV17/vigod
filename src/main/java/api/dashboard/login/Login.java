@@ -3,13 +3,10 @@ package api.dashboard.login;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static io.restassured.RestAssured.baseURI;
-import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.notNullValue;
 import static utilities.links.Links.URI;
 
@@ -105,4 +102,19 @@ public class Login {
         loginResponse.then().statusCode(200);
         return loginResponse;
     }
+    
+    /**
+     * Sets the dashboard login information for a user with the given country, username and password.
+     * @param country The country name to get the country code from.
+     * @param username
+     * @param password
+     * @return The Login object with updated login information
+     */
+    public Login setDashboardLoginInfo(String country, String username, String password) {
+    	Login.phoneCode = new DataGenerator().getCountryCode(country);
+    	Login.account = username;
+        Login.password = password;
+        return this;
+    }    
+    
 }

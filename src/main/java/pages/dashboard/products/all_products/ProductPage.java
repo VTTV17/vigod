@@ -103,7 +103,7 @@ public class ProductPage extends ProductPageElement {
             return this;
         }
         commonAction.clickElement(ADD_VARIATION_BTN);
-        logger.info("Clicked on 'Add Deposit' button.");
+        logger.info("Clicked on 'Add Variation' button.");
         return this;
     }
 

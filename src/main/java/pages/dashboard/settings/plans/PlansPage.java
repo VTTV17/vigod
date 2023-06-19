@@ -81,6 +81,11 @@ public class PlansPage extends HomePage {
 		return this;
 	}
 
+	/**
+	 * Selects a payment method
+	 * @param method Possible values are "BANKTRANSFER", "ATM", "VISA" and "PAYPAL"
+	 * @return the selected payment method. If an unsupported payment method is passed as input, it returns the same input value.
+	 */
 	public String selectPaymentMethod(String method) {
 		switch (method) {
 		case "BANKTRANSFER":
@@ -146,43 +151,6 @@ public class PlansPage extends HomePage {
 			}
 		}
 		commons.switchToWindow(currentWindowHandle);
-	}
-
-	/**
-	 * @param plan          Input value: GoWEB/GoAPP/GoPOS/GoSOCIAL/GoLEAD
-	 * @param paymentMethod Input value: BANKTRANSFER/ATM/VISA/PAYPAL
-	 */
-	public String purchasePlan(String plan, String paymentMethod) {
-		selectPlan(plan);
-		selectPaymentMethod(paymentMethod);
-
-		if (paymentMethod.contentEquals("BANKTRANSFER")) {
-			return getOrderId();
-		}
-
-		int originalSize = commons.getAllWindowHandles().size();
-		if (paymentMethod.contentEquals("ATM")) {
-			commons.switchToWindow(1);
-			new ATM(driver).completePayment();
-		} else if (paymentMethod.contentEquals("VISA")) {
-			commons.switchToWindow(1);
-			new VISA(driver).completePayment();
-		} else if (paymentMethod.contentEquals("PAYPAL")) {
-			commons.switchToWindow(1);
-			new PAYPAL(driver).completePayment();
-		}
-
-		// Wait till
-		for (int i = 0; i < 10; i++) {
-			if (commons.getAllWindowHandles().size() != originalSize) {
-				break;
-			}
-			commons.sleepInMiliSecond(2000);
-		}
-		commons.switchToWindow(0);
-		logger.info("Purchased plan '%s' and paid for it via '%s' successfully".formatted(plan, paymentMethod));
-		commons.sleepInMiliSecond(3000); // Cannot logout without this delay
-		return getOrderId();
 	}
 
 	public String getOrderId() {
