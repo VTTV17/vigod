@@ -42,6 +42,14 @@ public class DataGenerator {
 		}
         return countries;
     }
+
+	/**
+	 * @return a random country
+	 */
+	public String randomCountry() {
+		List<String> countries = getCountryList();
+		return countries.get(new Random().nextInt(0, countries.size()));
+	}    
     
     /**
      * Returns the country code for a given country name as a String

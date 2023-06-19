@@ -241,7 +241,7 @@ public class APIAllProducts {
     }
 
 	public JsonPath getProductConversionUnitJsonPath(int productID) {
-		Response response = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productID), accessToken);
+		Response response = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productID), loginInfo.getAccessToken());
 		response.then().statusCode(200);
 		return response.jsonPath();
 	}
