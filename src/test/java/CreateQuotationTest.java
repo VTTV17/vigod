@@ -11,8 +11,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.APIAllProducts;
@@ -23,7 +21,7 @@ import pages.dashboard.orders.createquotation.CreateQuotation;
 import pages.dashboard.settings.storeinformation.StoreInformation;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
-import utilities.jsonFileUtility;
+import utilities.account.AccountTest;
 import utilities.driver.InitWebdriver;
 
 public class CreateQuotationTest extends BaseTest {
@@ -32,20 +30,29 @@ public class CreateQuotationTest extends BaseTest {
 	HomePage homePage;
 	CreateQuotation createQuotationPage;
 	
+	String username;
+	String password;
+	String country;
+	
 	List<String> customerList;
 	List<String> productList;
 	List<Integer> productIDList;
 	List<List<String>> convUnitProductList;
-	
-	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-	String sellerUsername = sellerData.findValue("seller").findValue("mail").findValue("username").asText();
-	String sellerPassword = sellerData.findValue("seller").findValue("mail").findValue("password").asText();
-	String sellerCountry = sellerData.findValue("seller").findValue("mail").findValue("country").asText();
 
-	
 	@BeforeClass
+	public void loadTestData() {
+		getLoginInfo();
+		getDataByAPI();
+	}	
+	
+	public void getLoginInfo() {
+		username = AccountTest.ADMIN_USERNAME_TIEN;
+		password = AccountTest.ADMIN_PASSWORD_TIEN;
+		country = AccountTest.ADMIN_COUNTRY_TIEN;
+	}	
+	
 	public void getDataByAPI() {
-        new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
+        new Login().loginToDashboardByMail(username, password);
         customerList = new Customers().getAllAccountCustomer();
         productList = new APIAllProducts().getAllProductNames();
         productIDList = new ProductInformation().getProductList();
@@ -61,7 +68,7 @@ public class CreateQuotationTest extends BaseTest {
 	}
 	
 	public void logIntoDashboard() {
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
+		dbLoginPage.navigate().performLogin(country, username, password);
 		homePage.waitTillSpinnerDisappear().selectLanguage(language);
 	}
 
@@ -183,6 +190,7 @@ public class CreateQuotationTest extends BaseTest {
 		Assert.assertEquals(fileStoreEmail, storeEmail, "Store email");
 	}	
 	
+	@Test
 	public void CQ_03_CreateQuotationForCustomer() throws Exception {
 		
 		/* Log into dashboard */

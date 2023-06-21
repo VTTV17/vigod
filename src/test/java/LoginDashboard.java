@@ -158,9 +158,9 @@ public class LoginDashboard extends BaseTest {
 	}
 
     @Test
-	public void LoginDB_06_LoginWithCorrectPhoneAccount() {
+	public void LoginDB_06_LoginWithCorrectAccount() {
 		loginPage.navigate().performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
-		homePage.waitTillSpinnerDisappear().clickLogout();
+		homePage.clickLogout();
 		
 		loginPage.navigate().performLogin(MAIL, PASSWORD);
 		homePage.waitTillSpinnerDisappear().clickLogout();
@@ -179,7 +179,7 @@ public class LoginDashboard extends BaseTest {
 				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
 		// Login with correct credentials.
 		loginPage.navigate().switchToStaffTab().performLogin(STAFF, STAFF_PASSWORD);
-		homePage.waitTillSpinnerDisappear().clickLogout();
+		homePage.clickLogout();
 	}
 
 	@Test
@@ -230,6 +230,7 @@ public class LoginDashboard extends BaseTest {
 		// Input correct verification code
 		loginPage.inputVerificationCode(code)
 		.clickContinueOrConfirmBtn();
+		homePage.waitTillSpinnerDisappear();
 		homePage.clickLogout();
 
 		// Re-login with new password
@@ -261,7 +262,7 @@ public class LoginDashboard extends BaseTest {
 			loginPage.navigate().performLogin(country, username, password);
 
 			// Change password
-			homePage.waitTillSpinnerDisappear().navigateToPage("Settings");
+			homePage.navigateToPage("Settings");
 			new AccountPage(driver).navigate().changePassword(password, newPassword, newPassword);
 			homePage.getToastMessage();
 			homePage.clickLogout();
@@ -276,7 +277,7 @@ public class LoginDashboard extends BaseTest {
 
 				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
 				
-				if (i == 0) homePage.waitTillSpinnerDisappear().navigateToPage("Settings");
+				if (i == 0) homePage.navigateToPage("Settings");
 				new AccountPage(driver).navigate().changePassword(currentPassword, newPassword, newPassword);
 				homePage.getToastMessage();
 			}
@@ -325,7 +326,7 @@ public class LoginDashboard extends BaseTest {
 
 				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
 
-				if (i == 0) homePage.waitTillSpinnerDisappear().navigateToPage("Settings");
+				if (i == 0) homePage.navigateToPage("Settings");
 				new AccountPage(driver).navigate().changePassword(currentPassword, newPassword, newPassword);
 				homePage.getToastMessage();
 			}
