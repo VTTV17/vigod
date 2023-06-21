@@ -18,6 +18,7 @@ public class BuyerAccountPage {
     WebDriver driver;
     WebDriverWait wait;
     UICommonMobile commonAction;
+    BuyerAccountElement accountEl;
 
     int defaultTimeout = 5;
     
@@ -52,4 +53,10 @@ public class BuyerAccountPage {
         commonAction.clickElement(LANGUAGE_BTN);
         return new BuyerChangeLanguage(driver);
     }
+    public BuyerMyProfile clickProfile(){
+        commonAction.clickElement(accountEl.DISPLAY_NAME);
+        logger.info("Click on profile.");
+        return new BuyerMyProfile(driver);
+    }
+
 }

@@ -155,7 +155,7 @@ public class BuyerServiceDetail extends UICommonMobile {
         logger.info("Verify location section is shown");
         return this;
     }
-    public BuyerServiceDetail verifySimilarectionShow(){
+    public BuyerServiceDetail verifySimilarSectionShow(){
         Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.SIMILAR_ITEM_LIST)));
         logger.info("Verify similar section is shown");
         return this;

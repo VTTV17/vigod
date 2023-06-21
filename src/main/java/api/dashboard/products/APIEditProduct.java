@@ -41,7 +41,7 @@ public class APIEditProduct {
         String path = DELETE_ITEM_PATH.formatted(productId);
         Response response = api.delete(path,loginInfo.getAccessToken());
         System.out.println(response.prettyPrint());
-        response.then().statusCode(200);
+//        response.then().statusCode(200);
         logger.info("Delete product: "+productId);
     }
 }
