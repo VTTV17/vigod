@@ -1,5 +1,7 @@
 package pages.dashboard.marketing.landingpage;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -9,11 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.marketing.loyaltyprogram.AddCollectionDialog;
 import utilities.UICommonAction;
-
-import java.time.Duration;
-import java.util.Arrays;
 
 public class CreateLandingPage {
 

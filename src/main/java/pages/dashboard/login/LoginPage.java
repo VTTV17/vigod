@@ -13,6 +13,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+
+import pages.dashboard.home.HomePage;
 import pages.thirdparty.Facebook;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
@@ -193,6 +195,7 @@ public class LoginPage {
     	inputEmailOrPhoneNumber(username);
     	inputPassword(password);
     	clickLoginBtn();
+    	new HomePage(driver).waitTillSpinnerDisappear1();
     	return this;
     }
 

@@ -12,10 +12,8 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -205,16 +203,26 @@ public class SignupPage {
 	 * @param language the desired language - either VIE or ENG
 	 */	
 	public SignupPage selectDisplayLanguage(String language) throws Exception {
-		commonAction.sleepInMiliSecond(1000);
-		if (language.contentEquals("ENG")) {
-			commonAction.clickElement(ENGLISH_LANGUAGE);
-		} else if (language.contentEquals("VIE")) {
-			commonAction.clickElement(VIETNAMESE_LANGUAGE);
-		} else {
-			throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
+		for (int i=0; i<3; i++) {
+			switch (language.toUpperCase()) {
+			case "ENG":
+				commonAction.clickElement(ENGLISH_LANGUAGE);
+				commonAction.sleepInMiliSecond(1000);
+				//Make sure the language is selected
+				if (!commonAction.getElementAttribute(ENGLISH_LANGUAGE, "class").contains("-selected")) continue;
+				break;
+			case "VIE":
+				commonAction.clickElement(VIETNAMESE_LANGUAGE);
+				commonAction.sleepInMiliSecond(1000);
+				//Make sure the language is selected
+				if (!commonAction.getElementAttribute(VIETNAMESE_LANGUAGE, "class").contains("-selected")) continue;
+				break;
+			default:
+				throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
+			}			
 		}
-		logger.info("Selected display language '%s'.".formatted(language));
-		return this;
+	logger.info("Selected display language '%s'.".formatted(language));
+	return this;
 	}    
     
     public SignupPage selectCountry(String country) {
@@ -431,6 +439,38 @@ public class SignupPage {
     	logger.info("Clicked on Confirm button.");     
     }
 
+	public void setupShop(String username, String storeName, String url, String country, String currency,
+			String storeLanguage, String contact, String pickupAddress, String secondPickupAddress, String province,
+			String district, String ward, String city, String zipCode) {
+		inputStoreName(storeName);
+		if (!url.isEmpty()) {
+			inputStoreURL(url);
+		}
+		if (!country.isEmpty()) {
+			selectCountryToSetUpShop(country);
+		}
+		if (!currency.isEmpty()) {
+			selectCurrency(currency);
+		}
+		if (!storeLanguage.isEmpty()) {
+			selectLanguage(storeLanguage);
+		}
+		if (!contact.isEmpty()) {
+			if (username.matches("\\d+")) {
+				inputStoreMail(contact);
+			} else {
+				inputStorePhone(contact);
+			}			
+		}
+		inputPickupAddress(pickupAddress).selectProvince(province);
+		if (!country.contentEquals("Vietnam")) {
+			inputSecondPickupAddress(secondPickupAddress).inputCity(city).inputZipCode(zipCode);
+		} else {
+			selectDistrict(district).selectWard(ward);
+		}
+		clickCompleteBtn();
+	}    
+    
     public SignupPage verifyUsernameExistError(String signupLanguage) throws Exception {
     	String text = commonAction.getText(USEREXIST_ERROR);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.userExists", signupLanguage);

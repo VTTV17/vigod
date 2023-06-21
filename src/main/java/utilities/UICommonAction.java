@@ -257,6 +257,12 @@ public class UICommonAction {
 			wait.until(ExpectedConditions.visibilityOf(element));
 		}
 	}
+	
+	/**
+	 * Wait till the element disappears in the specific duration
+	 * @param element
+	 * @param timeout in seconds
+	 */
 	public void waitForElementInvisible(WebElement element, int timeout){
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
 		try {
@@ -286,6 +292,11 @@ public class UICommonAction {
 		return select.getOptions();
 	}
 
+	/**
+	 * Waits till the element <b>appears once then disappears</b> in the specific duration
+	 * @param element
+	 * @param timeout in seconds
+	 */
 	public void waitTillElementDisappear(WebElement element, int timeout) {
 		try {
 			waitForElementVisible(element, timeout);

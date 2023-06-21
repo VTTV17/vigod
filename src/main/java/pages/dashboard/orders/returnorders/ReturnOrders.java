@@ -106,6 +106,7 @@ public class ReturnOrders {
     	if (permission.contentEquals("A")) {
 			clickExport().clickExportHistory();
 			Assert.assertTrue(commonAction.getCurrentURL().contains(url));
+			commonAction.navigateBack();
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(commonAction.getCurrentURL().contains(url));
     	} else {

@@ -48,7 +48,6 @@ public class HomePage {
     Excel excel;
     int countFailed = 0;
     AssertCustomize assertCustomize;
-    public String featurePermissionFile = "Features.xlsx";
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
     HomePageElement homeUI;
@@ -261,13 +260,20 @@ public class HomePage {
         return false;
     }
 
-
+    /**
+     * Waits till the spinner <b>appears once then disappears</b>
+     * @return HomePage Object
+     */
     public HomePage waitTillSpinnerDisappear() {
         commons.waitTillElementDisappear(SPINNER, 20);
         logger.info("Spinner has finished loading");
         return this;
     }
 
+    /**
+     * Waits till the spinner disappears. Note that this function does not wait till the spinner appears
+     * @return HomePage Object
+     */
     public HomePage waitTillSpinnerDisappear1() {
         commons.waitForElementInvisible(SPINNER, 30);
         logger.info("Spinner1 has finished loading");

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +61,7 @@ import pages.dashboard.settings.vat.VATInformation;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.excel.Excel;
+import utilities.file.FileNameAndPath;
 
 public class Permission {
 
@@ -81,8 +84,7 @@ public class Permission {
      * @param packageName Input value: GoWEB/GoAPP/GoPOS/GoSOCIAL/GoLEAD
      */
     public void testPermission(String... packageName) {
-		if (packageName.length == 0)
-			packageName[0] = "GoFree"; // If no input is provided, we assume it's GoFree package
+
     	HomePage home = new HomePage(driver);
     	
 		Map<String, String> permission = getFeaturePermissions(packageName);
@@ -95,7 +97,8 @@ public class Permission {
 		String location = new BranchPage(driver).navigate().getFreeBranchInfo().get(2);
 		if (location.contains("Vietnam") || location.contains("Việt Nam")) isInVietnam = true;
 		
-		for (String menuComponent : permission.keySet()) {
+		SortedSet<String> sortedKeys = new TreeSet<>(permission.keySet());
+		for (String menuComponent : sortedKeys) {
 			logger.debug("============: " + menuComponent + " =========: " + permission.get(menuComponent));
 			String parentMenu = menuComponent.split("-")[0];
 			String subMenu = menuComponent.split("-")[1];
@@ -277,7 +280,11 @@ public class Permission {
 					} else if (function.contentEquals("Create Service Discount Code For App Platform")) {
 						new DiscountPage(driver).verifyPermissionToCreateServiceDiscountCodeForPlatform("App", permission.get(menuComponent), url.get(menuComponent));
 					} else if (function.contentEquals("Create Service Discount Code For Instore")) {
-						new DiscountPage(driver).verifyPermissionToCreateServiceDiscountCodeForPlatform("In-store", permission.get(menuComponent), url.get(menuComponent));
+						if (!permission.get("Services-All Services-Create Service").contentEquals("A")) {
+							new DiscountPage(driver).verifyPermissionToCreateServiceDiscountCodeForPlatform("In-store", "D", url.get(menuComponent));
+						} else {
+							new DiscountPage(driver).verifyPermissionToCreateServiceDiscountCodeForPlatform("In-store", permission.get(menuComponent), url.get(menuComponent));
+						}
 					} else if (function.contentEquals("Create Service Discount Code As Reward")) {
 						new DiscountPage(driver).verifyPermissionToServiceDiscountCodeAsReward(permission.get(menuComponent), url.get(menuComponent));
 					} 
@@ -613,14 +620,12 @@ public class Permission {
 	}    
     
 	public Map<String, String> getFeaturePermissions(String... features) {
-		if (features.length == 0)
-			features[0] = "GoFree"; // If no input is provided, we assume it's GoFree package
 		Excel excel = new Excel();
 		Sheet permissionSheet = null;
 		Map<String, String> map = new HashMap<>();
 
 		try {
-			permissionSheet = excel.getSheet(new HomePage(driver).featurePermissionFile, 0);
+			permissionSheet = excel.getSheet(FileNameAndPath.FILE_FEATURE_PERMISSION, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -663,7 +668,7 @@ public class Permission {
 		Map<String, String> map = new HashMap<>();
 
 		try {
-			permissionSheet = excel.getSheet(new HomePage(driver).featurePermissionFile, 0);
+			permissionSheet = excel.getSheet(FileNameAndPath.FILE_FEATURE_PERMISSION, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
