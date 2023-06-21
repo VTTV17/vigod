@@ -250,7 +250,8 @@ public class UserProfileSFTest extends BaseTest {
         loginAndGoToUserProfile(buyerAccount_Signup)
                 .clickMyAddressSection()
                 .inputAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
-                .clickOnSave();
+                .clickOnSave()
+                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
@@ -290,7 +291,8 @@ public class UserProfileSFTest extends BaseTest {
         myAddress.inputAddress(address_Edit_Invalid)
                 .verifyAddressDisplayMaximumCharacter(MAX_CHAR_ADDRESS)
                 .inputAddressInfo_VN("Vietnam", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
-                .clickOnSave();
+                .clickOnSave()
+                .verifyAddressInfo_VN("Vietnam", address_Edit, cityProvince_Edit, district_Edit, ward_Edit);
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
@@ -308,7 +310,8 @@ public class UserProfileSFTest extends BaseTest {
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
                 .inputAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit)
-                .clickOnSave();
+                .clickOnSave()
+                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
@@ -330,7 +333,8 @@ public class UserProfileSFTest extends BaseTest {
                 .clickMyAddressSection()
                 .verifyAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
                 .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .clickOnSave();
+                .clickOnSave()
+                .verifyAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout);
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomainB, productIDToBuyNowShopB)
                 .clickOnBuyNow()
@@ -373,7 +377,8 @@ public class UserProfileSFTest extends BaseTest {
         myAddress.inputAddress(address_Edit_Invalid)
                 .verifyAddressDisplayMaximumCharacter(MAX_CHAR_ADDRESS)
                 .inputAddressInfo_VN("Vietnam", addressProfile, cityProfile, districtProfile, wardProfile)
-                .clickOnSave();
+                .clickOnSave()
+                .verifyAddressInfo_VN("Vietnam", addressProfile, cityProfile, districtProfile, wardProfile);
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
@@ -390,7 +395,8 @@ public class UserProfileSFTest extends BaseTest {
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
                 .inputAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit)
-                .clickOnSave();
+                .clickOnSave()
+                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()

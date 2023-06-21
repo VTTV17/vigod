@@ -7,14 +7,14 @@
                 <methods>
                     <include name="PP01_CheckPermissionGoWebWithExistentAccount"/>
                     <include name="PP02_CheckPermissionGoWebWithNewAccount"/>
-<!--                    <include name="PP03_CheckPermissionGoAppWithExistentAccount"/>-->
-<!--                    <include name="PP04_CheckPermissionGoAppWithNewAccount"/>-->
-<!--                    <include name="PP05_CheckPermissionGoPOSWithExistentAccount"/>-->
-<!--                    <include name="PP06_CheckPermissionGoPosWithNewAccount"/>-->
-<!--                    <include name="PP07_CheckPermissionGoSocialWithExistentAccount"/>-->
-<!--                    <include name="PP08_CheckPermissionGoSocialWithNewAccount"/>-->
-<!--                    <include name="PP09_CheckPermissionGoLeadWithExistentAccount"/>-->
-<!--                    <include name="PP10_CheckPermissionGoLeadWithNewAccount"/>-->
+                    <include name="PP03_CheckPermissionGoAppWithExistentAccount"/>
+                    <include name="PP04_CheckPermissionGoAppWithNewAccount"/>
+                    <include name="PP05_CheckPermissionGoPOSWithExistentAccount"/>
+                    <include name="PP06_CheckPermissionGoPosWithNewAccount"/>
+                    <include name="PP07_CheckPermissionGoSocialWithExistentAccount"/>
+                    <include name="PP08_CheckPermissionGoSocialWithNewAccount"/>
+                    <include name="PP09_CheckPermissionGoLeadWithExistentAccount"/>
+                    <include name="PP10_CheckPermissionGoLeadWithNewAccount"/>
                 </methods>
             </class>
         </classes>

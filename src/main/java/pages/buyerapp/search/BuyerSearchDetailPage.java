@@ -25,8 +25,7 @@ public class BuyerSearchDetailPage extends UICommonMobile {
     By SEARCH_SUGGESTION = By.xpath("//android.widget.TextView[contains(@resource-id,'adapter_hot_deal_item_name')]");
     By SEARCH_INPUT = By.xpath("//android.widget.AutoCompleteTextView[contains(@resource-id,'search_src_text')]");
     By SEARCH_SUGGESTION_PRICE = By.xpath("//android.widget.TextView[contains(@resource-id,'adapter_hot_deal_item_promotion_price')]");
-    public By CANCEL_SEARCH = By.xpath("//android.widget.TextView[contains(@resource-id,'search_module_btn_cancel')]");
-
+    By CANCEL_SEARCH = By.xpath("//android.widget.TextView[contains(@resource-id,'search_module_btn_cancel')]");
     public BuyerSearchDetailPage inputKeywordToSearch(String keyword){
         inputText(SEARCH_INPUT,keyword);
         logger.info("Input %s into search field".formatted(keyword));
@@ -34,7 +33,7 @@ public class BuyerSearchDetailPage extends UICommonMobile {
         return this;
     }
     public BuyerSearchDetailPage tapSearchSuggestion() {
-        waitForElementVisible(getElement(SEARCH_SUGGESTION,15));
+        waitForElementVisible(getElement(SEARCH_SUGGESTION,20));
         List<WebElement> suggestions_el = getElements(SEARCH_SUGGESTION);
         clickElement(suggestions_el.get(0));
         return this;

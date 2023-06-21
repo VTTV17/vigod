@@ -22,19 +22,19 @@ public class InitConnection {
 		System.out.println(connectionUrl);
 		return DriverManager.getConnection(connectionUrl);
 	}
-    public String getActivationKey(String phoneNumber) throws SQLException {
+    public String getActivationKey(String username) throws SQLException {
     	try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-        String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(phoneNumber);
+        String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
         ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
         String key = null;
         while (resultSet.next()) {
         	key = resultSet.getString("activation_key");
         }
-        logger.debug("Phone number to get activation key from: " + phoneNumber); 
+        logger.debug("Username to get activation key from: " + username);
         logger.info("Activation key retrieved: " + key); 
         return key;
     }     

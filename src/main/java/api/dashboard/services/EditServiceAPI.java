@@ -101,7 +101,7 @@ public class EditServiceAPI {
             } else body.append(",");
         }
         Response response = api.put(EDIT_TRANSLATION_MODEL, loginInfo.getAccessToken(), body.toString());
-        System.out.println(body);
+        System.out.println("Edit translation body: "+body);
         response.then().statusCode(200);
         return listNewLocation;
     }
@@ -171,7 +171,9 @@ public class EditServiceAPI {
                     "inventoryCurrent": 0,
                     "inventoryActionType": "FROM_CREATE_AT_ITEM_SCREEN"
                 }""";
-        if(locations == null && times == null){
+        editServiceBody.append("""
+                    "models": [""");
+        if(locations == null && times == null){ // no update model: get old data
             List<String> names = serviceInfoRes.jsonPath().getList("models.orgName");
             List<String> orgPrices = serviceInfoRes.jsonPath().getList("models.orgPrice");
             List<String> newPrices = serviceInfoRes.jsonPath().getList("models.newPrice");
@@ -182,9 +184,7 @@ public class EditServiceAPI {
                     editServiceBody.append("],");
                 } else editServiceBody.append(",");
             }
-        }else {
-            editServiceBody.append("""
-                    "models": [""");
+        }else { //has update model: get new data
             int discount = sellingPrice*100/ listingPrice;
             for (int i = 0; i < locations.length; i++) {
                 for (int j = 0; j < times.length; j++) {

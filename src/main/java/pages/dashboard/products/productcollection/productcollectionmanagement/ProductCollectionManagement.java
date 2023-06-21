@@ -76,7 +76,7 @@ public class ProductCollectionManagement extends HomePage {
 
     public ProductCollectionManagement verifyCollectionInfoAfterCreated(String collectionName, String type, String mode, String items) {
         commonAction.refreshPage();
-        waitTillSpinnerDisappear();
+//        waitTillSpinnerDisappear();
         commonAction.sleepInMiliSecond(2000);
         verifyCollectionName(collectionName, 0);
         verifyType(type, 0);

@@ -29,6 +29,5 @@ public class BuyerServiceDetailElement {
     By SIMILAR_ITEM_LIST = By.xpath("//android.widget.FrameLayout[contains(@resource-id,'item_service_detail_similar_service_iv_image')]");
     By DESCRIPTION_SECTION = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'activity_service_detail_description')]");
     By LOCATION_SECTION = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'activity_service_detail_locations')]");
-
 }
 

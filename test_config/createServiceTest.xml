@@ -15,7 +15,7 @@
                     <include name="CS08_CreateServiceWithHTMLDescription"/>
                     <include name="CS09_CheckServiceQuantity"/>
                     <include name="CS10_CheckCreateServiceWithMaximumVariation"/>
-<!--                    <include name="CS11_CheckCreateSVPermision"/>-->
+                    <include name="CS11_CheckCreateSVPermision"/>
                     <include name="ES01_EditTranslation"/>
                     <include name="ES02_AddEditRemoveSEOInfo"/>
                     <include name="ES03_ActiveDeactiveService"/>
@@ -23,7 +23,7 @@
                     <include name="ES05_AddRemovePhotoForService"/>
                     <include name="ES06_AddRemoveCollectionForService"/>
                     <include name="ES07_DeleteServiceInServiceDetail"/>
-<!--                    <include name="ES08_CheckEditSVPermision"/>-->
+                    <include name="ES08_CheckEditSVPermision"/>
                 </methods>
             </class> <!-- CreateServiceTest -->
         </classes>

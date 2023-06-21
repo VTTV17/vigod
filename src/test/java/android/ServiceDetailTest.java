@@ -40,7 +40,6 @@ public class ServiceDetailTest {
     String selectLocationTitle;
     int serviceNormalId;
     String[] locations;
-    String[] times;
     String serviceDescription;
     int sellingPrice;
     @BeforeClass
@@ -136,11 +135,12 @@ public class ServiceDetailTest {
         ServiceInfo serviceInfo = callAPICreateService(false);
         int serviceId = serviceInfo.getServiceId();
         int sellingPrice = serviceInfo.getSellingPrice();
+        String serviceName = serviceInfo.getServiceName();
         String serviceDescription = serviceInfo.getServiceDescription();
         String keyword = generator.generateString(6);
-        String serviceName = "Update translator "+ keyword;
+        String serviceNameUpdate = serviceName + " translator";
         serviceDescription = serviceDescription +" updated en.";
-        new APIEditProduct().ediTranslation(serviceId,serviceDescription,serviceName,"ENG");
+        new APIEditProduct().ediTranslation(serviceId,serviceDescription,serviceNameUpdate,"ENG");
         List<String> locationsEdit = new EditServiceAPI().editTranslationServiceLocations(serviceId);
         String[] locationEditArr = new String[locationsEdit.size()];
         locationsEdit.toArray(locationEditArr);
@@ -152,11 +152,11 @@ public class ServiceDetailTest {
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
-                .inputKeywordToSearch(serviceName)
-                .verifySearchSuggestion(serviceName, String.valueOf(sellingPrice))
+                .inputKeywordToSearch(serviceNameUpdate)
+                .verifySearchSuggestion(serviceNameUpdate, String.valueOf(sellingPrice))
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
-        serviceDetail.verifyServiceName(serviceName)
+        serviceDetail.verifyServiceName(serviceNameUpdate)
                 .verifyServiceDescription(serviceDescription)
                 .verifyLocations(locationEditArr);
         callAPIDeleteService(serviceId);
@@ -248,7 +248,7 @@ public class ServiceDetailTest {
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
         serviceDetail.tapSimilarTab()
-                .verifySimilarectionShow()
+                .verifySimilarSectionShow()
                 .tapDescriptionTab()
                 .verifyDescriptionSectionShow()
                 .tapLocationsTab()
@@ -284,7 +284,7 @@ public class ServiceDetailTest {
         //Call api create service
         ServiceInfo createService = callAPICreateService(false);
         //Call api edit service
-        String serviceName = "Edit Service automation "+ generator.generateString(6);
+        String serviceName = createService.getServiceName()+" updated";
         String serviceDescription = serviceName + "update description";
         int listingPrice = Integer.parseInt("3"+generator.generateNumber(5));
         int sellingPrice = Integer.parseInt("2"+generator.generateNumber(5));
@@ -335,6 +335,15 @@ public class ServiceDetailTest {
                 .tapSearchSuggestion();
         serviceDetail = new BuyerServiceDetail(driver);
         serviceDetail.verifyServiceName(serviceNormalCheck);
+    }
+    @Test
+    public void SD14_CheckServiceAfterDelete(){
         callAPIDeleteService(serviceNormalId);
+        //Check on SF when service deleted
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnSearchIcon()
+                .tapOnSearchBar()
+                .inputKeywordToSearch(serviceNormalCheck)
+                .verifySearchNotFound(serviceNormalCheck);
     }
 }

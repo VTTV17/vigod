@@ -37,7 +37,9 @@ public class ProductInformation {
         Response dashboardProductList = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(loginInfo.getStoreID())), loginInfo.getAccessToken());
         dashboardProductList.then().statusCode(200);
         JsonPath productListJson = dashboardProductList.jsonPath();
-        return Lists.newReversedArrayList(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
+        List<Integer> productList = new ArrayList<>(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
+        Collections.reverse(productList);
+        return productList;
     }
 
     public ProductInfo getInfo(int productID) {

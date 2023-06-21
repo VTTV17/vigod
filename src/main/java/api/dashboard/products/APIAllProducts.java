@@ -42,8 +42,9 @@ public class APIAllProducts {
         }
         Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
         List<String> productSorted = sortedMap.keySet().stream().toList();
-        List<String> reverseView = Lists.newReversedArrayList(productSorted);
-        return reverseView;
+//        List<String> reverseView = Lists.newReversedArrayList(productSorted);
+        Collections.reverse(productSorted);
+        return productSorted;
     }
     public Map<String,Date> getProductCreatedDateMapByProductName(int collectionID,String productName) throws ParseException {
         Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",String.valueOf(collectionID)).replaceAll("%sort%",""),loginInfo.getAccessToken());
@@ -202,7 +203,7 @@ public class APIAllProducts {
                         }
                         break;
                 }
-                if (isChecked == true){
+                if (isChecked){
                     break;
                 }
             }
@@ -222,8 +223,9 @@ public class APIAllProducts {
     public List<String> getProductListCollection_SortNewest(Map productCollectionInfo){
         Map<String, Date> sortedMap = SortData.sortMapByValue(productCollectionInfo);
         List<String> productSorted = sortedMap.keySet().stream().toList();
-        List<String> reverseView = Lists.newReversedArrayList(productSorted);
-        return reverseView;
+//        List<String> reverseView = Lists.newReversedArrayList(productSorted);
+        Collections.reverse(productSorted);
+        return productSorted;
     }
 
     public int countProductItem(boolean hasConversionUnit, String productId){

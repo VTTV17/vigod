@@ -282,8 +282,7 @@ public class SignupPage extends GeneralSF {
     }
     public void signUpWithEmail(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
         onlyFillOutSignupForm(country, userName, passWord, displayName, birthday);
-        mailnesia = new Mailnesia(driver);
-        String verifyCode = mailnesia.navigateToMailAndGetVerifyCode(userName);
+        String verifyCode =  new InitConnection().getActivationKey(userName);
         inputVerificationCode(verifyCode);
         clickConfirmBtn();
         commonAction.sleepInMiliSecond(1000);
