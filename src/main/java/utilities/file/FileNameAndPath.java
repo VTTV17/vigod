@@ -21,6 +21,7 @@ public class FileNameAndPath {
     public static final String FILE_IMAGE_3 = "fusionmeso.jpg";
     public static final String FILE_IMAGE_4 = "peel.jpg";
     public static final String FILE_PLAN_PERMISSION = "PlanPermission.xlsx";
+    public static final String FILE_FEATURE_PERMISSION = "Features.xlsx";
     public static final String FILE_USER_PROFILE_TCS = "UserProfileSFTcs.xlsx";
     public static final String FILE_BUY_LINK_TCS = "BuyLinkTCs.xlsx";
     private static boolean isWindow() {

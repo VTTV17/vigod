@@ -11,8 +11,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.ConfirmationDialog;
-import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 
 public class AccountInformation {

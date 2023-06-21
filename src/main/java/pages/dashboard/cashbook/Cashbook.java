@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -167,11 +168,20 @@ public class Cashbook {
 			commonAction.sleepInMiliSecond(500);
 		}
 		
-		List<String> rowData = new ArrayList<>();
-		for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {
-			rowData.add(column.getText());
+		try {
+			List<String> rowData = new ArrayList<>();
+			for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {
+				rowData.add(column.getText());
+			}
+			return rowData;
+		} catch (StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in getSpecificRecord(). Retrying...");
+			List<String> rowData = new ArrayList<>();
+			for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {
+				rowData.add(column.getText());
+			}
+			return rowData;
 		}
-		return rowData;
 	}
 
 	public List<List<String>> getRecords() {
@@ -232,6 +242,8 @@ public class Cashbook {
 		commonAction.clickElement(SENDER_NAME_DROPDOWN);
 		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
 		WebElement sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
+		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, wrong name is selected
+		sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
 		commonAction.clickElement(sender);
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
