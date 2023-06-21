@@ -406,7 +406,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
@@ -449,7 +449,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
@@ -492,7 +492,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
@@ -535,7 +535,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating receipts
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
@@ -578,7 +578,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
@@ -621,7 +621,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
@@ -664,7 +664,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
@@ -707,7 +707,7 @@ public class CashbookTest extends BaseTest {
 			homePage.getToastMessage();
 
 			// Get cashbook summary after creating payments
-			commonAction.sleepInMiliSecond(2000);
+			commonAction.sleepInMiliSecond(2500);
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
