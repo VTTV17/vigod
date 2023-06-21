@@ -37,6 +37,15 @@ public class UICommonMobile extends UICommonAction {
 		}
 	}
 	
+	public void clickElement(By bySelector, int timeout) {
+		try {
+			getElement(bySelector,timeout).click();
+		} catch(StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in clickElement\n" + ex);
+			getElement(bySelector,timeout).click();
+		}
+	}
+	
 	public void inputText(By bySelector, String text) {
 		try {
 			WebElement el = getElement(bySelector,5);
