@@ -26,6 +26,7 @@ public class BuyerAccountPage {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
+        accountEl = new BuyerAccountElement();
     }
     
     By NAVIGATE_LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'sign_in')]");
