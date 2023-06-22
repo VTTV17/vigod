@@ -91,11 +91,7 @@ public class SignupPage {
     	
     	for (int i=0; i<6; i++) {
     		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
-    		try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+    		commonAction.sleepInMiliSecond(500);
     	}
     	
     	commonAction.clickElement(COUNTRY_SEARCHRESULT);

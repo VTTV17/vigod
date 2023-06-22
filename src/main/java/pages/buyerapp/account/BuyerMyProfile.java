@@ -7,6 +7,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
+import utilities.data.DataGenerator;
 
 import java.time.Duration;
 
@@ -22,6 +23,42 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         common = new UICommonMobile(driver);
     }
+    
+	public String getDisplayName() {
+		String value = common.getText(YOUR_NAME_INPUT);
+		logger.info("Retrieved Display Name: " + value);
+		return value;
+	}
+
+	public String getEmail() {
+		String value = common.getText(EMAIL_INPUT);
+		logger.info("Retrieved Mail: " + value);
+		return value;
+	}    
+
+	/**
+	 * Retrieves phone number of customers
+	 * @return the customer's phone number along with a country code separated by ":". Eg. +84:0841001002
+	 */
+    public String getPhoneNumber() {
+        String country = common.getText(COUNTRY_NAME);
+        String phoneNumber = common.getText(PHONE_NUMBER_INPUT);
+        String value = new DataGenerator().getCountryCode(country) + ":" + phoneNumber;
+        logger.info("Retrieved phone number prefixed with country code: " + value);
+        return value;
+    }
+
+    public String getBirthday() {
+        String value = common.getText(BIRTHDAY_INPUT);
+        logger.info("Retrieved Birthday: " + value);
+        return value;
+    }	
+    
+    public void clickAddress() {
+    	common.getElement(ADDRESS_INPUT).click();
+    	logger.info("Clicked on Signup button.");
+    }    
+    
     public BuyerMyProfile verifyTextMyProfile() throws Exception {
 
         Assert.assertEquals(common.getText(MY_PROFILE_HEADER_TITLE), PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.pageTitle"));
