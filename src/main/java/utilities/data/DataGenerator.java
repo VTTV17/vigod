@@ -30,11 +30,11 @@ public class DataGenerator {
     }
     
     /**
-     * Returns a list of all the countries in the countryCodes.json file as Strings.
-     * @return a List of all the countries in the countryCodes.json file
+     * Returns a list of all the countries in the phoneCodes.json file as Strings.
+     * @return a List of all the countries in the phoneCodes.json file
      */
     public List<String> getCountryList() {
-		JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json");
+		JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json");
 		Iterator<String> it = data.fieldNames();
 		List<String> countries = new ArrayList<>();
 		while(it.hasNext()) {
@@ -57,7 +57,7 @@ public class DataGenerator {
      * @return the country code for the given country, or null if it is not found
      */
     public String getCountryCode(String country) {
-    	JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
+    	JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
     	return data.asText();
     }
     

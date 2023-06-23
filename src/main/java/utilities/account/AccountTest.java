@@ -11,6 +11,7 @@ public class AccountTest {
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com
     public static String DB_HOST = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_HOST_ITEM2 = "beecow-staging-item.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
+    public static String DB_HOST_CATALOG = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_PORT = "5432";
 
     // postgres
@@ -21,10 +22,12 @@ public class AccountTest {
     // readonly
     public static String DB_USER = "readonly";
     public static String DB_ITEM2_USER = "dbaitem";
+    public static String DB_USER_CATALOG = "dbacatalog";
     // postgres
     // R7LHffcgeEh2tpQ0qU2y
     public static String DB_PASS = "R7LHffcgeEh2tpQ0qU2y";
     public static String DB_ITEM2_PASS = "ShogdBiPHcC67RDQ6H1u";
+    public static String DB_PASS_CATALOG = "Nw4kYW3G9eribICWw0dP";
 
     public static String USERNAME_INTERNALTOOL = PropertiesUtil.getEnvironmentData("internalUserName");
     public static String PASSWORD_INTERNALTOOL = PropertiesUtil.getEnvironmentData("internalPass");
