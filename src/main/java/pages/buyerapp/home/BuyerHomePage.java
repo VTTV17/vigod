@@ -2,14 +2,18 @@ package pages.buyerapp.home;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 public class BuyerHomePage extends BuyerHomeElement {
     final static Logger logger = LogManager.getLogger(BuyerHomePage.class);

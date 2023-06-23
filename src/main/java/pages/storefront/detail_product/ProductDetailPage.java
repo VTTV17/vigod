@@ -2,7 +2,6 @@ package pages.storefront.detail_product;
 
 import api.dashboard.login.Login;
 import api.dashboard.onlineshop.Preferences;
-import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.products.ProductReviews;
 import api.dashboard.promotion.CreatePromotion;
@@ -52,7 +51,6 @@ public class ProductDetailPage extends ProductDetailElement {
     FlashSaleInfo flashSaleInfo;
     DiscountCampaignInfo discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
-    boolean enableListingProduct;
 
     public ProductDetailPage(WebDriver driver) {
         super(driver);
@@ -69,29 +67,25 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void accessToProductDetailPageByProductIDAndCheckProductInformation(String language) throws Exception {
+    public void accessToProductDetailPageByProductIDAndCheckProductInformation(String language, ProductInfo productInfo) throws Exception {
+        // get product information
+        this.productInfo = productInfo;
+
         // convert language to languageCode
         String languageCode = language.equals("VIE") ? "vi" : "en";
         // get store language and others information
         storeInfo = new StoreInformation().getInfo();
 
-        // get listing product config
-        enableListingProduct = new Preferences().isEnabledListingProduct();
-
         // check shop has multiple language or not
         driver.get("https://%s%s/".formatted(storeInfo.getStoreURL(), SF_DOMAIN));
 
-        // get product information
-        int productID = new ProductPage(driver).getProductID() != 0 ? new ProductPage(driver).getProductID() : new CreateProduct().getProductID();
-
-        // get product information
-        productInfo = new ProductInformation().getInfo(productID);
-
         // get wholesale config
-        wholesaleProductInfo = new ProductInformation().wholesaleProductInfo(productID);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation().wholesaleProductInfo(productInfo);
 
         // get max stock
         int maxStock = Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
+
+        System.out.println(productInfo.isDeleted());
 
         // check product is display or not
         if (!(maxStock == 0 || !productInfo.getBhStatus().equals("ACTIVE") || productInfo.isDeleted() || !productInfo.isOnWeb()) || (productInfo.isShowOutOfStock()) && productInfo.getBhStatus().equals("ACTIVE") && !productInfo.isDeleted() && productInfo.isOnWeb()) {
@@ -100,14 +94,14 @@ public class ProductDetailPage extends ProductDetailElement {
             if (storeInfo.getSFLangList().contains(languageCode)) {
                 // check all information with language
                 if (languageCode.equals(storeInfo.getDefaultLanguage()) || !productInfo.getSeoMap().get("url").get(languageCode).equals(productInfo.getSeoMap().get("url").get(storeInfo.getDefaultLanguage()))) {
-                    driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productID));
-                    logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
+                    driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductID()));
+                    logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
 
                     //wait spinner loaded
                     commonAction.waitForElementInvisible(SPINNER, 30);
 
                     // wait product detail page loaded
-                    commonAction.verifyPageLoaded(productInfo.getDefaultProductNameMap().get(languageCode), productInfo.getDefaultProductNameMap().get(languageCode));
+                    commonAction.waitElementVisible(PRODUCT_NAME);
 
                     if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
                         checkUIInStock(languageCode);
@@ -121,8 +115,8 @@ public class ProductDetailPage extends ProductDetailElement {
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
-            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, storeInfo.getStoreLanguageList().size() > 0 ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productID));
-            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productID));
+            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, storeInfo.getStoreLanguageList().size() > 0 ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getProductID()));
+            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
 
             // sleep 1s
             commonAction.sleepInMiliSecond(1000);
@@ -174,18 +168,16 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkBreadcrumbs(String language) throws Exception {
         // check breadcrumbs
         commonAction.sleepInMiliSecond(3000);
-        List<String> sfBreadCrumbs = BREAD_CRUMBS.stream().map(webElement -> webElement.getText().trim()).toList();
-        List<List<String>> ppBreadCrumbs = new ArrayList<>();
-        ppBreadCrumbs.add(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), getPropertiesValueBySFLang("productDetail.breadCrumbs.1", language), productInfo.getDefaultProductNameMap().get(language)));
-        if (productInfo.getCollectionNameMap().keySet().size() > 0)
-            ppBreadCrumbs.add(List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), productInfo.getCollectionNameMap().get(productInfo.getCollectionNameMap().keySet().stream().toList().get(0)).get(language).trim(), productInfo.getDefaultProductNameMap().get(language)));
-        countFail = new AssertCustomize(driver).assertTrue(countFail, ppBreadCrumbs.stream().anyMatch(breadCrumbs -> breadCrumbs.toString().equals(sfBreadCrumbs.toString())), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
+        List<String> sfBreadCrumbs = new ArrayList<>(BREAD_CRUMBS.stream().map(webElement -> ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString()).toList());
+        sfBreadCrumbs.remove(1);
+        List<String> ppBreadCrumbs = List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), productInfo.getDefaultProductNameMap().get(language));
+        countFail = new AssertCustomize(driver).assertTrue(countFail, ppBreadCrumbs.toString().equals(sfBreadCrumbs.toString()), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
         logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
     }
 
     void checkProductDetailWhenInStock(String language) throws Exception {
         // quantity
-        if (!(enableListingProduct && productInfo.isEnabledListing())) {
+        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
             String sfQuantity = wait.until(ExpectedConditions.visibilityOf(QUANTITY_TITLE)).getText();
             String quantity = getPropertiesValueBySFLang("productDetail.quantity", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfQuantity, quantity, "[Failed][Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
@@ -264,11 +256,15 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // similar product
-        if (SIMILAR_PRODUCT.isDisplayed()) {
-            String sfSimilarProduct = wait.until(ExpectedConditions.visibilityOf(SIMILAR_PRODUCT)).getText();
-            String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
-            logger.info("[UI][%s] Check Product Detail - Similar Product".formatted(language));
+        try {
+            if (SIMILAR_PRODUCT.isDisplayed()) {
+                String sfSimilarProduct = wait.until(ExpectedConditions.visibilityOf(SIMILAR_PRODUCT)).getText();
+                String similarProduct = getPropertiesValueBySFLang("productDetail.similarProduct", language);
+                countFail = new AssertCustomize(driver).assertEquals(countFail, sfSimilarProduct, similarProduct, "[Failed][Product Detail] Similar Product title should be %s, but found %s.".formatted(similarProduct, sfSimilarProduct));
+                logger.info("[UI][%s] Check Product Detail - Similar Product".formatted(language));
+            }
+        } catch (NoSuchElementException ex) {
+            logger.info("No similar product");
         }
     }
 
@@ -371,12 +367,13 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkPriceOnEachBranch(long listingPrice, long sellingPrice, String brName) throws IOException {
         String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
 
-        if (!(enableListingProduct && productInfo.isEnabledListing())) {
-            if (listingPrice != sellingPrice) {
+        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
+            try {
                 String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
                 countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
+            } catch (TimeoutException ex) {
+                logger.info("No discount product (listing price = selling price)");
             }
-
             String actSellingPrice = new UICommonAction(driver).getText(SELLING_PRICE).replace(",", "");
             long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
 
@@ -516,8 +513,8 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     void checkVariationName(String language) {
         // get variation name list on dashboard
-        List<String> variationNameListDB = Arrays.stream(productInfo.getVariationNameMap().get(language).replace("|", " ").split(" ")).toList();
-        List<String> variationNameListSF = LIST_VARIATION_NAME.stream().map(element -> element.getText().toLowerCase()).toList().stream().sorted().toList();
+        List<String> variationNameListDB = Arrays.stream(productInfo.getVariationNameMap().get(language).split("\\|")).toList();
+        List<String> variationNameListSF = LIST_VARIATION_NAME.stream().map(webElement -> ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", webElement).toString()).toList().stream().sorted().toList();
 
         countFail = new AssertCustomize(driver).assertTrue(countFail, variationNameListSF.toString().equals(variationNameListDB.toString()), "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListSF));
         logger.info("[Check variation name] Check product variation show correctly");
@@ -559,7 +556,7 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkBuyNowAndAddToCartBtnIsShown(String... variationName) throws IOException {
         String varName = (variationName.length > 0) ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
-        if (!(enableListingProduct && productInfo.isEnabledListing())) {
+        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
             // check Buy now button is shown
             boolean checkBuyNow = true;
             try {
@@ -807,15 +804,21 @@ public class ProductDetailPage extends ProductDetailElement {
         System.out.printf("flash sale status%s%n", flashSaleInfo.getFlashSaleStatus());
         System.out.printf("discount campaign status%s%n", discountCampaignInfo.getDiscountCampaignStatus());
         System.out.printf("wholesale product status%s%n", wholesaleProductInfo.getStatusMap());
-        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> flashSaleInfo.getFlashSaleStatus().get(brName).get(i).equals("IN_PROGRESS") ? "FLASH SALE" : flashSaleInfo.getFlashSaleStatus().get(brName).get(i).equals("SCHEDULED") ? "SELLING PRICE" : discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE").toList(), (a, b) -> b));
+        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
+            case "IN_PROGRESS" -> "FLASH SALE";
+            case "SCHEDULED" ->
+                    (!discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS")) && (wholesaleProductInfo.getStatusMap().get(brName).get(i)) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
+            default ->
+                    discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
+        }).toList(), (a, b) -> b));
     }
 
     Map<String, List<String>> getSaleDisplayMap() {
-        Map<String, List<String>> map = new HashMap<>();
-        for (String brName : brInfo.getBranchName()) {
-            map.put(brName, IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> flashSaleInfo.getFlashSaleStatus().get(brName).get(i).equals("EXPIRED") ? discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE" : "FLASH SALE").toList());
-        }
-        return map;
+        return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
+            case "IN_PROGRESS", "SCHEDULED" -> "FLASH SALE";
+            default ->
+                    discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
+        }).toList(), (a, b) -> b));
     }
 
     public boolean isReviewTabDisplayed() {

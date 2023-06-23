@@ -63,7 +63,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
         // wait page loaded
-        commonAction.verifyPageLoaded("Thêm giá bán sỉ", "Add Wholesale Pricing");
+        commonAction.waitElementVisible(ADD_WHOLESALE_PRICING_CHECKBOX);
 
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
         if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX))
@@ -79,13 +79,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
         commonAction.waitForElementInvisible(SPINNER, 60);
 
         // wait wholesale product page loaded
-        commonAction.verifyPageLoaded("Bạn chưa thiết lập giá sỉ cho sản phẩm này", "You don't configure any wholesale price for this product yet");
+        commonAction.waitElementVisible(UI_NO_WHOLESALE_CONFIG);
 
         // check [UI] header
         checkUIHeader();
 
         // hide Facebook bubble
-        commonAction.hideElement(driver.findElement(By.cssSelector("#fb-root")));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
 
         return this;
     }
@@ -113,12 +113,12 @@ public class WholesaleProductPage extends WholesaleProductElement {
         checkWithoutVariationConfigTable();
 
         // wait and input buy from
-        wait.until(visibilityOf(WITHOUT_VARIATION_BUY_FROM));
+        wait.until(visibilityOf(WITHOUT_VARIATION_BUY_FROM)).click();
         WITHOUT_VARIATION_BUY_FROM.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         WITHOUT_VARIATION_BUY_FROM.sendKeys(String.valueOf(wholesaleProductStock.get(0)));
 
         // wait and input price per item
-        wait.until(visibilityOf(WITHOUT_VARIATION_PRICE_PER_ITEM));
+        wait.until(visibilityOf(WITHOUT_VARIATION_PRICE_PER_ITEM)).click();
         WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(String.valueOf(wholesaleProductPrice.get(0)));
 

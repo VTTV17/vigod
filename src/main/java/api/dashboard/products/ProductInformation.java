@@ -5,7 +5,6 @@ import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import org.testng.collections.Lists;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
@@ -37,7 +36,23 @@ public class ProductInformation {
         Response dashboardProductList = api.get(GET_DASHBOARD_PRODUCT_LIST.replace("storeID", String.valueOf(loginInfo.getStoreID())), loginInfo.getAccessToken());
         dashboardProductList.then().statusCode(200);
         JsonPath productListJson = dashboardProductList.jsonPath();
-        return Lists.newReversedArrayList(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
+        List<Integer> productList = new ArrayList<>(IntStream.range(0, productListJson.getList("id").size()).filter(i -> (int) (productListJson.getList("remainingStock").get(i)) > 0).mapToObj(i -> (int) (productListJson.getList("id").get(i))).toList());
+        Collections.reverse(productList);
+        return productList;
+    }
+
+    public boolean checkProductInfo(int productID, String manageInventoryType, boolean hasModel, boolean inStock, boolean isHideStock, boolean isDisplayIfOutOfStock) {
+        // get product response
+        Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productID), loginInfo.getAccessToken());
+        if (res.statusCode() != 200) System.out.println(productID);
+        res.then().statusCode(200);
+
+        // get model type
+        return (res.jsonPath().getBoolean("isHideStock") == isHideStock)
+                & (res.jsonPath().getBoolean("showOutOfStock") == isDisplayIfOutOfStock)
+                & (((res.jsonPath().getInt("totalItem") - res.jsonPath().getInt("totalSoldItem")) > 0) == inStock)
+                & (res.jsonPath().getBoolean("hasModel") == hasModel)
+                & res.jsonPath().getString("inventoryManageType").equals(manageInventoryType);
     }
 
     public ProductInfo getInfo(int productID) {
@@ -49,6 +64,9 @@ public class ProductInformation {
 
         // init product info model
         ProductInfo prdInfo = new ProductInfo();
+
+        // set product ID
+        prdInfo.setProductID(productID);
 
         // set deleted
         prdInfo.setDeleted((res.getStatusCode() == 404) && res.asPrettyString().contains("message"));
@@ -247,12 +265,9 @@ public class ProductInformation {
     /**
      * return {barcode, list segment, list price, list stock}
      */
-    public WholesaleProductInfo wholesaleProductInfo(int productID) {
-        // get product information
-        ProductInfo productInfo = getInfo(productID);
-
+    public WholesaleProductInfo wholesaleProductInfo(ProductInfo productInfo) {
         /* get wholesale product raw data from API */
-        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productID), loginInfo.getAccessToken());
+        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productInfo.getProductID()), loginInfo.getAccessToken());
         wholesaleProductInfo.then().statusCode(200);
         // get sale barcode group list
         List<String> barcodeList = wholesaleProductInfo.jsonPath().getList("lstResult.itemModelIds");
@@ -261,7 +276,14 @@ public class ProductInformation {
         // get sale stock list
         List<Integer> saleStock = Pattern.compile("minQuatity.{3}(\\d+)").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList();
         // get sale segment group list
-        List<String> segmentList = Pattern.compile("segmentIds.{4}((\\d+,*)+|\\w{3})").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> matchResult.group(1)).toList();
+        JsonPath wholesaleJsonPath = wholesaleProductInfo.jsonPath();
+        List<Object> segmentList = new ArrayList<>();
+        for (int i = 0; i < wholesaleJsonPath.getList("lstResult").size(); i++) {
+            for (int configId = 0; configId < wholesaleJsonPath.getList("lstResult[%s].paging.content".formatted(i)).size(); configId++) {
+                segmentList.add(wholesaleJsonPath.getString("lstResult[%s].paging.content[%s].segmentIds".formatted(i, configId)));
+            }
+        }
+
         // get number config per group barcode
         List<Integer> totalElements = Pattern.compile("totalElements.{3}(\\d+)").matcher(wholesaleProductInfo.asPrettyString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList();
 
@@ -274,11 +296,18 @@ public class ProductInformation {
             wholesaleRawData.setBarcode(barcodeList.get(i));
             List<Long> priceList = new ArrayList<>();
             List<Integer> stockList = new ArrayList<>();
-            for (int id = index; id < index + totalElements.get(i); id++)
-                if (segmentList.get(id).equals("ALL") || Arrays.stream(segmentList.get(i).split(",")).toList().stream().map(segID -> new Customers().getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
-                    priceList.add(salePrice.get(id));
-                    stockList.add(saleStock.get(id));
+            for (int id = index; id < index + totalElements.get(i); id++) {
+                if (segmentList.get(id) != null) {
+                    if (segmentList.get(id).equals("ALL") || Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().map(segID -> new Customers().getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
+                        if (stockList.contains(saleStock.get(id))) {
+                            priceList.set(stockList.indexOf(saleStock.get(id)), Math.min(salePrice.get(id), priceList.get(stockList.indexOf(saleStock.get(id)))));
+                        } else {
+                            priceList.add(salePrice.get(id));
+                            stockList.add(saleStock.get(id));
+                        }
+                    }
                 }
+            }
             wholesaleRawData.setPrice(priceList);
             wholesaleRawData.setStock(stockList);
             if (stockList.size() > 0) configs.add(wholesaleRawData);

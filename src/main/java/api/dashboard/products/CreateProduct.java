@@ -1,6 +1,5 @@
 package api.dashboard.products;
 
-import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
@@ -18,46 +17,30 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.math.JVMRandom.nextLong;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static utilities.character_limit.CharacterLimit.MAX_WHOLESALE_PRICE_TITLE;
 import static utilities.links.Links.STORE_CURRENCY;
 
 public class CreateProduct {
 
     // api get path
     String API_POST_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
-    String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
-    String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
 
-    LoginDashboardInfo loginInfo;
-    TaxInfo taxInfo;
-    BranchInfo branchInfo;
-    StoreInfo storeInfo;
+    LoginDashboardInfo loginInfo = new Login().getInfo();
+    TaxInfo taxInfo = new VAT().getInfo();
+    BranchInfo branchInfo = new BranchManagement().getInfo();
+    StoreInfo storeInfo = new StoreInformation().getInfo();
     private static String productName;
     private static String productDescription;
     private static boolean hasModel;
     private static int productID;
     private static List<Integer> variationModelID;
-    private static int collectionID;
     private boolean manageByIMEI;
-
-    {
-        loginInfo = new Login().getInfo();
-        taxInfo = new VAT().getInfo();
-        branchInfo = new BranchManagement().getInfo();
-        storeInfo = new StoreInformation().getInfo();
-    }
-
     boolean showOutOfStock = true;
     boolean hideStock = false;
     boolean enableListing = false;
@@ -244,92 +227,5 @@ public class CreateProduct {
 
     public boolean isManageByIMEI() {
         return manageByIMEI;
-    }
-
-    public CreateProduct addWholesalePriceProduct() {
-        StringBuilder body = new StringBuilder("""
-                {
-                    "itemId": "%s",
-                    "lstWholesalePricingDto": [""".formatted(productID));
-        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers().getSegmentID());
-        int num = hasModel ? nextInt(variationModelID.size()) + 1 : 1;
-        if (hasModel) {
-            for (int i = 0; i < num; i++) {
-                long price = nextLong(getProductSellingPrice().get(i)) + 1;
-                int stock = nextInt(Collections.max(getProductStockQuantity().get(getVariationList().get(i)))) + 1;
-                String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-                String variationWholesaleConfig = """
-                        {
-                            "id": null,
-                            "title": "%s",
-                            "minQuatity": %s,
-                            "itemModelIds": "%s",
-                            "currency": "%s",
-                            "price": %s,
-                            "segmentIds": "%s",
-                            "itemId": "%s",
-                            "action": null
-                        }""".formatted(title, stock, "%s_%s".formatted(productID, variationModelID.get(i)), STORE_CURRENCY, price, segmentIDs, productID);
-                body.append(variationWholesaleConfig);
-                body.append((i == (num - 1)) ? "" : ",");
-            }
-        } else {
-            String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
-            long price = nextLong(getProductSellingPrice().get(0)) + 1;
-            int stock = nextInt(Collections.max(getProductStockQuantity().get(null))) + 1;
-            String variationWholesaleConfig = """
-                    {
-                        "id": null,
-                        "title": "%s",
-                        "minQuatity": %s,
-                        "itemModelIds": "%s",
-                        "currency": "%s",
-                        "price": %s,
-                        "segmentIds": "%s",
-                        "itemId": "%s",
-                        "action": null
-                    }""".formatted(title, stock, productID, STORE_CURRENCY, price, segmentIDs, productID);
-            body.append(variationWholesaleConfig);
-        }
-        body.append("]}");
-
-        Response addWholesale = api.post(CREATE_WHOLESALE_PRICE_PATH, loginInfo.getAccessToken(), String.valueOf(body));
-        addWholesale.then().statusCode(200);
-
-        return this;
-    }
-
-    public void createCollection() {
-        String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        String body = """
-                {
-                    "name": "%s",
-                    "collectionType": "AUTOMATED",
-                    "lstImage": [],
-                    "lstCondition": [
-                        {
-                            "conditionField": "PRODUCT_NAME",
-                            "operand": "CONTAINS",
-                            "values": [
-                                {
-                                    "value": "Auto"
-                                }
-                            ]
-                        }
-                    ],
-                    "conditionType": "ALL",
-                    "lstProduct": [],
-                    "itemType": "BUSINESS_PRODUCT",
-                    "bcStoreId": "%s"
-                }""".formatted(collectionName, loginInfo.getStoreID());
-        Response createCollection = api.post(CREATE_PRODUCT_COLLECTION_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), body);
-
-        createCollection.then().statusCode(200);
-
-        collectionID = createCollection.jsonPath().getInt("id");
-    }
-
-    public int getCollectionID() {
-        return CreateProduct.collectionID;
     }
 }

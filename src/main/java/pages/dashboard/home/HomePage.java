@@ -1,31 +1,15 @@
 package pages.dashboard.home;
 
-import static java.lang.Thread.sleep;
-import static utilities.links.Links.DOMAIN;
-import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_ENG;
-import static utilities.page_loaded_text.PageLoadedText.DB_HOME_PAGE_LOADED_TEXT_VIE;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import pages.dashboard.marketing.landingpage.LandingPage;
 import pages.dashboard.onlineshop.Domains;
 import pages.dashboard.onlineshop.Themes;
@@ -36,6 +20,15 @@ import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.Thread.sleep;
+import static utilities.links.Links.DOMAIN;
 
 public class HomePage {
     WebDriver driver;
@@ -145,6 +138,9 @@ public class HomePage {
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
 
     By STATISTICS = By.cssSelector(".statistic");
+
+    @FindBy(xpath = ".what-to-do-next")
+    WebElement WHAT_TO_DO_NEXT;
 
     public Map<String, String> pageMap() {
         Map<String, String> map = new HashMap<>();
@@ -579,7 +575,7 @@ public class HomePage {
     }
 
     public HomePage verifyPageLoaded() {
-        commons.verifyPageLoaded(DB_HOME_PAGE_LOADED_TEXT_VIE, DB_HOME_PAGE_LOADED_TEXT_ENG);
+        commons.waitElementVisible(WHAT_TO_DO_NEXT);
         return this;
     }
 

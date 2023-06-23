@@ -7,6 +7,7 @@ import java.util.Map;
 
 @Data
 public class ProductInfo {
+    private int productID;
     private Map<String, String> variationNameMap;
     private Map<String, List<String>> variationListMap;
     private List<Long> productListingPrice;

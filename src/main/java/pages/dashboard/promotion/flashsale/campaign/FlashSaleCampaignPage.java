@@ -20,8 +20,6 @@ import static java.lang.Thread.sleep;
 import static pages.dashboard.promotion.flashsale.time.TimeManagementPage.*;
 import static utilities.character_limit.CharacterLimit.MAX_FLASH_SALE_CAMPAIGN_NAME;
 import static utilities.links.Links.STORE_CURRENCY;
-import static utilities.page_loaded_text.PageLoadedText.DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_ENG;
-import static utilities.page_loaded_text.PageLoadedText.DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_VIE;
 
 public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
     WebDriverWait wait;
@@ -47,7 +45,7 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
      * Wait page loaded successfully
      */
     private void verifyPageLoaded() {
-        commonAction.verifyPageLoaded(DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_VIE, DB_FLASH_SALE_CAMPAIGN_PAGE_LOADED_TEXT_ENG);
+        commonAction.waitElementVisible(UI_PRODUCT_INFORMATION);
         logger.info("Wait page loaded");
     }
 

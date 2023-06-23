@@ -1,15 +1,5 @@
 package pages.dashboard.promotion.discount;
 
-import static pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
-import static pages.dashboard.customers.segments.CreateSegment.segmentName;
-import static utilities.links.Links.DOMAIN;
-import static utilities.page_loaded_text.PageLoadedText.DB_DISCOUNT_PAGE_LOADED_TEXT_ENG;
-import static utilities.page_loaded_text.PageLoadedText.DB_DISCOUNT_PAGE_LOADED_TEXT_VIE;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -18,7 +8,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
 import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.segments.Segments;
@@ -28,6 +17,14 @@ import pages.dashboard.promotion.discount.product_discount_code.ProductDiscountC
 import pages.dashboard.promotion.discount.servicediscountcampaign.ServiceDiscountCampaignPage;
 import pages.dashboard.promotion.discount.servicediscountcode.ServiceDiscountCodePage;
 import utilities.UICommonAction;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
+import static pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
+import static pages.dashboard.customers.segments.CreateSegment.segmentName;
+import static utilities.links.Links.DOMAIN;
 
 public class DiscountPage extends DiscountElement {
     WebDriverWait wait;
@@ -55,7 +52,7 @@ public class DiscountPage extends DiscountElement {
         logger.info("Current page is %s".formatted(driver.getTitle()));
 
         // wait page loaded
-        commonAction.verifyPageLoaded(DB_DISCOUNT_PAGE_LOADED_TEXT_VIE, DB_DISCOUNT_PAGE_LOADED_TEXT_ENG);
+        commonAction.waitElementVisible(UI_SEARCH_PLACEHOLDER);
 
         return this;
     }

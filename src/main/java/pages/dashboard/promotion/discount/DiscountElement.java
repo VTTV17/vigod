@@ -27,4 +27,7 @@ public class DiscountElement {
 
     @FindBy (css = "div.second-button-group > div > button:nth-child(1)")
     public WebElement PRODUCT_WHOLESALE_PRICING;
+
+    @FindBy(xpath = ".search-input")
+    WebElement UI_SEARCH_PLACEHOLDER;
 }

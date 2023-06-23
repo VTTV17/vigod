@@ -83,6 +83,7 @@ public class SignUp {
         customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
         String apiMail = "%s@qa.team".formatted(Instant.now().toEpochMilli());
         password = "Abc@12345";
+        System.out.println(apiMail);
         phoneCode = "+84";
         String signupBody = """
                 {

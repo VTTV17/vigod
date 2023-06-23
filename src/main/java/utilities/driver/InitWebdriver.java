@@ -28,13 +28,13 @@ public class InitWebdriver {
                 case "firefox" -> {
                     WebDriverManager.firefoxdriver().setup();
                     FirefoxOptions firefoxOptions = new FirefoxOptions();
-                    firefoxOptions.setHeadless(headless.equals("true"));
+                    if (headless.equals("true")) firefoxOptions.addArguments("--headless");
                     driver = new FirefoxDriver(firefoxOptions);
                 }
                 case "edge" -> {
                     WebDriverManager.edgedriver().setup();
                     EdgeOptions edgeOptions = new EdgeOptions();
-                    edgeOptions.setHeadless(headless.equals("true"));
+                    if (headless.equals("true")) edgeOptions.addArguments("--headless");
                     driver = new EdgeDriver(edgeOptions);
                 }
                 case "safari" -> {
@@ -44,7 +44,8 @@ public class InitWebdriver {
                 default -> {
                     WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
-                    chromeOptions.setHeadless(headless.equals("true"));
+                    if (headless.equals("true")) chromeOptions.addArguments("--headless");
+//                    chromeOptions.setHeadless(headless.equals("true"));
                     // fix org.openqa.selenium.WebDriverException: unknown error: cannot determine loading status from no such window
                     chromeOptions.addArguments("--disable-site-isolation-trials");
                     // fix 403 Forbidden

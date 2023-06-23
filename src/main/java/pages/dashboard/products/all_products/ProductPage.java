@@ -25,22 +25,27 @@ import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
-import static utilities.page_loaded_text.PageLoadedText.DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_ENG;
-import static utilities.page_loaded_text.PageLoadedText.DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_VIE;
 
 public class ProductPage extends ProductPageElement {
     WebDriverWait wait;
@@ -150,11 +155,12 @@ public class ProductPage extends ProductPageElement {
 
     public void clickOnTheCreateProductBtn() {
         // click create product button
-        wait.until(ExpectedConditions.elementToBeClickable(CREATE_PRODUCT_BTN)).click();
+        wait.until(elementToBeClickable(CREATE_PRODUCT_BTN)).click();
         // log
         logger.info("Click on the Create Product button");
         // wait create product page loaded
-        new UICommonAction(driver).verifyPageLoaded(DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_VIE, DB_PRODUCT_DETAIL_PAGE_LOADED_TEXT_ENG);
+        wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+//        commonAction.waitElementVisible(UI_SEO_SETTING);
     }
 
     /*Verify permission for certain feature*/
@@ -253,7 +259,7 @@ public class ProductPage extends ProductPageElement {
     }
 
     void hideFacebookBubble() {
-        new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.visibilityOf(FB_BUBBLE));
+//        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.visibilityOf(FB_BUBBLE));
         ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
     }
 
@@ -279,7 +285,8 @@ public class ProductPage extends ProductPageElement {
         driver.get("%s%s".formatted(DOMAIN, CREATE_PRODUCT_PATH));
 
         // wait page loaded
-        commonAction.verifyPageLoaded("Chọn kênh bán hàng", "Select sale channel");
+        wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+//        commonAction.waitElementVisible(UI_SEO_SETTING);
 
         // hide Facebook bubble
         hideFacebookBubble();
@@ -290,9 +297,9 @@ public class ProductPage extends ProductPageElement {
         return this;
     }
 
-    public ProductPage navigateToUpdateProductPage() throws Exception {
+    public ProductPage navigateToUpdateProductPage(int productID) throws Exception {
         // get product id
-        productID = new CreateProduct().getProductID();
+        ProductPage.productID = productID;
 
         // get product information
         productInfo = new ProductInformation().getInfo(productID);
@@ -304,20 +311,59 @@ public class ProductPage extends ProductPageElement {
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
         // wait page loaded
-        commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+        commonAction.waitElementVisible(ADD_CONVERSION_UNIT_CHECKBOX);
+
+        // clear old conversion unit config
+        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
+
+        // delete old wholesale product config if any
+        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX)) {
+            // uncheck add wholesale pricing checkbox to delete old wholesale config
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
+
+            // wait confirm popup visible
+            wait.until(visibilityOf(CONFIRM_POPUP));
+
+            // confirm delete old wholesale config
+            wait.until(elementToBeClickable(CONFIRM_POPUP_OK_BTN)).click();
+
+            // wait confirm popup invisible
+            wait.until(invisibilityOf(CONFIRM_POPUP));
+        }
+
+        // click Save button
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SAVE_BTN);
+
+        // wait three point loading visible
+        commonAction.waitForElementInvisible(THREE_POINT_LOADING, 30);
+
+        // wait spinner loading invisible
+        commonAction.waitForElementInvisible(SPINNER_LOADING, 30);
+
+        // close notification popup
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", NOTIFICATION_POPUP_CLOSE_BTN);
+
+        // refresh page
+        driver.navigate().refresh();
+
+        // wait page loaded
+        commonAction.waitElementVisible(ADD_CONVERSION_UNIT_CHECKBOX);
 
         // hide Facebook bubble
-        hideFacebookBubble();
+        ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
 
         // check [UI] update product page
         checkUIUpdateProductInfo();
+
         return this;
     }
 
     void inputProductName(String productName) {
         // input product name
         PRODUCT_NAME.sendKeys("a");
-        wait.until(ExpectedConditions.elementToBeClickable(UI_PRODUCT_NAME)).click();
+        commonAction.waitElementVisible(UI_PRODUCT_NAME);
+        wait.until(elementToBeClickable(UI_PRODUCT_NAME)).click();
         PRODUCT_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_NAME.sendKeys(productName);
     }
@@ -325,7 +371,7 @@ public class ProductPage extends ProductPageElement {
     void inputProductDescription() {
         // input product description
         productDescription = "[%s] product descriptions".formatted(storeInfo.getDefaultLanguage());
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_DESCRIPTION)).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        wait.until(elementToBeClickable(PRODUCT_DESCRIPTION)).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_DESCRIPTION.sendKeys(productDescription);
     }
 
@@ -357,7 +403,7 @@ public class ProductPage extends ProductPageElement {
 
     void selectCollection() {
         // click on collection search box
-        wait.until(ExpectedConditions.elementToBeClickable(COLLECTION_SEARCH_BOX)).click();
+        wait.until(elementToBeClickable(COLLECTION_SEARCH_BOX)).click();
         commonAction.sleepInMiliSecond(500);
 
         // select collection if any
@@ -377,12 +423,12 @@ public class ProductPage extends ProductPageElement {
 
     void inputWithoutVariationProductSKU() {
         String sku = "SKU" + Instant.now().toEpochMilli();
-        wait.until(ExpectedConditions.elementToBeClickable(CR_PRODUCT_SKU_WITHOUT_VARIATION)).sendKeys(sku);
+        wait.until(elementToBeClickable(CR_PRODUCT_SKU_WITHOUT_VARIATION)).sendKeys(sku);
     }
 
     void updateWithoutVariationProductSKU() throws Exception {
         // open update SKU popup
-        wait.until(ExpectedConditions.elementToBeClickable(UP_PRODUCT_SKU_WITHOUT_VARIATION)).click();
+        wait.until(elementToBeClickable(UP_PRODUCT_SKU_WITHOUT_VARIATION)).click();
 
         // wait Update SKU popup visible
         wait.until(visibilityOf(POPUP));
@@ -397,7 +443,7 @@ public class ProductPage extends ProductPageElement {
         }
 
         // close Update SKU popup
-        wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
+        wait.until(elementToBeClickable(POPUP_UPDATE_BTN)).click();
     }
 
     void setManageInventory(boolean isIMEIProduct) throws Exception {
@@ -435,22 +481,22 @@ public class ProductPage extends ProductPageElement {
     void setProductDimension() {
         String dimension = (hasDimension) ? "10" : "0";
         // input product weight
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_WEIGHT));
+        wait.until(elementToBeClickable(PRODUCT_WEIGHT));
         act.moveToElement(PRODUCT_WEIGHT).doubleClick().sendKeys(dimension).build().perform();
         logger.info("Input weight: %s".formatted(dimension));
 
         // input product length
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_LENGTH));
+        wait.until(elementToBeClickable(PRODUCT_LENGTH));
         act.moveToElement(PRODUCT_LENGTH).doubleClick().sendKeys(dimension).build().perform();
         logger.info("Input length: %s".formatted(dimension));
 
         // input product width
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_WIDTH));
+        wait.until(elementToBeClickable(PRODUCT_WIDTH));
         act.moveToElement(PRODUCT_WIDTH).doubleClick().sendKeys(dimension).build().perform();
         logger.info("Input width: %s".formatted(dimension));
 
         // input product height
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_HEIGHT));
+        wait.until(elementToBeClickable(PRODUCT_HEIGHT));
         act.moveToElement(PRODUCT_HEIGHT).doubleClick().sendKeys(dimension).build().perform();
         logger.info("Input height: %s".formatted(dimension));
 
@@ -478,24 +524,24 @@ public class ProductPage extends ProductPageElement {
     void inputSEO() {
         // SEO title
         String title = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        wait.until(ExpectedConditions.elementToBeClickable(SEO_TITLE)).click();
+        wait.until(elementToBeClickable(SEO_TITLE)).click();
         SEO_TITLE.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         SEO_TITLE.sendKeys(title);
 
         // SEO description
         String description = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        wait.until(ExpectedConditions.elementToBeClickable(SEO_DESCRIPTION)).click();
+        wait.until(elementToBeClickable(SEO_DESCRIPTION)).click();
         SEO_DESCRIPTION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         SEO_DESCRIPTION.sendKeys(description);
 
         // SEO keyword
         String keyword = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        wait.until(ExpectedConditions.elementToBeClickable(SEO_KEYWORD)).click();
+        wait.until(elementToBeClickable(SEO_KEYWORD)).click();
         SEO_KEYWORD.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         SEO_KEYWORD.sendKeys(keyword);
 
         // SEO URL
-        wait.until(ExpectedConditions.elementToBeClickable(SEO_URL)).click();
+        wait.until(elementToBeClickable(SEO_URL)).click();
         SEO_URL.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         SEO_URL.sendKeys("%s%s".formatted(storeInfo.getDefaultLanguage(), epoch));
     }
@@ -526,17 +572,17 @@ public class ProductPage extends ProductPageElement {
         else productSellingPrice.add(nextLong(productListingPrice.get(0)));
 
         // input listing price
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_LISTING_PRICE_WITHOUT_VARIATION));
+        wait.until(elementToBeClickable(PRODUCT_LISTING_PRICE_WITHOUT_VARIATION));
         PRODUCT_LISTING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_LISTING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf(productListingPrice.get(0)));
 
         // input selling price
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_SELLING_PRICE_WITHOUT_VARIATION));
+        wait.until(elementToBeClickable(PRODUCT_SELLING_PRICE_WITHOUT_VARIATION));
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf(productSellingPrice.get(0)));
 
         // input cost price
-        wait.until(ExpectedConditions.elementToBeClickable(PRODUCT_COST_PRICE_WITHOUT_VARIATION));
+        wait.until(elementToBeClickable(PRODUCT_COST_PRICE_WITHOUT_VARIATION));
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf((int) (Math.random() * productSellingPrice.get(0))));
     }
@@ -600,7 +646,7 @@ public class ProductPage extends ProductPageElement {
         }
 
         // save IMEI/Serial number
-        wait.until(ExpectedConditions.elementToBeClickable(ADD_IMEI_POPUP_SAVE_BTN)).click();
+        wait.until(elementToBeClickable(ADD_IMEI_POPUP_SAVE_BTN)).click();
     }
 
     public void inputWithoutVariationStock(int... branchStockQuantity) throws Exception {
@@ -673,7 +719,7 @@ public class ProductPage extends ProductPageElement {
         wait.until(visibilityOf(POPUP));
 
         // select all branches
-        wait.until(ExpectedConditions.elementToBeClickable(UPDATE_STOCK_POPUP_BRANCH_DROPDOWN)).click();
+        wait.until(elementToBeClickable(UPDATE_STOCK_POPUP_BRANCH_DROPDOWN)).click();
         if (!UPDATE_STOCK_POPUP_BRANCH_DROPDOWN_SELECT_ALL.isSelected())
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", UPDATE_STOCK_POPUP_BRANCH_DROPDOWN_SELECT_ALL);
         else UPDATE_STOCK_POPUP_BRANCH_DROPDOWN.click();
@@ -682,10 +728,10 @@ public class ProductPage extends ProductPageElement {
         checkUpdateStockPopup();
 
         // switch to change stock tab
-        wait.until(ExpectedConditions.elementToBeClickable(UPDATE_STOCK_POPUP_CHANGE_TAB)).click();
+        wait.until(elementToBeClickable(UPDATE_STOCK_POPUP_CHANGE_TAB)).click();
 
         // input stock quantity to visible stock input field
-        wait.until(ExpectedConditions.elementToBeClickable(UPDATE_STOCK_POPUP_INPUT_STOCK)).sendKeys(String.valueOf(Collections.max(branchStock) + 1));
+        wait.until(elementToBeClickable(UPDATE_STOCK_POPUP_INPUT_STOCK)).sendKeys(String.valueOf(Collections.max(branchStock) + 1));
 
         commonAction.sleepInMiliSecond(1000);
 
@@ -697,7 +743,7 @@ public class ProductPage extends ProductPageElement {
             act.sendKeys(String.valueOf(branchStock.get(brStockIndex))).build().perform();
         }
         // close Update stock popup
-        wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
+        wait.until(elementToBeClickable(POPUP_UPDATE_BTN)).click();
     }
 
     void updateWithoutVariationStock(int... branchStockQuantity) throws Exception {
@@ -733,6 +779,23 @@ public class ProductPage extends ProductPageElement {
 
     }
 
+    // input variation value by Robot class
+    void inputByRobot(String text) throws AWTException {
+        StringSelection stringSelection = new StringSelection(text);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+
+        Robot robot = new Robot();
+        robot.delay(500);
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_V);
+        robot.keyRelease(KeyEvent.VK_V);
+        robot.keyRelease(KeyEvent.VK_CONTROL);
+        robot.delay(500);
+        robot.keyPress(KeyEvent.VK_ENTER);
+        robot.keyRelease(KeyEvent.VK_ENTER);
+    }
+
     // Variation product
     public void addVariations() throws Exception {
         // generate variation map
@@ -751,31 +814,38 @@ public class ProductPage extends ProductPageElement {
 
         // delete old variation
         DELETE_VARIATION_BTN.forEach(WebElement::click);
+        System.out.println(variationMap);
+
+        // check [UI] Add variation button
+        checkAddVariationBtn();
+
+        // click add variation button
+        IntStream.range(0, variationMap.keySet().size()).forEachOrdered(i -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_VARIATION_BTN));
 
         // input variation name and variation value
         for (int varID = 0; varID < variationMap.keySet().size(); varID++) {
             String varName = "%s_%s".formatted(storeInfo.getDefaultLanguage(), variationMap.keySet().stream().toList().get(varID));
-            logger.info("variation name: %s_%s".formatted(storeInfo.getDefaultLanguage(), varName));
-
-            // check [UI] Add variation button
-            checkAddVariationBtn();
-
-            // click add variation button
-            wait.until(ExpectedConditions.elementToBeClickable(ADD_VARIATION_BTN)).click();
+            logger.info("variation name: %s".formatted(varName));
 
             // check [UI] after click Add variation button
             checkVariationInformation();
             checkVariationValuePlaceholder();
 
             // input variation name
-            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_NAME.get(varID))).sendKeys(varName);
+            wait.until(elementToBeClickable(VARIATION_NAME.get(varID))).sendKeys(varName);
 
             // input variation value
-            for (String varValue : variationMap.get(varName.split("_")[1])) {
-                act.moveToElement(VARIATION_VALUE.get(varID)).click().sendKeys("%s_%s\n".formatted(storeInfo.getDefaultLanguage(), varValue)).build().perform();
+            List<String> varValueList = variationMap.get(varName.split("_", 2)[1]);
+            for (String varValue : varValueList) {
+                VARIATION_VALUE.get(varID).sendKeys("%s_%s".formatted(storeInfo.getDefaultLanguage(), varValue));
+                commonAction.sleepInMiliSecond(500);
+                VARIATION_VALUE.get(varID).sendKeys(Keys.chord(Keys.ENTER));
+
                 logger.info("variation value: %s_%s".formatted(storeInfo.getDefaultLanguage(), varValue));
             }
         }
+
+        UI_VARIATIONS.click();
 
         // check [UI] after add variation (Check variation table column)
         checkVariationTable();
@@ -793,14 +863,15 @@ public class ProductPage extends ProductPageElement {
         });
 
         // select all variation
-        if (!VARIATION_TABLE_SELECT_ALL_CHECKBOX.isSelected())
+        commonAction.sleepInMiliSecond(1000);
+        if (!(boolean) ((JavascriptExecutor)driver).executeScript("return arguments[0].checked", VARIATION_TABLE_SELECT_ALL_CHECKBOX))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_TABLE_SELECT_ALL_CHECKBOX);
 
         // check [UI] after select all variations
         checkBulkActionsOnVariationTable();
 
         // open list action dropdown
-        wait.until(ExpectedConditions.elementToBeClickable(VARIATION_TABLE_SELECT_ACTION)).click();
+        wait.until(elementToBeClickable(VARIATION_TABLE_SELECT_ACTION)).click();
 
         // check [UI] check list actions
         checkListActionsOnVariationTable();
@@ -822,7 +893,7 @@ public class ProductPage extends ProductPageElement {
         });
 
         // close Update price popup
-        wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
+        wait.until(elementToBeClickable(POPUP_UPDATE_BTN)).click();
     }
 
     void inputVariationStock(int increaseNum, int... branchStockQuantity) throws Exception {
@@ -895,7 +966,7 @@ public class ProductPage extends ProductPageElement {
             }
 
             // close Update SKU popup
-            wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
+            wait.until(elementToBeClickable(POPUP_UPDATE_BTN)).click();
         }
     }
 
@@ -919,7 +990,7 @@ public class ProductPage extends ProductPageElement {
             }
 
             // close Update SKU popup
-            wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
+            wait.until(elementToBeClickable(POPUP_UPDATE_BTN)).click();
         }
     }
 
@@ -943,15 +1014,12 @@ public class ProductPage extends ProductPageElement {
             }
 
             // close Update image popup
-            wait.until(ExpectedConditions.elementToBeClickable(POPUP_UPDATE_BTN)).click();
+            wait.until(elementToBeClickable(POPUP_UPDATE_BTN)).click();
         }
     }
 
     /* Active/Deactivate product */
-    public ProductPage changeProductStatus(String status) {
-        // get product id
-        productID = new CreateProduct().getProductID();
-
+    public ProductPage changeProductStatus(String status, int productID) {
         // get product information
         productInfo = new ProductInformation().getInfo(productID);
 
@@ -963,7 +1031,8 @@ public class ProductPage extends ProductPageElement {
             driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
             // wait page loaded
-            commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+            wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+//            commonAction.waitElementVisible(UI_SEO_SETTING);
 
             // change status
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DEACTIVATE_BTN);
@@ -973,10 +1042,7 @@ public class ProductPage extends ProductPageElement {
         return this;
     }
 
-    public void deleteProduct() throws Exception {
-        // get product id
-        productID = new CreateProduct().getProductID();
-
+    public void deleteProduct(int productID) throws Exception {
         // get product information
         productInfo = new ProductInformation().getInfo(productID);
 
@@ -988,23 +1054,24 @@ public class ProductPage extends ProductPageElement {
             driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
             // wait page loaded
-            commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+            wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+//            commonAction.waitElementVisible(UI_SEO_SETTING);
 
             // click delete button
-            wait.until(ExpectedConditions.elementToBeClickable(DELETE_BTN));
+            wait.until(elementToBeClickable(DELETE_BTN));
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DELETE_BTN);
 
             // wait confirm popup visible
-            wait.until(ExpectedConditions.visibilityOf(POPUP));
+            wait.until(visibilityOf(POPUP));
 
             // check UI
             checkUIConfirmDeleteProductPopup();
 
             // click OK to confirm delete product
-            wait.until(ExpectedConditions.visibilityOf(CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN)).click();
+            wait.until(visibilityOf(CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN)).click();
 
             // wait delete successfully
-            wait.until(ExpectedConditions.visibilityOf(POPUP));
+            wait.until(visibilityOf(POPUP));
         }
     }
 
@@ -1012,13 +1079,13 @@ public class ProductPage extends ProductPageElement {
     /* Complete create/update product */
     void completeCreateProduct() {
         // click Save button
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        wait.until(elementToBeClickable(SAVE_BTN)).click();
 
         // wait notification popup visible
         new WebDriverWait(driver, Duration.ofSeconds(60)).until(visibilityOf(POPUP));
 
         // close notification popup
-        wait.until(ExpectedConditions.elementToBeClickable(NOTIFICATION_POPUP_CLOSE_BTN)).click();
+        wait.until(elementToBeClickable(NOTIFICATION_POPUP_CLOSE_BTN)).click();
 
         // wait product list page is loaded
         wait.until((ExpectedCondition<Boolean>) driver -> {
@@ -1031,47 +1098,20 @@ public class ProductPage extends ProductPageElement {
 
         // wait api return result
         commonAction.sleepInMiliSecond(1000);
+        commonAction.waitElementVisible(PRODUCT_ID);
 
         // wait api return list product
-        productID = Integer.valueOf(wait.until(visibilityOf(PRODUCT_ID)).getText());
+        productID = Integer.parseInt(wait.until(visibilityOf(PRODUCT_ID)).getText());
 
         // log
         logger.info("Product id: %s".formatted(productID));
     }
 
     void completeUpdateProduct() {
-        // clear old conversion unit config
-        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
-
-        // delete old wholesale product config if any
-        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX)) {
-            // uncheck add wholesale pricing checkbox to delete old wholesale config
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
-
-            // wait confirm popup visible
-            wait.until(visibilityOf(CONFIRM_POPUP));
-
-            // confirm delete old wholesale config
-            wait.until(ExpectedConditions.elementToBeClickable(CONFIRM_POPUP_OK_BTN)).click();
-
-            // wait confirm popup invisible
-            wait.until(ExpectedConditions.invisibilityOf(CONFIRM_POPUP));
-        }
-
-        // click Save button
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", SAVE_BTN);
-
-        // wait three point loading visible
-        commonAction.waitForElementInvisible(THREE_POINT_LOADING, 30);
-
-        // wait spinner loading invisible
-        commonAction.waitForElementInvisible(SPINNER_LOADING, 30);
-
         // end test if update product failed
         boolean isDisplay;
         try {
-            POPUP.getText();
+            FAIL_POPUP.getText();
             isDisplay = true;
         } catch (NoSuchElementException ex) {
             isDisplay = false;
@@ -1079,7 +1119,7 @@ public class ProductPage extends ProductPageElement {
         Assert.assertFalse(isDisplay, "[Failed][Update product] Can not update product.");
     }
 
-    public void configWholesaleProduct() throws Exception {
+    public ProductPage configWholesaleProduct() throws Exception {
         if (hasModel) new WholesaleProductPage(driver)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
@@ -1088,6 +1128,7 @@ public class ProductPage extends ProductPageElement {
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductWithoutVariation();
+        return this;
     }
 
     public ProductPage configConversionUnit() throws Exception {
@@ -1120,7 +1161,7 @@ public class ProductPage extends ProductPageElement {
         hasModel = true;
 
         // product name
-        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), isIMEIProduct ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), isIMEIProduct ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         productInfo(productName, isIMEIProduct);
         addVariations();
@@ -1153,7 +1194,7 @@ public class ProductPage extends ProductPageElement {
         hasModel = true;
 
         // product name
-        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct().isManageByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct().isManageByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         productInfo(productName, new CreateProduct().isManageByIMEI());
         addVariations();
@@ -1227,26 +1268,27 @@ public class ProductPage extends ProductPageElement {
     }
 
     /* Edit translation */
-    public void editTranslation(String language) throws Exception {
+    public void editTranslation(String language, int productID) throws Exception {
 
         // get product information
         productInfo = new ProductInformation().getInfo(productID);
 
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(new CreateProduct().getProductID())));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
         // wait page loaded
-        commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+        wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+//        commonAction.waitElementVisible(UI_SEO_SETTING);
 
         logger.info("Navigate to product page and edit translation.");
 
         // open edit translation popup
         if (storeInfo.getStoreLanguageList().size() > 1) {
             // open edit translation popup
-            wait.until(ExpectedConditions.elementToBeClickable(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).click();
+            wait.until(elementToBeClickable(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).click();
 
             // wait edit translation popup
-            wait.until(ExpectedConditions.visibilityOf(POPUP));
+            wait.until(visibilityOf(POPUP));
 
             // check UI
             checkEditTranslationPopup();
@@ -1266,10 +1308,10 @@ public class ProductPage extends ProductPageElement {
 
             // input variation if any
             if (productInfo.isHasModel()) {
-                List<String> variationName = IntStream.range(0, productInfo.getVariationNameMap().get(storeInfo.getDefaultLanguage()).replace("|", " ").split("\\s").length).mapToObj(i -> "%s_var%s".formatted(language, i + 1)).toList();
+                List<String> variationName = IntStream.range(0, productInfo.getVariationNameMap().get(storeInfo.getDefaultLanguage()).split("\\|").length).mapToObj(i -> "%s_var%s".formatted(language, i + 1)).toList();
                 List<String> variationValue = new ArrayList<>();
                 List<String> variationList = productInfo.getVariationListMap().get(storeInfo.getDefaultLanguage());
-                variationList.stream().map(varValue -> varValue.replace("|", " ").replace(storeInfo.getDefaultLanguage(), language).split("\\s")).forEach(varValueList -> Arrays.stream(varValueList).filter(varValue -> !variationValue.contains(varValue)).forEach(variationValue::add));
+                variationList.stream().map(varValue -> varValue.replace(storeInfo.getDefaultLanguage(), language).split("\\|")).forEach(varValueList -> Arrays.stream(varValueList).filter(varValue -> !variationValue.contains(varValue)).forEach(var -> variationValue.add(var.contains("%s_".formatted(language)) ? var : "%s_%s".formatted(language, var))));
                 Collections.sort(variationList);
                 // input variation name
                 IntStream.range(0, variationName.size()).forEachOrdered(i -> {
@@ -1305,28 +1347,26 @@ public class ProductPage extends ProductPageElement {
 
             // close edit translation popup
             commonAction.sleepInMiliSecond(1000);
-            wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_SAVE_BTN)).click();
+            wait.until(elementToBeClickable(EDIT_TRANSLATION_POPUP_SAVE_BTN)).click();
         }
     }
 
-    public void editTranslation() throws Exception {
+    public void editTranslation(int productID) throws Exception {
         // add translation
         List<String> langList = new ArrayList<>(storeInfo.getStoreLanguageList());
         langList.remove(storeInfo.getDefaultLanguage());
-        for (String language : langList) editTranslation(language);
+        for (String language : langList) editTranslation(language, productID);
     }
 
     public void uncheckWebPlatform() {
         showOnWeb = false;
 
-        // get product information
-        productInfo = new ProductInformation().getInfo(productID);
-
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(new CreateProduct().getProductID())));
+        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productInfo.getProductID())));
 
         // wait page loaded
-        commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+        wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+//        commonAction.waitElementVisible(UI_SEO_SETTING);
 
         logger.info("Navigate to product page and edit translation.");
 
@@ -1342,7 +1382,8 @@ public class ProductPage extends ProductPageElement {
     /* check UI function */
     void checkUICRHeaderProductPage() throws Exception {
         // check Go back to product list link text
-        String dbGoBackToProductList = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_LIST)).getText();
+        String dbGoBackToProductList = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", UI_HEADER_GO_BACK_TO_PRODUCT_LIST).toString();
+//        wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_LIST)).getText();
         String ppGoBackToProductList = getPropertiesValueByDBLang("products.allProducts.createProduct.header.goBackToProductList", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductList, ppGoBackToProductList, "[Failed][Header] Go back to product list link text should be %s, but found %s.".formatted(ppGoBackToProductList, dbGoBackToProductList));
         logger.info("[UI][%s] Check Header - Go back to product list.".formatted(language));
@@ -1721,7 +1762,7 @@ public class ProductPage extends ProductPageElement {
 
         // check price list in dropdown
         // open price dropdown
-        wait.until(ExpectedConditions.elementToBeClickable(UI_UPDATE_PRICE_POPUP_PRICE_DROPDOWN)).click();
+        wait.until(elementToBeClickable(UI_UPDATE_PRICE_POPUP_PRICE_DROPDOWN)).click();
         List<String> dbListPriceInDropdown = UI_UPDATE_PRICE_POPUP_LIST_PRICE_IN_DROPDOWN.stream().map(WebElement::getText).toList();
         List<String> ppListPriceInDropdown = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.1", language),
@@ -1971,7 +2012,7 @@ public class ProductPage extends ProductPageElement {
 
     void checkUISEO() throws Exception {
         // check SEO setting
-        String dbSEOSetting = wait.until(visibilityOf(UI_SEO_SETTING)).getText();
+        String dbSEOSetting = wait.until(visibilityOfElementLocated(UI_SEO_SETTING)).getText();
         String ppSEOSetting = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.title", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOSetting, ppSEOSetting, "[Failed][Body] SEO setting should be %s, but found %s.".formatted(ppSEOSetting, dbSEOSetting));
         logger.info("[UI][%s] Check Body - SEO setting.".formatted(language));
@@ -2283,7 +2324,7 @@ public class ProductPage extends ProductPageElement {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", UI_CLOSE_VIEW_REMAINING_STOCK_POPUP_BTN);
 
         // wait invisible remaining stock
-        wait.until(ExpectedConditions.invisibilityOf(POPUP));
+        wait.until(invisibilityOf(POPUP));
     }
 
     void checkViewSoldCountPopup() throws Exception {

@@ -1,9 +1,12 @@
 import api.dashboard.login.Login;
+import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.CreateProduct;
+import api.dashboard.products.ProductInformation;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 
 import java.io.File;
 
@@ -12,7 +15,10 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 // BH_9536:Check to display/hide if out of stock at product detail
 public class BH_9536 extends BaseTest {
-    boolean showOutOfStock;
+    boolean isDisplayIfOutOfStock;
+    boolean isHideStock = false;
+    int productID;
+    ProductInfo productInfo;
 
     @BeforeClass
     void setup() {
@@ -29,13 +35,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G1_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G1_Case1_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int branchStock = 5;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -45,13 +52,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G1_Case2_1_SettingDisplayAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G1_Case2_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int branchStock = 5;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -61,13 +69,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G1_Case3_1_SettingHiddenAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G1_Case3_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int branchStock = 5;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -77,13 +86,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G1_Case3_2_SettingHiddenAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G1_Case3_2";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     // G2: IMEI product - without variation
@@ -94,13 +104,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G2_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G2_Case1_1";
         boolean isIMEIProduct = true;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int branchStock = 5;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -110,13 +121,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G2_Case2_1_SettingDisplayAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G2_Case2_1";
         boolean isIMEIProduct = true;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int branchStock = 5;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -126,13 +138,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G2_Case3_1_SettingHiddenAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G2_Case3_1";
         boolean isIMEIProduct = true;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int branchStock = 5;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -142,13 +155,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G2_Case3_2_SettingHiddenAndProductOutOfStock() throws Exception {
         testCaseId = "BH_9536_G2_Case3_2";
         boolean isIMEIProduct = true;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createWithoutVariationProduct(isIMEIProduct,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     // G3: Normal product - Variation
@@ -159,15 +173,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G3_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G3_Case1_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 2;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -177,15 +191,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G3_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case2_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -195,15 +209,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G3_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case2_2";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int increaseNum = 0;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -213,15 +227,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G3_Case3_1_SettingHiddenAndAllVariationsInStock() throws Exception {
         testCaseId = "BH_9536_G3_Case3_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -231,15 +245,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G3_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case3_2";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -249,15 +263,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G3_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G3_Case3_3";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     // G4: IMEI product - Variation
@@ -268,15 +282,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G4_Case1_1_SettingDisplayAndProductInStock() throws Exception {
         testCaseId = "BH_9536_G4_Case1_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 2;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -286,15 +300,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G4_Case2_1_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case2_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -304,15 +318,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G4_Case2_2_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case2_2";
         boolean isIMEIProduct = false;
-        showOutOfStock = true;
+        isDisplayIfOutOfStock = true;
         int increaseNum = 0;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -322,15 +336,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G4_Case3_1_SettingHiddenAndAllVariationsInStock() throws Exception {
         testCaseId = "BH_9536_G4_Case3_1";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 2;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -340,15 +354,15 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G4_Case3_2_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case3_2";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int increaseNum = 1;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
     @Test
@@ -358,14 +372,14 @@ public class BH_9536 extends BaseTest {
     void BH_9536_G4_Case3_3_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
         testCaseId = "BH_9536_G4_Case3_3";
         boolean isIMEIProduct = false;
-        showOutOfStock = false;
+        isDisplayIfOutOfStock = false;
         int increaseNum = 0;
         int branchStock = 0;
-        new CreateProduct().setShowOutOfStock(showOutOfStock).createVariationProduct(isIMEIProduct,
-                increaseNum,
-                branchStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        productInfo = new ProductInformation().getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 }

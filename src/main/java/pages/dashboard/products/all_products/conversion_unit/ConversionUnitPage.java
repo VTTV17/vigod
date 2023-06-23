@@ -45,7 +45,8 @@ public class ConversionUnitPage extends ConversionUnitElement {
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productPage.getProductID())));
 
         // wait page loaded
-        commonAction.verifyPageLoaded("Thêm đơn vị quy đổi", "Add conversion unit");
+        commonAction.waitElementVisible(ADD_CONVERSION_UNIT_CHECKBOX);
+
 
         // if 'Add Conversion Unit' checkbox is not checked, check and click on 'Configure' button
         if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
@@ -61,7 +62,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
 
             // wait wholesale product page loaded
-            commonAction.verifyPageLoaded("Quay lại chi tiết sản phẩm", "Go back to product detail");
+            commonAction.waitElementVisible(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL);
 
             // hide Facebook bubble
             commonAction.hideElement(driver.findElement(By.cssSelector("#fb-root")));
@@ -116,7 +117,15 @@ public class ConversionUnitPage extends ConversionUnitElement {
             // select variation
             for (int i = 0; i < numberOfConversionUnit; i++) {
                 // open Select Variation popup
-                wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_SELECT_VARIATION_BTN)).click();
+                wait.until(ExpectedConditions.visibilityOfElementLocated(VARIATION_HEADER_SELECT_VARIATION_BTN));
+                WebElement selectVariationBtn = driver.findElement(VARIATION_HEADER_SELECT_VARIATION_BTN);
+                try {
+                    wait.until(ExpectedConditions.elementToBeClickable(selectVariationBtn)).click();
+                } catch (StaleElementReferenceException ex) {
+                    wait.until(ExpectedConditions.visibilityOfElementLocated(VARIATION_HEADER_SELECT_VARIATION_BTN));
+                    selectVariationBtn = driver.findElement(VARIATION_HEADER_SELECT_VARIATION_BTN);
+                    wait.until(ExpectedConditions.elementToBeClickable(selectVariationBtn)).click();
+                }
 
                 // wait Select Variation popup visible
                 wait.until(visibilityOf(SELECT_VARIATION_POPUP));
@@ -140,7 +149,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_CONFIGURE_BTN.get(i));
 
                 // wait variation conversion unit page loaded
-                commonAction.verifyPageLoaded("Quay lại cài đặt đơn vị quy đổi", "Go back to Set up conversion unit");
+                commonAction.waitElementVisible(UI_VARIATION_CONFIG_PAGE_GO_BACK_TO_SETUP_CONVERSION_UNIT);
 
                 // check [UI] variation config page
                 checkVariationConfigPageHeader();
@@ -175,11 +184,19 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_HEADER_SAVE_BTN)).click();
 
                 // wait wholesale product page loaded
-                commonAction.verifyPageLoaded("Quay lại chi tiết sản phẩm", "Go back to product detail");
+                commonAction.waitElementVisible(driver.findElement(VARIATION_HEADER_SELECT_VARIATION_BTN));
             }
 
             // click Save button
-            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_SAVE_BTN)).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(VARIATION_HEADER_SAVE_BTN));
+            WebElement saveBtn = driver.findElement(VARIATION_HEADER_SAVE_BTN);
+            try {
+                wait.until(ExpectedConditions.elementToBeClickable(saveBtn)).click();
+            } catch (StaleElementReferenceException ex) {
+                wait.until(ExpectedConditions.visibilityOfElementLocated(VARIATION_HEADER_SAVE_BTN));
+                saveBtn = driver.findElement(VARIATION_HEADER_SAVE_BTN);
+                wait.until(ExpectedConditions.elementToBeClickable(saveBtn)).click();
+            }
         }
 
     }

@@ -130,7 +130,7 @@ public class ProductDetailElement {
     @FindBy(css = "#similar-product .title-product-description")
     WebElement SIMILAR_PRODUCT;
 
-    @FindBy(css = "#tm-footer-default-layout img.gs-shop-logo")
+    @FindBy(css = "img.gs-shop-logo:not(.my-avatar)")
     WebElement FOOTER_SHOP_LOGO;
 
     @FindBy(css = ".col-sm-3 > .title")

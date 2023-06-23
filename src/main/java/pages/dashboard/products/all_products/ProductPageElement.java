@@ -66,16 +66,16 @@ public class ProductPageElement {
     @FindBy(css = "[name = productPriority]")
     WebElement PRIORITY_TEXT_BOX;
 
-    @FindBy(css = "div[name='productWeight'] > div >div > input")
+    @FindBy(css = "[for ='productWeight'] +* input")
     WebElement PRODUCT_WEIGHT;
 
-    @FindBy(css = "div[name='productLength'] > div >div > input")
+    @FindBy(css = "[for ='productLength'] +* input")
     WebElement PRODUCT_LENGTH;
 
-    @FindBy(css = "div[name='productWidth'] > div >div > input")
+    @FindBy(css = "[for ='productWidth'] +* input")
     WebElement PRODUCT_WIDTH;
 
-    @FindBy(css = "div[name='productHeight'] > div >div > input")
+    @FindBy(css = "[for ='productHeight'] +* input")
     WebElement PRODUCT_HEIGHT;
 
     @FindBy(css = "[name = onApp]")
@@ -110,6 +110,9 @@ public class ProductPageElement {
     @FindBy(css = ".modal-content")
     WebElement POPUP;
 
+    @FindBy(css = ".modal-danger")
+    WebElement FAIL_POPUP;
+
     @FindBy(css = ".modal-footer > button")
     WebElement NOTIFICATION_POPUP_CLOSE_BTN;
 
@@ -126,13 +129,13 @@ public class ProductPageElement {
     WebElement SEO_URL;
 
     /* Without variation product */
-    @FindBy(css = "[name = productPrice] input")
+    @FindBy(xpath = "//label[@for='productDiscountPrice']//parent::div//preceding-sibling::div//label//following-sibling::div//input")
     WebElement PRODUCT_LISTING_PRICE_WITHOUT_VARIATION;
 
-    @FindBy(css = "#productDiscountPrice input")
+    @FindBy(css = "[for = 'productDiscountPrice'] +* input")
     WebElement PRODUCT_SELLING_PRICE_WITHOUT_VARIATION;
 
-    @FindBy(css = "[name = productCostPrice] input")
+    @FindBy(xpath = "//label[@for='productDiscountPrice']//parent::div//following-sibling::div//label[@for = 'productPrice'] //following-sibling::div//input")
     WebElement PRODUCT_COST_PRICE_WITHOUT_VARIATION;
 
     @FindBy(xpath = "//*[@name='showOutOfStock']/parent::div/preceding-sibling::label[2]/input")
@@ -163,7 +166,7 @@ public class ProductPageElement {
     @FindBy(css = "div.first-item > div > div > input")
     List<WebElement> VARIATION_NAME;
 
-    @FindBy(css = "div.second-item > div > div > div.css-1hwfws3")
+    @FindBy(css = ".second-item .css-nwjfc > input")
     List<WebElement> VARIATION_VALUE;
 
     @FindBy(css = ".product-form-variation-selector__table  th:nth-child(1) input")
@@ -361,7 +364,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(4) .product-form-variation-selector > .d-none > div:nth-child(2) > label")
     WebElement UI_VARIATION_VALUE;
 
-    @FindBy(css = ".second-item .css-151xaom-placeholder")
+    @FindBy(css = ".second-item .css-14el2xx-placeholder")
     List<WebElement> UI_VARIATION_VALUE_PLACEHOLDER;
 
     // Variation table
@@ -516,31 +519,31 @@ public class ProductPageElement {
     @FindBy(xpath = "//div[@class=' seo-editor']/preceding::div[@class = 'product-translate__titleBody'][1]")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_SETTING;
 
-    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-18']/parent::div/preceding-sibling::span")
+    @FindBy(xpath = "//*[@class = 'product-translate-modal']//*[contains(@class,'seo-editor__live-preview-wrapper')]//preceding-sibling::div/span")
     WebElement UI_EDIT_TRANSLATION_POPUP_LIVE_PREVIEW;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-18]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-19]")
     WebElement UI_EDIT_TRANSLATION_POPUP_LIVE_PREVIEW_TOOLTIPS;
 
-    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-19']/parent::div/preceding-sibling::span")
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-20']/parent::div/preceding-sibling::span")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_TITLE;
 
     @FindBy(xpath = "//*[@for='informationName']/parent::div/preceding-sibling::div")
     WebElement UI_EDIT_TRANSLATION_POPUP_INFORMATION;
 
-    @FindBy(css = "[aria-describedby='tippy-tooltip-19']")
+    @FindBy(css = "[aria-describedby='tippy-tooltip-20']")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_TITLE_TOOLTIPS;
 
-    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-20']/parent::div/preceding-sibling::span")
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-21']/parent::div/preceding-sibling::span")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION;
 
-    @FindBy(css = "[aria-describedby='tippy-tooltip-20']")
+    @FindBy(css = "[aria-describedby='tippy-tooltip-21']")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_DESCRIPTION_TOOLTIPS;
 
-    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-21']/parent::div/preceding-sibling::span")
+    @FindBy(xpath = "//*[@aria-describedby='tippy-tooltip-22']/parent::div/preceding-sibling::span")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_KEYWORDS;
 
-    @FindBy(css = "[aria-describedby='tippy-tooltip-21']")
+    @FindBy(css = "[aria-describedby='tippy-tooltip-22']")
     WebElement UI_EDIT_TRANSLATION_POPUP_SEO_KEYWORDS_TOOLTIPS;
 
     @FindBy(xpath = "//*[@class='product-translate-modal']/descendant::*[@name='seoUrl']/parent::div/preceding-sibling::div[1]//span")
@@ -562,7 +565,7 @@ public class ProductPageElement {
     @FindBy(xpath = "//*[@name='conversionUnitCheckbox']/parent::label/div")
     WebElement UI_ADD_CONVERSION_UNIT_LABEL;
 
-    @FindBy(css = "[aria-describedby='tippy-tooltip-1'],[aria-describedby='tippy-tooltip-13']")
+    @FindBy(css = "[aria-describedby='tippy-tooltip-1'],[aria-describedby='tippy-tooltip-14']")
     WebElement UI_CONVERSION_UNIT_TOOLTIPS;
 
     /* Wholesale product */
@@ -580,8 +583,7 @@ public class ProductPageElement {
     WebElement UI_DEPOSIT_DESCRIPTION;
 
     /* SEO */
-    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(8) > .gs-widget__header > h3")
-    WebElement UI_SEO_SETTING;
+    By UI_SEO_SETTING = By.xpath("//div[contains(@class, ' seo-editor')]/div/h3");
 
     @FindBy(xpath = "//div[@aria-describedby='tippy-tooltip-2']/parent::div/preceding-sibling::span")
     WebElement UI_LIVE_PREVIEW;
@@ -728,7 +730,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n2] > div:nth-child(4) h3")
     WebElement UI_PACKAGE_INFORMATION;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-10]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-11]")
     WebElement UI_PACKAGE_INFORMATION_TOOLTIPS;
 
     @FindBy(css = "[for = productWeight]")
@@ -750,7 +752,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n2] > div:nth-child(5) h3")
     WebElement UI_PRIORITY;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-11]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-12]")
     WebElement UI_PRIORITY_TOOLTIPS;
 
     @FindBy(css = "[name = productPriority]")
@@ -760,7 +762,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n2] > div:nth-child(6) h3")
     WebElement UI_PLATFORM;
 
-    @FindBy(css = "[aria-describedby = tippy-tooltip-12]")
+    @FindBy(css = "[aria-describedby = tippy-tooltip-13]")
     WebElement UI_PLATFORM_TOOLTIPS;
 
     @FindBy(xpath = "//*[@name='onApp']/following-sibling::div")

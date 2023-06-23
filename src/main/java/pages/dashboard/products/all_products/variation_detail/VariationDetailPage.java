@@ -46,7 +46,7 @@ public class VariationDetailPage extends VariationDetailElement {
         new Actions(driver).keyDown(Keys.CONTROL).keyDown(Keys.SHIFT).sendKeys("r").keyUp(Keys.CONTROL).keyUp(Keys.SHIFT).build().perform();
         logger.info("Navigate to variation detail page, barcode: %s.".formatted(barcode));
         commonAction.sleepInMiliSecond(3000);
-        commonAction.verifyPageLoaded("Mẫu Mã Sản Phẩm", "Product Version");
+        commonAction.waitElementVisible(UI_PRODUCT_VERSION);
     }
 
     void updateVariationProductName() {

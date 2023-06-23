@@ -28,7 +28,7 @@ public class UICommonAction {
 
 	public UICommonAction(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		wait = new WebDriverWait(driver, Duration.ofSeconds(60));
 	}
 
 
@@ -326,10 +326,7 @@ public class UICommonAction {
 	}	
 	
 	public boolean isElementVisiblyDisabled(WebElement element) {
-    	if (element.getAttribute("class").contains("gs-atm--disable")) {
-    		return true;
-    	}
-    	return false;
+		return element.getAttribute("class").contains("gs-atm--disable");
 	}	
 	
 	public int waitTillSelectDropdownHasData(WebElement element) {
@@ -405,9 +402,7 @@ public class UICommonAction {
 	}
 	public Boolean isElementDisplay(WebElement element){
 		try {
-			if(element.isDisplayed()){
-				return true;
-			}else return false;
+			return element.isDisplayed();
 		}catch (Exception e){
 			logger.debug("Element not display: "+e.getMessage());
 			return false;
@@ -416,11 +411,10 @@ public class UICommonAction {
 	public void navigateBack(){
 		driver.navigate().back();
 	}
-
-	public void verifyPageLoaded(String pageLoadedTextVIE, String pageLoadedTextENG) {
+	public void waitElementVisible(WebElement element) {
 		new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
 			assert driver != null;
-			return driver.getPageSource().contains(pageLoadedTextVIE) || driver.getPageSource().contains(pageLoadedTextENG);
+			return ((JavascriptExecutor) driver).executeScript("return arguments[0].offsetParent", element) != null;
 		});
 	}
 

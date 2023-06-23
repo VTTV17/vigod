@@ -36,7 +36,7 @@ public class WholesaleProductElement {
     @FindBy(css = "[name ^= 'buyFrom']")
     WebElement WITHOUT_VARIATION_BUY_FROM;
 
-    @FindBy(css = "[name ^= 'pricePerItem'] input")
+    @FindBy(xpath = "//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input")
     WebElement WITHOUT_VARIATION_PRICE_PER_ITEM;
 
     @FindBy(css = ".dropdown-search-checkbox-custom")
@@ -63,7 +63,7 @@ public class WholesaleProductElement {
     @FindBy(css = "[name^='buyFrom-']")
     List<WebElement> VARIATION_BUY_FROM;
 
-    @FindBy(css = "[name^='pricePerItem-'] input")
+    @FindBy(xpath = "//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input")
     List<WebElement> VARIATION_PRICE_PER_ITEM;
 
     By VARIATION_CUSTOMER_SEGMENT_DROPDOWN = By.cssSelector(".dropdown-search-checkbox-custom");
@@ -74,6 +74,9 @@ public class WholesaleProductElement {
 
     @FindBy(css = ".label-list > .label:nth-child(2)")
     WebElement CUSTOMER_SEGMENT_CHECKBOX;
+
+    @FindBy(css = "#fb-root")
+    WebElement FB_BUBBLE;
 
     /* UI element */
     @FindBy(css = ".gs-widget__content.bg-light-white p")

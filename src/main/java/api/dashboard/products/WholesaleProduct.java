@@ -1,0 +1,74 @@
+package api.dashboard.products;
+
+import api.dashboard.customers.Customers;
+import api.dashboard.login.Login;
+import api.dashboard.setting.StoreInformation;
+import io.restassured.response.Response;
+import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
+
+import java.util.Collections;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.math.JVMRandom.nextLong;
+import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.character_limit.CharacterLimit.MAX_WHOLESALE_PRICE_TITLE;
+import static utilities.links.Links.STORE_CURRENCY;
+
+public class WholesaleProduct {
+    public void addWholesalePriceProduct(ProductInfo productInfo) {
+        String defaultLanguage = new StoreInformation().getInfo().getDefaultLanguage();
+        LoginDashboardInfo loginInfo = new Login().getInfo();
+        String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
+        StringBuilder body = new StringBuilder("""
+                {
+                    "itemId": "%s",
+                    "lstWholesalePricingDto": [""".formatted(productInfo.getProductID()));
+        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers().getSegmentID());
+        int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationListMap().get(defaultLanguage).size()) + 1 : 1;
+        if (productInfo.isHasModel()) {
+            for (int i = 0; i < num; i++) {
+                long price = nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
+                int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getBarcodeList().get(i))), 1)) + 1;
+                String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
+                String variationWholesaleConfig = """
+                        {
+                            "id": null,
+                            "title": "%s",
+                            "minQuatity": %s,
+                            "itemModelIds": "%s",
+                            "currency": "%s",
+                            "price": %s,
+                            "segmentIds": "%s",
+                            "itemId": "%s",
+                            "action": null
+                        }""".formatted(title, stock, "%s_%s".formatted(productInfo.getProductID(), productInfo.getBarcodeList().get(i).split("-")[1]), STORE_CURRENCY, price, segmentIDs, productInfo.getProductID());
+                body.append(variationWholesaleConfig);
+                body.append((i == (num - 1)) ? "" : ",");
+            }
+        } else {
+            String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
+            long price = nextLong(productInfo.getProductSellingPrice().get(0)) + 1;
+            int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getBarcodeList().get(0)))) + 1;
+            String variationWholesaleConfig = """
+                    {
+                        "id": null,
+                        "title": "%s",
+                        "minQuatity": %s,
+                        "itemModelIds": "%s",
+                        "currency": "%s",
+                        "price": %s,
+                        "segmentIds": "%s",
+                        "itemId": "%s",
+                        "action": null
+                    }""".formatted(title, stock, productInfo.getProductID(), STORE_CURRENCY, price, segmentIDs, productInfo.getProductID());
+            body.append(variationWholesaleConfig);
+        }
+        body.append("]}");
+
+        Response addWholesale = new API().post(CREATE_WHOLESALE_PRICE_PATH, loginInfo.getAccessToken(), String.valueOf(body));
+        addWholesale.then().statusCode(200);
+    }
+}

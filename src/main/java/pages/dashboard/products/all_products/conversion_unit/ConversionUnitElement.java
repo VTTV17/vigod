@@ -42,11 +42,9 @@ class ConversionUnitElement {
     WebElement WITHOUT_VARIATION_QUANTITY;
 
     /* Variation config */
-    @FindBy(css = ".gs-button__green--outline")
-    WebElement VARIATION_HEADER_SELECT_VARIATION_BTN;
+    By VARIATION_HEADER_SELECT_VARIATION_BTN = By.cssSelector(".gs-button__green--outline");
 
-    @FindBy(css = ".gs-button__green")
-    WebElement VARIATION_HEADER_SAVE_BTN;
+    By VARIATION_HEADER_SAVE_BTN = By.cssSelector(".gs-button__green");
 
     @FindBy(css = ".modal-content")
     WebElement SELECT_VARIATION_POPUP;
