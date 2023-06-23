@@ -2,7 +2,6 @@ package utilities.database;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.sql.*;
@@ -86,6 +85,17 @@ public class InitConnection {
     	logger.info("Store gift code retrieved: " + domain); 
     	return domain;
     }     
+
+    public String getCountryCode(String country) throws SQLException {
+    	String query = "SELECT code FROM \"catalog-services\".country x WHERE out_country = '%s'".formatted(country.replace("'", "''"));
+    	ResultSet resultSet = createConnection(DB_HOST_CATALOG, DB_USER_CATALOG, DB_PASS_CATALOG).prepareStatement(query).executeQuery();
+    	String code = null;
+    	while (resultSet.next()) {
+    		code = resultSet.getString("code");
+    	}
+    	logger.info("Country code retrieved: " + code); 
+    	return code;
+    }         
     
     @Test
     public void test() throws SQLException {
