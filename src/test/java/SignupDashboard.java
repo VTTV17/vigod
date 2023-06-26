@@ -16,12 +16,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import api.dashboard.login.Login;
-import pages.InternalTool;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.home.Permission;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.account.AccountPage;
-import pages.dashboard.settings.plans.ForceLogOutDialog;
 import pages.dashboard.settings.plans.PlansPage;
 import pages.dashboard.signup.SignupPage;
 import pages.gomua.headergomua.HeaderGoMua;
@@ -69,7 +67,7 @@ public class SignupDashboard extends BaseTest {
 
 	public void generateTestData() {
 		country = generate.randomCountry();
-		countryCode = generate.getCountryCode(country);
+		countryCode = generate.getPhoneCode(country);
 		signupLanguage = processSignupLanguage();
 		storeLanguage = processStoreLanguage();
 		storePhone = generate.randomPhoneByCountry(country); 
@@ -787,7 +785,7 @@ public class SignupDashboard extends BaseTest {
 		/* Set value for some variables */
 		String domain = "gomua.vn";
 		country = "Vietnam";
-		countryCode = generate.getCountryCode(country);
+		countryCode = generate.getPhoneCode(country);
 		signupLanguage = processSignupLanguage();
 		storeLanguage = processStoreLanguage();
 		storePhone = generate.randomPhoneByCountry(country);
@@ -873,7 +871,7 @@ public class SignupDashboard extends BaseTest {
 		/* Set value for some variables */
 		String domain = "gomua.vn";
 		country = "Vietnam";
-		countryCode = generate.getCountryCode(country);
+		countryCode = generate.getPhoneCode(country);
 		signupLanguage = processSignupLanguage();
 		storeLanguage = processStoreLanguage();
 		storePhone = generate.randomPhoneByCountry(country);
