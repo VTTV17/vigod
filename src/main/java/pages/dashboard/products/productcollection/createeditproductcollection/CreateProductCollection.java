@@ -32,6 +32,18 @@ public class CreateProductCollection extends HomePage {
     DataGenerator generator;
     public static Map<String, Integer> productPriorityMap = new HashMap<>();
     public static int productSelectedNumber = 0;
+    String productTitleTxt;
+    String productPriceTxt;
+    String containsOperateTxt;
+    String equalToOperateProductTiteTxt;
+    String equalToOperateProductPriceTxt;
+
+    String startWithOperateTxt;
+    String endsWithOperateTxt;
+    String greaterThanTxt;
+    String lessThanTxt;
+    String allConditionTxt;
+    String anyConditionTxt;
     public CreateProductCollection(WebDriver driver) {
         super(driver);
         this.driver = driver;
@@ -39,10 +51,25 @@ public class CreateProductCollection extends HomePage {
         common = new UICommonAction(driver);
         createCollectionUI = new CreateProductCollectionElement(driver);
         generator = new DataGenerator();
+        try {
+            productTitleTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt");
+            productPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productPriceTxt");
+            containsOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.containsTxt");
+            equalToOperateProductTiteTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productTitleIsEqualToTxt");
+            startWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.startsWithTxt");
+            endsWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.endsWithTxt");
+            greaterThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isGeaterThanTxt");
+            lessThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isLessThanTxt");
+            equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
+            allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
+            anyConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         PageFactory.initElements(driver, this);
     }
 
-    public CreateProductCollection navigate(String languageDashboard) {
+    public CreateProductCollection navigate(String languageDashboard) throws Exception {
         waitTillSpinnerDisappear();
         navigateToPage("Products", "Product Collections");
         HomePage home = new HomePage(driver);
@@ -133,12 +160,12 @@ public class CreateProductCollection extends HomePage {
      * @throws Exception if conditionType not match
      */
     public CreateProductCollection selectConditionType(String conditionType) throws Exception {
-        if (conditionType.equalsIgnoreCase("All conditions")) {
+        if (conditionType.equalsIgnoreCase(allConditionTxt)) {
             common.checkTheCheckBoxOrRadio(createCollectionUI.ALL_CONDITION_RADIO_VALUE, createCollectionUI.ALL_CONDITION_RADIO_ACTION);
-        } else if (conditionType.equalsIgnoreCase("Any condition")) {
+        } else if (conditionType.equalsIgnoreCase(anyConditionTxt)) {
             common.checkTheCheckBoxOrRadio(createCollectionUI.ANY_CONDITION_RADIO_VALUE, createCollectionUI.ANY_CONDITION_RADIO_ACTION);
         } else {
-            throw new Exception("Input value does not match any of the accepted values: All conditions/Any condition");
+            throw new Exception("Input value does not match any of the accepted values: all conditions/any condition");
         }
         return this;
     }
@@ -169,6 +196,7 @@ public class CreateProductCollection extends HomePage {
         }
         for (int i = 0; i < productListSize; i++) {
             if (i < priorityList.size()) {
+                common.sleepInMiliSecond(1000);
                 common.inputText(createCollectionUI.PRIORITIES_INPUT.get(i), String.valueOf(priorityList.get(i)));
                 productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(), priorityList.get(i));
             } else {
@@ -269,8 +297,8 @@ public class CreateProductCollection extends HomePage {
         productPriorityMap = inputPriority(isSetPriorityForAll, canSetDuplicatePriority);
         clickOnSaveBTN(); //click outside
         clickOnSaveBTN();
-        logger.info("Create manual collection without SEO, has priority successfully.");
         clickOnClose();
+        logger.info("Create manual collection without SEO, has priority successfully.");
         waitTillSpinnerDisappear();
         return new ProductCollectionManagement(driver);
     }
@@ -294,7 +322,7 @@ public class CreateProductCollection extends HomePage {
         return sortedMap.keySet().stream().toList();
     }
 
-    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, String storeID, String token, int collectionID) throws ParseException {
+    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, int collectionID) throws ParseException {
         logger.debug("Sort start.");
         Map<String, Integer> sortedMap = SortData.sortMapByValue(productPriorityMap);
         List<String> sortedList = new ArrayList<>();
@@ -314,8 +342,8 @@ public class CreateProductCollection extends HomePage {
                 productKey2 = sortedMap.keySet().toArray()[i+1].toString();
             }
             if (value1 == value2) {
-                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey1));
-                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(storeID, token, collectionID, productKey2));
+                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(collectionID, productKey1));
+                productUpdatedMap.putAll(apiAllProducts.getProductCreatedDateMapByProductName(collectionID, productKey2));
                 if(i == values.size()-1){
                     sortedList.addAll(apiAllProducts.getProductListCollection_SortNewest(productUpdatedMap));
                 }
@@ -383,13 +411,11 @@ public class CreateProductCollection extends HomePage {
         return new ProductCollectionManagement(driver);
     }
     /**
-     * @param token
-     * @param storeId
      * @param condition: (Product price/Product title)-(is greater than/less than/is equal to/starts with/ends with/contains)-(value)
      * @return Map: productExpectedList, CountItem
      * @throws ParseException
      */
-    public Map productsBelongCollectionExpected_OneCondition(String token, String storeId, String condition) throws ParseException {
+    public Map productsBelongCollectionExpected_OneCondition(String condition) throws Exception {
         APIAllProducts apiAllProducts = new APIAllProducts();
         String conditionField = condition.split("-")[0];
         String operater = condition.split("-")[1];
@@ -397,12 +423,12 @@ public class CreateProductCollection extends HomePage {
         int countItemExpected = 0;
         Map productCollectionExpected = new HashMap<>();
         List<String> productExpectedList = new ArrayList<>();
-        if (conditionField.equalsIgnoreCase("Product title")) {
-            Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(token, storeId, operater, value);
+        if (conditionField.equalsIgnoreCase(productTitleTxt)) {
+            Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(operater, value);
             productExpectedList = apiAllProducts.getProductListCollection_SortNewest((Map) productCollection.get("productCreatedDateMap"));
             countItemExpected = (int) productCollection.get("CountItem");
-        } else if (conditionField.equalsIgnoreCase("Product price")) {
-            Map productCollection = apiAllProducts.getProductMatchPriceCondition(token, storeId, operater, Long.parseLong(value));
+        } else if (conditionField.equalsIgnoreCase(productPriceTxt)) {
+            Map productCollection = apiAllProducts.getProductMatchPriceCondition(operater, Long.parseLong(value));
             productExpectedList = apiAllProducts.getProductListCollection_SortNewest((Map) productCollection.get("productCreatedDateMap"));
             countItemExpected = (int) productCollection.get("CountItem");
         }
@@ -413,14 +439,12 @@ public class CreateProductCollection extends HomePage {
     }
 
     /**
-     * @param token
-     * @param storeId
      * @param conditionType: All conditions, Any condition
      * @param conditions:    (Product price/Product title)-(is greater than/less than/is equal to/starts with/ends with/contains)-(value)
      * @return Map with keys: productExpectedList, CountItem
      * @throws ParseException
      */
-    public Map productsBelongCollectionExpected_MultipleCondition(String token, String storeId, String conditionType, String... conditions) throws ParseException {
+    public Map productsBelongCollectionExpected_MultipleCondition(String conditionType, String... conditions) throws Exception {
         APIAllProducts apiAllProducts = new APIAllProducts();
         int countItemExpected = 0;
         Map mergeProductMap = new HashMap<>();
@@ -433,19 +457,19 @@ public class CreateProductCollection extends HomePage {
             String value = condition.split("-")[2];
             Map productCreatedDateMap = new HashMap();
             Map productCountItemMap = new HashMap();
-            if (conditionField.equalsIgnoreCase("Product title")) {
-                Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(token, storeId, operater, value);
+            if (conditionField.equalsIgnoreCase(productTitleTxt)) {
+                Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(operater, value);
                 productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
                 productCountItemMap = (Map) productCollection.get("productCountItemMap");
-            } else if (conditionField.equalsIgnoreCase("Product price")) {
-                Map productCollection = apiAllProducts.getProductMatchPriceCondition(token, storeId, operater, Long.parseLong(value));
+            } else if (conditionField.equalsIgnoreCase(productPriceTxt)) {
+                Map productCollection = apiAllProducts.getProductMatchPriceCondition(operater, Long.parseLong(value));
                 productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
                 productCountItemMap = (Map) productCollection.get("productCountItemMap");
             }
-            if (conditionType.equalsIgnoreCase("Any condition")) {
+            if (conditionType.equalsIgnoreCase(anyConditionTxt)) {
                 mergeProductMap.putAll(productCreatedDateMap);
                 mergeProductCountItemMap.putAll(productCountItemMap);
-            } else if (conditionType.equalsIgnoreCase("All conditions")) {
+            } else if (conditionType.equalsIgnoreCase(allConditionTxt)) {
                 if (compareProductMap.isEmpty()) {
                     compareProductMap.putAll(productCreatedDateMap);
                     compareCountItemMap.putAll(productCountItemMap);

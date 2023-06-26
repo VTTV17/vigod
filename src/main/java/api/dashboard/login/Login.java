@@ -3,10 +3,8 @@ package api.dashboard.login;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
 import static org.hamcrest.Matchers.notNullValue;
@@ -17,6 +15,7 @@ public class Login {
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     private static String account;
     private static String password;
+    private static String phoneCode;
     public static String accessToken;
 
     public static int apiStoreID;
@@ -43,9 +42,6 @@ public class Login {
 
         // set local password
         Login.password = password;
-
-        // get login response
-        getLoginResponse(account, password);
     }
 
     public LoginDashboardInfo getInfo() {
@@ -53,7 +49,11 @@ public class Login {
         LoginDashboardInfo info = new LoginDashboardInfo();
 
         // get login response
-        Response res = getLoginResponse(Login.account, Login.password);
+        Response res;
+
+        if(Login.account.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")){
+            res = getLoginResponse(Login.account, Login.password); //if account is email
+        }else res = getLoginWithPhoneResponse(phoneCode,account,password);
 
         // set accessToken
         info.setAccessToken(res.jsonPath().getString("accessToken"));
@@ -75,12 +75,18 @@ public class Login {
     }
 
     /**
-     * @param countryCode: example: "+84"
+     * Call this function to set account value to login with phone
+     * @param countryCode Example: +84
      * @param phoneNumber
      * @param password
-     * @return Map with keys: accessToken, apiStoreID
      */
-    public Map<String, String> loginToDashboardWithPhone(String countryCode, String phoneNumber, String password) {
+    public Login loginToDashboardWithPhone(String countryCode, String phoneNumber, String password) {
+        Login.account = phoneNumber;
+        Login.password = password;
+        Login.phoneCode = countryCode;
+        return this;
+    }
+    public Response getLoginWithPhoneResponse(String countryCode, String phoneNumber, String password) {
         RestAssured.baseURI = URI;
         String body = """
                 {
@@ -94,14 +100,21 @@ public class Login {
                 }""".formatted(countryCode, phoneNumber, password);
         Response loginResponse = api.login(DASHBOARD_LOGIN_PHONE_PATH, body);
         loginResponse.then().statusCode(200);
-        accessToken = loginResponse.jsonPath().getString("accessToken");
-        apiStoreID = loginResponse.jsonPath().getInt("store.id");
-        Map<String, String> map = new HashMap<>();
-        map.put("accessToken", accessToken);
-        map.put("storeID", String.valueOf(apiStoreID));
-        System.out.println(map);
-        return map;
+        return loginResponse;
     }
-
-
+    
+    /**
+     * Sets the dashboard login information for a user with the given country, username and password.
+     * @param country The country name to get the country code from.
+     * @param username
+     * @param password
+     * @return The Login object with updated login information
+     */
+    public Login setDashboardLoginInfo(String country, String username, String password) {
+    	Login.phoneCode = new DataGenerator().getCountryCode(country);
+    	Login.account = username;
+        Login.password = password;
+        return this;
+    }    
+    
 }

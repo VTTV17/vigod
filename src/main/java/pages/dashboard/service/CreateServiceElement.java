@@ -65,7 +65,7 @@ public class CreateServiceElement {
     WebElement COLLECTIONS_LBL;
     @FindBy(xpath = "//button[@type='submit']//following-sibling::div[2]//h3")
     WebElement IMAGES_TITLE;
-    @FindBy(xpath = "//input[@type='file']/following-sibling::p[2]")
+    @FindBy(xpath = "//input[@type='file']/following-sibling::div[2]")
     WebElement DRAG_DROP_PHOTO_TXT;
     @FindBy(xpath = "//button[@type='submit']//following-sibling::div[3]/child::div/h3")
     WebElement LOCATIONS_AND_TIME_TITLE_AND_DESCRIPNTION;

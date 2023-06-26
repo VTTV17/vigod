@@ -97,6 +97,7 @@ public class HeaderSF extends GeneralSF {
     }
 
     public HeaderSF searchWithFullName(String fullName) {
+        commons.sleepInMiliSecond(1000);
         commons.clickElement(SEARCH_FIELD_TO_CLICK);
         logger.info("Click on Search bar");
         commons.inputText(SEARCH_FIELD_TO_INPUT, fullName);

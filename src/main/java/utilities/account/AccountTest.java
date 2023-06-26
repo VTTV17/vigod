@@ -11,6 +11,7 @@ public class AccountTest {
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com
     public static String DB_HOST = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_HOST_ITEM2 = "beecow-staging-item.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
+    public static String DB_HOST_CATALOG = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_PORT = "5432";
 
     // postgres
@@ -21,10 +22,12 @@ public class AccountTest {
     // readonly
     public static String DB_USER = "readonly";
     public static String DB_ITEM2_USER = "dbaitem";
+    public static String DB_USER_CATALOG = "dbacatalog";
     // postgres
     // R7LHffcgeEh2tpQ0qU2y
     public static String DB_PASS = "R7LHffcgeEh2tpQ0qU2y";
     public static String DB_ITEM2_PASS = "ShogdBiPHcC67RDQ6H1u";
+    public static String DB_PASS_CATALOG = "Nw4kYW3G9eribICWw0dP";
 
     public static String USERNAME_INTERNALTOOL = PropertiesUtil.getEnvironmentData("internalUserName");
     public static String PASSWORD_INTERNALTOOL = PropertiesUtil.getEnvironmentData("internalPass");
@@ -34,6 +37,9 @@ public class AccountTest {
     public static String ADMIN_SHOP_COFFEE_PASSWORD = PropertiesUtil.getEnvironmentData("adminShopCoffeePass");
     public static String ADMIN_SHOP_COFFEE_USERNAME = PropertiesUtil.getEnvironmentData("adminShopCoffeeUserName");
     public static String ADMIN_CREATE_NEW_SHOP_PASSWORD = "fortesting!1";
+    public static String ADMIN_COUNTRY_TIEN = PropertiesUtil.getEnvironmentData("adminCountryShopTien");
+    public static String ADMIN_USERNAME_TIEN = PropertiesUtil.getEnvironmentData("adminUsernameShopTien");
+    public static String ADMIN_PASSWORD_TIEN = PropertiesUtil.getEnvironmentData("adminPasswordShopTien");
     public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
     public static String ADMIN_USERNAME_GOAPP = PropertiesUtil.getEnvironmentData("adminGoAppUserName");
     public static String ADMIN_USERNAME_GOPOS = PropertiesUtil.getEnvironmentData("adminGoPOSUserName");

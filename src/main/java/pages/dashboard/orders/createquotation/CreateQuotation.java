@@ -1,6 +1,5 @@
 package pages.dashboard.orders.createquotation;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
@@ -36,8 +34,6 @@ public class CreateQuotation {
 	WebDriverWait wait;
 	UICommonAction commonAction;
 	HomePage homePage;
-
-	SoftAssert soft = new SoftAssert();
 
 	public CreateQuotation(WebDriver driver) {
 		this.driver = driver;
@@ -67,6 +63,12 @@ public class CreateQuotation {
 	
 	@FindBy(css = ".search-result .mobile-customer-profile-row__info")
 	List<WebElement> CUSTOMER_SEARCH_RESULTS;
+	
+	@FindBy(css = ".information .name")
+	List<WebElement> SELECTED_CUSTOMER_NAME;
+	
+	@FindBy(css = ".information .phone")
+	List<WebElement> SELECTED_CUSTOMER_PHONE;
 	
 	@FindBy(css = ".quotation-in-store-purchase-complete .align-items-center")
 	List<WebElement> MONEY_SUMMARY;
@@ -148,18 +150,22 @@ public class CreateQuotation {
 		List<List<String>> table = new ArrayList<>();
 		for (WebElement row : PRODUCT_SEARCH_RESULTS) {
 			List<String> rowData = new ArrayList<>();
-			rowData.add(row.findElement(By.xpath(PRODUCT_NAME_IN_RESULT.formatted(""))).getText()); //Get name
 			
-			List<WebElement> variationList = row.findElements(By.xpath(VARIATION_IN_RESULT.formatted("")));
-			String variationValue = variationList.size() >0 ? variationList.get(0).getText() : "";
+			WebElement nameElement = row.findElement(By.xpath(PRODUCT_NAME_IN_RESULT.formatted("")));
+			rowData.add(nameElement.getText()); //Get name
+			
+			List<WebElement> variations = row.findElements(By.xpath(VARIATION_IN_RESULT.formatted("")));
+			String variationValue = variations.isEmpty() ? "" : variations.get(0).getText();
 			rowData.add(variationValue); // Get variation
 			
-			rowData.add(row.findElement(By.xpath(PRODUCT_BARCODE_IN_RESULT.formatted(""))).getText()); // Get Barcode
+			WebElement barcodeElement = row.findElement(By.xpath(PRODUCT_BARCODE_IN_RESULT.formatted("")));
+			rowData.add(barcodeElement.getText()); // Get Barcode
 			
-			rowData.add(row.findElement(By.xpath(PRICE_IN_RESULT.formatted(""))).getText()); //Get price
+			WebElement priceElement = row.findElement(By.xpath(PRICE_IN_RESULT.formatted("")));
+			rowData.add(priceElement.getText()); //Get price
 			
-			List<WebElement> conversionList = row.findElements(By.xpath(CONV_UNIT_IN_RESULT.formatted("")));
-			String conversionValue = conversionList.size() >0 ? conversionList.get(0).getText() : "";
+			List<WebElement> conversionUnits = row.findElements(By.xpath(CONV_UNIT_IN_RESULT.formatted("")));
+			String conversionValue = conversionUnits.isEmpty() ? "" : conversionUnits.get(0).getText();
 			rowData.add(conversionValue); // Get conversion unit
 			
 			table.add(rowData);
@@ -241,11 +247,28 @@ public class CreateQuotation {
 		logger.info("Selected customer: " + name);
 		return this;
 	}	
+
+	/**
+	 * Retrieves the selected customer's name and phone number
+	 * @return A list of Strings containing the selected customer's name and phone number
+	 */
+	public List<String> getSelectedCustomerData() {
+		List<String> customerData = new ArrayList<>();
+		
+		String name = SELECTED_CUSTOMER_NAME.isEmpty() ? "" : SELECTED_CUSTOMER_NAME.get(0).getText();
+		customerData.add(name); //Get name
+		
+		String phone = SELECTED_CUSTOMER_PHONE.isEmpty() ? "" : SELECTED_CUSTOMER_PHONE.get(0).getText();
+		customerData.add(phone); // Get phone number
+		
+		return customerData;
+	}
 	
 	public CreateQuotation clickExportQuotationBtn() {
 		homePage.hideFacebookBubble();
 		commonAction.clickElement(EXPORT_QUO_BTN);
 		logger.info("Clicked on 'Export Quotation' button.");
+		commonAction.sleepInMiliSecond(5000);
 		return this;
 	}
 
@@ -268,106 +291,128 @@ public class CreateQuotation {
 	}	
 
 	public String getSubTotal() {
+		logger.info("Getting subtotal...");
 		String text = commonAction.getText(MONEY_SUMMARY.get(0).findElement(By.tagName("b")));
-		logger.info("Retrieved subtotal: " + text);
+		
 		return text;
 	}	
 	
 	public String getVAT() {
+		logger.info("Getting VAT...");
 		String text = commonAction.getText(MONEY_SUMMARY.get(1).findElement(By.tagName("span")));
-		logger.info("Retrieved VAT: " + text);
 		return text;
 	}	
 	
 	public String getTotal() {
+		logger.info("Getting Total...");
 		String text = commonAction.getText(MONEY_SUMMARY.get(2).findElement(By.tagName("span")));
-		logger.info("Retrieved Total: " + text);
 		return text;
 	}	
-	
+
 	public List<List<String>> readQuotationFile() {
-		File file = FileUtils.getLastDownloadedFile(FileNameAndPath.downloadFolder);
+	
+		int STORE_NAME_ROW = 0;
+		int STORE_NAME_COL = 1;
+		int STORE_PHONE_ROW = 1;
+		int STORE_PHONE_COL = 1;
+		int STORE_EMAIL_ROW = 2;
+		int STORE_EMAIL_COL = 1;
+		int CUSTOMER_INFO_ROW = 4;
+		int CUSTOMER_NAME_ROW = 5;
+		int CUSTOMER_NAME_COL = 1;
+		int CUSTOMER_PHONE_ROW = 6;
+		int CUSTOMER_PHONE_COL = 1;
+		int CUSTOMER_EMAIL_ROW = 7;
+		int CUSTOMER_EMAIL_COL = 1;
+		int PRODUCT_START_ROW = 9;
+		int HEADER_ROW = 8;
+		int NUMBER_COL = 0;
+		int IMAGE_COL = 1;
+		int PRODUCT_NAME_COL = 2;
+		int QUANTITY_COL = 3;
+		int UNIT_PRICE_COL = 4;
+		int TOTAL_PRICE_COL = 5;		
 		
-        Sheet dataSheet = null;
+        Excel excel = new Excel();
+		
+		Sheet dataSheet = null;
 		try {
-			dataSheet = new Excel().getSheet(file, 0);
+			dataSheet = excel.getSheet(FileUtils.getLastDownloadedFile(FileNameAndPath.downloadFolder), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		List<List<String>> table = new ArrayList<>();
 		
-        int lastRowIndex = dataSheet.getLastRowNum();
-        
-        String storeNameTitle = dataSheet.getRow(0).getCell(0).getStringCellValue();
-        String storeNameValue = dataSheet.getRow(0).getCell(1).getStringCellValue();
+        // Store Information
+        String storeNameTitle = dataSheet.getRow(STORE_NAME_ROW).getCell(0).getStringCellValue();
+        String storeNameValue = dataSheet.getRow(STORE_NAME_ROW).getCell(STORE_NAME_COL).getStringCellValue();
         table.add(Arrays.asList(storeNameTitle, storeNameValue));
         
-        String storePhoneTitle = dataSheet.getRow(1).getCell(0).getStringCellValue();
-        String storePhoneValue = dataSheet.getRow(1).getCell(1).getStringCellValue();
+        String storePhoneTitle = dataSheet.getRow(STORE_PHONE_ROW).getCell(0).getStringCellValue();
+        String storePhoneValue = dataSheet.getRow(STORE_PHONE_ROW).getCell(STORE_PHONE_COL).getStringCellValue();
         table.add(Arrays.asList(storePhoneTitle, storePhoneValue));
         
-        String storeEmailTitle = dataSheet.getRow(2).getCell(0).getStringCellValue();
-        String storeEmailValue = dataSheet.getRow(2).getCell(1).getStringCellValue();
+        String storeEmailTitle = dataSheet.getRow(STORE_EMAIL_ROW).getCell(0).getStringCellValue();
+        String storeEmailValue = dataSheet.getRow(STORE_EMAIL_ROW).getCell(STORE_EMAIL_COL).getStringCellValue();
         table.add(Arrays.asList(storeEmailTitle, storeEmailValue));
         
-        String customerInfoTitle = dataSheet.getRow(4).getCell(0).getStringCellValue();
+        // Customer Information
+        String customerInfoTitle = dataSheet.getRow(CUSTOMER_INFO_ROW).getCell(0).getStringCellValue();
         table.add(Arrays.asList(customerInfoTitle));
         
-        String customerNameTitle = dataSheet.getRow(5).getCell(0).getStringCellValue();
+        String customerNameTitle = dataSheet.getRow(CUSTOMER_NAME_ROW).getCell(0).getStringCellValue();
         String customerNameValue = "";
-        if (!new Excel().isCellBlank(dataSheet.getRow(5).getCell(1))) {
-        	customerNameValue = dataSheet.getRow(5).getCell(1).getStringCellValue();
+        if (!excel.isCellBlank(dataSheet.getRow(5).getCell(CUSTOMER_NAME_COL))) {
+        	customerNameValue = dataSheet.getRow(CUSTOMER_NAME_ROW).getCell(CUSTOMER_NAME_COL).getStringCellValue();
         }
-        
         table.add(Arrays.asList(customerNameTitle, customerNameValue));
         
-        String customerPhoneTitle = dataSheet.getRow(6).getCell(0).getStringCellValue();
+        String customerPhoneTitle = dataSheet.getRow(CUSTOMER_PHONE_ROW).getCell(0).getStringCellValue();
         String customerPhoneValue = "";
-        if (!new Excel().isCellBlank(dataSheet.getRow(6).getCell(1))) {
-        	customerPhoneValue = dataSheet.getRow(6).getCell(1).getStringCellValue();
+        if (!excel.isCellBlank(dataSheet.getRow(CUSTOMER_PHONE_ROW).getCell(CUSTOMER_PHONE_COL))) {
+        	customerPhoneValue = dataSheet.getRow(CUSTOMER_PHONE_ROW).getCell(CUSTOMER_PHONE_COL).getStringCellValue();
         }
         table.add(Arrays.asList(customerPhoneTitle, customerPhoneValue));
         
-        String customerEmailTitle = dataSheet.getRow(7).getCell(0).getStringCellValue();
+        String customerEmailTitle = dataSheet.getRow(CUSTOMER_EMAIL_ROW).getCell(0).getStringCellValue();
         String customerEmailValue = "";
-        if (!new Excel().isCellBlank(dataSheet.getRow(7).getCell(1))) {
-        	customerEmailValue = dataSheet.getRow(7).getCell(1).getStringCellValue();
+        if (!excel.isCellBlank(dataSheet.getRow(CUSTOMER_EMAIL_ROW).getCell(CUSTOMER_EMAIL_COL))) {
+        	customerEmailValue = dataSheet.getRow(CUSTOMER_EMAIL_ROW).getCell(CUSTOMER_EMAIL_COL).getStringCellValue();
         }
         table.add(Arrays.asList(customerEmailTitle, customerEmailValue));
         
-        String numberTitle = dataSheet.getRow(8).getCell(0).getStringCellValue();
-        String imageTitle = dataSheet.getRow(8).getCell(1).getStringCellValue();
-        String productNameTitle = dataSheet.getRow(8).getCell(2).getStringCellValue();
-        String quantityTitle = dataSheet.getRow(8).getCell(3).getStringCellValue();
-        String unitPriceTitle = dataSheet.getRow(8).getCell(4).getStringCellValue();
-        String totalPriceTitle = dataSheet.getRow(8).getCell(5).getStringCellValue();
+        // Get Header
+        String numberTitle = dataSheet.getRow(HEADER_ROW).getCell(NUMBER_COL).getStringCellValue();
+        String imageTitle = dataSheet.getRow(HEADER_ROW).getCell(IMAGE_COL).getStringCellValue();
+        String productNameTitle = dataSheet.getRow(HEADER_ROW).getCell(PRODUCT_NAME_COL).getStringCellValue();
+        String quantityTitle = dataSheet.getRow(HEADER_ROW).getCell(QUANTITY_COL).getStringCellValue();
+        String unitPriceTitle = dataSheet.getRow(HEADER_ROW).getCell(UNIT_PRICE_COL).getStringCellValue();
+        String totalPriceTitle = dataSheet.getRow(HEADER_ROW).getCell(TOTAL_PRICE_COL).getStringCellValue();
         table.add(Arrays.asList(numberTitle, imageTitle, productNameTitle, quantityTitle, unitPriceTitle, totalPriceTitle));
         
-        int startProductRowIndex = 9;
+        //Get Quotation Data
+        int lastRowIndex = dataSheet.getLastRowNum();
         int lastProductRowIndex = lastRowIndex -3;
         
-        int startProductColumnIndex = 0;
-        int lastProductColumnIndex = 5;
-		
-		for (int i=startProductRowIndex; i<=lastProductRowIndex; i++) {
+		for (int i=PRODUCT_START_ROW; i<=lastProductRowIndex; i++) {
 			List<String> rowData = new ArrayList<>();
-			for (int j=startProductColumnIndex; j<=lastProductColumnIndex; j++) {
+			for (int j=NUMBER_COL; j<=TOTAL_PRICE_COL; j++) {
 				rowData.add(dataSheet.getRow(i).getCell(j).getStringCellValue());
 			}
 			table.add(rowData);
 		}
         
-        String subTotalTitle = dataSheet.getRow(lastRowIndex-2).getCell(4).getStringCellValue();
-        String subTotalValue = dataSheet.getRow(lastRowIndex-2).getCell(5).getStringCellValue();
+        String subTotalTitle = dataSheet.getRow(lastRowIndex-2).getCell(UNIT_PRICE_COL).getStringCellValue();
+        String subTotalValue = dataSheet.getRow(lastRowIndex-2).getCell(TOTAL_PRICE_COL).getStringCellValue();
         table.add(Arrays.asList(subTotalTitle, subTotalValue));
         
-        String vatTitle = dataSheet.getRow(lastRowIndex-1).getCell(4).getStringCellValue();
-        String vatValue = dataSheet.getRow(lastRowIndex-1).getCell(5).getStringCellValue();
+        String vatTitle = dataSheet.getRow(lastRowIndex-1).getCell(UNIT_PRICE_COL).getStringCellValue();
+        String vatValue = dataSheet.getRow(lastRowIndex-1).getCell(TOTAL_PRICE_COL).getStringCellValue();
         table.add(Arrays.asList(vatTitle, vatValue));
         
-        String totalTitle = dataSheet.getRow(lastRowIndex).getCell(4).getStringCellValue();
-        String totalValue = dataSheet.getRow(lastRowIndex).getCell(5).getStringCellValue();
+        String totalTitle = dataSheet.getRow(lastRowIndex).getCell(UNIT_PRICE_COL).getStringCellValue();
+        String totalValue = dataSheet.getRow(lastRowIndex).getCell(TOTAL_PRICE_COL).getStringCellValue();
         table.add(Arrays.asList(totalTitle, totalValue));	
         
 		return table;

@@ -257,6 +257,12 @@ public class UICommonAction {
 			wait.until(ExpectedConditions.visibilityOf(element));
 		}
 	}
+	
+	/**
+	 * Wait till the element disappears in the specific duration
+	 * @param element
+	 * @param timeout in seconds
+	 */
 	public void waitForElementInvisible(WebElement element, int timeout){
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
 		try {
@@ -286,6 +292,11 @@ public class UICommonAction {
 		return select.getOptions();
 	}
 
+	/**
+	 * Waits till the element <b>appears once then disappears</b> in the specific duration
+	 * @param element
+	 * @param timeout in seconds
+	 */
 	public void waitTillElementDisappear(WebElement element, int timeout) {
 		try {
 			waitForElementVisible(element, timeout);
@@ -437,6 +448,10 @@ public class UICommonAction {
 	public void scrollToTopPage() {
 		JavascriptExecutor executor= (JavascriptExecutor)driver;
 		executor.executeScript( "window.scrollTo(0,0)");
+	}
+	public void scrollToElement(WebElement element) {
+		JavascriptExecutor executor= (JavascriptExecutor)driver;
+		executor.executeScript("arguments[0].scrollIntoView(true);", element);
 	}
 	public void refreshPage(){
 		driver.navigate().refresh();

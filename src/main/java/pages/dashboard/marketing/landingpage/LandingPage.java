@@ -57,7 +57,9 @@ public class LandingPage {
     }
     public void verifyPermissionToAddAnalyticsToLandingPage(String permission, String url) {
     	if (permission.contentEquals("A")) {
-    		clickCreateLandingPage().inputGoogleAnalyticsId("123456").clickCancelBtn();
+    		clickCreateLandingPage().inputGoogleAnalyticsId("123456");
+    		new HomePage(driver).waitTillLoadingDotsDisappear();
+    		new CreateLandingPage(driver).clickCancelBtn();
     		new ConfirmationDialog(driver).clickOKBtn();
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(commonAction.getCurrentURL().contains(url));

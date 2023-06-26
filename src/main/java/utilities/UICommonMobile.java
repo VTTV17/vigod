@@ -37,6 +37,15 @@ public class UICommonMobile extends UICommonAction {
 		}
 	}
 	
+	public void clickElement(By bySelector, int timeout) {
+		try {
+			getElement(bySelector,timeout).click();
+		} catch(StaleElementReferenceException ex) {
+			logger.debug("StaleElementReferenceException caught in clickElement\n" + ex);
+			getElement(bySelector,timeout).click();
+		}
+	}
+	
 	public void inputText(By bySelector, String text) {
 		try {
 			WebElement el = getElement(bySelector,5);
@@ -59,6 +68,10 @@ public class UICommonMobile extends UICommonAction {
 			text = getElement(bySelector,5).getText();
 		}
 		return text;
+	}	
+	
+	public boolean isElementEnabled(By bySelector) {
+		return getElement(bySelector, 5).isEnabled();
 	}	
 
 	public WebElement getElement(By by) {

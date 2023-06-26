@@ -5,6 +5,7 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class APIProductCollection {
@@ -26,7 +27,6 @@ public class APIProductCollection {
     public List<Integer> getListProductIDInCollections(int collectionID) {
         Response collectionDetail = api.get(DASHBOARD_PRODUCT_LIST_IN_COLLECTIONS_PATH.formatted(loginInfo.getStoreID(), collectionID),  loginInfo.getAccessToken());
         collectionDetail.then().statusCode(200);
-
         return collectionDetail.jsonPath().getList("lstProduct.id");
     }
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="ProductCollectionTest">
+        <classes>
+            <class name="ProductCollectionTest">
+                <methods>
+                    <include name="PC_01_BH_4783_CreateManualProductCollection_V2"/>
+                    <include name="PC_02_BH_4784_CreateManualProductCollectionAndAddAProductSEO"/>
+                    <include name="PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword"/>
+                    <include name="PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword"/>
+                    <include name="PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword"/>
+                    <include name="PC_06_BH_4789_CreateAutomationProductCollectionWithTitleEqualToKeyword"/>
+                    <include name="PC_07_BH_4790_CreateAutomationProductCollectionWithPriceEqualToNumber"/>
+                    <include name="PC_08_BH_4791_CreateAutomationProductCollectionWithPriceLessThanNumber"/>
+                    <include name="PC_09_BH_4792_CreateAutomationProductCollectionWithPriceGreaterThanNumber"/>
+                    <include name="PC_10_BH_4793_CreateAutomationProductCollectionWithANDMultipleCondition"/>
+                    <include name="PC_11_BH_4794_CreateAutomationProductCollectionWithORMultipleCondition"/>
+<!--                    <include name="PC_12_BH_5239_CheckPermission"/>-->
+                </methods>
+            </class> <!-- CreateServiceTest -->
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

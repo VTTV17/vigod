@@ -14,11 +14,13 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import pages.InternalTool;
 import pages.dashboard.home.HomePage;
 import pages.thirdparty.ATM;
 import pages.thirdparty.PAYPAL;
 import pages.thirdparty.VISA;
 import utilities.UICommonAction;
+import utilities.enums.PaymentMethod;
 
 public class PlansPage extends HomePage {
 	WebDriver driver;
@@ -81,20 +83,25 @@ public class PlansPage extends HomePage {
 		return this;
 	}
 
-	public String selectPaymentMethod(String method) {
+	/**
+	 * Selects a payment method
+	 * @param method
+	 * @return the selected payment method. If an unsupported payment method is passed as input, it returns the same input value.
+	 */
+	public PaymentMethod selectPaymentMethod(PaymentMethod method) {
 		switch (method) {
-		case "BANKTRANSFER":
+		case BANKTRANSFER:
 			commons.clickElement(BANK_TRANSFER_BTN);
 			break;
-		case "ATM":
+		case ATM:
 			commons.clickElement(ONLINE_PAYMENT_BTN);
 			commons.checkTheCheckBoxOrRadio(ATM_RADIO_BTN);
 			break;
-		case "VISA":
+		case VISA:
 			commons.clickElement(ONLINE_PAYMENT_BTN);
 			commons.checkTheCheckBoxOrRadio(VISA_RADIO_BTN);
 			break;
-		case "PAYPAL":
+		case PAYPAL:
 			commons.clickElement(ONLINE_PAYMENT_BTN);
 			commons.checkTheCheckBoxOrRadio(PAYPAL_RADIO_BTN);
 			break;
@@ -107,14 +114,21 @@ public class PlansPage extends HomePage {
 		commons.sleepInMiliSecond(1000);
 		logger.info("Payment method selected: " + method);
 		return method;
-	}
-
+	}	
+	
 	/**
-	 * @param paymentMethod Input value: BANKTRANSFER/ATM/VISA/PAYPAL
+	 * Selects a payment method
+	 * @param method Possible values are "BANKTRANSFER", "ATM", "VISA" and "PAYPAL"
+	 * @return the selected payment method. If an unsupported payment method is passed as input, it returns the same input value.
 	 */
-	public void completePayment(String paymentMethod) {
-		if (paymentMethod.contentEquals("BANKTRANSFER")) {
-			return;
+	public String selectPaymentMethod(String method) {
+		PaymentMethod payBy = PaymentMethod.valueOf(method);
+		return selectPaymentMethod(payBy).name();
+	}
+	
+	public String completePayment(PaymentMethod method) {
+		if (method.equals(PaymentMethod.BANKTRANSFER)) {
+			return getOrderId();
 		}
 		
 		String currentWindowHandle = commons.getCurrentWindowHandle();
@@ -122,83 +136,49 @@ public class PlansPage extends HomePage {
 		
 		commons.switchToWindow(1);
 		
-		switch (paymentMethod) {
-		case "ATM":
+		switch (method) {
+		case ATM:
 			new ATM(driver).completePayment();
 			break;
-		case "VISA":
+		case VISA:
 			new VISA(driver).completePayment();
 			break;
-		case "PAYPAL":
+		case PAYPAL:
 			new PAYPAL(driver).completePayment();
+			break;
+		case BANKTRANSFER:
+			//Will be removed later
+			break;
+		default:
+			//Will be removed later
 			break;
 		}
 		
-		//Wait till 
+		//Wait till the latest tab is closed
 		for (int i=9; i>=0; i--) {
 			if (commons.getAllWindowHandles().size() != currentNumberOfWindows) {
 				break;
 			}
 			commons.sleepInMiliSecond(2000);
-			// After a while, if the tab does not close on its own then we close it and switch to the original tab
-			if (i==0)  {
-				commons.closeTab();
-			}
 		}
 		commons.switchToWindow(currentWindowHandle);
-	}
-
-	/**
-	 * @param plan          Input value: GoWEB/GoAPP/GoPOS/GoSOCIAL/GoLEAD
-	 * @param paymentMethod Input value: BANKTRANSFER/ATM/VISA/PAYPAL
-	 */
-	public String purchasePlan(String plan, String paymentMethod) {
-		selectPlan(plan);
-		selectPaymentMethod(paymentMethod);
-
-		if (paymentMethod.contentEquals("BANKTRANSFER")) {
-			return getOrderId();
-		}
-
-		int originalSize = commons.getAllWindowHandles().size();
-		if (paymentMethod.contentEquals("ATM")) {
-			commons.switchToWindow(1);
-			new ATM(driver).completePayment();
-		} else if (paymentMethod.contentEquals("VISA")) {
-			commons.switchToWindow(1);
-			new VISA(driver).completePayment();
-		} else if (paymentMethod.contentEquals("PAYPAL")) {
-			commons.switchToWindow(1);
-			new PAYPAL(driver).completePayment();
-		}
-
-		// Wait till
-		for (int i = 0; i < 10; i++) {
-			if (commons.getAllWindowHandles().size() != originalSize) {
-				break;
-			}
-			commons.sleepInMiliSecond(2000);
-		}
-		commons.switchToWindow(0);
-		logger.info("Purchased plan '%s' and paid for it via '%s' successfully".formatted(plan, paymentMethod));
-		commons.sleepInMiliSecond(3000); // Cannot logout without this delay
 		return getOrderId();
 	}
 
+	/**
+	 * @param method Input value: BANKTRANSFER/ATM/VISA/PAYPAL
+	 */
+	public String completePayment(String method) {
+		PaymentMethod payBy = PaymentMethod.valueOf(method);
+		return completePayment(payBy);
+	}	
+	
 	public String getOrderId() {
-		String orderID = "";
 		commons.sleepInMiliSecond(1000);
-		// If element does not exist in DOM then we return empty value.
-		if (!commons.isElementDisplay(ORDER_ID)) {
-			logger.info("OrderID not show.");
-			return orderID;
-		}
-		
-		orderID = commons.getText(ORDER_ID);
-		logger.info("Get orderID: " + orderID);
-		return orderID;
+		logger.info("Getting orderID...");
+		return commons.getText(ORDER_ID);
 	}
-
+	
 	public PlansPage clickOnLogOut() {
 		commons.sleepInMiliSecond(1000);
 		commons.clickElement(LOGOUT_BTN);
@@ -206,10 +186,42 @@ public class PlansPage extends HomePage {
 		logger.info("Clicked on Logout link");
 		return this;
 	}
-
+	
+	/**
+	 * Clicks on the element that obscures the screen
+	 */
 	public PlansPage clickOverlayElement() {
 		commons.clickElement(OVERLAY_ELEMENT);
 		logger.info("Clicked on overlay element");
 		return this;
 	}
+
+	public void logoutAfterSuccessfulPurchase(PaymentMethod method, String orderID) {
+		if (method.equals(PaymentMethod.BANKTRANSFER)) {
+			new InternalTool(driver).openNewTabAndNavigateToInternalTool()
+			.login().navigateToPage("GoSell","Packages","Orders list").approveOrder(orderID).closeTab();
+			new HomePage(driver).clickLogout();
+			return;
+		}
+		if (method.equals(PaymentMethod.PAYPAL)) {
+			InternalTool internal = new InternalTool(driver);
+			internal.openNewTabAndNavigateToInternalTool().login().navigateToPage("GoSell","Packages","Orders list");
+			for (int i=0; i<20; i++) {
+				if (internal.getOrderApprovalStatus(orderID).contentEquals("Approved")) {
+					break;
+				}
+				commons.sleepInMiliSecond(3000);
+				commons.refreshPage();
+			}
+			internal.closeTab();
+		}
+		clickOverlayElement();
+		new ForceLogOutDialog(driver).clickLogOutBtn();
+	}
+	
+	public void logoutAfterSuccessfulPurchase(String method, String orderID) {
+		PaymentMethod payBy = PaymentMethod.valueOf(method);
+		logoutAfterSuccessfulPurchase(payBy, orderID);
+	}	
+	
 }

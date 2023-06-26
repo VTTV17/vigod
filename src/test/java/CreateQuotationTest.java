@@ -11,17 +11,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
+import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.ProductInformation;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.orders.createquotation.CreateQuotation;
+import pages.dashboard.settings.storeinformation.StoreInformation;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
-import utilities.jsonFileUtility;
+import utilities.account.AccountTest;
 import utilities.driver.InitWebdriver;
 
 public class CreateQuotationTest extends BaseTest {
@@ -30,19 +30,30 @@ public class CreateQuotationTest extends BaseTest {
 	HomePage homePage;
 	CreateQuotation createQuotationPage;
 	
+	String username;
+	String password;
+	String country;
+	
+	List<String> customerList;
 	List<String> productList;
 	List<Integer> productIDList;
 	List<List<String>> convUnitProductList;
-	
-	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
-	String sellerUsername = sellerData.findValue("seller").findValue("mail").findValue("username").asText();
-	String sellerPassword = sellerData.findValue("seller").findValue("mail").findValue("password").asText();
-	String sellerCountry = sellerData.findValue("seller").findValue("mail").findValue("country").asText();
 
-	
 	@BeforeClass
+	public void loadTestData() {
+		getLoginInfo();
+		getDataByAPI();
+	}	
+	
+	public void getLoginInfo() {
+		username = AccountTest.ADMIN_USERNAME_TIEN;
+		password = AccountTest.ADMIN_PASSWORD_TIEN;
+		country = AccountTest.ADMIN_COUNTRY_TIEN;
+	}	
+	
 	public void getDataByAPI() {
-        new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
+        new Login().loginToDashboardByMail(username, password);
+        customerList = new Customers().getAllAccountCustomer();
         productList = new APIAllProducts().getAllProductNames();
         productIDList = new ProductInformation().getProductList();
         convUnitProductList = new ProductInformation().getIdAndNameOfProductWithConversionUnits();
@@ -55,9 +66,14 @@ public class CreateQuotationTest extends BaseTest {
 		createQuotationPage = new CreateQuotation(driver);
 		commonAction = new UICommonAction(driver);
 	}
+	
+	public void logIntoDashboard() {
+		dbLoginPage.navigate().performLogin(country, username, password);
+		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+	}
 
 	@BeforeMethod
-	public void setup() throws InterruptedException {
+	public void setup() {
 		instantiatePageObjects();
 	}
 	
@@ -71,11 +87,15 @@ public class CreateQuotationTest extends BaseTest {
 		return PropertiesUtil.getPropertiesValueByDBLang("quotation.create." + condition);
 	}
 	
-	public String randomSearchProduct() {
+	public String randomCustomer() {
+		return customerList.get((new Random().nextInt(0, customerList.size())));
+	}		
+	
+	public String randomProduct() {
 		return productList.get((new Random().nextInt(0, productList.size())));
 	}		
 
-	public String randomSearchProductID() {
+	public String randomProductID() {
         return String.valueOf(productIDList.get((new Random().nextInt(0, productIDList.size()))));
 	}	
 
@@ -111,8 +131,7 @@ public class CreateQuotationTest extends BaseTest {
 	public void CQ_01_CheckTranslation() throws Exception {
 
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		logIntoDashboard();
 
 		/* Check text at management screen */
 		createQuotationPage.navigate().verifyTextAtCreateQuotationScreen();
@@ -122,28 +141,40 @@ public class CreateQuotationTest extends BaseTest {
 	public void CQ_02_CreateQuotationForNoOne() throws Exception {
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		logIntoDashboard();
+		
+		homePage.navigateToPage("Settings");
+		
+		StoreInformation storeInfo = new StoreInformation(driver);
+		storeInfo.navigate();
+		
+		String storeName = storeInfo.getShopName();
+		String storePhone = storeInfo.getHoline();
+		String storeEmail = storeInfo.getEmail();
 		
 		createQuotationPage.navigate();
 		
 		/* Add products */
 		for (int i=0; i<productList.size(); i++) {
-			String product = productList.get(i);
-			createQuotationPage.inputProductSearchTerm(product);
-			createQuotationPage.selectProduct(product);
+			String randomSearchProduct = randomProduct();
+			createQuotationPage.inputProductSearchTerm(randomSearchProduct);
+			createQuotationPage.selectProduct(randomSearchProduct);
 			if (i==9) break; 
 		}
 		
-		createQuotationPage.inputCustomerSearchTerm("");
+		commonAction.sleepInMiliSecond(2000);
+		
 		createQuotationPage.clickExportQuotationBtn();
-		commonAction.sleepInMiliSecond(5000);
 		
 		String dbSubTotal = createQuotationPage.getSubTotal().replaceAll("\\D", "");
 		String dbVAT = createQuotationPage.getVAT().replaceAll("\\D", "");
 		String dbTotal = createQuotationPage.getTotal().replaceAll("\\D", "");
 		
 		List<List<String>> table = createQuotationPage.readQuotationFile();
+		
+		String fileStoreName = table.get(0).get(1);
+		String fileStorePhone = table.get(1).get(1);
+		String fileStoreEmail = table.get(2).get(1);
 		
 		int lastTableRowIndex = table.size()-1;
 		
@@ -154,38 +185,56 @@ public class CreateQuotationTest extends BaseTest {
 		Assert.assertEquals(fileSubTotal, dbSubTotal, "Subtotal");
 		Assert.assertEquals(fileVAT, dbVAT, "VAT");
 		Assert.assertEquals(fileTotal, dbTotal, "Total");
+		Assert.assertEquals(fileStoreName, storeName, "Store name");
+		Assert.assertEquals(fileStorePhone, "'"+storePhone, "Store phone");
+		Assert.assertEquals(fileStoreEmail, storeEmail, "Store email");
 	}	
 	
 	@Test
 	public void CQ_03_CreateQuotationForCustomer() throws Exception {
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		logIntoDashboard();
 
+		homePage.navigateToPage("Settings");
+		
+		StoreInformation storeInfo = new StoreInformation(driver);
+		storeInfo.navigate();
+		
+		String storeName = storeInfo.getShopName();
+		String storePhone = storeInfo.getHoline();
+		String storeEmail = storeInfo.getEmail();
+		
 		createQuotationPage.navigate();
+
+		/* Select customer */
+		String customer = randomCustomer();
+		createQuotationPage.inputCustomerSearchTerm(customer);
+		createQuotationPage.selectCustomer(customer);		
 		
 		/* Add products */
 		for (int i=0; i<productList.size(); i++) {
-			String product = productList.get(i);
-			createQuotationPage.inputProductSearchTerm(product);
-			createQuotationPage.selectProduct(product);
+			String randomSearchProduct = randomProduct();
+			createQuotationPage.inputProductSearchTerm(randomSearchProduct);
+			createQuotationPage.selectProduct(randomSearchProduct);
 			if (i==9) break; 
 		}
 		
-		/* Select customer */
-		String customer = "Automation Buyer 7574137150";
-		createQuotationPage.inputCustomerSearchTerm(customer);
-		createQuotationPage.selectCustomer(customer);
+		commonAction.sleepInMiliSecond(2000);
 		
 		createQuotationPage.clickExportQuotationBtn();
-		commonAction.sleepInMiliSecond(5000);
 		
 		String dbSubTotal = createQuotationPage.getSubTotal().replaceAll("\\D", "");
 		String dbVAT = createQuotationPage.getVAT().replaceAll("\\D", "");
 		String dbTotal = createQuotationPage.getTotal().replaceAll("\\D", "");
 		
+		List<String> customerInfo = createQuotationPage.getSelectedCustomerData();
+		
 		List<List<String>> table = createQuotationPage.readQuotationFile();
+		
+		String fileStoreName = table.get(0).get(1);
+		String fileStorePhone = table.get(1).get(1);
+		String fileStoreEmail = table.get(2).get(1);
 		
 		int lastTableRowIndex = table.size()-1;
 		
@@ -193,66 +242,83 @@ public class CreateQuotationTest extends BaseTest {
 		String fileVAT = table.get(lastTableRowIndex-1).get(1);
 		String fileTotal = table.get(lastTableRowIndex).get(1);
 		
+		Assert.assertEquals(table.get(4).get(1), customerInfo.get(0), "Customer name");
+		if(customerInfo.get(1).isEmpty()) {
+			Assert.assertTrue(table.get(5).get(1).contentEquals("'") || table.get(5).get(1).contentEquals("'undefined"));
+		} else {
+			Assert.assertEquals(table.get(5).get(1), "'"+customerInfo.get(1), "Customer phone");
+		}
+		Assert.assertEquals(fileStoreName, storeName, "Store name");
+		Assert.assertEquals(fileStorePhone, "'"+storePhone, "Store phone");
+		Assert.assertEquals(fileStoreEmail, storeEmail, "Store email");
 		Assert.assertEquals(fileSubTotal, dbSubTotal, "Subtotal");
 		Assert.assertEquals(fileVAT, dbVAT, "VAT");
 		Assert.assertEquals(fileTotal, dbTotal, "Total");
-	}
+	}	
 	
 	@Test
 	public void CQ_04_SearchProductByName() throws Exception {
 		
-        String randomSearchProduct = randomSearchProduct();
-        String searchTerm = randomSearchProduct.substring(0, randomSearchProduct.length()/2);
-		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		logIntoDashboard();
 		
 		createQuotationPage.navigate();
 		
-		/* Absolute match */
-		createQuotationPage.inputProductSearchTerm(randomSearchProduct);
-		verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), randomSearchProduct);
-		
-		/* Partly match */
-		createQuotationPage.emptyProductSearchBox();
-		createQuotationPage.inputProductSearchTerm(searchTerm);
-		verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), searchTerm);
-		
-		/* Ignore case */
-		createQuotationPage.emptyProductSearchBox();
-		createQuotationPage.inputProductSearchTerm(randomSearchProduct.toLowerCase());
-		verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), randomSearchProduct.toLowerCase());
-		
-		createQuotationPage.emptyProductSearchBox();
-		createQuotationPage.inputProductSearchTerm(randomSearchProduct.toUpperCase());
-		verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), randomSearchProduct.toUpperCase());
+		for (int i=0; i<productList.size(); i++) {
+	        String randomSearchProduct = randomProduct();
+	        String searchTerm = randomSearchProduct.substring(0, randomSearchProduct.length()/2);
+			
+			/* Absolute match */
+			createQuotationPage.inputProductSearchTerm(randomSearchProduct);
+			verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), randomSearchProduct);
+			
+			/* Partly match */
+			createQuotationPage.emptyProductSearchBox();
+			createQuotationPage.inputProductSearchTerm(searchTerm);
+			verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), searchTerm);
+			
+			/* Ignore case */
+			createQuotationPage.emptyProductSearchBox();
+			createQuotationPage.inputProductSearchTerm(randomSearchProduct.toLowerCase());
+			verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), randomSearchProduct.toLowerCase());
+			
+			createQuotationPage.emptyProductSearchBox();
+			createQuotationPage.inputProductSearchTerm(randomSearchProduct.toUpperCase());
+			verifyResultMatchNameSearchTerm(createQuotationPage.getSearchResults(), randomSearchProduct.toUpperCase());
+			
+			createQuotationPage.emptyProductSearchBox();
+			if (i==2) break;
+		}
 	}
 	
 	@Test
 	public void CQ_05_SearchProductByBarcode() throws Exception {
 		
-		String randomSearchID = randomSearchProductID();
-		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		logIntoDashboard();
 		
 		createQuotationPage.navigate();
 		
 		createQuotationPage.selectSearchCondition(tranlateSearchCondition("searchProductByBarcode"));
 		
-		createQuotationPage.inputProductSearchTerm(randomSearchID);
+		for (int i=0; i<productList.size(); i++) {
+			String randomSearchID = randomProductID();
+			createQuotationPage.inputProductSearchTerm(randomSearchID);
+			
+			verifyResultMatchIDSearchTerm(createQuotationPage.getSearchResults(), randomSearchID);
+			
+			createQuotationPage.emptyProductSearchBox();
+			if (i==2) break;
+		}
 		
-		verifyResultMatchIDSearchTerm(createQuotationPage.getSearchResults(), randomSearchID);
+
 	}
 	
 	@Test
 	public void CQ_06_RemoveProductFromQuotation() throws Exception {
 		
 		/* Log into dashboard */
-		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		logIntoDashboard();
 
 		createQuotationPage.navigate();
 		

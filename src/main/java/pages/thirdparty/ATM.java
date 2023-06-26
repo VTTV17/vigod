@@ -11,6 +11,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.UICommonAction;
@@ -52,16 +53,9 @@ public class ATM {
 	@FindBy(id = "btnConfirm")
 	WebElement CONFIRM_BTN;
 	
-	
-	public ATM clickDomesticCard() {
-		commonAction.clickElement(DOMESTIC_CARD);
-		logger.info("Clicked on Domestic Card.");
-		return this;
-	}
-	
 	public ATM selectBank(String bank) {
     	if (bank.contentEquals("NCB")) {
-    		commonAction.clickElement(driver.findElement(By.id(bank)));
+    		commonAction.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(By.id(bank))));
     	} else if (bank.contentEquals("VIETCOMBANK")) {
     		commonAction.clickElement(driver.findElement(By.id(bank)));
     	} else {
@@ -109,7 +103,6 @@ public class ATM {
 	}	
 	
 	public ATM completePayment() {
-		clickDomesticCard();
 		selectBank(ATM_BANK);
 		inputCardNumber(ATM_CARDNUMBER);
 		inputCardHolder(ATM_CARDHOLDER);
@@ -121,7 +114,6 @@ public class ATM {
 	}	
 	
 	public ATM completePayment(String bank, String cardNumber, String cardHolder, String issuingDate, String otp) {
-		clickDomesticCard();
 		selectBank(bank);
 		inputCardNumber(cardNumber);
 		inputCardHolder(cardHolder);

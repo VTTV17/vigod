@@ -2,7 +2,11 @@ import api.dashboard.login.Login;
 import api.dashboard.onlineshop.APIMenus;
 import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.APIProductCollection;
+import api.storefront.header.APIHeader;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
@@ -12,12 +16,16 @@ import pages.dashboard.products.productcollection.productcollectionmanagement.Pr
 import pages.storefront.header.HeaderSF;
 import pages.storefront.productcollection.ProductCollectionSF;
 import utilities.PropertiesUtil;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
 import static utilities.account.AccountTest.*;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -32,7 +40,7 @@ public class ProductCollectionTest extends BaseTest {
     String collectionName = "";
     String[] productList = {};
     String domainSF;
-    String menuID;
+    int menuID;
     Login loginAPI;
     String token = "";
     String storeId = "";
@@ -59,30 +67,63 @@ public class ProductCollectionTest extends BaseTest {
     String automatedMode;
     String manuallyMode;
     String productType;
+    String productTitleTxt;
+    String productPriceTxt;
+    String containsOperateTxt;
+    String equalToOperateProductTiteTxt;
+    String equalToOperateProductPriceTxt;
+    String startWithOperateTxt;
+    String endsWithOperateTxt;
+    String greaterThanTxt;
+    String lessThanTxt;
+    String allConditionTxt;
+    String anyConditionTxt;
     @BeforeClass
     public void getData() throws Exception {
         userNameDb = ADMIN_SHOP_VI_USERNAME;
         passwordDb = ADMIN_SHOP_VI_PASSWORD;
         domainSF = SF_ShopVi;
-        menuID = "7587";
+        new Login().loginToDashboardWithPhone("+84",userNameDb,passwordDb);
+        menuID = new APIHeader().getCurrentMenuId();
         userName_goWeb = ADMIN_USERNAME_GOWEB;
         userName_goApp = ADMIN_USERNAME_GOAPP;
         userName_goPOS = ADMIN_USERNAME_GOPOS;
         userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
         userName_GoLead = ADMIN_USERNAME_GOLEAD;
         passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
-        languageSF = PropertiesUtil.getLanguageFromConfig("Storefront");
-        languageDashboard = PropertiesUtil.getLanguageFromConfig("Dashboard");
+        generate = new DataGenerator();
+        languageDashboard = language;
+        languageSF = language;
         automatedMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.automatedModeTxt");
         manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
         productType = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
+        productTitleTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt");
+        productPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productPriceTxt");
+        containsOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.containsTxt");
+        equalToOperateProductTiteTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productTitleIsEqualToTxt");
+        startWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.startsWithTxt");
+        endsWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.endsWithTxt");
+        greaterThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isGeaterThanTxt");
+        lessThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isLessThanTxt");
+        equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
+        allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
+        anyConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
     }
-
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, "false");
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        if (driver != null) driver.quit();
+    }
     public void callLoginAPI() {
         loginAPI = new Login();
-        Map<String, String> loginInfo = loginAPI.loginToDashboardWithPhone("+84", userNameDb, passwordDb);
-        token = loginInfo.get("accessToken");
-        storeId = loginInfo.get("storeID");
+        loginAPI.loginToDashboardWithPhone("+84", userNameDb, passwordDb);
+        LoginDashboardInfo loginInfo = new Login().getInfo();
+        token = loginInfo.getAccessToken();
+        storeId = String.valueOf(loginInfo.getStoreID());
     }
 
     public void callCreateMenuItemParentAPI(String collectionName) {
@@ -90,20 +131,20 @@ public class ProductCollectionTest extends BaseTest {
         productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         menu = new APIMenus();
-        menu.CreateMenuItemParent(token, menuID, collectIDNewest, collectionName);
+        menu.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
     }
 
     public void callDeleteMenuItemAndCollectionAPI(String collectionName) throws Exception {
         callLoginAPI();
         menu = new APIMenus();
-        menu.deleteMenuItem(storeId, token, menuID, collectionName);
+        menu.deleteMenuItem(menuID, collectionName);
         APIProductCollection productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         APIProductCollection productCollection = new APIProductCollection();
         productCollection.deleteCollection(token, storeId, String.valueOf(collectIDNewest));
     }
 
-    public CreateProductCollection loginAndNavigateToCreateProductCollection() {
+    public CreateProductCollection loginAndNavigateToCreateProductCollection() throws Exception {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userNameDb, passwordDb);
         createProductCollection = new CreateProductCollection(driver);
@@ -133,9 +174,9 @@ public class ProductCollectionTest extends BaseTest {
         List<String> productListSorted;
         APIAllProducts apiAllProducts = new APIAllProducts();
         if (hasSetPriority) {
-            productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
+            productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         } else {
-            productListSorted = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
+            productListSorted = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         }
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
@@ -153,11 +194,11 @@ public class ProductCollectionTest extends BaseTest {
         callLoginAPI();
         CreateProductCollection createProductCollection = new CreateProductCollection(driver);
         if (conditions.length > 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(token, storeId, conditionType, conditions);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(conditionType, conditions);
             productExpectedList = (List<String>) productBelongCollectionMap.get("productExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else if (conditions.length == 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(token, storeId, conditions[0]);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(conditions[0]);
             System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
             productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
@@ -174,7 +215,7 @@ public class ProductCollectionTest extends BaseTest {
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(3),productExpectedList);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productExpectedList.size()/PAGE_SIZE_SF_COLLECTION +1),productExpectedList);
     }
 
     public void editAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
@@ -186,11 +227,11 @@ public class ProductCollectionTest extends BaseTest {
         callLoginAPI();
         CreateProductCollection createProductCollection = new CreateProductCollection(driver);
         if (allCondition.length > 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(token, storeId, conditionType, allCondition);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(conditionType, allCondition);
             productExpectedList = (List<String>) productBelongCollectionMap.get("productExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else if (allCondition.length == 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(token, storeId, conditions[0]);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition( conditions[0]);
             System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
             productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
@@ -248,7 +289,7 @@ public class ProductCollectionTest extends BaseTest {
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         System.out.println("collectIDNewest: " + collectIDNewest);
         APIAllProducts apiAllProducts = new APIAllProducts();
-        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
+        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListExpected)
                 .verifySEOInfo("", "", "", collectionName);
@@ -256,7 +297,6 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectionName);
         //product list: add some product, input priority
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
-//        productList = new String[]{"Dâu tây Đà Lạt", "Auto - Normal - variation - 08/02 09:56:04", "Handcrafted Concrete Gloves - Product API 1673499244"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, true, true)
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
@@ -265,7 +305,7 @@ public class ProductCollectionTest extends BaseTest {
         collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         navigateSFAndGoToCollectionPage(collectionName);
         System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
-        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
+        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
 //        collectionNameEditManual = collectionName;
@@ -289,7 +329,7 @@ public class ProductCollectionTest extends BaseTest {
         APIProductCollection productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         APIAllProducts apiAllProducts = new APIAllProducts();
-        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(storeId, token, String.valueOf(collectIDNewest));
+        List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
@@ -300,73 +340,74 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test
     public void PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword() throws Exception {
-        condition = "Product title-contains-Gilaa";
+        condition = productTitleTxt+"-"+containsOperateTxt+"-Gilaa";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         collectionNameEditAutomationWithOrCondition = collectionName;
     }
 
     @Test
     public void PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword() throws Exception {
-        condition = "Product title-starts with-Kem Dưỡng";
+        condition = productTitleTxt+"-"+startWithOperateTxt+"-Kem Dưỡng";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         collectionNameEditAutomationWithAndCondition = collectionName;
     }
 
     @Test
     public void PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword() throws Exception {
-        condition = "Product title-ends with-Skin";
+        condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
+        System.out.println("Condition: "+condition);
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_06_BH_4789_CreateAutomationProductCollectionWithTitleEqualToKeyword() throws Exception {
-        condition = "Product title-is equal to-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
+        condition = productTitleTxt+"-"+equalToOperateProductTiteTxt+"-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
         collectionName = generate.generateString(5) + " - " + "Product title-is equal to";
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_07_BH_4790_CreateAutomationProductCollectionWithPriceEqualToNumber() throws Exception {
-        condition = "Product price-is equal to-328000";
+        condition = productPriceTxt+"-"+equalToOperateProductPriceTxt+"-328000";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_08_BH_4791_CreateAutomationProductCollectionWithPriceLessThanNumber() throws Exception {
-        condition = "Product price-is less than-100000";
+        condition = productPriceTxt+"-"+lessThanTxt+"-100000";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_09_BH_4792_CreateAutomationProductCollectionWithPriceGreaterThanNumber() throws Exception {
-        condition = "Product price-is greater than-500000";
+        condition = productPriceTxt+"-"+greaterThanTxt+"-50000000000";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, "All conditions", condition);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_10_BH_4793_CreateAutomationProductCollectionWithANDMultipleCondition() throws Exception {
-        String[] conditions = {"Product title-contains-Auto", "Product price-is greater than-500000"};
+        String[] conditions = {productTitleTxt+"-"+containsOperateTxt+"-Skin", productPriceTxt+"-"+greaterThanTxt+"-300000"};
         collectionName = generate.generateString(5) + " - " + "and multiple condition";
-        createAutomationCollectionAndVerify(collectionName, "All conditions", conditions);
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
     @Test
     public void PC_11_BH_4794_CreateAutomationProductCollectionWithORMultipleCondition() throws Exception {
-        String[] conditions = {"Product title-contains-Phấn", "Product price-is greater than-5000000"};
+        String[] conditions = {productTitleTxt+"-"+containsOperateTxt+"-Phấn", productPriceTxt+"-"+lessThanTxt+"-200000"};
         collectionName = generate.generateString(5) + " - " + "OR multiple condition";
-        createAutomationCollectionAndVerify(collectionName, "Any condition", conditions);
+        createAutomationCollectionAndVerify(collectionName, anyConditionTxt, conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
@@ -388,15 +429,14 @@ public class ProductCollectionTest extends BaseTest {
                 "Bộ Sản Phẩm La Roche-Posay Phục Hồi Và Làm Dịu Da 2 Món Cicaplast Baume B5 40ml + Thermal Spring Water 50ml"};
         loginAndNavigateToCreateProductCollection()
                 .createManualCollectionWithoutSEO_HasPriority(collectionName, productList, false, true)
-                .verifyCollectionInfoAfterCreated(collectionName, "Product", "Manually", String.valueOf(productList.length));
+                .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
+        System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
         callCreateMenuItemParentAPI(collectionName);
-        navigateSFAndGoToCollectionPage(collectionName);
         callLoginAPI();
         APIProductCollection productCollectAPI = new APIProductCollection();
         int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
         navigateSFAndGoToCollectionPage(collectionName);
-        System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
-        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, storeId, token, collectIDNewest);
+        List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
         collectNameEditPriority = collectionName;
@@ -455,15 +495,15 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test(dependsOnMethods = "PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword")
     public void PC_17_BH_4797_UpdateAutomationCollection_AndCondition() throws Exception {
-        condition = "Product title-contains-La Roche-Posay";
-        editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, "All conditions", condition);
+        condition = productTitleTxt+"-"+containsOperateTxt+"-La Roche-Posay";
+        editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithAndCondition);
     }
 
     @Test(dependsOnMethods = "PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword")
     public void PC_18_BH_4798_UpdateAutomationCollection_OrCondition() throws Exception {
-        condition = "Product price-is less than-100000";
-        editAutomationCollectionAndVerify(collectionNameEditAutomationWithOrCondition, "Any condition", condition);
+        condition = productPriceTxt+"-"+lessThanTxt+"-100000";
+        editAutomationCollectionAndVerify(collectionNameEditAutomationWithOrCondition, anyConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithOrCondition);
     }
     @Test

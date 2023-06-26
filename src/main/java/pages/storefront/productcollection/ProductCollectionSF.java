@@ -56,6 +56,7 @@ public class ProductCollectionSF extends GeneralSF {
         for (int i = 0; i < scrollNumber; i++) {
             common.scrollBottomPage();
             common.sleepInMiliSecond(500);
+            waitTillLoaderDisappear();
         }
         for (int j = 0; j < productCollectionSFUI.PRODUCT_NAMES.size(); j++) {
             productNames.add(productCollectionSFUI.PRODUCT_NAMES.get(j).getText().toLowerCase());

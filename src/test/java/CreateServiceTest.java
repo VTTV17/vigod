@@ -1,3 +1,5 @@
+import api.dashboard.login.Login;
+import api.dashboard.services.CreateServiceAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import pages.buyerapp.NavigationBar;
@@ -12,9 +14,11 @@ import pages.storefront.services.CollectionSFPage;
 import pages.storefront.services.ServiceDetailPage;
 import utilities.Constant;
 import utilities.PropertiesUtil;
+import utilities.UICommonAction;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.services.ServiceInfo;
 import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
@@ -76,22 +80,32 @@ public class CreateServiceTest extends BaseTest {
                 "<p>&nbsp;</p>" +
                 "<p style=\"text-align: center;\"><span class=\"fr-video fr-fvc fr-dvi fr-draggable\" contenteditable=\"false\"><iframe src=\"https://www.youtube.com/embed/pIgHZv5MBxE\" frameborder=\"0\" width=\"425\" height=\"350\" class=\"fr-draggable\"></iframe></span></p>" +
                 "</div></div>";
-        passWordTestPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
-        serviceEdit = PropertiesUtil.getEnvironmentData("serviceTestEdit");
-        SF_URL = SF_ShopVi;
-        serviceTestStatus = PropertiesUtil.getEnvironmentData("serviceTestStatus");
         generate = new DataGenerator();
+        passWordTestPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
+        new Login().loginToDashboardWithPhone("+84",userName,passWord);
+        SF_URL = SF_ShopVi;
     }
     @BeforeMethod
     public void setUp(){
-        driver = new InitWebdriver().getDriver(browser, headless);
+        driver = new InitWebdriver().getDriver(browser, "false");
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
-
+    public ServiceInfo callAPICreateService(){
+        String searchKeyword = generate.generateString(6) ;
+        String serviceName = "Service automation "+ searchKeyword;
+        String serviceDescription = serviceName + " description";
+        int listingPrice = Integer.parseInt("3"+generate.generateNumber(5));
+        int sellingPrice = Integer.parseInt("2"+generate.generateNumber(5));
+        String[] location = new String[]{"thu duc","quan 6","quan 8","quan 9"};
+        String[] times = new String[]{"10:11","12:10"};
+        boolean enableListing = false;
+        ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
+        return serviceInfo;
+    }
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWord);
@@ -140,6 +154,7 @@ public class CreateServiceTest extends BaseTest {
         } else {
             serviceManagement.checkSalePitchWhenNoPermision();
         }
+        commonAction = new UICommonAction(driver);
         home = new HomePage(driver);
         commonAction.sleepInMiliSecond(1000);
         home.clickLogout();
@@ -180,7 +195,6 @@ public class CreateServiceTest extends BaseTest {
                 .inputTimeSlots(timeSlots)
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
-        serviceEdit = serviceName; //use for edit testcase.
         //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
@@ -469,11 +483,14 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void ES01_EditTranslation() throws Exception {
         testCaseId = "ES01";
+        ServiceInfo serviceInfo = callAPICreateService();
+        serviceEdit = serviceInfo.getServiceName();
         createService = loginAndNavigateToServiceManagement()
                 .goToEditService(serviceEdit)
                 .clickEditTranslation();
-        String name = createService.getNameTranslate() + "updated en";
-        String description = createService.getDescriptionTranslate() + "updated en";
+        String keyword = createService.getNameTranslate();
+        String name = createService.getNameTranslate() + " updated en";
+        String description = createService.getDescriptionTranslate() + " updated en";
         createService.inputNameTranslate(name)
                 .inputDescriptionTranslate(description);
         List<String> locations = createService.inputLocationsTranslate();
@@ -484,7 +501,7 @@ public class CreateServiceTest extends BaseTest {
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage("ENG")
-                .searchWithFullName(name)
+                .searchWithFullName(keyword)
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceName(name)
@@ -495,6 +512,8 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void ES02_AddEditRemoveSEOInfo() throws Exception {
         testCaseId = "ES02";
+        ServiceInfo serviceInfo = callAPICreateService();
+        serviceEdit = serviceInfo.getServiceName();
         createService = loginAndNavigateToServiceManagement()
                 .goToEditService(serviceEdit);
         //add SEO info
@@ -542,9 +561,9 @@ public class CreateServiceTest extends BaseTest {
         SEODesctiption = "SEO description update " + generate.generateString(5);
         SEOKeyword = "SEO keyword update " + generate.generateString(5);
         SEOUrl = "serviceseourlupdate" + generate.generateNumber(5);
-        SEOTitleTranslate = SEOTitle + " update en";
-        SEODesctiptionTranslate = SEODesctiption + " update en";
-        SEOKeywordTranslate = SEOKeyword + " update en";
+        SEOTitleTranslate = SEOTitle + " en";
+        SEODesctiptionTranslate = SEODesctiption + " en";
+        SEOKeywordTranslate = SEOKeyword + " en";
         SEOUrlTranslate = SEOUrl + "updateen";
         createService.inputSEOTitle(SEOTitle)
                 .inputSEODescription(SEODesctiption)
@@ -592,8 +611,7 @@ public class CreateServiceTest extends BaseTest {
                 .inputSEOKeywordTranslate("")
                 .inputSEOUrlTranslate("")
                 .clickSaveTranslateBTN()
-                .verifyUpdateTranslateSuccessfulMessage()
-                .clickCloseBTNOnNotificationPopup();
+                .verifyUpdateTranslateSuccessfulMessage();
         //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
@@ -612,6 +630,8 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void ES03_ActiveDeactiveService() throws Exception {
         testCaseId = "ES03";
+        ServiceInfo serviceInfo = callAPICreateService();
+        serviceTestStatus = serviceInfo.getServiceName();
         //update deactive
         loginAndNavigateToServiceManagement()
                 .goToEditService(serviceTestStatus)
@@ -695,6 +715,9 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void ES05_AddRemovePhotoForService() throws Exception {
         testCaseId = "ES05";
+        // Call API create service
+        ServiceInfo serviceInfo = callAPICreateService();
+        serviceEdit = serviceInfo.getServiceName();
         //add more image
         createService = loginAndNavigateToServiceManagement()
                 .goToEditService(serviceEdit)
@@ -733,6 +756,8 @@ public class CreateServiceTest extends BaseTest {
     @Test
     public void ES06_AddRemoveCollectionForService() throws Exception {
         testCaseId = "ES06";
+        ServiceInfo serviceInfo = callAPICreateService();
+        serviceEdit = serviceInfo.getServiceName();
         createService = loginAndNavigateToServiceManagement()
                 .goToEditService(serviceEdit)
                 .inputCollections(2);

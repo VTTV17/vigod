@@ -26,6 +26,7 @@ import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
 import java.io.IOException;
 
@@ -48,39 +49,38 @@ public class BuyLinkTest extends BaseTest {
     HeaderSF headerSF;
     pages.storefront.login.LoginPage loginSF;
     CheckOutStep1 checkOutStep1;
-    CheckOutStep2 checkOutStep2;
-    CheckOutStep3 checkOutStep3;
     String discountCodeName;
     double productPrice;
     double discountAmount;
     SignupPage signupSF;
     String shopDomain;
     QuicklyCheckout quicklyCheckout;
+    String token;
     @BeforeClass
     public void beforeClass() throws Exception {
         userNameDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passWordDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
-        userNameSF = PropertiesUtil.getEnvironmentData("userSF1");
+        userNameSF = PropertiesUtil.getEnvironmentData("buyer1");
         passWordSF = AccountTest.SF_SHOP_VI_PASSWORD;
         languageDB = language;
         languageSF = language;
-        new Login().loginToDashboardWithPhone("+84",AccountTest.ADMIN_SHOP_VI_USERNAME,AccountTest.ADMIN_SHOP_VI_PASSWORD);
+        new Login().loginToDashboardWithPhone("+84",userNameDb,passWordDb)
+                ;
         shopDomain = SF_ShopVi;
         tcsFileName = FILE_BUY_LINK_TCS;
         generate = new DataGenerator();
     }
     @BeforeMethod
     public void setUp(){
-        driver = new InitWebdriver().getDriver(browser, headless);
+        driver = new InitWebdriver().getDriver(browser,"false");
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
         if (driver != null) driver.quit();
     }
+
     public void deleteNewestBuyLink(){
-        Login login = new Login();
-        login.loginToDashboardWithPhone("+84",userNameDb,passWordDb);
         APIBuyLink apiBuyLink = new APIBuyLink();
         int id = apiBuyLink.getNewestBuyLinkID();
         apiBuyLink.deleteBuyLinkById(id);
@@ -119,7 +119,8 @@ public class BuyLinkTest extends BaseTest {
     @Test
     public void BL03_CheckCreateBuyLinkWithoutDiscountAndCheckout() throws Exception {
         testCaseId = "BL03";
-        new CreateProduct().createWithoutVariationProduct(false,1);
+        CreateProduct productInfo = new CreateProduct().createWithoutVariationProduct(false,1);
+        int productId =  productInfo.getProductID();
         productName = new String[]{new CreateProduct().getProductName()};
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
@@ -144,7 +145,7 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken, new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL04_CheckBuyLinkFixAmountDiscountCodeAndCheckout() throws Exception {
@@ -157,7 +158,8 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        CreateProduct productInfo = new CreateProduct().createWithoutVariationProduct(false,10);
+        int productId =  productInfo.getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -194,7 +196,7 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL05_CheckBuyLinkPercentDiscountCodeAndCheckout() throws Exception {
@@ -207,7 +209,8 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        CreateProduct productInfo = new CreateProduct().createWithoutVariationProduct(false,10);
+        int productId =  productInfo.getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -241,7 +244,7 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL06_CreateBuyLinkWithFreeShippingDiscountCodeAndCheckout() throws Exception {
@@ -254,7 +257,8 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        CreateProduct productInfo = new CreateProduct().createWithoutVariationProduct(false,10);
+        int productId =  productInfo.getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -286,7 +290,7 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductNames(productName)
                 .verifyShippingFeeAfterDiscount("0đ");
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL07_CreateBuyLinkWithRewardDiscountCodeAndCheckout() throws Exception {
@@ -299,7 +303,7 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType = 0;
         CreatePromotion.apiMinimumRequiredType = 0;
         CreatePromotion.apiApplicableBranchCondition = 0;
-        new CreateProduct().createWithoutVariationProduct(false, 10);
+        int productId = new CreateProduct().createWithoutVariationProduct(false, 10).getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -334,12 +338,12 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL08_CheckNoAccountAndCheckoutWithBuyLink() throws Exception {
         testCaseId = "BL08";
-        new CreateProduct().createWithoutVariationProduct(false,1);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,1).getProductID();
         productName = new String[]{new CreateProduct().getProductName()};
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
@@ -369,13 +373,13 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL09_CheckNavigateToBuyLink_EnableGuestCheckout() throws Exception {
         testCaseId = "BL09";
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,true);
-        new CreateProduct().createWithoutVariationProduct(false,1);
+        new APIPreferences().setUpGuestCheckout(true);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,1).getProductID();
         productName = new String[]{new CreateProduct().getProductName()};
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
@@ -400,10 +404,9 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnNextButton()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIPreferences().setUpGuestCheckout(false);
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
-
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL10_CheckoutWithBuyLinkHasDiscountExpired() throws Exception {
@@ -416,8 +419,8 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,true);
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        new APIPreferences().setUpGuestCheckout(true);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,10).getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -431,7 +434,7 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnFinishBTN()
                 .verifyCreateBuyLinkSuccessfulMessage();
         String buyLinkURL = buyLinkManagement.getNewestBuyLinkURL();
-        new CreatePromotion().endEarlyDiscount(Login.accessToken,discountId,Login.apiStoreID);
+        new CreatePromotion().endEarlyDiscount(discountId);
         generalSF = new GeneralSF(driver);
         generalSF.navigateToURL(shopDomain);
         headerSF = new HeaderSF(driver);
@@ -442,8 +445,8 @@ public class BuyLinkTest extends BaseTest {
         quicklyCheckout.verifyShopCartHeader()
                 .verifyDiscountInvalidError();
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIEditProduct().deleteProduct(productId);
+        new APIPreferences().setUpGuestCheckout(false);
 
     }
     @Test
@@ -458,8 +461,8 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
         CreatePromotion.apiLimitTimesUse=1;
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        new APIPreferences().setUpGuestCheckout(false);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,10).getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -497,8 +500,8 @@ public class BuyLinkTest extends BaseTest {
         quicklyCheckout.verifyShopCartHeader()
                 .verifyMaximumAllowUsageError();
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIEditProduct().deleteProduct(productId);
+        new APIPreferences().setUpGuestCheckout(false);
     }
     @Test
     public void BL12_CheckoutWithBuyLinkHasDiscountExceedMaximumUsePerUser() throws Exception {
@@ -512,8 +515,8 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
         CreatePromotion.apiLimitTimesUse=1;
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        new APIPreferences().setUpGuestCheckout(false);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,10).getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         productName = new String[]{new CreateProduct().getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
@@ -551,14 +554,14 @@ public class BuyLinkTest extends BaseTest {
         quicklyCheckout.verifyShopCartHeader()
                 .verifyMaximumAllowUsagePerUserError();
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIEditProduct().deleteProduct(productId);
+        new APIPreferences().setUpGuestCheckout(false);
     }
     @Test
     public void BL13_CheckoutWithBuyLinkHasDeletedProduct() throws Exception {
         testCaseId = "BL13";
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        new APIPreferences().setUpGuestCheckout(false);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,10).getProductID();
         productName = new String[]{new CreateProduct().getProductName()};
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
@@ -566,7 +569,8 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnFinishBTN()
                 .verifyCreateBuyLinkSuccessfulMessage();
         String buyLinkURL = buyLinkManagement.getNewestBuyLinkURL();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
+
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(shopDomain)
                 .performLogin(userNameSF, passWordSF);
@@ -582,9 +586,8 @@ public class BuyLinkTest extends BaseTest {
     @Test
     public void BL14_CheckoutWithBuyLinkHasDeletedVariation() throws Exception {
         testCaseId = "BL14";
-        new CreateProduct().createVariationProduct(false,10,11);
+        int productId = new CreateProduct().createVariationProduct(false,10,11).getProductID();
         productName = new String[]{new CreateProduct().getProductName()};
-        int productId = new CreateProduct().getProductID();
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
@@ -603,7 +606,7 @@ public class BuyLinkTest extends BaseTest {
         quicklyCheckout.verifyShopCartHeader()
                 .verifyNoProductShow();
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
+        new APIEditProduct().deleteProduct(productId);
     }
     @Test
     public void BL15_CheckTextByLanguageOnSF_InvalidBuyLink() throws Exception {
@@ -617,13 +620,12 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,true);
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        new APIPreferences().setUpGuestCheckout(true);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,10).getProductID();
         new CreatePromotion().createProductDiscountCode(0);
         discountCodeName = CreatePromotion.apiDiscountName;
         int discountId = CreatePromotion.apiDiscountId;
         productName = new String[]{new CreateProduct().getProductName()};
-        int productId = new CreateProduct().getProductID();
         String description = new CreateProduct().getProductDescription();
         //create buy link with discount
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
@@ -634,7 +636,7 @@ public class BuyLinkTest extends BaseTest {
                 .verifyCreateBuyLinkSuccessfulMessage();
         String buyLinkURL = buyLinkManagement.getNewestBuyLinkURL();
         //end discount
-        new CreatePromotion().endEarlyDiscount(Login.accessToken,discountId,Login.apiStoreID);
+        new CreatePromotion().endEarlyDiscount(discountId);
         //Check on SF
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(shopDomain)
@@ -660,19 +662,19 @@ public class BuyLinkTest extends BaseTest {
         quicklyCheckout = new QuicklyCheckout(driver);
         quicklyCheckout.checkTextByLanguage("ENG");
         quicklyCheckout.checkProductNames(productNameEN);
+        //clear data
         deleteNewestBuyLink();
-        new APIEditProduct().deleteProduct(Login.accessToken,new CreateProduct().getProductID());
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIEditProduct().deleteProduct(productId);
+        new APIPreferences().setUpGuestCheckout(false);
     }
     @Test
     public void BL16_CheckProductNameByLanguage_ValidBuyLink() throws Exception {
         testCaseId = "BL16";
         //create product
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
-        new CreateProduct().createWithoutVariationProduct(false,10);
+        new APIPreferences().setUpGuestCheckout(false);
+        int productId = new CreateProduct().createWithoutVariationProduct(false,10).getProductID();
         productName = new String[]{new CreateProduct().getProductName()};
         String description = new CreateProduct().getProductDescription();
-        int productId = new CreateProduct().getProductID();
         //create buy link
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
@@ -716,7 +718,7 @@ public class BuyLinkTest extends BaseTest {
                 .verifyProductName(productNameEN)
                 .clickOnNextButton()
                 .verifyProductNames(productNameEN);
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIPreferences().setUpGuestCheckout(false);
     }
     @Test
     public void BL17_CheckCopyLink() throws Exception {
@@ -738,7 +740,7 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
-        new APIPreferences().setUpGuestCheckout(Login.accessToken,Login.apiStoreID,false);
+        new APIPreferences().setUpGuestCheckout(false);
         new CreateProduct().createWithoutVariationProduct(false,10);
         new CreatePromotion().createProductDiscountCode(0);
         discountCodeName = CreatePromotion.apiDiscountName;

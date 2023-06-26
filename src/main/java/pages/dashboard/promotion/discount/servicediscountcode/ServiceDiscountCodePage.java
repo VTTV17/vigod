@@ -16,8 +16,6 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
-import pages.dashboard.onlineshop.Domains;
-import pages.dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
 import utilities.UICommonAction;
 
 public class ServiceDiscountCodePage {
@@ -81,17 +79,17 @@ public class ServiceDiscountCodePage {
 		WebElement element = null;
 		switch (platform) {
 		case "Web":
-			element = PLATFORM.get(0).findElement(By.xpath("./parent::*/parent::*"));
+			element = PLATFORM.get(0);
 			break;
 		case "App":
-			element = PLATFORM.get(1).findElement(By.xpath("./parent::*/parent::*"));
+			element = PLATFORM.get(1);
 			break;
 		case "In-store":
-			element = PLATFORM.get(2).findElement(By.xpath("./parent::*"));
+			element = PLATFORM.get(2);
 			break;
 		}
 
-		if (commonAction.isElementVisiblyDisabled(element)) {
+		if (commonAction.isElementVisiblyDisabled(element.findElement(By.xpath("./parent::*/parent::*")))) {
 			Assert.assertFalse(new HomePage(driver).isMenuClicked(element));
 			return true;
 		}

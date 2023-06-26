@@ -29,8 +29,12 @@ public class DataGenerator {
         return random_integer;
     }
     
+    /**
+     * Returns a list of all the countries in the phoneCodes.json file as Strings.
+     * @return a List of all the countries in the phoneCodes.json file
+     */
     public List<String> getCountryList() {
-		JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json");
+		JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json");
 		Iterator<String> it = data.fieldNames();
 		List<String> countries = new ArrayList<>();
 		while(it.hasNext()) {
@@ -38,14 +42,22 @@ public class DataGenerator {
 		}
         return countries;
     }
+
+	/**
+	 * @return a random country
+	 */
+	public String randomCountry() {
+		List<String> countries = getCountryList();
+		return countries.get(new Random().nextInt(0, countries.size()));
+	}    
     
     /**
-     * 
-     * @param country
-     * @return country code of the input country
+     * Returns the country code for a given country name as a String
+     * @param country the name of the country to get the code for
+     * @return the country code for the given country, or null if it is not found
      */
     public String getCountryCode(String country) {
-    	JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
+    	JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
     	return data.asText();
     }
     
@@ -89,6 +101,12 @@ public class DataGenerator {
         }
         return listNumber;
     }
+    
+    /**
+     * Generates a random number with the specified number of digits using the current epoch time as a seed.
+     * @param numberOfDigits the number of digits in the random number to be generated
+     * @return the randomly generated number as a String
+     */
     public String randomNumberGeneratedFromEpochTime(int numberOfDigits) {
         long time = System.currentTimeMillis();
         System.out.println("Current Epoch time is: " + time);
@@ -188,4 +206,49 @@ public class DataGenerator {
         }
         return variationList;
     }
+
+    /**
+     * Generates a Vietnamese phone number based on Epoch time
+     * @return a {@code String} representing the randomly generated phone number
+     */
+	public String randomVNPhone() {
+		String phone = randomNumberGeneratedFromEpochTime(10);
+		String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
+		if (phone.matches("^0[1-9]\\d+")) {
+			return phone;
+		} 
+		if (phone.matches("^(0|[1-9])0\\d+")) {
+			return "0" + nonZeroDigit + phone.substring(2);
+		} 
+		if (phone.matches("^[1-9][1-9]\\d+")) {
+			return "0" + phone.substring(1);
+		}
+		return phone;
+	}	 
+	
+    /**
+     * Generates a foreign phone number based on Epoch time
+     * @return a {@code String} representing the randomly generated phone number
+     */
+	public String randomForeignPhone() {
+		String phone = randomNumberGeneratedFromEpochTime(10);
+		String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
+		if (phone.matches("^[1-9]\\d+")) {
+			return phone;
+		} 
+		if (phone.matches("^0\\d+")) {
+			return nonZeroDigit + phone.substring(1);
+		}
+		return phone;
+	}
+	
+	/**
+	 * Generates a random phone number based on the specified country
+	 * @param country a {@code String} representing the name of the country
+	 * @return a {@code String} representing the randomly generated phone number
+	 */
+	public String randomPhoneByCountry(String country) {
+		return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
+	}	
+    
 }

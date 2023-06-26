@@ -9,7 +9,7 @@ public class CharacterLimit {
     //    public final static int MAX_STOCK_QUANTITY = 1000000;
     public final static int MAX_STOCK_QUANTITY = 10;
     public final static int MAX_STOCK_QUANTITY_IMEI = 10;
-    public final static Long MAX_PRICE = 99999999999L;
+    public static Long MAX_PRICE = 99999999999L;
 
     public final static int MAX_VARIATION_NAME = 14;
     public final static int MAX_VARIATION_VALUE = 20;

@@ -3,6 +3,8 @@ package api.dashboard.services;
 import api.dashboard.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.services.ServiceInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +12,20 @@ import java.util.Map;
 public class CreateServiceAPI {
     String CREATE_SERVICE_PATH = "/itemservice/api/service/items";
     API api = new API();
-    public Map createServiceAPI(String name, String description, int listingPrice, int sellingPrice, String[] location, String[] time, boolean isEnableListingService) {
+    LoginDashboardInfo loginInfo = new Login().getInfo();
+    ServiceInfo serviceInfo = new ServiceInfo();
+    /**
+     *
+     * @param name
+     * @param description
+     * @param listingPrice
+     * @param sellingPrice
+     * @param locations
+     * @param times
+     * @param isEnableListingService
+     * @return map with keys: "serviceId".
+     */
+    public ServiceInfo createService(String name, String description, int listingPrice, int sellingPrice, String[] locations, String[] times, boolean isEnableListingService) {
         StringBuilder createServiceBody = new StringBuilder("""
                 {
                 	"name": "%s",
@@ -41,8 +56,9 @@ public class CreateServiceAPI {
                 	],
                 	"models": [
                              """.formatted(name, description));
-        for (int i = 0; i < location.length; i++) {
-            for (int j = 0; j < time.length; j++) {
+        int discount  = sellingPrice*100/listingPrice;
+        for (int i = 0; i < locations.length; i++) {
+            for (int j = 0; j < times.length; j++) {
                 createServiceBody.append("""
                         {
                             "name": "%s",
@@ -50,7 +66,7 @@ public class CreateServiceAPI {
                             "costPrice": 0,
                             "position": 0,
                             "newPrice": "%s",
-                            "discount": 0,
+                            "discount": %s,
                             "totalItem": 1000000,
                             "soldItem": 0,
                             "label": "location|timeslot",
@@ -58,8 +74,8 @@ public class CreateServiceAPI {
                             "inventoryStock": 1000000,
                             "inventoryCurrent": 0,
                             "inventoryActionType": "FROM_CREATE_AT_ITEM_SCREEN"
-                        }""".formatted(location[i]+"|"+time[j],listingPrice,sellingPrice));
-                if(i == location.length -1 && j == time.length -1 ){
+                        }""".formatted(locations[i]+"|"+times[j],listingPrice,sellingPrice,discount));
+                if(i == locations.length -1 && j == times.length -1 ){
                     createServiceBody.append("],");
                 }else createServiceBody.append(",");
             }
@@ -74,11 +90,17 @@ public class CreateServiceAPI {
                     "inventoryCurrent": 0,
                     "inventoryActionType": "FROM_CREATE_AT_ITEM_SCREEN"
                 }""".formatted(isEnableListingService));
-        Response response =  api.post(CREATE_SERVICE_PATH, Login.accessToken,createServiceBody.toString());
+        System.out.println(createServiceBody);
+        Response response =  api.post(CREATE_SERVICE_PATH,loginInfo.getAccessToken(),createServiceBody.toString());
+        System.out.println(response.prettyPrint());
         response.then().statusCode(201);
-        Map result = new HashMap<>();
-        result.put("serviceId",response.jsonPath().getInt("id"));
-        return result;
+        serviceInfo.setServiceId(response.jsonPath().getInt("id"));
+        serviceInfo.setServiceName(name);
+        serviceInfo.setSellingPrice(sellingPrice);
+        serviceInfo.setLocations(locations);
+        serviceInfo.setTimes(times);
+        serviceInfo.setServiceDescription(description);
+        return serviceInfo;
     }
 
 

@@ -2,7 +2,6 @@ package utilities.database;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.sql.*;
@@ -22,19 +21,19 @@ public class InitConnection {
 		System.out.println(connectionUrl);
 		return DriverManager.getConnection(connectionUrl);
 	}
-    public String getActivationKey(String phoneNumber) throws SQLException {
+    public String getActivationKey(String username) throws SQLException {
     	try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-        String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(phoneNumber);
+        String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
         ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
         String key = null;
         while (resultSet.next()) {
         	key = resultSet.getString("activation_key");
         }
-        logger.debug("Phone number to get activation key from: " + phoneNumber); 
+        logger.debug("Username to get activation key from: " + username);
         logger.info("Activation key retrieved: " + key); 
         return key;
     }     
@@ -86,6 +85,17 @@ public class InitConnection {
     	logger.info("Store gift code retrieved: " + domain); 
     	return domain;
     }     
+
+    public String getCountryCode(String country) throws SQLException {
+    	String query = "SELECT code FROM \"catalog-services\".country x WHERE out_country = '%s'".formatted(country.replace("'", "''"));
+    	ResultSet resultSet = createConnection(DB_HOST_CATALOG, DB_USER_CATALOG, DB_PASS_CATALOG).prepareStatement(query).executeQuery();
+    	String code = null;
+    	while (resultSet.next()) {
+    		code = resultSet.getString("code");
+    	}
+    	logger.info("Country code retrieved: " + code); 
+    	return code;
+    }         
     
     @Test
     public void test() throws SQLException {

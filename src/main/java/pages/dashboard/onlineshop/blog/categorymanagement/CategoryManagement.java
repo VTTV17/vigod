@@ -11,7 +11,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.onlineshop.blog.BlogManagement;
 import utilities.UICommonAction;
 
 public class CategoryManagement {

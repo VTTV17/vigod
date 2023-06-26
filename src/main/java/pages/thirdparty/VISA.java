@@ -32,6 +32,9 @@ public class VISA {
 		PageFactory.initElements(driver, this);
 	}
 
+	@FindBy(id = "VISA")
+	WebElement VISA_BTN;
+	
 	@FindBy(id = "card_number_mask")
 	WebElement CARD_NUMBER;
 
@@ -68,6 +71,12 @@ public class VISA {
 	@FindBy(css = "input[value='SUBMIT']")
 	WebElement CONFIRM_BTN;
 
+	public VISA clickVISABtn() {
+		commonAction.clickElement(VISA_BTN);
+		logger.info("Clicked on 'VISA' button.");
+		return this;
+	}	
+	
 	public VISA inputCardNumber(String number) {
 		commonAction.inputText(CARD_NUMBER, number);
 		logger.info("Input '" + number + "' into Card Number field.");
@@ -149,6 +158,7 @@ public class VISA {
 	}
 
 	public VISA completePayment() {
+		clickVISABtn();
 		inputCardNumber(VISA_CARDNUMBER);
 		inputExpiryDate(VISA_EXPIRYDATE);
 		inputCVCCVV(VISA_CCV);
@@ -166,6 +176,7 @@ public class VISA {
 	
 	public VISA completePayment(String cardNumber, String expiryDate, String cvccvv, String cardHolder, String email,
 			String country, String city, String address, String otp) {
+		clickVISABtn();
 		inputCardNumber(cardNumber);
 		inputExpiryDate(expiryDate);
 		inputCVCCVV(cvccvv);

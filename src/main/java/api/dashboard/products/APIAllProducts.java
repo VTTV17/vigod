@@ -23,16 +23,22 @@ public class APIAllProducts {
     public static String DASHBOAR_CONVERSION_UNIT_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
     public static String DASHBOARD_PRODUCT_DETAIL_PATH = "itemservice/api/beehive-items/%s?langKey=vi";
 
-    public List<String> getProductListInCollectionByLatest(String storeID, String token, String collectionID) throws ParseException {
-        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%", storeID).replaceAll("%collectionId%", collectionID).replaceAll("%sort%", ""), token);
+    /**
+     *
+     * @param collectionID
+     * @return product list sorted by newest "createdDate" object
+     * @throws ParseException
+     */
+    public List<String> getProductListInCollectionByLatest(String collectionID) throws ParseException {
+        Response response = api.get(DASHBOARD_PRODUCT_LIST_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",collectionID).replaceAll("%sort%",""),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<String> createdDateList = response.jsonPath().getList("createdDate");
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        SimpleDateFormat  formatter =  new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         List<String> productNameList = response.jsonPath().getList("name");
-        Map<String, Date> productCreatedDateMap = new HashMap<>();
-        for (int i = 0; i < createdDateList.size(); i++) {
+        Map<String,Date> productCreatedDateMap = new HashMap<>();
+        for(int i = 0; i<createdDateList.size();i++){
             Date date = formatter.parse(createdDateList.get(i).replaceAll("Z$", "+0000"));
-            productCreatedDateMap.put(productNameList.get(i).toLowerCase(), date);
+            productCreatedDateMap.put(productNameList.get(i).toLowerCase(),date);
         }
         Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
         List<String> productSorted = new ArrayList<>(sortedMap.keySet().stream().toList());
@@ -74,7 +80,7 @@ public class APIAllProducts {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         Map<String, Date> productCreatedDateMap = new HashMap<>();
         List<Boolean> hasConversionList = response.jsonPath().getList("hasConversion");
-        Map<String, Integer> productCountItemMap = new HashMap();
+        Map<String,Integer> productCountItemMap = new HashMap();
         int count = 0;
         for (int i = 0; i < productNameList.size(); i++) {
             String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
