@@ -83,12 +83,11 @@ public class ProductDetailPage extends ProductDetailElement {
         if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation().wholesaleProductInfo(productInfo);
 
         // get max stock
-        int maxStock = Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
+        int maxStock = productInfo.isDeleted() ? 0: Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
 
-        System.out.println(productInfo.isDeleted());
 
         // check product is display or not
-        if (!(maxStock == 0 || !productInfo.getBhStatus().equals("ACTIVE") || productInfo.isDeleted() || !productInfo.isOnWeb()) || (productInfo.isShowOutOfStock()) && productInfo.getBhStatus().equals("ACTIVE") && !productInfo.isDeleted() && productInfo.isOnWeb()) {
+        if (!(maxStock == 0 || !productInfo.getBhStatus().equals("ACTIVE") || !productInfo.isOnWeb() || productInfo.isDeleted()) || (productInfo.isShowOutOfStock()) && productInfo.getBhStatus().equals("ACTIVE") && !productInfo.isDeleted() && productInfo.isOnWeb()) {
             // in-case in stock or setting show product when out of stock
             // check language is published or not
             if (storeInfo.getSFLangList().contains(languageCode)) {

@@ -1055,7 +1055,6 @@ public class ProductPage extends ProductPageElement {
 
             // wait page loaded
             wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
-//            commonAction.waitElementVisible(UI_SEO_SETTING);
 
             // click delete button
             wait.until(elementToBeClickable(DELETE_BTN));
@@ -1072,6 +1071,9 @@ public class ProductPage extends ProductPageElement {
 
             // wait delete successfully
             wait.until(visibilityOf(POPUP));
+
+            // wait DB update new data
+            commonAction.sleepInMiliSecond(3000);
         }
     }
 
