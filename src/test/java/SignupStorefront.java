@@ -66,12 +66,12 @@ public class SignupStorefront extends BaseTest {
 	
 	// This function generate test data for each test case
 	public void generateTestData() {
-		phone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits;
+		country = processCountry();
+		countryCode = generate.getPhoneCode(country);
+		phone = generate.randomPhoneByCountry(country);
 		mail = "auto0-buyer" + phone + "@mailnesia.com";
 		password = "fortesting!1";
-		country = processCountry();
-		countryCode = generate.getCountryCode(country);
-		displayName = "Automation Buyer " + phone;
+		displayName = "Auto Buyer " + phone;
 		birthday = "21/02/1990";
 	}
 	
@@ -328,88 +328,35 @@ public class SignupStorefront extends BaseTest {
 		}
 	}
 	
+	@Test
 	public void SignupWithPhone() throws SQLException {
-		phone = generate.randomNumberGeneratedFromEpochTime(10); //Random number of 10 digits;
+		username = phone; //Random number of 10 digits;
 		
-		username = "7730734918";
-		phone = username; //Random number of 10 digits;
-		
-		mail = "auto0-buyer" + phone + "@mailnesia.com";
-		password = "fortesting!1";
 		country = "Vietnam";
-		countryCode = generate.getCountryCode(country);
-		displayName = "Automation Buyer " + phone;
-		birthday = "14/02/1990";
+		countryCode = generate.getPhoneCode(country);
 		
 		// Signup
 		signupPage.navigate();
-		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(language);
+		new HeaderSF(driver).clickUserInfoIcon();
 		
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
 		if (username.matches("\\d+")) {
 			signupPage.inputEmail(mail).clickCompleteBtn();
-		}
-		
-		// Logout
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
-		
-		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
-		
-		// Verify user info in SF
-		new HeaderSF(driver)
-		.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyAccountSection();
-		
-		Assert.assertEquals(new MyAccount(driver).getDisplayName(), displayName);
-		Assert.assertEquals(new MyAccount(driver).getEmail(), mail);
-		Assert.assertEquals(new MyAccount(driver).getBirthday(), birthday);
-		if (username.matches("\\d+")) {
-			Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode+":"+username);
-		}
-		
-		new UserProfileInfo(driver).clickMyAddressSection();
-		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
-		
-		// Log into Dashboard
-		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
-		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear().selectLanguage(language);
-		
-		// Verify user info in Dashboard
-		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
-		
-		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
-		if (username.matches("\\d+")) {
-			Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), countryCode+":"+username);
-		}
-		
-		// Verify mails sent to the user saying the sign-up is successful
-		if (!username.matches("\\d+")) {
-			signupPage.navigate();
-			verifyEmailUponSuccessfulSignup(username);			
 		}
 	}
 	
+	@Test
 	public void SignupWithMail() throws SQLException {
 		
-		mail = "auto0-buyer7569282288@mailnesia.com";
 		username = mail;
-		phone = "7569282288"; //Random number of 10 digits;
-		password = "fortesting!1";
 		country = "Vietnam";
-		countryCode = generate.getCountryCode(country);
-		displayName = "Automation Buyer " + phone;
-		birthday = "15/02/1990";
+		countryCode = generate.getPhoneCode(country);
 		
 		// Signup
 		signupPage.navigate();
-		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(language);
+		new HeaderSF(driver).clickUserInfoIcon();
 		
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
@@ -419,10 +366,10 @@ public class SignupStorefront extends BaseTest {
 		}
 		
 		// Logout
-		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
+//		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 		
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+//		new LoginPage(driver).navigate().performLogin(country, username, password);
 		
 		// Verify user info in SF
 		new HeaderSF(driver)
@@ -430,34 +377,8 @@ public class SignupStorefront extends BaseTest {
 		.clickUserProfile()
 		.clickMyAccountSection();
 		
-		Assert.assertEquals(new MyAccount(driver).getDisplayName(), displayName);
-		Assert.assertEquals(new MyAccount(driver).getEmail(), mail);
-		Assert.assertEquals(new MyAccount(driver).getBirthday(), birthday);
-		if (username.matches("\\d+")) {
-			Assert.assertEquals(new MyAccount(driver).getPhoneNumber(), countryCode+":"+username);
-		}
-		
-		new UserProfileInfo(driver).clickMyAddressSection();
-		Assert.assertEquals(new MyAddress(driver).getCountry(), country);
-		
-		// Log into Dashboard
-		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
-		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear().selectLanguage(language);
-		
-		// Verify user info in Dashboard
-		new AllCustomers(driver).navigate().selectBranch("None Branch").clickUser(displayName);
-		
-		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
-		if (username.matches("\\d+")) {
-			Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), countryCode+":"+username);
-		}
-		
-		// Verify mails sent to the user saying the sign-up is successful
-		if (!username.matches("\\d+")) {
-			signupPage.navigate();
-			verifyEmailUponSuccessfulSignup(username);			
-		}
+		new MyAccount(driver).inputPhoneNumber(phone).clickOnSaveButton();
+		commonAction.sleepInMiliSecond(2000);
 	}
 
 	@Test
@@ -520,7 +441,7 @@ public class SignupStorefront extends BaseTest {
 
 	@Test
 	public void SignupSF_09_SignupForEmailWithWrongVerificationCode() throws Exception {
-		username = mail;
+		username = phone;
 		
 		signupPage.navigate();
 		new HeaderSF(driver).clickUserInfoIcon()

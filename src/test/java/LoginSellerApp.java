@@ -230,7 +230,7 @@ public class LoginSellerApp {
 				code = getVerificationCode(username);
 				driverWeb.quit();
 			} else {
-				code = getVerificationCode(generate.getCountryCode(country)+":"+username);
+				code = getVerificationCode(generate.getPhoneCode(country)+":"+username);
 			}
 	    	
 	    	loginPage.inputVerificationCode(code);

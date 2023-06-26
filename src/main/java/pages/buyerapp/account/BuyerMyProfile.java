@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+
+import pages.buyerapp.account.address.BuyerAddress;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.data.DataGenerator;
@@ -43,7 +45,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     public String getPhoneNumber() {
         String country = common.getText(COUNTRY_NAME);
         String phoneNumber = common.getText(PHONE_NUMBER_INPUT);
-        String value = new DataGenerator().getCountryCode(country) + ":" + phoneNumber;
+        String value = new DataGenerator().getPhoneCode(country) + ":" + phoneNumber;
         logger.info("Retrieved phone number prefixed with country code: " + value);
         return value;
     }
@@ -54,9 +56,10 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         return value;
     }	
     
-    public void clickAddress() {
-    	common.getElement(ADDRESS_INPUT).click();
-    	logger.info("Clicked on Signup button.");
+    public BuyerAddress clickAddress() {
+    	common.clickElement(ADDRESS_TXT);
+    	logger.info("Clicked on Address text box.");
+    	return new BuyerAddress(driver);
     }    
     
     public BuyerMyProfile verifyTextMyProfile() throws Exception {
