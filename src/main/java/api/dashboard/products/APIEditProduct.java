@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
-import static api.dashboard.login.Login.accessToken;
 
 public class APIEditProduct {
     API api = new API();

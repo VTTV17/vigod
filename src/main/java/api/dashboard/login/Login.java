@@ -16,9 +16,6 @@ public class Login {
     private static String account;
     private static String password;
     private static String phoneCode;
-    public static String accessToken;
-
-    public static int apiStoreID;
     API api = new API();
 
     Response getLoginResponse(String account, String password) {
@@ -36,12 +33,14 @@ public class Login {
         return loginResponse;
     }
 
-    public void loginToDashboardByMail(String account, String password) {
+    public Login loginToDashboardByMail(String account, String password) {
         // set local account
         Login.account = account;
 
         // set local password
         Login.password = password;
+
+        return this;
     }
 
     public LoginDashboardInfo getInfo() {
@@ -102,7 +101,7 @@ public class Login {
         loginResponse.then().statusCode(200);
         return loginResponse;
     }
-    
+
     /**
      * Sets the dashboard login information for a user with the given country, username and password.
      * @param country The country name to get the country code from.
@@ -111,10 +110,9 @@ public class Login {
      * @return The Login object with updated login information
      */
     public Login setDashboardLoginInfo(String country, String username, String password) {
-    	Login.phoneCode = new DataGenerator().getCountryCode(country);
-    	Login.account = username;
+        Login.phoneCode = new DataGenerator().getCountryCode(country);
+        Login.account = username;
         Login.password = password;
         return this;
-    }    
-    
+    }
 }

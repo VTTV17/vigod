@@ -277,11 +277,8 @@ public class LoginPage {
         // access to dashboard to set cookie
         driver.get(DOMAIN);
 
-        // login to dashboard
-        new Login().loginToDashboardByMail(username, password);
-
         // init login information model
-        LoginDashboardInfo loginInfo = new Login().getInfo();
+        LoginDashboardInfo loginInfo = new Login().loginToDashboardByMail(username, password).getInfo();
 
         // login by js - local storage
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));

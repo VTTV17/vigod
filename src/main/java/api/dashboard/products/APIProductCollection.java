@@ -5,7 +5,6 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class APIProductCollection {
