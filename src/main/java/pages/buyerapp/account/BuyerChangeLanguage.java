@@ -46,4 +46,22 @@ public class BuyerChangeLanguage extends UICommonMobile {
             sleepInMiliSecond(2000);
         }
     }
+    public String getCurrentLanguage(){
+        String currentLanguage = getText(SELECTED_LANGUAGE);
+        switch (currentLanguage){
+            case "English"-> {
+                return "ENG";
+            }
+            case "Tiếng Việt" -> {
+                return "VIE";
+            }
+            default -> {
+                try {
+                    throw new Exception("Language not match!");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 }
