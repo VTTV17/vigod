@@ -34,7 +34,7 @@ public class CheckoutStep1 {
     By EMAIL = By.xpath("//*[ends-with(@resource-id,'edtEmail')]");
     By ADDRESS = By.xpath("//*[ends-with(@resource-id,'edtAddress1')]");
     By CITY_PROVINCE = By.xpath("//*[ends-with(@resource-id,'edtCityInsideVN')]");
-    By DISCTRICT = By.xpath("//*[ends-with(@resource-id,'edtDistrict')]");
+    By DISTRICT = By.xpath("//*[ends-with(@resource-id,'edtDistrict')]");
     By WARD = By.xpath("//*[ends-with(@resource-id,'edtWard')]");
     By ADDRESS2 = By.xpath("//*[ends-with(@resource-id,'edtAddress2')]");
     By CITY = By.xpath("//*[ends-with(@resource-id,'edtCityOutsideVN')]");
@@ -104,12 +104,12 @@ public class CheckoutStep1 {
         return common.getText(CITY_PROVINCE);
     }
     public CheckoutStep1 selectDistrict(String district){
-        common.clickElement(DISCTRICT);
+        common.clickElement(DISTRICT);
         new BuyerGeneral(driver).searchOnHeader(district);
         return this;
     }
     public String getDistrict(){
-        return common.getText(DISCTRICT);
+        return common.getText(DISTRICT);
     }
     public CheckoutStep1 selectWard(String ward){
         common.clickElement(WARD);

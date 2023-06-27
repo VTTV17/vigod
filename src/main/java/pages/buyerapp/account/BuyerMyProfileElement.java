@@ -77,6 +77,7 @@ public class BuyerMyProfileElement {
     By COUNTRY_CODE_SEARCH_INPUT = By.xpath("//*[ends-with(@resource-id,'search_src_text')]");
     By COUNTRY_CODE_LIST = By.xpath("//*[ends-with(@resource-id,'item_choose_country_code_list_tv_code')]");
     By DATE_PICKER_OK_BTN = By.xpath("//*[ends-with(@resource-id,'ok')]");
+    By HEADER_BACK_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_general_edit_beecow_profile_toolbar')]/android.widget.ImageButton");
 
 }
 
