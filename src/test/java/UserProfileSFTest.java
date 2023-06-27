@@ -121,7 +121,7 @@ public class UserProfileSFTest extends BaseTest {
         new Login().loginToDashboardByMail(userNameDb_ShopB,passWordDashboardShopB);
         productIDToBuyNowShopB = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,30).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
-        membershipLevel = "Thanh Vien Vang";
+        membershipLevel = PropertiesUtil.getEnvironmentData("membershipLevel");
         barcodeNumber = PropertiesUtil.getEnvironmentData("barcodeBuyer1");
         address_Edit_Invalid = Constant.TEXT_256_CHAR;
         companyName_Edit = "GoSell";
@@ -207,7 +207,6 @@ public class UserProfileSFTest extends BaseTest {
                 .clickMyAddressSection()
                 .verifyAddressInfo_VN(countryExpected, addressExpected, cityExpected, districtExpected, wardExpected)
                 .clickUserInfoIcon().clickLogout();
-        ;
     }
 
     public void CheckUserHasAddressBefore_ExistedAccount_NonVietNam() throws Exception {

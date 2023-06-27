@@ -9,5 +9,14 @@ public class Constant {
     public static final String BUYLINK_MENU_ITEM_NAME = "Buy Link";
     public static final String MARKETING_MENU_ITEM_NAME = "Marketing";
     public static final int PAGE_SIZE_SF_COLLECTION = 20;
+    public static final String VIETNAM;
+
+    static {
+        try {
+            VIETNAM = PropertiesUtil.getPropertiesValueBySFLang("buyerApp.country.vietnam");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
