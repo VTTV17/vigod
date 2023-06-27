@@ -78,7 +78,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             commons.inputText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
         }
         commons.clickElement(BUY_NOW_POPUP_BUY_BTN);
-        commons.waitSplashScreenLoaded();
+        commons.sleepInMiliSecond(2000);
         return new BuyerShopCartPage(driver);
     }
 
