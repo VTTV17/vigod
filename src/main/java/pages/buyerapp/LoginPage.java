@@ -27,10 +27,11 @@ public class LoginPage {
         commonAction = new UICommonMobile(driver);
     }
 
-    By USERNAME = By.xpath("(//*[contains(@resource-id,'id/fragment_social_login_email_email_field')]//*[contains(@resource-id,'id/social_layout_limit_edittext')])[2]");
-    By PASSWORD = By.xpath("(//*[contains(@resource-id,'id/fragment_social_login_email_password_field')]//*[contains(@resource-id,'id/social_layout_limit_edittext')])[2]");
-    By LOGIN_BTN = By.xpath("//*[contains(@resource-id,'id/fragment_social_login_email_check_email')]");
-    
+    By USERNAME = By.xpath("//*[ends-with(@resource-id,'field') and not (contains(@resource-id,'password'))]//*[ends-with(@resource-id,'edittext')]");
+    By PASSWORD = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]//*[ends-with(@resource-id,'edittext')]");
+    By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
+    By PHONE_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
+
     public LoginPage clickUsername() {
     	commonAction.getElement(USERNAME, defaultTimeout).click();
     	logger.info("Clicked on Username field.");
@@ -59,9 +60,17 @@ public class LoginPage {
         return this;
     }
     public LoginPage performLogin(String userName, String pass){
+        if (!userName.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
+            clickPhoneTab();
+        }
         inputUsername(userName);
         inputPassword(pass);
         clickLoginBtn();
+        return this;
+    }
+    public LoginPage clickPhoneTab() {
+        commonAction.clickElement(PHONE_TAB);
+        logger.info("Clicked on Phone tab.");
         return this;
     }
 }

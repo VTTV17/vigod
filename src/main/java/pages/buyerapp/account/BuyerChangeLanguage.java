@@ -45,6 +45,5 @@ public class BuyerChangeLanguage extends UICommonMobile {
             clickElement(CHANGE_BTN);
             sleepInMiliSecond(2000);
         }
-
     }
 }

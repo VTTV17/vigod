@@ -3,6 +3,7 @@ package pages.buyerapp.account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
@@ -12,6 +13,7 @@ import utilities.UICommonMobile;
 import utilities.data.DataGenerator;
 
 import java.time.Duration;
+import java.util.List;
 
 public class BuyerMyProfile extends BuyerMyProfileElement{
     final static Logger logger = LogManager.getLogger(BuyerMyProfile.class);
@@ -124,7 +126,159 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         Assert.assertEquals(common.getText(STATE_REGION_PROVINCE_LBL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.address.stateRegionProviceLbl"));
         Assert.assertEquals(common.getText(CITY_LBL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.address.cityLbl"));
         Assert.assertEquals(common.getText(ZIP_CODE_LBL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.address.zipCodeLbl"));
+    }
+    public BuyerMyProfile scrollDown(){
+        common.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        return new BuyerMyProfile(driver);
+    }
+    public BuyerMyProfile inputYourName(String yourName){
+        common.inputText(YOUR_NAME_INPUT,yourName);
+        logger.info("Input your name: "+yourName);
+        return new BuyerMyProfile(driver);
+    }
+    public BuyerMyProfile inputEmail(String email){
+        common.inputText(EMAIL_INPUT,email);
+        logger.info("Input email: "+email);
+        return new BuyerMyProfile(driver);
+    }
+    public BuyerMyProfile inputIdentityCard(String identityCard){
+        common.inputText(IDENTITY_CARD_INPUT,identityCard);
+        logger.info("Input identity card: "+identityCard);
+        return new BuyerMyProfile(driver);
+    }
+    public BuyerMyProfile inputPhone(String contryCode, String phoneNumber){
+        common.clickElement(COUNTRY_NAME);
+        common.clickElement(COUNTRY_CODE_HEADER_SEARCH_ICON);
+        common.inputText(COUNTRY_CODE_SEARCH_INPUT,contryCode);
+        List<WebElement> countryCodeList = common.getElements(COUNTRY_CODE_LIST);
+        boolean isClicked = false;
+        for (int i = 0;i<countryCodeList.size();i++){
+            if(common.getText(countryCodeList.get(i)).equals(contryCode)){
+                common.clickElement(countryCodeList.get(i));
+                isClicked = true;
+                logger.info("Select phone code: "+contryCode);
+                break;
+            }
+        }
+        if(!isClicked){
+            try {
+                throw new Exception("Country code not found.");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        common.hideKeyboard("android");
+        common.inputText(PHONE_NUMBER_INPUT,phoneNumber);
+        logger.info("Input phone number: "+phoneNumber);
+        return this;
+    }
+    public BuyerMyProfile inputCompanyName(String company){
+        common.inputText(COMPANY_NAME_INPUT,company);
+        logger.info("Input company name: "+company);
+        return this;
+    }
+    public BuyerMyProfile inputTaxCode(String taxCode){
+        common.inputText(TAX_CODE_INPUT,taxCode);
+        logger.info("Input tax code: "+taxCode);
+        return this;
+    }
+    public BuyerMyProfile selectGender(boolean isSelectMale){
+        if (isSelectMale) {
+            common.clickElement(MAN_OPTION);
+        } else {
+            common.clickElement(WOMAN_OPTION);
+        }
+        return this;
+    }
+    public BuyerMyProfile verifyBirthdayDisabled(){
+        Assert.assertTrue(!common.isElementEnabled(BIRTHDAY_INPUT),"Birthday not disable.");
+        logger.info("Verify birthday field disabled.");
+        return this;
+    }
+    public BuyerMyProfile inputBirthday(String birthday){
+        common.inputText(BIRTHDAY_INPUT,birthday);
+        logger.info("Input birthday: "+birthday);
+        return this;
+    }
+    public BuyerMyProfile selectBirdayAsCurrentDate(){
+        common.clickElement(BIRTHDAY_INPUT);
+        common.clickElement(DATE_PICKER_OK_BTN);
+        logger.info("Select birthday is current date.");
+        return this;
+    }
+    public BuyerMyProfile verifyEmailDisabled(){
+        Assert.assertTrue(!common.isElementEnabled(EMAIL_INPUT),"Email not disable.");
+        logger.info("Verify email field disabled.");
+        return this;
+    }
+    public BuyerAccountPage tapOnSaveBtn(){
+        common.click(MY_PROFILE_HEADER_SAVE_BTN);
+        logger.info("Tap on Save button.");
+        common.sleepInMiliSecond(1000);
+        return new BuyerAccountPage(driver);
+    }
+    public String getYourName(){
+        return common.getText(YOUR_NAME_INPUT);
+    }
+    public String getIdentityCard(){
+        return common.getText(IDENTITY_CARD_INPUT);
+    }
+    public String getPhone(){
+        return common.getText(PHONE_NUMBER_INPUT);
+    }
+    public String getPhoneCode(){
+        return common.getText(PHONE_CODE);
+    }
+    public String getCompanyName(){
+        return common.getText(COMPANY_NAME_INPUT);
+    }
+    public String getTaxCode(){
+        return common.getText(TAX_CODE_INPUT);
+    }
 
-
+    public BuyerMyProfile verifyYourName(String expected){
+        Assert.assertEquals(getYourName(),expected);
+        logger.info("Verify your name: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyEmail(String expected){
+        Assert.assertEquals(getEmail(),expected);
+        logger.info("Verify email: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyIdentityCard(String expected){
+        Assert.assertEquals(getIdentityCard(),expected);
+        logger.info("Verify identity card: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyPhoneCode(String expected){
+        Assert.assertEquals(getPhoneCode(),expected);
+        logger.info("Verify phone code: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyPhoneNumber(String expected){
+        Assert.assertEquals(getPhone(),expected);
+        logger.info("Verify phone number: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyCompanyName(String expected){
+        Assert.assertEquals(getCompanyName(),expected);
+        logger.info("Verify company name: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyTaxCode(String expected){
+        Assert.assertEquals(getTaxCode(),expected);
+        logger.info("Verify tax code: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyBirthday(String expected){
+        Assert.assertEquals(getBirthday(),expected);
+        logger.info("Verify birthday: "+expected);
+        return this;
+    }
+    public BuyerMyProfile verifyPhoneDisabled(){
+        Assert.assertTrue(!common.isElementEnabled(PHONE_NUMBER_INPUT),"Phone field not disable.");
+        logger.info("Verify phone disabled.");
+        return this;
     }
 }

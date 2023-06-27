@@ -8,6 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.buyerapp.shopcart.BuyerShopCartPage;
 import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.UICommonAction;
@@ -70,4 +71,15 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String text = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(@resource-id,'product_detail_content_include_tabs_text_1')]"))).getText();
         System.out.println(text);
     }
+
+    public BuyerShopCartPage buyNowProduct(int quantity){
+        commons.clickElement(BUY_NOW_BTN);
+        if(!commons.getText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))){
+            commons.inputText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
+        }
+        commons.clickElement(BUY_NOW_POPUP_BUY_BTN);
+        commons.waitSplashScreenLoaded();
+        return new BuyerShopCartPage(driver);
+    }
+
 }
