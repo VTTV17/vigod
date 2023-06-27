@@ -52,12 +52,22 @@ public class DataGenerator {
 	}    
     
     /**
+     * Returns the phone code for a given country name as a String
+     * @param country the name of the country to get the code for
+     * @return the phone code for the given country, or null if it is not found
+     */
+    public String getPhoneCode(String country) {
+    	JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
+    	return data.asText();
+    }
+    
+    /**
      * Returns the country code for a given country name as a String
      * @param country the name of the country to get the code for
      * @return the country code for the given country, or null if it is not found
      */
-    public String getPhoneCode(String country) {
-    	JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
+    public String getCountryCode(String country) {
+    	JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
     	return data.asText();
     }
     
