@@ -35,6 +35,8 @@ public class BuyerAccountPage {
     By NAVIGATE_LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'sign_in')]");
     By NAVIGATE_SIGNUP_BTN = By.xpath("//*[ends-with(@resource-id,'sign_up')]");
     By LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'id/rlLogout')]");
+    By CONFIRM_LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'button1')]");
+    By ABORT_LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'button2')]");
     By LANGUAGE_BTN = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'fragment_tab_account_user_profile_rl_language_container')]/android.widget.TextView");
     public LoginPage clickLoginBtn() {
     	commonAction.getElement(NAVIGATE_LOGIN_BTN, defaultTimeout).click();
@@ -51,6 +53,18 @@ public class BuyerAccountPage {
     public BuyerAccountPage clickLogoutBtn() {
         commonAction.getElement(LOGOUT_BTN, defaultTimeout).click();
     	logger.info("Clicked on Log out button.");
+    	return this;
+    }    
+    
+    public BuyerAccountPage clickConfirmLogoutBtn() {
+    	commonAction.clickElement(CONFIRM_LOGOUT_BTN);
+    	logger.info("Clicked on Confirm Log out button.");
+    	return this;
+    }    
+    
+    public BuyerAccountPage clickAbortLogoutBtn() {
+    	commonAction.clickElement(ABORT_LOGOUT_BTN);
+    	logger.info("Clicked on Abort Confirm Log out button.");
     	return this;
     }    
     public BuyerChangeLanguage clickLanguageBtn(){

@@ -41,6 +41,7 @@ public class SignupPage {
     By PASSWORD = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]");
     By DISPLAYNAME = By.xpath("//*[ends-with(@resource-id,'displayName')]");
     By BIRTHDAY = By.xpath("//*[ends-with(@resource-id,'birthday')]");
+    By BIRTHDAY_OK_BTN = By.xpath("//*[ends-with(@resource-id,'ok')]");
     
     By TERM_CHK = By.xpath("//*[ends-with(@resource-id,'btn_check_term_and_policy')]");
     By CONTINUE_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
@@ -123,11 +124,37 @@ public class SignupPage {
     	return this;
     }
     
+    /**
+     * Simply clicks on birthday field
+     * @return
+     */
+    public SignupPage clickBirthday() {
+    	commonAction.clickElement(BIRTHDAY);
+    	logger.info("Clicked on Birthday field.");
+    	return this;
+    }
+    
+    /**
+     * Clicks on the OK button on birthday date picker dialog
+     * @return current object
+     */
+    public SignupPage clickBirthdayOKBtn() {
+    	commonAction.clickElement(BIRTHDAY_OK_BTN);
+    	logger.info("Clicked on OK button on Birthday date picker dialog.");
+    	return this;
+    }
+    
     public SignupPage inputBirthday(String birthday) {
     	commonAction.inputText(new ByChained(BIRTHDAY, TEXTBOX), birthday);
     	logger.info("Input '" + birthday + "' into Birthday field.");
     	return this;
     }
+
+	public String getBirthday() {
+		String value = commonAction.getText(new ByChained(BIRTHDAY, TEXTBOX));
+		logger.info("Retrieved Birthday: " + value);
+		return value;
+	}   
     
     public SignupPage clickAgreeTermBtn() {
     	commonAction.clickElement(TERM_CHK);

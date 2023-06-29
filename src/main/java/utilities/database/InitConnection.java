@@ -18,7 +18,6 @@ public class InitConnection {
     }
 	public java.sql.Connection createConnection(String host, String user, String pass) throws SQLException {
 		String connectionUrl = "jdbc:postgresql://%s:%s/%s?user=%s&password=%s&loginTimeout=30".formatted(host,DB_PORT, DB_DATABASE, user, pass);
-		System.out.println(connectionUrl);
 		return DriverManager.getConnection(connectionUrl);
 	}
     public String getActivationKey(String username) throws SQLException {
@@ -94,6 +93,22 @@ public class InitConnection {
     		code = resultSet.getString("code");
     	}
     	logger.info("Country code retrieved: " + code); 
+    	return code;
+    }         
+    /**
+     * Retrieves location code of the user with the specific login info
+     * @param username
+     * @return location code of the user
+     * @throws SQLException
+     */
+    public String getUserLocationCode(String username) throws SQLException {
+    	String query = "select location_code from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
+    	ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
+    	String code = null;
+    	while (resultSet.next()) {
+    		code = resultSet.getString("location_code");
+    	}
+    	logger.info("Retrieved location code of '%s': %s".formatted(username, code)); 
     	return code;
     }         
     
