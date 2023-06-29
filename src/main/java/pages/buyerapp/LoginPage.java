@@ -68,6 +68,17 @@ public class LoginPage {
         clickLoginBtn();
         return this;
     }
+    
+    public LoginPage performLogin(String country, String username, String password){
+    	if (username.matches("\\d+")) {
+    		clickPhoneTab();
+    		new SignupPage(driver).selectCountryCodeFromSearchBox(country);
+    	}
+    	inputUsername(username);
+    	inputPassword(password);
+    	clickLoginBtn();
+    	return this;
+    }
     public LoginPage clickPhoneTab() {
         commonAction.clickElement(PHONE_TAB);
         logger.info("Clicked on Phone tab.");
