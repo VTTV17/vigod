@@ -39,6 +39,8 @@ public class CustomerDetails extends HomePage {
     WebElement PHONE;
     @FindBy (css = ".row.phone-email .phone-code")
     WebElement COUNTRY_CODE;
+    @FindBy(css = ".birthday-date input")
+    WebElement BIRTHDAY;    
     @FindBy(id = "country")
     WebElement COUNTRY_DROPDOWN;
     @FindBy (id = "address")
@@ -79,6 +81,13 @@ public class CustomerDetails extends HomePage {
     public void completeVerify() {
         soft.assertAll();
     }
+    
+    public String getBirthday(){
+    	String birthday = commonAction.getElementAttribute(BIRTHDAY,"value");
+    	logger.info("Retrieved birthday: " + birthday);
+    	return birthday;
+    }	    
+    
     public String getCountry(){
         String country = commonAction.getDropDownSelectedValue(COUNTRY_DROPDOWN);
         logger.info("Get country: "+country);
