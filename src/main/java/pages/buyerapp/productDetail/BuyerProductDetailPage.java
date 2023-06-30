@@ -8,10 +8,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.buyerapp.BuyerGeneral;
+import pages.buyerapp.NavigationBar;
 import pages.buyerapp.shopcart.BuyerShopCartPage;
 import pages.dashboard.products.all_products.ProductPage;
-import pages.storefront.detail_product.ProductDetailPage;
-import utilities.UICommonAction;
 import utilities.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
@@ -78,8 +78,31 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             commons.inputText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
         }
         commons.clickElement(BUY_NOW_POPUP_BUY_BTN);
-        commons.sleepInMiliSecond(2000);
+        return new BuyerShopCartPage(driver).waitLoadingDisapear();
+    }
+    public BuyerProductDetailPage addToCart(int quantity){
+        commons.clickElement(ADD_TO_CART_ICON);
+        if(!commons.getText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))){
+            commons.inputText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
+        }
+        commons.clickElement(ADD_TO_CART_POPUP_ADD_BTN);
+        logger.info("Add product to cart");
+        return this;
+    }
+    public BuyerShopCartPage tapOnShoppingCart(){
+        commons.clickElement(CART_ICON);
+        logger.info("Tap on Shopping cart icon.");
         return new BuyerShopCartPage(driver);
     }
-
+    public BuyerShopCartPage addProductToCartAndGoToShoppingCart(int quantity){
+        addToCart(quantity);
+        commons.sleepInMiliSecond(3000);
+        tapOnShoppingCart();
+        return new BuyerShopCartPage(driver).waitLoadingDisapear();
+    }
+    public BuyerShopCartPage goToShopCartByBackIcon(){
+        new BuyerGeneral(driver).clickOnBackIcon().tapCancelSearch();
+        new NavigationBar(driver).tapOnCartIcon();
+        return new BuyerShopCartPage(driver);
+    }
 }

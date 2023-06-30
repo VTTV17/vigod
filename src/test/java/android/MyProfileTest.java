@@ -1,24 +1,27 @@
 package android;
 
 import api.dashboard.login.Login;
+import api.dashboard.products.CreateProduct;
 import api.storefront.signup.SignUp;
 import io.appium.java_client.android.Activity;
-import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.StartsActivity;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.*;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.account.BuyerAccountPage;
+import pages.buyerapp.account.BuyerMyProfile;
+import pages.buyerapp.account.address.BuyerAddress;
+import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.account.AccountTest;
-import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
-import utilities.model.dashboard.services.ServiceInfo;
 
-import static utilities.account.AccountTest.SF_USERNAME_PHONE_VI_1;
-import static utilities.account.AccountTest.SF_USERNAME_VI_4;
+import java.util.HashMap;
+import java.util.Map;
+
+import static utilities.account.AccountTest.*;
 
 public class MyProfileTest {
     WebDriver driver;
@@ -36,6 +39,18 @@ public class MyProfileTest {
     String sellerPass;
     String userName_EditInfo_HasBirthday;
     String userName_PhoneAccount_EditInfo_HasBirthday;
+    String productNameToBuyNow;
+    String addressCheckout;
+    String cityProvinceCheckout;
+    String districtCheckout;
+    String wardCheckout;
+    String countryCheckout;
+    String address2Checkout;
+    String cityInputCheckout;
+    String zipCodeCheckout;
+    String stateCheckout;
+    String userName_UpdateAddress;
+
     @BeforeClass
     public void setUp() throws Exception {
         String udid = "R5CR92R4K7V";
@@ -56,6 +71,18 @@ public class MyProfileTest {
         sellerPass = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         userName_EditInfo_HasBirthday = SF_USERNAME_VI_4;
         userName_PhoneAccount_EditInfo_HasBirthday = SF_USERNAME_PHONE_VI_1;
+        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
+        productNameToBuyNow = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,30).getProductName());
+        addressCheckout = "so 2 update";
+        cityProvinceCheckout = "Gia Lai";
+        districtCheckout = "Kbang";
+        wardCheckout = "KBang";
+        countryCheckout = "Algeria";
+        address2Checkout = "89 address2 update";
+        cityInputCheckout = "city in non VN checkout";
+        zipCodeCheckout = "6987890";
+        stateCheckout = "Annaba";
+        userName_UpdateAddress = SF_USERNAME_VI_3;
         login();
     }
     @AfterClass
@@ -74,6 +101,7 @@ public class MyProfileTest {
         navigationBar.tapOnAccountIcon()
                 .clickLoginBtn()
                 .performLogin(buyer,passBuyer);
+
     }
     @Test
     public void MUP01_CheckTextOfMyProfilePage() throws Exception {
@@ -171,7 +199,7 @@ public class MyProfileTest {
                 .verifyBirthdayDisabled();
     }
     @Test
-    public void MUP05_UpdateUserProfile_PhoneAccount_HasBirthdayBefore(){
+    public void MUP05_UpdateUserProfile_PhoneAccount_NoBirthdayBefore(){
         String phoneNumber = "01"+generator.randomNumberGeneratedFromEpochTime(7);
         new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
         new SignUp().signUpByPhoneNumber(passBuyer,phoneNumber,"+84");
@@ -246,6 +274,262 @@ public class MyProfileTest {
     }
     @Test
     public void MUP07_CheckAddress_UserHasAddressThenCheckout(){
+        //get addres information in My profile
+        navigationBar = new NavigationBar(driver);
+        BuyerAddress addressInfo = navigationBar.tapOnAccountIcon()
+                .clickProfile().scrollDown().clickAddress();
+        String country = addressInfo.getCountry();
+        String address = addressInfo.getAddress();
+        String cityProvince = addressInfo.getCityProvince();
+        String district = addressInfo.getDistrict();
+        String ward = addressInfo.getWard();
+        addressInfo.tapOnBackIcon()
+                .tapOnBackIcon();
+        //Go to checkout to verify address, then checkout with new address
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .buyNowProduct(1)
+                .tapOnContinueBtn().scrollDown()
+                .verifyAddressVN(country,address,cityProvince,district,ward)
+                .inputAddressVN("",addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueShopping();
+        //Go to My profile to verify
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().scrollDown()
+                .clickAddress()
+                .verifyAddressVN(country,address,cityProvince,district,ward)
+                .tapOnBackIcon()
+                .tapOnBackIcon();
+        //Verify checkout with non VN address
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .addToCart(1)
+                .goToShopCartByBackIcon()
+                .tapOnContinueBtn().scrollDown()
+                .verifyAddressVN(country,address,cityProvince,district,ward)
+                .inputAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout)
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueShopping();
+        //Go to My profile to verify
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().scrollDown()
+                .clickAddress()
+                .verifyAddressVN(country,address,cityProvince,district,ward);
+    }
+    @Test
+    public void MUP08_CheckAddress_NoAddressThenCheckout(){
+        String radomPhone = generator.randomVNPhone();
+        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
+        String emailAccount = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
+        new SignUp().signUpByMail(emailAccount,passBuyer);
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .scrollDown()
+                .logOut()
+                .clickLoginBtn()
+                .performLogin(emailAccount,passBuyer);
+        //Go to checkout to verify address, then checkout with new address
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .buyNowProduct(1)
+                .tapOnContinueBtn().scrollDown()
+                .inputPhone("+84",radomPhone)
+                .inputAddressVN("",addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueShopping();
+        new UICommonMobile(driver).sleepInMiliSecond(7000);
+        //Go to My profile to verify
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().scrollDown()
+                .clickAddress()
+                .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnBackIcon()
+                .tapOnBackIcon();
+    }
+    @Test
+    public void MUP09_UpdateAddress_ExistedAccount(){
+        //Check update address VN
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .scrollDown()
+                .logOut()
+                .clickLoginBtn()
+                .performLogin(userName_UpdateAddress,passBuyer);
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .clickProfile().scrollDown().clickAddress()
+                .inputAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .clickAddress()
+                .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnBackIcon()
+                .tapOnBackIcon();
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .buyNowProduct(1)
+                .tapOnContinueBtn().scrollDown()
+                .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueShopping();
+        //Check update address non VN
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .clickProfile().scrollDown().clickAddress()
+                .inputAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout)
+                .clickAddress()
+                .verifyAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout)
+                .tapOnBackIcon()
+                .tapOnBackIcon();
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .addToCart(1)
+                .goToShopCartByBackIcon()
+                .tapOnContinueBtn()
+                .verifyAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout);
+    }
+    @Test
+    public void MUP10_UpdateAddress_NewAccount(){
+        //Call api create buyer
+        String radomPhone = generator.randomVNPhone();
+        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
+        String emailAccount = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
+        new SignUp().signUpByMail(emailAccount,passBuyer);
+        //Check update address VN
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .scrollDown()
+                .logOut()
+                .clickLoginBtn()
+                .performLogin(emailAccount,passBuyer);
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .clickProfile().scrollDown().clickAddress()
+                .inputAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .clickAddress()
+                .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnBackIcon()
+                .tapOnBackIcon();
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .buyNowProduct(1)
+                .tapOnContinueBtn().scrollDown()
+                .inputPhone("+84",radomPhone)
+                .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueBtn()
+                .tapOnContinueShopping();
+        //Call api create buyer
+        String radomPhoneNonVN = generator.randomForeignPhone();
+        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
+        String emailAccountNonVn = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
+        new SignUp().signUpByMail(emailAccountNonVn,passBuyer);
+        //Check update address non VN
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .scrollDown()
+                .logOut()
+                .clickLoginBtn()
+                .performLogin(emailAccountNonVn,passBuyer);
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .clickProfile().scrollDown().clickAddress()
+                .inputAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout)
+                .clickAddress()
+                .verifyAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout)
+                .tapOnBackIcon()
+                .tapOnBackIcon();
+        new NavigationBar(driver).tapOnSearchIcon()
+                .searchItem(productNameToBuyNow)
+                .addToCart(1)
+                .goToShopCartByBackIcon()
+                .tapOnContinueBtn()
+                .verifyAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout);
+    }
+    @Test
+    public void MUP11_CheckAddInvalidOtherPhoneOtherEmail() throws Exception {
+        navigationBar = new NavigationBar(driver);
+        navigationBar.tapOnAccountIcon()
+                .clickProfile()
+                .tapOtherEmails()
+                .checkErrorWhenInputInvalidEmail()
+                .tapOtherPhones()
+                .checkErrorWhenInputOtherPhoneOutOfRange();
 
     }
+    @Test
+    public void MUP12_CheckAddValidOtherPhoneOtherEmail() throws Exception {
+        String email1 = "email"+generator.randomNumberGeneratedFromEpochTime(9)+"@mailnesia.com";
+        String email2 = "email"+generator.randomNumberGeneratedFromEpochTime(10)+"@mailnesia.com";
+        String[] emails = {email1,email2};
+        String phone1 = "01"+generator.generateNumber(7);
+        String phone2 = "02"+generator.generateNumber(7);
+        String[] phones ={phone1,phone2};
+        String phoneCode = "+84";
+        navigationBar = new NavigationBar(driver);
+        //Get other email avalible
+        Map <String,String> otherEmailMapOriginal = navigationBar.tapOnAccountIcon()
+                .clickProfile()
+                .tapOtherEmails().getOtherPhonesOrEmailMap();
+        new BuyerMyProfile(driver)
+                .addOtherEmails("Other mail",emails);
+        //Add new other mail to available map
+        otherEmailMapOriginal.put(email1,"Other mail");
+        otherEmailMapOriginal.put(email2,"Other mail");
+        //Get other phone avalible
+        Map <String,String> otherPhoneMapOriginal = new BuyerMyProfile(driver)
+                .tapBackIcon_OtherEmail()
+                .verifyOtherEmailNumber(otherEmailMapOriginal.size())
+                .tapOtherPhones().getOtherPhonesOrEmailMap();
+        new BuyerMyProfile(driver)
+                .addOtherPhones("Other phone",phoneCode,phones);
+        //Add new other mail to available map
+        otherPhoneMapOriginal.put("("+phoneCode+") "+phone1,"Other phone");
+        otherPhoneMapOriginal.put("("+phoneCode+") "+phone2,"Other phone");
+        new BuyerMyProfile(driver).tapBackIcon_OtherPhone()
+                .verifyOtherPhoneNumber(otherPhoneMapOriginal.size())
+                .tapOnSaveBtn()
+                .clickProfile();
+        new BuyerMyProfile(driver)
+                .verifyOtherEmailAfterAdded(otherEmailMapOriginal)
+                .verifyOtherPhoneAfterAdded(otherPhoneMapOriginal);
+    }
+    @Test
+    public void MUP13_CheckEditOtherPhoneEmail() throws Exception {
+        Map<String,String> otherEmailEdited = navigationBar.tapOnAccountIcon()
+                .clickProfile()
+                .editOtherEmails();
+        Map<String,String> otherPhoneEdited = new BuyerMyProfile(driver)
+                .editOtherPhones();
+        new BuyerMyProfile(driver).tapOnSaveBtn()
+                .clickProfile()
+                .verifyOtherEmailAfterAdded(otherEmailEdited)
+                .verifyOtherPhoneAfterAdded(otherPhoneEdited);
+    }
+    @Test
+    public void MUP14_CheckDeleteOtherPhoneOtherEmail() throws Exception {
+        Map<String,String> emptyMap = new HashMap<>();
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().tapOtherEmails()
+                .deleteAllOtherPhoneEmail().tapBackIcon_OtherEmail()
+                .verifyOtherEmailNumber(0)
+                .tapOtherPhones()
+                .deleteAllOtherPhoneEmail().tapBackIcon_OtherPhone()
+                .verifyOtherPhoneNumber(0)
+                .tapOnSaveBtn()
+                .clickProfile()
+                .verifyOtherPhoneAfterAdded(emptyMap)
+                .verifyOtherEmailAfterAdded(emptyMap);
+
+
+    }
+
 }

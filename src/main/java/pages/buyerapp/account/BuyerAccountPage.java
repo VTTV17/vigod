@@ -74,6 +74,7 @@ public class BuyerAccountPage {
     public BuyerMyProfile clickProfile(){
         commonAction.clickElement(accountEl.DISPLAY_NAME);
         logger.info("Click on profile.");
+        commonAction.sleepInMiliSecond(1000);
         return new BuyerMyProfile(driver);
     }
     public BuyerAccountPage verifyAvatarDisplay(){
@@ -104,6 +105,7 @@ public class BuyerAccountPage {
     }
     public BuyerAccountPage scrollDown(){
         commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        logger.info("Scroll down");
         return new BuyerAccountPage(driver);
     }
     public BuyerAccountPage logOut(){

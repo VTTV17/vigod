@@ -45,6 +45,7 @@ public class NavigationBar extends UICommonMobile {
     public BuyerShopCartPage tapOnCartIcon(){
         clickElement(SHOP_CART_ICON);
         logger.info("Tap on shop cart icon.");
+        new BuyerGeneral(driver).waitLoadingDisappear();
         return new BuyerShopCartPage(driver);
     }
     public BuyerAccountPage tapOnAccountIcon(){
@@ -52,6 +53,5 @@ public class NavigationBar extends UICommonMobile {
         logger.info("Tap on account icon.");
         return new BuyerAccountPage(driver);
     }
-
 
 }

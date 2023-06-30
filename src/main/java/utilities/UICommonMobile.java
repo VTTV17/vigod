@@ -213,4 +213,16 @@ public class UICommonMobile extends UICommonAction {
 	public void waitListElementVisible(By locator) {
 		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
+
+	public double getElementLocationYPercent(WebElement element){
+		int y = element.getLocation().getY();
+		Dimension size = driver.manage().window().getSize();
+		double percentY =(double)y/size.height;
+		return percentY;
+	}
+	public void swipeHorizontalInPercent(WebElement element,double startX, double endX) {
+		double y = getElementLocationYPercent(element);
+		swipeByCoordinatesInPercent(startX,y,endX,y);
+	}
+
 }

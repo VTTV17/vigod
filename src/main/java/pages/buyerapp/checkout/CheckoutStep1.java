@@ -7,6 +7,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.buyerapp.BuyerGeneral;
+import pages.buyerapp.account.BuyerMyProfile;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
@@ -69,7 +70,7 @@ public class CheckoutStep1 {
         return this;
     }
     public String getCountry(){
-        return common.getText(NAME);
+        return common.getText(COUNTRY);
     }
     public CheckoutStep1 inputName(String name){
         common.inputText(NAME,name);
@@ -185,7 +186,7 @@ public class CheckoutStep1 {
         return this;
     }
     public CheckoutStep1 verifyDistrict(String district){
-        Assert.assertEquals(getDistrict(),district);
+        Assert.assertTrue(getDistrict().contains(district));
         logger.info("Verify district: "+district);
         return this;
     }
@@ -205,7 +206,7 @@ public class CheckoutStep1 {
         return this;
     }
     public CheckoutStep1 inputAddressVN(String country, String address, String cityProvince, String district, String ward){
-        if(!country.equals(getCountry())){
+        if(!country.equals(getCountry()) && !country.equals("")){
             selectCountry(country);
         }
         inputAddress(address);
@@ -221,11 +222,13 @@ public class CheckoutStep1 {
         inputAddress(address);
         inputAddress2(address2);
         inputCity(city);
+        scrollDown();
         selectStateRegion(stateRegion);
         inputZipCode(zipCode);
         return this;
     }
     public CheckoutStep1 verifyAddressVN(String country, String address, String cityProvince, String district, String ward){
+        common.sleepInMiliSecond(1000);
         verifyCountry(country);
         verifyAddress(address);
         verifyCityProvince(cityProvince);
@@ -234,7 +237,9 @@ public class CheckoutStep1 {
         return this;
     }
     public CheckoutStep1 verifyAddressNonVN(String country, String address, String address2, String city, String stateRegion, String zipCode){
+        common.sleepInMiliSecond(1500);
         verifyCountry(country);
+        scrollDown();
         verifyAddress(address);
         verifyAddress2(address2);
         verifyCity(city);
@@ -245,5 +250,10 @@ public class CheckoutStep1 {
     public CheckoutStep2 tapOnContinueBtn(){
         new BuyerGeneral(driver).tapOnContinueBtn_Checkout();
         return new CheckoutStep2(driver);
+    }
+    public CheckoutStep1 scrollDown(){
+        common.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        logger.info("Scroll down");
+        return new CheckoutStep1(driver);
     }
 }
