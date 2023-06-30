@@ -54,6 +54,12 @@ public class LoginPage {
         return this;
     }
 
+    public boolean isLoginBtnEnabled() {
+    	boolean isEnabled = commonAction.isElementEnabled(LOGIN_BTN);
+    	logger.info("Is 'Login' button enabled: " + isEnabled);
+    	return isEnabled;
+    }    
+    
     public LoginPage clickLoginBtn() {
     	commonAction.getElement(LOGIN_BTN, defaultTimeout).click();
     	logger.info("Clicked on Login button.");

@@ -20,20 +20,33 @@ public class InitConnection {
 		String connectionUrl = "jdbc:postgresql://%s:%s/%s?user=%s&password=%s&loginTimeout=30".formatted(host,DB_PORT, DB_DATABASE, user, pass);
 		return DriverManager.getConnection(connectionUrl);
 	}
+	
     public String getActivationKey(String username) throws SQLException {
-    	try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-        String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
-        ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
-        String key = null;
-        while (resultSet.next()) {
-        	key = resultSet.getString("activation_key");
-        }
-        logger.debug("Username to get activation key from: " + username);
-        logger.info("Activation key retrieved: " + key); 
+    	Connection connection = null;
+	    ResultSet resultSet = null;
+	    String key = null;
+	    
+	    try {
+		    connection = createConnection();
+		    
+	        String query = "select activation_key from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
+	        resultSet = connection.prepareStatement(query).executeQuery();
+	        
+	        if (resultSet.next()) {
+	            key = resultSet.getString("activation_key");
+	        }
+	        logger.info("Activation key retrieved for '%s': ".formatted(username) + key);
+	    } catch (SQLException e) {
+	    	throw e;
+	    } finally {
+	        // Close the resources in reverse order
+	        if (resultSet != null) {
+	            resultSet.close();
+	        }
+	        if (connection != null) {
+	            connection.close();
+	        }
+	    }
         return key;
     }     
     
