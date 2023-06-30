@@ -1,19 +1,17 @@
 package pages.buyerapp.home;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.PointerInput;
-import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.UICommonMobile;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 
 import java.time.Duration;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 public class BuyerHomePage extends BuyerHomeElement {
     final static Logger logger = LogManager.getLogger(BuyerHomePage.class);
@@ -33,24 +31,53 @@ public class BuyerHomePage extends BuyerHomeElement {
         return this;
     }
 
-    public BuyerHomePage searchProductByName(String keywords) {
+    String keywords;
+
+    public BuyerHomePage searchProductByName(ProductInfo productInfo, String language) {
         // click Search icon
-        commonMobile.click(HEADER_SEARCH_ICON);
+        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.elementToBeClickable(HEADER_SEARCH_ICON)).click();
         logger.info("Open search screen");
 
+        keywords = productInfo.getDefaultProductNameMap().get(language);
+
         // input search keywords
-        commonMobile.sendKeys(HEADER_SEARCH_BOX, keywords);
-        logger.info("Search with keywords: %s".formatted(keywords.split("\n")[0]));
+        commonMobile.sendKeys(HEADER_SEARCH_BOX, "%s\n".formatted(keywords));
+        logger.info("Search with keywords: %s".formatted(keywords));
 
         return this;
     }
 
+    WebElement getProductElement() {
+        // wait list product visible
+        List<WebElement> resultList = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
+        return resultList.stream().filter(element -> StringUtils.capitalize(keywords).equals(element.getText())).findFirst().orElse(null);
+    }
+
     public void navigateToProductDetailPage() {
         // wait list product visible
-        commonMobile.waitListElementVisible(SEARCH_RESULT);
+        new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.visibilityOfAllElementsLocatedBy(SEARCH_RESULT));
 
-        // click on the first result
-        List<WebElement> resultList =  driver.findElements(SEARCH_RESULT);
-        resultList.get(0).click();
+        // check View More button
+        boolean hasViewMore = driver.findElements(VIEW_MORE).size() > 0;
+        System.out.println("keywords: " + keywords);
+
+        WebElement element = getProductElement();
+
+        if (element == null && hasViewMore) {
+            // show all results
+            driver.findElement(VIEW_MORE).click();
+
+            // wait list product visible
+            wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(SEARCH_RESULT));
+
+            // getListElementId product element
+            while (element == null) {
+                wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(SEARCH_RESULT));
+                new UICommonMobile(driver).swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
+                element = getProductElement();
+            }
+        }
+        assert element != null;
+        element.click();
     }
 }

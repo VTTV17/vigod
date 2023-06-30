@@ -1,5 +1,6 @@
 package api.dashboard.products;
 
+import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
@@ -15,7 +16,7 @@ import java.util.stream.IntStream;
 
 public class APIAllProducts {
     API api = new API();
-    LoginDashboardInfo loginInfo = new api.dashboard.login.Login().getInfo();
+    LoginDashboardInfo loginInfo = new Login().getInfo();
     public static String DASHBOARD_PRODUCT_LIST_PATH = "itemservice/api/store/dashboard/%storeID%/items-v2?langKey=vi&searchType=PRODUCT_NAME&searchSortItemEnum=null&searchItemName=&sort=%sort%&page=0&size=1000&inStock=false&saleChannel=&bhStatus=&branchIds=&shopeeId=&collectionId=%collectionId%&platform=&itemType=BUSINESS_PRODUCT";
     public static String DASHBOAR_CONVERSION_UNIT_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
     public static String DASHBOARD_PRODUCT_DETAIL_PATH = "itemservice/api/beehive-items/%s?langKey=vi";

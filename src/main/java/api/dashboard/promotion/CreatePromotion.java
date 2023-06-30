@@ -95,13 +95,13 @@ public class CreatePromotion {
     }
 
     public CreatePromotion endEarlyFlashSale() {
-        // get schedule flash sale list
+        // getListElementId schedule flash sale list
         List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
         logger.debug("schedule flash sale list: %s".formatted(scheduleList));
         if (scheduleList != null)
             scheduleList.forEach(id -> new API().delete(DELETE_FLASH_SALE_PATH.formatted(id, loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200));
 
-        // get in progress flash sale
+        // getListElementId in progress flash sale
         List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
         logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
         if (inProgressList != null)
@@ -116,7 +116,7 @@ public class CreatePromotion {
 
         if (productInfo.isHasModel()) {
             for (int i = 0; i < num; i++) {
-                // get barcode
+                // getListElementId barcode
                 String barcode = productInfo.getBarcodeList().get(i);
                 // check in-stock
                 if (Collections.max(productInfo.getProductStockQuantityMap().get(barcode)) > 0) {
@@ -232,11 +232,11 @@ public class CreatePromotion {
         // init flash sale list
         List<Integer> flashSaleList = new ArrayList<>();
 
-        // get in-progress list
+        // getListElementId in-progress list
         List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
         if (inProgressList != null) flashSaleList.addAll(inProgressList);
 
-        // get schedule list
+        // getListElementId schedule list
         List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
         if (scheduleList != null) flashSaleList.addAll(scheduleList);
 
@@ -252,7 +252,7 @@ public class CreatePromotion {
             barcodeList.forEach(barcode -> flashSalePrice.add(sellingPrice.get(barcodeList.indexOf(barcode))));
         }
 
-        // get last flash sale info
+        // getListElementId last flash sale info
         flashSaleList.forEach(flsID -> getFlashSaleInformation(flsID, barcodeList));
 
         // set last flash sale price
@@ -436,22 +436,22 @@ public class CreatePromotion {
         JsonPath discountCampaignDetailJson = discountCampaignDetail.jsonPath();
 
         /* Get discount campaign information */
-        // get couponType
+        // getListElementId couponType
         String couponType = discountCampaignDetailJson.getString("discounts[0].couponType");
 
-        // get coupon value
+        // getListElementId coupon value
         long couponValue = Pattern.compile("couponValue.{4}(\\d+)").matcher(discountCampaignDetail.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList().get(0);
 
-        // get discount status
+        // getListElementId discount status
         String status = discountCampaignDetailJson.getString("discounts[0].status");
 
-        // get condition type
+        // getListElementId condition type
         List<String> conditionType = Pattern.compile("conditionType.{4}(\\w+)").matcher(discountCampaignDetail.asPrettyString()).results().map(matchResult -> String.valueOf(matchResult.group(1))).toList();
 
-        // get condition options
+        // getListElementId condition options
         List<String> conditionOption = Pattern.compile("conditionOption.{4}(\\w+)").matcher(discountCampaignDetail.asPrettyString()).results().map(matchResult -> String.valueOf(matchResult.group(1))).toList();
 
-        // get condition value map <condition type, condition value list>
+        // getListElementId condition value map <condition type, condition value list>
         Map<String, List<Integer>> conditionValueMap = new HashMap<>();
         for (int conditionID = 0; conditionID < conditionType.size(); conditionID++) {
             List<Integer> conditionValueList = new ArrayList<>();
@@ -503,16 +503,16 @@ public class CreatePromotion {
             brInfo.getBranchName().forEach(brName -> discountCampaignStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
         }
 
-        // get last discount campaign information
+        // getListElementId last discount campaign information
         discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, barcodeList));
 
-        // get last discount campaign status
+        // getListElementId last discount campaign status
         info.setDiscountCampaignStatus(discountCampaignStatus);
 
-        // get last discount campaign price
+        // getListElementId last discount campaign price
         info.setDiscountCampaignPrice(discountCampaignPrice);
 
-        // get last discount campaign minimum quantity
+        // getListElementId last discount campaign minimum quantity
         info.setDiscountCampaignMinQuantity(discountCampaignMinQuantity);
 
         return info;

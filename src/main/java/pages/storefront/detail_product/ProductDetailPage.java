@@ -87,7 +87,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
 
         // check product is display or not
-        if (!(maxStock == 0 || !productInfo.getBhStatus().equals("ACTIVE") || !productInfo.isOnWeb() || productInfo.isDeleted()) || (productInfo.isShowOutOfStock()) && productInfo.getBhStatus().equals("ACTIVE") && !productInfo.isDeleted() && productInfo.isOnWeb()) {
+        if (!productInfo.isDeleted() && productInfo.isOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
             // in-case in stock or setting show product when out of stock
             // check language is published or not
             if (storeInfo.getSFLangList().contains(languageCode)) {
@@ -367,12 +367,10 @@ public class ProductDetailPage extends ProductDetailElement {
         String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
 
         if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
-            try {
+            if (listingPrice != sellingPrice) {
                 String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
                 countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
-            } catch (TimeoutException ex) {
-                logger.info("No discount product (listing price = selling price)");
-            }
+            } else logger.info("No discount product (listing price = selling price)");
             String actSellingPrice = new UICommonAction(driver).getText(SELLING_PRICE).replace(",", "");
             long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
 
@@ -430,9 +428,9 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("%s Check wholesale product information is shown".formatted(branch));
     }
 
-    void checkVariationPriceAndDiscount(int indexOfVariation, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String brName) throws IOException {
-        String priceType = getSalePriceMap().get(brName).get(indexOfVariation);
-        String displayType = getSaleDisplayMap().get(brName).get(indexOfVariation);
+    void checkVariationPriceAndDiscount(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String brName) throws IOException {
+        String priceType = getSalePriceMap().get(brName).get(varIndex);
+        String displayType = getSaleDisplayMap().get(brName).get(varIndex);
         System.out.printf("price type: %s%n", priceType);
         System.out.printf("display type: %s%n", displayType);
 

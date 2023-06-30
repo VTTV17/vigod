@@ -14,18 +14,22 @@ import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.elementId.ActionsWithElementByAPI;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 public class UICommonMobile extends UICommonAction {
 
 	final static Logger logger = LogManager.getLogger(UICommonMobile.class);
+	ActionsWithElementByAPI elementId;
 
 	public UICommonMobile(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		elementId = new ActionsWithElementByAPI(((AndroidDriver) driver).getRemoteAddress().toString());
 	}
 
 	public void clickElement(By bySelector) {
@@ -186,14 +190,13 @@ public class UICommonMobile extends UICommonAction {
 		element.click();
 	}
 
-	public void waitSplashScreenLoaded() {
-		String currentActivity = ((AndroidDriver) driver).currentActivity();
-		new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
-			AndroidDriver andDriver = (AndroidDriver) driver;
-			assert andDriver != null;
-			return !andDriver.currentActivity().equals(currentActivity);
-		});
-	}
+    public void waitSplashScreenLoaded() {
+        new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
+            AndroidDriver andDriver = (AndroidDriver) driver;
+            assert andDriver != null;
+            return Objects.requireNonNull(andDriver.currentActivity()).contains("MainActivity");
+        });
+    }
 
 	public void sendKeys(By locator, String text) {
 		wait.until(ExpectedConditions.elementToBeClickable(locator));
@@ -210,7 +213,95 @@ public class UICommonMobile extends UICommonAction {
 		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
 
-	public void waitListElementVisible(By locator) {
-		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    public void waitListElementVisible(By locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public void moveToTopScreen(By topLocator) {
+        // scroll to top screen
+        boolean isTopScreen = false;
+        while (!isTopScreen) try {
+            driver.findElement(topLocator);
+            isTopScreen = true;
+        } catch (NoSuchElementException ex) {
+            swipeByCoordinatesInPercent(0.25, 0.25, 0.25, 0.75);
+        }
+    }
+
+    public WebElement moveAndGetElement(By topLocator, By locator) {
+        // if element is presented, return element
+        if (driver.findElements(locator).size() > 0) return driver.findElement(locator);
+
+        // scroll to top
+        moveToTopScreen(topLocator);
+
+        // scroll to top screen
+        boolean isFound = false;
+
+        // setup for check end of screen
+        // set previous source
+        String prevPageSource = "";
+        // getListElementId current source
+        String currentPageSource = driver.getPageSource();
+
+        // loop until the element is found
+        while (!isFound) try {
+            // break if end of screen
+            if (prevPageSource.equals(currentPageSource)) break;
+
+            // check element is found or not
+            driver.findElement(locator);
+
+            // set isFound flag
+            isFound = true;
+        } catch (NoSuchElementException ex) {
+            // scroll to next screen to find element
+            swipeByCoordinatesInPercent(0.25, 0.75, 0.25, 0.25);
+
+            // wait page loaded
+            sleepInMiliSecond(100);
+
+            // set previous page source
+            prevPageSource = currentPageSource;
+
+            // getListElementId current page source
+            currentPageSource = driver.getPageSource();
+        }
+
+        // return element
+        return isFound ? driver.findElement(locator) : null;
+    }
+
+    public List<WebElement> moveAndGetListElements(By topLocator, By locator) {
+        // scroll to top
+        moveToTopScreen(topLocator);
+
+        // scroll to top screen
+        moveAndGetElement(topLocator, locator);
+
+        return driver.findElements(locator);
+    }
+
+    public List<WebElement> nextElementOfList(By locator) {
+		// getListElementId last element list
+		List<String> lastElementList = elementId.getListElementId(locator.toString().replace("By.xpath: ", ""));
+		System.out.println("last: " + lastElementList);
+		// scroll to getListElementId next element
+        swipeByCoordinatesInPercent(0.25, 0.75, 0.25, 0.5);
+
+        // wait page resource reloaded
+        sleepInMiliSecond(5000);
+
+        // list elements end when:
+        // 1. the last element of previous list is the last of current list
+        // 2. can not find any element match with locator
+        List<String> currentElementList = elementId.getListElementId(locator.toString().replace("By.xpath: ", ""));
+		System.out.println("current: " + currentElementList);
+        return Objects.equals(lastElementList.get(lastElementList.size() - 1), currentElementList.get(currentElementList.size() - 1)) ? List.of() : wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator)) ;
+    }
+
+	public List<String> getListElementId(By locator) {
+		return elementId.getListElementId(locator.toString().replace("By.xpath: ", ""));
 	}
+
 }

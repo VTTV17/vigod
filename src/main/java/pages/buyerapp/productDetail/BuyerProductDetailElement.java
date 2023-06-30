@@ -3,10 +3,15 @@ package pages.buyerapp.productDetail;
 import org.openqa.selenium.By;
 
 public class BuyerProductDetailElement {
+    By PRODUCT_IMAGE = By.xpath("//*[contains(@resource-id, 'item_product_detail_image')]");
     By FLASH_SALE_LABEL = By.xpath("//*[contains(@resource-id, 'rlFlashSaleContainer')]");
     By DISCOUNT_CAMPAIGN_LABEL = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_tv_wholesale_label')]");
-    By WHOLESALE_PRODUCT_LABEL =By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_group_wholesale_pricing')]");
+    By WHOLESALE_PRODUCT_LABEL = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_group_wholesale_pricing')]");
     By PRODUCT_NAME = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_title')]");
+    By FLASH_SALE_BADGE = By.xpath("//*[contains(@resource-id, 'llFlashSale')]");
+    By DISCOUNT_CAMPAIGN_BADGE = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_tv_wholesale_label')]");
+    By WHOLE_SALE_PRODUCT_BADGE = By.xpath("//*[contains(@resource-id, 'group_wholesale_pricing')]");
+    By SOLD_OUT_MARK = By.xpath("//*[contains(@resource-id, 'activity_item_details_tv_not_available')]");
     By LISTING_PRICE = By.xpath("//*[contains(@resource-id, '//*[contains(@resource-id, 'item_market_product_detail_desc_original_price')]')]");
     By SELLING_PRICE = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_promotion_price')]");
     By CONVERSION_UNIT_TITLE = By.xpath("//*[contains(@resource-id, 'htvConversationUnit')]/preceding-sibling::*");
@@ -14,8 +19,10 @@ public class BuyerProductDetailElement {
     By VARIATION_NAME_LIST = By.xpath("//*[contains(@resource-id, '//*[contains(@resource-id, 'item_market_product_detail_desc_tv_variation')]')]");
     By VARIATION_VALUE_LIST = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_htv_variation')]//*[contains(@resource-id, 'text')]");
     By BRANCH_LIST = By.xpath("//*[contains(@resource-id, 'tv_branch_name')]");
+    By FILTER_BRANCH_ICON = By.xpath("//*[contains(@resource-id, 'iv_select_branch_filter')]");
     By SEARCH_BRANCH_ICON = By.xpath("//*[contains(@resource-id, 'iv_show_search_branch')]");
-    By DESCRIPTION = By.xpath("//*[contains(@resource-id, '//*[contains(@resource-id, 'activity_item_details_desc')]//android.widget.TextView')]");
+    By PRODUCT_DESCRIPTION_TAB = By.xpath("//*[contains(@resource-id, 'activity_market_shop_profile_tabLayout')]//*[contains(@resource-id, 'product_detail_content_include_tabs_1')]");
+    By PRODUCT_DESCRIPTION_CONTENT = By.xpath("//*[contains(@resource-id, 'activity_item_details_desc')]//android.widget.TextView");
     By ADD_TO_CART_ICON = By.xpath("//*[contains(@resource-id, 'ivIconAddToCart')]");
     By ADD_TO_CART_POPUP_LISTING_PRICE = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_tv_product_original_price')]");
     By ADD_TO_CART_POPUP_SELLING_PRICE = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_tv_product_price')]");
@@ -32,4 +39,5 @@ public class BuyerProductDetailElement {
     By BUY_NOW_POPUP_QUANTITY_TEXT_BOX = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_edt_quantity')]");
     By BUY_NOW_POPUP_BUY_BTN = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_cl_button_container')]");
     By SMART_PAYPAL = By.xpath("//*[contains(@resource-id, 'flSmartPaypalButton')]");
+    By CONTACT_NOW_BTN =By.xpath("//*[contains(@resource-id, 'activity_item_details_btn_contact_now')]");
 }

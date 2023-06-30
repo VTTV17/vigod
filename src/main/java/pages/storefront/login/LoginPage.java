@@ -149,13 +149,13 @@ public class LoginPage {
 
     public LoginPage inputUsernameForgot(String username) {
     	commonAction.inputText(USERNAME_FORGOT_TXTBOX, username);
-    	logger.info("Input '" + username + "' into Username field to get a new password.");
+    	logger.info("Input '" + username + "' into Username field to getListElementId a new password.");
         return this;
     }
 
     public LoginPage inputPasswordForgot(String password) {
     	commonAction.inputText(PASSWORD_FORGOT_TXTBOX, password);
-    	logger.info("Input '" + password + "' into Password field to get a new password.");
+    	logger.info("Input '" + password + "' into Password field to getListElementId a new password.");
         return this;
     }    
     
