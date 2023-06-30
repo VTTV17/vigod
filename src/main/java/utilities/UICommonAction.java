@@ -419,6 +419,14 @@ public class UICommonAction {
 			return false;
 		}
 	}
+	public Boolean isElementDisplay(By by){
+		try {
+			return getElement(by).isDisplayed();
+		}catch (Exception e){
+			logger.debug("Element not display: "+e.getMessage());
+			return false;
+		}
+	}
 	public void navigateBack(){
 		driver.navigate().back();
 	}
@@ -485,5 +493,4 @@ public class UICommonAction {
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
-
 }
