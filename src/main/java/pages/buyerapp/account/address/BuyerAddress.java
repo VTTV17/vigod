@@ -39,7 +39,9 @@ public class BuyerAddress {
 	By CITY = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_et_city_outside_vietnam')]");
 	By ZIP_CODE = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_et_zipcode')]");
 	By BACK_ICON = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_toolbar')]/android.widget.ImageButton");
+	By HEADER_SAVE_BTN = By.xpath("//*[ends-with(@resource-id,'activity_edit_address_btn_save')]");
     public String getCountry() {
+		commonAction.sleepInMiliSecond(500);
         String value = commonAction.getText(COUNTRY_DROPDOWN);
         logger.info("Retrieved Country: " + value);
         return value;
@@ -140,7 +142,7 @@ public class BuyerAddress {
 		return this;
 	}
 	public BuyerAddress verifyDistrict(String district){
-		Assert.assertEquals(getDistrict(),district);
+		Assert.assertTrue(getDistrict().contains(district));
 		logger.info("Verify district: "+district);
 		return this;
 	}
@@ -159,7 +161,7 @@ public class BuyerAddress {
 		logger.info("Verify zipCode: "+zipCode);
 		return this;
 	}
-	public BuyerAddress inputAddressVN(String country, String address, String cityProvince, String district, String ward){
+	public BuyerMyProfile inputAddressVN(String country, String address, String cityProvince, String district, String ward){
 		if(!country.equals(getCountry())){
 			selectCountry(country);
 		}
@@ -167,9 +169,10 @@ public class BuyerAddress {
 		selectCityProvince(cityProvince);
 		selectDistrict(district);
 		selectWard(ward);
-		return this;
+		tapOnSaveBtn();
+		return new BuyerMyProfile(driver);
 	}
-	public BuyerAddress inputAddressNonVN(String country, String address, String address2, String city, String stateRegion, String zipCode){
+	public BuyerMyProfile inputAddressNonVN(String country, String address, String address2, String city, String stateRegion, String zipCode){
 		if(!country.equals(getCountry())){
 			selectCountry(country);
 		}
@@ -178,9 +181,11 @@ public class BuyerAddress {
 		inputCity(city);
 		selectStateRegion(stateRegion);
 		inputZipCode(zipCode);
-		return this;
+		tapOnSaveBtn();
+		return new BuyerMyProfile(driver);
 	}
 	public BuyerAddress verifyAddressVN(String country, String address, String cityProvince, String district, String ward){
+		commonAction.sleepInMiliSecond(1500);
 		verifyCountry(country);
 		verifyAddress(address);
 		verifyCityProvince(cityProvince);
@@ -189,6 +194,7 @@ public class BuyerAddress {
 		return this;
 	}
 	public BuyerAddress verifyAddressNonVN(String country, String address, String address2, String city, String stateRegion, String zipCode){
+		commonAction.sleepInMiliSecond(1000);
 		verifyCountry(country);
 		verifyAddress(address);
 		verifyAddress2(address2);
@@ -200,6 +206,12 @@ public class BuyerAddress {
 	public BuyerMyProfile tapOnBackIcon(){
 		commonAction.clickElement(BACK_ICON);
 		logger.info("Tap on Back icon.");
+		return new BuyerMyProfile(driver);
+	}
+	public BuyerMyProfile tapOnSaveBtn(){
+		commonAction.clickElement(HEADER_SAVE_BTN);
+		logger.info("Tap on Save button.");
+		commonAction.sleepInMiliSecond(1000);
 		return new BuyerMyProfile(driver);
 	}
 

@@ -53,4 +53,5 @@ public class BuyerHomePage extends BuyerHomeElement {
         List<WebElement> resultList =  driver.findElements(SEARCH_RESULT);
         resultList.get(0).click();
     }
+
 }

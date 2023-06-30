@@ -13,7 +13,9 @@ import utilities.UICommonMobile;
 import utilities.data.DataGenerator;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BuyerMyProfile extends BuyerMyProfileElement{
     final static Logger logger = LogManager.getLogger(BuyerMyProfile.class);
@@ -65,7 +67,6 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     }    
     
     public BuyerMyProfile verifyTextMyProfile() throws Exception {
-
         Assert.assertEquals(common.getText(MY_PROFILE_HEADER_TITLE), PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.pageTitle"));
         Assert.assertEquals(common.getText(MY_PROFILE_HEADER_SAVE_BTN), PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.saveBtn"));
         Assert.assertEquals(common.getText(YOUR_NAME_LBL), PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.yourNameLbl"));
@@ -129,6 +130,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     }
     public BuyerMyProfile scrollDown(){
         common.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        logger.info("Scroll down");
         return new BuyerMyProfile(driver);
     }
     public BuyerMyProfile inputYourName(String yourName){
@@ -279,6 +281,251 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     public BuyerMyProfile verifyPhoneDisabled(){
         Assert.assertTrue(!common.isElementEnabled(PHONE_NUMBER_INPUT),"Phone field not disable.");
         logger.info("Verify phone disabled.");
+        return this;
+    }
+    public BuyerAccountPage tapOnBackIcon(){
+        common.clickElement(HEADER_BACK_ICON);
+        logger.info("Tap on back icon.");
+        return new BuyerAccountPage(driver);
+    }
+    public BuyerMyProfile tapOtherPhones(){
+        common.clickElement(YOUR_HAVE_OTHER_PHONE_LBL);
+        logger.info("Tap on You have x other phones.");
+        return this;
+    }
+    public BuyerMyProfile tapOnAddOtherPhoneIcon(){
+        common.clickElement(OTHER_PHONE_ADD_ICON);
+        logger.info("Tap on Add other phone icon.");
+        return this;
+    }
+    public BuyerMyProfile inputName_OtherPhone(String name){
+        common.inputText(OTHER_PHONE_INPUT_NAME,name);
+        logger.info("Input name for Other phone: "+name);
+        return this;
+    }
+    public BuyerMyProfile inputPhone_OtherPhone(String phone){
+        common.inputText(OTHER_PHONE_INPUT_PHONE,phone);
+        logger.info("Input phone for Other phone: "+phone);
+        return this;
+    }
+    public BuyerMyProfile tapAddButton_OtherPhone(){
+        common.clickElement(OTHER_PHONE_ADD_BTN);
+        logger.info("Tap on Add button to add other phone.");
+        return this;
+    }
+    public BuyerMyProfile tapBackIcon_OtherPhone(){
+        common.clickElement(OTHER_PHONE_BACK_ICON);
+        logger.info("Tap Back icon on Other phone page.");
+        return this;
+    }
+    public BuyerMyProfile addOtherPhones(String name,String phoneCode, String...phones){
+        if(phones.length==0){
+            try {
+                throw new  Exception("Phones are empty!");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        for (int i=0;i<phones.length;i++){
+            tapOnAddOtherPhoneIcon();
+            inputName_OtherPhone(name);
+            selectPhoneCodeOnOtherPhone(phoneCode);
+            inputPhone_OtherPhone(phones[i]);
+            tapAddButton_OtherPhone();
+        }
+        return this;
+    }
+    public BuyerMyProfile tapOtherEmails(){
+        common.clickElement(YOU_HAVE_OTHER_MAIL_LBL);
+        logger.info("Tap on You have x other emails.");
+        return this;
+    }
+    public BuyerMyProfile tapOnAddOtherEmailIcon(){
+        common.clickElement(OTHER_EMAIL_ADD_ICON);
+        logger.info("Tap on Add other email icon.");
+        return this;
+    }
+    public BuyerMyProfile inputName_OtherEmail(String name){
+        common.inputText(OTHER_EMAIL_INPUT_NAME,name);
+        logger.info("Input name for Other phone: "+name);
+        return this;
+    }
+    public BuyerMyProfile inputEmail_OtherEmail(String email){
+        common.inputText(OTHER_EMAIL_INPUT_EMAIL,email);
+        logger.info("Input phone for Other email: "+email);
+        return this;
+    }
+    public BuyerMyProfile tapAddButton_OtherEmail(){
+        common.clickElement(OTHER_EMAIL_ADD_BTN);
+        logger.info("Tap on Add button to add other email.");
+        return this;
+    }
+    public BuyerMyProfile tapBackIcon_OtherEmail(){
+        common.clickElement(OTHER_EMAIL_BACK_ICON);
+        logger.info("Tap Back icon on Other phone page.");
+        return this;
+    }
+    public BuyerMyProfile selectPhoneCodeOnOtherPhone(String phoneCode){
+        String phoneCodeFormated = "("+phoneCode+")";
+        if(!common.getText(OTHER_PHONE_PHONE_CODE).equals(phoneCode)){
+            common.clickElement(OTHER_PHONE_PHONE_CODE);
+            List<WebElement> phoneCodeList = common.getElements(OTHER_PHONE_PHONE_CODE_LIST);
+            boolean isClicked = false;
+            for (int i=0;i<phoneCodeList.size();i++){
+                if(common.getText(phoneCodeList.get(i)).contains(phoneCodeFormated)){
+                    common.clickElement(phoneCodeList.get(i));
+                    isClicked = true;
+                }
+                if(isClicked){
+                    break;
+                }
+            }
+            if (!isClicked){
+                try {
+                    throw new Exception("Phone code %s not found".formatted(phoneCode));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return this;
+    }
+    public BuyerMyProfile addOtherEmails(String name, String...emails){
+        if(emails.length==0){
+            try {
+                throw new  Exception("Phones are empty!");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        for (int i=0;i<emails.length;i++){
+            tapOnAddOtherEmailIcon();
+            inputName_OtherEmail(name);
+            inputEmail_OtherEmail(emails[i]);
+            tapAddButton_OtherEmail();
+        }
+        return this;
+    }
+    public BuyerMyProfile checkErrorWhenInputOtherPhoneOutOfRange() throws Exception {
+        DataGenerator dataGenerator = new DataGenerator();
+        String phoneInvalid = "01"+dataGenerator.generateNumber(5);
+        addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
+        Assert.assertEquals(common.getText(ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherPhone.addOtherPhone.invalidPhoneError"));
+        common.clickElement(OTHER_PHONE_POPUP_CLOSE_ICON);
+        phoneInvalid = "01"+dataGenerator.generateNumber(14);
+        addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
+        Assert.assertEquals(common.getText(ADD_OTHER_PHONE_ERROR),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherPhone.addOtherPhone.invalidPhoneError"));
+        common.clickElement(OTHER_PHONE_POPUP_CLOSE_ICON);
+        logger.info("Check error when input other phone out of range.");
+        common.clickElement(OTHER_PHONE_BACK_ICON);
+        return this;
+    }
+    public BuyerMyProfile checkErrorWhenInputInvalidEmail() throws Exception {
+        addOtherEmails("Other email invalid.","test");
+        Assert.assertEquals(common.getText(ADD_OTHER_EMAIL_ERROR),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.addOtherEmail.invalidEmailError"));
+        common.clickElement(OTHER_EMAIL_POPUP_CLOSE_ICON);
+        logger.info("Check error when input invalid enail.");
+        common.clickElement(OTHER_EMAIL_BACK_ICON);
+        return this;
+    }
+    public BuyerMyProfile verifyOtherPhoneNumber(int expected) throws Exception {
+        Assert.assertEquals(common.getText(YOUR_HAVE_OTHER_PHONE_LBL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.youHaveOtherPhone").formatted(expected));
+        logger.info("Verify other phone number.");
+        return this;
+    }
+    public BuyerMyProfile verifyOtherEmailNumber(int expected) throws Exception {
+        Assert.assertEquals(common.getText(YOU_HAVE_OTHER_MAIL_LBL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.youHaveOtherEmailLbl").formatted(expected));
+        logger.info("Verify other email number.");
+        return this;
+    }
+    public Map<String,String> getOtherPhonesOrEmailMap(){
+        common.sleepInMiliSecond(1000);
+        List<WebElement> phoneNumerList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+        List<WebElement> phoneNameList = common.getElements(OTHER_PHONE_EMAIL_NAME_LIST);
+        Map<String,String> phoneNumberNameMap= new HashMap<>();
+        for(int i=0;i<phoneNumerList.size();i++){
+            phoneNumberNameMap.put(common.getText(phoneNumerList.get(i)),common.getText(phoneNameList.get(i)));
+        }
+        logger.info("Get Other phone/email map: "+phoneNumberNameMap);
+        return phoneNumberNameMap;
+    }
+    public BuyerMyProfile verifyOtherPhoneOrEmailMap(Map<String,String> expected){
+        Assert.assertEquals(getOtherPhonesOrEmailMap(),expected);
+        logger.info("Verify other phone/email and name phone list");
+        return this;
+    }
+    public BuyerMyProfile verifyOtherPhoneAfterAdded(Map<String,String>expected) throws Exception {
+        common.sleepInMiliSecond(1000);
+        verifyOtherPhoneNumber(expected.size());
+        tapOtherPhones();
+        verifyOtherPhoneOrEmailMap(expected);
+        tapBackIcon_OtherPhone();
+        return this;
+    }
+    public BuyerMyProfile verifyOtherEmailAfterAdded(Map<String,String>expected) throws Exception {
+        common.sleepInMiliSecond(1000);
+        verifyOtherEmailNumber(expected.size());
+        tapOtherEmails();
+        verifyOtherPhoneOrEmailMap(expected);
+        tapBackIcon_OtherEmail();
+        return this;
+    }
+    public Map<String,String> editOtherPhones(){
+        tapOtherPhones();
+        common.sleepInMiliSecond(1000);
+        Map<String,String> otherPhoneMap = new HashMap<>();
+        String[] phoneCodeList = {"+93", "+355", "+376", "+35818", "+244"};
+        DataGenerator dataGenerator = new DataGenerator();
+        List<WebElement> otherPhoneNumberList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+        for(int i=0;i<otherPhoneNumberList.size();i++){
+            common.clickElement(otherPhoneNumberList.get(i));
+            String phoneNameEdit = "Updated"+i;
+            inputName_OtherPhone(phoneNameEdit);
+            String phoneCodeEdit = phoneCodeList[dataGenerator.generatNumberInBound(0, phoneCodeList.length)];
+            selectPhoneCodeOnOtherPhone(phoneCodeEdit);
+            String phoneEdit =  "01" + dataGenerator.generateNumber(8);
+            inputPhone_OtherPhone(phoneEdit);
+            tapAddButton_OtherPhone();
+            otherPhoneMap.put("("+phoneCodeEdit+") "+phoneEdit,phoneNameEdit);
+            otherPhoneNumberList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+        }
+        tapBackIcon_OtherPhone();
+        logger.info("Edit other phones map: "+otherPhoneMap);
+        return otherPhoneMap;
+    }
+    public Map<String,String> editOtherEmails(){
+        tapOtherEmails();
+        common.sleepInMiliSecond(1000);
+        Map<String,String> otherEmails = new HashMap<>();
+        DataGenerator generator = new DataGenerator();
+        List<WebElement> otherEmailList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+        for(int i=0;i<otherEmailList.size();i++){
+            common.clickElement(otherEmailList.get(i));
+            String nameEdit = "Updated"+i;
+            inputName_OtherEmail(nameEdit);
+            String emailEdit = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
+            inputEmail_OtherEmail(emailEdit);
+            tapAddButton_OtherEmail();
+            otherEmails.put(emailEdit,nameEdit);
+            otherEmailList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+        }
+        tapBackIcon_OtherEmail();
+        logger.info("Edit other emails map: "+otherEmails);
+        return otherEmails;
+    }
+    public BuyerMyProfile deleteOtherPhoneOtherEmail(){
+        common.sleepInMiliSecond(500);
+        List<WebElement> otherEmailList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+        common.swipeHorizontalInPercent(otherEmailList.get(0),0.7,0.3);
+        common.clickElement(OTHER_PHONE_EMAIL_DELETE_ICON);
+        return this;
+    }
+    public BuyerMyProfile deleteAllOtherPhoneEmail(){
+        common.sleepInMiliSecond(1000);
+        int sizeList = common.getElements(OTHER_PHONE_EMAIL_LIST).size();
+        for (int i=0;i<sizeList;i++){
+            deleteOtherPhoneOtherEmail();
+        }
         return this;
     }
 }

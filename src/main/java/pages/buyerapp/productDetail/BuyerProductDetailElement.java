@@ -32,4 +32,5 @@ public class BuyerProductDetailElement {
     By BUY_NOW_POPUP_QUANTITY_TEXT_BOX = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_edt_quantity')]");
     By BUY_NOW_POPUP_BUY_BTN = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_cl_button_container')]");
     By SMART_PAYPAL = By.xpath("//*[contains(@resource-id, 'flSmartPaypalButton')]");
+    By CART_ICON = By.xpath("//*[ends-with(@resource-id,'action_bar_basic_rl_shopping_cart')]");
 }

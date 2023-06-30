@@ -50,6 +50,12 @@ public class BuyerSearchDetailPage extends UICommonMobile {
         }else Assert.assertEquals(getText(suggestionsPrice_el.get(0)).toLowerCase(),PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.contactTxt"));
         return this;
     }
+    public BuyerSearchDetailPage verifySearchSuggestion(String itemName) {
+        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
+        List<WebElement> suggestionsName_el = getElements(SEARCH_SUGGESTION);
+        Assert.assertEquals(getText(suggestionsName_el.get(0)).toLowerCase(),itemName.toLowerCase());
+        return this;
+    }
     public BuyerSearchPage tapCancelSearch(){
         clickElement(CANCEL_SEARCH);
         logger.info("Tap on Cancel button.");
@@ -66,4 +72,5 @@ public class BuyerSearchDetailPage extends UICommonMobile {
         Assert.assertFalse(false,"Search result: No item match keyword");
         return this;
     }
+
 }
