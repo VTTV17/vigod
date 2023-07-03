@@ -68,6 +68,7 @@ public class BuyerAccountPage {
     	return this;
     }    
     public BuyerChangeLanguage clickLanguageBtn(){
+        commonAction.sleepInMiliSecond(1000);
         commonAction.clickElement(LANGUAGE_BTN);
         return new BuyerChangeLanguage(driver);
     }
@@ -84,6 +85,7 @@ public class BuyerAccountPage {
         return this;
     }
     public BuyerAccountPage verifyDisplayName(String displayNameExpected){
+        commonAction.sleepInMiliSecond(2500);
         Assert.assertEquals(commonAction.getText(accountEl.DISPLAY_NAME),displayNameExpected);
         logger.info("Verify display name show correctly");
         return this;

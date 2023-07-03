@@ -48,6 +48,8 @@ public class CreateProduct {
     boolean showOnWeb = true;
     boolean showInStore = true;
     boolean showInGoSocial = true;
+    private static List<Integer> branchIds;
+
 
     public CreateProduct setShowOutOfStock(boolean showOutOfStock) {
         this.showOutOfStock = showOutOfStock;
@@ -140,6 +142,8 @@ public class CreateProduct {
 
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
+        branchIds = branchInfo.getBranchID();
+        CreateProduct.branchIds = branchInfo.getBranchID();
         return this;
     }
 
@@ -227,5 +231,8 @@ public class CreateProduct {
 
     public boolean isManageByIMEI() {
         return manageByIMEI;
+    }
+    public List<Integer> getBranchIds(){
+        return CreateProduct.branchIds;
     }
 }

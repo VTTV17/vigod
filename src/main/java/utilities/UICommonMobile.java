@@ -1,7 +1,9 @@
 package utilities;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.StartsActivity;
 import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -223,6 +225,12 @@ public class UICommonMobile extends UICommonAction {
 	public void swipeHorizontalInPercent(WebElement element,double startX, double endX) {
 		double y = getElementLocationYPercent(element);
 		swipeByCoordinatesInPercent(startX,y,endX,y);
+	}
+	public void restartAppKeepLogin(String appPackage, String appActivity){
+		Activity activity = new Activity(appPackage,appActivity);
+        activity.setStopApp(false);
+        ((StartsActivity) driver).startActivity(activity);
+        new UICommonMobile(driver).waitSplashScreenLoaded();
 	}
 
 }
