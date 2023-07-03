@@ -357,7 +357,6 @@ public class ProductCollectionTest extends BaseTest {
     @Test
     public void PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword() throws Exception {
         condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
-        System.out.println("Condition: "+condition);
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);

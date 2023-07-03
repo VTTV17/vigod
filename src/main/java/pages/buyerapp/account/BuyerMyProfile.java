@@ -488,6 +488,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
             tapAddButton_OtherPhone();
             otherPhoneMap.put("("+phoneCodeEdit+") "+phoneEdit,phoneNameEdit);
             otherPhoneNumberList = common.getElements(OTHER_PHONE_EMAIL_LIST);
+            common.sleepInMiliSecond(500);
         }
         tapBackIcon_OtherPhone();
         logger.info("Edit other phones map: "+otherPhoneMap);

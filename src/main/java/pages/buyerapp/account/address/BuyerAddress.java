@@ -185,7 +185,7 @@ public class BuyerAddress {
 		return new BuyerMyProfile(driver);
 	}
 	public BuyerAddress verifyAddressVN(String country, String address, String cityProvince, String district, String ward){
-		commonAction.sleepInMiliSecond(1500);
+		commonAction.sleepInMiliSecond(2000);
 		verifyCountry(country);
 		verifyAddress(address);
 		verifyCityProvince(cityProvince);

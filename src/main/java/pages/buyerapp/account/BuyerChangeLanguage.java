@@ -23,6 +23,7 @@ public class BuyerChangeLanguage extends UICommonMobile {
     String LANGUAGE_BTN_DYNAMIC = "//android.widget.TextView[@text='%s']";
     By CHANGE_BTN = By.xpath("//android.widget.Button[contains(@resource-id,'button1')]");
     By SELECTED_LANGUAGE = By.xpath("//android.widget.ImageView[contains(@resource-id,'item_language_checkbox')]//preceding-sibling::android.widget.TextView");
+    By HEADER_BACK_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_general_more_settings_change_language_toolbar')]/android.widget.ImageButton");
     public void changeLanguage(String lang){
         String currentLanguage = getText(SELECTED_LANGUAGE);
         String selectLang = "";
@@ -44,6 +45,8 @@ public class BuyerChangeLanguage extends UICommonMobile {
             sleepInMiliSecond(200);
             clickElement(CHANGE_BTN);
             sleepInMiliSecond(2000);
+        }else {
+            clickElement(HEADER_BACK_ICON);
         }
     }
     public String getCurrentLanguage(){
