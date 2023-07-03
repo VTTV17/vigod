@@ -26,26 +26,36 @@ public class InitConnection {
 	    ResultSet resultSet = null;
 	    String key = null;
 	    
-	    try {
-		    connection = createConnection();
-		    
-	        String query = "select activation_key from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
-	        resultSet = connection.prepareStatement(query).executeQuery();
-	        
-	        if (resultSet.next()) {
-	            key = resultSet.getString("activation_key");
-	        }
-	        logger.info("Activation key retrieved for '%s': ".formatted(username) + key);
-	    } catch (SQLException e) {
-	    	throw e;
-	    } finally {
-	        // Close the resources in reverse order
-	        if (resultSet != null) {
-	            resultSet.close();
-	        }
-	        if (connection != null) {
-	            connection.close();
-	        }
+	    //Sometimes it takes longer for the activation code to be generated
+	    for (int i=0; i<3; i++) {
+		    try {
+			    connection = createConnection();
+			    
+		        String query = "select activation_key from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
+		        resultSet = connection.prepareStatement(query).executeQuery();
+		        
+		        if (resultSet.next()) {
+		            key = resultSet.getString("activation_key");
+		        }
+		        logger.info("Activation key retrieved for '%s': ".formatted(username) + key);
+		    } catch (SQLException e) {
+		    	throw e;
+		    } finally {
+		        // Close the resources in reverse order
+		        if (resultSet != null) {
+		            resultSet.close();
+		        }
+		        if (connection != null) {
+		            connection.close();
+		        }
+		    }
+		    if (key != null) break;
+		    try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	    }
         return key;
     }     

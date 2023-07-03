@@ -29,14 +29,17 @@ public class InitAppiumDriver {
         capabilities.setCapability("appPackage", appPackage);
         capabilities.setCapability("appActivity", appActivity);
         capabilities.setCapability("noReset", "false");
-
-        String platformNameFromCapacity = capabilities.getCapability("platformName").toString();
-		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
-			return new AndroidDriver(new URL(url), capabilities);
-		} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
-			return new IOSDriver(new URL(url), capabilities);
-		} else {
-			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
-		}
+        return getAppiumDriver(capabilities, url);
+    }
+    
+    public AppiumDriver getAppiumDriver(DesiredCapabilities capabilities, String url) throws MalformedURLException {
+    	String platformNameFromCapacity = capabilities.getCapability("platformName").toString();
+    	if (platformNameFromCapacity.equalsIgnoreCase("android")) {
+    		return new AndroidDriver(new URL(url), capabilities);
+    	} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
+    		return new IOSDriver(new URL(url), capabilities);
+    	} else {
+    		throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
+    	}
     }
 }
