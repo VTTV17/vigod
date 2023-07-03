@@ -199,6 +199,7 @@ public class SignupPage {
     }    
 
     public String getVerificationCodeError() {
+    	commonAction.sleepInMiliSecond(1500); // Sometimes it takes longer for the error to appear
     	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, By.xpath("//*[contains(@class,'TextView')]")));
     	logger.info("Retrieved error for verification field: " + text);
     	return text;

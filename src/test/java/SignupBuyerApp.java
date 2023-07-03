@@ -3,6 +3,7 @@ import static utilities.links.Links.SF_DOMAIN;
 import java.sql.SQLException;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -12,7 +13,6 @@ import org.testng.annotations.Test;
 import api.dashboard.login.Login;
 import api.dashboard.setting.StoreInformation;
 import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.android.AndroidDriver;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.NotificationPermission;
 import pages.buyerapp.SignupPage;
@@ -50,6 +50,9 @@ public class SignupBuyerApp {
 	String countryCode;
 	String displayName;
 	String birthday;
+	String language = "VIE";
+	String expectedCodeMsg;
+	String expectedSignupMsg;
 	
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
@@ -78,62 +81,30 @@ public class SignupBuyerApp {
 		BUYER_PHONE_PASSWORD = AccountTest.SF_SHOP_VI_PASSWORD;
 		BUYER_PHONE_COUNTRY = AccountTest.ADMIN_COUNTRY_TIEN;
 	}		
-	
-	/**
-	 * This method retrieves a verification code for a given username. 
-	 * If the username is a valid email address, the method retrieves the verification code from Mailnesia.
-	 * Otherwise, it retrieves the code from a database.
-	 * @param username either an email address (tienvan@mailnesia.com) or a phone number (+84:0123456789)
-	 * @return the retrieved verification code as a String
-	 * @throws SQLException if there is an error retrieving the reset key from the database
-	 */
-	public String getVerificationCode(String phoneCode, String username) throws SQLException {
-		String code;
-		if (username.matches("\\d+")) {
-			code = new InitConnection().getActivationKey(phoneCode + ":" + username);
-		} else {
-			/*
-			// Launch a new browser
-			driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
-			// Get verification code from Mailnesia
-			code = new Mailnesia(driverWeb).navigateToMailAndGetVerifyCode(username);
-			driverWeb.quit();
-			*/
-			code = new InitConnection().getActivationKey(username);
-		}
-		return code;
-	}	
-	
-	public String getNewVerificationCode(String phoneCode, String username) throws SQLException {
-		/*
-		if (username.matches("\\d+")) {
-			commonAction.sleepInMiliSecond(2000);
-		} else {
-			commonAction.sleepInMiliSecond(10000);
-		}
-		*/
-		return getVerificationCode(phoneCode, username);
-	}	
 
-	// This function checks if an email is sent to the user saying the user has signed up for an account successfully
-	public void verifyEmailUponSuccessfulSignup(String username) {
-		String language = "vi";
-		String title = new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getInfo().getStoreName();
-		String expectedVerificationCodeMessage;
-		String expectedSuccessfulSignupMessage;
-		driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
-		pages.storefront.signup.SignupPage sfSignupPage = new pages.storefront.signup.SignupPage(driverWeb);
-		if (language.contentEquals("vi")) {
-			expectedSuccessfulSignupMessage = sfSignupPage.SUCCESSFUL_SIGNUP_MESSAGE_VI.formatted(title);
-			expectedVerificationCodeMessage = sfSignupPage.VERIFICATION_CODE_MESSAGE_VI.formatted(title);
-		} else {
-			expectedSuccessfulSignupMessage = sfSignupPage.SUCCESSFUL_SIGNUP_MESSAGE_EN.formatted(title);
-			expectedVerificationCodeMessage = sfSignupPage.VERIFICATION_CODE_MESSAGE_VI.formatted(title);
+	public void getExpectedMailMsg(String language, String storeName) throws Exception {
+		expectedCodeMsg = PropertiesUtil.getPropertiesValueBySFLang("mail.signup.verificationCode", language).formatted(storeName);
+		expectedSignupMsg = PropertiesUtil.getPropertiesValueBySFLang("mail.signup.successfulRegistration", language).formatted(storeName);
+	}		
+	
+	public String getVerificationCode(String phoneCode, String username) throws SQLException {
+		if (username.matches("\\d+")) {
+			return new InitConnection().getActivationKey(phoneCode + ":" + username);
 		}
+		return new InitConnection().getActivationKey(username);
+	}	
+	
+	public String [][] getEmailContent(String username) {
+		driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
 		String [][] mailContent = new Mailnesia(driverWeb).navigate(username).getListOfEmailHeaders();
 		driverWeb.quit();
-		Assert.assertEquals(mailContent[0][3], expectedSuccessfulSignupMessage);
-		Assert.assertTrue(mailContent[1][3].contains(expectedVerificationCodeMessage));
+		return mailContent;
+	}
+	
+	public void verifySignupMail(String username) throws Exception {
+		String [][] mailContent = getEmailContent(username);
+		Assert.assertEquals(mailContent[0][3], expectedSignupMsg);
+		Assert.assertTrue(mailContent[1][3].contains(expectedCodeMsg));
 	}	
 
 	public void createAccountOnSF(String country, String phoneCode, String username, String password, String displayName, String birthday) throws SQLException {
@@ -183,7 +154,7 @@ public class SignupBuyerApp {
 		navigationBar.tapOnAccountIcon().clickLoginBtn().performLogin(country, username, password);
 	}
 	
-	public void checkBuyerDataOnApp(String country, String phoneCode, String username, String displayName, String mail, String birthday) {
+	public void verifyBuyerDataOnApp(String country, String phoneCode, String username, String displayName, String mail, String birthday) {
     	BuyerMyProfile myProfile = accountTab.clickProfile();
     	Assert.assertEquals(myProfile.getDisplayName(), displayName, "Display name");
     	if (!username.matches("\\d+")) {
@@ -199,7 +170,7 @@ public class SignupBuyerApp {
     	Assert.assertEquals(formatedCountry, country, "Country");
 	}
 	
-	public void checkBuyerDataOnDashboard(String country, String phoneCode, String username, String displayName, String mail, String birthday) {
+	public void verifyBuyerDataOnDashboard(String country, String phoneCode, String username, String displayName, String mail, String birthday) {
     	driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driverWeb);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
@@ -216,7 +187,7 @@ public class SignupBuyerApp {
 		driverWeb.quit();
 	}
 	
-	public void checkBuyerLocationInDatabase(String country, String phoneCode, String username) throws SQLException {
+	public void verifyBuyerLocationInDatabase(String country, String phoneCode, String username) throws SQLException {
 		if (username.matches("\\d+")) {
 			Assert.assertEquals(new InitConnection().getUserLocationCode(phoneCode+":"+username), generate.getCountryCode(country));
 			return;
@@ -233,14 +204,19 @@ public class SignupBuyerApp {
 		displayName = "Auto Buyer " + phone;
 		birthday = "21-02-1990";
 	}	
-
+	
 	public AppiumDriver launchApp() throws Exception {
-		String udid = "10.10.2.100:5555"; //RF8N20PY57D 192.168.2.43:5555
-		String platformName = "Android";
-		String appPackage = "com.mediastep.shop0017";
-		String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
-		String url = "http://127.0.0.1:4723/wd/hub";
-		return new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+//        capabilities.setCapability("udid", "192.168.2.43:5555");
+        capabilities.setCapability("udid", "10.10.2.100:5555");
+        capabilities.setCapability("platformName", "Android");
+        capabilities.setCapability("appPackage", "com.mediastep.shop0017");
+        capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
+        capabilities.setCapability("noReset", "false");
+        
+        String url = "http://127.0.0.1:4723/wd/hub";
+
+		return new InitAppiumDriver().getAppiumDriver(capabilities, url);
 	}
 	
 	public void instantiatePageObjects() throws Exception {
@@ -253,9 +229,10 @@ public class SignupBuyerApp {
 	}		
 	
     @BeforeClass
-    public void setUp() {
+    public void setUp() throws Exception {
         PropertiesUtil.setEnvironment("STAG");
         getCredentials();
+        getExpectedMailMsg(language, new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getInfo().getStoreName());
     }
 
     @BeforeMethod
@@ -372,6 +349,11 @@ public class SignupBuyerApp {
     	
 		signupPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) + 1)).clickVerifyBtn();
 		Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	
+    	/* Verify new activation code is sent to buyers */
+    	commonAction.sleepInMiliSecond(10000);
+    	String[][] mailContent = getEmailContent(username);
+    	Assert.assertEquals(mailContent[0][3], code + " " + expectedCodeMsg);
     }
     
     @Test
@@ -402,12 +384,18 @@ public class SignupBuyerApp {
     	
     	Assert.assertEquals(signupPage.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra email");
     	
-    	String newCode = getNewVerificationCode(phoneCode, username);
+    	String newCode = getVerificationCode(phoneCode, username);
     	
     	Assert.assertNotEquals(newCode, code, "Resent code");
     	
     	signupPage.inputVerificationCode(code).clickVerifyBtn();
     	Assert.assertEquals(signupPage.getVerificationCodeError(), "Mã không hợp lệ");
+    	
+    	/* Verify new activation code is sent to buyers */
+    	commonAction.sleepInMiliSecond(10000);
+    	String[][] mailContent = getEmailContent(username);
+    	Assert.assertEquals(mailContent[0][3], newCode + " " + expectedCodeMsg);
+    	Assert.assertEquals(mailContent[1][3], code + " " + expectedCodeMsg);
     }
     
     @Test
@@ -424,7 +412,7 @@ public class SignupBuyerApp {
     	
     	Assert.assertEquals(signupPage.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra SMS");
     	
-    	String newCode = getNewVerificationCode(phoneCode, username);
+    	String newCode = getVerificationCode(phoneCode, username);
     	
     	Assert.assertNotEquals(newCode, code, "Resent code");
     	
@@ -457,7 +445,7 @@ public class SignupBuyerApp {
     	Assert.assertEquals(signupPage.getUsernameError(), "Số điện thoại đã tồn tại");
     }    
     
-//    @Test
+    @Test
     public void Signup_12_LocalEmailAccount() throws Exception {
     	
 		country = "Vietnam";
@@ -467,31 +455,25 @@ public class SignupBuyerApp {
 		displayName = "Auto Buyer " + phone;
     	username = mail;
     	
-    	/* Signup */
     	createAccount(country, phoneCode, username, password, displayName);
     	
-    	/* Logout */
     	logOutOfApp();
     	
-    	/* Re-login */
     	logintoApp(country, username, password);
     	
-    	/* Validate buyer info on app */
-    	checkBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	/* Validate buyer info on Dashboard */
-    	checkBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
 		
-		/* Validate buyer's location code in database */
-    	checkBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
+    	verifyBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
 		
 		// Verify mails sent to the user saying the sign-up is successful
 		if (!username.matches("\\d+")) {
-			verifyEmailUponSuccessfulSignup(username);			
+			verifySignupMail(username);			
 		}
     }  
     
-//    @Test
+    @Test
     public void Signup_13_LocalPhoneAccount() throws Exception {
     	
 		country = "Vietnam";
@@ -501,60 +483,48 @@ public class SignupBuyerApp {
 		displayName = "Auto Buyer " + phone;
 		username = phone;
     	
-    	/* Signup */
     	createAccount(country, phoneCode, username, password, displayName);
     	
-    	/* Logout */
     	logOutOfApp();
     	
-    	/* Re-login */
     	logintoApp(country, username, password);
     	
-    	/* Validate buyer info on app */
-    	checkBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	/* Validate buyer info on Dashboard */
-    	checkBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
 		
-		/* Validate buyer's location code in database */
-    	checkBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
+    	verifyBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
 		
 		// Verify mails sent to the user saying the sign-up is successful
 		if (!username.matches("\\d+")) {
-			verifyEmailUponSuccessfulSignup(username);			
+			verifySignupMail(username);			
 		}
     }      
     
-//    @Test
+    @Test
     public void Signup_14_ForeignPhoneAccount() throws Exception {
     	
 		username = phone;
     	
-    	/* Signup */
     	createAccount(country, phoneCode, username, password, displayName);
     	
-    	/* Logout */
     	logOutOfApp();
     	
-    	/* Re-login */
     	logintoApp(country, username, password);
     	
-    	/* Validate buyer info on app */
-    	checkBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	/* Validate buyer info on Dashboard */
-    	checkBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	/* Validate buyer's location code in database */
-    	checkBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
+    	verifyBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
     	
     	// Verify mails sent to the user saying the sign-up is successful
     	if (!username.matches("\\d+")) {
-    		verifyEmailUponSuccessfulSignup(username);			
+    		verifySignupMail(username);			
     	}
     }    
     
-//    @Test
+    @Test
     public void Signup_15_FirstLogin() throws Exception {
     	
     	username = mail;
@@ -563,14 +533,14 @@ public class SignupBuyerApp {
     	
     	logintoApp(country, username, password);
     	
-    	checkBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	checkBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	checkBuyerLocationInDatabase(country, phoneCode, username);
+    	verifyBuyerLocationInDatabase(country, phoneCode, username);
     }      
     
-//    @Test
+    @Test
     public void Signup_16_Resignup() throws Exception {
 
     	username = phone;
@@ -579,19 +549,21 @@ public class SignupBuyerApp {
     	
     	fillOutRegistrationForm(country, username, password, displayName);
     	
+    	// Abort registration at verification screen
     	commonAction.sleepInMiliSecond(2000);
     	commonAction.hideKeyboard("android");
     	commonAction.navigateBack();
     	commonAction.hideKeyboard("android");
     	commonAction.navigateBack();
     	
+    	// Register again
     	createAccount(country, phoneCode, username, password, displayName);
     	
-    	checkBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnApp(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	checkBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
+    	verifyBuyerDataOnDashboard(STORE_COUNTRY, phoneCode, username, displayName, mail, birthday);
     	
-    	checkBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
+    	verifyBuyerLocationInDatabase(STORE_COUNTRY, phoneCode, username);
     }      
     
 }
