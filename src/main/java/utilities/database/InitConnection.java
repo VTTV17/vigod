@@ -60,16 +60,43 @@ public class InitConnection {
         return key;
     }     
     
-    public String getResetKey(String phoneNumber) throws SQLException {
-    	String query = "select * from \"gateway-services\".jhi_user ju where login = '%s'".formatted(phoneNumber);
-    	ResultSet resultSet = createConnection().prepareStatement(query).executeQuery();
-    	String key = null;
-    	while (resultSet.next()) {
-    		key = resultSet.getString("reset_key");
-    	}
-        logger.debug("Phone number to get reset key from: " + phoneNumber); 
-    	logger.info("Reset key retrieved: " + key); 
-    	return key;
+    public String getResetKey(String username) throws SQLException {
+    	Connection connection = null;
+	    ResultSet resultSet = null;
+	    String key = null;
+	    
+	    //Sometimes it takes longer for the activation code to be generated
+	    for (int i=0; i<3; i++) {
+		    try {
+			    connection = createConnection();
+			    
+		        String query = "select reset_key from \"gateway-services\".jhi_user ju where login = '%s'".formatted(username.toLowerCase());
+		        resultSet = connection.prepareStatement(query).executeQuery();
+		        
+		        if (resultSet.next()) {
+		            key = resultSet.getString("reset_key");
+		        }
+		        logger.info("Reset key retrieved for '%s': ".formatted(username) + key);
+		    } catch (SQLException e) {
+		    	throw e;
+		    } finally {
+		        // Close the resources in reverse order
+		        if (resultSet != null) {
+		            resultSet.close();
+		        }
+		        if (connection != null) {
+		            connection.close();
+		        }
+		    }
+		    if (key != null) break;
+		    try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+        return key;
     }     
     
     public String getStoreURL(String storeName) throws SQLException {
