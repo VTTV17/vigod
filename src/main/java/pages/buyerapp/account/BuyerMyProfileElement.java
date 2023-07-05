@@ -85,6 +85,11 @@ public class BuyerMyProfileElement {
     By HEADER_BACK_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_general_edit_beecow_profile_toolbar')]/android.widget.ImageButton");
     By ADD_OTHER_PHONE_ERROR = By.xpath("//*[ends-with(@resource-id,'tvErrorPhoneNumber')]");
     By ADD_OTHER_EMAIL_ERROR = By.xpath("//*[ends-with(@resource-id,'tvErrorEmail')]");
+    By CURRENT_CHANGEPASSWORD = By.xpath("//*[ends-with(@resource-id,'current_password_field')]//*[ends-with(@resource-id,'social_layout_limit_edittext')]");
+    By NEW_CHANGEPASSWORD = By.xpath("//*[ends-with(@resource-id,'new_password_field')]//*[ends-with(@resource-id,'social_layout_limit_edittext')]");
+    By CHANGEPASSWORD_DONE_BTN = By.xpath("//*[ends-with(@resource-id,'change_password_btn_done')]");
+    By CURRENT_CHANGEPASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'change_password_tv_error_current_password')]");
+    By NEW_CHANGEPASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'change_password_tv_error_new_password')]");
 
 }
 

@@ -31,6 +31,9 @@ public class LoginPage {
     By PASSWORD = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]//*[ends-with(@resource-id,'edittext')]");
     By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
     By PHONE_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
+    By FORGOTPASSWORD = By.xpath("//*[ends-with(@resource-id,'forgot_pass')]");
+    By USERNAME_FORGOTPASSWORD = By.xpath("(//*[ends-with(@resource-id,'social_layout_limit_edittext')])[1]");
+    By PASSWORD_FORGOTPASSWORD = By.xpath("(//*[ends-with(@resource-id,'social_layout_limit_edittext')])[2]");
 
     public LoginPage clickUsername() {
     	commonAction.getElement(USERNAME, defaultTimeout).click();
@@ -88,6 +91,24 @@ public class LoginPage {
     public LoginPage clickPhoneTab() {
         commonAction.clickElement(PHONE_TAB);
         logger.info("Clicked on Phone tab.");
+        return this;
+    }
+
+    public LoginPage clickForgotPasswordLink() {
+    	commonAction.clickElement(FORGOTPASSWORD, defaultTimeout);
+    	logger.info("Clicked on 'Forgot Password' link text.");
+        return this;
+    }    
+    
+    public LoginPage inputUsernameForgotPassword(String username) {
+    	commonAction.inputText(USERNAME_FORGOTPASSWORD, username);
+    	logger.info("Input '" + username + "' into Username field.");
+        return this;
+    }
+
+    public LoginPage inputNewPassword(String password) {
+    	commonAction.inputText(PASSWORD_FORGOTPASSWORD, password);
+    	logger.info("Input '" + password + "' into New Password field.");
         return this;
     }
 }
