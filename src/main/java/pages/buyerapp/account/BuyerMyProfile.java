@@ -2,6 +2,7 @@ package pages.buyerapp.account;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -65,6 +66,48 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     	logger.info("Clicked on Address text box.");
     	return new BuyerAddress(driver);
     }    
+    
+    public BuyerMyProfile clickChangePassword() {
+    	common.clickElement(CHANGE_PASSWORD_LBl);
+    	logger.info("Clicked on 'Change Password'.");
+    	return this;
+    }
+    
+    public BuyerMyProfile clickNewPassword() {
+    	common.clickElement(NEW_CHANGEPASSWORD);
+    	logger.info("Clicked on New Password field.");
+    	return this;
+    }
+
+    public BuyerMyProfile inputCurrentPassword(String password){
+        common.inputText(CURRENT_CHANGEPASSWORD, password);
+        logger.info("Input '" + password + "' into Current Password field to change password.");
+        return this;
+    }    
+    
+    public BuyerMyProfile inputNewPassword(String password){
+    	common.inputText(NEW_CHANGEPASSWORD, password);
+    	logger.info("Input '" + password + "' into New Password field to change password.");
+    	return this;
+    }
+    
+    public BuyerMyProfile clickChangePasswordDoneBtn() {
+    	common.clickElement(CHANGEPASSWORD_DONE_BTN);
+    	logger.info("Clicked on Done button to change password.");
+    	return this;
+    }     
+    
+    public String getCurrentPasswordError(){
+    	String text = common.getText(CURRENT_CHANGEPASSWORD_ERROR);
+    	logger.info("Retrieved error for Current Password field: " + text);
+    	return text;
+    }
+    
+    public String getNewPasswordError(){
+    	String text = common.getText(NEW_CHANGEPASSWORD_ERROR);
+    	logger.info("Retrieved error for New Password field: " + text);
+    	return text;
+    }
     
     public BuyerMyProfile verifyTextMyProfile() throws Exception {
         Assert.assertEquals(common.getText(MY_PROFILE_HEADER_TITLE), PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.pageTitle"));

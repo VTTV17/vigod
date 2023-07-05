@@ -7,11 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import org.testng.Assert;
-import pages.buyerapp.BuyerGeneral;
+
 import pages.buyerapp.LoginPage;
-import pages.buyerapp.NavigationBar;
 import pages.buyerapp.SignupPage;
 import utilities.UICommonMobile;
 
@@ -66,7 +64,14 @@ public class BuyerAccountPage {
     	commonAction.clickElement(ABORT_LOGOUT_BTN);
     	logger.info("Clicked on Abort Confirm Log out button.");
     	return this;
-    }    
+    }  
+
+    public BuyerAccountPage logOutOfApp() {
+    	commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
+    	clickLogoutBtn().clickConfirmLogoutBtn();
+    	return this;
+    }
+    
     public BuyerChangeLanguage clickLanguageBtn(){
         commonAction.sleepInMiliSecond(1000);
         commonAction.clickElement(LANGUAGE_BTN);
