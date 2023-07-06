@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import api.dashboard.login.Login;
 import api.dashboard.setting.StoreInformation;
 import io.appium.java_client.AppiumDriver;
+import pages.buyerapp.BuyerGeneral;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.NotificationPermission;
 import pages.buyerapp.SignupPage;
@@ -38,6 +39,7 @@ public class SignupBuyerApp {
 	BuyerAccountPage accountTab;
 	NavigationBar navigationBar;
 	SignupPage signupPage;
+	BuyerGeneral buyerGeneral;
 	UICommonMobile commonAction;
 	DataGenerator generate;
 	
@@ -146,8 +148,7 @@ public class SignupBuyerApp {
 	}
 	
 	public void logOutOfApp() {
-    	commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-    	accountTab.clickLogoutBtn().clickConfirmLogoutBtn();
+    	accountTab.logOutOfApp();
 	}
 	
 	public void logintoApp(String country, String username, String password) {
@@ -225,6 +226,7 @@ public class SignupBuyerApp {
 		navigationBar = new NavigationBar(driver);
 		accountTab = new BuyerAccountPage(driver);
 		signupPage = new SignupPage(driver);
+		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
 	}		
 	
@@ -382,7 +384,7 @@ public class SignupBuyerApp {
     	
     	signupPage.clickResendBtn();
     	
-    	Assert.assertEquals(signupPage.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra email");
+    	Assert.assertEquals(buyerGeneral.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra email");
     	
     	String newCode = getVerificationCode(phoneCode, username);
     	
@@ -410,7 +412,7 @@ public class SignupBuyerApp {
     	
     	signupPage.clickResendBtn();
     	
-    	Assert.assertEquals(signupPage.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra SMS");
+    	Assert.assertEquals(buyerGeneral.getToastMessage(), "Đã gửi lại mã. Vui lòng kiểm tra SMS");
     	
     	String newCode = getVerificationCode(phoneCode, username);
     	
