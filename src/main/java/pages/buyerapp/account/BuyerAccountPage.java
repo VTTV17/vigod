@@ -11,6 +11,7 @@ import org.testng.Assert;
 
 import pages.buyerapp.LoginPage;
 import pages.buyerapp.SignupPage;
+import pages.storefront.GeneralSF;
 import utilities.UICommonMobile;
 
 public class BuyerAccountPage {
@@ -90,7 +91,7 @@ public class BuyerAccountPage {
         return this;
     }
     public BuyerAccountPage verifyDisplayName(String displayNameExpected){
-        commonAction.sleepInMiliSecond(2500);
+        commonAction.sleepInMiliSecond(2000);
         Assert.assertEquals(commonAction.getText(accountEl.DISPLAY_NAME),displayNameExpected);
         logger.info("Verify display name show correctly");
         return this;
@@ -118,6 +119,11 @@ public class BuyerAccountPage {
     public BuyerAccountPage logOut(){
         clickLogoutBtn();
         commonAction.clickElement(accountEl.LOGOUT_POPUP_LOGOUT_BTN);
+        return this;
+    }
+    public BuyerAccountPage verifyLoginButtonShow(){
+        Assert.assertTrue(commonAction.isElementDisplay(commonAction.getElement(NAVIGATE_LOGIN_BTN)),"Login button not show.");
+        logger.info("Login button show.");
         return this;
     }
 }

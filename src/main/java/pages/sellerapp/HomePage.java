@@ -1,6 +1,8 @@
 package pages.sellerapp;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +10,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import pages.buyerapp.account.BuyerMyProfile;
+import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 
 public class HomePage {
@@ -28,7 +32,9 @@ public class HomePage {
     By LOGOUT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/llLogout");
     By LOGOUT_OK_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvRightButton");
     By LOGOUT_ABORT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvLeftButton");
-    
+    String PAGE_TITLE = "//*[@text='%pageName%']";
+
+
     public boolean isAccountTabDisplayed() {
     	boolean isDisplayed = commonAction.getElement(ACCOUNT_TAB, 5).isDisplayed();
     	logger.info("Is Account Tab displayed: " + isDisplayed);
@@ -58,5 +64,46 @@ public class HomePage {
     	logger.info("Click on Cancel button to abort logout");
     	return this;
     }
-
+    public Map<String, String> pageMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("CreateNewOrder", "seller.home.createNewOrder");
+        map.put("CreateReservation", "seller.home.createReservation");
+        map.put("AddProduct", "seller.home.addProduct");
+        map.put("AddNewCustomer", "seller.home.addNewCustomer");
+        map.put("ScanProduct", "seller.home.scanProduct");
+        map.put("LiveStream", "seller.home.livestream");
+        map.put("Facebook", "seller.home.facebook");
+        map.put("ZaloOA", "seller.home.zaloOA");
+        map.put("Printers", "seller.home.printers");
+        map.put("Orders", "seller.home.orders");
+        map.put("Product", "seller.home.products");
+        map.put("Customer", "seller.home.customers");
+        map.put("Reservations", "seller.home.reservations");
+        map.put("Inventory", "seller.home.inventory");
+        map.put("Supplier", "seller.home.supplier");
+        map.put("PurchaseOrders", "seller.home.purchaseOrders");
+        map.put("Cashbook", "seller.home.cashbooks");
+        map.put("Affiliate", "seller.home.affiliate");
+        return map;
+    }
+    public void navigateToPage(String pageName){
+        commonAction.sleepInMiliSecond(1000);
+        String propertyName = pageMap().get(pageName);
+        String pageNavigate = null;
+        try {
+            pageNavigate = PropertiesUtil.getPropertiesValueBySFLang(propertyName);
+        } catch (Exception e) {
+            logger.info("Page name not found!");
+            throw new RuntimeException(e);
+        }
+        scrollUp();
+        String newXpath = PAGE_TITLE.replace("%pageName%", pageNavigate);
+        commonAction.clickElement(By.xpath(newXpath));
+        logger.info("Naviage to page: "+pageName);
+    }
+    public BuyerMyProfile scrollUp(){
+        commonAction.swipeByCoordinatesInPercent(0.25,0.25,0.75,0.75);
+        logger.info("Scroll up");
+        return new BuyerMyProfile(driver);
+    }
 }

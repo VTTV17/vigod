@@ -7,7 +7,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.buyerapp.LoginPage;
 import pages.buyerapp.account.address.BuyerAddress;
+import pages.storefront.GeneralSF;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.data.DataGenerator;
@@ -16,6 +18,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BuyerMyProfile extends BuyerMyProfileElement{
     final static Logger logger = LogManager.getLogger(BuyerMyProfile.class);
@@ -175,8 +179,15 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         logger.info("Scroll down");
         return new BuyerMyProfile(driver);
     }
+    public BuyerMyProfile scrollUp(){
+        common.swipeByCoordinatesInPercent(0.25,0.25,0.75,0.75);
+        logger.info("Scroll up");
+        return new BuyerMyProfile(driver);
+    }
     public BuyerMyProfile inputYourName(String yourName){
+        common.sleepInMiliSecond(500);
         common.inputText(YOUR_NAME_INPUT,yourName);
+        common.sleepInMiliSecond(2000);
         logger.info("Input your name: "+yourName);
         return new BuyerMyProfile(driver);
     }
@@ -411,6 +422,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         String phoneCodeFormated = "("+phoneCode+")";
         if(!common.getText(OTHER_PHONE_PHONE_CODE).equals(phoneCode)){
             common.clickElement(OTHER_PHONE_PHONE_CODE);
+            common.sleepInMiliSecond(1000);
             List<WebElement> phoneCodeList = common.getElements(OTHER_PHONE_PHONE_CODE_LIST);
             boolean isClicked = false;
             for (int i=0;i<phoneCodeList.size();i++){
@@ -570,5 +582,60 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
             deleteOtherPhoneOtherEmail();
         }
         return this;
+    }
+    public BuyerMyProfile addMultipleOtherEmail(int quantity){
+        for (int i=0;i<quantity;i++){
+            DataGenerator generator = new DataGenerator();
+            String email = "email"+generator.generateNumber(10)+"@mailnesia.com";
+            addOtherEmails("Other mail"+i,email);
+        }
+        return this;
+    }
+    public BuyerMyProfile addMultipleOtherPhone(int quantity){
+        for (int i=0;i<quantity;i++){
+            DataGenerator generator = new DataGenerator();
+            String phone = "01"+generator.generateNumber(8);
+            addOtherPhones("Other phone"+i,"+84",phone);
+        }
+        return this;
+    }
+    public BuyerMyProfile verifyAddOtherEmailNotShow(){
+        Assert.assertTrue(common.isElementNotDisplay(common.getElements(OTHER_EMAIL_INPUT_EMAIL)));
+        return this;
+    }
+    public BuyerMyProfile verifyAddOtherPhoneNotShow(){
+        Assert.assertTrue(common.isElementNotDisplay(common.getElements(OTHER_PHONE_INPUT_PHONE)));
+        return this;
+    }
+    public int getOtherEmailNumberFromText(){
+        String text = common.getText(YOU_HAVE_OTHER_MAIL_LBL);
+        int number = Integer.parseInt(text.replaceAll("\\D", ""));
+        logger.info("Get number of other email: "+number);
+        return number;
+    }
+    public int getOtherPhoneNumberFromText(){
+        String text = common.getText(YOUR_HAVE_OTHER_PHONE_LBL);
+        int number = Integer.parseInt(text.replaceAll("\\D", ""));
+        logger.info("Get number of other phone: "+number);
+        return number;
+    }
+    public BuyerMyProfile tapDeleteAccount(){
+        common.clickElement(DELETE_ACCOUNT_LBL);
+        logger.info("Tap on delete account");
+        return this;
+    }
+    public BuyerMyProfile verifyTextDeleteAccountPopup() throws Exception {
+        Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_TITLE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.poupTitle"));
+        Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_MESSAGE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.message"));
+        Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_DELETE_BTN),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.deleteBtn"));
+        Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_CANCEL_BTN),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.cancelBtn"));
+        return this;
+    }
+    public void tapDeleteBTNOnDeletePopup(){
+        common.clickElement(DELETE_ACCOUNT_POPUP_DELETE_BTN);
+        logger.info("Tap on delete button on Delete popup.");
+        common.sleepInMiliSecond(1000);
+        new GeneralSF(driver).waitTillLoaderDisappear();
+        common.sleepInMiliSecond(1000);
     }
 }

@@ -7,7 +7,9 @@ import api.storefront.productdetail.APIProductDetail;
 import api.storefront.signup.SignUp;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
 import org.testng.annotations.*;
+import pages.buyerapp.LoginPage;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
@@ -18,7 +20,10 @@ import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.screenshot.Screenshot;
 
+import javax.swing.text.Utilities;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,22 +101,38 @@ public class MyProfileTest {
         driver.quit();
     }
     @AfterMethod
-    public void restartApp(){
+    public void restartApp(ITestResult result) throws IOException {
+        new Screenshot().takeScreenshot(driver);
         ((AndroidDriver) driver).resetApp();
     }
-    public void login(String buyerAccount){
+    public BuyerAccountPage login(String buyerAccount){
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnAccountIcon()
                 .clickLoginBtn()
                 .performLogin(buyerAccount,passBuyer);
+        return new BuyerAccountPage(driver);
     }
-    public void changeLanguage(String lang){
+    public BuyerAccountPage changeLanguage(String lang){
         new BuyerAccountPage(driver).clickLanguageBtn()
                 .changeLanguage(lang);
+        return new BuyerAccountPage(driver);
     }
     public void callAPIAddToCart(String buyerUsername){
         new LoginSF().LoginToSF(buyerUsername,passBuyer,"+84");
         new APIProductDetail().callAddToCart(productIDToAddToCart,branchID,1);
+    }
+    public String callAPISignUpAccount(boolean isEmailAccount){
+        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
+        String userName;
+        if(isEmailAccount){
+            userName = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
+            new SignUp().signUpByMail(userName,passBuyer);
+        }else {
+            userName= "01"+generator.randomNumberGeneratedFromEpochTime(7);
+            new SignUp().signUpByPhoneNumber(passBuyer,userName,"+84");
+        }
+        new UICommonMobile(driver).sleepInMiliSecond(10000);
+        return userName;
     }
     @Test
     public void MUP01_CheckTextOfMyProfilePage() throws Exception {
@@ -134,9 +155,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP03_UpdateUserProfile_EmailAccount_NoBirthdayBefore(){
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
-        String emailAccount = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
-        new SignUp().signUpByMail(emailAccount,passBuyer);
+        String emailAccount = callAPISignUpAccount(true);
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name "+randomNumber;
         String identityCardEdit = randomNumber;
@@ -156,7 +175,7 @@ public class MyProfileTest {
                 .scrollDown()
                 .inputCompanyName(companyEdit)
                 .inputTaxCode(taxEdit)
-                .selectBirdayAsCurrentDate()
+                .selectBirdayAsCurrentDate().scrollUp()
                 .tapOnSaveBtn()
                 .verifyDisplayName(nameEdit)
                 .clickProfile()
@@ -204,9 +223,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP05_UpdateUserProfile_PhoneAccount_NoBirthdayBefore(){
-        String phoneNumber = "01"+generator.randomNumberGeneratedFromEpochTime(7);
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
-        new SignUp().signUpByPhoneNumber(passBuyer,phoneNumber,"+84");
+        String phoneNumber = callAPISignUpAccount(false);
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name "+randomNumber;
         String identityCardEdit = randomNumber;
@@ -320,9 +337,7 @@ public class MyProfileTest {
     @Test
     public void MUP08_CheckAddress_NoAddressThenCheckout(){
         String radomPhone = generator.randomVNPhone();
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
-        String emailAccount = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
-        new SignUp().signUpByMail(emailAccount,passBuyer);
+        String emailAccount = callAPISignUpAccount(true);
         login(emailAccount);
         changeLanguage(language);
         //Go to checkout to verify address, then checkout with new address
@@ -382,11 +397,9 @@ public class MyProfileTest {
     @Test
     public void MUP10_UpdateAddress_NewAccount(){
         //Call api create buyer
-        String radomPhone = generator.randomVNPhone();
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
-        String emailAccount = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
-        new SignUp().signUpByMail(emailAccount,passBuyer);
+        String emailAccount = callAPISignUpAccount(true);
         //Check update address VN
+        String radomPhone = generator.randomVNPhone();
         login(emailAccount);
         changeLanguage(language);
         navigationBar = new NavigationBar(driver);
@@ -407,10 +420,7 @@ public class MyProfileTest {
                 .tapOnContinueBtn()
                 .tapOnContinueShopping();
         //Call api create buyer
-        String radomPhoneNonVN = generator.randomForeignPhone();
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
-        String emailAccountNonVn = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
-        new SignUp().signUpByMail(emailAccountNonVn,passBuyer);
+        String emailAccountNonVn = callAPISignUpAccount(true);
         //Check update address non VN
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnAccountIcon()
@@ -514,6 +524,58 @@ public class MyProfileTest {
                 .verifyOtherPhoneAfterAdded(emptyMap)
                 .verifyOtherEmailAfterAdded(emptyMap);
     }
-
+    @Test
+    public void MUP15_CheckDeleteEmail() throws Exception {
+        login(userName_PhoneAccount_EditInfo_HasBirthday);
+        changeLanguage(language);
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().inputEmail("").tapOnSaveBtn()
+                .clickProfile().verifyEmail(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.emailHint"));
+    }
+    @Test
+    public void MUP16_CheckDeletePhoneNumber() throws Exception {
+        login(userName_EditInfo_HasBirthday);
+        changeLanguage(language);
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().scrollDown()
+                .inputPhone("+84","").tapOnSaveBtn()
+                .clickProfile().verifyPhoneNumber(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.phoneHint"));
+    }
+    @Test
+    public void MUP17_CheckInputOtherPhoneEmailOutOfRange(){
+        login(userName_EditInfo_HasBirthday);
+        int currentOtherEmailNumber = changeLanguage(language).clickProfile()
+                .getOtherEmailNumberFromText();
+        new BuyerMyProfile(driver).tapOtherEmails()
+                .addMultipleOtherEmail(100-currentOtherEmailNumber)
+                .tapOnAddOtherEmailIcon()
+                .verifyAddOtherEmailNotShow().tapBackIcon_OtherEmail();
+        int currentOtherPhoneNumber = new BuyerMyProfile(driver).getOtherPhoneNumberFromText();
+        new BuyerMyProfile(driver).tapOtherPhones()
+                .addMultipleOtherPhone(100-currentOtherPhoneNumber)
+                .tapOnAddOtherPhoneIcon()
+                .verifyAddOtherPhoneNotShow();
+    }
+    @Test
+    public void MUP18_CheckTextDeleteAccount() throws Exception {
+        login(userName_EditInfo_HasBirthday).clickProfile()
+                .scrollDown().tapDeleteAccount()
+                .verifyTextDeleteAccountPopup();
+    }
+    @Test
+    public void MUP19_DeleteAccount() throws Exception {
+        //delete account
+        String emailAccount = callAPISignUpAccount(true);
+        login(emailAccount).clickProfile().scrollDown().tapDeleteAccount()
+                .tapDeleteBTNOnDeletePopup();
+        //check auto logout and login again
+        new NavigationBar(driver).tapOnAccountIcon().verifyLoginButtonShow();
+        login(emailAccount);
+        new LoginPage(driver).verifyToastMessage(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.login.loginError"));
+        //check sign up again
+        new SignUp().signUpByMail(emailAccount,passBuyer);
+        new LoginPage(driver).performLogin(emailAccount,passBuyer);
+        new BuyerAccountPage(driver).verifyAvatarDisplay();
+    }
 
 }
