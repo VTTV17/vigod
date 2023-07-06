@@ -9,6 +9,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import org.testng.Assert;
+import pages.storefront.GeneralSF;
 import utilities.UICommonMobile;
 
 public class LoginPage {
@@ -78,6 +80,7 @@ public class LoginPage {
         }
         inputUsername(userName);
         inputPassword(pass);
+        commonAction.sleepInMiliSecond(1000);
         clickLoginBtn();
         return this;
     }
@@ -97,7 +100,6 @@ public class LoginPage {
         logger.info("Clicked on Phone tab.");
         return this;
     }
-
     public LoginPage clickForgotPasswordLink() {
     	commonAction.clickElement(FORGOTPASSWORD, defaultTimeout);
     	logger.info("Clicked on 'Forgot Password' link text.");
@@ -111,8 +113,12 @@ public class LoginPage {
     }
 
     public LoginPage inputNewPassword(String password) {
-    	commonAction.inputText(PASSWORD_FORGOTPASSWORD, password);
-    	logger.info("Input '" + password + "' into New Password field.");
+        commonAction.inputText(PASSWORD_FORGOTPASSWORD, password);
+        logger.info("Input '" + password + "' into New Password field.");
+        return this;
+    }
+    public LoginPage verifyToastMessage(String expected){
+        new BuyerGeneral(driver).verifyToastMessage(expected);
         return this;
     }
 }

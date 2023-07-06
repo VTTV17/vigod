@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
@@ -29,6 +30,7 @@ public class BuyerGeneral extends UICommonMobile {
     By HEADER_CLOSE_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_select_region_btn_close')]");
     By HEADER_CANCEL_SEARCH = By.xpath("//*[ends-with(@resource-id,'search_module_btn_cancel')]");
     By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
+
     public BuyerGeneral waitLoadingDisappear(){
         waitTillElementDisappear(getElement(el_loading_icon,30),30);
         return this;
@@ -69,10 +71,15 @@ public class BuyerGeneral extends UICommonMobile {
         logger.info("Tap on cancel search.");
         return this;
     }
-    
+
     public String getToastMessage() {
     	String text = getText(TOASTMESSAGE);
     	logger.info("Retrieved toast message: " + text);
     	return text;
-    }     
+    }
+    public BuyerGeneral verifyToastMessage(String expected){
+        Assert.assertEquals(getToastMessage(),expected);
+        logger.info("Verify toast message.");
+        return this;
+    }
 }

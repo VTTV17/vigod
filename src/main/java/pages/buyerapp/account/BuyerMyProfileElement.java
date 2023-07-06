@@ -90,6 +90,10 @@ public class BuyerMyProfileElement {
     By CHANGEPASSWORD_DONE_BTN = By.xpath("//*[ends-with(@resource-id,'change_password_btn_done')]");
     By CURRENT_CHANGEPASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'change_password_tv_error_current_password')]");
     By NEW_CHANGEPASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'change_password_tv_error_new_password')]");
+    By DELETE_ACCOUNT_POPUP_TITLE = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_title')]");
+    By DELETE_ACCOUNT_POPUP_MESSAGE = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_description')]");
+    By DELETE_ACCOUNT_POPUP_DELETE_BTN = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_positive_action')]");
+    By DELETE_ACCOUNT_POPUP_CANCEL_BTN = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_negative_action')]");
 
 }
 

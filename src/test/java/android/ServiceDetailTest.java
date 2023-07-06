@@ -73,7 +73,7 @@ public class ServiceDetailTest {
     @AfterMethod
     public void restartApp(){
         ((AndroidDriver) driver).resetApp();
-        new UICommonMobile(driver).waitSplashScreenLoaded();
+//        new UICommonMobile(driver).waitSplashScreenLoaded();
     }
     public ServiceInfo callAPICreateService(boolean enableListing){
         String serviceName = "Service automation "+ generator.generateString(6);
