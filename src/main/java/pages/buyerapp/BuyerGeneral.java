@@ -1,6 +1,5 @@
 package pages.buyerapp;
 
-import com.beust.jcommander.JCommander;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -29,6 +28,7 @@ public class BuyerGeneral extends UICommonMobile {
     By SEARCH_RESULT_CHECKED_ICON_1 = By.xpath("(//*[ends-with(@resource-id,'item_list_region_root')])[1]//*[ends-with(@resource-id,'item_list_region_img_checked')]");
     By HEADER_CLOSE_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_select_region_btn_close')]");
     By HEADER_CANCEL_SEARCH = By.xpath("//*[ends-with(@resource-id,'search_module_btn_cancel')]");
+    By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
     public BuyerGeneral waitLoadingDisappear(){
         waitTillElementDisappear(getElement(el_loading_icon,30),30);
         return this;
@@ -69,4 +69,10 @@ public class BuyerGeneral extends UICommonMobile {
         logger.info("Tap on cancel search.");
         return this;
     }
+    
+    public String getToastMessage() {
+    	String text = getText(TOASTMESSAGE);
+    	logger.info("Retrieved toast message: " + text);
+    	return text;
+    }     
 }

@@ -30,29 +30,26 @@ public class LoginPage {
     By USERNAME = By.xpath("//*[ends-with(@resource-id,'field') and not (contains(@resource-id,'password'))]//*[ends-with(@resource-id,'edittext')]");
     By PASSWORD = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]//*[ends-with(@resource-id,'edittext')]");
     By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
+    By SIGNUP_LINKTEXT = By.xpath("//*[ends-with(@resource-id,'txt_sign_up')]");
     By PHONE_TAB = By.xpath("(//*[ends-with(@resource-id,'account_v2_tabs')]/android.widget.LinearLayout/android.widget.LinearLayout)[2]");
     By FORGOTPASSWORD = By.xpath("//*[ends-with(@resource-id,'forgot_pass')]");
     By USERNAME_FORGOTPASSWORD = By.xpath("(//*[ends-with(@resource-id,'social_layout_limit_edittext')])[1]");
     By PASSWORD_FORGOTPASSWORD = By.xpath("(//*[ends-with(@resource-id,'social_layout_limit_edittext')])[2]");
 
     public LoginPage clickUsername() {
-    	commonAction.getElement(USERNAME, defaultTimeout).click();
+    	commonAction.clickElement(USERNAME, defaultTimeout);
     	logger.info("Clicked on Username field.");
     	return this;
     }    
     
     public LoginPage inputUsername(String username) {
-    	WebElement txtUsername = commonAction.getElement(USERNAME, defaultTimeout);
-    	txtUsername.clear();
-    	txtUsername.sendKeys(username);
+    	commonAction.inputText(USERNAME, username);
     	logger.info("Input '" + username + "' into Username field.");
         return this;
     }
 
     public LoginPage inputPassword(String password) {
-    	WebElement txtPassword = commonAction.getElement(PASSWORD, defaultTimeout);
-    	txtPassword.clear();
-    	txtPassword.sendKeys(password);
+    	commonAction.inputText(PASSWORD, password);
     	logger.info("Input '" + password + "' into Password field.");
         return this;
     }
@@ -64,10 +61,17 @@ public class LoginPage {
     }    
     
     public LoginPage clickLoginBtn() {
-    	commonAction.getElement(LOGIN_BTN, defaultTimeout).click();
+    	commonAction.clickElement(LOGIN_BTN, defaultTimeout);
     	logger.info("Clicked on Login button.");
         return this;
     }
+
+    public LoginPage clickSignupLinkText() {
+    	commonAction.clickElement(SIGNUP_LINKTEXT, defaultTimeout);
+    	logger.info("Clicked on 'Signup' link text.");
+        return this;
+    }
+    
     public LoginPage performLogin(String userName, String pass){
         if (!userName.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
             clickPhoneTab();

@@ -82,6 +82,7 @@ public class SignupPage {
     public SignupPage inputCountryCodeToSearchBox(String country) {
     	commonAction.getElement(COUNTRY_SEARCHBOX).sendKeys(country);
     	logger.info("Input Country code: " + country);
+    	commonAction.sleepInMiliSecond(500);
     	return this;
     }    
     
@@ -111,7 +112,13 @@ public class SignupPage {
     	logger.info("Input '" + username + "' into Username field.");
         return this;
     }
-
+    
+    public String getUsernameFieldValue() {
+    	String text = commonAction.getText(new ByChained(USERNAME, TEXTBOX));
+    	logger.info("Retrieved Username field value: " + text);
+    	return text;
+    }    
+    
     public SignupPage inputPassword(String password) {
     	commonAction.inputText(new ByChained(PASSWORD, TEXTBOX), password);
     	logger.info("Input '" + password + "' into Password field.");
@@ -202,12 +209,6 @@ public class SignupPage {
     	commonAction.sleepInMiliSecond(1500); // Sometimes it takes longer for the error to appear
     	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, By.xpath("//*[contains(@class,'TextView')]")));
     	logger.info("Retrieved error for verification field: " + text);
-    	return text;
-    }    
-    
-    public String getToastMessage() {
-    	String text = commonAction.getText(TOASTMESSAGE);
-    	logger.info("Retrieved toast message: " + text);
     	return text;
     }    
     
