@@ -1,8 +1,10 @@
 package android;
 
 import api.dashboard.login.Login;
+import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.ProductInformation;
 import org.openqa.selenium.WebDriver;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -40,10 +42,9 @@ public class ProductDetailTest {
         isIMEIProduct = true;
         isHideStock = false;
         isDisplayIfOutOfStock = true;
-//        1214387;//
-        productId = 1214387;//new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+//        productId = 1214387; //new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        productId = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         productInfo = new ProductInformation().getInfo(productId);
-        System.out.println("check");
         driver = new InitAppiumDriver().getAppiumDriver("10HC8G04UP0003U",
                 "ANDROID",
                 "com.mediastep.shop0018",
@@ -60,5 +61,10 @@ public class ProductDetailTest {
         new NavigationBar(driver).tapOnHomeIcon().waitHomepageLoaded().searchProductByName(productInfo, "vi").navigateToProductDetailPage();
         new BuyerProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation("vi", productInfo);
 
+    }
+
+    @AfterMethod
+    void teardown() {
+        if (driver != null) driver.quit();
     }
 }

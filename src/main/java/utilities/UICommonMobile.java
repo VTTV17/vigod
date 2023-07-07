@@ -14,22 +14,22 @@ import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.elementId.ActionsWithElementByAPI;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class UICommonMobile extends UICommonAction {
 
-	final static Logger logger = LogManager.getLogger(UICommonMobile.class);
-	ActionsWithElementByAPI elementId;
+    final static Logger logger = LogManager.getLogger(UICommonMobile.class);
 
 	public UICommonMobile(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		elementId = new ActionsWithElementByAPI(((AndroidDriver) driver).getRemoteAddress().toString());
 	}
 
 	public void clickElement(By bySelector) {
@@ -198,110 +198,108 @@ public class UICommonMobile extends UICommonAction {
         });
     }
 
-	public void sendKeys(By locator, String text) {
-		wait.until(ExpectedConditions.elementToBeClickable(locator));
-		WebElement element = driver.findElement(locator);
-		element.clear();
-		element.sendKeys(text);
-	}
-
-	public void click(By locator) {
-		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
-	}
-
-	public void waitElementVisible(By locator) {
-		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-	}
-
-    public void waitListElementVisible(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-    }
-
     public void moveToTopScreen(By topLocator) {
         // scroll to top screen
         boolean isTopScreen = false;
-        while (!isTopScreen) try {
-            driver.findElement(topLocator);
-            isTopScreen = true;
-        } catch (NoSuchElementException ex) {
-            swipeByCoordinatesInPercent(0.25, 0.25, 0.25, 0.75);
+        while (!isTopScreen) {
+            isTopScreen = driver.findElements(topLocator).size() > 0;
+            swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.75);
         }
     }
 
     public WebElement moveAndGetElement(By topLocator, By locator) {
-        // if element is presented, return element
-        if (driver.findElements(locator).size() > 0) return driver.findElement(locator);
-
         // scroll to top
         moveToTopScreen(topLocator);
 
-        // scroll to top screen
-        boolean isFound = false;
-
-        // setup for check end of screen
-        // set previous source
-        String prevPageSource = "";
-        // getListElementId current source
         String currentPageSource = driver.getPageSource();
 
-        // loop until the element is found
-        while (!isFound) try {
-            // break if end of screen
-            if (prevPageSource.equals(currentPageSource)) break;
+        // scroll to and find element until it present
+        boolean isFound;
+        do {
+            isFound = driver.findElements(locator).size() > 0;
+            if (!isFound) swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+			sleepInMiliSecond(1000);
 
-            // check element is found or not
-            driver.findElement(locator);
+            String nextPageSource = driver.getPageSource();
+            System.out.println("MoveAndGetElement, locator: " + locator + ", end: " + currentPageSource.equals(nextPageSource));
 
-            // set isFound flag
-            isFound = true;
-        } catch (NoSuchElementException ex) {
-            // scroll to next screen to find element
-            swipeByCoordinatesInPercent(0.25, 0.75, 0.25, 0.25);
-
-            // wait page loaded
-            sleepInMiliSecond(100);
-
-            // set previous page source
-            prevPageSource = currentPageSource;
-
-            // getListElementId current page source
-            currentPageSource = driver.getPageSource();
-        }
-
-        // return element
+            if (nextPageSource.equals(currentPageSource)) break;
+        } while (!isFound);
         return isFound ? driver.findElement(locator) : null;
     }
 
-    public List<WebElement> moveAndGetListElements(By topLocator, By locator) {
-        // scroll to top
-        moveToTopScreen(topLocator);
-
-        // scroll to top screen
+    public List<String> getListElementText(By topLocator, By locator) {
+        // move and find start point
         moveAndGetElement(topLocator, locator);
 
-        return driver.findElements(locator);
+        String currentPageSource = driver.getPageSource();
+
+        // get list text element
+        List<WebElement> listElement;
+        List<String> listElementText = new ArrayList<>();
+        do {
+            // get list elementId
+            listElement = driver.findElements(locator);
+
+            // if list.size() > 0
+            // add element text if not contains
+            if (listElement.size() > 0) for (int index = 0; index < listElement.size(); index++) {
+				String elementText = driver.findElements(locator).get(index).getText();
+				if (!listElementText.contains(elementText)) listElementText.add(elementText);
+			}
+
+            //swipe screen to get next element list
+            swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+
+			sleepInMiliSecond(1000);
+
+            String nextPageSource = driver.getPageSource();
+            System.out.println("getListElementText, locator: " + locator + ", end: " + currentPageSource.equals(nextPageSource));
+            if (currentPageSource.equals(nextPageSource)) break;
+
+            // get new element list
+            listElement = driver.findElements(locator);
+
+//            if (Instant.now().toEpochMilli() - epoch >= duration * 1000L) break;
+        } while (((listElement.size() == 0) & (listElementText.size() == 0)) || ((listElement.size() > 0) & !new HashSet<>(listElementText).containsAll(IntStream.range(0, listElement.size()).mapToObj(index -> driver.findElements(locator).get(index).getText()).toList())));
+        return listElementText;
     }
 
-    public List<WebElement> nextElementOfList(By locator) {
-		// getListElementId last element list
-		List<String> lastElementList = elementId.getListElementId(locator.toString().replace("By.xpath: ", ""));
-		System.out.println("last: " + lastElementList);
-		// scroll to getListElementId next element
-        swipeByCoordinatesInPercent(0.25, 0.75, 0.25, 0.5);
+    public int moveAndGetElement(By topLocator, By locator, String text) {
+        // move and find start point
+        moveAndGetElement(topLocator, locator);
 
-        // wait page resource reloaded
-        sleepInMiliSecond(5000);
+        String currentPageSource = driver.getPageSource();
 
-        // list elements end when:
-        // 1. the last element of previous list is the last of current list
-        // 2. can not find any element match with locator
-        List<String> currentElementList = elementId.getListElementId(locator.toString().replace("By.xpath: ", ""));
-		System.out.println("current: " + currentElementList);
-        return Objects.equals(lastElementList.get(lastElementList.size() - 1), currentElementList.get(currentElementList.size() - 1)) ? List.of() : wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator)) ;
+        // find element
+        List<WebElement> listElement;
+        List<String> checkedElementText = new ArrayList<>();
+        do {
+            // get list elementId
+            listElement = driver.findElements(locator);
+
+            // find element has attribute value match with 'text'
+            if (listElement.size() > 0) for (int index = 0; index < listElement.size(); index++) {
+                String elementText = driver.findElements(locator).get(index).getText();
+                if (elementText.equals(text)) return index;
+                else checkedElementText.add(elementText);
+            }
+
+            // swipe to get new list elements
+            swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+			sleepInMiliSecond(1000);
+
+            String nextPageSource = driver.getPageSource();
+
+            System.out.println("moveAndGetElementByText, locator: " + locator + ", end: " + currentPageSource.equals(nextPageSource));
+
+            if (currentPageSource.equals(nextPageSource)) break;
+
+            // get new list elements
+            listElement = driver.findElements(locator);
+
+        } while (((listElement.size() == 0) & (checkedElementText.size() == 0)) || !new HashSet<>(checkedElementText).containsAll(IntStream.range(0, listElement.size()).mapToObj(index -> driver.findElements(locator).get(index).getText()).toList()));
+        return -1;
     }
-
-	public List<String> getListElementId(By locator) {
-		return elementId.getListElementId(locator.toString().replace("By.xpath: ", ""));
-	}
 
 }

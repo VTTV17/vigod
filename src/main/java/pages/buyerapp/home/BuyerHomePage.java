@@ -27,7 +27,7 @@ public class BuyerHomePage extends BuyerHomeElement {
     }
 
     public BuyerHomePage waitHomepageLoaded() {
-        commonMobile.waitElementVisible(HEADER_STORE_LOGO);
+        wait.until(ExpectedConditions.presenceOfElementLocated(HEADER_STORE_LOGO));
         return this;
     }
 
@@ -35,13 +35,13 @@ public class BuyerHomePage extends BuyerHomeElement {
 
     public BuyerHomePage searchProductByName(ProductInfo productInfo, String language) {
         // click Search icon
-        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.elementToBeClickable(HEADER_SEARCH_ICON)).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(HEADER_SEARCH_ICON)).click();
         logger.info("Open search screen");
 
         keywords = productInfo.getDefaultProductNameMap().get(language);
 
         // input search keywords
-        commonMobile.sendKeys(HEADER_SEARCH_BOX, "%s\n".formatted(keywords));
+        wait.until(ExpectedConditions.presenceOfElementLocated(HEADER_SEARCH_BOX)).sendKeys(keywords);
         logger.info("Search with keywords: %s".formatted(keywords));
 
         return this;
@@ -49,35 +49,36 @@ public class BuyerHomePage extends BuyerHomeElement {
 
     WebElement getProductElement() {
         // wait list product visible
-        List<WebElement> resultList = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
-        return resultList.stream().filter(element -> StringUtils.capitalize(keywords).equals(element.getText())).findFirst().orElse(null);
+        List<WebElement> listElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
+        for (int index = 0; index < listElement.size(); index++)
+            if (driver.findElements(SEARCH_RESULT).get(index).getText().equals(StringUtils.capitalize(keywords)))
+                return driver.findElements(SEARCH_RESULT).get(index);
+        return null;
     }
 
     public void navigateToProductDetailPage() {
         // wait list product visible
-        new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.visibilityOfAllElementsLocatedBy(SEARCH_RESULT));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
 
         // check View More button
         boolean hasViewMore = driver.findElements(VIEW_MORE).size() > 0;
-        System.out.println("keywords: " + keywords);
 
-        WebElement element = getProductElement();
+        WebElement productElement = getProductElement();
 
-        if (element == null && hasViewMore) {
+        if (productElement == null && hasViewMore) {
             // show all results
             driver.findElement(VIEW_MORE).click();
 
             // wait list product visible
-            wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(SEARCH_RESULT));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
 
             // getListElementId product element
-            while (element == null) {
-                wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(SEARCH_RESULT));
-                new UICommonMobile(driver).swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-                element = getProductElement();
+            while (productElement == null) {
+                commonMobile.swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+                productElement = getProductElement();
             }
         }
-        assert element != null;
-        element.click();
+        assert productElement != null;
+        productElement.click();
     }
 }
