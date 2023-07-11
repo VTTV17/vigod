@@ -65,6 +65,7 @@ public class CustomerDetails extends HomePage {
     }
     
     public String getPhoneNumber() {
+    	logger.info("Getting Phone Code...");
         String countryCode = commonAction.getText(wait.until(ExpectedConditions.visibilityOf(COUNTRY_CODE)));
         String phoneNumber = commonAction.getElementAttribute(PHONE, "value");
         String value = countryCode + ":" + phoneNumber;
@@ -89,9 +90,8 @@ public class CustomerDetails extends HomePage {
     }	    
     
     public String getCountry(){
-        String country = commonAction.getDropDownSelectedValue(COUNTRY_DROPDOWN);
-        logger.info("Get country: "+country);
-        return country;
+    	logger.info("Getting country...");
+        return commonAction.getDropDownSelectedValue(COUNTRY_DROPDOWN);
     }
     public String getAddress(){
         String address = commonAction.getElementAttribute(ADDRESS_INPUT,"value");
