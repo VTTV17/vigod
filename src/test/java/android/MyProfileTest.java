@@ -112,11 +112,6 @@ public class MyProfileTest {
                 .performLogin(buyerAccount,passBuyer);
         return new BuyerAccountPage(driver);
     }
-    public BuyerAccountPage changeLanguage(String lang){
-        new BuyerAccountPage(driver).clickLanguageBtn()
-                .changeLanguage(lang);
-        return new BuyerAccountPage(driver);
-    }
     public void callAPIAddToCart(String buyerUsername){
         new LoginSF().LoginToSF(buyerUsername,passBuyer,"+84");
         new APIProductDetail().callAddToCart(productIDToAddToCart,branchID,1);
@@ -136,18 +131,14 @@ public class MyProfileTest {
     }
     @Test
     public void MUP01_CheckTextOfMyProfilePage() throws Exception {
-        login(buyer);
-        changeLanguage(language);
-        accountPage = new BuyerAccountPage(driver);
-        accountPage.clickProfile()
+        login(buyer).
+        changeLanguage(language).clickProfile()
                 .verifyTextMyProfile();
     }
     @Test
     public void MUP02_ViewAccountInformation(){
-        login(buyer);
-        changeLanguage(language);
-        accountPage = new BuyerAccountPage(driver);
-        accountPage.verifyAvatarDisplay()
+        login(buyer).
+        changeLanguage(language).verifyAvatarDisplay()
                 .verifyDisplayName(displayName)
                 .verifyMemberShipLevel(membershipLevel)
                 .tapOnBarcodeIcon()
@@ -164,10 +155,8 @@ public class MyProfileTest {
         String companyEdit = generator.generateString(7);
         String taxEdit = randomNumber;
         String birthdayEdit =generator.generateDateTime("dd-MM-yyyy");
-        login(emailAccount);
-        changeLanguage(language);
-        accountPage = new BuyerAccountPage(driver);
-        accountPage.clickProfile()
+        login(emailAccount).
+        changeLanguage(language).clickProfile()
                 .inputYourName(nameEdit)
                 .verifyEmailDisabled()
                 .inputIdentityCard(identityCardEdit)
@@ -198,10 +187,8 @@ public class MyProfileTest {
         String phoneNumberEdit = "0"+randomNumber;
         String companyEdit = generator.generateString(7);
         String taxEdit = randomNumber;
-        login(userName_EditInfo_HasBirthday);
-        changeLanguage(language);
-        accountPage = new BuyerAccountPage(driver);
-        accountPage.clickProfile()
+        login(userName_EditInfo_HasBirthday).
+        changeLanguage(language).clickProfile()
                 .inputYourName(nameEdit)
                 .verifyEmailDisabled()
                 .inputIdentityCard(identityCardEdit)
@@ -231,10 +218,8 @@ public class MyProfileTest {
         String companyEdit = generator.generateString(7);
         String taxEdit = randomNumber;
         String birthdayEdit =generator.generateDateTime("dd-MM-yyyy");
-        login(phoneNumber);
-        changeLanguage(language);
-        accountPage = new BuyerAccountPage(driver);
-        accountPage.clickProfile()
+        login(phoneNumber).
+        changeLanguage(language).clickProfile()
                 .inputYourName(nameEdit)
                 .inputEmail(emailEdit)
                 .inputIdentityCard(identityCardEdit)
@@ -264,10 +249,8 @@ public class MyProfileTest {
         String companyEdit = generator.generateString(7);
         String taxEdit = randomNumber;
         navigationBar = new NavigationBar(driver);
-        login(userName_PhoneAccount_EditInfo_HasBirthday);
-        changeLanguage(language);
-        accountPage = new BuyerAccountPage(driver);
-        accountPage.clickProfile()
+        login(userName_PhoneAccount_EditInfo_HasBirthday).
+        changeLanguage(language).clickProfile()
                 .inputYourName(nameEdit)
                 .inputEmail(emailEdit)
                 .inputIdentityCard(identityCardEdit)
@@ -288,7 +271,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP07_CheckAddress_UserHasAddressThenCheckout(){
-        login(buyer);
+        login(buyer).
         changeLanguage(language);
         //get addres information in My profile
         navigationBar = new NavigationBar(driver);
@@ -338,7 +321,7 @@ public class MyProfileTest {
     public void MUP08_CheckAddress_NoAddressThenCheckout(){
         String radomPhone = generator.randomVNPhone();
         String emailAccount = callAPISignUpAccount(true);
-        login(emailAccount);
+        login(emailAccount).
         changeLanguage(language);
         //Go to checkout to verify address, then checkout with new address
         callAPIAddToCart(emailAccount);
@@ -362,11 +345,8 @@ public class MyProfileTest {
     @Test
     public void MUP09_UpdateAddress_ExistedAccount(){
         //Check update address VN
-        login(userName_UpdateAddress);
-        changeLanguage(language);
-        navigationBar = new NavigationBar(driver);
-        navigationBar.tapOnAccountIcon()
-                .clickProfile().scrollDown().clickAddress()
+        login(userName_UpdateAddress).
+        changeLanguage(language).clickProfile().scrollDown().clickAddress()
                 .inputAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
                 .clickAddress()
                 .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
@@ -400,11 +380,8 @@ public class MyProfileTest {
         String emailAccount = callAPISignUpAccount(true);
         //Check update address VN
         String radomPhone = generator.randomVNPhone();
-        login(emailAccount);
-        changeLanguage(language);
-        navigationBar = new NavigationBar(driver);
-        navigationBar.tapOnAccountIcon()
-                .clickProfile().scrollDown().clickAddress()
+        login(emailAccount).
+        changeLanguage(language).clickProfile().scrollDown().clickAddress()
                 .inputAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
                 .clickAddress()
                 .verifyAddressVN(Constant.VIETNAM,addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
@@ -443,11 +420,8 @@ public class MyProfileTest {
     }
     @Test
     public void MUP11_CheckAddInvalidOtherPhoneOtherEmail() throws Exception {
-        login(buyer);
-        changeLanguage(language);
-        navigationBar = new NavigationBar(driver);
-        navigationBar.tapOnAccountIcon()
-                .clickProfile()
+        login(buyer).
+        changeLanguage(language).clickProfile()
                 .tapOtherEmails()
                 .checkErrorWhenInputInvalidEmail()
                 .tapOtherPhones()
@@ -456,7 +430,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP12_CheckAddValidOtherPhoneOtherEmail() throws Exception {
-        login(buyer);
+        login(buyer).
         changeLanguage(language);
         String email1 = "email"+generator.randomNumberGeneratedFromEpochTime(9)+"@mailnesia.com";
         String email2 = "email"+generator.randomNumberGeneratedFromEpochTime(10)+"@mailnesia.com";
@@ -495,7 +469,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP13_CheckEditOtherPhoneEmail() throws Exception {
-        login(buyer);
+        login(buyer).
         changeLanguage(language);
         Map<String,String> otherEmailEdited = navigationBar.tapOnAccountIcon()
                 .clickProfile()
@@ -509,7 +483,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP14_CheckDeleteOtherPhoneOtherEmail() throws Exception {
-        login(buyer);
+        login(buyer).
         changeLanguage(language);
         Map<String,String> emptyMap = new HashMap<>();
         new NavigationBar(driver).tapOnAccountIcon()
@@ -526,25 +500,21 @@ public class MyProfileTest {
     }
     @Test
     public void MUP15_CheckDeleteEmail() throws Exception {
-        login(userName_PhoneAccount_EditInfo_HasBirthday);
-        changeLanguage(language);
-        new NavigationBar(driver).tapOnAccountIcon()
+        login(userName_PhoneAccount_EditInfo_HasBirthday).
+        changeLanguage(language)
                 .clickProfile().inputEmail("").tapOnSaveBtn()
                 .clickProfile().verifyEmail(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.emailHint"));
     }
     @Test
     public void MUP16_CheckDeletePhoneNumber() throws Exception {
-        login(userName_EditInfo_HasBirthday);
-        changeLanguage(language);
-        new NavigationBar(driver).tapOnAccountIcon()
-                .clickProfile().scrollDown()
+        login(userName_EditInfo_HasBirthday).
+        changeLanguage(language).clickProfile().scrollDown()
                 .inputPhone("+84","").tapOnSaveBtn()
                 .clickProfile().verifyPhoneNumber(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.phoneHint"));
     }
     @Test
     public void MUP17_CheckInputOtherPhoneEmailOutOfRange(){
-        login(userName_EditInfo_HasBirthday);
-        int currentOtherEmailNumber = changeLanguage(language).clickProfile()
+        int currentOtherEmailNumber = login(userName_EditInfo_HasBirthday).changeLanguage(language).clickProfile()
                 .getOtherEmailNumberFromText();
         new BuyerMyProfile(driver).tapOtherEmails()
                 .addMultipleOtherEmail(100-currentOtherEmailNumber)
@@ -558,7 +528,7 @@ public class MyProfileTest {
     }
     @Test
     public void MUP18_CheckTextDeleteAccount() throws Exception {
-        login(userName_EditInfo_HasBirthday).clickProfile()
+        login(userName_EditInfo_HasBirthday).changeLanguage(language).clickProfile()
                 .scrollDown().tapDeleteAccount()
                 .verifyTextDeleteAccountPopup();
     }
@@ -566,7 +536,7 @@ public class MyProfileTest {
     public void MUP19_DeleteAccount() throws Exception {
         //delete account
         String emailAccount = callAPISignUpAccount(true);
-        login(emailAccount).clickProfile().scrollDown().tapDeleteAccount()
+        login(emailAccount).changeLanguage(language).clickProfile().scrollDown().tapDeleteAccount()
                 .tapDeleteBTNOnDeletePopup();
         //check auto logout and login again
         new NavigationBar(driver).tapOnAccountIcon().verifyLoginButtonShow();

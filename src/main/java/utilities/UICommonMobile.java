@@ -232,5 +232,33 @@ public class UICommonMobile extends UICommonAction {
         ((StartsActivity) driver).startActivity(activity);
         new UICommonMobile(driver).waitSplashScreenLoaded();
 	}
-
+	public void inputText(List<WebElement> element, int index, String text) {
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			element.get(index).sendKeys(text);
+		} catch (StaleElementReferenceException | TimeoutException ex) {
+			if (ex instanceof StaleElementReferenceException) {
+				logger.debug("StaleElementReferenceException caught in inputText");
+			} else {
+				logger.debug("TimeoutException caught in inputText");
+			}
+			element = refreshElement(element.get(index));
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			doubleClickElement(element.get(index));
+			element.get(index).sendKeys(text);
+		}
+	}
+	public void selectDropdownOption(WebElement element, int index){
+		int y = element.getLocation().getY();
+		int x = element.getLocation().getX();
+		System.out.println("X: "+x);
+		Dimension size = driver.manage().window().getSize();
+		double percentYEl = (double)y/size.height;
+		double percentXEl = (double)x/size.width+0.1;
+		double distanceOptionPercent = 0.044;
+		double percentOptionY = percentYEl+(distanceOptionPercent*index) + distanceOptionPercent/2;
+		System.out.println("PercentY: "+percentOptionY);
+		System.out.println("PercentX: "+percentXEl);
+		tapByCoordinatesInPercent(percentXEl,percentOptionY);
+	}
 }

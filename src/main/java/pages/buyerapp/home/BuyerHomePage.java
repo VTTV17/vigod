@@ -7,7 +7,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
@@ -53,5 +55,15 @@ public class BuyerHomePage extends BuyerHomeElement {
         List<WebElement> resultList =  driver.findElements(SEARCH_RESULT);
         resultList.get(0).click();
     }
-
+    public BuyerHomePage clickOnMenuItemByText(String menuItemByText) {
+        String menuItemNewXpath = MENU_ITEM_XPATH.formatted(menuItemByText);
+        commonMobile.clickElement(commonMobile.getElementByXpath(menuItemNewXpath));
+        logger.info("Click on menu: " + menuItemByText);
+        return this;
+    }
+    public BuyerHomePage clickOnMenuIcon(){
+        commonMobile.clickElement(MENU_ICON);
+        logger.info("Click on menu icon");
+        return this;
+    }
 }

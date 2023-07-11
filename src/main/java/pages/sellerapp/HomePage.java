@@ -10,6 +10,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
@@ -86,24 +87,29 @@ public class HomePage {
         map.put("Affiliate", "seller.home.affiliate");
         return map;
     }
+
+    /**
+     *
+     * @param pageName: key of pageMap
+     */
     public void navigateToPage(String pageName){
-        commonAction.sleepInMiliSecond(1000);
         String propertyName = pageMap().get(pageName);
+        System.out.println("propertyName: "+propertyName);
         String pageNavigate = null;
         try {
-            pageNavigate = PropertiesUtil.getPropertiesValueBySFLang(propertyName);
+            pageNavigate = PropertiesUtil.getPropertiesValueByDBLang(propertyName);
         } catch (Exception e) {
             logger.info("Page name not found!");
             throw new RuntimeException(e);
         }
-        scrollUp();
+        scrollDown();
         String newXpath = PAGE_TITLE.replace("%pageName%", pageNavigate);
         commonAction.clickElement(By.xpath(newXpath));
         logger.info("Naviage to page: "+pageName);
     }
-    public BuyerMyProfile scrollUp(){
-        commonAction.swipeByCoordinatesInPercent(0.25,0.25,0.75,0.75);
-        logger.info("Scroll up");
-        return new BuyerMyProfile(driver);
+    public BuyerAccountPage scrollDown(){
+        commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
+        logger.info("Scroll down");
+        return new BuyerAccountPage(driver);
     }
 }
