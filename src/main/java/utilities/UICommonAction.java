@@ -410,6 +410,7 @@ public class UICommonAction {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+		logger.info("Sleep: "+miliSecond);
 	}
 	public Boolean isElementDisplay(WebElement element){
 		try {

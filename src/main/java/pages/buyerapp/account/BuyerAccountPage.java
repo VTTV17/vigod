@@ -126,4 +126,9 @@ public class BuyerAccountPage {
         logger.info("Login button show.");
         return this;
     }
+    public BuyerAccountPage changeLanguage(String lang){
+        new BuyerAccountPage(driver).clickLanguageBtn()
+                .changeLanguage(lang);
+        return new BuyerAccountPage(driver);
+    }
 }

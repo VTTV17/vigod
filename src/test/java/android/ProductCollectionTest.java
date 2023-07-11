@@ -1,4 +1,264 @@
 package android;
 
+import api.dashboard.login.Login;
+import api.dashboard.onlineshop.APIMenus;
+import api.dashboard.products.APIProductCollection;
+import api.dashboard.products.ProductCollection;
+import api.storefront.header.APIHeader;
+import com.google.j2objc.annotations.Weak;
+import io.appium.java_client.AppiumDriver;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import pages.buyerapp.NavigationBar;
+import pages.buyerapp.account.BuyerAccountPage;
+import pages.buyerapp.home.BuyerHomePage;
+import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
+import pages.sellerapp.HomePage;
+import pages.sellerapp.LoginPage;
+import pages.sellerapp.SellerAccount;
+import pages.sellerapp.product.SellerCreateCollection;
+import pages.sellerapp.product.SellerProductManagement;
+import pages.storefront.header.HeaderSF;
+import pages.storefront.productcollection.ProductCollectionSF;
+import utilities.PropertiesUtil;
+import utilities.UICommonMobile;
+import utilities.account.AccountTest;
+import utilities.data.DataGenerator;
+import utilities.driver.InitAppiumDriver;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+
+import java.util.List;
+import java.util.Map;
+
+import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
+
 public class ProductCollectionTest {
+    String sellerAppPackage;
+    String selelrAppActivity;
+    String buyerAppPackage;
+    String buyerAppActivity;
+    String language;
+    String userDb;
+    String passDb;
+    WebDriver driver;
+    DataGenerator generator;
+    Login loginAPI;
+    APIProductCollection productCollectAPI;
+    APIMenus apiMenus;
+    String[] productList;
+    String productTitleTxt;
+    String productPriceTxt;
+    String containsOperateTxt;
+    String equalToOperateProductTiteTxt;
+    String startWithOperateTxt;
+    String endsWithOperateTxt;
+    String greaterThanTxt;
+    String lessThanTxt;
+    String equalToOperateProductPriceTxt;
+    String condition;
+    String allConditionTxt;
+    String anyConditionTxt;
+    @BeforeClass
+    public void setUp() throws Exception {
+        sellerAppPackage = "com.mediastep.GoSellForSeller.STG";
+        selelrAppActivity = "com.mediastep.gosellseller.modules.credentials.login.LoginActivity";
+        buyerAppPackage = "com.mediastep.shop0037";
+        buyerAppActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
+        driver = launchApp(sellerAppPackage,selelrAppActivity);
+        language = "VIE";
+        PropertiesUtil.setEnvironment("STAG");
+        PropertiesUtil.setDBLanguage(language);
+        userDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
+        passDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
+        generator = new DataGenerator();
+        productTitleTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt");
+        productPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productPriceTxt");
+        containsOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.containsTxt");
+        equalToOperateProductTiteTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productTitleIsEqualToTxt");
+        startWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.startsWithTxt");
+        endsWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.endsWithTxt");
+        greaterThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isGeaterThanTxt");
+        lessThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isLessThanTxt");
+        equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
+        allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
+        anyConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
+
+    }
+    public AppiumDriver launchApp(String appPackage, String appActivity) throws Exception {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("udid", "R5CR92R4K7V");
+        capabilities.setCapability("platformName", "Android");
+        capabilities.setCapability("appPackage", appPackage);
+        capabilities.setCapability("appActivity", appActivity);
+        capabilities.setCapability("noReset", "false");
+        capabilities.setCapability("autoGrantPermissions","true");
+        String url = "http://127.0.0.1:4723/wd/hub";
+        return new InitAppiumDriver().getAppiumDriver(capabilities, url);
+    }
+    public HomePage loginSellerApp(){
+       return new LoginPage(driver).performLogin(userDb,passDb);
+    }
+    public SellerCreateCollection goToCreateCollection(){
+        new HomePage(driver).navigateToPage("Product");
+       return new SellerProductManagement(driver).tapOnProductColectionIcon()
+                .tapCreateCollectionIcon();
+    }
+    public HomePage changeLaguage(){
+        return new SellerAccount(driver).changeLanguage(language);
+    }
+    public void callLoginAPI() {
+        loginAPI = new Login();
+        loginAPI.loginToDashboardWithPhone("+84", userDb,passDb);
+    }
+
+    public void callCreateMenuItemParentAPI(String collectionName) {
+        callLoginAPI();
+        productCollectAPI = new APIProductCollection();
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
+        apiMenus = new APIMenus();
+        int menuID = new APIHeader().getCurrentMenuId();
+        apiMenus.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
+    }
+    public void goToCollectionPage(String collectionName) {
+        new BuyerHomePage(driver).clickOnMenuIcon().clickOnMenuItemByText(collectionName);
+    }
+    public void createAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
+        List<String> productExpectedList;
+        int countItemExpected;
+        callLoginAPI();
+        CreateProductCollection createProductCollection = new CreateProductCollection(driver);
+        if (conditions.length > 1) {
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(conditionType, conditions);
+            productExpectedList = (List<String>) productBelongCollectionMap.get("productExpectedList");
+            countItemExpected = (int) productBelongCollectionMap.get("CountItem");
+        } else if (conditions.length == 1) {
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(conditions[0]);
+            System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
+            productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
+            countItemExpected = (int) productBelongCollectionMap.get("CountItem");
+        } else {
+            throw new Exception("Missing conditions");
+        }
+        System.out.println("Product: " + productExpectedList);
+        loginSellerApp();
+        changeLaguage();
+        goToCreateCollection()
+                .createAutomatedCollection(collectionName,conditionType,condition)
+                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyQuantityNewest(countItemExpected)
+                .verifyCollectionNameNewest(collectionName)
+                .verifyCollectionTypeNewest("Automated")
+                .selectNewestCollection()
+                .verifyCollectionName(collectionName);
+    }
+    @Test
+    public void MPC01_VerifyTextByLanguage() throws Exception {
+        loginSellerApp();
+        changeLaguage();
+        new HomePage(driver).navigateToPage("Product");
+        new SellerProductManagement(driver).tapOnProductColectionIcon()
+                .verifyText().tapCreateCollectionIcon().verifyText();
+    }
+    @Test
+    public void MPC02_CreateManualCollectionWithNoProduct() throws Exception {
+        String collectionName = "Collection no product "+ generator.randomNumberGeneratedFromEpochTime(10);
+        loginSellerApp();
+        changeLaguage();
+        goToCreateCollection()
+                .inputCollectionName(collectionName)
+                .selectImage()
+                .tapSaveIcon()
+                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyCollectionNameNewest(collectionName)
+                .verifyCollectionTypeNewest("Manually")
+                .selectNewestCollection()
+                .verifyCollectionName(collectionName);
+    }
+    @Test
+    public void MPC03_CreateManualCollection_HasProduct_NoPriotity(){
+        String collectionName = "Collection has product "+ generator.randomNumberGeneratedFromEpochTime(10);
+        productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
+                "Kem Rửa Mặt Hada Labo Sạch Sâu Dưỡng Ẩm 80g Advanced Nourish Hyaluronic Acid Cleanser",
+                "Kem Dưỡng Gilaa Khổ Qua & B5 Phục Hồi Giảm Mụn 50ml Bitter Melon Blemish Repair Cream",
+                "Kem Chống Nắng Aprilskin Nâng Tông Dưỡng Ẩm Da SPF 50+ 38g Tone Up Skin Tint"};
+        loginSellerApp();
+        changeLaguage();
+        goToCreateCollection()
+                .inputCollectionName(collectionName)
+                .selectImage()
+                .selectProductsWithKeyword(productList)
+                .tapSaveIcon()
+                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyQuantityNewest(productList.length)
+                .verifyCollectionNameNewest(collectionName)
+                .verifyCollectionTypeNewest("Manually")
+                .selectNewestCollection()
+                .verifyCollectionName(collectionName);
+    }
+    @Test
+    public void MPC04_CreateManualCollection_HasProduct_HasPrioity(){
+        String collectionName = "Collection has priority product "+ generator.randomNumberGeneratedFromEpochTime(10);
+        productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
+                "Kem Rửa Mặt Hada Labo Sạch Sâu Dưỡng Ẩm 80g Advanced Nourish Hyaluronic Acid Cleanser",
+                "Kem Dưỡng Gilaa Khổ Qua & B5 Phục Hồi Giảm Mụn 50ml Bitter Melon Blemish Repair Cream",
+                "Kem Chống Nắng Aprilskin Nâng Tông Dưỡng Ẩm Da SPF 50+ 38g Tone Up Skin Tint"};
+        loginSellerApp();
+        changeLaguage();
+        goToCreateCollection()
+                .inputCollectionName(collectionName)
+                .selectImage()
+                .selectProductsWithKeyword(productList)
+                .inputPriority(true,false);
+        new SellerCreateCollection(driver).tapSaveIcon()
+                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyQuantityNewest(productList.length)
+                .verifyCollectionNameNewest(collectionName)
+                .verifyCollectionTypeNewest("Manually")
+                .selectNewestCollection()
+                .verifyCollectionName(collectionName);
+    }
+    @Test
+    public void MPC05_CreateAutomationCollection_ProductTitleContainsKeyword() throws Exception {
+        String collectionName = "Collection product title contains keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productTitleTxt+"-"+containsOperateTxt+"-Gilaa";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
+    @Test
+    public void MPC06_CreateAutomationCollection_ProductTitleEqualKeyword() throws Exception {
+        String collectionName = "Collection product title equals keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productTitleTxt+"-"+equalToOperateProductTiteTxt+"-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
+    @Test
+    public void MPC07_CreateAutomationCollection_ProductTitleStartWithKeyword() throws Exception {
+        String collectionName = "Collection product title start with keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productTitleTxt+"-"+startWithOperateTxt+"-Kem Dưỡng";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
+    @Test
+    public void MPC08_CreateAutomationCollection_ProductTitleEndWithKeyword() throws Exception {
+        String collectionName = "Collection product title ends with keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
+    @Test
+    public void MPC09_CreateAutomationCollection_ProductPriceGreaterKeyword() throws Exception {
+        String collectionName = "Collection product price greater keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
+    @Test
+    public void MPC10_CreateAutomationCollection_ProductPriceLessKeyword() throws Exception {
+        String collectionName = "Collection product price less than keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productPriceTxt+"-"+lessThanTxt+"-100000";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
+    @Test
+    public void MPC11_CreateAutomationCollection_ProductPriceEqualKeyword() throws Exception {
+        String collectionName = "Collection product price equal keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        condition = productPriceTxt+"-"+equalToOperateProductPriceTxt+"-328000";
+        createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
+    }
 }
