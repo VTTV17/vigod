@@ -82,7 +82,6 @@ public class SignupPage {
     public SignupPage inputCountryCodeToSearchBox(String country) {
     	commonAction.getElement(COUNTRY_SEARCHBOX).sendKeys(country);
     	logger.info("Input Country code: " + country);
-    	commonAction.sleepInMiliSecond(500);
     	return this;
     }    
     
@@ -92,11 +91,25 @@ public class SignupPage {
     	inputCountryCodeToSearchBox(country);
     	
     	for (int i=0; i<6; i++) {
-    		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
     		commonAction.sleepInMiliSecond(500);
+    		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
     	}
     	
     	commonAction.clickElement(COUNTRY_SEARCHRESULT);
+    	
+    	//Sometimes the element is still present. The code below helps handle this intermittent issue
+    	boolean isElementPresent = true;
+    	for (int i=0; i<3; i++) {
+    		if (commonAction.getElements(COUNTRY_SEARCHRESULT).size() == 0) {
+    			isElementPresent = false;
+    			break;
+    		}
+    		commonAction.sleepInMiliSecond(500);
+    	}
+    	if (isElementPresent) {
+    		commonAction.clickElement(COUNTRY_SEARCHRESULT);
+    	}
+    	
     	logger.info("Selected country: " + country);
     	return this;
     }        

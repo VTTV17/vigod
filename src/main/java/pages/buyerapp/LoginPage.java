@@ -6,11 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import org.testng.Assert;
-import pages.storefront.GeneralSF;
 import utilities.UICommonMobile;
 
 public class LoginPage {
@@ -98,10 +95,25 @@ public class LoginPage {
     public LoginPage clickPhoneTab() {
         commonAction.clickElement(PHONE_TAB);
         logger.info("Clicked on Phone tab.");
+        commonAction.sleepInMiliSecond(1000); //Click on Phone tab => Username field is not properly located
         return this;
     }
     public LoginPage clickForgotPasswordLink() {
     	commonAction.clickElement(FORGOTPASSWORD, defaultTimeout);
+    	
+    	//Sometimes the element is still present. The code below helps handle this intermittent issue
+    	boolean isElementPresent = true;
+    	for (int i=0; i<3; i++) {
+    		if (commonAction.getElements(FORGOTPASSWORD).size() == 0) {
+    			isElementPresent = false;
+    			break;
+    		}
+    		commonAction.sleepInMiliSecond(500);
+    	}
+    	if (isElementPresent) {
+    		commonAction.clickElement(FORGOTPASSWORD);
+    	}
+    	
     	logger.info("Clicked on 'Forgot Password' link text.");
         return this;
     }    
