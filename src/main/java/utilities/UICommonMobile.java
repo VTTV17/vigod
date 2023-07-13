@@ -261,4 +261,8 @@ public class UICommonMobile extends UICommonAction {
 		System.out.println("PercentX: "+percentXEl);
 		tapByCoordinatesInPercent(percentXEl,percentOptionY);
 	}
+
+	public boolean isElementChecked(By locator) {
+		return getElement(locator).getAttribute("checked").equals("true");
+	}
 }
