@@ -163,11 +163,17 @@ public class Cashbook {
 	}
 	
 	public List<String> getSpecificRecord(int index) {
+		//Wait until records are present
 		for (int i=0; i<6; i++) {
 			if (!CASHBOOK_RECORDS.isEmpty()) break;
 			commonAction.sleepInMiliSecond(500);
 		}
 		
+		/*
+		 * Loop through the columns of the specific record
+		 * and store data of the column into an array.
+		 * Retry the process when StaleElementReferenceException occurs
+		 */
 		try {
 			List<String> rowData = new ArrayList<>();
 			for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {

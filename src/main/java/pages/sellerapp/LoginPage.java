@@ -103,7 +103,7 @@ public class LoginPage {
     }
 
     public boolean isTermAgreementChecked() {
-        boolean isChecked = commonAction.getElement(TERM_CHECKBOX, defaultTimeout).getAttribute("checked").equals("true");
+        boolean isChecked = commonAction.isElementChecked(TERM_CHECKBOX);
         logger.info("Is Term Agreement checkbox checked: " + isChecked);
         return isChecked;
     }
