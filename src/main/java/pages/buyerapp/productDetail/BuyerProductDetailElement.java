@@ -22,7 +22,8 @@ public class BuyerProductDetailElement {
     By FILTER_BRANCH_ICON = By.xpath("//*[contains(@resource-id, 'iv_select_branch_filter')]");
     By SEARCH_BRANCH_ICON = By.xpath("//*[contains(@resource-id, 'iv_show_search_branch')]");
     By PRODUCT_DESCRIPTION_TAB = By.xpath("//*[contains(@resource-id, 'activity_market_shop_profile_tabLayout')]//*[contains(@resource-id, 'product_detail_content_include_tabs_1')]");
-    By PRODUCT_DESCRIPTION_CONTENT = By.xpath("//*[contains(@resource-id, 'activity_item_details_desc')]//android.widget.TextView");
+    By PRODUCT_DESCRIPTION_CONTENT = By.xpath("//*[contains(@resource-id, 'activity_item_details_desc')]/*/*/*/*/*/android.widget.TextView");
+
     By ADD_TO_CART_ICON = By.xpath("//*[contains(@resource-id, 'ivIconAddToCart')]");
     By ADD_TO_CART_POPUP_LISTING_PRICE = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_tv_product_original_price')]");
     By ADD_TO_CART_POPUP_SELLING_PRICE = By.xpath("//*[contains(@resource-id, 'product_detail_content_popup_variation_tv_product_price')]");

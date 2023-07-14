@@ -71,7 +71,7 @@ public class SignupPage extends GeneralSF {
     @FindBy(css = "#signup-dob")
     WebElement BIRTHDAY;
 
-    @FindBy(css = "#getListElementId-email")
+    @FindBy(css = "#get-email")
     WebElement EMAIL_TEXTBOX;
 
     @FindBy(css = "#signup-password")
@@ -80,10 +80,10 @@ public class SignupPage extends GeneralSF {
     @FindBy(css = "#signup-modal [data-target='#login-modal']")
     WebElement LOGIN_NOW_LINKTEXT;
 
-    @FindBy(id = "getListElementId-email-skip")
+    @FindBy(id = "get-email-skip")
     WebElement LATER_LINKTEXT;    
     
-    @FindBy(css = "#frm-getListElementId-email .btn-submit")
+    @FindBy(css = "#frm-get-email .btn-submit")
     WebElement COMPLETE_BTN;
 
     @FindBy(css = "#frm-signup .btn-submit")

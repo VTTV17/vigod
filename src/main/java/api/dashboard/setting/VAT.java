@@ -20,7 +20,7 @@ public class VAT {
         // init tax information model
         TaxInfo info = new TaxInfo();
 
-        // getListElementId tax information from API
+        // get tax information from API
         String API_TAX_LIST_PATH = "/storeservice/api/tax-settings/store/%s";
         Response taxResponse = new API().get(API_TAX_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         taxResponse.then().statusCode(200);
@@ -28,7 +28,7 @@ public class VAT {
         // set tax list
         info.setTaxID(taxResponse.jsonPath().getList("id"));
 
-        // getListElementId tax rate
+        // get tax rate
         List<Float> taxRate = taxResponse.jsonPath().getList("rate");
         IntStream.range(0, taxRate.size()).filter(i -> taxRate.get(i) == null).forEachOrdered(i -> taxRate.set(i, 0F));
         //set tax rate

@@ -17,10 +17,10 @@ public class BranchManagement {
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
     
     JsonPath getBranchInfoResponseJsonPath() {
-        // getListElementId login dashboard information
+        // get login dashboard information
         LoginDashboardInfo loginInfo = new Login().getInfo();
 
-        // getListElementId all branches response
+        // get all branches response
         Response branchRes = new API().get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         branchRes.then().statusCode(200);
         return branchRes.jsonPath();
@@ -38,10 +38,10 @@ public class BranchManagement {
 //        apiCountryCode = getBranchInfoResponseJsonPath().getList("countryCode");
 //        apiIsDefaultBranch = getBranchInfoResponseJsonPath().getList("default");
 //        apiIsHideOnStoreFront = getBranchInfoResponseJsonPath().getList("hideOnStoreFront");
-//        IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.getListElementId(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
+//        IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.get(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
 //        apiAllBranchStatus = getBranchInfoResponseJsonPath().getList("branchStatus");
 //        apiActiveBranches = new ArrayList<>();
-//        IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.getListElementId(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.getListElementId(i)));
+//        IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.get(i)));
 //
 //    }
 
@@ -49,7 +49,7 @@ public class BranchManagement {
         // init branch info model
         BranchInfo brInfo = new BranchInfo();
 
-        // using API to getListElementId branch information
+        // using API to get branch information
         JsonPath resPath = getBranchInfoResponseJsonPath();
 
         // set branch index
@@ -94,7 +94,7 @@ public class BranchManagement {
 
         // init temp active branch
         List<String> activeBranches = new ArrayList<>();
-        // getListElementId temp active branch
+        // get temp active branch
         IntStream.range(0, brInfo.getAllBranchStatus().size()).filter(i -> brInfo.getAllBranchStatus().get(i).equals("ACTIVE")).forEach(i -> activeBranches.add(brInfo.getBranchName().get(i)));
         // set active branches list
         brInfo.setActiveBranches(activeBranches);
@@ -104,11 +104,11 @@ public class BranchManagement {
     }
 
     private void updateBranchInfo(int brID, boolean isDefault, boolean hideOnStoreFront, String branchStatus) {
-        // getListElementId branch information
+        // get branch information
         BranchInfo brInfo = getInfo();
         int index = brInfo.getBranchID().indexOf(brID);
 
-        // getListElementId login information
+        // get login information
         LoginDashboardInfo loginInfo = new Login().getInfo();
 
         String body = """
@@ -148,7 +148,7 @@ public class BranchManagement {
     }
 
     public void inactiveAllPaidBranches() {
-        // getListElementId current branch information
+        // get current branch information
         BranchInfo brInfo = getInfo();
 
         // inactive all paid branches
@@ -156,7 +156,7 @@ public class BranchManagement {
     }
 
     public void activeAndShowAllPaidBranchesOnShopOnline() {
-        // getListElementId current branch information
+        // get current branch information
         BranchInfo brInfo = getInfo();
 
         // active and show all paid branches on shop online
@@ -164,7 +164,7 @@ public class BranchManagement {
     }
 
     public BranchManagement hideFreeBranchOnShopOnline() {
-        // getListElementId current branch information
+        // get current branch information
         BranchInfo brInfo = getInfo();
 
         // hide free branch on shop online
@@ -172,7 +172,7 @@ public class BranchManagement {
         return this;
     }
     public BranchManagement showFreeBranchOnShopOnline() {
-        // getListElementId current branch information
+        // get current branch information
         BranchInfo brInfo = getInfo();
 
         // show free branch on shop online

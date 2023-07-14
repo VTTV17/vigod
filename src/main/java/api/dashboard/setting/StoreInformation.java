@@ -13,12 +13,12 @@ public class StoreInformation {
     String API_STORE_INFO_PATH = "/storeservice/api/stores/%s";
     String API_STORE_LANGUAGE_PATH = "/storeservice/api/store-language/store/%s/all";
     public StoreInfo getInfo() {
-        // getListElementId login dashboard information
+        // get login dashboard information
         LoginDashboardInfo loginInfo = new Login().getInfo();
 
         // init store info model
         StoreInfo storeInfo = new StoreInfo();
-        // getListElementId storeURL
+        // get storeURL
         Response storeRes = new API().get(API_STORE_INFO_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         storeRes.then().statusCode(200);
 
@@ -31,7 +31,7 @@ public class StoreInformation {
         // set store default language
         storeInfo.setDefaultLanguage(storeRes.jsonPath().getString("countryCode").equals("VN") ? "vi" : "en");
 
-        // getListElementId store language list
+        // get store language list
         Response languageRes = new API().get(API_STORE_LANGUAGE_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         languageRes.then().statusCode(200);
         List<Boolean> publishLangList = languageRes.jsonPath().getList("published");

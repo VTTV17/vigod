@@ -173,7 +173,7 @@ public class EditServiceAPI {
                 }""";
         editServiceBody.append("""
                     "models": [""");
-        if(locations == null && times == null){ // no update model: getListElementId old data
+        if(locations == null && times == null){ // no update model: get old data
             List<String> names = serviceInfoRes.jsonPath().getList("models.orgName");
             List<String> orgPrices = serviceInfoRes.jsonPath().getList("models.orgPrice");
             List<String> newPrices = serviceInfoRes.jsonPath().getList("models.newPrice");
@@ -184,7 +184,7 @@ public class EditServiceAPI {
                     editServiceBody.append("],");
                 } else editServiceBody.append(",");
             }
-        }else { //has update model: getListElementId new data
+        }else { //has update model: get new data
             int discount = sellingPrice*100/ listingPrice;
             for (int i = 0; i < locations.length; i++) {
                 for (int j = 0; j < times.length; j++) {

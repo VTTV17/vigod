@@ -77,7 +77,7 @@ public class BuyerHomePage extends BuyerHomeElement {
             // wait list product visible
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
 
-            // getListElementId product element
+            // get product element
             while (productElement == null) {
                 commonMobile.swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
                 productElement = getProductElement();

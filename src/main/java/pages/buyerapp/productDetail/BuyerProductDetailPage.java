@@ -13,7 +13,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import pages.buyerapp.NavigationBar;
 import pages.buyerapp.BuyerGeneral;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.shopcart.BuyerShopCartPage;
@@ -252,9 +251,10 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String dbDescription = productInfo.getProductDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // get SF product description
-        String adrDescription = (dbDescription.length() > 1) ? commonMobile.moveAndGetElement(PRODUCT_NAME, PRODUCT_DESCRIPTION_CONTENT).getText() : "";
-
-        countFail = new AssertCustomize(driver).assertTrue(countFail, adrDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, adrDescription));
+        if (dbDescription.length() > 1) {
+            String adrDescription = commonMobile.moveAndGetElement(PRODUCT_NAME, PRODUCT_DESCRIPTION_CONTENT).getText();
+            countFail = new AssertCustomize(driver).assertTrue(countFail, adrDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, adrDescription));
+        }
         logger.info("[Check description] Check product description is shown correctly.");
     }
 
@@ -483,35 +483,39 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
     }
 
-    public BuyerShopCartPage buyNowProduct(int quantity){
+    public BuyerShopCartPage buyNowProduct(int quantity) {
         commonMobile.clickElement(BUY_NOW_BTN);
-        if(!commonMobile.getText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))){
+        if (!commonMobile.getText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))) {
             commonMobile.inputText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
         }
         commonMobile.clickElement(BUY_NOW_POPUP_BUY_BTN);
         return new BuyerShopCartPage(driver).waitLoadingDisapear();
     }
-    public BuyerProductDetailPage addToCart(int quantity){
+
+    public BuyerProductDetailPage addToCart(int quantity) {
         commonMobile.clickElement(ADD_TO_CART_ICON);
-        if(!commonMobile.getText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))){
+        if (!commonMobile.getText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))) {
             commonMobile.inputText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
         }
         commonMobile.clickElement(ADD_TO_CART_POPUP_ADD_BTN);
         logger.info("Add product to cart");
         return this;
     }
-    public BuyerShopCartPage tapOnShoppingCart(){
+
+    public BuyerShopCartPage tapOnShoppingCart() {
         commonMobile.clickElement(CART_ICON);
         logger.info("Tap on Shopping cart icon.");
         return new BuyerShopCartPage(driver);
     }
-    public BuyerShopCartPage addProductToCartAndGoToShoppingCart(int quantity){
+
+    public BuyerShopCartPage addProductToCartAndGoToShoppingCart(int quantity) {
         addToCart(quantity);
         commonMobile.sleepInMiliSecond(3000);
         tapOnShoppingCart();
         return new BuyerShopCartPage(driver).waitLoadingDisapear();
     }
-    public BuyerShopCartPage goToShopCartByBackIcon(){
+
+    public BuyerShopCartPage goToShopCartByBackIcon() {
         new BuyerGeneral(driver).clickOnBackIcon().tapCancelSearch();
         new NavigationBar(driver).tapOnCartIcon();
         return new BuyerShopCartPage(driver);
