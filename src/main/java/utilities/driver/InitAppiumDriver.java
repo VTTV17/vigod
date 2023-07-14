@@ -28,7 +28,10 @@ public class InitAppiumDriver {
         capabilities.setCapability("platformName", platformName);
         capabilities.setCapability("appPackage", appPackage);
         capabilities.setCapability("appActivity", appActivity);
+		capabilities.setCapability("newCommandTimeout", 300000);
         capabilities.setCapability("noReset", "false");
+		capabilities.setCapability("fastReset", "true");
+		capabilities.setCapability("resetOnSessionStartOnly", "true");
 
         String platformNameFromCapacity = capabilities.getCapability("platformName").toString();
 		if (platformNameFromCapacity.equalsIgnoreCase("android")) {

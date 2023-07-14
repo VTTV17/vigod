@@ -30,7 +30,7 @@ public class UpdateProductTest extends BaseTest {
         tcsFileName = "check_product_detail_sf/Update product.xlsx".replace("/", File.separator);
     }
 
-    @BeforeGroups(groups = "Normal product - Without variation")
+    @BeforeGroups(groups = "[UPDATE] Normal product - Without variation")
     void preCondition_G1() {
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -42,7 +42,7 @@ public class UpdateProductTest extends BaseTest {
         System.out.println(productID);
     }
 
-    @BeforeGroups(groups = "IMEI product - Without variation")
+    @BeforeGroups(groups = "[UPDATE] IMEI product - Without variation")
     void preCondition_G2() {
         boolean isIMEIProduct = true;
         int branchStock = 2;
@@ -53,7 +53,7 @@ public class UpdateProductTest extends BaseTest {
                 .getProductID();
     }
 
-    @BeforeGroups(groups = "Normal product - Variation")
+    @BeforeGroups(groups = "[UPDATE] Normal product - Variation")
     void preCondition_G3() {
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -64,7 +64,7 @@ public class UpdateProductTest extends BaseTest {
                     .getProductID();
     }
 
-    @BeforeGroups(groups = "IMEI product - Variation")
+    @BeforeGroups(groups = "[UPDATE] IMEI product - Variation")
     void preCondition_G4() {
         boolean isIMEIProduct = true;
         int branchStock = 2;
@@ -76,7 +76,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     // G1: Normal product - without variation
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // stockQuantity > 0
@@ -95,7 +95,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stock quantity = 0
@@ -114,7 +114,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity > 0
@@ -134,7 +134,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity = 0
@@ -154,7 +154,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_05_EditTranslation() throws Exception {
         testCaseId = "UP_PRODUCT_G1_05";
 
@@ -166,7 +166,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_06_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G1_06";
 
@@ -178,7 +178,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_07_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G1_07";
 
@@ -190,7 +190,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Without variation")
+    @Test(groups = "[UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_08_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G1_08";
 
@@ -204,7 +204,7 @@ public class UpdateProductTest extends BaseTest {
 
 
     // G2: IMEI product - without variation
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // stockQuantity > 0
@@ -224,7 +224,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stock quantity = 0
@@ -244,7 +244,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity > 0
@@ -264,7 +264,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity = 0
@@ -285,7 +285,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
 
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_05_EditTranslation() throws Exception {
         testCaseId = "UP_PRODUCT_G2_05";
         new ProductPage(driver).setLanguage(language).editTranslation(productID);
@@ -296,7 +296,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_06_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G2_06";
 
@@ -308,7 +308,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_07_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G2_07";
 
@@ -320,7 +320,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
 
-    @Test(groups = "IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_08_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G2_08";
 
@@ -330,8 +330,8 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    // G3: Normal product - Variation
-    @Test(groups = "Normal product - Variation")
+    // G3: [UPDATE] Normal product - Variation
+    @Test(groups = "[UPDATE] Normal product - Variation")
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // all variations stock quantity > 0
@@ -352,7 +352,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // one of variation stock quantity = 0
@@ -373,7 +373,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // all variations stock quantity = 0
@@ -394,7 +394,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity > 0
@@ -415,7 +415,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // one of variation stock quantity = 0
@@ -437,7 +437,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity = 0
@@ -458,7 +458,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_07_EditTranslationForMainProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G3_07";
 
@@ -470,7 +470,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_08_EditTranslationForEachVariation() throws Exception {
         testCaseId = "UP_PRODUCT_G3_08";
 
@@ -482,7 +482,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_09_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G3_09";
 
@@ -494,7 +494,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_10_ChangeVariationStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G3_10";
 
@@ -503,7 +503,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_11_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G3_11";
 
@@ -514,7 +514,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "Normal product - Variation")
+    @Test(groups = "[UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_12_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G3_12";
 
@@ -523,8 +523,8 @@ public class UpdateProductTest extends BaseTest {
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    // G4: IMEI product - Variation
-    @Test(groups = "IMEI product - Variation")
+    // G4: [UPDATE] IMEI product - Variation
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     // Pre-condition:
     // setting: check Display if out of stock checkbox
     // all variations stock quantity > 0
@@ -544,7 +544,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // one of variation stock quantity = 0
@@ -565,7 +565,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // all variations stock quantity = 0
@@ -586,7 +586,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity > 0
@@ -607,7 +607,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // one of variation stock quantity = 0
@@ -628,7 +628,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity = 0
@@ -649,7 +649,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_07_EditTranslationForMainProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G4_07";
 
@@ -661,7 +661,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_08_EditTranslationForEachVariation() throws Exception {
         testCaseId = "UP_PRODUCT_G4_08";
 
@@ -673,7 +673,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_09_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G4_09";
 
@@ -685,7 +685,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_10_ChangeVariationStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G4_10";
 
@@ -696,7 +696,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_11_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G4_11";
 
@@ -705,7 +705,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
 
-    @Test(groups = "IMEI product - Variation")
+    @Test(groups = "[UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_12_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G4_12";
 

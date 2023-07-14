@@ -16,7 +16,7 @@ public class BuyerProductDetailElement {
     By SELLING_PRICE = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_promotion_price')]");
     By CONVERSION_UNIT_TITLE = By.xpath("//*[contains(@resource-id, 'htvConversationUnit')]/preceding-sibling::*");
     By CONVERSION_UNIT_LIST = By.xpath("//*[contains(@resource-id, 'htvConversationUnit')]");
-    By VARIATION_NAME_LIST = By.xpath("//*[contains(@resource-id, '//*[contains(@resource-id, 'item_market_product_detail_desc_tv_variation')]')]");
+    By VARIATION_NAME_LIST = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_tv_variation')]");
     By VARIATION_VALUE_LIST = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_htv_variation')]//*[contains(@resource-id, 'text')]");
     By BRANCH_LIST = By.xpath("//*[contains(@resource-id, 'tv_branch_name')]");
     By FILTER_BRANCH_ICON = By.xpath("//*[contains(@resource-id, 'iv_select_branch_filter')]");
