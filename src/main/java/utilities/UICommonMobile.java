@@ -191,6 +191,9 @@ public class UICommonMobile extends UICommonAction {
 	public void clickElement(WebElement element) {
 		element.click();
 	}
+	public void click(By locator) {
+		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+	}
 
     public void waitSplashScreenLoaded() {
         new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
