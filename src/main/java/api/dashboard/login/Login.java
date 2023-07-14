@@ -110,7 +110,7 @@ public class Login {
      * @return The Login object with updated login information
      */
     public Login setDashboardLoginInfo(String country, String username, String password) {
-        Login.phoneCode = new DataGenerator().getCountryCode(country);
+        Login.phoneCode = new DataGenerator().getPhoneCode(country);
         Login.account = username;
         Login.password = password;
         return this;

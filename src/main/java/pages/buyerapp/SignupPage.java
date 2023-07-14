@@ -41,6 +41,7 @@ public class SignupPage {
     By PASSWORD = By.xpath("//*[ends-with(@resource-id,'field') and contains(@resource-id,'password')]");
     By DISPLAYNAME = By.xpath("//*[ends-with(@resource-id,'displayName')]");
     By BIRTHDAY = By.xpath("//*[ends-with(@resource-id,'birthday')]");
+    By BIRTHDAY_OK_BTN = By.xpath("//*[ends-with(@resource-id,'ok')]");
     
     By TERM_CHK = By.xpath("//*[ends-with(@resource-id,'btn_check_term_and_policy')]");
     By CONTINUE_BTN = By.xpath("//*[ends-with(@resource-id,'submit') or ends-with(@resource-id,'check_email')]");
@@ -90,11 +91,25 @@ public class SignupPage {
     	inputCountryCodeToSearchBox(country);
     	
     	for (int i=0; i<6; i++) {
-    		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
     		commonAction.sleepInMiliSecond(500);
+    		if (commonAction.getText(COUNTRY_SEARCHRESULT).contentEquals(country)) break;
     	}
     	
     	commonAction.clickElement(COUNTRY_SEARCHRESULT);
+    	
+    	//Sometimes the element is still present. The code below helps handle this intermittent issue
+    	boolean isElementPresent = true;
+    	for (int i=0; i<3; i++) {
+    		if (commonAction.getElements(COUNTRY_SEARCHRESULT).size() == 0) {
+    			isElementPresent = false;
+    			break;
+    		}
+    		commonAction.sleepInMiliSecond(500);
+    	}
+    	if (isElementPresent) {
+    		commonAction.clickElement(COUNTRY_SEARCHRESULT);
+    	}
+    	
     	logger.info("Selected country: " + country);
     	return this;
     }        
@@ -110,7 +125,13 @@ public class SignupPage {
     	logger.info("Input '" + username + "' into Username field.");
         return this;
     }
-
+    
+    public String getUsernameFieldValue() {
+    	String text = commonAction.getText(new ByChained(USERNAME, TEXTBOX));
+    	logger.info("Retrieved Username field value: " + text);
+    	return text;
+    }    
+    
     public SignupPage inputPassword(String password) {
     	commonAction.inputText(new ByChained(PASSWORD, TEXTBOX), password);
     	logger.info("Input '" + password + "' into Password field.");
@@ -123,11 +144,37 @@ public class SignupPage {
     	return this;
     }
     
+    /**
+     * Simply clicks on birthday field
+     * @return
+     */
+    public SignupPage clickBirthday() {
+    	commonAction.clickElement(BIRTHDAY);
+    	logger.info("Clicked on Birthday field.");
+    	return this;
+    }
+    
+    /**
+     * Clicks on the OK button on birthday date picker dialog
+     * @return current object
+     */
+    public SignupPage clickBirthdayOKBtn() {
+    	commonAction.clickElement(BIRTHDAY_OK_BTN);
+    	logger.info("Clicked on OK button on Birthday date picker dialog.");
+    	return this;
+    }
+    
     public SignupPage inputBirthday(String birthday) {
     	commonAction.inputText(new ByChained(BIRTHDAY, TEXTBOX), birthday);
     	logger.info("Input '" + birthday + "' into Birthday field.");
     	return this;
     }
+
+	public String getBirthday() {
+		String value = commonAction.getText(new ByChained(BIRTHDAY, TEXTBOX));
+		logger.info("Retrieved Birthday: " + value);
+		return value;
+	}   
     
     public SignupPage clickAgreeTermBtn() {
     	commonAction.clickElement(TERM_CHK);
@@ -172,14 +219,9 @@ public class SignupPage {
     }    
 
     public String getVerificationCodeError() {
+    	commonAction.sleepInMiliSecond(1500); // Sometimes it takes longer for the error to appear
     	String text = commonAction.getText(new ByChained(VERIFICATIONCODE, By.xpath("//*[contains(@class,'TextView')]")));
     	logger.info("Retrieved error for verification field: " + text);
-    	return text;
-    }    
-    
-    public String getToastMessage() {
-    	String text = commonAction.getText(TOASTMESSAGE);
-    	logger.info("Retrieved toast message: " + text);
     	return text;
     }    
     

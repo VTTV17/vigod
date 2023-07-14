@@ -1,7 +1,9 @@
 package utilities;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.StartsActivity;
 import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -294,4 +296,57 @@ public class UICommonMobile extends UICommonAction {
 		throw new NoSuchElementException ("No element is found!!!");
     }
 
+	public void waitListElementVisible(By locator) {
+		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+
+	public double getElementLocationYPercent(WebElement element){
+		int y = element.getLocation().getY();
+		Dimension size = driver.manage().window().getSize();
+		double percentY =(double)y/size.height;
+		return percentY;
+	}
+	public void swipeHorizontalInPercent(WebElement element,double startX, double endX) {
+		double y = getElementLocationYPercent(element);
+		swipeByCoordinatesInPercent(startX,y,endX,y);
+	}
+	public void restartAppKeepLogin(String appPackage, String appActivity){
+		Activity activity = new Activity(appPackage,appActivity);
+        activity.setStopApp(false);
+        ((StartsActivity) driver).startActivity(activity);
+        new UICommonMobile(driver).waitSplashScreenLoaded();
+	}
+	public void inputText(List<WebElement> element, int index, String text) {
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			element.get(index).sendKeys(text);
+		} catch (StaleElementReferenceException | TimeoutException ex) {
+			if (ex instanceof StaleElementReferenceException) {
+				logger.debug("StaleElementReferenceException caught in inputText");
+			} else {
+				logger.debug("TimeoutException caught in inputText");
+			}
+			element = refreshElement(element.get(index));
+			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			doubleClickElement(element.get(index));
+			element.get(index).sendKeys(text);
+		}
+	}
+	public void selectDropdownOption(WebElement element, int index){
+		int y = element.getLocation().getY();
+		int x = element.getLocation().getX();
+		System.out.println("X: "+x);
+		Dimension size = driver.manage().window().getSize();
+		double percentYEl = (double)y/size.height;
+		double percentXEl = (double)x/size.width+0.1;
+		double distanceOptionPercent = 0.044;
+		double percentOptionY = percentYEl+(distanceOptionPercent*index) + distanceOptionPercent/2;
+		System.out.println("PercentY: "+percentOptionY);
+		System.out.println("PercentX: "+percentXEl);
+		tapByCoordinatesInPercent(percentXEl,percentOptionY);
+	}
+
+	public boolean isElementChecked(By locator) {
+		return getElement(locator).getAttribute("checked").equals("true");
+	}
 }

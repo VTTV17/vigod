@@ -410,10 +410,19 @@ public class UICommonAction {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+		logger.info("Sleep: "+miliSecond);
 	}
 	public Boolean isElementDisplay(WebElement element){
 		try {
 			return element.isDisplayed();
+		}catch (Exception e){
+			logger.debug("Element not display: "+e.getMessage());
+			return false;
+		}
+	}
+	public Boolean isElementDisplay(By by){
+		try {
+			return getElement(by).isDisplayed();
 		}catch (Exception e){
 			logger.debug("Element not display: "+e.getMessage());
 			return false;
@@ -485,5 +494,4 @@ public class UICommonAction {
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
-
 }

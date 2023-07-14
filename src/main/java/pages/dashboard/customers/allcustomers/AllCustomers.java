@@ -150,6 +150,7 @@ public class AllCustomers extends HomePage{
 	}
 
 	public AllCustomers selectBranch(String branch) {
+		new HomePage(driver).hideFacebookBubble();
 		clickFilterIcon();
 		clickBranchList();
 		commonAction.clickElement(BRANCH_FIELD.findElement(By.xpath("//div[@class='uik-select__label' and text()='%s']".formatted(branch))));
@@ -160,6 +161,7 @@ public class AllCustomers extends HomePage{
 	}
 
 	public AllCustomers clickUser(String user) {
+		new HomePage(driver).hideFacebookBubble();
 		String xpath = "//div[@class='full-name' and text()='%s']".formatted(user);
 		commonAction.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
 		logger.info("Clicked on user: " + user);

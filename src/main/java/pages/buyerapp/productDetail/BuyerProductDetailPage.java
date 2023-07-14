@@ -14,6 +14,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.buyerapp.NavigationBar;
+import pages.buyerapp.BuyerGeneral;
+import pages.buyerapp.NavigationBar;
+import pages.buyerapp.shopcart.BuyerShopCartPage;
 import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
@@ -478,5 +481,39 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             new ProductPage(driver).setCountFail();
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
+    }
+
+    public BuyerShopCartPage buyNowProduct(int quantity){
+        commonMobile.clickElement(BUY_NOW_BTN);
+        if(!commonMobile.getText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))){
+            commonMobile.inputText(BUY_NOW_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
+        }
+        commonMobile.clickElement(BUY_NOW_POPUP_BUY_BTN);
+        return new BuyerShopCartPage(driver).waitLoadingDisapear();
+    }
+    public BuyerProductDetailPage addToCart(int quantity){
+        commonMobile.clickElement(ADD_TO_CART_ICON);
+        if(!commonMobile.getText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX).equals(String.valueOf(quantity))){
+            commonMobile.inputText(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX, String.valueOf(quantity));
+        }
+        commonMobile.clickElement(ADD_TO_CART_POPUP_ADD_BTN);
+        logger.info("Add product to cart");
+        return this;
+    }
+    public BuyerShopCartPage tapOnShoppingCart(){
+        commonMobile.clickElement(CART_ICON);
+        logger.info("Tap on Shopping cart icon.");
+        return new BuyerShopCartPage(driver);
+    }
+    public BuyerShopCartPage addProductToCartAndGoToShoppingCart(int quantity){
+        addToCart(quantity);
+        commonMobile.sleepInMiliSecond(3000);
+        tapOnShoppingCart();
+        return new BuyerShopCartPage(driver).waitLoadingDisapear();
+    }
+    public BuyerShopCartPage goToShopCartByBackIcon(){
+        new BuyerGeneral(driver).clickOnBackIcon().tapCancelSearch();
+        new NavigationBar(driver).tapOnCartIcon();
+        return new BuyerShopCartPage(driver);
     }
 }

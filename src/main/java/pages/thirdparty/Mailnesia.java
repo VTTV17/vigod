@@ -36,7 +36,7 @@ public class Mailnesia {
 	}
 
 	@FindBy(css = ".emailheader")
-	List<WebElement> EMAIL_HEADERS;
+	List<WebElement> EMAILS;
 
 	public Mailnesia navigate(String mail) {
 		String name = mail.split("@")[0];
@@ -84,15 +84,16 @@ public class Mailnesia {
 	 */
 
 	public String[][] getListOfEmailHeaders() {
-		String[][] headerContent = new String[EMAIL_HEADERS.size()][4]; //The 5th column displays a symbol so we exclude it.
-		for (int row = 0; row < EMAIL_HEADERS.size(); row++) {
-			List<WebElement> headerSegments = EMAIL_HEADERS.get(row).findElements(By.xpath("./td"));
+		int emailCount = EMAILS.size();
+		String[][] mailContent = new String[emailCount][4]; //The 5th column displays a symbol so we exclude it.
+		for (int row = 0; row < emailCount; row++) {
+			List<WebElement> headerSegments = EMAILS.get(row).findElements(By.xpath("./td"));
 			for (int column = 0; column < headerSegments.size() - 1; column++) { //The 5th column displays a symbol so we exclude it.
-				headerContent[row][column] = headerSegments.get(column).getText();
+				mailContent[row][column] = headerSegments.get(column).getText();
 			}
-			logger.info(Arrays.toString(headerContent[row]));
+			logger.info(Arrays.toString(mailContent[row]));
 		}
-		return headerContent;
+		return mailContent;
 	}
 
 }

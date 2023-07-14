@@ -32,14 +32,17 @@ public class InitAppiumDriver {
         capabilities.setCapability("noReset", "false");
 		capabilities.setCapability("fastReset", "true");
 		capabilities.setCapability("resetOnSessionStartOnly", "true");
+        return getAppiumDriver(capabilities, url);
+    }
 
-        String platformNameFromCapacity = capabilities.getCapability("platformName").toString();
-		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
-			return new AndroidDriver(new URL(url), capabilities);
-		} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
-			return new IOSDriver(new URL(url), capabilities);
-		} else {
-			throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
-		}
+    public AppiumDriver getAppiumDriver(DesiredCapabilities capabilities, String url) throws MalformedURLException {
+    	String platformNameFromCapacity = capabilities.getCapability("platformName").toString();
+    	if (platformNameFromCapacity.equalsIgnoreCase("android")) {
+    		return new AndroidDriver(new URL(url), capabilities);
+    	} else if(platformNameFromCapacity.equalsIgnoreCase("ios")) {
+    		return new IOSDriver(new URL(url), capabilities);
+    	} else {
+    		throw new IllegalArgumentException("Unknown platform: " + platformNameFromCapacity);
+    	}
     }
 }

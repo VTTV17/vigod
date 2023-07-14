@@ -129,7 +129,7 @@ public class ProductCollectionTest extends BaseTest {
     public void callCreateMenuItemParentAPI(String collectionName) {
         callLoginAPI();
         productCollectAPI = new APIProductCollection();
-        int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
         menu = new APIMenus();
         menu.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
     }
@@ -139,7 +139,7 @@ public class ProductCollectionTest extends BaseTest {
         menu = new APIMenus();
         menu.deleteMenuItem(menuID, collectionName);
         APIProductCollection productCollectAPI = new APIProductCollection();
-        int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
         APIProductCollection productCollection = new APIProductCollection();
         productCollection.deleteCollection(token, storeId, String.valueOf(collectIDNewest));
     }
@@ -169,7 +169,7 @@ public class ProductCollectionTest extends BaseTest {
     public void navigateToSFAndVerifyCollectionPage(String collectNameEdit, boolean hasSetPriority) throws Exception {
         callLoginAPI();
         APIProductCollection productCollectAPI = new APIProductCollection();
-        int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
         navigateSFAndGoToCollectionPage(collectNameEdit);
         List<String> productListSorted;
         APIAllProducts apiAllProducts = new APIAllProducts();
@@ -286,7 +286,7 @@ public class ProductCollectionTest extends BaseTest {
         //Check product collection on SF
         navigateSFAndGoToCollectionPage(collectionName);
         APIProductCollection productCollectAPI = new APIProductCollection();
-        int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
         System.out.println("collectIDNewest: " + collectIDNewest);
         APIAllProducts apiAllProducts = new APIAllProducts();
         List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
@@ -302,7 +302,7 @@ public class ProductCollectionTest extends BaseTest {
                 .verifyCollectionInfoAfterCreated(collectionName, productType, manuallyMode, String.valueOf(productList.length));
         callCreateMenuItemParentAPI(collectionName);
         productCollectAPI = new APIProductCollection();
-        collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        collectIDNewest = productCollectAPI.getNewestCollectionID();
         navigateSFAndGoToCollectionPage(collectionName);
         System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
@@ -327,7 +327,7 @@ public class ProductCollectionTest extends BaseTest {
         //Check product collection on SF
         callLoginAPI();
         APIProductCollection productCollectAPI = new APIProductCollection();
-        int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
         APIAllProducts apiAllProducts = new APIAllProducts();
         List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         navigateSFAndGoToCollectionPage(collectionName);
@@ -357,7 +357,6 @@ public class ProductCollectionTest extends BaseTest {
     @Test
     public void PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword() throws Exception {
         condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
-        System.out.println("Condition: "+condition);
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -434,7 +433,7 @@ public class ProductCollectionTest extends BaseTest {
         callCreateMenuItemParentAPI(collectionName);
         callLoginAPI();
         APIProductCollection productCollectAPI = new APIProductCollection();
-        int collectIDNewest = productCollectAPI.getNewestCollectionID(storeId, token);
+        int collectIDNewest = productCollectAPI.getNewestCollectionID();
         navigateSFAndGoToCollectionPage(collectionName);
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);

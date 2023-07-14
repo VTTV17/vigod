@@ -45,12 +45,11 @@ public class SignUp {
         guestToken = guestResponse.jsonPath().getString("accessToken");
     }
 
-    public void signUpByPhoneNumber(String... phone) throws SQLException {
+    public void signUpByPhoneNumber(String password, String... phone) {
         getGuestToken();
         customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
         String apiPhoneNumber = (phone.length > 0) ? phone[0] : String.valueOf(Instant.now().toEpochMilli());
         phoneCode = (phone.length > 1) ? phone[1] : "+84";
-        password = "Abc@12345";
         String signupBody = """
                 {
                     "displayName": "%s",
@@ -67,7 +66,12 @@ public class SignUp {
         String loginText = signUpResponse.jsonPath().getString("login");
         int userID = signUpResponse.jsonPath().getInt("id");
 
-        String activeCode = new InitConnection().getActivationKey(loginText);
+        String activeCode = null;
+        try {
+            activeCode = new InitConnection().getActivationKey(loginText);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         String activeBody = """
                 {
@@ -78,13 +82,9 @@ public class SignUp {
         new API().login("https://%s%s%s".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
     }
 
-    public void signUpByMail() throws InterruptedException {
+    public void signUpByMail(String apiMail, String password) {
         getGuestToken();
         customerName = "Auto - customer - " + new DataGenerator().generateDateTime("dd/MM hh:mm:ss");
-        String apiMail = "%s@qa.team".formatted(Instant.now().toEpochMilli());
-        password = "Abc@12345";
-        System.out.println(apiMail);
-        phoneCode = "+84";
         String signupBody = """
                 {
                      "displayName": "%s",
@@ -98,20 +98,12 @@ public class SignUp {
 
         int userID = signUpResponse.jsonPath().getInt("id");
 
-        // access to qa.team and get active code
-        WebDriver driver = new InitWebdriver().getDriver("chrome", "true");
-        sleep(5000);
-        driver.get("https://qa.team/inbox?code=%s".formatted(apiMail.split("@")[0]));
-        sleep(5000);
-        String activeCode;
+        String activeCode = "";
         try {
-            activeCode = driver.findElement(By.cssSelector("#messages > a:nth-child(1) > .subject")).getText().split(" ")[0];
-        } catch (NoSuchElementException ex) {
-            driver.get("https://qa.team/inbox?code=%s".formatted(apiMail.split("@")[0]));
-            sleep(5000);
-            activeCode = driver.findElement(By.cssSelector("#messages > a:nth-child(1) > .subject")).getText().split(" ")[0];
+            activeCode = new InitConnection().getActivationKey(apiMail);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        driver.quit();
 
         String activeBody = """
                 {

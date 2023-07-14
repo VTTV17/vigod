@@ -66,10 +66,34 @@ public class BuyerMyProfileElement {
     By OTHER_PHONE_POPUP_TITLE = By.xpath("//*[ends-with(@resource-id,'tvTitle')]");
     By OTHER_PHONE_INPUT_NAME = By.xpath("//*[ends-with(@resource-id,'edtName')]");
     By OTHER_PHONE_INPUT_PHONE = By.xpath("//*[ends-with(@resource-id,'edtPhoneNumber')]");
+    By OTHER_PHONE_PHONE_CODE = By.xpath("//*[ends-with(@resource-id,'tvPhoneCode')]");
+    By OTHER_PHONE_PHONE_CODE_LIST = By.xpath("//*[ends-with(@resource-id,'item_list_region_name')]");
     By OTHER_PHONE_ADD_BTN = By.xpath("//*[ends-with(@resource-id,'tvAdd')]");
     By OTHER_PHONE_POPUP_CLOSE_ICON = By.xpath("//*[ends-with(@resource-id,'ivClose')]");
+    By OTHER_PHONE_EMAIL_NAME_LIST = By.xpath("//*[ends-with(@resource-id,'tvTitle')]");
+    By OTHER_PHONE_EMAIL_LIST = By.xpath("//*[ends-with(@resource-id,'tvValue')]");
+    By OTHER_PHONE_EMAIL_DELETE_ICON = By.xpath("//*[ends-with(@resource-id,'rlDelete')]//android.widget.LinearLayout");
     By COUNTRY_HEADER_TITLE = By.xpath("//*[ends-with(@resource-id,'fragment_select_region_title')]");
     By COUNTRY_CLOSE_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_select_region_btn_close')]");
     By COUNTRY_LIST = By.xpath("//*[ends-with(@resource-id,'item_list_region_name')]");
+    By COUNTRY_CODE_HEADER_TITLE = By.xpath("//*[ends-with(@resource-id,'fragment_choose_country_code_list_layout_tv_title')]");
+    By COUNTRY_CODE_HEADER_BACK_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_choose_country_code_list_layout_toolbar')]/android.widget.ImageButton[1]");
+    By COUNTRY_CODE_HEADER_SEARCH_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_choose_country_code_list_layout_btn_search')]");
+    By COUNTRY_CODE_SEARCH_INPUT = By.xpath("//*[ends-with(@resource-id,'search_src_text')]");
+    By COUNTRY_CODE_LIST = By.xpath("//*[ends-with(@resource-id,'item_choose_country_code_list_tv_code')]");
+    By DATE_PICKER_OK_BTN = By.xpath("//*[ends-with(@resource-id,'ok')]");
+    By HEADER_BACK_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_general_edit_beecow_profile_toolbar')]/android.widget.ImageButton");
+    By ADD_OTHER_PHONE_ERROR = By.xpath("//*[ends-with(@resource-id,'tvErrorPhoneNumber')]");
+    By ADD_OTHER_EMAIL_ERROR = By.xpath("//*[ends-with(@resource-id,'tvErrorEmail')]");
+    By CURRENT_CHANGEPASSWORD = By.xpath("//*[ends-with(@resource-id,'current_password_field')]//*[ends-with(@resource-id,'social_layout_limit_edittext')]");
+    By NEW_CHANGEPASSWORD = By.xpath("//*[ends-with(@resource-id,'new_password_field')]//*[ends-with(@resource-id,'social_layout_limit_edittext')]");
+    By CHANGEPASSWORD_DONE_BTN = By.xpath("//*[ends-with(@resource-id,'change_password_btn_done')]");
+    By CURRENT_CHANGEPASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'change_password_tv_error_current_password')]");
+    By NEW_CHANGEPASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'change_password_tv_error_new_password')]");
+    By DELETE_ACCOUNT_POPUP_TITLE = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_title')]");
+    By DELETE_ACCOUNT_POPUP_MESSAGE = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_description')]");
+    By DELETE_ACCOUNT_POPUP_DELETE_BTN = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_positive_action')]");
+    By DELETE_ACCOUNT_POPUP_CANCEL_BTN = By.xpath("//*[ends-with(@resource-id,'fragment_dialog_confirmation_tv_negative_action')]");
+
 }
 
