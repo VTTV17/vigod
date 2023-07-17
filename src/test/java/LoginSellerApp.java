@@ -1,8 +1,10 @@
+import java.io.IOException;
 import java.sql.SQLException;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -20,6 +22,7 @@ import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
+import utilities.screenshot.Screenshot;
 
 
 public class LoginSellerApp {
@@ -32,6 +35,7 @@ public class LoginSellerApp {
 	DataGenerator generate;
 
 	JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
+	String MAIL_COUNTRY = data.findValue("seller").findValue("mail").findValue("country").asText();
 	String MAIL = data.findValue("seller").findValue("mail").findValue("username").asText();
 	String PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
 	String PHONE = data.findValue("seller").findValue("phone").findValue("username").asText();
@@ -47,41 +51,53 @@ public class LoginSellerApp {
 	String SELLER_FORGOT_PHONE_PASSWORD = data.findValue("seller").findValue("forgotPhone").findValue("password").asText();
 	String SELLER_FORGOT_PHONE_COUNTRY = data.findValue("seller").findValue("forgotPhone").findValue("country").asText();
 	
-	/**
-	 * This method retrieves a verification code for a given username. 
-	 * If the username is a valid email address, the method retrieves the verification code from Mailnesia.
-	 * Otherwise, it retrieves the code from a database.
-	 * @param username either an email address (tienvan@mailnesia.com) or a phone number (+84:0123456789)
-	 * @return the retrieved verification code as a String
-	 * @throws SQLException if there is an error retrieving the reset key from the database
-	 */
-	public String getVerificationCode(String username) throws SQLException {
-		String verificationCode;
-		if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
-			// Get verification code from Mailnesia
-			verificationCode = new Mailnesia(driverWeb).navigateToMailAndGetVerifyCode(username);
-		} else {
-			verificationCode = new InitConnection().getResetKey(username);
+	public String getResetCode(String phoneCode, String username) throws SQLException {
+		if (username.matches("\\d+")) {
+			return new InitConnection().getResetKey(phoneCode + ":" + username);
 		}
-		return verificationCode;
+		return new InitConnection().getResetKey(username);
 	}	
+
+	public String [][] getEmailContent(String username) {
+		driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
+		String [][] mailContent = new Mailnesia(driverWeb).navigate(username).getListOfEmailHeaders();
+		driverWeb.quit();
+		return mailContent;
+	}		
 	
     @BeforeClass
     public void setUp() throws Exception {
-        String udid = "RF8N20PY57D";
-        String platformName = "Android";
-        String appPackage = "com.mediastep.GoSellForSeller.STG";
-        String appActivity = "com.mediastep.gosellseller.modules.credentials.login.LoginActivity";
-        String url = "http://127.0.0.1:4723/wd/hub";
-        driver = new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
-        
         PropertiesUtil.setEnvironment("STAG");
     }
 
+	public AppiumDriver launchApp() throws Exception {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
+        capabilities.setCapability("platformName", "Android");
+        capabilities.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
+        capabilities.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
+        capabilities.setCapability("noReset", "false");
+        
+        String url = "http://127.0.0.1:4723/wd/hub";
+
+		return new InitAppiumDriver().getAppiumDriver(capabilities, url);
+	}	    
+    
     @BeforeMethod
-    public void generateData(){
-       generate = new DataGenerator();
+    public void generateData() throws Exception{
+    	driver = launchApp();
+    	generate = new DataGenerator();
+    	
+    	new UICommonMobile(driver).waitSplashScreenLoaded();
+//		new NotificationPermission(driver).clickAllowBtn();
     }
+
+	@AfterMethod(alwaysRun = true)
+	public void tearDown() throws IOException {
+		new Screenshot().takeScreenshot(driver);
+		driver.quit();
+		if (driverWeb != null) driverWeb.quit();
+	}	  
     
     @Test
     public void LoginDB_01_LoginWithEmptyCredentials() throws InterruptedException {
@@ -146,23 +162,17 @@ public class LoginSellerApp {
     public void LoginDB_04_LoginWithIncorrectCredentials() throws InterruptedException {
     	loginPage = new LoginPage(driver);
     	
-    	loginPage.inputUsername(generate.generateString(10) + "@nbobd.com").inputPassword(generate.generateString(10))
-    	.clickAgreeTerm().clickLoginBtn();
-    	
+    	//On first attempt, the screen always gets refreshed
+    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, generate.generateString(10));
     	Thread.sleep(2000);
     	
     	// Incorrect mail account
-    	loginPage.inputUsername(generate.generateString(10) + "@nbobd.com").inputPassword(generate.generateString(10))
-    	.clickAgreeTerm().clickLoginBtn();
-    	
+    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, generate.generateString(10));
     	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
     	
     	// Incorrect phone account
-    	loginPage.inputUsername(generate.generateNumber(13)).inputPassword(generate.generateString(10))
-    	.clickAgreeTerm().clickLoginBtn();
-    	
+    	loginPage.performLogin(SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_PHONE_USERNAME, generate.generateString(10));
     	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
-    	
     }    
     
     @Test
@@ -170,15 +180,12 @@ public class LoginSellerApp {
     	loginPage = new LoginPage(driver);
     	homePage = new HomePage(driver);
     	
-    	loginPage.inputUsername(MAIL).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn();
+    	loginPage.performLogin(MAIL_COUNTRY, MAIL, PASSWORD);
     	Assert.assertTrue(homePage.isAccountTabDisplayed());
-    	
     	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
     	
-    	loginPage.selectCountryCodeFromSearchBox(PHONE_COUNTRY).inputUsername(PHONE).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn();
+    	loginPage.performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
     	Assert.assertTrue(homePage.isAccountTabDisplayed());
-    	
-    	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
     }
     
     @Test
@@ -186,26 +193,21 @@ public class LoginSellerApp {
     	loginPage = new LoginPage(driver);
     	homePage = new HomePage(driver);
     	
-//    	loginPage.clickStaffTab();
-//    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
-//    	Thread.sleep(3000);
+    	//On first attempt, the screen always gets refreshed
+    	loginPage.clickStaffTab().inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
+    	Thread.sleep(2000);
     	
     	// Incorrect credentials
-    	loginPage.clickStaffTab();
-    	loginPage.inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
+    	loginPage.clickStaffTab().inputUsername(STAFF).inputPassword(PASSWORD + "1").clickAgreeTerm().clickLoginBtn();
     	Assert.assertEquals(loginPage.getPasswordError(), "Email/Số điện thoại hoặc mật khẩu không chính xác");
     	
     	// Correct credentials
     	loginPage.inputUsername(STAFF).inputPassword(PASSWORD).clickAgreeTerm().clickLoginBtn().clickAvailableShop();
     	Assert.assertTrue(homePage.isAccountTabDisplayed());
-    	
-    	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
-    	
-    	loginPage.clickAdminTab();
     }
     
     @Test
-    public void LoginDB_07_SellerForgotPassword() throws InterruptedException, SQLException {
+    public void LoginDB_07_SellerForgotPassword() throws SQLException {
     	
 		String[][] testData = { 
 				{ SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, SELLER_FORGOT_MAIL_PASSWORD },
@@ -224,33 +226,22 @@ public class LoginSellerApp {
 			
 	    	loginPage.clickForgotPassword().inputUsername(username).inputNewPassword(newPassword).clickSendBtn();
 	    	
-			String code = "";
-			if (username.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")) {
-				driverWeb = new InitWebdriver().getDriver("chrome");
-				code = getVerificationCode(username);
-				driverWeb.quit();
-			} else {
-				code = getVerificationCode(generate.getPhoneCode(country)+":"+username);
-			}
+			String code = getResetCode(generate.getPhoneCode(country), username);
 	    	
-	    	loginPage.inputVerificationCode(code);
-	    	loginPage.clickSendBtn();
+	    	loginPage.inputVerificationCode(code).clickSendBtn();
 	    	
-//	    	Thread.sleep(5000);
 	    	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();
 	    	
 	    	// Log into store with new password
-	    	loginPage.selectCountryCodeFromSearchBox(country).inputUsername(username).inputPassword(newPassword).clickAgreeTerm().clickLoginBtn();
+	    	loginPage.performLogin(country, username, newPassword);
 	    	Assert.assertTrue(homePage.isAccountTabDisplayed());
 	    	
 	    	homePage.clickAccountTab().clickLogoutBtn().clickLogoutOKBtn();	
+	    	
+	    	if (!username.matches("\\d+")) {
+				String [][] mailContent = getEmailContent(username);
+				Assert.assertTrue(mailContent[1][3].contains(code));
+	    	}
 		}    	
     }
-
-    @AfterClass
-    public void tearDown(){
-        driver.quit();
-        if (driverWeb != null) driverWeb.quit();
-    }
-
 }

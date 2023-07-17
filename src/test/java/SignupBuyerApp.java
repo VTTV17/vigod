@@ -1,5 +1,6 @@
 import static utilities.links.Links.SF_DOMAIN;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import org.openqa.selenium.WebDriver;
@@ -30,6 +31,7 @@ import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
+import utilities.screenshot.Screenshot;
 
 
 public class SignupBuyerApp {
@@ -209,7 +211,7 @@ public class SignupBuyerApp {
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
 //        capabilities.setCapability("udid", "192.168.2.43:5555");
-        capabilities.setCapability("udid", "10.10.2.100:5555");
+        capabilities.setCapability("udid", "RF8N20PY57D");
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0017");
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
@@ -228,6 +230,9 @@ public class SignupBuyerApp {
 		signupPage = new SignupPage(driver);
 		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
+		
+		commonAction.waitSplashScreenLoaded();
+//		new NotificationPermission(driver).clickAllowBtn();
 	}		
 	
     @BeforeClass
@@ -240,12 +245,12 @@ public class SignupBuyerApp {
     @BeforeMethod
     public void generateData() throws Exception{
         instantiatePageObjects();
-        new NotificationPermission(driver).clickAllowBtn();
     	generateTestData();
     }
 
-    @AfterMethod
-    public void tearDown(){
+    @AfterMethod(alwaysRun = true)
+    public void tearDown() throws IOException{
+    	new Screenshot().takeScreenshot(driver);
         driver.quit();
         if (driverWeb != null) driverWeb.quit();
     }    
@@ -255,8 +260,9 @@ public class SignupBuyerApp {
 
     	String[] account = {mail, phone};
     	
+    	navigationBar.tapOnAccountIcon().clickSignupBtn();
+    	
     	for (String username : account) {
-    		navigationBar.tapOnAccountIcon().clickSignupBtn();
     		
     		if (username.matches("\\d+")) {
     			signupPage.clickPhoneTab();
@@ -289,7 +295,6 @@ public class SignupBuyerApp {
         	signupPage.inputDisplayName(displayName);
         	signupPage.inputBirthday("");
         	Assert.assertTrue(signupPage.isContinueBtnEnabled());
-        	commonAction.navigateBack();
     	}
     }
     

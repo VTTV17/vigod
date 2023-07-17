@@ -220,7 +220,12 @@ public class HomePage {
         }
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
         boolean isMenuAlreadyOpened = element.getAttribute("class").contains("active");
-
+        try {
+        	isMenuAlreadyOpened = element.getAttribute("class").contains("active");
+        } catch (StaleElementReferenceException ex) {
+        	logger.debug("StaleElementReferenceException caught when getting element's attribute. Retrying...");
+        	isMenuAlreadyOpened = element.getAttribute("class").contains("active");
+		}
         if (isMenuComponentVisiblyDisabled(element)) {
             Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
         } else {
