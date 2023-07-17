@@ -69,7 +69,7 @@ public class CreateQuotationTest extends BaseTest {
 	
 	public void logIntoDashboard() {
 		dbLoginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		homePage.selectLanguage(language);
 	}
 
 	@BeforeMethod

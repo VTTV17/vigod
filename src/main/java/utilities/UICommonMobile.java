@@ -103,6 +103,11 @@ public class UICommonMobile extends UICommonAction {
 		} else {
 			throw new IllegalArgumentException("Unknown platform: " + platform);
 		}
+		logger.debug("Hid keyboard");
+	}
+	public void hideKeyboard() {
+		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
+		hideKeyboard(platformNameFromCapacity);
 	}
 
 	/**
