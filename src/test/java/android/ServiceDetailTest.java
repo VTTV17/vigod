@@ -1,6 +1,7 @@
 package android;
 
 import api.dashboard.login.Login;
+import api.dashboard.onlineshop.APIPreferences;
 import api.dashboard.products.APIEditProduct;
 import api.dashboard.services.CreateServiceAPI;
 import api.dashboard.services.EditServiceAPI;
@@ -23,7 +24,9 @@ import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.dashboard.services.ServiceInfo;
+import utilities.screenshot.Screenshot;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 public class ServiceDetailTest {
@@ -71,9 +74,9 @@ public class ServiceDetailTest {
         driver.quit();
     }
     @AfterMethod
-    public void restartApp(){
+    public void restartApp() throws IOException {
+        new Screenshot().takeScreenshot(driver);
         ((AndroidDriver) driver).resetApp();
-//        new UICommonMobile(driver).waitSplashScreenLoaded();
     }
     public ServiceInfo callAPICreateService(boolean enableListing){
         String serviceName = "Service automation "+ generator.generateString(6);
@@ -163,6 +166,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD04_CheckGuestTapOnBookNow(){
+        new APIPreferences().setUpGuestCheckout(false);
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -256,6 +260,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD10_CheckGuestTapAddToCart(){
+        new APIPreferences().setUpGuestCheckout(false);
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()

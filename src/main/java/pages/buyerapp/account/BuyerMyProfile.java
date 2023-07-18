@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.buyerapp.BuyerGeneral;
 import pages.buyerapp.LoginPage;
 import pages.buyerapp.account.address.BuyerAddress;
 import pages.storefront.GeneralSF;
@@ -139,7 +140,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         common.clickElement(YOU_HAVE_OTHER_MAIL_LBL);
         Assert.assertEquals(common.getText(OTHER_EMAIL_TITLE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.pageTitle"));
         common.clickElement(OTHER_EMAIL_ADD_ICON);
-//        Assert.assertEquals(common.getText(OTHER_EMAIL_POPUP_TITLE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.addEmailPopupTitle"));
+        Assert.assertEquals(common.getText(OTHER_EMAIL_POPUP_TITLE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.addEmailPopupTitle"));
         Assert.assertEquals(common.getText(OTHER_EMAIL_INPUT_NAME),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.enterNameHint"));
         Assert.assertEquals(common.getText(OTHER_EMAIL_INPUT_EMAIL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.enterEmailHint"));
         Assert.assertEquals(common.getText(OTHER_EMAIL_ADD_BTN),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.otherEmail.addBtn"));
@@ -175,12 +176,12 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         Assert.assertEquals(common.getText(ZIP_CODE_LBL),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.address.zipCodeLbl"));
     }
     public BuyerMyProfile scrollDown(){
-        common.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        common.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
         logger.info("Scroll down");
         return new BuyerMyProfile(driver);
     }
     public BuyerMyProfile scrollUp(){
-        common.swipeByCoordinatesInPercent(0.25,0.25,0.75,0.75);
+        common.swipeByCoordinatesInPercent(0.25,0.25,0.25,0.75);
         logger.info("Scroll up");
         return new BuyerMyProfile(driver);
     }
@@ -292,6 +293,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     }
 
     public BuyerMyProfile verifyYourName(String expected){
+        common.sleepInMiliSecond(3000);
         Assert.assertEquals(getYourName(),expected);
         logger.info("Verify your name: "+expected);
         return this;
@@ -635,7 +637,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         common.clickElement(DELETE_ACCOUNT_POPUP_DELETE_BTN);
         logger.info("Tap on delete button on Delete popup.");
         common.sleepInMiliSecond(1000);
-        new GeneralSF(driver).waitTillLoaderDisappear();
-        common.sleepInMiliSecond(1000);
+        new BuyerGeneral(driver).waitLoadingDisappear();
+//        common.sleepInMiliSecond(1000);
     }
 }

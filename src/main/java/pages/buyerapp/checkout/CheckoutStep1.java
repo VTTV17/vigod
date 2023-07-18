@@ -252,7 +252,7 @@ public class CheckoutStep1 {
         return new CheckoutStep2(driver);
     }
     public CheckoutStep1 scrollDown(){
-        common.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        common.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
         logger.info("Scroll down");
         return new CheckoutStep1(driver);
     }

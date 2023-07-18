@@ -15,10 +15,7 @@ import utilities.UICommonMobile;
 import utilities.data.DataGenerator;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SellerCreateCollection {
     final static Logger logger = LogManager.getLogger(SellerCreateCollection.class);
@@ -29,6 +26,7 @@ public class SellerCreateCollection {
     DataGenerator generator;
     String allConditionTxt;
     String anyConditionTxt;
+    int getListTimeout = 1;
 
     public SellerCreateCollection (WebDriver driver) {
         this.driver = driver;
@@ -145,19 +143,23 @@ public class SellerCreateCollection {
             logger.info("No select product.");
             return this;
         }
+        common.sleepInMiliSecond(500);
         for (int i=0;i<keywords.length;i++){
             inputSearchKeyword(keywords[i]);
             common.sleepInMiliSecond(500);
             selectAllProductDisplay();
         }
         new SellerGeneral(driver).tapHeaderRightIcon();
+        logger.info("Select all Product as keyword.");
         return this;
     }
     public SellerCreateCollection selectAllProductDisplay(){
-        List<WebElement> productNameList = common.getElements(PRODUCT_NAME_LIST);
+        List<WebElement> productNameList = common.getElements(PRODUCT_NAME_LIST,3);
+        logger.info("Đã get list name");
         for (WebElement el:productNameList) {
             common.clickElement(el);
         }
+        logger.info("Select product.");
         return this;
     }
     public SellerCreateCollection inputSearchKeyword(String keyword){
@@ -168,7 +170,10 @@ public class SellerCreateCollection {
     public Map<String, Integer> inputPriority(boolean isInputAllProduct, boolean canInputDuplicate) {
         Map<String, Integer> productPriorityMap = new HashMap<>();
         common.sleepInMiliSecond(1000);
-        int productListSize = common.getElements(PRODUCT_NAME_LIST).size();
+        List<WebElement> productNameList = common.getElements(PRODUCT_NAME_LIST,getListTimeout);
+        List<WebElement> editPriorityList = common.getElements(EDIT_PRIORITY_LIST,getListTimeout);
+        int productListSize =productNameList.size();
+        System.out.println("ProductSize: "+productListSize);
         List<Integer> priorityList;
         if (isInputAllProduct) {
             if (canInputDuplicate) {
@@ -183,13 +188,13 @@ public class SellerCreateCollection {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize - 2);
             }
         }
+        System.out.println("Priority: "+priorityList);
         for (int i = 0; i < productListSize; i++) {
             if (i < priorityList.size()) {
-                common.sleepInMiliSecond(1000);
-                common.inputText(common.getElements(EDIT_PRIORITY_LIST),i, String.valueOf(priorityList.get(i)));
-                productPriorityMap.put(common.getText(common.getElements(EDIT_PRIORITY_LIST).get(i)).toLowerCase(), priorityList.get(i));
+                common.inputText(editPriorityList,i, String.valueOf(priorityList.get(i)));
+                productPriorityMap.put(common.getText(productNameList.get(i)).toLowerCase(), priorityList.get(i));
             } else {
-                productPriorityMap.put(common.getText(common.getElements(EDIT_PRIORITY_LIST).get(i)).toLowerCase(), priorityList.size());
+                productPriorityMap.put(common.getText(productNameList.get(i)).toLowerCase(), priorityList.size());
             }
         }
         logger.info("Input product priority: " + productPriorityMap);
@@ -200,15 +205,15 @@ public class SellerCreateCollection {
         logger.info("Verify collection name.");
         return this;
     }
-    public SellerCreateCollection inputConditionKeyword(String keyword){
-        common.inputText(INPUT_A_STRING,keyword);
+    public SellerCreateCollection inputConditionKeyword(String keyword, int index){
+        common.inputText(common.getElements(INPUT_A_STRING,3),index,keyword);
         logger.info("Input a keyword to condition.");
         return this;
     }
-    public void selectProductConditionDropDown(String productPriceOrTitle) throws Exception {
-        String conditionCurrent = common.getText(CONDITION_DROPDOWN);
+    public void selectProductConditionDropDown(String productPriceOrTitle,int index) throws Exception {
+        String conditionCurrent = common.getText(common.getElements(CONDITION_DROPDOWN,3).get(index));
         if(!conditionCurrent.equalsIgnoreCase(productPriceOrTitle)){
-            common.clickElement(CONDITION_DROPDOWN);
+            common.clickElement(common.getElements(CONDITION_DROPDOWN,3).get(index));
             List<String> conditionList = new ArrayList<>();
             try {
                 conditionList.add(PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt"));
@@ -219,7 +224,7 @@ public class SellerCreateCollection {
             boolean isSelected = false;
             for (int i=0;i<conditionList.size();i++){
                 if(conditionList.get(i).equalsIgnoreCase(productPriceOrTitle)){
-                    common.selectDropdownOption(common.getElement(CONDITION_DROPDOWN),i+1);
+                    common.selectDropdownOption(common.getElements(CONDITION_DROPDOWN,3).get(index),i+1);
                     isSelected = true;
                     break;
                 }
@@ -230,10 +235,10 @@ public class SellerCreateCollection {
         }
         logger.info("Select product condition option: "+productPriceOrTitle);
     }
-    public void selectOperateDropDown(String conditionSelected, String operate) throws Exception {
-        String conditionCurrent = common.getText(OPERATE_DROPDOWN);
+    public void selectOperateDropDown(String conditionSelected, String operate, int index) throws Exception {
+        String conditionCurrent = common.getText(common.getElements(OPERATE_DROPDOWN,3).get(index));
         if(!conditionCurrent.equalsIgnoreCase(operate)){
-            common.clickElement(OPERATE_DROPDOWN);
+            common.clickElement(common.getElements(OPERATE_DROPDOWN,3).get(index));
             List<String> operateList = new ArrayList<>();
             try {
                 String productTitleText = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt");
@@ -253,7 +258,7 @@ public class SellerCreateCollection {
             boolean isSelected = false;
             for (int i=0;i<operateList.size();i++){
                 if(operateList.get(i).equalsIgnoreCase(operate)){
-                    common.selectDropdownOption(common.getElement(OPERATE_DROPDOWN),i+1);
+                    common.selectDropdownOption(common.getElements(OPERATE_DROPDOWN,3).get(index),i+1);
                     isSelected = true;
                     break;
                 }
@@ -265,18 +270,18 @@ public class SellerCreateCollection {
         logger.info("Select operate: "+operate);
     }
     public SellerCreateCollection selectCondition(boolean hasAvailable, String...conditions) throws Exception {
-        List<WebElement> inputStringList = common.getElements(INPUT_A_STRING);
         for (int i = 0; i < conditions.length; i++) {
+            List<WebElement> inputStringList = common.getElements(INPUT_A_STRING,3);
             String[] conditionContent = conditions[i].split("-");
             String conditionValueInputed = common.getText(inputStringList.get(i));
             if (hasAvailable && !conditionValueInputed.equals("")){
                 common.clickElement(ADD_MORE_CONDITION_BTN);
                 continue;
             }
-            selectProductConditionDropDown(conditionContent[0]);
-            selectOperateDropDown(conditionContent[0],conditionContent[1]);
+            selectProductConditionDropDown(conditionContent[0],i);
+            selectOperateDropDown(conditionContent[0],conditionContent[1],i);
             common.sleepInMiliSecond(1000);
-            inputConditionKeyword(conditionContent[2]);
+            inputConditionKeyword(conditionContent[2],i);
             if (i < conditions.length - 1) {
                 common.clickElement(ADD_MORE_CONDITION_BTN);
             }
@@ -291,7 +296,7 @@ public class SellerCreateCollection {
             }
         }else if (collectionType.equalsIgnoreCase(anyConditionTxt)){
             if(common.getElementAttribute(common.getElement(ANY_CONDITION_OPTION),"checked").equals("false")){
-                common.clickElement(ALL_CONDITIONS_OPTION);
+                common.clickElement(ANY_CONDITION_OPTION);
             }
         }else try {
             throw new Exception("CollectionType not found.");

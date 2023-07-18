@@ -64,8 +64,7 @@ public class BuyLinkTest extends BaseTest {
         passWordSF = AccountTest.SF_SHOP_VI_PASSWORD;
         languageDB = language;
         languageSF = language;
-        new Login().loginToDashboardWithPhone("+84",userNameDb,passWordDb)
-                ;
+        new Login().loginToDashboardWithPhone("+84",userNameDb,passWordDb);
         shopDomain = SF_ShopVi;
         tcsFileName = FILE_BUY_LINK_TCS;
         generate = new DataGenerator();
