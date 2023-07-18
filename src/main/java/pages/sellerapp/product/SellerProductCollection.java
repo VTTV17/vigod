@@ -45,6 +45,7 @@ public class SellerProductCollection {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        logger.info("Verify create successfully message show.");
         return this;
     }
     public String getCollectionNameNewest(){
@@ -84,14 +85,15 @@ public class SellerProductCollection {
     }
     public SellerProductCollection verifyQuantityNewest(int expected){
         try {
-            Assert.assertEquals(common.getText(common.getElements(QUANTITY_LIST).get(0)),PropertiesUtil.getPropertiesValueByDBLang("seller.productCollection.quantity").formatted(String.valueOf(expected)));
+            Assert.assertEquals(common.getText(common.getElements(QUANTITY_LIST,3).get(0)),PropertiesUtil.getPropertiesValueByDBLang("seller.productCollection.quantity").formatted(String.valueOf(expected)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         logger.info("Verify quantity of newest collection.");
         return this;
     }
-    public SellerProductCollection refresPage(){
+    public SellerProductCollection refreshPage(){
+//        common.sleepInMiliSecond(1000);
         common.swipeByCoordinatesInPercent(0.5,0.25,0.5,0.5);
         common.sleepInMiliSecond(1000);
         return this;

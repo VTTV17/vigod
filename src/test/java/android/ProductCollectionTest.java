@@ -3,16 +3,15 @@ package android;
 import api.dashboard.login.Login;
 import api.dashboard.onlineshop.APIMenus;
 import api.dashboard.products.APIProductCollection;
-import api.dashboard.products.ProductCollection;
 import api.storefront.header.APIHeader;
-import com.google.j2objc.annotations.Weak;
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import pages.buyerapp.NavigationBar;
-import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.home.BuyerHomePage;
 import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
 import pages.sellerapp.HomePage;
@@ -20,20 +19,14 @@ import pages.sellerapp.LoginPage;
 import pages.sellerapp.SellerAccount;
 import pages.sellerapp.product.SellerCreateCollection;
 import pages.sellerapp.product.SellerProductManagement;
-import pages.storefront.header.HeaderSF;
-import pages.storefront.productcollection.ProductCollectionSF;
 import utilities.PropertiesUtil;
-import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-
+import utilities.screenshot.Screenshot;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
-
 public class ProductCollectionTest {
     String sellerAppPackage;
     String selelrAppActivity;
@@ -97,6 +90,11 @@ public class ProductCollectionTest {
         String url = "http://127.0.0.1:4723/wd/hub";
         return new InitAppiumDriver().getAppiumDriver(capabilities, url);
     }
+    @AfterMethod
+    public void restartApp(ITestResult result) throws IOException {
+        new Screenshot().takeScreenshot(driver);
+        ((AndroidDriver) driver).resetApp();
+    }
     public HomePage loginSellerApp(){
        return new LoginPage(driver).performLogin(userDb,passDb);
     }
@@ -145,8 +143,9 @@ public class ProductCollectionTest {
         loginSellerApp();
         changeLaguage();
         goToCreateCollection()
-                .createAutomatedCollection(collectionName,conditionType,condition)
-                .verifyCreateSuccessfullyMessage().refresPage()
+                .createAutomatedCollection(collectionName,conditionType,conditions)
+                .verifyCreateSuccessfullyMessage()
+                .refreshPage()
                 .verifyQuantityNewest(countItemExpected)
                 .verifyCollectionNameNewest(collectionName)
                 .verifyCollectionTypeNewest("Automated")
@@ -170,7 +169,8 @@ public class ProductCollectionTest {
                 .inputCollectionName(collectionName)
                 .selectImage()
                 .tapSaveIcon()
-                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyCreateSuccessfullyMessage()
+                .refreshPage()
                 .verifyCollectionNameNewest(collectionName)
                 .verifyCollectionTypeNewest("Manually")
                 .selectNewestCollection()
@@ -190,7 +190,8 @@ public class ProductCollectionTest {
                 .selectImage()
                 .selectProductsWithKeyword(productList)
                 .tapSaveIcon()
-                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyCreateSuccessfullyMessage()
+                .refreshPage()
                 .verifyQuantityNewest(productList.length)
                 .verifyCollectionNameNewest(collectionName)
                 .verifyCollectionTypeNewest("Manually")
@@ -212,7 +213,8 @@ public class ProductCollectionTest {
                 .selectProductsWithKeyword(productList)
                 .inputPriority(true,false);
         new SellerCreateCollection(driver).tapSaveIcon()
-                .verifyCreateSuccessfullyMessage().refresPage()
+                .verifyCreateSuccessfullyMessage()
+                .refreshPage()
                 .verifyQuantityNewest(productList.length)
                 .verifyCollectionNameNewest(collectionName)
                 .verifyCollectionTypeNewest("Manually")
@@ -221,7 +223,7 @@ public class ProductCollectionTest {
     }
     @Test
     public void MPC05_CreateAutomationCollection_ProductTitleContainsKeyword() throws Exception {
-        String collectionName = "Collection product title contains keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        String collectionName = "Collection title contains keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = productTitleTxt+"-"+containsOperateTxt+"-Gilaa";
         createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
     }
@@ -233,32 +235,45 @@ public class ProductCollectionTest {
     }
     @Test
     public void MPC07_CreateAutomationCollection_ProductTitleStartWithKeyword() throws Exception {
-        String collectionName = "Collection product title start with keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        String collectionName = "Collection title start with keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = productTitleTxt+"-"+startWithOperateTxt+"-Kem Dưỡng";
         createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
     }
     @Test
     public void MPC08_CreateAutomationCollection_ProductTitleEndWithKeyword() throws Exception {
-        String collectionName = "Collection product title ends with keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        String collectionName = "Collection title ends with keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
         createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
     }
     @Test
     public void MPC09_CreateAutomationCollection_ProductPriceGreaterKeyword() throws Exception {
-        String collectionName = "Collection product price greater keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        String collectionName = "Collection price greater keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
         createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
     }
     @Test
     public void MPC10_CreateAutomationCollection_ProductPriceLessKeyword() throws Exception {
-        String collectionName = "Collection product price less than keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        String collectionName = "Collection price less than keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = productPriceTxt+"-"+lessThanTxt+"-100000";
         createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
     }
     @Test
     public void MPC11_CreateAutomationCollection_ProductPriceEqualKeyword() throws Exception {
-        String collectionName = "Collection product price equal keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
+        String collectionName = "Collection price equal keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = productPriceTxt+"-"+equalToOperateProductPriceTxt+"-328000";
         createAutomationCollectionAndVerify(collectionName,allConditionTxt,condition);
     }
+    @Test
+    public void MPC12_CreateAutomationCollection_AllCondition() throws Exception {
+        String[] conditions = {productPriceTxt+"-"+greaterThanTxt+"-300000", productTitleTxt+"-"+containsOperateTxt+"-Skin"};
+        String collectionName = generator.generateString(5) + " - " + "and multiple condition";
+        createAutomationCollectionAndVerify(collectionName, allConditionTxt, conditions);
+    }
+    @Test
+    public void MPC13_CreateAutomationCollection_AnyCondition() throws Exception {
+        String[] conditions = {productTitleTxt+"-"+containsOperateTxt+"-Phấn", productPriceTxt+"-"+lessThanTxt+"-200000"};
+        String collectionName = generator.generateString(5) + " - " + "OR multiple condition";
+        createAutomationCollectionAndVerify(collectionName, anyConditionTxt, conditions);
+    }
+
 }

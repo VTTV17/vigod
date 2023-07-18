@@ -79,9 +79,10 @@ public class BuyerAccountPage {
         return new BuyerChangeLanguage(driver);
     }
     public BuyerMyProfile clickProfile(){
-        commonAction.clickElement(accountEl.DISPLAY_NAME);
-        logger.info("Click on profile.");
         commonAction.sleepInMiliSecond(1000);
+        commonAction.clickElement(accountEl.DISPLAY_NAME);
+//        commonAction.sleepInMiliSecond(2000);
+        logger.info("Click on profile.");
         return new BuyerMyProfile(driver);
     }
     public BuyerAccountPage verifyAvatarDisplay(){
@@ -91,7 +92,7 @@ public class BuyerAccountPage {
         return this;
     }
     public BuyerAccountPage verifyDisplayName(String displayNameExpected){
-        commonAction.sleepInMiliSecond(2000);
+        commonAction.sleepInMiliSecond(1000);
         Assert.assertEquals(commonAction.getText(accountEl.DISPLAY_NAME),displayNameExpected);
         logger.info("Verify display name show correctly");
         return this;
@@ -112,7 +113,7 @@ public class BuyerAccountPage {
         return this;
     }
     public BuyerAccountPage scrollDown(){
-        commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.25,0.25);
+        commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
         logger.info("Scroll down");
         return new BuyerAccountPage(driver);
     }

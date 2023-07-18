@@ -33,6 +33,7 @@ public class BuyerGeneral extends UICommonMobile {
 
     public BuyerGeneral waitLoadingDisappear(){
         waitTillElementDisappear(getElement(el_loading_icon,30),30);
+        logger.info("Wait loading...");
         return this;
     }
     public BuyerGeneral waitInMiliSecond(long milisecond){
