@@ -130,7 +130,7 @@ public class LoginBuyerApp {
 	
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
+        capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0017");
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
@@ -208,37 +208,43 @@ public class LoginBuyerApp {
 
 	@Test
 	public void Login_03_LoginWithInvalidMailFormat() {
+		
+		String errorMessage = "Email không đúng";
+		
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 
     	loginPage.clickUsername(); //Workaround to simulate a tap on username field
     	commonAction.hideKeyboard("android");
 		
-		loginPage.performLogin(BUYER_MAIL_COUNTRY, generate.generateString(10), generate.generateString(10));
-		Assert.assertEquals(signupPage.getUsernameError(), "Email không đúng"); 
+		loginPage.performLogin(BUYER_MAIL_COUNTRY, generate.generateString(10), BUYER_MAIL_PASSWORD);
+		Assert.assertEquals(signupPage.getUsernameError(), errorMessage); 
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());		
 		
-		loginPage.performLogin(BUYER_MAIL_COUNTRY, generate.generateString(10) + "@", generate.generateString(10));
-		Assert.assertEquals(signupPage.getUsernameError(), "Email không đúng"); 
+		loginPage.performLogin(BUYER_MAIL_COUNTRY, generate.generateString(10) + "@", BUYER_MAIL_PASSWORD);
+		Assert.assertEquals(signupPage.getUsernameError(), errorMessage); 
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());		
 		
-		loginPage.performLogin(BUYER_MAIL_COUNTRY, generate.generateString(10) + "@" + generate.generateString(5) + ".", generate.generateString(10));
-		Assert.assertEquals(signupPage.getUsernameError(), "Email không đúng"); 
+		loginPage.performLogin(BUYER_MAIL_COUNTRY, generate.generateString(10) + "@" + generate.generateString(5) + ".", BUYER_MAIL_PASSWORD);
+		Assert.assertEquals(signupPage.getUsernameError(), errorMessage); 
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());
 	}
 	
 	@Test
 	public void Login_04_LoginWithInvalidPhoneFormat() {
+		
+		String errorMessage = "Điền từ 8 - 15 số";
+		
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 		
 		loginPage.clickUsername(); //Workaround to simulate a tap on username field
-		commonAction.hideKeyboard("android");
+		commonAction.hideKeyboard();
 		
 		loginPage.performLogin(generate.generateNumber(7), BUYER_MAIL_PASSWORD);
-		Assert.assertEquals(signupPage.getUsernameError(), "Điền từ 8 - 15 số"); 
+		Assert.assertEquals(signupPage.getUsernameError(), errorMessage); 
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());
 		
 		loginPage.performLogin(generate.generateNumber(16), BUYER_MAIL_PASSWORD);
-		Assert.assertEquals(signupPage.getUsernameError(), "Điền từ 8 - 15 số");
+		Assert.assertEquals(signupPage.getUsernameError(), errorMessage);
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());
 	}
 	
@@ -249,15 +255,12 @@ public class LoginBuyerApp {
 		
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 		
-		loginPage.inputUsername(username);
-		loginPage.clickSignupLinkText();
+		loginPage.inputUsername(username).clickSignupLinkText();
 		Assert.assertEquals(signupPage.getUsernameFieldValue(), username);
 		commonAction.navigateBack();
 		
 		username = BUYER_PHONE_USERNAME;
-		loginPage.clickPhoneTab();
-		loginPage.inputUsername(username);
-		loginPage.clickSignupLinkText();
+		loginPage.clickPhoneTab().inputUsername(username).clickSignupLinkText();
 		Assert.assertEquals(signupPage.getUsernameFieldValue(), username);
 	}
 	

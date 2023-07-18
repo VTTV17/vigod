@@ -119,7 +119,7 @@ public class CreateServicePage extends HomePage{
     public CreateServicePage inputTimeSlots(String...timeSlots){
         for (String timeSlot:timeSlots) {
             commons.inputText(createServiceUI.TIME_SLOTS,timeSlot +"\n");
-            logger.info("Input %s into TimeSlot field".formatted(timeSlots));
+            logger.info("Input %s into TimeSlot field".formatted(timeSlot));
             commons.sleepInMiliSecond(100);
         }
         return this;

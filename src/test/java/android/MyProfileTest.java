@@ -126,7 +126,7 @@ public class MyProfileTest {
             userName= "01"+generator.randomNumberGeneratedFromEpochTime(7);
             new SignUp().signUpByPhoneNumber(passBuyer,userName,"+84");
         }
-        new UICommonMobile(driver).sleepInMiliSecond(10000);
+        new UICommonMobile(driver).sleepInMiliSecond(5000);
         return userName;
     }
     @Test
@@ -508,7 +508,7 @@ public class MyProfileTest {
     @Test
     public void MUP16_CheckDeletePhoneNumber() throws Exception {
         login(userName_EditInfo_HasBirthday).
-        changeLanguage(language).clickProfile().scrollDown()
+        changeLanguage(language).clickProfile()
                 .inputPhone("+84","").tapOnSaveBtn()
                 .clickProfile().verifyPhoneNumber(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.phoneHint"));
     }
@@ -547,5 +547,4 @@ public class MyProfileTest {
         new LoginPage(driver).performLogin(emailAccount,passBuyer);
         new BuyerAccountPage(driver).verifyAvatarDisplay();
     }
-
 }

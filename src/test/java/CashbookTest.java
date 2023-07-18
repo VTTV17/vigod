@@ -48,17 +48,9 @@ public class CashbookTest extends BaseTest {
 
 	@BeforeClass
 	public void loadTestData() {
-		getLoginInfo();
-		getDataByAPI();
-	}	
-
-	public void getLoginInfo() {
 		username = AccountTest.ADMIN_USERNAME_TIEN;
 		password = AccountTest.ADMIN_PASSWORD_TIEN;
 		country = AccountTest.ADMIN_COUNTRY_TIEN;
-	}		
-	
-	public void getDataByAPI() {
         new Login().loginToDashboardByMail(username, password);
         customerList = new Customers().getAllCustomerNames();
         supplierList = new SupplierAPI().getAllSupplierNames();
@@ -68,24 +60,26 @@ public class CashbookTest extends BaseTest {
         transactionIdList = new CashbookAPI().getAllTransactionCodes();
 	}	
 
+	@BeforeMethod
 	public void instantiatePageObjects() {
 		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
 		cashbookPage = new Cashbook(driver);
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
-	}	
+	}
+
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        driver.quit();
+    }	
 
 	public void loginDashboard() {
 		loginPage.navigate().performLogin(country, username, password);
 		homePage.waitTillSpinnerDisappear().selectLanguage(language).hideFacebookBubble();
-	}		
-	
-	@BeforeMethod
-	public void setup() {
-		instantiatePageObjects();
-	}
-	
+	}    
+    
 	public String getRandomListElement(List<String> list) {
 		return list.get(new Random().nextInt(0, list.size()));
 	}
@@ -1038,11 +1032,4 @@ public class CashbookTest extends BaseTest {
 			cashbookPage.clickCancelBtn();
 		}
 	}
-
-    @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
-        super.writeResult(result);
-        driver.quit();
-    }
-	
 }

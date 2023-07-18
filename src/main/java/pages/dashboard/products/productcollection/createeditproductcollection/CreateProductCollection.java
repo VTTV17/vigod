@@ -222,7 +222,7 @@ public class CreateProductCollection extends HomePage {
         return productPriorityMap;
     }
     /**
-     * @param conditions: fortmat: condition-operator-value.
+     * @param conditions: fortmat: condition-operator-value. bao gom condition co san va new condition
      * @param: condition:"Product title","Product price".
      * @param:operator for product title: "starts with", "ends with", "is equal to".
      * Operator for product price: "is greater than", "is less than", "is equal to"

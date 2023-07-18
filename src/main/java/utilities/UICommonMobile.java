@@ -42,7 +42,7 @@ public class UICommonMobile extends UICommonAction {
 			getElement(bySelector,5).click();
 		}
 	}
-	
+
 	public void clickElement(By bySelector, int timeout) {
 		try {
 			getElement(bySelector,timeout).click();
@@ -51,7 +51,7 @@ public class UICommonMobile extends UICommonAction {
 			getElement(bySelector,timeout).click();
 		}
 	}
-	
+
 	public void inputText(By bySelector, String text) {
 		try {
 			WebElement el = getElement(bySelector,5);
@@ -64,7 +64,7 @@ public class UICommonMobile extends UICommonAction {
 			el.sendKeys(text);
 		}
 	}
-	
+
 	public String getText(By bySelector) {
 		String text;
 		try {
@@ -74,16 +74,16 @@ public class UICommonMobile extends UICommonAction {
 			text = getElement(bySelector,5).getText();
 		}
 		return text;
-	}	
-	
+	}
+
 	public boolean isElementEnabled(By bySelector) {
 		return getElement(bySelector, 5).isEnabled();
-	}	
+	}
 
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
-	
+
 	public WebElement getElement(By by, int inSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
 		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
@@ -103,6 +103,11 @@ public class UICommonMobile extends UICommonAction {
 		} else {
 			throw new IllegalArgumentException("Unknown platform: " + platform);
 		}
+		logger.debug("Hid keyboard");
+	}
+	public void hideKeyboard() {
+		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
+		hideKeyboard(platformNameFromCapacity);
 	}
 
 	/**
@@ -315,41 +320,37 @@ public class UICommonMobile extends UICommonAction {
 	}
 	public void restartAppKeepLogin(String appPackage, String appActivity){
 		Activity activity = new Activity(appPackage,appActivity);
-        activity.setStopApp(false);
-        ((StartsActivity) driver).startActivity(activity);
-        new UICommonMobile(driver).waitSplashScreenLoaded();
+		activity.setStopApp(false);
+		((StartsActivity) driver).startActivity(activity);
+		new UICommonMobile(driver).waitSplashScreenLoaded();
 	}
 	public void inputText(List<WebElement> element, int index, String text) {
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
+			element.get(index).clear();
 			element.get(index).sendKeys(text);
 		} catch (StaleElementReferenceException | TimeoutException ex) {
-			if (ex instanceof StaleElementReferenceException) {
-				logger.debug("StaleElementReferenceException caught in inputText");
-			} else {
-				logger.debug("TimeoutException caught in inputText");
-			}
-			element = refreshElement(element.get(index));
-			wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).clear();
-			doubleClickElement(element.get(index));
+			logger.debug("StaleElementReferenceException caught in inputText: "+ex);
+			element.get(index).clear();
 			element.get(index).sendKeys(text);
 		}
 	}
 	public void selectDropdownOption(WebElement element, int index){
 		int y = element.getLocation().getY();
 		int x = element.getLocation().getX();
-		System.out.println("X: "+x);
 		Dimension size = driver.manage().window().getSize();
 		double percentYEl = (double)y/size.height;
 		double percentXEl = (double)x/size.width+0.1;
 		double distanceOptionPercent = 0.044;
 		double percentOptionY = percentYEl+(distanceOptionPercent*index) + distanceOptionPercent/2;
-		System.out.println("PercentY: "+percentOptionY);
-		System.out.println("PercentX: "+percentXEl);
 		tapByCoordinatesInPercent(percentXEl,percentOptionY);
 	}
 
 	public boolean isElementChecked(By locator) {
 		return getElement(locator).getAttribute("checked").equals("true");
+	}
+	public List<WebElement> getElements(By by, int inSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
+		logger.info("Đang chờ get Element");
+		return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
 	}
 }

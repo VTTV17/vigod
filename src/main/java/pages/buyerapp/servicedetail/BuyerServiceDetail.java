@@ -84,6 +84,7 @@ public class BuyerServiceDetail extends UICommonMobile {
         return this;
     }
     public BuyerServiceDetail verifyRequireLoginPopUpShow(){
+        sleepInMiliSecond(1000);
         Assert.assertTrue(isElementDisplay(getElement(serviceDetailEl.REQUIRE_LOGIN_POPUP)),"Require login popup not show.");
         logger.info("Verify require login popup show.");
         return this;
