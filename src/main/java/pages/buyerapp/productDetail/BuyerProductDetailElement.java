@@ -12,7 +12,7 @@ public class BuyerProductDetailElement {
     By DISCOUNT_CAMPAIGN_BADGE = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_tv_wholesale_label')]");
     By WHOLE_SALE_PRODUCT_BADGE = By.xpath("//*[contains(@resource-id, 'group_wholesale_pricing')]");
     By SOLD_OUT_MARK = By.xpath("//*[contains(@resource-id, 'activity_item_details_tv_not_available')]");
-    By LISTING_PRICE = By.xpath("//*[contains(@resource-id, '//*[contains(@resource-id, 'item_market_product_detail_desc_original_price')]')]");
+    By LISTING_PRICE = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_original_price')]");
     By SELLING_PRICE = By.xpath("//*[contains(@resource-id, 'item_market_product_detail_desc_promotion_price')]");
     By CONVERSION_UNIT_TITLE = By.xpath("//*[contains(@resource-id, 'htvConversationUnit')]/preceding-sibling::*");
     By CONVERSION_UNIT_LIST = By.xpath("//*[contains(@resource-id, 'htvConversationUnit')]");
@@ -42,4 +42,5 @@ public class BuyerProductDetailElement {
     By SMART_PAYPAL = By.xpath("//*[contains(@resource-id, 'flSmartPaypalButton')]");
     By CONTACT_NOW_BTN =By.xpath("//*[contains(@resource-id, 'activity_item_details_btn_contact_now')]");
     By CART_ICON = By.xpath("//*[ends-with(@resource-id,'action_bar_basic_rl_shopping_cart')]");
+    By ITEM_DETAIL_FOOTER = By.xpath("//*[contains(@resource-id, 'ItemsDetailsFooter')]");
 }

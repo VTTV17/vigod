@@ -6,42 +6,38 @@ import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.products.WholesaleProduct;
 import api.dashboard.promotion.CreatePromotion;
-import io.appium.java_client.android.AndroidDriver;
-import org.openqa.selenium.WebDriver;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.Test;
 import pages.buyerapp.NavigationBar;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
-import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 
+import java.io.File;
 import java.net.MalformedURLException;
 
 import static utilities.account.AccountTest.*;
 
-public class ProductDetailTest {
-
-    WebDriver driver;
+public class ProductDetailTest extends BaseTest{
     int productId;
     boolean isIMEIProduct;
     boolean isHideStock = false;
     boolean isDisplayIfOutOfStock = true;
     ProductInfo productInfo;
-    String testCaseId;
-    String language = "vi";
+     String udid = "10HC8G04UP0003U";
     String appPackage = "com.mediastep.shop0018";
     String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
     String URL = "http://127.0.0.1:4723/wd/hub";
 
     @BeforeClass
     void setup() throws MalformedURLException {
-        PropertiesUtil.setEnvironment("STAG");
-        PropertiesUtil.setDBLanguage("vi");
-        PropertiesUtil.setSFLanguage("vi");
+        tcsFileName = "android/Check promotion at product detail screen.xlsx".replace("/", File.separator);
         new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
 
-        driver = new InitAppiumDriver().getAppiumDriver("10HC8G04UP0003U", "ANDROID", appPackage, appActivity, URL);
+        driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage, appActivity, URL);
 
         new UICommonMobile(driver).waitSplashScreenLoaded();
         new NavigationBar(driver).tapOnAccountIcon()
@@ -114,8 +110,8 @@ public class ProductDetailTest {
 
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void BH_8887_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G1_Case1_1";
+    void Android_Buyer_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G1_Case1_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -129,13 +125,12 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void BH_8887_G1_Case1_2_FlashSaleIsExpired() throws Exception {
-        testCaseId = "BH_8887_G1_Case1_2";
+    void Android_Buyer_G1_Case1_2_FlashSaleIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G1_Case1_2";
         int startMin = 1;
         int endMin = 120;
 
         new CreatePromotion()
-                .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -145,8 +140,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void BH_8887_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G1_Case1_3";
+    void Android_Buyer_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G1_Case1_3";
         int startMin = 1;
         int endMin = 120;
 
@@ -160,8 +155,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void BH_8887_G1_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G1_Case2_1";
+    void Android_Buyer_G1_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G1_Case2_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -175,14 +170,11 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void BH_8887_G1_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        testCaseId = "BH_8887_G1_Case2_2";
-        int startMin = 1;
-        int endMin = 120;
+    void Android_Buyer_G1_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G1_Case2_2";
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
@@ -190,8 +182,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void BH_8887_G1_Case2_3_DiscountCampaignIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G1_Case2_3";
+    void Android_Buyer_G1_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G1_Case2_3";
         int endMin = 120;
 
         new CreatePromotion()
@@ -204,8 +196,8 @@ public class ProductDetailTest {
 
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void BH_8887_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G2_Case1_1";
+    void Android_Buyer_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G2_Case1_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -219,13 +211,12 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void BH_8887_G2_Case1_2_FlashSaleIsExpired() throws Exception {
-        testCaseId = "BH_8887_G2_Case1_2";
+    void Android_Buyer_G2_Case1_2_FlashSaleIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G2_Case1_2";
         int startMin = 1;
         int endMin = 120;
 
         new CreatePromotion()
-                .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -235,8 +226,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void BH_8887_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G2_Case1_3";
+    void Android_Buyer_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G2_Case1_3";
         int startMin = 1;
         int endMin = 120;
 
@@ -250,8 +241,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void BH_8887_G2_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G2_Case2_1";
+    void Android_Buyer_G2_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G2_Case2_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -265,14 +256,11 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void BH_8887_G2_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        testCaseId = "BH_8887_G2_Case2_2";
-        int startMin = 1;
-        int endMin = 120;
+    void Android_Buyer_G2_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G2_Case2_2";
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
@@ -280,8 +268,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void BH_8887_G2_Case2_3_DiscountCampaignIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G2_Case2_3";
+    void Android_Buyer_G2_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G2_Case2_3";
         int endMin = 120;
 
         new CreatePromotion()
@@ -293,8 +281,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void BH_8887_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G3_Case1_1";
+    void Android_Buyer_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G3_Case1_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -308,13 +296,12 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void BH_8887_G3_Case1_2_FlashSaleIsExpired() throws Exception {
-        testCaseId = "BH_8887_G3_Case1_2";
+    void Android_Buyer_G3_Case1_2_FlashSaleIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G3_Case1_2";
         int startMin = 1;
         int endMin = 120;
 
         new CreatePromotion()
-                .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -324,8 +311,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void BH_8887_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G3_Case1_3";
+    void Android_Buyer_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G3_Case1_3";
         int startMin = 1;
         int endMin = 120;
 
@@ -339,8 +326,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void BH_8887_G3_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G3_Case2_1";
+    void Android_Buyer_G3_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G3_Case2_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -354,14 +341,11 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void BH_8887_G3_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        testCaseId = "BH_8887_G3_Case2_2";
-        int startMin = 1;
-        int endMin = 120;
+    void Android_Buyer_G3_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G3_Case2_2";
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
@@ -369,8 +353,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G3_Case2_3";
+    void Android_Buyer_G3_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G3_Case2_3";
         int endMin = 120;
 
         new CreatePromotion()
@@ -383,8 +367,8 @@ public class ProductDetailTest {
 
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void BH_8887_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G4_Case1_1";
+    void Android_Buyer_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G4_Case1_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -398,13 +382,12 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void BH_8887_G4_Case1_2_FlashSaleIsExpired() throws Exception {
-        testCaseId = "BH_8887_G4_Case1_2";
+    void Android_Buyer_G4_Case1_2_FlashSaleIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G4_Case1_2";
         int startMin = 1;
         int endMin = 120;
 
         new CreatePromotion()
-                .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -414,8 +397,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void BH_8887_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G4_Case1_3";
+    void Android_Buyer_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G4_Case1_3";
         int startMin = 1;
         int endMin = 120;
 
@@ -429,8 +412,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void BH_8887_G4_Case2_1_DiscountCampaignIsInProgress() throws Exception {
-        testCaseId = "BH_8887_G4_Case2_1";
+    void Android_Buyer_G4_Case2_1_DiscountCampaignIsInProgress() throws Exception {
+        testCaseId = "Android_Buyer_G4_Case2_1";
         int startMin = 1;
         int endMin = 120;
 
@@ -444,14 +427,11 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void BH_8887_G4_Case2_2_DiscountCampaignIsExpired() throws Exception {
-        testCaseId = "BH_8887_G4_Case2_2";
-        int startMin = 1;
-        int endMin = 120;
+    void Android_Buyer_G4_Case2_2_DiscountCampaignIsExpired() throws Exception {
+        testCaseId = "Android_Buyer_G4_Case2_2";
 
         new CreatePromotion()
                 .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
@@ -459,8 +439,8 @@ public class ProductDetailTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void BH_8887_G4_Case2_3_DiscountCampaignIsSchedule() throws Exception {
-        testCaseId = "BH_8887_G4_Case2_3";
+    void Android_Buyer_G4_Case2_3_DiscountCampaignIsSchedule() throws Exception {
+        testCaseId = "Android_Buyer_G4_Case2_3";
         int endMin = 120;
 
         new CreatePromotion()
@@ -473,7 +453,6 @@ public class ProductDetailTest {
 
     @AfterMethod
     void teardown() {
-//        ((AndroidDriver) driver).terminateApp(appPackage);
-        ((AndroidDriver) driver).activateApp(appPackage);
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
     }
 }

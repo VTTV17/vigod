@@ -9,7 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -28,10 +30,7 @@ import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -108,15 +107,15 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         logger.info("[Check product name] Check product name show correctly.");
     }
 
-    void checkPriceOnBranch(long listingPrice, long sellingPrice, String brName) throws IOException {
+    void checkPriceOnBranch(int varIndex, long listingPrice, long sellingPrice, String brName) throws IOException {
         String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
 
-        if (listingPrice != sellingPrice) {
-            String adrListingPrice = driver.findElement(ADD_TO_CART_POPUP_LISTING_PRICE).getText().replaceAll("\\D+", "");
+        if (!Objects.equals(productInfo.getProductSellingPrice().get(varIndex), productInfo.getProductListingPrice().get(varIndex))) {
+            String adrListingPrice = wait.until(ExpectedConditions.presenceOfElementLocated(LISTING_PRICE)).getText().replaceAll("\\D+", "");
             long adrListingPriceValue = Long.parseLong(adrListingPrice);
             countFail = new AssertCustomize(driver).assertEquals(countFail, adrListingPriceValue, listingPrice, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, adrListingPriceValue));
         } else logger.info("No discount product (listing price = selling price)");
-        String adrSellingPrice = driver.findElement(ADD_TO_CART_POPUP_SELLING_PRICE).getText().replaceAll("\\D+", "");
+        String adrSellingPrice = wait.until(ExpectedConditions.presenceOfElementLocated(ADD_TO_CART_POPUP_SELLING_PRICE)).getText().replaceAll("\\D+", "");
         long adrSellingPriceValue = Long.parseLong(adrSellingPrice);
 
         countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(adrSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, adrSellingPrice));
@@ -317,11 +316,11 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             // check price
             switch (priceType) {
                 // check flash sale price
-                case "FLASH SALE" -> checkPriceOnBranch(sellingPrice, flashSalePrice, brName);
+                case "FLASH SALE" -> checkPriceOnBranch(varIndex, listingPrice, flashSalePrice, brName);
                 // check discount campaign price
                 case "DISCOUNT CAMPAIGN" -> {
                     driver.findElement(ADD_TO_CART_POPUP_BUY_IN_BULK_CHECKBOX).click();
-                    checkPriceOnBranch(sellingPrice, productDiscountCampaignPrice, brName);
+                    checkPriceOnBranch(varIndex, listingPrice, productDiscountCampaignPrice, brName);
                 }
                 case "WHOLESALE PRODUCT" -> {
                     // increase quantity to wholesale product minimum requirement
@@ -329,9 +328,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                     driver.findElement(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX).sendKeys(String.valueOf(wholesaleProductStock));
 
                     // check wholesale product price
-                    checkPriceOnBranch(sellingPrice, wholesaleProductPrice, brName);
+                    checkPriceOnBranch(varIndex, listingPrice, wholesaleProductPrice, brName);
                 }
-                default -> checkPriceOnBranch(listingPrice, sellingPrice, brName);
+                default -> checkPriceOnBranch(varIndex, listingPrice, sellingPrice, brName);
             }
 
             // close add to cart popup
@@ -362,7 +361,13 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             for (String brName : currentBranchNameList) {
                 // switch branch
                 int index = commonMobile.moveAndGetElement(PRODUCT_NAME, BRANCH_LIST, brName);
-                driver.findElements(BRANCH_LIST).get(index).click();
+                Rectangle footerRect = driver.findElement(ITEM_DETAIL_FOOTER).getRect();
+                Rectangle brRect = driver.findElements(BRANCH_LIST).get(index).getRect();
+                if ((brRect.getY() + brRect.getHeight()) >= footerRect.getY()) {
+                    commonMobile.swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+                    driver.findElements(BRANCH_LIST).stream().filter(brElement -> brElement.getText().equals(brName)).findFirst().ifPresent(WebElement::click);
+                } else driver.findElements(BRANCH_LIST).get(index).click();
+
 
                 // check branch name, branch stock, branch price
                 // get branch index in branch information
@@ -410,9 +415,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         if (productInfo.isHasModel()) checkVariationName(language);
 
         // verify on each variation
-        for (String barcode : productInfo.getBarcodeList()) {
-            // variation index
-            int varIndex = productInfo.getBarcodeList().indexOf(barcode);
+        List<String> barcodeList = productInfo.getBarcodeList();
+        for (int varIndex = 0; varIndex < barcodeList.size(); varIndex++) {
+            String barcode = barcodeList.get(varIndex);
 
             // variation value
             String variationValue = productInfo.getVariationListMap().get(language).get(varIndex);
@@ -423,7 +428,11 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                 if (productInfo.isHasModel()) {
                     for (String var : variationValue.split("\\|")) {
                         int index = commonMobile.moveAndGetElement(PRODUCT_NAME, VARIATION_VALUE_LIST, var);
-                        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(VARIATION_VALUE_LIST)).get(index).click();
+                        Rectangle footerRect = driver.findElement(ITEM_DETAIL_FOOTER).getRect();
+                        Rectangle variationRect = driver.findElements(VARIATION_VALUE_LIST).get(index).getRect();
+                        if ((variationRect.getY() + variationRect.getHeight()) >= footerRect.getY())
+                            commonMobile.swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+                        driver.findElements(VARIATION_VALUE_LIST).get(index).click();
                     }
                 }
 

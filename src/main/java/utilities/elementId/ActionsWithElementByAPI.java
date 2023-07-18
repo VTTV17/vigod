@@ -3,11 +3,10 @@ package utilities.elementId;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import lombok.SneakyThrows;
-import org.apache.http.NoHttpResponseException;
 import org.openqa.selenium.By;
 import utilities.api.API;
+import utilities.driver.InitAppiumDriver;
 
-import java.net.ConnectException;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -18,8 +17,7 @@ public class ActionsWithElementByAPI {
     String sessionId;
 
     public ActionsWithElementByAPI(String url) {
-        int port = 8200;
-        this.url = url.replace(url.split(":")[2].split("/")[0], "%s".formatted(port));
+        this.url = url.replace(url.split(":")[2].split("/")[0], "%s".formatted(8200));
         sessionId = getSessionId();
     }
 

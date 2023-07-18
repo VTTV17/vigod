@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="GoSELL-Thang">
+        <classes>
+            <class name="android.ProductDetailTest">
+                <methods>
+<!--                    <include name="Android_Buyer_G1_Case1_1_FlashSaleIsInProgress"/>-->
+<!--                    <include name="Android_Buyer_G1_Case1_2_FlashSaleIsExpired" />-->
+<!--                    <include name="Android_Buyer_G1_Case1_3_FlashSaleIsSchedule" />-->
+<!--                    <include name="Android_Buyer_G1_Case2_1_DiscountCampaignIsInProgress" />-->
+<!--                    <include name="Android_Buyer_G1_Case2_2_DiscountCampaignIsExpired" />-->
+<!--                    <include name="Android_Buyer_G1_Case2_3_DiscountCampaignIsSchedule" />-->
+
+                    <include name="Android_Buyer_G2_Case1_1_FlashSaleIsInProgress" />
+                    <include name="Android_Buyer_G2_Case1_2_FlashSaleIsExpired" />
+<!--                    <include name="Android_Buyer_G2_Case1_3_FlashSaleIsSchedule" />-->
+                    <include name="Android_Buyer_G2_Case2_1_DiscountCampaignIsInProgress" />
+<!--                    <include name="Android_Buyer_G2_Case2_2_DiscountCampaignIsExpired" />-->
+<!--                    <include name="Android_Buyer_G2_Case2_3_DiscountCampaignIsSchedule" />-->
+
+<!--                    <include name="Android_Buyer_G3_Case1_1_FlashSaleIsInProgress" />-->
+<!--                    <include name="Android_Buyer_G3_Case1_2_FlashSaleIsExpired" />-->
+<!--                    <include name="Android_Buyer_G3_Case1_3_FlashSaleIsSchedule" />-->
+<!--                    <include name="Android_Buyer_G3_Case2_1_DiscountCampaignIsInProgress" />-->
+<!--                    <include name="Android_Buyer_G3_Case2_2_DiscountCampaignIsExpired" />-->
+<!--                    <include name="Android_Buyer_G3_Case2_3_DiscountCampaignIsSchedule" />-->
+
+                    <include name="Android_Buyer_G4_Case1_1_FlashSaleIsInProgress" />
+                    <include name="Android_Buyer_G4_Case1_2_FlashSaleIsExpired" />
+<!--                    <include name="Android_Buyer_G4_Case1_3_FlashSaleIsSchedule" />-->
+                    <include name="Android_Buyer_G4_Case2_1_DiscountCampaignIsInProgress" />
+<!--                    <include name="Android_Buyer_G4_Case2_2_DiscountCampaignIsExpired" />-->
+<!--                    <include name="Android_Buyer_G4_Case2_3_DiscountCampaignIsSchedule" />-->
+
+                </methods>
+            </class> <!-- BH_8616 -->
+        </classes>
+    </test> <!-- GoSELL-Thang -->
+</suite> <!-- Default Suite -->
