@@ -9,8 +9,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import pages.buyerapp.LoginPage;
-import pages.buyerapp.SignupPage;
+import pages.buyerapp.login.LoginPage;
+import pages.buyerapp.signup.SignupPage;
 import pages.storefront.GeneralSF;
 import utilities.UICommonMobile;
 

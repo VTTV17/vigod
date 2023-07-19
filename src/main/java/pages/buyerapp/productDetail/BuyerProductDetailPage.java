@@ -15,8 +15,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import pages.buyerapp.BuyerGeneral;
-import pages.buyerapp.NavigationBar;
+
+import pages.buyerapp.buyergeneral.BuyerGeneral;
+import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.shopcart.BuyerShopCartPage;
 import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonMobile;

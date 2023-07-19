@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.appium.java_client.AppiumDriver;
-import pages.sellerapp.HomePage;
-import pages.sellerapp.LoginPage;
+import pages.sellerapp.home.HomePage;
+import pages.sellerapp.login.LoginPage;
 import pages.thirdparty.Mailnesia;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;

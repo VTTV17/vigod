@@ -13,8 +13,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import pages.buyerapp.BuyerGeneral;
-import pages.buyerapp.NavigationBar;
+
+import pages.buyerapp.buyergeneral.BuyerGeneral;
+import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.buyerapp.servicedetail.BuyerServiceDetail;
 import pages.buyerapp.servicedetail.SelectLocationPage;

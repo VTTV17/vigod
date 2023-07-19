@@ -6,7 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import pages.sellerapp.SellerGeneral;
+
+import pages.sellerapp.general.SellerGeneral;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 

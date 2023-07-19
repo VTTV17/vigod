@@ -4,7 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.buyerapp.NavigationBar;
+
+import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
 import utilities.UICommonMobile;
 

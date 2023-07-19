@@ -9,11 +9,12 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
-import pages.buyerapp.LoginPage;
-import pages.buyerapp.NavigationBar;
+
 import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.account.address.BuyerAddress;
+import pages.buyerapp.login.LoginPage;
+import pages.buyerapp.navigationbar.NavigationBar;
 import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;

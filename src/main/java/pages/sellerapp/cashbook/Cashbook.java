@@ -30,9 +30,11 @@ public class Cashbook {
         commonAction = new UICommonMobile(driver);
     }
 
+    String dropdownOption = "//*[ends-with(@resource-id,'tvAction') %s]";
+    
     By CREATE_BTN = By.xpath("//*[ends-with(@resource-id,'ivActionBarIconRight')]");
-    By CREATE_RECEIPT_BTN = By.xpath("(//*[ends-with(@resource-id,'tvAction')])[1]");
-    By CREATE_PAYMENT_BTN = By.xpath("(//*[ends-with(@resource-id,'tvAction')])[2]");
+    By CREATE_RECEIPT_BTN = By.xpath(dropdownOption.formatted("and @index='0'"));
+    By CREATE_PAYMENT_BTN = By.xpath(dropdownOption.formatted("and @index='1'"));
     
     By GROUP_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSenderGroup')]");
     By NAME_DROPDOWN = By.xpath("//*[ends-with(@resource-id,'tvSelectSenderName')]");
@@ -61,12 +63,6 @@ public class Cashbook {
 			By.xpath("//*[ends-with(@resource-id,'tvOwner')]"),
 			By.xpath("//*[ends-with(@resource-id,'tvPrice')]"),
 	};
-    
-    String dropdownOption = "//*[ends-with(@resource-id,'tvAction') and @text='%s']";
-    
-    
-    By USERNAME_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorUsername");
-
 
 	public List<Long> getCashbookSummary() {
 		commonAction.sleepInMiliSecond(1000); //Sometimes it takes longer for the element to change its data
@@ -124,32 +120,66 @@ public class Cashbook {
     	logger.info("Clicked on 'Create Receipt'.");
     	return this;
     }
+    
+	public Cashbook clickCreatePaymentBtn() {
+		commonAction.clickElement(CREATE_PAYMENT_BTN, defaultTimeout);
+		logger.info("Clicked on 'Create Payment' button.");
+		return this;
+	}	
 
 	public Cashbook selectGroup(String group) {
 		commonAction.clickElement(GROUP_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted(group)));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(group))));
 		logger.info("Selected Sender/Recipient Group: %s.".formatted(group));
 		return this;
 	}    
 
 	public Cashbook selectName(String name) {
 		commonAction.clickElement(NAME_DROPDOWN);
+		commonAction.sleepInMiliSecond(1000); //Sometimes the element representing the search box gets stale
 		commonAction.inputText(SEARCH_BOX, name);
 		commonAction.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text='%s']".formatted(name)));
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}	
 
+	public String[] getDropdownValues() {
+		//Sometimes it takes longer for the values to display
+		int elementCount = 0;
+		for (int i=0; i<3; i++) {
+			elementCount = commonAction.getElements(By.xpath(dropdownOption.formatted(""))).size();
+			if (elementCount > 0) break; 
+		}
+		
+		//Store all option values into an array then return the array
+		List<String> values = new ArrayList<>();
+		for (int i=0; i<elementCount; i++) {
+			values.add(commonAction.getText(By.xpath(dropdownOption.formatted("and @index='%s'".formatted(i)))));
+		}
+		return values.toArray(new String[0]);
+	}  		
+	
+	/**
+	 * This method returns an array of strings representing the values of a dropdown list for revenue source.
+	 * @return An array of strings representing the dropdown values
+	 */
+	public String[] getSourceDropdownValues() {
+		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
+		String[] values = getDropdownValues();
+		commonAction.navigateBack();
+		return values;
+	}  	
+	
 	public Cashbook selectRevenueExpense(String revenueExpense) {
 		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted(revenueExpense)));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(revenueExpense))));
 		logger.info("Selected Revenue Source/Expense Type: %s.".formatted(revenueExpense));
 		return this;
 	}	
 
 	public Cashbook selectBranch(String branch) {
 		commonAction.clickElement(BRANCH_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted(branch)));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(branch))));
 		logger.info("Selected Branch: %s.".formatted(branch));
 		return this;
 	}	
@@ -159,10 +189,21 @@ public class Cashbook {
 		logger.info("Input amount: %s.".formatted(amount));
 		return this;
 	}	
+
+	/**
+	 * This method returns an array of strings representing the values of a dropdown list for payment methods.
+	 * @return An array of strings representing the dropdown values
+	 */
+	public String[] getPaymentMethodDropdownValues() {
+		commonAction.clickElement(PAYMENTMETHOD_DROPDOWN);
+		String[] values = getDropdownValues();
+		commonAction.navigateBack();
+		return values;
+	}	
 	
 	public Cashbook selectPaymentMethod(String paymentMethod) {
 		commonAction.clickElement(PAYMENTMETHOD_DROPDOWN);
-		commonAction.clickElement(By.xpath(dropdownOption.formatted(paymentMethod)));
+		commonAction.clickElement(By.xpath(dropdownOption.formatted("and @text='%s'".formatted(paymentMethod))));
 		logger.info("Selected Payment Method: %s.".formatted(paymentMethod));
 		return this;
 	}
@@ -223,12 +264,14 @@ public class Cashbook {
 		return this;
 	}	
 	
-    public String getUsernameError() {
-        String text = commonAction.getText(USERNAME_ERROR);
-        logger.info("Retrieved error for username field: " + text);
-        return text;
-    }
-
+	public Cashbook createPayment(String senderGroup, String revenue, String branch, String payment, String senderName,
+			String amount, String note, boolean isChecked) {
+		clickCreateBtn();
+		clickCreatePaymentBtn();
+		createReceiptPaymentOverlap(senderGroup, revenue, branch, payment, senderName, amount, note, isChecked);
+		return this;
+	}	
+	
 	public String getGroup() {
 		String text = commonAction.getText(GROUP_DROPDOWN);
 		logger.info("Retrieved Group value from record details: " + text);

@@ -1,4 +1,4 @@
-package pages.dashboard;
+package pages.dashboard.confirmationdialog;
 
 import java.time.Duration;
 import java.util.List;

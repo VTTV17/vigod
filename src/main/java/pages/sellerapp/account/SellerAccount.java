@@ -1,10 +1,13 @@
-package pages.sellerapp;
+package pages.sellerapp.account;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import pages.sellerapp.general.SellerGeneral;
+import pages.sellerapp.home.HomePage;
 import utilities.UICommonMobile;
 
 import java.time.Duration;

@@ -2,7 +2,8 @@ import api.dashboard.login.Login;
 import api.dashboard.services.CreateServiceAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
-import pages.buyerapp.NavigationBar;
+
+import pages.buyerapp.navigationbar.NavigationBar;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.service.CreateServicePage;

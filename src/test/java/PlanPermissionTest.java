@@ -4,12 +4,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pages.InternalTool;
+
 import pages.thirdparty.Mailnesia;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.settings.plans.PlansPage;
 import pages.dashboard.signup.SignupPage;
+import pages.internaltool.InternalTool;
 import utilities.UICommonAction;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;

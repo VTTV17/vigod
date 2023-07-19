@@ -1,4 +1,4 @@
-package pages.sellerapp;
+package pages.sellerapp.home;
 
 import java.time.Duration;
 import java.util.HashMap;

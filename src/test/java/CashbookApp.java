@@ -19,10 +19,10 @@ import api.dashboard.products.SupplierAPI;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StaffManagement;
 import io.appium.java_client.AppiumDriver;
-import pages.sellerapp.HomePage;
-import pages.sellerapp.LoginPage;
-import pages.sellerapp.SellerGeneral;
 import pages.sellerapp.cashbook.Cashbook;
+import pages.sellerapp.general.SellerGeneral;
+import pages.sellerapp.home.HomePage;
+import pages.sellerapp.login.LoginPage;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.account.AccountTest;
@@ -30,6 +30,12 @@ import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
 import utilities.screenshot.Screenshot;
 
+
+/**
+ * <b>Some differences in the feature between web and mobile versions are: </b>
+ * <p>On mobile version, payment method has Paypal whereas web version doesn't
+ * <p>On mobile version, expenditure does not have "Debt payment to customer" whereas web version does
+ */
 public class CashbookApp {
 
 	AppiumDriver driver;
@@ -203,7 +209,6 @@ public class CashbookApp {
 				expenseType("paymentForGoods"),
 				expenseType("productionCost"),
 				expenseType("costOfRawMaterials"),
-				expenseType("debtPaymentToCustomer"),
 				expenseType("rentalFee"),
 				expenseType("utilities"),
 				expenseType("salaries"),
@@ -236,6 +241,7 @@ public class CashbookApp {
 				paymentMethod("cash"),
 				paymentMethod("zalopay"),
 				paymentMethod("momo"),
+				paymentMethod("paypal"),
 		};
 		return paymentMethod;
 	}	
@@ -283,11 +289,11 @@ public class CashbookApp {
 	}
 
 	public void verifySummaryDataAfterPaymentCreated(List<Long> originalSummary, List<Long> laterSummary, boolean isAccountingChecked) {
-//		Long expenditure = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX) + Long.parseLong(amount) : originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX);
-//		Assert.assertEquals(laterSummary.get(Cashbook.TOTALREVENUE_IDX), originalSummary.get(Cashbook.TOTALREVENUE_IDX), "Revenue");
-//		Assert.assertEquals(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX), expenditure, "Expenditure");
-//		Assert.assertEquals(laterSummary.get(Cashbook.ENDINGBALANCE_IDX), laterSummary.get(Cashbook.OPENINGBALANCE_IDX) + laterSummary.get(Cashbook.TOTALREVENUE_IDX) - laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX),
-//				"Ending Opening");
+		Long expenditure = (isAccountingChecked) ? originalSummary.get(pages.dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX) + Long.parseLong(amount) : originalSummary.get(pages.dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX);
+		Assert.assertEquals(laterSummary.get(pages.dashboard.cashbook.Cashbook.TOTALREVENUE_IDX), originalSummary.get(pages.dashboard.cashbook.Cashbook.TOTALREVENUE_IDX), "Revenue");
+		Assert.assertEquals(laterSummary.get(pages.dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX), expenditure, "Expenditure");
+		Assert.assertEquals(laterSummary.get(pages.dashboard.cashbook.Cashbook.ENDINGBALANCE_IDX), laterSummary.get(pages.dashboard.cashbook.Cashbook.OPENINGBALANCE_IDX) + laterSummary.get(pages.dashboard.cashbook.Cashbook.TOTALREVENUE_IDX) - laterSummary.get(pages.dashboard.cashbook.Cashbook.TOTALEXPENDITURE_IDX),
+				"Ending Opening");
 	}
 
 	public void verifyRecordDataAfterReceiptCreated(List<String> record, String branch, String source,
@@ -321,7 +327,7 @@ public class CashbookApp {
 	
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
+        capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
         capabilities.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
@@ -332,8 +338,46 @@ public class CashbookApp {
 		return new InitAppiumDriver().getAppiumDriver(capabilities, url);
 	}	
 
-	@Test
-	public void Login_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
+//	@Test
+	public void CB_00_CheckRevenueExpensePaymentDropdownValues() throws Exception {
+		
+		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
+		Assert.assertTrue(homePage.isAccountTabDisplayed());
+		homePage.navigateToPage("Cashbook");
+		
+		String[] expected;
+		String[] actual;
+		
+		cashbookPage.clickCreateBtn().clickCreateReceiptBtn();
+		
+		expected = revenueSourceList();
+		actual = cashbookPage.getSourceDropdownValues();
+		Arrays.sort(expected);
+		Arrays.sort(actual);
+		Assert.assertTrue(Arrays.equals(expected, actual), "Source list");
+        expected = paymentMethodList();
+        actual = cashbookPage.getPaymentMethodDropdownValues();
+		Arrays.sort(expected);
+		Arrays.sort(actual);
+		Assert.assertTrue(Arrays.equals(expected, actual), "Payment method list");
+		commonAction.navigateBack();
+		
+		cashbookPage.clickCreateBtn().clickCreatePaymentBtn();
+		
+		expected = expenseTypeList();
+		actual = cashbookPage.getSourceDropdownValues();
+		Arrays.sort(expected);
+		Arrays.sort(actual);
+		Assert.assertTrue(Arrays.equals(expected, actual), "Expense list");
+        expected = paymentMethodList();
+        actual = cashbookPage.getPaymentMethodDropdownValues();
+		Arrays.sort(expected);
+		Arrays.sort(actual);
+		Assert.assertTrue(Arrays.equals(expected, actual), "Payment method list");		
+	}
+	
+//	@Test
+	public void CB_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
 		
 		String group = senderGroup("customer");
 		
@@ -367,7 +411,7 @@ public class CashbookApp {
 	}
 	
 	@Test
-	public void Login_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
+	public void CB_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
 		
 		String group = senderGroup("supplier");
 		
@@ -401,7 +445,7 @@ public class CashbookApp {
 	}
 	
 	@Test
-	public void Login_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
+	public void CB_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
 		
 		String group = senderGroup("staff");
 		
@@ -434,8 +478,8 @@ public class CashbookApp {
 		}
 	}
 	
-	@Test
-	public void Login_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
+//	@Test
+	public void CB_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
 		
 		String group = senderGroup("others");
 		
@@ -467,5 +511,39 @@ public class CashbookApp {
 			commonAction.navigateBack();
 		}
 	}
+
+//	@Test
+	public void CB_06_CreatePaymentWhenSenderGroupIsCustomer() throws Exception {
+		
+		String group = senderGroup("customer");
+		
+    	loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
+    	Assert.assertTrue(homePage.isAccountTabDisplayed());
+    	homePage.navigateToPage("Cashbook");
+    	
+		for (String source : expenseTypeList()) {
+			boolean isAccountingChecked = randomAccountingChecked();
+			String sender = randomCustomer();
+			String branch = randomBranch();
+			String paymentMethod = randomPaymentMethod();
+			List<Long> originalSummary = cashbookPage.getCashbookSummary();
+			
+			cashbookPage.createPayment(group, source, branch, paymentMethod, sender, amount, note, isAccountingChecked);
+	    	general.getToastMessage();
+	    	
+	    	List<Long> laterSummary = cashbookPage.getCashbookSummary();
+	    	
+	    	verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, isAccountingChecked);
+	    	
+	    	commonAction.swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.7);
+			List<String> record = cashbookPage.getSpecificRecord(0);
+			verifyRecordDataAfterPaymentCreated(record, branch, source, sender, amount);
+	    	
+			cashbookPage.clickRecord(record.get(pages.dashboard.cashbook.Cashbook.TRANSACTIONCODE_COL)); // Click on the first record on the list.
+			verifyDataInRecordDetail(group, sender, source, branch, amount, paymentMethod, note, isAccountingChecked);
+			
+			commonAction.navigateBack();
+		}
+	}	
 	
 }

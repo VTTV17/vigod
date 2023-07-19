@@ -14,8 +14,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import pages.dashboard.Pagination;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.pagination.Pagination;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
