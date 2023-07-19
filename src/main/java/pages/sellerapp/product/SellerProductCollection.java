@@ -103,4 +103,13 @@ public class SellerProductCollection {
         logger.info("Select newest collection");
         return new SellerCreateCollection(driver);
     }
+    public SellerProductCollection verifyPageTitle() {
+        try {
+            Assert.assertEquals(new SellerGeneral(driver).getHeaderTitle(),PropertiesUtil.getPropertiesValueByDBLang("seller.productCollection.pageTitle"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return this;
+    }
+
 }
