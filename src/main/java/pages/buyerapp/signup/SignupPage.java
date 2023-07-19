@@ -1,4 +1,4 @@
-package pages.buyerapp;
+package pages.buyerapp.signup;
 
 import java.time.Duration;
 

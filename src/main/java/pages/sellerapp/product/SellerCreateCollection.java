@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollectionElement;
-import pages.sellerapp.SellerGeneral;
+import pages.sellerapp.general.SellerGeneral;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.data.DataGenerator;

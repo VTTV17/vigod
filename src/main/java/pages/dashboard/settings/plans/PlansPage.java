@@ -14,8 +14,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import pages.InternalTool;
 import pages.dashboard.home.HomePage;
+import pages.internaltool.InternalTool;
 import pages.thirdparty.ATM;
 import pages.thirdparty.PAYPAL;
 import pages.thirdparty.VISA;

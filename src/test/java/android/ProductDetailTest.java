@@ -10,7 +10,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
-import pages.buyerapp.NavigationBar;
+
+import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
 import utilities.UICommonMobile;
 import utilities.driver.InitAppiumDriver;

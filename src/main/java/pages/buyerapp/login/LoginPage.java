@@ -1,4 +1,4 @@
-package pages.buyerapp;
+package pages.buyerapp.login;
 
 import java.time.Duration;
 
@@ -8,6 +8,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import pages.buyerapp.buyergeneral.BuyerGeneral;
+import pages.buyerapp.signup.SignupPage;
 import utilities.UICommonMobile;
 
 public class LoginPage {

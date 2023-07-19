@@ -1,4 +1,4 @@
-package pages.buyerapp;
+package pages.buyerapp.notificationpermission;
 
 import java.time.Duration;
 

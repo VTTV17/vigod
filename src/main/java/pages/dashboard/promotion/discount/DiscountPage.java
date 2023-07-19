@@ -8,7 +8,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import pages.dashboard.ConfirmationDialog;
+
+import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.segments.Segments;
 import pages.dashboard.home.HomePage;

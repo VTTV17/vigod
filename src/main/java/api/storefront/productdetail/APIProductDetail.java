@@ -3,9 +3,11 @@ package api.storefront.productdetail;
 import api.dashboard.login.Login;
 import api.storefront.login.LoginSF;
 import io.restassured.response.Response;
+import pages.buyerapp.buyergeneral.BuyerGeneral;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pages.buyerapp.BuyerGeneral;
+
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.storefront.loginSF;

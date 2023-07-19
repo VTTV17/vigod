@@ -9,8 +9,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import org.testng.Assert;
-import pages.buyerapp.BuyerGeneral;
+
 import pages.buyerapp.account.BuyerMyProfile;
+import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.checkout.CheckoutStep1;
 import utilities.UICommonMobile;
 

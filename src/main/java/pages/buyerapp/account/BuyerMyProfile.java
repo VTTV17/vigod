@@ -7,9 +7,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import pages.buyerapp.BuyerGeneral;
-import pages.buyerapp.LoginPage;
 import pages.buyerapp.account.address.BuyerAddress;
+import pages.buyerapp.buyergeneral.BuyerGeneral;
+import pages.buyerapp.login.LoginPage;
 import pages.storefront.GeneralSF;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;

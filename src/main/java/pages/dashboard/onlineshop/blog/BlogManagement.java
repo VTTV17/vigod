@@ -12,7 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
-import pages.dashboard.ConfirmationDialog;
+import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.onlineshop.blog.categorymanagement.CategoryManagement;
 import pages.dashboard.onlineshop.blog.categorymanagement.CreateCategory;

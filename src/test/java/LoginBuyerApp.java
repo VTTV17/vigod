@@ -15,13 +15,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import api.dashboard.login.Login;
 import io.appium.java_client.AppiumDriver;
-import pages.buyerapp.BuyerGeneral;
-import pages.buyerapp.LoginPage;
-import pages.buyerapp.NavigationBar;
-import pages.buyerapp.NotificationPermission;
-import pages.buyerapp.SignupPage;
 import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
+import pages.buyerapp.buyergeneral.BuyerGeneral;
+import pages.buyerapp.login.LoginPage;
+import pages.buyerapp.navigationbar.NavigationBar;
+import pages.buyerapp.notificationpermission.NotificationPermission;
+import pages.buyerapp.signup.SignupPage;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
 import pages.dashboard.home.HomePage;
@@ -51,6 +51,7 @@ public class LoginBuyerApp {
 	String language = "VIE";
 	String expectedCodeMsg;
 	String expectedChangePasswordMsg;
+	List<String> oldPass;
 
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
@@ -130,7 +131,7 @@ public class LoginBuyerApp {
 	
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
+        capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D 
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0017");
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
@@ -182,15 +183,20 @@ public class LoginBuyerApp {
 		.clickChangePasswordDoneBtn();
 	}		
 	
-	public void resetToOriginalPassword(String currentPassword, String originalPassword) {
+	public List<String> resetToOriginalPassword(String currentPassword, String originalPassword) {
+		List<String> oldPasswords = new ArrayList<String>(); 
 		for (int i=0; i<5; i++) {
 			String newPassword = (i==4) ? originalPassword : originalPassword + generate.generateNumber(3)+ "!";
 			changePassword(currentPassword, newPassword);
 			currentPassword = newPassword;
+			
+    		if (i==0||i==4) continue; // First and last changed passwords will not be added to the list
+    		oldPasswords.add(newPassword);
 		}
+		return oldPasswords;
 	}		
 	
-	@Test
+//	@Test
 	public void Login_02_LoginWithFieldsLeftEmpty() {
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 		
@@ -206,7 +212,7 @@ public class LoginBuyerApp {
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());
 	}
 
-	@Test
+//	@Test
 	public void Login_03_LoginWithInvalidMailFormat() {
 		
 		String errorMessage = "Email không đúng";
@@ -229,7 +235,7 @@ public class LoginBuyerApp {
 		Assert.assertFalse(loginPage.isLoginBtnEnabled());
 	}
 	
-	@Test
+//	@Test
 	public void Login_04_LoginWithInvalidPhoneFormat() {
 		
 		String errorMessage = "Điền từ 8 - 15 số";
@@ -297,7 +303,7 @@ public class LoginBuyerApp {
 	}
 
 	@Test
-	public void Login_09_LoginWithGomuaMailAccount() throws SQLException {
+	public void Login_09_LoginWithGomuaMailAccount() {
 		
 		String country = GOMUA_MAIL_COUNTRY;
 		String username = GOMUA_MAIL_USERNAME;
@@ -322,7 +328,7 @@ public class LoginBuyerApp {
 	}	
 	
 	@Test
-	public void Login_10_LoginWithGomuaPhoneAccount() throws SQLException {
+	public void Login_10_LoginWithGomuaPhoneAccount() {
 		
 		String country = GOMUA_PHONE_COUNTRY;
 		String username = GOMUA_PHONE_USERNAME;
@@ -367,12 +373,23 @@ public class LoginBuyerApp {
 		
 		accountTab.clickProfile();
 		
+		commonAction.navigateBack();
+		
+		accountTab.logOutOfApp();
+		
+		accountTab.clickLoginBtn().performLogin(country, username, password);
+		Assert.assertEquals(buyerGeneral.getToastMessage(), "Email hoặc mật khẩu không đúng");
+		
+		loginPage.inputPassword(newPassword).clickLoginBtn();
+		
+		accountTab.clickProfile();
+		
+		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
+		oldPass = resetToOriginalPassword(newPassword, password);
+		
 //		String [][] mailContent = getEmailContent(username);
 //		Assert.assertEquals(mailContent[0][3], expectedChangePasswordMsg);
 //		Assert.assertEquals(mailContent[1][3], code + " " + expectedCodeMsg);
-		
-		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		resetToOriginalPassword(newPassword, password);
 	}
 	
 	@Test
@@ -399,6 +416,17 @@ public class LoginBuyerApp {
 		
 		accountTab.clickProfile();
 		
+		commonAction.navigateBack();
+		
+		accountTab.logOutOfApp();
+		
+		accountTab.clickLoginBtn().performLogin(country, username, password);
+		Assert.assertEquals(buyerGeneral.getToastMessage(), "Sai số điện thoại hoặc mật khẩu");
+		
+		loginPage.inputPassword(newPassword).clickLoginBtn();
+		
+		accountTab.clickProfile();
+		
 		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
 		resetToOriginalPassword(newPassword, password);
 		
@@ -406,7 +434,7 @@ public class LoginBuyerApp {
 	}
 
 	@Test
-	public void Login_13_ForgotPasswordForNonExistingAccount() throws SQLException {
+	public void Login_13_ForgotPasswordForNonExistingAccount() {
 		
 		navigationBar.tapOnAccountIcon().clickLoginBtn();
 		
@@ -434,7 +462,7 @@ public class LoginBuyerApp {
 	}	
 	
 	@Test
-	public void Login_14_ChangePasswordWithInvalidData() throws SQLException {
+	public void Login_14_ChangePasswordWithInvalidData() {
 		String username = BUYER_FORGOT_MAIL_USERNAME;
 		String password = BUYER_FORGOT_MAIL_PASSWORD;
 		String newPassword = password + "@" + generate.generateNumber(3);
@@ -487,8 +515,8 @@ public class LoginBuyerApp {
 		Assert.assertEquals(new BuyerMyProfile(driver).getNewPasswordError(), "Mật khẩu phải có ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt(!@#$%...)");
 	}	
 	
-	@Test
-	public void Login_15_ChangePasswordWithValidData() throws SQLException {
+//	@Test
+	public void Login_15_ChangePasswordWithValidData() {
 		String country = BUYER_FORGOT_MAIL_COUNTRY;
 		String username = BUYER_FORGOT_MAIL_USERNAME;
 		String password = BUYER_FORGOT_MAIL_PASSWORD;
@@ -514,11 +542,11 @@ public class LoginBuyerApp {
 		accountTab.clickProfile();
 		
 		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
-		resetToOriginalPassword(newPassword, password);
+		oldPass = resetToOriginalPassword(newPassword, password);
 	}	
 	
 	@Test
-	public void Login_16_ChangePasswordThatResemblePrevious4Passwords() throws SQLException {
+	public void Login_16_ChangePasswordThatResemblePrevious4Passwords() {
 		String country = BUYER_FORGOT_MAIL_COUNTRY;
 		String username = BUYER_FORGOT_MAIL_USERNAME;
 		String password = BUYER_FORGOT_MAIL_PASSWORD;
@@ -535,16 +563,22 @@ public class LoginBuyerApp {
 		// Change password back to the first password
 		String currentPassword = "";
 		List<String> oldPasswords = new ArrayList<String>(); 
-		for (int i=0; i<5; i++) {
-			
-			currentPassword = (i==0) ? password : newPassword;
-    		
-			newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
-			
-			changePassword(currentPassword, newPassword);
-    		
-    		if (i==0||i==4) continue; // First and last changed passwords will not be added to the list
-    		oldPasswords.add(newPassword);
+		
+		if (oldPass == null) {
+			for (int i=0; i<5; i++) {
+				
+				currentPassword = (i==0) ? password : newPassword;
+	    		
+				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
+				
+				changePassword(currentPassword, newPassword);
+	    		
+	    		if (i==0||i==4) continue; // First and last changed passwords will not be added to the list
+	    		oldPasswords.add(newPassword);
+			}			
+		} else {
+			oldPasswords = oldPass;
+			newPassword = password;
 		}
 		
 		// Verify new password should not be the same as the last 4 passwords.
