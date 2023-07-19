@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import pages.sellerapp.home.HomePage;
@@ -31,25 +30,25 @@ public class LoginPage {
     By ADMIN_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Quản trị viên' or @content-desc='Admin']/android.widget.TextView");
     By STAFF_TAB = By.xpath("//android.widget.LinearLayout[@content-desc='Nhân viên' or @content-desc='Staff']");
 
-    By COUNTRYCODE = By.id("com.mediastep.GoSellForSeller.STG:id/edtCountry");
-    By COUNTRY_SEARCHBOX = By.id("com.mediastep.GoSellForSeller.STG:id/edtCountriesSearch");
-    By COUNTRY_SEARCHRESULT = By.id("com.mediastep.GoSellForSeller.STG:id/tvValue");
+    By COUNTRYCODE = By.xpath("//*[ends-with(@resource-id,'edtCountry')]");
+    By COUNTRY_SEARCHBOX = By.xpath("//*[ends-with(@resource-id,'edtCountriesSearch')]");
+    By COUNTRY_SEARCHRESULT = By.xpath("//*[ends-with(@resource-id,'tvValue')]");
 
-    By USERNAME = By.id("com.mediastep.GoSellForSeller.STG:id/edtUsername");
-    By PASSWORD = By.id("com.mediastep.GoSellForSeller.STG:id/edtPassword");
-    By TERM_CHECKBOX = By.id("com.mediastep.GoSellForSeller.STG:id/cbxTermAndPrivacy");
-    By LOGIN_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/btnLogin");
+    By USERNAME = By.xpath("//*[ends-with(@resource-id,'edtUsername')]");
+    By PASSWORD = By.xpath("//*[ends-with(@resource-id,'edtPassword')]");
+    By TERM_CHECKBOX = By.xpath("//*[ends-with(@resource-id,'cbxTermAndPrivacy')]");
+    By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'btnLogin')]");
 
-    By FORGOTPASS_LINK = By.id("com.mediastep.GoSellForSeller.STG:id/tvForgetPassword");
-    By NEWPASSWORD = By.id("com.mediastep.GoSellForSeller.STG:id/edtNewPassword");
-    By SEND_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/rlSent");
-    By VERIFICATIONCODE = By.id("com.mediastep.GoSellForSeller.STG:id/edtVerifyCode");
-    By RESEND_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvResend");
+    By FORGOTPASS_LINK = By.xpath("//*[ends-with(@resource-id,'tvForgetPassword')]");
+    By NEWPASSWORD = By.xpath("//*[ends-with(@resource-id,'edtNewPassword')]");
+    By SEND_BTN = By.xpath("//*[ends-with(@resource-id,'rlSent')]");
+    By VERIFICATIONCODE = By.xpath("//*[ends-with(@resource-id,'edtVerifyCode')]");
+    By RESEND_BTN = By.xpath("//*[ends-with(@resource-id,'tvResend')]");
 
-    By AVAILABLESHOP_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/container");
+    By AVAILABLESHOP_BTN = By.xpath("//*[ends-with(@resource-id,'container')]");
 
-    By USERNAME_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorUsername");
-    By PASSWORD_ERROR = By.id("com.mediastep.GoSellForSeller.STG:id/tvErrorPassword");
+    By USERNAME_ERROR = By.xpath("//*[ends-with(@resource-id,'tvErrorUsername')]");
+    By PASSWORD_ERROR = By.xpath("//*[ends-with(@resource-id,'tvErrorPassword')]");
 
 
     public LoginPage clickAdminTab() {
@@ -155,9 +154,7 @@ public class LoginPage {
     }
 
     public LoginPage inputNewPassword(String password) {
-        WebElement txtPassword = commonAction.getElement(NEWPASSWORD, defaultTimeout);
-        txtPassword.clear();
-        txtPassword.sendKeys(password);
+        commonAction.inputText(NEWPASSWORD, password);
         logger.info("Input '" + password + "' into New Password field.");
         return this;
     }
@@ -169,9 +166,7 @@ public class LoginPage {
     }
 
     public LoginPage inputVerificationCode(String code) {
-        WebElement txtPassword = commonAction.getElement(VERIFICATIONCODE, defaultTimeout);
-        txtPassword.clear();
-        txtPassword.sendKeys(code);
+        commonAction.inputText(VERIFICATIONCODE, code);
         logger.info("Input '" + code + "' into Verification Code field.");
         return this;
     }
