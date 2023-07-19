@@ -34,6 +34,7 @@ public class HomePage {
     By LOGOUT_OK_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvRightButton");
     By LOGOUT_ABORT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvLeftButton");
     String PAGE_TITLE = "//*[@text='%pageName%']";
+    By HEADER = By.xpath("//*[contains(@resource-id, 'llHomeHeaderContainer')]");
 
 
     public boolean isAccountTabDisplayed() {
@@ -89,8 +90,7 @@ public class HomePage {
     }
 
     /**
-     *
-     * @param pageName: key of pageMap
+     List pageName: CreateNewOrder, CreateReservation, AddProduct, AddNewCustomer, ScanProduct, LiveStream, Facebook, ZaloOA, Printers, Orders, Product, Customer, Reservations, Inventory, Supplier, PurchaseOrders, Cashbook, Affiliate
      */
     public void navigateToPage(String pageName){
         String propertyName = pageMap().get(pageName);
@@ -101,10 +101,9 @@ public class HomePage {
             logger.info("Page name not found!");
             throw new RuntimeException(e);
         }
-        scrollDown();
         String newXpath = PAGE_TITLE.replace("%pageName%", pageNavigate);
-        commonAction.clickElement(By.xpath(newXpath));
-        logger.info("Naviage to page: "+pageName);
+        int index = commonAction.moveAndGetElement(HEADER, By.xpath(newXpath), pageNavigate);
+        driver.findElements(By.xpath(newXpath)).get(index).click();
     }
     public BuyerAccountPage scrollDown(){
         commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);

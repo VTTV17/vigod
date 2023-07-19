@@ -22,13 +22,13 @@ import java.net.MalformedURLException;
 
 import static utilities.account.AccountTest.*;
 
-public class ProductDetailTest extends BaseTest{
+public class ProductDetailTest extends BaseTest {
     int productId;
     boolean isIMEIProduct;
     boolean isHideStock = false;
     boolean isDisplayIfOutOfStock = true;
     ProductInfo productInfo;
-     String udid = "10HC8G04UP0003U";
+    String udid = "10HC8G04UP0003U";
     String appPackage = "com.mediastep.shop0018";
     String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
     String URL = "http://127.0.0.1:4723/wd/hub";
