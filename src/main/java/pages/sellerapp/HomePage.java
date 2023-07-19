@@ -94,8 +94,7 @@ public class HomePage {
      */
     public void navigateToPage(String pageName){
         String propertyName = pageMap().get(pageName);
-        System.out.println("propertyName: "+propertyName);
-        String pageNavigate = null;
+        String pageNavigate;
         try {
             pageNavigate = PropertiesUtil.getPropertiesValueByDBLang(propertyName);
         } catch (Exception e) {
@@ -111,5 +110,12 @@ public class HomePage {
         commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);
         logger.info("Scroll down");
         return new BuyerAccountPage(driver);
+    }
+    public void LogOut(){
+        clickAccountTab();
+        clickLogoutBtn();
+        commonAction.sleepInMiliSecond(1000);
+        clickLogoutOKBtn();
+        commonAction.sleepInMiliSecond(1000);
     }
 }

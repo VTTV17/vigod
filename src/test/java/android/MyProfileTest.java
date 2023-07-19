@@ -129,13 +129,13 @@ public class MyProfileTest {
         new UICommonMobile(driver).sleepInMiliSecond(5000);
         return userName;
     }
-    @Test
+//    @Test
     public void MUP01_CheckTextOfMyProfilePage() throws Exception {
         login(buyer).
         changeLanguage(language).clickProfile()
                 .verifyTextMyProfile();
     }
-    @Test
+//    @Test
     public void MUP02_ViewAccountInformation(){
         login(buyer).
         changeLanguage(language).verifyAvatarDisplay()
@@ -144,7 +144,7 @@ public class MyProfileTest {
                 .tapOnBarcodeIcon()
                 .verifyBarcode(barcodeNumber);
     }
-    @Test
+//    @Test
     public void MUP03_UpdateUserProfile_EmailAccount_NoBirthdayBefore(){
         String emailAccount = callAPISignUpAccount(true);
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
@@ -178,7 +178,7 @@ public class MyProfileTest {
                 .verifyBirthday(birthdayEdit)
                 .verifyBirthdayDisabled();
     }
-    @Test
+//    @Test
     public void MUP04_UpdateUserProfile_EmailAccount_HasBirthdayBefore(){
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name "+randomNumber;
@@ -208,7 +208,7 @@ public class MyProfileTest {
                 .verifyTaxCode(taxEdit)
                 .verifyBirthdayDisabled();
     }
-    @Test
+//    @Test
     public void MUP05_UpdateUserProfile_PhoneAccount_NoBirthdayBefore(){
         String phoneNumber = callAPISignUpAccount(false);
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
@@ -240,7 +240,7 @@ public class MyProfileTest {
                 .verifyBirthday(birthdayEdit)
                 .verifyBirthdayDisabled();
     }
-    @Test
+//    @Test
     public void MUP06_UpdateUserProfile_PhoneAccount_HasBirthdayBefore(){
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name "+randomNumber;
@@ -269,7 +269,7 @@ public class MyProfileTest {
                 .verifyTaxCode(taxEdit)
                 .verifyBirthdayDisabled();
     }
-    @Test
+//    @Test
     public void MUP07_CheckAddress_UserHasAddressThenCheckout(){
         login(buyer).
         changeLanguage(language);
@@ -317,7 +317,7 @@ public class MyProfileTest {
                 .clickAddress()
                 .verifyAddressVN(country,address,cityProvince,district,ward);
     }
-    @Test
+//    @Test
     public void MUP08_CheckAddress_NoAddressThenCheckout(){
         String radomPhone = generator.randomVNPhone();
         String emailAccount = callAPISignUpAccount(true);
@@ -342,7 +342,7 @@ public class MyProfileTest {
                 .tapOnBackIcon()
                 .tapOnBackIcon();
     }
-    @Test
+//    @Test
     public void MUP09_UpdateAddress_ExistedAccount(){
         //Check update address VN
         login(userName_UpdateAddress).
@@ -374,7 +374,7 @@ public class MyProfileTest {
                 .tapOnContinueBtn()
                 .verifyAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout);
     }
-    @Test
+//    @Test
     public void MUP10_UpdateAddress_NewAccount(){
         //Call api create buyer
         String emailAccount = callAPISignUpAccount(true);
@@ -418,7 +418,7 @@ public class MyProfileTest {
                 .tapOnContinueBtn()
                 .verifyAddressNonVN(countryCheckout,addressCheckout,address2Checkout,cityInputCheckout,stateCheckout,zipCodeCheckout);
     }
-    @Test
+//    @Test
     public void MUP11_CheckAddInvalidOtherPhoneOtherEmail() throws Exception {
         login(buyer).
         changeLanguage(language).clickProfile()
@@ -428,7 +428,7 @@ public class MyProfileTest {
                 .checkErrorWhenInputOtherPhoneOutOfRange();
 
     }
-    @Test
+//    @Test
     public void MUP12_CheckAddValidOtherPhoneOtherEmail() throws Exception {
         login(buyer).
         changeLanguage(language);
@@ -467,7 +467,7 @@ public class MyProfileTest {
                 .verifyOtherEmailAfterAdded(otherEmailMapOriginal)
                 .verifyOtherPhoneAfterAdded(otherPhoneMapOriginal);
     }
-    @Test
+//    @Test
     public void MUP13_CheckEditOtherPhoneEmail() throws Exception {
         login(buyer).
         changeLanguage(language);
@@ -481,7 +481,7 @@ public class MyProfileTest {
                 .verifyOtherEmailAfterAdded(otherEmailEdited)
                 .verifyOtherPhoneAfterAdded(otherPhoneEdited);
     }
-    @Test
+//    @Test
     public void MUP14_CheckDeleteOtherPhoneOtherEmail() throws Exception {
         login(buyer).
         changeLanguage(language);

@@ -17,7 +17,9 @@ import pages.dashboard.products.productcollection.createeditproductcollection.Cr
 import pages.sellerapp.HomePage;
 import pages.sellerapp.LoginPage;
 import pages.sellerapp.SellerAccount;
+import pages.sellerapp.SellerGeneral;
 import pages.sellerapp.product.SellerCreateCollection;
+import pages.sellerapp.product.SellerProductCollection;
 import pages.sellerapp.product.SellerProductManagement;
 import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
@@ -27,6 +29,10 @@ import utilities.screenshot.Screenshot;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import static utilities.account.AccountTest.*;
+import static utilities.account.AccountTest.ADMIN_CREATE_NEW_SHOP_PASSWORD;
+
 public class ProductCollectionTest {
     String sellerAppPackage;
     String selelrAppActivity;
@@ -53,6 +59,12 @@ public class ProductCollectionTest {
     String condition;
     String allConditionTxt;
     String anyConditionTxt;
+    String userName_goWeb;
+    String userName_goApp;
+    String userName_goPOS;
+    String userName_goSocial;
+    String userName_GoLead;
+    String passwordCheckPermission;
     @BeforeClass
     public void setUp() throws Exception {
         sellerAppPackage = "com.mediastep.GoSellForSeller.STG";
@@ -77,7 +89,12 @@ public class ProductCollectionTest {
         equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
         allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
         anyConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
-
+        userName_goWeb = ADMIN_USERNAME_GOWEB;
+        userName_goApp = ADMIN_USERNAME_GOAPP;
+        userName_goPOS = ADMIN_USERNAME_GOPOS;
+        userName_goSocial = ADMIN_USERNAME_GOSOCIAL;
+        userName_GoLead = ADMIN_USERNAME_GOLEAD;
+        passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
     }
     public AppiumDriver launchApp(String appPackage, String appActivity) throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -97,6 +114,9 @@ public class ProductCollectionTest {
     }
     public HomePage loginSellerApp(){
        return new LoginPage(driver).performLogin(userDb,passDb);
+    }
+    public HomePage loginSellerApp(String userName, String pass){
+        return new LoginPage(driver).performLogin(userName,pass);
     }
     public SellerCreateCollection goToCreateCollection(){
         new HomePage(driver).navigateToPage("Product");
@@ -119,8 +139,9 @@ public class ProductCollectionTest {
         int menuID = new APIHeader().getCurrentMenuId();
         apiMenus.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
     }
-    public void goToCollectionPage(String collectionName) {
-        new BuyerHomePage(driver).clickOnMenuIcon().clickOnMenuItemByText(collectionName);
+    public void goToSellerCollectionPage() {
+        new HomePage(driver).navigateToPage("Product");
+        new SellerProductManagement(driver).tapOnProductColectionIcon();
     }
     public void createAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
         List<String> productExpectedList;
@@ -151,6 +172,25 @@ public class ProductCollectionTest {
                 .verifyCollectionTypeNewest("Automated")
                 .selectNewestCollection()
                 .verifyCollectionName(collectionName);
+    }
+    public void checkPermissionByPackageWhenTapCollectionBtn(String userName, boolean hasPermission){
+        String collectionName = "Check permission "+ generator.randomNumberGeneratedFromEpochTime(10);
+        loginSellerApp(userName,passwordCheckPermission);
+        goToSellerCollectionPage();
+        if(hasPermission){
+            new SellerProductCollection(driver).verifyPageTitle()
+                    .tapCreateCollectionIcon()
+                    .inputCollectionName(collectionName)
+                    .tapSaveIcon()
+                    .verifyCreateSuccessfullyMessage()
+                    .verifyCollectionNameNewest(collectionName);
+            new SellerGeneral(driver).tapHeaderLeftIcon();
+        }else {
+            new SellerProductManagement(driver).verifyUpgradePopupWhenNoPermission()
+                    .tapCancelBtnOnUpgradePopup();
+        }
+        new SellerGeneral(driver).tapHeaderLeftIcon();
+        new HomePage(driver).LogOut();
     }
     @Test
     public void MPC01_VerifyTextByLanguage() throws Exception {
@@ -275,5 +315,15 @@ public class ProductCollectionTest {
         String collectionName = generator.generateString(5) + " - " + "OR multiple condition";
         createAutomationCollectionAndVerify(collectionName, anyConditionTxt, conditions);
     }
+    @Test
+    public void MPC14_CheckPermissionByPackage(){
+        checkPermissionByPackageWhenTapCollectionBtn(userName_goWeb,true);
+        checkPermissionByPackageWhenTapCollectionBtn(userName_goApp,true);
+        checkPermissionByPackageWhenTapCollectionBtn(userName_goPOS,true);
+        checkPermissionByPackageWhenTapCollectionBtn(userName_goSocial,false);
+        checkPermissionByPackageWhenTapCollectionBtn(userName_GoLead,false);
+    }
+    public void MPC15_UdatePriorityNumber(){
 
+    }
 }

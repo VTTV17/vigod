@@ -31,6 +31,9 @@ public class SellerGeneral {
     By SAVE_ICON_SELECT_IMAGE = By.xpath("//*[ends-with(@resource-id,'fragment_choose_photo_dialog_btn_choose')]");
     By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
     By LOADING_ICON = By.xpath("//*[ends-with(@class,'ProgressBar')]");
+    By POPUP_MESSAGE = By.xpath("//*[ends-with(@resource-id,'tvDescription')]");
+    By POPUP_LEFT_BTN = By.xpath("//*[ends-with(@resource-id,'tvLeftButton')]");
+    By POPUP_RIGHT_BTN = By.xpath("//*[ends-with(@resource-id,'tvRightButton')]");
 
     public String getHeaderTitle(){
         String headerTitle = common.getText(HEADER_PAGE_TITLE);
@@ -64,5 +67,13 @@ public class SellerGeneral {
     public SellerGeneral waitLoadingDisapear(){
         common.waitTillElementDisappear(common.getElement(LOADING_ICON,30),30);
         return this;
+    }
+    public String getPopupMessage(){
+        String popupMessage = common.getText(POPUP_MESSAGE);
+        logger.info("Get popup message: "+popupMessage);
+        return popupMessage;
+    }
+    public void tapLeftBtnOnPopup(){
+        common.clickElement(POPUP_LEFT_BTN);
     }
 }
