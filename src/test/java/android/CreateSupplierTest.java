@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 
 import pages.sellerapp.home.HomePage;
 import pages.sellerapp.login.LoginPage;
+import pages.sellerapp.supplier.create.CreateSupplierScreen;
 import utilities.driver.InitAppiumDriver;
 
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
@@ -25,8 +26,8 @@ public class CreateSupplierTest extends BaseTest{
     }
 
     @Test
-    void T() {
-
+    void T() throws Exception {
+//        new CreateSupplierScreen(driver).createNewSupplier(true);
     }
 
 }

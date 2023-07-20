@@ -9,13 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.shopcart.BuyerShopCartPage;
@@ -100,7 +97,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String dbProductName = StringUtils.capitalize(productInfo.getProductNameMap().get(barcode).get(language));
 
         // get product name on shop online
-        String sfProductName = commonMobile.moveAndGetElement(PRODUCT_NAME, PRODUCT_NAME).getText();
+        String sfProductName = commonMobile.moveAndGetElement(PRODUCT_NAME).getText();
 
         // check product name
         countFail = new AssertCustomize(driver).assertTrue(countFail, sfProductName.equals(dbProductName), "[Failed][Check product name] Product name should be %s but found %s.".formatted(dbProductName, sfProductName));
@@ -129,7 +126,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String branch = "[Branch name: %s]".formatted(brName);
         boolean hasFlashSale = true;
         try {
-            commonMobile.moveAndGetElement(PRODUCT_NAME, FLASH_SALE_BADGE);
+            commonMobile.moveAndGetElement(FLASH_SALE_BADGE);
         } catch (NoSuchElementException ex) {
             hasFlashSale = false;
         }
@@ -142,7 +139,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String branch = "[Branch name: %s]".formatted(brName);
         boolean hasDiscountCampaign = true;
         try {
-            commonMobile.moveAndGetElement(PRODUCT_NAME, DISCOUNT_CAMPAIGN_BADGE);
+            commonMobile.moveAndGetElement(DISCOUNT_CAMPAIGN_BADGE);
         } catch (NoSuchElementException ex) {
             hasDiscountCampaign = false;
         }
@@ -156,7 +153,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String branch = "[Branch name: %s]".formatted(brName);
         boolean check = true;
         try {
-            commonMobile.moveAndGetElement(PRODUCT_NAME, WHOLE_SALE_PRODUCT_BADGE);
+            commonMobile.moveAndGetElement(WHOLE_SALE_PRODUCT_BADGE);
         } catch (NoSuchElementException ex) {
             check = false;
         }
@@ -170,7 +167,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     void checkVariationName(String language) {
         // get variation name list on dashboard
         List<String> variationNameListDB = Arrays.stream(productInfo.getVariationNameMap().get(language).split("\\|")).toList();
-        List<String> variationNameListAndroid = commonMobile.getListElementText(PRODUCT_NAME, VARIATION_NAME_LIST);
+        List<String> variationNameListAndroid = commonMobile.getListElementText(VARIATION_NAME_LIST);
 
         countFail = new AssertCustomize(driver).assertTrue(countFail, variationNameListAndroid.toString().equals(variationNameListDB.toString()), "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListAndroid));
         logger.info("[Check variation name] Check product variation show correctly");
@@ -182,7 +179,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         // check Search icon is shown or not
         boolean checkSearchBox = true;
         try {
-            commonMobile.moveAndGetElement(PRODUCT_NAME, SEARCH_BRANCH_ICON).click();
+            commonMobile.moveAndGetElement(SEARCH_BRANCH_ICON).click();
         } catch (NoSuchElementException ex) {
             checkSearchBox = false;
         }
@@ -193,7 +190,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         boolean checkFilter = true;
         try {
             // check filter branch icon is shown or not
-            commonMobile.moveAndGetElement(PRODUCT_NAME, FILTER_BRANCH_ICON);
+            commonMobile.moveAndGetElement(FILTER_BRANCH_ICON);
         } catch (NoSuchElementException ex) {
             checkFilter = false;
         }
@@ -207,7 +204,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         // check Search icon is shown or not
         boolean checkSearchBox = true;
         try {
-            commonMobile.moveAndGetElement(PRODUCT_NAME, SEARCH_BRANCH_ICON).click();
+            commonMobile.moveAndGetElement(SEARCH_BRANCH_ICON).click();
         } catch (NoSuchElementException ex) {
             checkSearchBox = false;
         }
@@ -218,7 +215,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         // check Filter icon
         boolean checkFilter = true;
         try {
-            commonMobile.moveAndGetElement(PRODUCT_NAME, FILTER_BRANCH_ICON);
+            commonMobile.moveAndGetElement(FILTER_BRANCH_ICON);
         } catch (NoSuchElementException ex) {
             checkFilter = false;
         }
@@ -252,7 +249,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // get SF product description
         if (dbDescription.length() > 1) {
-            String adrDescription = commonMobile.moveAndGetElement(PRODUCT_NAME, PRODUCT_DESCRIPTION_CONTENT).getText();
+            String adrDescription = commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_CONTENT).getText();
             countFail = new AssertCustomize(driver).assertTrue(countFail, adrDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, adrDescription));
         }
         logger.info("[Check description] Check product description is shown correctly.");
@@ -265,7 +262,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      */
     void checkSoldOutMark(String... variationName) {
         String varName = variationName.length > 0 ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
-        boolean isSoldOut = commonMobile.moveAndGetElement(PRODUCT_NAME, SOLD_OUT_MARK) != null;
+        boolean isSoldOut = commonMobile.moveAndGetElement(SOLD_OUT_MARK) != null;
         countFail = new AssertCustomize(driver).assertTrue(countFail, isSoldOut, "[Failed]%s Sold out mark does not show".formatted(varName));
         logger.info("%s Check 'SOLD OUT' mark is shown".formatted(varName));
     }
@@ -275,19 +272,19 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
             // check Buy now button is shown
-            boolean checkBuyNow = commonMobile.moveAndGetElement(PRODUCT_NAME, BUY_NOW_BTN) != null;
+            boolean checkBuyNow = commonMobile.moveAndGetElement(BUY_NOW_BTN) != null;
 
             countFail = new AssertCustomize(driver).assertTrue(countFail, checkBuyNow, "[Failed]%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
             logger.info("%s Check 'Buy Now' button is displayed.".formatted(varName));
 
             // check Add to cart button is shown
-            boolean checkAddToCart = commonMobile.moveAndGetElement(PRODUCT_NAME, ADD_TO_CART_ICON) != null;
+            boolean checkAddToCart = commonMobile.moveAndGetElement(ADD_TO_CART_ICON) != null;
             countFail = new AssertCustomize(driver).assertTrue(countFail, checkAddToCart, "[Failed]%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
             logger.info("%s Check 'Add to cart' button is displayed.".formatted(varName));
 
         } else {
             // check Contact Now button is shown
-            boolean isContactNow = commonMobile.moveAndGetElement(PRODUCT_NAME, CONTACT_NOW_BTN) != null;
+            boolean isContactNow = commonMobile.moveAndGetElement(CONTACT_NOW_BTN) != null;
 
             countFail = new AssertCustomize(driver).assertTrue(countFail, isContactNow, "[Failed]%s 'Contact Now' button should be shown but it is hidden.".formatted(varName));
             logger.info("%s Check 'Contact Now' button is shown.".formatted(varName));
@@ -312,7 +309,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         if (!(isEnableListingProduct && productInfo.isEnabledListing())) {
             // open add to cart popup
-            commonMobile.moveAndGetElement(PRODUCT_NAME, ADD_TO_CART_ICON).click();
+            commonMobile.moveAndGetElement(ADD_TO_CART_ICON).click();
 
             // check price
             switch (priceType) {
@@ -357,18 +354,10 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             else checkFilterAndSearchBranchIsHidden(variationName);
 
             // get current branch name list
-            List<String> currentBranchNameList = commonMobile.getListElementText(PRODUCT_NAME, BRANCH_LIST);
-            System.out.println(currentBranchNameList);
+            List<String> currentBranchNameList = commonMobile.getListElementText(BRANCH_LIST);
             for (String brName : currentBranchNameList) {
                 // switch branch
-                int index = commonMobile.moveAndGetElement(PRODUCT_NAME, BRANCH_LIST, brName);
-                Rectangle footerRect = driver.findElement(ITEM_DETAIL_FOOTER).getRect();
-                Rectangle brRect = driver.findElements(BRANCH_LIST).get(index).getRect();
-                if ((brRect.getY() + brRect.getHeight()) >= footerRect.getY()) {
-                    commonMobile.swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
-                    driver.findElements(BRANCH_LIST).stream().filter(brElement -> brElement.getText().equals(brName)).findFirst().ifPresent(WebElement::click);
-                } else driver.findElements(BRANCH_LIST).get(index).click();
-
+                commonMobile.moveAndGetOverlappedElementByText(brName, ITEM_DETAIL_FOOTER).click();
 
                 // check branch name, branch stock, branch price
                 // get branch index in branch information
@@ -426,16 +415,8 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             // ignore if variation inactive
             if (productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) {
                 // switch variation if any
-                if (productInfo.isHasModel()) {
-                    for (String var : variationValue.split("\\|")) {
-                        int index = commonMobile.moveAndGetElement(PRODUCT_NAME, VARIATION_VALUE_LIST, var);
-                        Rectangle footerRect = driver.findElement(ITEM_DETAIL_FOOTER).getRect();
-                        Rectangle variationRect = driver.findElements(VARIATION_VALUE_LIST).get(index).getRect();
-                        if ((variationRect.getY() + variationRect.getHeight()) >= footerRect.getY())
-                            commonMobile.swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
-                        driver.findElements(VARIATION_VALUE_LIST).get(index).click();
-                    }
-                }
+                if (productInfo.isHasModel())
+                    Arrays.stream(variationValue.split("\\|")).forEachOrdered(var -> commonMobile.moveAndGetOverlappedElementByText(var, ITEM_DETAIL_FOOTER).click());
 
                 // check product information
                 checkVariationInformation(varIndex,

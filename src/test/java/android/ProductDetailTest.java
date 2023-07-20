@@ -454,6 +454,6 @@ public class ProductDetailTest extends BaseTest {
 
     @AfterMethod
     void teardown() {
-        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+//        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
     }
 }

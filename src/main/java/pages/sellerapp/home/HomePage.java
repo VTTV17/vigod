@@ -27,6 +27,7 @@ public class HomePage {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
+        commonAction.waitPageLoaded();
     }
 
     By ACCOUNT_TAB = By.id("com.mediastep.GoSellForSeller.STG:id/bottom_navigation_tab_account");
@@ -34,7 +35,6 @@ public class HomePage {
     By LOGOUT_OK_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvRightButton");
     By LOGOUT_ABORT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvLeftButton");
     String PAGE_TITLE = "//*[@text='%pageName%']";
-    By HEADER = By.xpath("//*[contains(@resource-id, 'llHomeHeaderContainer')]");
 
 
     public boolean isAccountTabDisplayed() {
@@ -101,9 +101,7 @@ public class HomePage {
             logger.info("Page name not found!");
             throw new RuntimeException(e);
         }
-        String newXpath = PAGE_TITLE.replace("%pageName%", pageNavigate);
-        int index = commonAction.moveAndGetElement(HEADER, By.xpath(newXpath), pageNavigate);
-        driver.findElements(By.xpath(newXpath)).get(index).click();
+        commonAction.moveAndGetElementByText(pageNavigate).click();
     }
     public BuyerAccountPage scrollDown(){
         commonAction.swipeByCoordinatesInPercent(0.75,0.75,0.75,0.25);

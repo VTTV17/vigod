@@ -208,37 +208,47 @@ public class UICommonMobile extends UICommonAction {
         });
     }
 
-    public void moveToTopScreen(By topLocator) {
-        // scroll to top screen
-        boolean isTopScreen = false;
-        while (!isTopScreen) {
-            isTopScreen = driver.findElements(topLocator).size() > 0;
-            swipeByCoordinatesInPercent(0.5, 0.5, 0.5, 0.75);
-        }
+	String flashSaleRegex = "<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>";
+    public void moveToTopScreen() {
+		String currentPageSource;
+		String nextPageSource;
+		do {
+			currentPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
+
+			swipeByCoordinatesInPercent(0.5, 0.25, 0.5, 0.75);
+
+			nextPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
+
+		} while (!currentPageSource.equals(nextPageSource));
     }
 
-    public WebElement moveAndGetElement(By topLocator, By locator) {
-        // scroll to top
-        moveToTopScreen(topLocator);
+    public WebElement moveAndGetElement(By locator) {
+		// if element is presented, end
+		if (driver.findElements(locator).size() > 0) return driver.findElement(locator);
+		// else, scroll to top
+		else moveToTopScreen();
 
         // scroll to and find element until it present
 		String currentPageSource;
 		String nextPageSource;
         do {
             if (driver.findElements(locator).size() > 0) return driver.findElement(locator);
-			currentPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+			currentPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
 
 			swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
 
-            nextPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+            nextPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
 
         } while (!(currentPageSource.equals(nextPageSource)));
 		throw new NoSuchElementException("No element is found!!!");
     }
 
-    public List<String> getListElementText(By topLocator, By locator) {
+    public List<String> getListElementText(By locator) {
+		// move to top screen
+		moveToTopScreen();
+
         // move and find start point
-        moveAndGetElement(topLocator, locator);
+        moveAndGetElement(locator);
 
         // get list text element
         List<WebElement> listElement;
@@ -253,12 +263,12 @@ public class UICommonMobile extends UICommonAction {
 				String elementText = driver.findElements(locator).get(index).getText();
 				if (!listElementText.contains(elementText)) listElementText.add(elementText);
 			}
-			String currentPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+			String currentPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
 
             //swipe screen to get next element list
             swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
 
-            String nextPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+            String nextPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
             if (currentPageSource.equals(nextPageSource)) break;
 
             // get new element list
@@ -268,41 +278,32 @@ public class UICommonMobile extends UICommonAction {
         return listElementText;
     }
 
-    public int moveAndGetElement(By topLocator, By locator, String text) {
-        // move and find start point
-        moveAndGetElement(topLocator, locator);
+	public WebElement moveAndGetElementByText(String elText) {
+		String xpath = "//*[@text = '%s']".formatted(elText);
+		return moveAndGetElement(By.xpath(xpath));
+	}
 
-		System.out.println("text: " + text);
+	public WebElement moveAndGetOverlappedElementByText(String elText, By overlapLocator) {
+		WebElement element = moveAndGetElementByText(elText);
+		Rectangle overlapRect = driver.findElement(overlapLocator).getRect();
+		Rectangle elRect = element.getRect();
+		if ((elRect.getY() + elRect.getHeight()) >= overlapRect.getY()) {
+			swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
+		}
+		return driver.findElement(By.xpath("//*[@text = '%s']".formatted(elText)));
+	}
 
-        // find element
-        List<WebElement> listElement;
-        List<String> checkedElementText = new ArrayList<>();
-        do {
-            // get list elementId
-            listElement = driver.findElements(locator);
+	public void waitPageLoaded() {
+		String currentPageSource;
+		String nextPageSource;
+		do {
+			currentPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
 
-            // find element has attribute value match with 'text'
-            if (listElement.size() > 0) for (int index = listElement.size() - 1; index >= 0; index--) {
-                String elementText = driver.findElements(locator).get(index).getText();
-				System.out.println("el text: " + elementText);
-                if (elementText.equals(text)) return index;
-                else checkedElementText.add(elementText);
-            }
-			String currentPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+			swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.25);
 
-            // swipe to get new list elements
-            swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);
-
-            String nextPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
-
-            if (currentPageSource.equals(nextPageSource)) break;
-
-            // get new list elements
-            listElement = driver.findElements(locator);
-
-        } while (((listElement.size() == 0) & (checkedElementText.size() == 0)) || !new HashSet<>(checkedElementText).containsAll(IntStream.range(0, listElement.size()).mapToObj(index -> driver.findElements(locator).get(index).getText()).toList()));
-		throw new NoSuchElementException ("No element is found!!!");
-    }
+			nextPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+		} while (currentPageSource.equals(nextPageSource));
+	}
 
 	public void waitListElementVisible(By locator) {
 		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));

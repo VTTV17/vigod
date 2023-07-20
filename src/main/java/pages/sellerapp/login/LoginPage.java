@@ -10,6 +10,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import pages.sellerapp.home.HomePage;
 import utilities.UICommonMobile;
+import utilities.data.DataGenerator;
+import utilities.model.sellerApp.login.LoginInformation;
 
 public class LoginPage {
 
@@ -18,6 +20,7 @@ public class LoginPage {
     WebDriver driver;
     WebDriverWait wait;
     UICommonMobile commonAction;
+    private static final LoginInformation loginInfo = new LoginInformation();
 
     int defaultTimeout = 5;
 
@@ -175,7 +178,10 @@ public class LoginPage {
         inputPassword(password);
         clickAgreeTerm();
         clickLoginBtn();
-        commonAction.sleepInMiliSecond(2000);
+
+        // set login information
+        loginInfo.setEmail(userName);
+        loginInfo.setPassword(password);
         return new HomePage(driver);
     }
     public HomePage performLogin(String countryCode, String userName, String password){
@@ -184,7 +190,17 @@ public class LoginPage {
         inputPassword(password);
         clickAgreeTerm();
         clickLoginBtn();
+
+        // set login information
+        loginInfo.setPhoneCode(new DataGenerator().getPhoneCode(countryCode));
+        loginInfo.setPhoneNumber(userName);
+        loginInfo.setPassword(password);
         return new HomePage(driver);
+    }
+
+    // get phone code, phone number, email, password
+    public LoginInformation getLoginInfo() {
+        return loginInfo;
     }
 
 
