@@ -159,26 +159,29 @@ public class UICommonMobile extends UICommonAction {
 	 * @throws IllegalArgumentException if the platform name obtained from the driver's capabilities is neither "android" nor "ios".
 	 */
 	public void swipeByCoordinatesInPercent(double startX, double startY, double endX, double endY) {
+		swipeByCoordinatesInPercent(startX, startY, endX, endY, 200);
+	}
+	public void swipeByCoordinatesInPercent(double startX, double startY, double endX, double endY, int delay) {
 		// Get the size of the device screen
 		Dimension size = driver.manage().window().getSize();
-
+		
 		// Set start and end coordinates for the swipe
 		int startXCoordinate = (int) (size.width * startX);
 		int startYCoordinate = (int) (size.height * startY);
 		int endXCoordinate = (int) (size.width * endX);
 		int endYCoordinate = (int) (size.height * endY);
-
+		
 		// Create new PointerInput objects for start and end positions
 		PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-
+		
 		// Create a new sequence for the swipe gesture and add actions to it
 		Sequence swipeGesture = new Sequence(finger, 0);
 		swipeGesture.addAction(finger.createPointerMove(Duration.ofMillis(0), PointerInput.Origin.viewport(), startXCoordinate, startYCoordinate));
 		swipeGesture.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-		swipeGesture.addAction(new Pause(finger, Duration.ofMillis(100)));
-		swipeGesture.addAction(finger.createPointerMove(Duration.ofMillis(200), PointerInput.Origin.viewport(), endXCoordinate, endYCoordinate));
+		swipeGesture.addAction(new Pause(finger, Duration.ofMillis(10)));
+		swipeGesture.addAction(finger.createPointerMove(Duration.ofMillis(delay), PointerInput.Origin.viewport(), endXCoordinate, endYCoordinate));
 		swipeGesture.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
+		
 		// Execute the swipe gesture on the device
 		String platformNameFromCapacity = ((AppiumDriver)driver).getCapabilities().getCapability("platformName").toString();
 		if (platformNameFromCapacity.equalsIgnoreCase("android")) {
