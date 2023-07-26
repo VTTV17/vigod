@@ -4,8 +4,10 @@ import lombok.Data;
 
 @Data
 public class SupplierInformation {
+    private boolean isVNSupplier;
     private String supplierName;
     private String supplierCode;
+    private String supplierPhoneCode;
     private String supplierPhone;
     private String supplierEmail;
     private String country;

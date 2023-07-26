@@ -5,10 +5,14 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.sellerApp.supplier.SupplierInformation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class SupplierAPI {
     String GET_SUPPLIER_LIST = "/itemservice/api/suppliers/store/%s?page=0&size=100&nameOrCode=%s";
@@ -16,7 +20,15 @@ public class SupplierAPI {
     String SUPPLIER_DETAIL_PATH = "/itemservice/api/suppliers/%s";
     String GET_SUPPLIER_ORDER_HISTORY_PATH = "/itemservice/api/purchase-orders/store-id/%s?searchBy=id&purchaseId=%s&supplierId=%s&page=0&size=5&sort=id,desc";
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
+
+    public SupplierAPI() {
+        loginInfo = new Login().getInfo();
+    }
+
+    public SupplierAPI(LoginInformation loginInformation) {
+        loginInfo = new Login().getInfo(loginInformation);
+    }
 
     public JsonPath getAllSupplierJsonPath(String supplierCode) {
         Response response = api.get(GET_SUPPLIER_LIST.formatted(loginInfo.getStoreID(), supplierCode), loginInfo.getAccessToken());
@@ -34,6 +46,20 @@ public class SupplierAPI {
 
     public List<Integer> getListSupplierID(String supplierCode) {
         return getAllSupplierJsonPath(supplierCode).getList("id");
+    }
+
+    public List<SupplierInformation> getListSupplierInformation() {
+        List<SupplierInformation> supplierInformationList = new ArrayList<>();
+        JsonPath allSupplierJsonPath = getAllSupplierJsonPath("");
+        List<String> supplierNameList = allSupplierJsonPath.getList("code");
+        List<String> supplierCodeList = allSupplierJsonPath.getList("name");
+        IntStream.range(0, supplierCodeList.size()).forEach(index -> {
+            var supInfo = new SupplierInformation();
+            supInfo.setSupplierCode(supplierCodeList.get(index));
+            supInfo.setSupplierName(supplierNameList.get(index));
+            supplierInformationList.add(supInfo);
+        });
+        return supplierInformationList;
     }
 
     public JsonPath createSupplier() {
@@ -62,6 +88,7 @@ public class SupplierAPI {
     public String createSupplierAndGetSupplierCode() {
         return createSupplier().getString("code");
     }
+
     public int createSupplierAndGetSupplierID() {
         return createSupplier().getInt("id");
     }

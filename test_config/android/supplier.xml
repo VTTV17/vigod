@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+  <test thread-count="5" name="GoSELL-Automation">
+    <classes>
+      <class name="android.SupplierTest">
+        <methods>
+          <include name="SUP01_ScenarioForVNSupplier" />
+          <include name="SUP02_ScenarioForNonVNSupplier" />
+          <include name="SUP03_ScenarioForDeletedSupplierAtSupplierManagement" />
+          <include name="SUP04_ScenarioForDeletedSupplierAtSupplierDetail" />
+          <include name="SUP05_SearchSupplierAndCheckResult"/>
+        </methods>
+      </class> <!-- android.SupplierTest -->
+    </classes>
+  </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

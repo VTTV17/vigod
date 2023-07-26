@@ -20,7 +20,7 @@ public class UISupplierManagementPage extends UISupplierManagementElement {
 	UICommonAction commons;
 	WebDriverWait wait;
 	public AssertCustomize assertCustomize;
-	public int countFail;
+	public int countFail = 0;
 
 	final static Logger logger = LogManager.getLogger(UISupplierManagementPage.class);
 
@@ -30,7 +30,6 @@ public class UISupplierManagementPage extends UISupplierManagementElement {
 		commons = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
 		assertCustomize = new AssertCustomize(driver);
-		this.countFail = assertCustomize.countFail;
 	}
 
 	void checkHeader(String language) throws Exception {

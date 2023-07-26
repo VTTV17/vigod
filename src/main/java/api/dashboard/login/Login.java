@@ -5,6 +5,7 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import static io.restassured.RestAssured.baseURI;
 import static org.hamcrest.Matchers.notNullValue;
@@ -13,10 +14,8 @@ import static utilities.links.Links.URI;
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
-    private static String account;
-    private static String password;
-    private static String phoneCode;
     API api = new API();
+    public static LoginInformation loginInfo = new LoginInformation();
 
     Response getLoginResponse(String account, String password) {
         baseURI = URI;
@@ -33,26 +32,30 @@ public class Login {
         return loginResponse;
     }
 
-    public Login loginToDashboardByMail(String account, String password) {
+    public LoginInformation loginToDashboardByMail(String account, String password) {
+        if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
+
         // set local account
-        Login.account = account;
+        loginInfo.setEmail(account);
 
         // set local password
-        Login.password = password;
+        loginInfo.setPassword(password);
 
-        return this;
+        return loginInfo;
     }
 
-    public LoginDashboardInfo getInfo() {
+    public LoginDashboardInfo getInfo(LoginInformation... loginInformation) {
+        LoginInformation logInfo = loginInformation.length > 0 ? loginInformation[0] : loginInfo;
+
         // init login dashboard info model
         LoginDashboardInfo info = new LoginDashboardInfo();
 
         // get login response
         Response res;
 
-        if(Login.account.matches("[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,6}")){
-            res = getLoginResponse(Login.account, Login.password); //if account is email
-        }else res = getLoginWithPhoneResponse(phoneCode,account,password);
+        if (logInfo.getEmail() != null) {
+            res = getLoginResponse(logInfo.getEmail(), logInfo.getPassword()); //if account is email
+        } else res = getLoginWithPhoneResponse(logInfo.getPhoneCode(), logInfo.getPhoneNumber(), logInfo.getPassword());
 
         // set accessToken
         info.setAccessToken(res.jsonPath().getString("accessToken"));
@@ -75,17 +78,20 @@ public class Login {
 
     /**
      * Call this function to set account value to login with phone
-     * @param countryCode Example: +84
+     *
+     * @param phoneCode   Example: +84
      * @param phoneNumber
      * @param password
      */
-    public Login loginToDashboardWithPhone(String countryCode, String phoneNumber, String password) {
-        Login.account = phoneNumber;
-        Login.password = password;
-        Login.phoneCode = countryCode;
-        return this;
+    public LoginInformation loginToDashboardWithPhone(String phoneCode, String phoneNumber, String password) {
+        if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
+        loginInfo.setPhoneNumber(phoneNumber);
+        loginInfo.setPassword(password);
+        loginInfo.setPhoneCode(phoneCode);
+        return loginInfo;
     }
-    public Response getLoginWithPhoneResponse(String countryCode, String phoneNumber, String password) {
+
+    public Response getLoginWithPhoneResponse(String phoneCode, String phoneNumber, String password) {
         RestAssured.baseURI = URI;
         String body = """
                 {
@@ -96,7 +102,7 @@ public class Login {
                     },
                 "password":"%s",
                 "rememberMe":true
-                }""".formatted(countryCode, phoneNumber, password);
+                }""".formatted(phoneCode, phoneNumber, password);
         Response loginResponse = api.login(DASHBOARD_LOGIN_PHONE_PATH, body);
         loginResponse.then().statusCode(200);
         return loginResponse;
@@ -104,15 +110,17 @@ public class Login {
 
     /**
      * Sets the dashboard login information for a user with the given country, username and password.
-     * @param country The country name to get the country code from.
+     *
+     * @param country  The country name to get the country code from.
      * @param username
      * @param password
      * @return The Login object with updated login information
      */
-    public Login setDashboardLoginInfo(String country, String username, String password) {
-        Login.phoneCode = new DataGenerator().getPhoneCode(country);
-        Login.account = username;
-        Login.password = password;
-        return this;
+    public LoginInformation setDashboardLoginInfo(String country, String username, String password) {
+        if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
+        loginInfo.setPhoneNumber(username);
+        loginInfo.setPassword(password);
+        loginInfo.setPhoneCode(new DataGenerator().getPhoneCode(country));
+        return loginInfo;
     }
 }

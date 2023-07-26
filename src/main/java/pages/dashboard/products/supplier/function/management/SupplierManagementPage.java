@@ -285,7 +285,6 @@ public class SupplierManagementPage extends SupplierManagementElement {
         verifyTest();
     }
 
-
 	void verifyTest() {
 		if (uiSupplierManagementPage.countFail > 0)
 			Assert.fail("[Failed] Fail %d cases".formatted(uiSupplierManagementPage.countFail));

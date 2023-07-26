@@ -9,4 +9,7 @@ public class SupplierManagementElement {
     By SUPPLIER_NAME = By.xpath("//*[contains(@resource-id, 'tvSupplierName')]");
     By SUPPLIER_EMAIL = By.xpath("//*[contains(@resource-id, 'tvEmail')]");
     By SUPPLIER_PHONE = By.xpath("//*[contains(@resource-id, 'tvPhoneNumber')]");
+    By DELETE_BTN = By.xpath("//*[contains(@resource-id, 'rlDelete')]");
+
+    By CONFIRM_POPUP_OK_BTN = By.xpath("//*[contains(@resource-id, 'tvRightButton')]");
 }

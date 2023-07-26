@@ -18,6 +18,7 @@ public class SellerAccount {
     WebDriver driver;
     WebDriverWait wait;
     UICommonMobile common;
+    private static String language;
 
     public SellerAccount (WebDriver driver) {
         this.driver = driver;
@@ -33,6 +34,7 @@ public class SellerAccount {
     By CANCEL_BTN_CONFIRM_POPUP = By.xpath("//*[ends-with(@resource-id,'tvLeftButton')]");
     By HOME_TAB = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_home')]");
     public HomePage changeLanguage(String language){
+        SellerAccount.language = language;
         new HomePage(driver).clickAccountTab();
         tapLanguage();
         common.sleepInMiliSecond(1000);
@@ -67,5 +69,8 @@ public class SellerAccount {
         common.clickElement(HOME_TAB);
         logger.info("Tap on Home tab.");
         return new HomePage(driver);
+    }
+    public String getLanguage() {
+        return SellerAccount.language;
     }
 }

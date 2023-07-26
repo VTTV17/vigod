@@ -31,6 +31,7 @@ import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
 
@@ -239,7 +240,7 @@ public class SignupBuyerApp {
     public void setUp() throws Exception {
         PropertiesUtil.setEnvironment("STAG");
         getCredentials();
-        getExpectedMailMsg(language, new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getInfo().getStoreName());
+        getExpectedMailMsg(language, new Login().getInfo(new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD)).getStoreName());
     }
 
     @BeforeMethod

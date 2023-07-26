@@ -100,7 +100,7 @@ public class LoginBuyerApp {
 	public void setUp() throws Exception {
 		PropertiesUtil.setEnvironment("STAG");
 		getCredentials();
-		getExpectedMailMsg(language, new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getInfo().getStoreName());
+		getExpectedMailMsg(language, new Login().getInfo(new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD)).getStoreName());
 	}
 
 	@BeforeMethod

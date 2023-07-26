@@ -23,14 +23,13 @@ public class UICRUDSupplierPage extends UICRUDSupplierElement {
     Actions act;
 
     public AssertCustomize assertCustomize;
-    public int countFail;
+    public int countFail = 0;
 
     public UICRUDSupplierPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         act = new Actions(driver);
         assertCustomize = new AssertCustomize(driver);
-        this.countFail = assertCustomize.countFail;
     }
 
     void checkHeader(String language) throws Exception {

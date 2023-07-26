@@ -1,19 +1,17 @@
 package pages.sellerapp.home;
 
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import pages.buyerapp.account.BuyerAccountPage;
-import pages.buyerapp.account.BuyerMyProfile;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HomePage {
 
@@ -27,14 +25,13 @@ public class HomePage {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
-        commonAction.waitPageLoaded();
+        commonAction.waitPageLoaded(ACCOUNT_TAB);
     }
 
-    By ACCOUNT_TAB = By.id("com.mediastep.GoSellForSeller.STG:id/bottom_navigation_tab_account");
-    By LOGOUT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/llLogout");
-    By LOGOUT_OK_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvRightButton");
-    By LOGOUT_ABORT_BTN = By.id("com.mediastep.GoSellForSeller.STG:id/tvLeftButton");
-    String PAGE_TITLE = "//*[@text='%pageName%']";
+    By ACCOUNT_TAB = By.xpath("//*[contains(@resource-id, 'bottom_navigation_tab_account')]");
+    By LOGOUT_BTN = By.xpath("//*[contains(@resource-id, 'llLogout')]");
+    By LOGOUT_OK_BTN = By.xpath("//*[contains(@resource-id, 'tvRightButton')]");
+    By LOGOUT_ABORT_BTN = By.xpath("//*[contains(@resource-id, 'tvLeftButton')]");
 
 
     public boolean isAccountTabDisplayed() {
@@ -44,7 +41,7 @@ public class HomePage {
     }
     
     public HomePage clickAccountTab() {
-    	commonAction.getElement(ACCOUNT_TAB, 5).click();
+        commonAction.getElement(ACCOUNT_TAB, 5).click();
     	logger.info("Click on Account tab");
     	return this;
     }

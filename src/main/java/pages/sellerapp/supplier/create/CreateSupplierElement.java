@@ -30,7 +30,7 @@ public class CreateSupplierElement {
     By OUTSIDE_VN_STATE_DROPDOWN_CLOSE_ICON = By.xpath("//*[contains(@resource-id, 'btnClose')]");
     By OUTSIDE_VN_CITY = By.xpath("//*[contains(@resource-id, 'edtCityOutSideVN')]");
     By OUTSIDE_VN_ZIPCODE = By.xpath("//*[contains(@resource-id, 'edtZipCode')]");
-    By SELECTED_RESPONSIBLE_STAFF = By.xpath("//*[contains(@resource-id, 'tvSelectedStaff')]");
+    By SELECTED_RESPONSIBLE_STAFF = By.xpath("//*[contains(@resource-id, 'tvSelectedResponsibleStaff')]");
     By RESPONSIBLE_STAFF_LIST = By.xpath("//*[contains(@resource-id, 'tvTitle')]");
     By DESCRIPTION = By.xpath("//*[contains(@resource-id, 'edtDescription')]");
 }

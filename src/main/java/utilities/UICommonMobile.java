@@ -200,6 +200,10 @@ public class UICommonMobile extends UICommonAction {
 		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
 	}
 
+	public void click(WebElement element) {
+		wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+	}
+
     public void waitSplashScreenLoaded() {
         new WebDriverWait(driver, Duration.ofSeconds(60)).until((ExpectedCondition<Boolean>) driver -> {
             AndroidDriver andDriver = (AndroidDriver) driver;
@@ -297,11 +301,11 @@ public class UICommonMobile extends UICommonAction {
 		String currentPageSource;
 		String nextPageSource;
 		do {
-			currentPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+			currentPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
 
 			swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.25);
 
-			nextPageSource = driver.getPageSource().replaceAll("<android.widget.TextSwitcher *.+?\\s+<android.widget.TextView*.+\\s+</android.widget.TextSwitcher>", "");
+			nextPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
 		} while (currentPageSource.equals(nextPageSource));
 	}
 
@@ -353,5 +357,13 @@ public class UICommonMobile extends UICommonAction {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
 		logger.info("Đang chờ get Element");
 		return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
+	}
+
+	public void waitPageLoaded(By locator) {
+		// wait home page loaded
+		boolean isLoaded;
+		do {
+			isLoaded = driver.getPageSource().contains(locator.toString().replaceAll("B.*?'|'.+", ""));
+		} while (!isLoaded);
 	}
 }

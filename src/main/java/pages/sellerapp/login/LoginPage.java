@@ -2,6 +2,8 @@ package pages.sellerapp.login;
 
 import java.time.Duration;
 
+import api.dashboard.login.Login;
+import lombok.extern.java.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;

@@ -19,6 +19,7 @@ import pages.thirdparty.Facebook;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 
@@ -278,7 +279,9 @@ public class LoginPage {
         driver.get(DOMAIN);
 
         // init login information model
-        LoginDashboardInfo loginInfo = new Login().loginToDashboardByMail(username, password).getInfo();
+        Login login = new Login();
+        LoginInformation logInfo = login.loginToDashboardByMail(username, password);
+        LoginDashboardInfo loginInfo = login.getInfo(logInfo);
 
         // login by js - local storage
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));
