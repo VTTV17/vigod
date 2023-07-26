@@ -4,7 +4,9 @@ import api.dashboard.products.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
+import org.testng.Assert;
 import pages.sellerapp.login.LoginPage;
+import pages.sellerapp.supplier.update.UpdateSupplierScreen;
 import utilities.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.sellerApp.supplier.SupplierInformation;
@@ -132,5 +134,13 @@ public class SupplierManagementScreen extends SupplierManagementElement {
 
         countFail = assertCustomize.assertTrue(countFail, driver.findElements(SUPPLIER_CODE).size() == 0,"[Failed][Supplier management screen] Supplier is deleted but it still shows on supplier management list, supplier code: %s.".formatted(supplierCode));
         logger.info("[Supplier management] Check deleted supplier.");
+    }
+
+    public void completeTest() {
+        int count = countFail + new UpdateSupplierScreen(driver).getCountFail();
+        if (count > 0) {
+            countFail = 0;
+            Assert.fail("[Failed] Fail %d cases".formatted(count));
+        }
     }
 }

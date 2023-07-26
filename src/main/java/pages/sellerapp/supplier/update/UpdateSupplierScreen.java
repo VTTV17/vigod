@@ -478,4 +478,10 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         // confirm delete supplier
         commonMobile.getElement(CONFIRM_POPUP_OK_BTN, 10).click();
     }
+
+    public int getCountFail() {
+        int temp = countFail;
+        countFail = 0;
+        return temp;
+    }
 }
