@@ -28,6 +28,7 @@ import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
 
