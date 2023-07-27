@@ -37,11 +37,14 @@ public class CreateProduct {
     public CreateProduct (LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
+        taxInfo = new VAT(loginInformation).getInfo();
+        branchInfo = new BranchManagement(loginInformation).getInfo();
+        storeInfo = new StoreInformation(loginInformation).getInfo();
     }
 
-    TaxInfo taxInfo = new VAT(loginInformation).getInfo();
-    BranchInfo branchInfo = new BranchManagement(loginInformation).getInfo();
-    StoreInfo storeInfo = new StoreInformation(loginInformation).getInfo();
+    TaxInfo taxInfo;
+    BranchInfo branchInfo;
+    StoreInfo storeInfo;
     private static String productName;
     private static String productDescription;
     private static boolean hasModel;
