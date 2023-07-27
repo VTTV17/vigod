@@ -20,6 +20,7 @@ import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -651,10 +652,10 @@ public class HomePage {
 			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
 		}
     }
-    public void verifyPermissionToCreateProduct(String permission) {
+    public void verifyPermissionToCreateProduct(String permission, LoginInformation loginInformation) {
 		if (permission.contentEquals("A")) {
 			clickCreateProduct();
-			new ProductPage(driver).clickOnTheCreateProductBtn();
+			new ProductPage(driver, loginInformation).clickOnTheCreateProductBtn();
 		} else if (permission.contentEquals("D")) {
 			// Not reproducible
 		} else {

@@ -12,7 +12,6 @@ import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import pages.buyerapp.home.BuyerHomePage;
 import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
 import pages.sellerapp.account.SellerAccount;
 import pages.sellerapp.general.SellerGeneral;
@@ -25,13 +24,14 @@ import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import static utilities.account.AccountTest.*;
-import static utilities.account.AccountTest.ADMIN_CREATE_NEW_SHOP_PASSWORD;
 
 public class ProductCollectionTest {
     String sellerAppPackage;
@@ -65,6 +65,7 @@ public class ProductCollectionTest {
     String userName_goSocial;
     String userName_GoLead;
     String passwordCheckPermission;
+    LoginInformation loginInformation;
     @BeforeClass
     public void setUp() throws Exception {
         sellerAppPackage = "com.mediastep.GoSellForSeller.STG";
@@ -128,15 +129,15 @@ public class ProductCollectionTest {
     }
     public void callLoginAPI() {
         loginAPI = new Login();
-        loginAPI.loginToDashboardWithPhone("+84", userDb,passDb);
+        loginInformation = loginAPI.setLoginInformation("+84", userDb,passDb).getLoginInformation();
     }
 
     public void callCreateMenuItemParentAPI(String collectionName) {
         callLoginAPI();
-        productCollectAPI = new APIProductCollection();
+        productCollectAPI = new APIProductCollection(loginInformation);
         int collectIDNewest = productCollectAPI.getNewestCollectionID();
-        apiMenus = new APIMenus();
-        int menuID = new APIHeader().getCurrentMenuId();
+        apiMenus = new APIMenus(loginInformation);
+        int menuID = new APIHeader(loginInformation).getCurrentMenuId();
         apiMenus.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
     }
     public void goToSellerCollectionPage() {
@@ -149,11 +150,11 @@ public class ProductCollectionTest {
         callLoginAPI();
         CreateProductCollection createProductCollection = new CreateProductCollection(driver);
         if (conditions.length > 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(conditionType, conditions);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_MultipleCondition(loginInformation, conditionType, conditions);
             productExpectedList = (List<String>) productBelongCollectionMap.get("productExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else if (conditions.length == 1) {
-            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(conditions[0]);
+            Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition(loginInformation, conditions[0]);
             System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
             productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");

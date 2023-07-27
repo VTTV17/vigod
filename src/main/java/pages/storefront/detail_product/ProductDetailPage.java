@@ -25,6 +25,7 @@ import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -52,11 +53,13 @@ public class ProductDetailPage extends ProductDetailElement {
     DiscountCampaignInfo discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
     List<Boolean> branchStatus;
+    LoginInformation loginInformation;
 
     public ProductDetailPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+        loginInformation = new Login().getLoginInformation();
     }
     void checkHeader(String language) throws Exception {
         // check store logo
@@ -97,7 +100,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkProductDetailWhenInStock(String language) throws Exception {
         // quantity
-        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
+        if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             String sfQuantity = wait.until(ExpectedConditions.visibilityOf(QUANTITY_TITLE)).getText();
             String quantity = getPropertiesValueBySFLang("productDetail.quantity", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfQuantity, quantity, "[Failed][Product Detail] Quantity title should be %s, but found %s.".formatted(quantity, sfQuantity));
@@ -168,7 +171,7 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("[UI][%s] Check Product Detail - Description Tab".formatted(language));
 
         // review tab
-        if (new ProductReviews().isIsEnableReview()) {
+        if (new ProductReviews(loginInformation).isIsEnableReview()) {
             String sfReviewTab = wait.until(ExpectedConditions.visibilityOf(REVIEW_TAB)).getText();
             String reviewTab = getPropertiesValueBySFLang("productDetail.review", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfReviewTab, reviewTab, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));
@@ -322,7 +325,7 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkPriceOnEachBranch(long listingPrice, long sellingPrice, String brName) throws IOException {
         String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
 
-        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
+        if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             if (listingPrice != sellingPrice) {
                 String actListingPrice = new UICommonAction(driver).getText(LISTING_PRICE).replace(",", "");
                 countFail = new AssertCustomize(driver).assertEquals(countFail, actListingPrice, listingPrice + STORE_CURRENCY, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, actListingPrice));
@@ -458,9 +461,10 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Compare product stock quantity per branch on the SF with Dashboard (without variation product)
      */
-    void checkBranchStock(String brElementText, String brStockElementText, boolean brStatus, int brStock, String... variationName) throws IOException {
+    void checkBranchStock(String brElementText, int brElementIndex, boolean brStatus, int brStock, String... variationName) throws IOException {
         String varName = variationName.length > 0 ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         if (!productInfo.isHideStock() & brStatus) {
+            String brStockElementText = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", STOCK_QUANTITY_IN_BRANCH.get(brElementIndex)).toString();
             // check branch stock
             int sfStock = Integer.parseInt(brStockElementText.replaceAll("\\D+", ""));
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfStock, brStock, "[Failed]%s[Branch name: %s] Stock quantity should be %s, but found %s".formatted(varName, brElementText, brStock, sfStock));
@@ -484,7 +488,7 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkBuyNowAndAddToCartBtnIsShown(String... variationName) throws IOException {
         String varName = (variationName.length > 0) ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
-        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
+        if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             // check Buy now button is shown
             boolean checkBuyNow = true;
             try {
@@ -595,7 +599,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkAllVariationsAndDiscount(int index, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) throws IOException {
         // get branch info
-        brInfo = new BranchManagement().getInfo();
+        brInfo = new BranchManagement(loginInformation).getInfo();
 
         // log
         if (variationName.length > 0)
@@ -632,11 +636,10 @@ public class ProductDetailPage extends ProductDetailElement {
 
                 // branch name
                 String brName = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", BRANCH_NAME_LIST.get(brElementIndex)).toString();
-                String brStock = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", STOCK_QUANTITY_IN_BRANCH.get(brElementIndex)).toString();
 
                 // check branch stock quantity
                 int brIndex = brInfo.getBranchName().indexOf(brName);
-                checkBranchStock(brName, brStock, branchStatus.get(brIndex), branchStock.get(brIndex), variationName);
+                checkBranchStock(brName, brElementIndex, branchStatus.get(brIndex), branchStock.get(brIndex), variationName);
                 checkBranch(brName, branchStatus.get(brIndex), branchStock.get(brIndex), variationName);
 
                 // check product price
@@ -654,15 +657,15 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     void checkProductInformation(String language) throws IOException {
         // get the latest branch information
-        brInfo = new BranchManagement().getInfo();
+        brInfo = new BranchManagement(loginInformation).getInfo();
         branchStatus = getBranchStatus();
 
         // get flash sale, discount campaign information
-        CreatePromotion promotion = new CreatePromotion();
+        CreatePromotion promotion = new CreatePromotion(loginInformation);
         flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
         discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation().wholesaleProductInfo(productInfo);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo);
 
         // verify on each variation
         for (String variationValue : productInfo.getVariationListMap().get(language)) {
@@ -717,7 +720,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // convert language to languageCode
         String languageCode = language.equals("VIE") ? "vi" : "en";
         // get store language and others information
-        storeInfo = new StoreInformation().getInfo();
+        storeInfo = new StoreInformation(loginInformation).getInfo();
 
         // check shop has multiple language or not
         driver.get("https://%s%s/".formatted(storeInfo.getStoreURL(), SF_DOMAIN));
@@ -768,10 +771,10 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // complete verify
-        if (countFail + new ProductPage(driver).getCountFail() > 0) {
-            int count = countFail + new ProductPage(driver).getCountFail();
+        if (countFail + new ProductPage(driver, loginInformation).getCountFail() > 0) {
+            int count = countFail + new ProductPage(driver, loginInformation).getCountFail();
             countFail = 0;
-            new ProductPage(driver).setCountFail();
+            new ProductPage(driver, loginInformation).setCountFail();
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
 

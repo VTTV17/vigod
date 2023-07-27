@@ -28,6 +28,7 @@ import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
 
@@ -63,7 +64,9 @@ public class CashbookApp {
 	List<String> transactionIdList;
 	
 	String amount = "2000";
-	String note = "Simply a note";	
+	String note = "Simply a note";
+	Login apiLogin = new Login();
+	LoginInformation loginInformation;
 	
 	public void getCredentials() {
 		STORE_USERNAME = AccountTest.ADMIN_USERNAME_TIEN;
@@ -77,13 +80,13 @@ public class CashbookApp {
 		PropertiesUtil.setDBLanguage(language);
 		getCredentials();
 		
-        new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-        customerList = new Customers().getAllCustomerNames();
-        supplierList = new SupplierAPI().getAllSupplierNames();
-        staffList = new StaffManagement().getAllStaffNames();
-        othersList = new OthersGroupAPI().getAllOtherGroupNames();
-        branchList = new BranchManagement().getInfo().getActiveBranches();
-        transactionIdList = new CashbookAPI().getAllTransactionCodes();
+        loginInformation = apiLogin.setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation();
+        customerList = new Customers(loginInformation).getAllCustomerNames();
+        supplierList = new SupplierAPI(loginInformation).getAllSupplierNames();
+        staffList = new StaffManagement(loginInformation).getAllStaffNames();
+        othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
+        branchList = new BranchManagement(apiLogin.getLoginInformation()).getInfo().getActiveBranches();
+        transactionIdList = new CashbookAPI(loginInformation).getAllTransactionCodes();
 	}
 
 	@BeforeMethod

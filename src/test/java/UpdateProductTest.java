@@ -1,3 +1,4 @@
+import api.dashboard.login.Login;
 import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductInformation;
@@ -9,6 +10,7 @@ import pages.dashboard.products.all_products.ProductPage;
 import pages.storefront.detail_product.ProductDetailPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.File;
 
@@ -20,12 +22,14 @@ public class UpdateProductTest extends BaseTest {
     boolean isHideStock = false;
     int productID;
     ProductInfo productInfo;
+    LoginInformation loginInformation;
 
     @BeforeClass
     void setup() {
         driver = new InitWebdriver().getDriver(browser, headless);
+        loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
-        new pages.storefront.login.LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
+        new pages.storefront.login.LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
         driver.get(DOMAIN);
         tcsFileName = "check_product_detail_sf/Update product.xlsx".replace("/", File.separator);
     }
@@ -36,8 +40,8 @@ public class UpdateProductTest extends BaseTest {
         int branchStock = 2;
 
         // get product ID
-        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productID == 0) productID = new CreateProduct().createWithoutVariationProduct(isIMEIProduct, branchStock)
+        productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
         System.out.println(productID);
     }
@@ -48,8 +52,8 @@ public class UpdateProductTest extends BaseTest {
         int branchStock = 2;
 
         // get product ID
-        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productID == 0) productID = new CreateProduct().createWithoutVariationProduct(isIMEIProduct, branchStock)
+        productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
     }
 
@@ -58,9 +62,9 @@ public class UpdateProductTest extends BaseTest {
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        productID = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, branchStock)
+            productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
     }
 
@@ -69,9 +73,9 @@ public class UpdateProductTest extends BaseTest {
         boolean isIMEIProduct = true;
         int branchStock = 2;
         int increaseNum = 1;
-        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        productID = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, branchStock)
+            productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
     }
 
@@ -84,12 +88,12 @@ public class UpdateProductTest extends BaseTest {
         testCaseId = "UP_PRODUCT_G1_01";
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -103,12 +107,12 @@ public class UpdateProductTest extends BaseTest {
         testCaseId = "UP_PRODUCT_G1_02";
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -123,12 +127,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 5;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -143,12 +147,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -158,9 +162,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G1_05_EditTranslation() throws Exception {
         testCaseId = "UP_PRODUCT_G1_05";
 
-        new ProductPage(driver).setLanguage(language).editTranslation(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).editTranslation(productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -170,9 +174,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G1_06_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G1_06";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("INACTIVE", productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("INACTIVE", productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -182,9 +186,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G1_07_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G1_07";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -194,9 +198,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G1_08_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G1_08";
 
-        new ProductPage(driver).setLanguage(language).deleteProduct(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -213,12 +217,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -233,12 +237,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -253,12 +257,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 5;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -273,12 +277,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -288,9 +292,9 @@ public class UpdateProductTest extends BaseTest {
     @Test(groups = "[UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_05_EditTranslation() throws Exception {
         testCaseId = "UP_PRODUCT_G2_05";
-        new ProductPage(driver).setLanguage(language).editTranslation(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).editTranslation(productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -300,9 +304,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G2_06_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G2_06";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("INACTIVE", productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("INACTIVE", productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -312,9 +316,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G2_07_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G2_07";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
@@ -324,7 +328,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G2_08_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G2_08";
 
-        new ProductPage(driver).setLanguage(language).deleteProduct(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -341,12 +345,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -362,12 +366,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -383,12 +387,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -404,12 +408,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -426,12 +430,12 @@ public class UpdateProductTest extends BaseTest {
         int branchStock = 0;
 
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -447,12 +451,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -462,9 +466,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_07_EditTranslationForMainProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G3_07";
 
-        new ProductPage(driver).setLanguage(language).editTranslation(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).editTranslation(productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -474,9 +478,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_08_EditTranslationForEachVariation() throws Exception {
         testCaseId = "UP_PRODUCT_G3_08";
 
-        new ProductPage(driver).setLanguage(language).editVariationTranslation();
+        new ProductPage(driver, loginInformation).setLanguage(language).editVariationTranslation();
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -486,9 +490,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_09_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G3_09";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("INACTIVE", productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("INACTIVE", productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -498,7 +502,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_10_ChangeVariationStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G3_10";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
@@ -507,9 +511,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_11_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G3_11";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
@@ -518,7 +522,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_12_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G3_12";
 
-        new ProductPage(driver).setLanguage(language).deleteProduct(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
@@ -533,12 +537,12 @@ public class UpdateProductTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int increaseNum = 1;
         int branchStock = 2;
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -554,12 +558,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -575,12 +579,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -596,12 +600,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -617,12 +621,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -638,12 +642,12 @@ public class UpdateProductTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
 
-        new ProductPage(driver).setLanguage(language).navigateToUpdateProductPage(productID)
+        new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -653,9 +657,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_07_EditTranslationForMainProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G4_07";
 
-        new ProductPage(driver).setLanguage(language).editTranslation(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).editTranslation(productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -665,9 +669,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_08_EditTranslationForEachVariation() throws Exception {
         testCaseId = "UP_PRODUCT_G4_08";
 
-        new ProductPage(driver).setLanguage(language).editVariationTranslation();
+        new ProductPage(driver, loginInformation).setLanguage(language).editVariationTranslation();
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -677,9 +681,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_09_ChangeProductStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G4_09";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("INACTIVE", productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("INACTIVE", productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
@@ -689,9 +693,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_10_ChangeVariationStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G4_10";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
@@ -700,7 +704,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_11_UncheckWebPlatform() throws Exception {
         testCaseId = "UP_PRODUCT_G4_11";
 
-        new ProductPage(driver).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }
@@ -709,9 +713,9 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_12_DeleteProduct() throws Exception {
         testCaseId = "UP_PRODUCT_G4_12";
 
-        new ProductPage(driver).setLanguage(language).deleteProduct(productID);
+        new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
-        productInfo = new ProductInformation().getInfo(productID);
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
     }

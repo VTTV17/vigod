@@ -15,6 +15,7 @@ import pages.dashboard.home.HomePage;
 import pages.dashboard.products.supplier.ui.crud.UICRUDSupplierPage;
 import pages.dashboard.products.supplier.ui.management.UISupplierManagementPage;
 import utilities.UICommonAction;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -29,15 +30,16 @@ public class SupplierManagementPage extends SupplierManagementElement {
     String SUPPLIER_MANAGEMENT_PATH = "/supplier/list";
     String language;
 	UISupplierManagementPage uiSupplierManagementPage;
-
+    LoginInformation loginInformation;
     final static Logger logger = LogManager.getLogger(SupplierManagementPage.class);
 
-    public SupplierManagementPage(WebDriver driver) {
+    public SupplierManagementPage(WebDriver driver, LoginInformation loginInformation) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commons = new UICommonAction(driver);
         act = new Actions(driver);
 		uiSupplierManagementPage = new UISupplierManagementPage(driver);
+        this.loginInformation = loginInformation;
     }
 
     public SupplierManagementPage inputSearchTerm(String searchTerm) {
@@ -217,7 +219,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
 		List<String> listAvailableSupplier = getListSupplierCode();
 		if (listAvailableSupplier.size() == 0) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI().createSupplier();
+            new SupplierAPI(loginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -261,7 +263,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         List<String> listAvailableSupplier = getListSupplierCode();
         if (listAvailableSupplier.size() == 0) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI().createSupplier();
+            new SupplierAPI(loginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();

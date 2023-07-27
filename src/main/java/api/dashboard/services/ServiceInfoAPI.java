@@ -4,10 +4,17 @@ import api.dashboard.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 public class ServiceInfoAPI {
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    public ServiceInfoAPI (LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
     String SERVICE_DETAIL_PATH = "https://api.beecow.info/itemservice/api/beehive-items/%s?langKey=vi";
     String DELETE_SERVICE_PATH = "/itemservice/api/items/%s";
     public Response getServiceDetail(int serviceId){

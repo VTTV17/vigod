@@ -15,6 +15,7 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,11 +31,17 @@ public class CreateProduct {
     API api = new API();
 
     Logger logger = LogManager.getLogger(CreateProduct.class);
+    LoginInformation loginInformation;
 
-    LoginDashboardInfo loginInfo = new Login().getInfo();
-    TaxInfo taxInfo = new VAT().getInfo();
-    BranchInfo branchInfo = new BranchManagement().getInfo();
-    StoreInfo storeInfo = new StoreInformation().getInfo();
+    LoginDashboardInfo loginInfo;
+    public CreateProduct (LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
+    TaxInfo taxInfo = new VAT(loginInformation).getInfo();
+    BranchInfo branchInfo = new BranchManagement(loginInformation).getInfo();
+    StoreInfo storeInfo = new StoreInformation(loginInformation).getInfo();
     private static String productName;
     private static String productDescription;
     private static boolean hasModel;
@@ -143,7 +150,6 @@ public class CreateProduct {
         // get productID for another test
         productID = createProductResponse.jsonPath().getInt("id");
         branchIds = branchInfo.getBranchID();
-        CreateProduct.branchIds = branchInfo.getBranchID();
         return this;
     }
 
@@ -174,7 +180,7 @@ public class CreateProduct {
         // create body
         CreateProductBody productBody = new CreateProductBody();
         String body = "%s%s%s".formatted(productBody.productInfo(isIMEIProduct, CreateProduct.productName, STORE_CURRENCY, productDescription, taxID, showOutOfStock, hideStock, enableListing, showOnApp, showOnWeb, showInStore, showInGoSocial, seoTitle, seoDescription, seoKeywords, seoURL),
-                productBody.variationInfo(isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), increaseNum, branchStock),
+                productBody.variationInfo(loginInformation, isIMEIProduct, branchInfo.getBranchID(), branchInfo.getBranchName(), increaseNum, branchStock),
                 productBody.variationBranchConfig(branchInfo.getBranchID()));
 
 

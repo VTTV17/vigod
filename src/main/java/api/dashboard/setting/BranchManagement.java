@@ -6,6 +6,7 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,35 +16,20 @@ public class BranchManagement {
 
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
+    LoginInformation loginInformation;
+    public BranchManagement(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+    }
     
     JsonPath getBranchInfoResponseJsonPath() {
         // get login dashboard information
-        LoginDashboardInfo loginInfo = new Login().getInfo();
+        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
 
         // get all branches response
         Response branchRes = new API().get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         branchRes.then().statusCode(200);
         return branchRes.jsonPath();
     }
-
-//    public void getBranchInformation() {
-//        apiBranchID = getBranchInfoResponseJsonPath().getList("id");
-//        apiBranchName = getBranchInfoResponseJsonPath().getList("name");
-//        apiBranchCode = getBranchInfoResponseJsonPath().getList("code");
-//        apiBranchAddress = getBranchInfoResponseJsonPath().getList("address");
-//        apiWardCode = getBranchInfoResponseJsonPath().getList("ward");
-//        apiDistrictCode = getBranchInfoResponseJsonPath().getList("district");
-//        apiCityCode = getBranchInfoResponseJsonPath().getList("city");
-//        apiPhoneNumberFirst = getBranchInfoResponseJsonPath().getList("phoneNumberFirst");
-//        apiCountryCode = getBranchInfoResponseJsonPath().getList("countryCode");
-//        apiIsDefaultBranch = getBranchInfoResponseJsonPath().getList("default");
-//        apiIsHideOnStoreFront = getBranchInfoResponseJsonPath().getList("hideOnStoreFront");
-//        IntStream.range(0, apiIsHideOnStoreFront.size()).filter(i -> apiIsHideOnStoreFront.get(i) == null).forEachOrdered(i -> apiIsHideOnStoreFront.set(i, false));
-//        apiAllBranchStatus = getBranchInfoResponseJsonPath().getList("branchStatus");
-//        apiActiveBranches = new ArrayList<>();
-//        IntStream.range(0, apiAllBranchStatus.size()).filter(i -> apiAllBranchStatus.get(i).equals("ACTIVE")).forEach(i -> apiActiveBranches.add(apiBranchName.get(i)));
-//
-//    }
 
     public BranchInfo getInfo() {
         // init branch info model

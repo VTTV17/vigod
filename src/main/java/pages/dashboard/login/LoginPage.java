@@ -280,7 +280,7 @@ public class LoginPage {
 
         // init login information model
         Login login = new Login();
-        LoginInformation logInfo = login.loginToDashboardByMail(username, password);
+        LoginInformation logInfo = login.setLoginInformation(username, password).getLoginInformation();
         LoginDashboardInfo loginInfo = login.getInfo(logInfo);
 
         // login by js - local storage

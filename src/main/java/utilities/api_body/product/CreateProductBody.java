@@ -4,6 +4,7 @@ import api.dashboard.setting.StoreInformation;
 import org.apache.commons.lang.math.JVMRandom;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,9 +94,9 @@ public class CreateProductBody {
                 """.formatted(name, currency, description, taxID, showOutOfStock, hideStock, enableListing, isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT", showOnApp, showOnWeb, showInStore, showInGoSocial, seoTitle, seoDescription, seoKeywords, seoURL);
     }
 
-    public String variationInfo(boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int increaseNum, int... branchStockQuantity) {
+    public String variationInfo(LoginInformation loginInformation, boolean isIMEIProduct, List<Integer> branchIDList, List<String> branchNameList, int increaseNum, int... branchStockQuantity) {
         // get store information
-        StoreInfo storeInfo = new StoreInformation().getInfo();
+        StoreInfo storeInfo = new StoreInformation(loginInformation).getInfo();
 
         // generate variation map
         Map<String, List<String>> variationMap = new DataGenerator().randomVariationMap();

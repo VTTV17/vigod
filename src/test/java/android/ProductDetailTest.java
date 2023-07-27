@@ -16,6 +16,7 @@ import pages.buyerapp.productDetail.BuyerProductDetailPage;
 import utilities.UICommonMobile;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -32,11 +33,12 @@ public class ProductDetailTest extends BaseTest {
     String appPackage = "com.mediastep.shop0018";
     String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
     String URL = "http://127.0.0.1:4723/wd/hub";
+    LoginInformation loginInformation;
 
     @BeforeClass
     void setup() throws MalformedURLException {
         tcsFileName = "android/Check promotion at product detail screen.xlsx".replace("/", File.separator);
-        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+        loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
 
         driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage, appActivity, URL);
 
@@ -51,28 +53,28 @@ public class ProductDetailTest extends BaseTest {
         isIMEIProduct = false;
         int branchStock = 5;
         // get product ID
-        productId = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct().createWithoutVariationProduct(isIMEIProduct, branchStock)
+        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
         // get product information
-        productInfo = new ProductInformation().getInfo(productId);
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         // add wholesale product config
-        new WholesaleProduct().addWholesalePriceProduct(productInfo);
+        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
     }
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void preCondition_G2() {
         isIMEIProduct = true;
         int branchStock = 5;
-        productId = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct().createWithoutVariationProduct(isIMEIProduct, branchStock)
+        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
         // get product information
-        productInfo = new ProductInformation().getInfo(productId);
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         // add wholesale product config
-        new WholesaleProduct().addWholesalePriceProduct(productInfo);
+        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
     }
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -80,15 +82,15 @@ public class ProductDetailTest extends BaseTest {
         isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        productId = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
-            productId = new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, branchStock)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation().getInfo(productId);
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         // add wholesale product config
-        new WholesaleProduct().addWholesalePriceProduct(productInfo);
+        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
     }
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
@@ -96,17 +98,17 @@ public class ProductDetailTest extends BaseTest {
         isIMEIProduct = true;
         int branchStock = 2;
         int increaseNum = 1;
-        productId = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct,
+        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct,
                 isHideStock,
                 isDisplayIfOutOfStock);
         if (productId == 0)
-            productId = new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, branchStock)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation().getInfo(productId);
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         // add wholesale product config
-        new WholesaleProduct().addWholesalePriceProduct(productInfo);
+        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
     }
 
 
@@ -116,7 +118,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -131,7 +133,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -146,7 +148,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -161,7 +163,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -174,7 +176,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G1_Case2_2";
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .endEarlyDiscountCampaign();
 
@@ -187,7 +189,7 @@ public class ProductDetailTest extends BaseTest {
         testCaseId = "Android_Buyer_G1_Case2_3";
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
@@ -202,7 +204,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -217,7 +219,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -232,7 +234,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -247,7 +249,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -260,7 +262,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G2_Case2_2";
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .endEarlyDiscountCampaign();
 
@@ -273,7 +275,7 @@ public class ProductDetailTest extends BaseTest {
         testCaseId = "Android_Buyer_G2_Case2_3";
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
@@ -287,7 +289,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -302,7 +304,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -317,7 +319,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -332,7 +334,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -345,7 +347,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G3_Case2_2";
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .endEarlyDiscountCampaign();
 
@@ -358,7 +360,7 @@ public class ProductDetailTest extends BaseTest {
         testCaseId = "Android_Buyer_G3_Case2_3";
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
@@ -373,7 +375,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -388,7 +390,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -403,7 +405,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -418,7 +420,7 @@ public class ProductDetailTest extends BaseTest {
         int startMin = 1;
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -431,7 +433,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G4_Case2_2";
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .endEarlyDiscountCampaign();
 
@@ -444,7 +446,7 @@ public class ProductDetailTest extends BaseTest {
         testCaseId = "Android_Buyer_G4_Case2_3";
         int endMin = 120;
 
-        new CreatePromotion()
+        new CreatePromotion(loginInformation)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 

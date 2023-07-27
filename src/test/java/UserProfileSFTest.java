@@ -20,6 +20,7 @@ import utilities.PropertiesUtil;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.file.FileNameAndPath;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -96,6 +97,7 @@ public class UserProfileSFTest extends BaseTest {
     String languageDb;
     String languageSF;
     String userName_PhoneAccount_EditInfo_HasBirthday;
+    LoginInformation loginInformation;
 
     @BeforeClass
     public void getData() {
@@ -116,10 +118,10 @@ public class UserProfileSFTest extends BaseTest {
         shopDomainB = SF_COFFEE;
         fullName_UpdateAddress = PropertiesUtil.getEnvironmentData("buyerName3");
         MAX_PRICE = 9999999L;
-        new Login().loginToDashboardWithPhone("+84",userNameDb_ShopVi,passWordDashboard);
-        productIDToBuyNow = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,30).getProductID());
-        new Login().loginToDashboardByMail(userNameDb_ShopB,passWordDashboardShopB);
-        productIDToBuyNowShopB = String.valueOf(new CreateProduct().createWithoutVariationProduct(false,30).getProductID());
+        loginInformation = new Login().setLoginInformation("+84",userNameDb_ShopVi,passWordDashboard).getLoginInformation();
+        productIDToBuyNow = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
+        new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB);
+        productIDToBuyNowShopB = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
         membershipLevel = PropertiesUtil.getEnvironmentData("membershipLevel");
         barcodeNumber = PropertiesUtil.getEnvironmentData("barcodeBuyer1");

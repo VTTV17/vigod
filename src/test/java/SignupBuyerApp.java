@@ -18,7 +18,6 @@ import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.navigationbar.NavigationBar;
-import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.buyerapp.signup.SignupPage;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
@@ -71,6 +70,7 @@ public class SignupBuyerApp {
 	String BUYER_PHONE_USERNAME;
 	String BUYER_PHONE_PASSWORD;
 	String BUYER_PHONE_COUNTRY;
+	LoginInformation loginInformation;
 	
 	public void getCredentials() {
 		STORE_USERNAME = AccountTest.ADMIN_USERNAME_TIEN;
@@ -113,8 +113,8 @@ public class SignupBuyerApp {
 	}	
 
 	public void createAccountOnSF(String country, String phoneCode, String username, String password, String displayName, String birthday) throws SQLException {
-		new Login().setDashboardLoginInfo(ANOTHER_STORE_COUNTRY, ANOTHER_STORE_USERNAME, ANOTHER_STORE_PASSWORD);
-		String URL = "https://%s%s/".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN);
+		loginInformation = new Login().setLoginInformation(ANOTHER_STORE_COUNTRY, ANOTHER_STORE_USERNAME, ANOTHER_STORE_PASSWORD).getLoginInformation();
+		String URL = "https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN);
 		driverWeb = new InitWebdriver().getDriver("chrome", "noHeadless");
 		pages.storefront.signup.SignupPage signupPage = new pages.storefront.signup.SignupPage(driverWeb);
 		signupPage.navigate(URL).fillOutSignupForm(country, username, password, displayName, birthday)
@@ -240,7 +240,7 @@ public class SignupBuyerApp {
     public void setUp() throws Exception {
         PropertiesUtil.setEnvironment("STAG");
         getCredentials();
-        getExpectedMailMsg(language, new Login().getInfo(new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD)).getStoreName());
+        getExpectedMailMsg(language, new Login().getInfo(new Login().setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation()).getStoreName());
     }
 
     @BeforeMethod
