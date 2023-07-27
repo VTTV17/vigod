@@ -206,7 +206,6 @@ public class LoginSellerApp {
     	Assert.assertTrue(homePage.isAccountTabDisplayed());
     }
     
-    //Bug: After users input verification code and submit, they are logged out. The screen flashes a few times
     @Test
     public void LoginDB_07_SellerForgotPassword() throws SQLException {
     	
