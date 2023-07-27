@@ -8,6 +8,7 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
 
+import java.net.ResponseCache;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -42,12 +43,14 @@ public class APIAllProducts {
         List<String> productNameList = response.jsonPath().getList("name");
         Map<String,Date> productCreatedDateMap = new HashMap<>();
         for(int i = 0; i<createdDateList.size();i++){
-            Date date = formatter.parse(createdDateList.get(i).replaceAll("Z$", "+0000"));
+            Date date = formatter.parse(createdDateList.get(i).replaceAll("Z$", " +0000"));
             productCreatedDateMap.put(productNameList.get(i).toLowerCase(),date);
+            System.out.println(date);
         }
         Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
         List<String> productSorted = new ArrayList<>(sortedMap.keySet().stream().toList());
         Collections.reverse(productSorted);
+        System.out.println(productSorted);
         return productSorted;
     }
 

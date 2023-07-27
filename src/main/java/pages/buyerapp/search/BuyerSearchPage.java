@@ -3,13 +3,19 @@ package pages.buyerapp.search;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import org.testng.Assert;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
+import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BuyerSearchPage extends UICommonMobile{
     final static Logger logger = LogManager.getLogger(BuyerSearchPage.class);
@@ -32,8 +38,45 @@ public class BuyerSearchPage extends UICommonMobile{
     public BuyerProductDetailPage searchItem(String itemName){
         tapOnSearchBar()
                 .inputKeywordToSearch(itemName)
-//                .verifySearchSuggestion(itemName)
+                .verifySearchSuggestion(itemName)
                 .tapSearchSuggestion();
         return new BuyerProductDetailPage(driver);
+    }
+    public BuyerSearchPage tapOnMenuDropdown(){
+        clickElement(searchPage.MENU_DROPDOWN);
+        logger.info("Tap on Menu dropdown");
+        return this;
+    }
+    public BuyerSearchPage goToCollectionDetailOnSearchTab(String collectionName){
+        tapOnMenuDropdown();
+        clickElement(wait.until(ExpectedConditions.visibilityOf(getElementByXpath(searchPage.MENU_ITEM_XPATH.formatted(collectionName)))));
+        logger.info("Tap on menue item: "+collectionName);
+        return this;
+    }
+    public BuyerSearchPage verifyProductsInCollection(List<String> expected){
+        if(expected.size()==0){
+            verifyNoProductMessage();
+        }
+        List<WebElement> productNameElements = getElements(searchPage.PRODUCT_LIST);
+        List<String> productNamesActual =new ArrayList<>();
+        List<String> productNamesActualToLowerCase =new ArrayList<>();
+        if (productNameElements.size() !=0){
+            productNamesActual = getListElementText(searchPage.PRODUCT_LIST);
+            for (String productName:productNamesActual) {
+                productNamesActualToLowerCase.add(productName.toLowerCase());
+            }
+        }
+        Assert.assertEquals(productNamesActualToLowerCase,expected);
+        logger.info("Verify products in collection.");
+        return this;
+    }
+    public BuyerSearchPage verifyNoProductMessage(){
+        try {
+            Assert.assertEquals(getText(searchPage.NO_PRODUCT_MESSAGE), PropertiesUtil.getPropertiesValueBySFLang("buyerApp.search.NoProductMessage"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        logger.info("Verify no product message.");
+        return this;
     }
 }

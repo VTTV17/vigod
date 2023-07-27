@@ -59,7 +59,7 @@ public class UICommonMobile extends UICommonAction {
 			el.sendKeys(text);
 		} catch(StaleElementReferenceException ex) {
 			logger.debug("StaleElementReferenceException caught in inputText\n" + ex);
-			WebElement el = getElement(bySelector,5);
+			WebElement el = getElement(bySelector,30);
 			el.clear();
 			el.sendKeys(text);
 		}

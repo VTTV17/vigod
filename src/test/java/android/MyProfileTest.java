@@ -32,8 +32,7 @@ import java.util.Map;
 
 import static utilities.account.AccountTest.*;
 
-public class MyProfileTest {
-    WebDriver driver;
+public class MyProfileTest extends BaseTest{
     String buyer;
     String passBuyer;
     NavigationBar navigationBar;
@@ -105,8 +104,7 @@ public class MyProfileTest {
         driver.quit();
     }
     @AfterMethod
-    public void restartApp(ITestResult result) throws IOException {
-        new Screenshot().takeScreenshot(driver);
+    public void restartApp(ITestResult result) {
         ((AndroidDriver) driver).resetApp();
     }
     public BuyerAccountPage login(String buyerAccount){

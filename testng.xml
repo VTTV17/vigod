@@ -6,8 +6,8 @@
 	</listeners>
 	<test name="Group of group Test">
 		<classes>
-			<class name="LoginStorefront" />
-			<class name="LoginDashboard" />
+<!--			<class name="BuyLinkTest" />-->
+			<class name="CreateServiceTest" />
 		</classes>
 	</test>
 </suite>

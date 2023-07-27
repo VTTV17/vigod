@@ -4,14 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import pages.dashboard.marketing.buylink.CreateBuyLink;
 import pages.sellerapp.general.SellerGeneral;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 
 import java.time.Duration;
+import java.util.List;
 
 public class SellerProductCollection {
     final static Logger logger = LogManager.getLogger(SellerProductCollection.class);
@@ -112,5 +115,32 @@ public class SellerProductCollection {
         }
         return this;
     }
-
+    public SellerProductCollection inputToSearch(String keyword){
+        common.clickElement(SEARCH_COLLECTION_INPUT);
+        common.inputText(SEARCH_COLLECTION_INPUT,keyword);
+        logger.info("Input to search field: "+keyword);
+        return this;
+    }
+    public SellerCreateCollection goToCollectionBySearch(String collectionName){
+        common.sleepInMiliSecond(1000);
+        inputToSearch(collectionName);
+        List<WebElement> elements = common.getElements(COLLECTION_NAME_LIST,5);
+        if(common.getText(elements.get(0)).equalsIgnoreCase(collectionName)){
+            common.clickElement(elements.get(0));
+        }else try {
+            throw new Exception("Not found collection: "+collectionName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return new SellerCreateCollection(driver);
+    }
+    public SellerProductCollection verifyUpdateSuccessfullyMessage(){
+        try {
+            new SellerGeneral(driver).verifyToastMessage(PropertiesUtil.getPropertiesValueByDBLang("seller.toast.updateSuccessfully"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        logger.info("Verify create successfully message show.");
+        return this;
+    }
 }

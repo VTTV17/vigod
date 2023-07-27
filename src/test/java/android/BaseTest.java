@@ -35,8 +35,8 @@ public class BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
-        new Screenshot().takeScreenshot(driver);
+//        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
+//        new Screenshot().takeScreenshot(driver);
     }
 
     public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
