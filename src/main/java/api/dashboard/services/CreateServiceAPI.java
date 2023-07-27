@@ -5,7 +5,6 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.services.ServiceInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +12,7 @@ import java.util.Map;
 public class CreateServiceAPI {
     String CREATE_SERVICE_PATH = "/itemservice/api/service/items";
     API api = new API();
-    LoginDashboardInfo loginInfo;
-    LoginInformation loginInformation;
-    public CreateServiceAPI(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
-    }
-
+    LoginDashboardInfo loginInfo = new Login().getInfo();
     ServiceInfo serviceInfo = new ServiceInfo();
     /**
      *

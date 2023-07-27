@@ -7,7 +7,6 @@ import utilities.api.API;
 import utilities.combine.Combination;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,13 +18,13 @@ import static utilities.character_limit.CharacterLimit.*;
 public class DiscountCode {
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
-    public DiscountCode (LoginInformation loginInformation) {
-        loginInfo = new Login().getInfo(loginInformation);
-        brInfo = new BranchManagement(loginInformation).getInfo();
+    {
+        loginInfo = new Login().getInfo();
+        brInfo = new BranchManagement().getInfo();
     }
     public void createDiscountCode(String account, String password) {
         int index = 1;
-        new Login().setLoginInformation(account, password);
+        new Login().loginToDashboardByMail(account, password);
         API api = new API();
         Response segmentList = api.get("/beehiveservices/api/segments/store/%s?page=0&size=100".formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         segmentList.then().statusCode(200);

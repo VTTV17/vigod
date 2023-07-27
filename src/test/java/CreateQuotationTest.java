@@ -23,7 +23,6 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.account.AccountTest;
 import utilities.driver.InitWebdriver;
-import utilities.model.sellerApp.login.LoginInformation;
 
 public class CreateQuotationTest extends BaseTest {
 
@@ -39,7 +38,6 @@ public class CreateQuotationTest extends BaseTest {
 	List<String> productList;
 	List<Integer> productIDList;
 	List<List<String>> convUnitProductList;
-	LoginInformation loginInformation;
 
 	@BeforeClass
 	public void loadTestData() {
@@ -54,11 +52,11 @@ public class CreateQuotationTest extends BaseTest {
 	}	
 	
 	public void getDataByAPI() {
-        loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
-        customerList = new Customers(loginInformation).getAllAccountCustomer();
-        productList = new APIAllProducts(loginInformation).getAllProductNames();
-        productIDList = new ProductInformation(loginInformation).getProductList();
-        convUnitProductList = new ProductInformation(loginInformation).getIdAndNameOfProductWithConversionUnits();
+        new Login().loginToDashboardByMail(username, password);
+        customerList = new Customers().getAllAccountCustomer();
+        productList = new APIAllProducts().getAllProductNames();
+        productIDList = new ProductInformation().getProductList();
+        convUnitProductList = new ProductInformation().getIdAndNameOfProductWithConversionUnits();
 	}		
 	
 	public void instantiatePageObjects() {
@@ -325,7 +323,7 @@ public class CreateQuotationTest extends BaseTest {
 		createQuotationPage.navigate();
 		
 		List<String> conv = convUnitProductList.get((new Random().nextInt(0, convUnitProductList.size())));
-		List<String> conversionUnits = new APIAllProducts(loginInformation).getConversionUnitsOfProduct(Integer.valueOf(conv.get(0)));
+		List<String> conversionUnits = new APIAllProducts().getConversionUnitsOfProduct(Integer.valueOf(conv.get(0)));
 		createQuotationPage.inputProductSearchTerm(conv.get(1));
 		createQuotationPage.selectProduct(Arrays.asList(conv.get(1),"", "", "", conversionUnits.get(0)));
 		createQuotationPage.verifyErrorWhenSelectingProductWithConversionUnits();

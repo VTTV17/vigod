@@ -1,6 +1,5 @@
 package pages.buyerapp.productDetail;
 
-import api.dashboard.login.Login;
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.promotion.CreatePromotion;
@@ -26,7 +25,6 @@ import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -51,13 +49,11 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     boolean isEnableListingProduct;
     Map<String, List<String>> salePriceMap;
     Map<String, List<String>> saleDisplayMap;
-    LoginInformation loginInformation;
 
     public BuyerProductDetailPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         commonMobile = new UICommonMobile(driver);
-        loginInformation = new Login().getLoginInformation();
     }
 
     /**
@@ -274,7 +270,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     void checkBuyNowAddToCartAndContactNowBtn(String... variationName) {
         String varName = (variationName.length > 0) ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
-        if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
+        if (!(new Preferences().isEnabledListingProduct() && productInfo.isEnabledListing())) {
             // check Buy now button is shown
             boolean checkBuyNow = commonMobile.moveAndGetElement(BUY_NOW_BTN) != null;
 
@@ -386,13 +382,13 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      */
     void checkProductInformation(String language) throws IOException {
         // get branch information
-        brInfo = new BranchManagement(loginInformation).getInfo();
+        brInfo = new BranchManagement().getInfo();
 
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation().wholesaleProductInfo(productInfo);
 
         // get flash sale, discount campaign information
-        CreatePromotion promotion = new CreatePromotion(loginInformation);
+        CreatePromotion promotion = new CreatePromotion();
         flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
         discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
         // get sale price map and display
@@ -400,7 +396,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         saleDisplayMap = getSaleDisplayMap();
 
         // get listing price setting
-        isEnableListingProduct = new Preferences(loginInformation).isEnabledListingProduct();
+        isEnableListingProduct = new Preferences().isEnabledListingProduct();
 
         // get branch status
         branchStatus = getBranchStatus();
@@ -460,7 +456,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // get max stock
         int maxStock = productInfo.isDeleted() ? 0 : Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
-        storeInfo = new StoreInformation(loginInformation).getInfo();
+        storeInfo = new StoreInformation().getInfo();
 
         // check product is display or not
         if (!productInfo.isDeleted() && productInfo.isOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
@@ -470,10 +466,10 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
 
         // complete verify
-        if (countFail + new ProductPage(driver, loginInformation).getCountFail() > 0) {
-            int count = countFail + new ProductPage(driver, loginInformation).getCountFail();
+        if (countFail + new ProductPage(driver).getCountFail() > 0) {
+            int count = countFail + new ProductPage(driver).getCountFail();
             countFail = 0;
-            new ProductPage(driver, loginInformation).setCountFail();
+            new ProductPage(driver).setCountFail();
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
     }

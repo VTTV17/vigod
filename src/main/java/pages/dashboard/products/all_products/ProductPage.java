@@ -23,7 +23,6 @@ import utilities.data.DataGenerator;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -57,20 +56,16 @@ public class ProductPage extends ProductPageElement {
 
     Logger logger = LogManager.getLogger(ProductPage.class);
 
-    BranchInfo brInfo;
-    StoreInfo storeInfo;
+    BranchInfo brInfo = new BranchManagement().getInfo();
+    StoreInfo storeInfo = new StoreInformation().getInfo();
     ProductInfo productInfo;
-    LoginInformation loginInformation;
 
-    public ProductPage(WebDriver driver, LoginInformation loginInformation) {
+    public ProductPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         act = new Actions(driver);
         commonAction = new UICommonAction(driver);
         epoch = String.valueOf(Instant.now().toEpochMilli());
-        this.loginInformation = loginInformation;
-        brInfo = new BranchManagement(loginInformation).getInfo();
-        storeInfo = new StoreInformation(loginInformation).getInfo();
     }
 
     String productName;
@@ -304,7 +299,7 @@ public class ProductPage extends ProductPageElement {
         ProductPage.productID = productID;
 
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // log
         logger.info("Product id: %s".formatted(productID));
@@ -1023,7 +1018,7 @@ public class ProductPage extends ProductPageElement {
     /* Active/Deactivate product */
     public ProductPage changeProductStatus(String status, int productID) {
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         if (!status.equals(productInfo.getBhStatus())) {
             // log
@@ -1046,7 +1041,7 @@ public class ProductPage extends ProductPageElement {
 
     public void deleteProduct(int productID) throws Exception {
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         if (!productInfo.isDeleted()) {
             // log
@@ -1124,11 +1119,11 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage configWholesaleProduct() throws Exception {
-        if (hasModel) new WholesaleProductPage(driver, loginInformation)
+        if (hasModel) new WholesaleProductPage(driver)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductVariation();
-        else new WholesaleProductPage(driver, loginInformation)
+        else new WholesaleProductPage(driver)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductWithoutVariation();
@@ -1136,10 +1131,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage configConversionUnit() throws Exception {
-        if (hasModel) new ConversionUnitPage(driver, loginInformation)
+        if (hasModel) new ConversionUnitPage(driver)
                 .navigateToConversionUnitPage()
                 .addConversionUnitVariation();
-        else new ConversionUnitPage(driver, loginInformation)
+        else new ConversionUnitPage(driver)
                 .navigateToConversionUnitPage()
                 .addConversionUnitWithoutVariation();
         return this;
@@ -1183,9 +1178,9 @@ public class ProductPage extends ProductPageElement {
         hasModel = false;
 
         // product name
-        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct(loginInformation).isManageByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct().isManageByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        productInfo(productName, new CreateProduct(loginInformation).isManageByIMEI());
+        productInfo(productName, new CreateProduct().isManageByIMEI());
         inputWithoutVariationPrice();
         updateWithoutVariationStock(newBranchStock);
         updateWithoutVariationProductSKU();
@@ -1198,9 +1193,9 @@ public class ProductPage extends ProductPageElement {
         hasModel = true;
 
         // product name
-        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct(loginInformation).isManageByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
+        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct().isManageByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        productInfo(productName, new CreateProduct(loginInformation).isManageByIMEI());
+        productInfo(productName, new CreateProduct().isManageByIMEI());
         addVariations();
         uploadVariationImage("img.jpg");
         inputVariationPrice();
@@ -1254,28 +1249,28 @@ public class ProductPage extends ProductPageElement {
     public void changeVariationStatus() {
         // update variation product name and description
         // get current product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // update variation status
         for (String barcode : productInfo.getBarcodeList())
-            new VariationDetailPage(driver, barcode, productInfo, loginInformation).changeVariationStatus(List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
+            new VariationDetailPage(driver, barcode, productInfo).changeVariationStatus(List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
     }
 
     public void editVariationTranslation() throws Exception {
 
         // update variation product name and description
         // get current product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         for (String barcode : productInfo.getBarcodeList())
-            new VariationDetailPage(driver, barcode, productInfo, loginInformation).updateVariationProductNameAndDescription(language, productInfo.getVariationStatus().get(productInfo.getBarcodeList().indexOf(barcode)));
+            new VariationDetailPage(driver, barcode, productInfo).updateVariationProductNameAndDescription(language, productInfo.getVariationStatus().get(productInfo.getBarcodeList().indexOf(barcode)));
     }
 
     /* Edit translation */
     public void editTranslation(String language, int productID) throws Exception {
 
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));

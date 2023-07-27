@@ -5,7 +5,6 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -13,15 +12,10 @@ import java.util.stream.IntStream;
 public class StoreInformation {
     String API_STORE_INFO_PATH = "/storeservice/api/stores/%s";
     String API_STORE_LANGUAGE_PATH = "/storeservice/api/store-language/store/%s/all";
-    // get login dashboard information
-    LoginDashboardInfo loginInfo;
-    LoginInformation loginInformation;
-    public StoreInformation(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
-    }
-
     public StoreInfo getInfo() {
+        // get login dashboard information
+        LoginDashboardInfo loginInfo = new Login().getInfo();
+
         // init store info model
         StoreInfo storeInfo = new StoreInfo();
         // get storeURL
