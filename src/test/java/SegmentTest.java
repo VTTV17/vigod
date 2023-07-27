@@ -8,10 +8,10 @@ import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 
+import static api.dashboard.login.Login.*;
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 
@@ -27,9 +27,8 @@ public class SegmentTest {
     LoginDashboardInfo loginInfo = new Login().getInfo();
     
     BranchInfo brInfo;
-    LoginInformation loginInformation;
     {
-        brInfo = new BranchManagement(loginInformation).getInfo();
+        brInfo = new BranchManagement().getInfo();
     }
 
     void createNewPOSCustomer() {
@@ -178,7 +177,7 @@ public class SegmentTest {
                     "directDiscount": null,
                     "customerId": %s,
                     "inStore": true
-                }""".formatted(buyerID, profileID, new CreateProduct(loginInformation).getProductID(), brInfo.getBranchID().get(0), customerName, customerPhoneNum, loginInfo.getStoreID(), brInfo.getBranchID().get(0), profileID);
+                }""".formatted(buyerID, profileID, new CreateProduct().getProductID(), brInfo.getBranchID().get(0), customerName, customerPhoneNum, loginInfo.getStoreID(), brInfo.getBranchID().get(0), profileID);
         Response createOrderResponse = new API().post(CREATE_POS_ORDER_PATH, loginInfo.getAccessToken(), body);
         createOrderResponse.prettyPrint();
         createOrderResponse.then().statusCode(201);
@@ -199,7 +198,7 @@ public class SegmentTest {
     @Test
     void Te() throws InterruptedException {
         // pre-condition
-        new Login().setLoginInformation("stgaboned@nbobd.com", "Abc@12345");
+        new Login().loginToDashboardByMail("stgaboned@nbobd.com", "Abc@12345");
         //** test **
 
         // create segment 1
@@ -224,7 +223,7 @@ public class SegmentTest {
         createNewPOSCustomer();
 
         // create product
-        new CreateProduct(loginInformation).createWithoutVariationProduct(false, 10, 10, 10);
+        new CreateProduct().createWithoutVariationProduct(false, 10, 10, 10);
 
         // make POS order
         createPOSOrder();

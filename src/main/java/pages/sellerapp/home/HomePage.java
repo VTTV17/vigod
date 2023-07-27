@@ -25,6 +25,7 @@ public class HomePage {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
+        commonAction.waitPageLoaded(ACCOUNT_TAB);
     }
 
     By ACCOUNT_TAB = By.xpath("//*[contains(@resource-id, 'bottom_navigation_tab_account')]");
@@ -34,14 +35,12 @@ public class HomePage {
 
 
     public boolean isAccountTabDisplayed() {
-        commonAction.waitPageLoaded(ACCOUNT_TAB);
     	boolean isDisplayed = commonAction.getElement(ACCOUNT_TAB, 5).isDisplayed();
     	logger.info("Is Account Tab displayed: " + isDisplayed);
     	return isDisplayed;
     }
     
     public HomePage clickAccountTab() {
-        commonAction.waitPageLoaded(ACCOUNT_TAB);
         commonAction.getElement(ACCOUNT_TAB, 5).click();
     	logger.info("Click on Account tab");
     	return this;

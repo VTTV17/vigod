@@ -3,15 +3,19 @@ package api.storefront.signup;
 import api.dashboard.setting.StoreInformation;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
-import utilities.model.sellerApp.login.LoginInformation;
+import utilities.driver.InitWebdriver;
 
 import java.sql.SQLException;
 import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
+import static java.lang.Thread.sleep;
 import static utilities.links.Links.SF_DOMAIN;
 
 public class SignUp {
@@ -25,10 +29,6 @@ public class SignUp {
     private String phoneCode;
     private String password;
     private String customerName;
-    LoginInformation loginInformation;
-    public SignUp (LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-    }
 
     public void getGuestToken() {
         String body = """
@@ -79,7 +79,7 @@ public class SignUp {
                     "userId": %s
                 }""".formatted(activeCode, userID);
 
-        new API().login("https://%s%s%s".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
+        new API().login("https://%s%s%s".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
     }
 
     public void signUpByMail(String apiMail, String password) {
@@ -111,6 +111,6 @@ public class SignUp {
                     "userId": %s
                 }""".formatted(activeCode, userID);
 
-        new API().login("https://%s%s%s".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
+        new API().login("https://%s%s%s".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
     }
 }

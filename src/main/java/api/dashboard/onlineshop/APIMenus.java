@@ -5,7 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 
@@ -15,12 +14,7 @@ public class APIMenus {
     public static String DELETE_MENU_ITEM_PATH = "itemservice/api/menu-items?sellerId=%s&ids=%s";
     API api = new API();
     final static Logger logger = LogManager.getLogger(APIMenus.class);
-    LoginInformation loginInformation;
-    LoginDashboardInfo loginInfo;
-    public APIMenus(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
-    }
+    LoginDashboardInfo loginInfo = new Login().getInfo();
     /**
      * Call API login to set account before call this api
      * Create menuitem with level = 0

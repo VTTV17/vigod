@@ -19,7 +19,6 @@ import pages.storefront.header.HeaderSF;
 import pages.storefront.signup.SignupPage;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import static utilities.links.Links.*;
 
@@ -38,7 +37,7 @@ public class LoginPage {
     
     SoftAssert soft = new SoftAssert();
     
-    public LoginPage(WebDriver driver) {
+    public LoginPage (WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -279,8 +278,8 @@ public class LoginPage {
         new GeneralSF(driver).waitTillLoaderDisappear();
     }
 
-    public void performLoginJS(String username, String password, LoginInformation loginInformation) {
-        navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
+    public void performLoginJS(String username, String password) {
+        navigate("https://%s%s/".formatted(new StoreInformation().getInfo().getStoreURL(), SF_DOMAIN));
         new GeneralSF(driver).waitTillLoaderDisappear();
         new HeaderSF(driver).clickUserInfoIconJS()
                 .clickLoginIconJS();

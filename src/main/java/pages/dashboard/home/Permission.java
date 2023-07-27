@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import api.dashboard.login.Login;
-import lombok.extern.java.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -64,7 +62,6 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
-import utilities.model.sellerApp.login.LoginInformation;
 
 public class Permission {
 
@@ -74,13 +71,13 @@ public class Permission {
     WebDriverWait wait;
     UICommonAction commonAction;
 
-    LoginInformation loginInformation;
-    public Permission(WebDriver driver, LoginInformation loginInformation) {
+    SoftAssert soft = new SoftAssert();    
+    
+    public Permission(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
-		this.loginInformation = loginInformation;
     }
 
     /**
@@ -125,7 +122,7 @@ public class Permission {
 					home.verifyPermissionToDisplayStatistics(permission.get(menuComponent));
 				}
 				case "Create Product" -> {
-					home.verifyPermissionToCreateProduct(permission.get(menuComponent), loginInformation);
+					home.verifyPermissionToCreateProduct(permission.get(menuComponent));
 				}
 				case "Import Product From Shopee" -> {
 					home.verifyPermissionToImportProductFromShopee(permission.get(menuComponent),
@@ -167,20 +164,20 @@ public class Permission {
 				case "All Products" -> {
 					switch (function) {
 					case "Print Barcode" -> {
-						new ProductPage(driver, loginInformation).verifyPermissionToPrintBarCode(permission.get(menuComponent));
+						new ProductPage(driver).verifyPermissionToPrintBarCode(permission.get(menuComponent));
 					}
 					case "Create Product" -> {
-						new ProductPage(driver, loginInformation).verifyPermissionToCreateProduct(permission.get(menuComponent),
+						new ProductPage(driver).verifyPermissionToCreateProduct(permission.get(menuComponent),
 								url.get(menuComponent));
 					}
 					case "Create Variation Product" -> {
-						new ProductPage(driver, loginInformation).verifyPermissionToCreateVariationProduct(permission.get(menuComponent));
+						new ProductPage(driver).verifyPermissionToCreateVariationProduct(permission.get(menuComponent));
 					}
 					case "Create Deposit Product" -> {
-						new ProductPage(driver, loginInformation).verifyPermissionToCreateDepositProduct(permission.get(menuComponent));
+						new ProductPage(driver).verifyPermissionToCreateDepositProduct(permission.get(menuComponent));
 					}
 					case "Product SEO" -> {
-						new ProductPage(driver, loginInformation).verifyPermissionToCreateProductSEO(permission.get(menuComponent));
+						new ProductPage(driver).verifyPermissionToCreateProductSEO(permission.get(menuComponent));
 					}
 					}
 				}
@@ -205,7 +202,7 @@ public class Permission {
 					new ProductReviews(driver).verifyPermissionToManageReviews(permission.get(menuComponent));
 				}
 				if (subMenu.contentEquals("Supplier")) {
-					new SupplierManagementPage(driver, loginInformation).verifyPermissionToManageSupplier(permission.get(menuComponent),
+					new SupplierManagementPage(driver).verifyPermissionToManageSupplier(permission.get(menuComponent),
 								url.get(menuComponent));
 				}
 				if (subMenu.contentEquals("Purchase Orders")) {

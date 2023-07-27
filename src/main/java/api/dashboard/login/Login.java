@@ -15,7 +15,7 @@ public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
     API api = new API();
-    private static LoginInformation loginInfo = new LoginInformation();
+    public static LoginInformation loginInfo = new LoginInformation();
 
     Response getLoginResponse(String account, String password) {
         baseURI = URI;
@@ -32,7 +32,7 @@ public class Login {
         return loginResponse;
     }
 
-    public Login setLoginInformation(String account, String password) {
+    public LoginInformation loginToDashboardByMail(String account, String password) {
         if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
 
         // set local account
@@ -41,25 +41,7 @@ public class Login {
         // set local password
         loginInfo.setPassword(password);
 
-        return this;
-    }
-
-    /**
-     * Sets the dashboard login information for a user with the given phone code, username and password.
-     */
-    public Login setLoginInformation(String phoneCode, String username, String password) {
-        // re-init login information
-        if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
-        // set email/phone number
-        if (username.matches("\\d+")) loginInfo.setPhoneNumber(username);
-        else loginInfo.setEmail(username);
-
-        // set password
-        loginInfo.setPassword(password);
-
-        // set phoneCode
-        loginInfo.setPhoneCode(phoneCode);
-        return this;
+        return loginInfo;
     }
 
     public LoginDashboardInfo getInfo(LoginInformation... loginInformation) {
@@ -94,6 +76,21 @@ public class Login {
         return info;
     }
 
+    /**
+     * Call this function to set account value to login with phone
+     *
+     * @param phoneCode   Example: +84
+     * @param phoneNumber
+     * @param password
+     */
+    public LoginInformation loginToDashboardWithPhone(String phoneCode, String phoneNumber, String password) {
+        if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
+        loginInfo.setPhoneNumber(phoneNumber);
+        loginInfo.setPassword(password);
+        loginInfo.setPhoneCode(phoneCode);
+        return loginInfo;
+    }
+
     public Response getLoginWithPhoneResponse(String phoneCode, String phoneNumber, String password) {
         RestAssured.baseURI = URI;
         String body = """
@@ -111,7 +108,19 @@ public class Login {
         return loginResponse;
     }
 
-    public LoginInformation getLoginInformation() {
+    /**
+     * Sets the dashboard login information for a user with the given country, username and password.
+     *
+     * @param country  The country name to get the country code from.
+     * @param username
+     * @param password
+     * @return The Login object with updated login information
+     */
+    public LoginInformation setDashboardLoginInfo(String country, String username, String password) {
+        if (loginInfo.getPassword() != null) loginInfo = new LoginInformation();
+        loginInfo.setPhoneNumber(username);
+        loginInfo.setPassword(password);
+        loginInfo.setPhoneCode(new DataGenerator().getPhoneCode(country));
         return loginInfo;
     }
 }
