@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
@@ -15,7 +16,6 @@ import pages.dashboard.products.productcollection.productcollectionmanagement.Pr
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
-import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
 
 import java.text.ParseException;
@@ -322,13 +322,13 @@ public class CreateProductCollection extends HomePage {
         return sortedMap.keySet().stream().toList();
     }
 
-    public static List<String> sortProductListByPriorityAndUpdatedDate(LoginInformation loginInformation, Map<String, Integer> productPriorityMap, int collectionID) throws ParseException {
+    public static List<String> sortProductListByPriorityAndUpdatedDate(Map<String, Integer> productPriorityMap, int collectionID) throws ParseException {
         logger.debug("Sort start.");
         Map<String, Integer> sortedMap = SortData.sortMapByValue(productPriorityMap);
         List<String> sortedList = new ArrayList<>();
         List<Integer> values = sortedMap.values().stream().toList();
         Map<String, Date> productUpdatedMap = new HashMap<>();
-        APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
+        APIAllProducts apiAllProducts = new APIAllProducts();
         for (int i = 0; i < values.size(); i++) {
             String productKey1 = sortedMap.keySet().toArray()[i].toString();
             String productKey2 ;
@@ -415,8 +415,8 @@ public class CreateProductCollection extends HomePage {
      * @return Map: productExpectedList, CountItem
      * @throws ParseException
      */
-    public Map productsBelongCollectionExpected_OneCondition(LoginInformation loginInformation, String condition) throws Exception {
-        APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
+    public Map productsBelongCollectionExpected_OneCondition(String condition) throws Exception {
+        APIAllProducts apiAllProducts = new APIAllProducts();
         String conditionField = condition.split("-")[0];
         String operater = condition.split("-")[1];
         String value = condition.split("-")[2];
@@ -444,8 +444,8 @@ public class CreateProductCollection extends HomePage {
      * @return Map with keys: productExpectedList, CountItem
      * @throws ParseException
      */
-    public Map productsBelongCollectionExpected_MultipleCondition(LoginInformation loginInformation, String conditionType, String... conditions) throws Exception {
-        APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
+    public Map productsBelongCollectionExpected_MultipleCondition(String conditionType, String... conditions) throws Exception {
+        APIAllProducts apiAllProducts = new APIAllProducts();
         int countItemExpected = 0;
         Map mergeProductMap = new HashMap<>();
         Map mergeProductCountItemMap = new HashMap<>();

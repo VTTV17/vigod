@@ -10,7 +10,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -44,15 +43,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
     String language;
     boolean hasModel;
     List<Long> productSellingPrice;
-    LoginInformation loginInformation;
 
-    public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation) {
+    public WholesaleProductPage(WebDriver driver) {
         super(driver);
         commonAction = new UICommonAction(driver);
         act = new Actions(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        this.loginInformation = loginInformation;
-        productPage = new ProductPage(driver, loginInformation);
+        productPage = new ProductPage(driver);
         productID = productPage.getProductID();
         variationList = productPage.getVariationList();
         productStockQuantity = productPage.getProductStockQuantity();
@@ -135,9 +132,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
         checkSegmentInformation();
 
         // search segment
-        if (new Customers(loginInformation).getSegmentName() == null) new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers().getSegmentName() == null) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
+        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers().getSegmentName()));
 
         // select segment
         wait.until(visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();
@@ -219,7 +216,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // search segment
             commonAction.sleepInMiliSecond(1000);
             wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
+            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers().getSegmentName()));
 
             // select segment
             wait.until(visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();

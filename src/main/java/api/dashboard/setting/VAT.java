@@ -5,7 +5,6 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -13,12 +12,9 @@ import java.util.stream.IntStream;
 public class VAT {
     LoginDashboardInfo loginInfo;
 
-    LoginInformation loginInformation;
-    public VAT(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
+    {
+        loginInfo = new Login().getInfo();
     }
-
 
     public TaxInfo getInfo() {
         // init tax information model

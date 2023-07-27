@@ -7,20 +7,14 @@ import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 public class ProductCollection {
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
     private int collectionID;
-    LoginDashboardInfo loginInfo;
-    LoginInformation loginInformation;
-    public ProductCollection(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
-    }
 
     public ProductCollection createCollection(ProductInfo... productInfo) {
-        String productName = productInfo.length > 0 ? productInfo[0].getDefaultProductNameMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage()) : "auto";
+        String productName = productInfo.length > 0 ? productInfo[0].getDefaultProductNameMap().get(new StoreInformation().getInfo().getDefaultLanguage()) : "auto";
+        LoginDashboardInfo loginInfo = new Login().getInfo();
         String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {

@@ -8,7 +8,6 @@ import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.login.LoginPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.File;
 
@@ -19,13 +18,12 @@ public class BH_8887 extends BaseTest {
     ProductInfo productInfo;
     boolean isHideStock = false;
     boolean isDisplayIfOutOfStock = true;
-    LoginInformation loginInformation;
 
     @BeforeClass
     void setup() {
-        loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
+        new Login().loginToDashboardByMail(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
-        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
+        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
     }
 
@@ -34,28 +32,28 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = false;
         int branchStock = 5;
         // get product ID
-        productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
+        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // add wholesale product config
-        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
+        new WholesaleProduct().addWholesalePriceProduct(productInfo);
     }
 
     @BeforeGroups(groups = "[BH_8887] IMEI product - Without variation")
     void preCondition_G2() {
         boolean isIMEIProduct = true;
         int branchStock = 5;
-        productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
+        productID = new APIAllProducts().getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0) productID = new CreateProduct().createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // add wholesale product config
-        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
+        new WholesaleProduct().addWholesalePriceProduct(productInfo);
     }
 
     @BeforeGroups(groups = "[BH_8887] Normal product - Variation")
@@ -63,15 +61,15 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = false;
         int branchStock = 2;
         int increaseNum = 1;
-        productID = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
+            productID = new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // add wholesale product config
-        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
+        new WholesaleProduct().addWholesalePriceProduct(productInfo);
     }
 
     @BeforeGroups(groups = "[BH_8887] IMEI product - Variation")
@@ -79,15 +77,15 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = true;
         int branchStock = 2;
         int increaseNum = 1;
-        productID = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        productID = new APIAllProducts().getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
+            productID = new CreateProduct().createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new ProductInformation().getInfo(productID);
 
         // add wholesale product config
-        new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
+        new WholesaleProduct().addWholesalePriceProduct(productInfo);
     }
 
     @Test(groups = "[BH_8887] Normal product - Without variation")
@@ -96,7 +94,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -111,7 +109,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
@@ -127,7 +125,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -142,7 +140,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -157,7 +155,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
@@ -171,7 +169,7 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G1_Case2_3";
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
@@ -186,7 +184,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -201,7 +199,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
@@ -217,7 +215,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -232,7 +230,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -247,7 +245,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
@@ -261,7 +259,7 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G2_Case2_3";
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
@@ -275,7 +273,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -290,7 +288,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
@@ -306,7 +304,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -321,7 +319,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -336,7 +334,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
@@ -350,7 +348,7 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G3_Case2_3";
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
@@ -365,7 +363,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -380,7 +378,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, startMin, endMin)
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
@@ -396,7 +394,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .createFlashSale(productInfo, endMin - 1, endMin)
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -411,7 +409,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .waitPromotionStart();
@@ -426,7 +424,7 @@ public class BH_8887 extends BaseTest {
         int startMin = 1;
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, startMin, endMin)
                 .endEarlyDiscountCampaign();
@@ -440,7 +438,7 @@ public class BH_8887 extends BaseTest {
         testCaseId = "BH_8887_G4_Case2_3";
         int endMin = 60;
 
-        new CreatePromotion(loginInformation)
+        new CreatePromotion()
                 .endEarlyFlashSale()
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 

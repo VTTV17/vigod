@@ -5,7 +5,6 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
 
 import java.text.ParseException;
@@ -17,16 +16,10 @@ import java.util.stream.IntStream;
 
 public class APIAllProducts {
     API api = new API();
-    LoginDashboardInfo loginInfo;
+    LoginDashboardInfo loginInfo = new Login().getInfo();
     public static String DASHBOARD_PRODUCT_LIST_PATH = "itemservice/api/store/dashboard/%storeID%/items-v2?langKey=vi&searchType=PRODUCT_NAME&searchSortItemEnum=null&searchItemName=&sort=%sort%&page=0&size=1000&inStock=false&saleChannel=&bhStatus=&branchIds=&shopeeId=&collectionId=%collectionId%&platform=&itemType=BUSINESS_PRODUCT";
     public static String DASHBOAR_CONVERSION_UNIT_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
     public static String DASHBOARD_PRODUCT_DETAIL_PATH = "itemservice/api/beehive-items/%s?langKey=vi";
-    LoginInformation loginInformation;
-    public  APIAllProducts(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
-    }
-
 
     /**
      *
@@ -286,25 +279,25 @@ public class APIAllProducts {
 
     public int getProductIDWithoutVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(false);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
+        ProductInformation productInfo = new ProductInformation();
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", false, false, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
     public int getProductIDWithoutVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(false);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
+        ProductInformation productInfo = new ProductInformation();
         return listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", false, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
     public int getProductIDWithVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(true);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
+        ProductInformation productInfo = new ProductInformation();
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, false, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
     public int getProductIDWithVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(true);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
+        ProductInformation productInfo = new ProductInformation();
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 

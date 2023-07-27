@@ -25,7 +25,6 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.account.AccountTest;
 import utilities.driver.InitWebdriver;
-import utilities.model.sellerApp.login.LoginInformation;
 
 public class CashbookTest extends BaseTest {
 
@@ -46,20 +45,19 @@ public class CashbookTest extends BaseTest {
 	
 	String amount = "2000";
 	String note = "Simply a note";
-	LoginInformation loginInformation;
 
 	@BeforeClass
 	public void loadTestData() {
 		username = AccountTest.ADMIN_USERNAME_TIEN;
 		password = AccountTest.ADMIN_PASSWORD_TIEN;
 		country = AccountTest.ADMIN_COUNTRY_TIEN;
-        loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
-        customerList = new Customers(loginInformation).getAllCustomerNames();
-        supplierList = new SupplierAPI(loginInformation).getAllSupplierNames();
-        staffList = new StaffManagement(loginInformation).getAllStaffNames();
-        othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
-        branchList = new BranchManagement(loginInformation).getInfo().getActiveBranches();
-        transactionIdList = new CashbookAPI(loginInformation).getAllTransactionCodes();
+        new Login().loginToDashboardByMail(username, password);
+        customerList = new Customers().getAllCustomerNames();
+        supplierList = new SupplierAPI().getAllSupplierNames();
+        staffList = new StaffManagement().getAllStaffNames();
+        othersList = new OthersGroupAPI().getAllOtherGroupNames();
+        branchList = new BranchManagement().getInfo().getActiveBranches();
+        transactionIdList = new CashbookAPI().getAllTransactionCodes();
 	}	
 
 	@BeforeMethod

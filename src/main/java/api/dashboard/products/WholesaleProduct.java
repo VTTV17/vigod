@@ -7,7 +7,6 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.Collections;
 
@@ -19,22 +18,15 @@ import static utilities.character_limit.CharacterLimit.MAX_WHOLESALE_PRICE_TITLE
 import static utilities.links.Links.STORE_CURRENCY;
 
 public class WholesaleProduct {
-    LoginDashboardInfo loginInfo;
-    LoginInformation loginInformation;
-    public WholesaleProduct(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
-    }
-
     public void addWholesalePriceProduct(ProductInfo productInfo) {
-        String defaultLanguage = new StoreInformation(loginInformation).getInfo().getDefaultLanguage();
-
+        String defaultLanguage = new StoreInformation().getInfo().getDefaultLanguage();
+        LoginDashboardInfo loginInfo = new Login().getInfo();
         String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
         StringBuilder body = new StringBuilder("""
                 {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productInfo.getProductID()));
-        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers(loginInformation).getSegmentID());
+        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers().getSegmentID());
         int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationListMap().get(defaultLanguage).size()) + 1 : 1;
         if (productInfo.isHasModel()) {
             for (int i = 0; i < num; i++) {

@@ -14,7 +14,6 @@ import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -30,19 +29,16 @@ public class VariationDetailPage extends VariationDetailElement {
     String barcode;
     Logger logger = LogManager.getLogger(VariationDetailPage.class);
     int countFail;
-    StoreInfo storeInfo;
-    LoginInformation loginInformation;
+    StoreInfo storeInfo= new StoreInformation().getInfo();
     ProductInfo productInfo;
 
-    public VariationDetailPage(WebDriver driver, String barcode, ProductInfo productInfo, LoginInformation loginInformation) {
+    public VariationDetailPage(WebDriver driver, String barcode, ProductInfo productInfo) {
         super(driver);
         this.barcode = barcode;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        this.loginInformation = loginInformation;
-        countFail = new ProductPage(driver, loginInformation).getCountFail();
+        countFail = new ProductPage(driver).getCountFail();
         this.productInfo = productInfo;
-        storeInfo= new StoreInformation(loginInformation).getInfo();
     }
 
     void navigateToVariationDetailPage() {

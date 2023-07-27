@@ -20,6 +20,7 @@ import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.login.LoginPage;
 import pages.buyerapp.navigationbar.NavigationBar;
+import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.buyerapp.signup.SignupPage;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
@@ -99,7 +100,7 @@ public class LoginBuyerApp {
 	public void setUp() throws Exception {
 		PropertiesUtil.setEnvironment("STAG");
 		getCredentials();
-		getExpectedMailMsg(language, new Login().getInfo(new Login().setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation()).getStoreName());
+		getExpectedMailMsg(language, new Login().getInfo(new Login().setDashboardLoginInfo(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD)).getStoreName());
 	}
 
 	@BeforeMethod
