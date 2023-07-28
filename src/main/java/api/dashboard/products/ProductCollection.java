@@ -11,9 +11,12 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 public class ProductCollection {
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/";
+    String DELETE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/delete/%s/%s";
+
     private int collectionID;
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+    API api = new API();
     public ProductCollection(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
@@ -50,7 +53,9 @@ public class ProductCollection {
         collectionID = createCollection.jsonPath().getInt("id");
         return this;
     }
-
+    public void deleteCollection(int collectionId){
+        api.delete(DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionId),loginInfo.getAccessToken());
+    }
     public int getCollectionID() {
         return collectionID;
     }
