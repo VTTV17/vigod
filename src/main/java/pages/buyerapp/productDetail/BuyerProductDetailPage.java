@@ -515,4 +515,24 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         new NavigationBar(driver).tapOnCartIcon();
         return new BuyerShopCartPage(driver);
     }
+    
+    public boolean isReviewTabDisplayed() {
+    	commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_TAB);
+        boolean isDisplayed = !commonMobile.isElementNotDisplay(commonMobile.getElements(PRODUCT_REVIEW_TAB));
+        logger.info("Is Review tab displayed: " + isDisplayed);
+        return isDisplayed;
+    }
+    
+    public String[] getReview() {
+    	//Needs further updates
+    	commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_TAB);
+    	
+    	String title = commonMobile.getText(PRODUCT_REVIEW_TITLE);
+    	String description = commonMobile.getText(PRODUCT_REVIEW_DESCRIPTION);
+    	
+    	String[] review = {title, description};
+    	
+    	return review;
+    }
+    
 }

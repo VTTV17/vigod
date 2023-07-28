@@ -49,8 +49,6 @@ public class CashbookApp {
 	DataGenerator generate;
 
 	String language = "VIE";
-	String expectedCodeMsg;
-	String expectedChangePasswordMsg;
 
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
