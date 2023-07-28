@@ -107,7 +107,6 @@ public class ProductCollectionTest extends BaseTest{
     }
     public SellerCreateCollection goToCreateCollection(){
         new HomePage(driver).navigateToPage("Product");
-
         return new SellerProductManagement(driver).tapOnProductColectionIcon()
                 .tapCreateCollectionIcon();
     }
@@ -144,9 +143,9 @@ public class ProductCollectionTest extends BaseTest{
         ProductCollection collectionAPI = new ProductCollection(loginInformation);
         collectionAPI.deleteCollection(collectIDNewest);
     }
-    public void goToSellerCollectionPage() {
+    public SellerProductCollection goToSellerCollectionPage() {
         new HomePage(driver).navigateToPage("Product");
-        new SellerProductManagement(driver).tapOnProductColectionIcon();
+        return new SellerProductManagement(driver).tapOnProductColectionIcon();
     }
     public void createAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
         int countItemExpected;
@@ -276,10 +275,10 @@ public class ProductCollectionTest extends BaseTest{
     public void MPC04_CreateManualCollection_HasProduct_NoPriotity() throws ParseException {
         driver = launchApp(sellerAppPackage,selelrAppActivity);
         String collectionName = "Collection has product "+ generator.randomNumberGeneratedFromEpochTime(10);
-        productList = new String[]{"Gel Rá»­a Máº·t La Roche-Posay DÃ nh Cho Da Dáº§u, Nháº¡y Cáº£m 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
-                "Kem Rá»­a Máº·t Hada Labo Sáº¡ch SÃ¢u DÆ°á»¡ng áº¨m 80g Advanced Nourish Hyaluronic Acid Cleanser",
-                "Kem DÆ°Æ¡Ìƒng Gilaa KhÃ´Ì‰ Qua & B5 PhuÌ£c HÃ´Ì€i GiaÌ‰m MuÌ£n 50ml Bitter Melon Blemish Repair Cream",
-                "Kem Chá»‘ng Náº¯ng Aprilskin NÃ¢ng TÃ´ng DÆ°á»¡ng áº¨m Da SPF 50+ 38g Tone Up Skin Tint"};
+        productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
+                "Kem Rửa Mặt Hada Labo Sạch Sâu Dưỡng Ẩm 80g Advanced Nourish Hyaluronic Acid Cleanser",
+                "Kem Dưỡng Gilaa Khổ Qua & B5 Phục Hồi Giảm Mụn 50ml Bitter Melon Blemish Repair Cream",
+                "Kem Chống Nắng Aprilskin Nâng Tông Dưỡng Ẩm Da SPF 50+ 38g Tone Up Skin Tint"};
         loginSellerApp();
         changeLaguage();
         goToCreateCollection()
@@ -573,6 +572,19 @@ public class ProductCollectionTest extends BaseTest{
     @Test(dependsOnMethods = "MPC33_UpdateCollection_AnyCondition",priority = 34)
     public void MPC34_CheckCollectionDetail_UpdateCollectionType_AnyCondition(){
         verifyCollectionOnBuyerApp(collectioNameCheckBuyer,productListBelongCollectionCheckBuyer);
-        callDeleteCollectionAPI();
+    }
+    @Test(priority = 35)
+    public void MPC35_DeleteCollection_Seller(){
+        collectioNameCheckBuyer="Collection price greater keyword9665822652";
+        driver = launchApp(sellerAppPackage,selelrAppActivity);
+        loginSellerApp(userDb,passDb);
+        goToSellerCollectionPage()
+                .deleteCollectionAndVerify(collectioNameCheckBuyer);
+    }
+    @Test(dependsOnMethods = "MPC35_DeleteCollection_Seller",priority = 36)
+    public void MPC36_CheckDeletedCollection_Buyer(){
+        driver = launchApp(buyerAppPackage,buyerAppActivity);
+        new BuyerHomePage(driver).verifyMenuItemNotShow(collectioNameCheckBuyer);
+        new NavigationBar(driver).tapOnSearchIcon().verifyMenuItemNotShowInList(collectioNameCheckBuyer);
     }
 }

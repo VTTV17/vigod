@@ -79,4 +79,10 @@ public class BuyerSearchPage extends UICommonMobile{
         logger.info("Verify no product message.");
         return this;
     }
+    public BuyerSearchPage verifyMenuItemNotShowInList(String item){
+        tapOnMenuDropdown();
+        Assert.assertFalse(isElementDisplayInList(searchPage.MENU_ITEM,item));
+        logger.info("Verify menu item not show: "+item);
+        return this;
+    }
 }

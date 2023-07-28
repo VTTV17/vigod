@@ -33,6 +33,7 @@ public class SellerProductCollection {
     By QUANTITY_LIST = By.xpath("//*[ends-with(@resource-id,'tvItemQuantity')]");
     By COLLECTION_TYPE = By.xpath("//*[ends-with(@resource-id,'tvCollectionType')]");
     By COLLECTION_NAME_LIST = By.xpath("//*[ends-with(@resource-id,'tvCollectionName')]");
+    By DELETE_COLLECTION = By.xpath("//*[ends-with(@resource-id,'rlDelete')]");
     public SellerProductCollection verifyText() throws Exception {
         String titlePage = new SellerGeneral(driver).getHeaderTitle();
         Assert.assertEquals(titlePage, PropertiesUtil.getPropertiesValueByDBLang("seller.productCollection.pageTitle"));
@@ -141,6 +142,37 @@ public class SellerProductCollection {
             throw new RuntimeException(e);
         }
         logger.info("Verify create successfully message show.");
+        return this;
+    }
+    public SellerProductCollection deleteCollectionAndVerify(String collectionName){
+        inputToSearch(collectionName);
+        List<WebElement> elements = common.getElements(COLLECTION_NAME_LIST,5);
+        boolean isDeleted = false;
+        for (int i = 0; i< elements.size();i++){
+            if(common.getText(elements.get(i)).equalsIgnoreCase(collectionName)){
+                common.swipeHorizontalInPercent(common.getElements(COLLECTION_NAME_LIST,3).get(i),0.75,0.25);
+                common.clickElement(DELETE_COLLECTION);
+                new SellerGeneral(driver).tapRightBtnOnPopup();
+                isDeleted = true;
+                break;
+            }
+        }
+        if(isDeleted){
+            verifyAfterDeleteCollection(collectionName);
+        }else {
+            try {
+                throw new Exception("Collection not found.");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return this;
+    }
+    public SellerProductCollection verifyAfterDeleteCollection(String collectionName){
+        common.sleepInMiliSecond(1000);
+        List<WebElement> elements = common.getElements(COLLECTION_NAME_LIST);
+        Assert.assertTrue(elements.size()==0," Collection not deleted: "+collectionName);
+        logger.info(collectionName+" is deleted.");
         return this;
     }
 }

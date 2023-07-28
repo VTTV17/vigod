@@ -11,7 +11,9 @@ import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import pages.buyerapp.collection.Collection;
+import pages.dashboard.home.HomePage;
 import pages.storefront.header.HeaderSF;
 import utilities.UICommonMobile;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
@@ -105,5 +107,11 @@ public class BuyerHomePage extends BuyerHomeElement {
         clickOnMenuIcon();
         clickOnMenuItemByText(text);
         return new Collection(driver);
+    }
+    public BuyerHomePage verifyMenuItemNotShow(String item){
+        clickOnMenuIcon();
+        Assert.assertFalse(commonMobile.isElementDisplayInList(MENU_ITEMS,item));
+        logger.info("Verify %s not display in list".formatted(item));
+        return this;
     }
 }

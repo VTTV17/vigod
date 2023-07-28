@@ -17,11 +17,11 @@ import utilities.UICommonMobile;
 import java.time.Duration;
 
 public class NavigationBar extends UICommonMobile {
-    By HOME_ICON = By.xpath("//android.widget.FrameLayout[@content-desc='Trang chủ' or @content-desc='Home']/android.widget.ImageView");
-    By SEARCH_ICON = By.xpath("//android.widget.FrameLayout[@content-desc='Tìm kiếm' or @content-desc='Search']/android.widget.ImageView");
-    By SHOP_CART_ICON = By.xpath("//android.widget.FrameLayout[@content-desc='Giỏ hàng' or @content-desc='Cart']/android.widget.ImageView");
-    By NOTI_ICON = By.xpath("//android.widget.FrameLayout[@content-desc='Thông báo'@content-desc='Notification']/android.widget.ImageView");
-    By PROFILE_ICON = By.xpath("//android.widget.FrameLayout[@content-desc='Tài khoản' or @content-desc='Account']/android.widget.ImageView");
+    By HOME_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_home')]");
+    By SEARCH_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_product')]");
+    By SHOP_CART_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_cart')]");
+    By NOTI_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_notification')]");
+    By PROFILE_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_me')]");
     By NAVIGATE_BAR = By.xpath("//android.widget.FrameLayout[contains(@resource-id,'activity_main_bottom_navigation')]");
     final static Logger logger = LogManager.getLogger(NavigationBar.class);
 
