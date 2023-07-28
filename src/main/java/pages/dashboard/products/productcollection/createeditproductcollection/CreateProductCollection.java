@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
+import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
@@ -447,30 +448,30 @@ public class CreateProductCollection extends HomePage {
     public Map productsBelongCollectionExpected_MultipleCondition(LoginInformation loginInformation, String conditionType, String... conditions) throws Exception {
         APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
         int countItemExpected = 0;
-        Map mergeProductMap = new HashMap<>();
         Map mergeProductCountItemMap = new HashMap<>();
         Map compareProductMap = new HashMap<>();
         Map compareCountItemMap = new HashMap<>();
-        for (String condition : conditions) {
-            String conditionField = condition.split("-")[0];
-            String operater = condition.split("-")[1];
-            String value = condition.split("-")[2];
+        Map mergeProductMap = new HashMap<>();
+        for (int i=0;i< conditions.length;i++) {
+            String conditionField = conditions[i].split("-")[0];
+            String operater = conditions[i].split("-")[1];
+            String value = conditions[i].split("-")[2];
             Map productCreatedDateMap = new HashMap();
             Map productCountItemMap = new HashMap();
-            if (conditionField.equalsIgnoreCase(productTitleTxt)) {
+            if (conditionField.equalsIgnoreCase(Constant.PRODUCT_TITLE)) {
                 Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(operater, value);
                 productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
                 productCountItemMap = (Map) productCollection.get("productCountItemMap");
-            } else if (conditionField.equalsIgnoreCase(productPriceTxt)) {
+            } else if (conditionField.equalsIgnoreCase(Constant.PRODUCT_PRICE)) {
                 Map productCollection = apiAllProducts.getProductMatchPriceCondition(operater, Long.parseLong(value));
                 productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
                 productCountItemMap = (Map) productCollection.get("productCountItemMap");
             }
-            if (conditionType.equalsIgnoreCase(anyConditionTxt)) {
-                mergeProductMap.putAll(productCreatedDateMap);
-                mergeProductCountItemMap.putAll(productCountItemMap);
-            } else if (conditionType.equalsIgnoreCase(allConditionTxt)) {
-                if (compareProductMap.isEmpty()) {
+            if (conditionType.equalsIgnoreCase(Constant.ANY_CONDITION)) {
+                compareProductMap.putAll(productCreatedDateMap);
+                compareCountItemMap.putAll(productCountItemMap);
+            } else if (conditionType.equalsIgnoreCase(Constant.ALL_CONDITION)) {
+                if (i==0) {
                     compareProductMap.putAll(productCreatedDateMap);
                     compareCountItemMap.putAll(productCountItemMap);
                 } else {
@@ -480,15 +481,19 @@ public class CreateProductCollection extends HomePage {
                             mergeProductCountItemMap.put(key, productCountItemMap.get(key));
                         }
                     }
+                    compareProductMap=mergeProductMap;
+                    compareCountItemMap=mergeProductCountItemMap;
                 }
+                mergeProductMap = new HashMap<>();
+                mergeProductCountItemMap= new HashMap<>();
             }
+
         }
-        Collection<Integer> values = mergeProductCountItemMap.values();
-        System.out.println("values: " + values);
+        Collection<Integer> values = compareCountItemMap.values();
         for (int v : values) {
             countItemExpected = countItemExpected + v;
         }
-        List<String> productExpectedList = apiAllProducts.getProductListCollection_SortNewest(mergeProductMap);
+        List<String> productExpectedList = apiAllProducts.getProductListCollection_SortNewest(compareProductMap);
         Map productCollectInfoMap = new HashMap<>();
         productCollectInfoMap.put("productExpectedList", productExpectedList);
         productCollectInfoMap.put("CountItem", countItemExpected);

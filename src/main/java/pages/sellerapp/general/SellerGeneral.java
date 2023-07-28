@@ -77,4 +77,7 @@ public class SellerGeneral {
     public void tapLeftBtnOnPopup(){
         common.clickElement(POPUP_LEFT_BTN);
     }
+    public void tapRightBtnOnPopup(){
+        common.clickElement(POPUP_RIGHT_BTN);
+    }
 }

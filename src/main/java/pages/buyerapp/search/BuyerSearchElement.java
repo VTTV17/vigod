@@ -15,5 +15,5 @@ public class BuyerSearchElement {
     String MENU_ITEM_XPATH = "//*[@text='%s']";
     By PRODUCT_LIST = By.xpath("//*[ends-with(@resource-id,'adapter_hot_deal_item_name')]");
     By NO_PRODUCT_MESSAGE = By.xpath("//*[ends-with(@resource-id,'fragment_tab_home_products_rl_empty_container')]/android.widget.TextView");
-
+    By MENU_ITEM = By.xpath("//*[ends-with(@resource-id,'item_filter_menu_item_tv_name')]");
 }

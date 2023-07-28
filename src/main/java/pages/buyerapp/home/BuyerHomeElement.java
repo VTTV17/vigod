@@ -10,4 +10,5 @@ public class BuyerHomeElement {
     String MENU_ITEM_XPATH = "//*[@text='%s']";
     By SEARCH_RESULT = By.xpath("//*[contains(@resource-id, 'adapter_hot_deal_item_name')]");
     By VIEW_MORE = By.xpath("//*[contains(@resource-id, 'tvDisplayMore')]");
+    By MENU_ITEMS = By.xpath("//*[ends-with(@resource-id,'mobile_nav_menu')]//android.widget.TextView");
 }

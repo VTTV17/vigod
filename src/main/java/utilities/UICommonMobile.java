@@ -16,6 +16,7 @@ import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -358,7 +359,7 @@ public class UICommonMobile extends UICommonAction {
 	}
 	public List<WebElement> getElements(By by, int inSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
-		logger.info("Đang chờ get Element");
+		logger.info("Get Element...");
 		return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
 	}
 
@@ -368,5 +369,16 @@ public class UICommonMobile extends UICommonAction {
 		do {
 			isLoaded = driver.getPageSource().contains(locator.toString().replaceAll("B.*?'|'.+", ""));
 		} while (!isLoaded);
+	}
+	public boolean isElementDisplayInList(By by, String text){
+		List<WebElement> getElementList= getElements(by,3);
+		boolean isDisplay = false;
+		for(int i=0;i<getElementList.size();i++){
+			if(getText(getElementList,i).equalsIgnoreCase(text)){
+				isDisplay = true;
+				break;
+			}
+		}
+		return isDisplay;
 	}
 }

@@ -39,6 +39,8 @@
                     <include name="MPC32_CheckCollectionDetail_UpdateCollectionType_AllCondition"/>
                     <include name="MPC33_UpdateCollection_AnyCondition"/>
                     <include name="MPC34_CheckCollectionDetail_UpdateCollectionType_AnyCondition"/>
+                    <include name="MPC35_DeleteCollection_Seller"/>
+                    <include name="MPC36_CheckDeletedCollection_Buyer"/>
                 </methods>
             </class>
         </classes>
