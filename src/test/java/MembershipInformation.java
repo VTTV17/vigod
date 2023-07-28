@@ -19,6 +19,7 @@ import pages.storefront.userprofile.MembershipInfo;
 import utilities.UICommonAction;
 import utilities.jsonFileUtility;
 import utilities.driver.InitWebdriver;
+import utilities.model.sellerApp.login.LoginInformation;
 
 public class MembershipInformation extends BaseTest {
 
@@ -52,6 +53,7 @@ public class MembershipInformation extends BaseTest {
 	String description = "Test BH_4602 and BH_4603";
 	String discountPercent = "50";
 	String maximunDiscount = "100000";
+	LoginInformation loginInformation;
 	
 	public void instantiatePageObjects() {
 		driver = new InitWebdriver().getDriver(browser, headless);
@@ -61,8 +63,8 @@ public class MembershipInformation extends BaseTest {
 		headerPage = new HeaderSF(driver);
 		commonAction = new UICommonAction(driver);
 		
-		segmentAPI = new SegmentAPI();
-		loyaltyProgramAPI = new api.dashboard.marketing.LoyaltyProgram();
+		segmentAPI = new SegmentAPI(loginInformation);
+		loyaltyProgramAPI = new api.dashboard.marketing.LoyaltyProgram(loginInformation);
 	}	
 	
 	/**
@@ -84,8 +86,8 @@ public class MembershipInformation extends BaseTest {
 	}	
 
 	@BeforeClass
-	public void loginDashboardByAPI() throws InterruptedException {
-		new Login().loginToDashboardByMail(SELLER_MAIL, SELLER_PASSWORD);
+	public void loginDashboardByAPI() {
+		loginInformation = new Login().setLoginInformation(SELLER_MAIL, SELLER_PASSWORD).getLoginInformation();
 	}	
 	
 	@BeforeMethod

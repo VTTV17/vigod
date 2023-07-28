@@ -11,6 +11,7 @@ import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductRawData;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -26,8 +27,14 @@ public class ProductInformation {
     String GET_COLLECTION_LANGUAGE = "/itemservice/api/collection-languages/collection/%s";
     String GET_WHOLESALE_PRODUCT_DETAIL_PATH = "/itemservice/api/item/wholesale-pricing/edit/%s?langKey=vi&page=0&size=100";
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
-    BranchInfo branchInfo = new BranchManagement().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    BranchInfo branchInfo;
+    public ProductInformation(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+        branchInfo = new BranchManagement(loginInformation).getInfo();
+    }
 
     /**
      * Return list product id has remaining stock > 0
@@ -290,7 +297,7 @@ public class ProductInformation {
         /* raw data */
         List<WholesaleProductRawData> configs = new ArrayList<>();
         int index = 0;
-        int customerID = new Customers().getCustomerID(BUYER_ACCOUNT_THANG);
+        int customerID = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         for (int i = 0; i < totalElements.size(); i++) {
             WholesaleProductRawData wholesaleRawData = new WholesaleProductRawData();
             wholesaleRawData.setBarcode(barcodeList.get(i));
@@ -298,7 +305,7 @@ public class ProductInformation {
             List<Integer> stockList = new ArrayList<>();
             for (int id = index; id < index + totalElements.get(i); id++) {
                 if (segmentList.get(id) != null) {
-                    if (segmentList.get(id).equals("ALL") || Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().map(segID -> new Customers().getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
+                    if (segmentList.get(id).equals("ALL") || Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
                         if (stockList.contains(saleStock.get(id))) {
                             priceList.set(stockList.indexOf(saleStock.get(id)), Math.min(salePrice.get(id), priceList.get(stockList.indexOf(saleStock.get(id)))));
                         } else {
@@ -320,7 +327,7 @@ public class ProductInformation {
         productBarcodeList.replaceAll(barcode -> barcode.replace("-", "_"));
 
         // get branch name
-        List<String> branchNameList = new BranchManagement().getInfo().getBranchName();
+        List<String> branchNameList = branchInfo.getBranchName();
 
         // init wholesale product status map
         Map<String, List<Boolean>> wholesaleProductStatus = new HashMap<>();

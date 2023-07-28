@@ -22,10 +22,6 @@ public class SupplierAPI {
     API api = new API();
     LoginDashboardInfo loginInfo;
 
-    public SupplierAPI() {
-        loginInfo = new Login().getInfo();
-    }
-
     public SupplierAPI(LoginInformation loginInformation) {
         loginInfo = new Login().getInfo(loginInformation);
     }

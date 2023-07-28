@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
+
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
@@ -25,8 +27,10 @@ public class LoyaltyProgram {
 	String DELETE_MEMBERSHIP_PATH = CREATE_MEMBERSHIP_PATH + "/%s?sellerId=%s";
     
     LoginDashboardInfo loginInfo;
-    {
-        loginInfo = new Login().getInfo();
+    LoginInformation loginInformation;
+    public LoyaltyProgram (LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
     }
     public void createNewMembership() throws InterruptedException {
         String name = "Auto - Membership - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
@@ -34,7 +38,7 @@ public class LoyaltyProgram {
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
         int discountMaxAmount = nextInt(1000000) + 1;
 
-        if (new Customers().getSegmentID() == 0) new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers(loginInformation).getSegmentID() == 0) new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
 
         String body = """
                 {
@@ -51,7 +55,7 @@ public class LoyaltyProgram {
                         "imageUUID": "",
                         "extension": ""
                     }
-                }""".formatted(name, description, new Customers().getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
+                }""".formatted(name, description, new Customers(loginInformation).getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
 
         new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body).then().statusCode(200);
         

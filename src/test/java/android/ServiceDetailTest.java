@@ -13,23 +13,21 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.buyerapp.servicedetail.BuyerServiceDetail;
 import pages.buyerapp.servicedetail.SelectLocationPage;
 import utilities.PropertiesUtil;
-import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.dashboard.services.ServiceInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 public class ServiceDetailTest {
     NavigationBar navigationBar;
     BuyerServiceDetail serviceDetail;
@@ -46,6 +44,7 @@ public class ServiceDetailTest {
     String[] locations;
     String serviceDescription;
     int sellingPrice;
+    LoginInformation loginInformation;
     @BeforeClass
     public void setUp() throws Exception {
         String udid = "R5CR92R4K7V";
@@ -58,7 +57,7 @@ public class ServiceDetailTest {
         PropertiesUtil.setSFLanguage("VIE");
         userDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
-        new Login().loginToDashboardWithPhone("+84",userDb,passDb);
+        loginInformation = new Login().setLoginInformation("+84",userDb,passDb).getLoginInformation();
         driver = new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
         buyer = AccountTest.SF_USERNAME_VI_1;
         passBuyer = AccountTest.SF_SHOP_VI_PASSWORD;
@@ -86,11 +85,11 @@ public class ServiceDetailTest {
         int sellingPrice = Integer.parseInt("2"+generator.generateNumber(5));
         String[] location = new String[]{"quan 1", "quan 2","quan 8","quan 9"};
         String[] times = new String[]{"21:11","22:10"};
-        ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
+        ServiceInfo serviceInfo = new CreateServiceAPI(loginInformation).createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
         return serviceInfo;
     }
     public void callAPIDeleteService(int serviceId){
-        new ServiceInfoAPI().deleteService(serviceId);
+        new ServiceInfoAPI(loginInformation).deleteService(serviceId);
     }
     @Test
     public void SD01_CheckNormalService() throws Exception {
@@ -144,8 +143,8 @@ public class ServiceDetailTest {
         String keyword = generator.generateString(6);
         String serviceNameUpdate = serviceName + " translator";
         serviceDescription = serviceDescription +" updated en.";
-        new APIEditProduct().ediTranslation(serviceId,serviceDescription,serviceNameUpdate,"ENG");
-        List<String> locationsEdit = new EditServiceAPI().editTranslationServiceLocations(serviceId);
+        new APIEditProduct(loginInformation).ediTranslation(serviceId,serviceDescription,serviceNameUpdate,"ENG");
+        List<String> locationsEdit = new EditServiceAPI(loginInformation).editTranslationServiceLocations(serviceId);
         String[] locationEditArr = new String[locationsEdit.size()];
         locationsEdit.toArray(locationEditArr);
         //Check on buyer app
@@ -167,7 +166,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD04_CheckGuestTapOnBookNow(){
-        new APIPreferences().setUpGuestCheckout(false);
+        new APIPreferences(loginInformation).setUpGuestCheckout(false);
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -261,7 +260,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD10_CheckGuestTapAddToCart(){
-        new APIPreferences().setUpGuestCheckout(false);
+        new APIPreferences(loginInformation).setUpGuestCheckout(false);
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -296,7 +295,7 @@ public class ServiceDetailTest {
         int sellingPrice = Integer.parseInt("2"+generator.generateNumber(5));
         String[] locations = new String[]{"tan binh","phu nhan", "go vap"};
         String[] times = new String[]{"15:11","17:10"};
-        EditServiceAPI editServiceAPI = new EditServiceAPI();
+        EditServiceAPI editServiceAPI = new EditServiceAPI(loginInformation);
         editServiceAPI.setServiceNameEdit(serviceName);
         editServiceAPI.setServiceDescriptionEdit(serviceDescription);
         editServiceAPI.setListingPriceEdit(listingPrice);
@@ -323,7 +322,7 @@ public class ServiceDetailTest {
     @Test
     public void SD13_CheckServiceAfterDeactiveActive() throws JsonProcessingException {
         //Call api edit service to deactive service
-        EditServiceAPI editServiceAPI = new EditServiceAPI();
+        EditServiceAPI editServiceAPI = new EditServiceAPI(loginInformation);
         editServiceAPI.setActiveStatus(false);
         editServiceAPI.updateService(serviceNormalId);
         //Check on SF when service deactive
@@ -333,7 +332,7 @@ public class ServiceDetailTest {
                 .inputKeywordToSearch(serviceNormalCheck)
                 .verifySearchNotFound(serviceNormalCheck);
         //Call api edit service to active service
-        editServiceAPI = new EditServiceAPI();
+        editServiceAPI = new EditServiceAPI(loginInformation);
         editServiceAPI.setActiveStatus(true);
         editServiceAPI.updateService(serviceNormalId);
         //Check on SF when service active

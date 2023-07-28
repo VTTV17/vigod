@@ -1,18 +1,23 @@
 package api.dashboard.marketing;
 
 import api.dashboard.login.Login;
-import api.dashboard.onlineshop.APIMenus;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 
 public class APIBuyLink {
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    public APIBuyLink(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
     final static Logger logger = LogManager.getLogger(APIBuyLink.class);
     public static String GET_BUY_LINK_LIST_PATH = "orderservices2/api/buy-link/%storeId%?page=0&size=100&sort=createdDate,desc";
     public static String DELETE_BUY_LINK_PATH = "orderservices2/api/buy-link/%s/%s";

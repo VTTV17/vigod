@@ -15,6 +15,7 @@ import pages.dashboard.home.HomePage;
 import pages.dashboard.products.supplier.ui.crud.UICRUDSupplierPage;
 import pages.dashboard.products.supplier.ui.management.UISupplierManagementPage;
 import utilities.UICommonAction;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -28,16 +29,17 @@ public class SupplierManagementPage extends SupplierManagementElement {
     Actions act;
     String SUPPLIER_MANAGEMENT_PATH = "/supplier/list";
     String language;
-	UISupplierManagementPage uiSupplierManagementPage;
-
+    UISupplierManagementPage uiSupplierManagementPage;
+    LoginInformation loginInformation;
     final static Logger logger = LogManager.getLogger(SupplierManagementPage.class);
 
-    public SupplierManagementPage(WebDriver driver) {
+    public SupplierManagementPage(WebDriver driver, LoginInformation loginInformation) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commons = new UICommonAction(driver);
         act = new Actions(driver);
-		uiSupplierManagementPage = new UISupplierManagementPage(driver);
+        uiSupplierManagementPage = new UISupplierManagementPage(driver);
+        this.loginInformation = loginInformation;
     }
 
     public SupplierManagementPage inputSearchTerm(String searchTerm) {
@@ -177,47 +179,47 @@ public class SupplierManagementPage extends SupplierManagementElement {
     }
 
     public void checkUISupplierManagementPage() throws Exception {
-		// search supplier with invalid keywords to check no result text
+        // search supplier with invalid keywords to check no result text
         searchSupplierByCode(String.valueOf( Instant.now().toEpochMilli()));
 
-		// check UI
-		uiSupplierManagementPage.checkUIProductManagementPage(language);
+        // check UI
+        uiSupplierManagementPage.checkUIProductManagementPage(language);
 
-		verifyTest();
+        verifyTest();
     }
 
-	public void checkNavigateToAddSupplierPage() {
-		// click Add supplier button
-		navigateToAddSupplierPage();
+    public void checkNavigateToAddSupplierPage() {
+        // click Add supplier button
+        navigateToAddSupplierPage();
 
-		// check URL
-		uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, driver.getCurrentUrl().contains("/supplier/create"), "[Failed][Supplier Management] Can not navigate to Add supplier page, current url: %s.".formatted(driver.getCurrentUrl()));
-		logger.info("Check Supplier Management - Navigate to Add supplier page.");
+        // check URL
+        uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, driver.getCurrentUrl().contains("/supplier/create"), "[Failed][Supplier Management] Can not navigate to Add supplier page, current url: %s.".formatted(driver.getCurrentUrl()));
+        logger.info("Check Supplier Management - Navigate to Add supplier page.");
 
-		verifyTest();
-	}
+        verifyTest();
+    }
 
-	public void checkSearchWithInvalidSupplierCode() {
-		// search supplier by invalid code
-		String keywords = String.valueOf(Instant.now().toEpochMilli());
-		searchSupplierByCode(keywords);
+    public void checkSearchWithInvalidSupplierCode() {
+        // search supplier by invalid code
+        String keywords = String.valueOf(Instant.now().toEpochMilli());
+        searchSupplierByCode(keywords);
 
-		// wait result
-		commons.sleepInMiliSecond(1000);
+        // wait result
+        commons.sleepInMiliSecond(1000);
 
-		// get list supplier match search result
-		List<String> listAvailableSupplier = getListSupplierCode();
-		uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.size() == 0, "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
-		logger.info("Check Supplier Management - Search by invalid supplier code.");
+        // get list supplier match search result
+        List<String> listAvailableSupplier = getListSupplierCode();
+        uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.size() == 0, "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
+        logger.info("Check Supplier Management - Search by invalid supplier code.");
 
-		verifyTest();
-	}
+        verifyTest();
+    }
 
-	public void checkSearchWithValidSupplierCode() {
-		List<String> listAvailableSupplier = getListSupplierCode();
-		if (listAvailableSupplier.size() == 0) {
+    public void checkSearchWithValidSupplierCode() {
+        List<String> listAvailableSupplier = getListSupplierCode();
+        if (listAvailableSupplier.size() == 0) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI().createSupplier();
+            new SupplierAPI(loginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -226,20 +228,20 @@ public class SupplierManagementPage extends SupplierManagementElement {
             commons.sleepInMiliSecond(3000);
         }
 
-		// search supplier by valid code
-		String keywords = String.valueOf(getListSupplierCode().get(0));
-		searchSupplierByCode(keywords);
+        // search supplier by valid code
+        String keywords = String.valueOf(getListSupplierCode().get(0));
+        searchSupplierByCode(keywords);
 
-		// wait result
-		commons.sleepInMiliSecond(1000);
+        // wait result
+        commons.sleepInMiliSecond(1000);
 
-		// get list supplier match search result
-		listAvailableSupplier = getListSupplierCode();
+        // get list supplier match search result
+        listAvailableSupplier = getListSupplierCode();
         uiSupplierManagementPage.countFail = uiSupplierManagementPage.assertCustomize.assertTrue(uiSupplierManagementPage.countFail, listAvailableSupplier.stream().allMatch(supCode -> supCode.contains(keywords)), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
-		logger.info("Check Supplier Management - Search by valid supplier code.");
+        logger.info("Check Supplier Management - Search by valid supplier code.");
 
-		verifyTest();
-	}
+        verifyTest();
+    }
 
     public void checkSearchWithInvalidSupplierName() {
         // search supplier by invalid name
@@ -261,7 +263,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         List<String> listAvailableSupplier = getListSupplierCode();
         if (listAvailableSupplier.size() == 0) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI().createSupplier();
+            new SupplierAPI(loginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -285,9 +287,9 @@ public class SupplierManagementPage extends SupplierManagementElement {
         verifyTest();
     }
 
-	void verifyTest() {
-		if (uiSupplierManagementPage.countFail > 0)
-			Assert.fail("[Failed] Fail %d cases".formatted(uiSupplierManagementPage.countFail));
-	}
+    void verifyTest() {
+        if (uiSupplierManagementPage.countFail > 0)
+            Assert.fail("[Failed] Fail %d cases".formatted(uiSupplierManagementPage.countFail));
+    }
 
 }

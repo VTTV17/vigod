@@ -20,6 +20,7 @@ import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -221,11 +222,11 @@ public class HomePage {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
         boolean isMenuAlreadyOpened = element.getAttribute("class").contains("active");
         try {
-        	isMenuAlreadyOpened = element.getAttribute("class").contains("active");
+            isMenuAlreadyOpened = element.getAttribute("class").contains("active");
         } catch (StaleElementReferenceException ex) {
-        	logger.debug("StaleElementReferenceException caught when getting element's attribute. Retrying...");
-        	isMenuAlreadyOpened = element.getAttribute("class").contains("active");
-		}
+            logger.debug("StaleElementReferenceException caught when getting element's attribute. Retrying...");
+            isMenuAlreadyOpened = element.getAttribute("class").contains("active");
+        }
         if (isMenuComponentVisiblyDisabled(element)) {
             Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
         } else {
@@ -234,9 +235,9 @@ public class HomePage {
                 logger.info("Click on %s item on menu".formatted(pageName));
                 commons.waitForElementInvisible(SPINNER, 60);
                 if (pageName.equals("Marketing")) {
-            		if (new LandingPage(driver).isPermissionModalDisplay()) {
-            			new LandingPage(driver).closeModal();
-            		}
+                    if (new LandingPage(driver).isPermissionModalDisplay()) {
+                        new LandingPage(driver).closeModal();
+                    }
                 }
             }
         }
@@ -372,8 +373,8 @@ public class HomePage {
     public HomePage verifyUpgradeNowMessage(String signupLanguage) throws Exception {
         commons.sleepInMiliSecond(2000); //Handle race condition
         String text = commons.getText(UPGRADENOW_MESSAGE.get(0));
-    	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("home.upgradeNowTxt", signupLanguage);
-    	soft.assertEquals(text,retrievedMsg, "[Homepage][Upgrade Now Message] Message does not match.");
+        String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("home.upgradeNowTxt", signupLanguage);
+        soft.assertEquals(text,retrievedMsg, "[Homepage][Upgrade Now Message] Message does not match.");
         logger.info("verifyUpgradeNowMessage completed");
         return this;
     }
@@ -408,7 +409,7 @@ public class HomePage {
         AssertCustomize assertCustomize = new AssertCustomize(driver);
         countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
         if (countFailed ==0) {
-        	logger.info("Sale pitch video is displayed");
+            logger.info("Sale pitch video is displayed");
         }
         return countFailed;
     }
@@ -643,71 +644,71 @@ public class HomePage {
 
     /*Verify permission for certain feature*/
     public void verifyPermissionToDisplayStatistics(String permission) {
-		if (permission.contentEquals("A")) {
-			Assert.assertTrue(isStatisticsDisplayed());
-		} else if (permission.contentEquals("D")) {
-			Assert.assertFalse(isStatisticsDisplayed());
-		} else {
-			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
-		}
+        if (permission.contentEquals("A")) {
+            Assert.assertTrue(isStatisticsDisplayed());
+        } else if (permission.contentEquals("D")) {
+            Assert.assertFalse(isStatisticsDisplayed());
+        } else {
+            Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+        }
     }
-    public void verifyPermissionToCreateProduct(String permission) {
-		if (permission.contentEquals("A")) {
-			clickCreateProduct();
-			new ProductPage(driver).clickOnTheCreateProductBtn();
-		} else if (permission.contentEquals("D")) {
-			// Not reproducible
-		} else {
-			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
-		}
+    public void verifyPermissionToCreateProduct(String permission, LoginInformation loginInformation) {
+        if (permission.contentEquals("A")) {
+            clickCreateProduct();
+            new ProductPage(driver, loginInformation).clickOnTheCreateProductBtn();
+        } else if (permission.contentEquals("D")) {
+            // Not reproducible
+        } else {
+            Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+        }
     }
     public void verifyPermissionToImportProductFromShopee(String permission, String url) {
-		if (permission.contentEquals("A")) {
-			clickImportFromShopee();
-			Assert.assertTrue(commons.getCurrentURL().contains(url));
-		} else if (permission.contentEquals("D")) {
-			// Not reproducible
-		} else {
-			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
-		}
+        if (permission.contentEquals("A")) {
+            clickImportFromShopee();
+            Assert.assertTrue(commons.getCurrentURL().contains(url));
+        } else if (permission.contentEquals("D")) {
+            // Not reproducible
+        } else {
+            Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+        }
     }
     public void verifyPermissionToImportProductFromLazada(String permission, String url) {
-    	if (permission.contentEquals("A")) {
-    		clickImportFromLazada();
-    		Assert.assertTrue(commons.getCurrentURL().contains(url));
-    	} else if (permission.contentEquals("D")) {
-    		// Not reproducible
-    	} else {
-    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
-    	}
+        if (permission.contentEquals("A")) {
+            clickImportFromLazada();
+            Assert.assertTrue(commons.getCurrentURL().contains(url));
+        } else if (permission.contentEquals("D")) {
+            // Not reproducible
+        } else {
+            Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+        }
     }
     public void verifyPermissionToAddDomain(String permission) {
-		clickDomain();
-    	if (permission.contentEquals("A")) {
-    		new Domains(driver).inputSubDomain("testdomain");
-    	} else if (permission.contentEquals("D")) {
-    		// Not reproducible
-    	} else {
-    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
-    	}
+        clickDomain();
+        if (permission.contentEquals("A")) {
+            new Domains(driver).inputSubDomain("testdomain");
+        } else if (permission.contentEquals("D")) {
+            // Not reproducible
+        } else {
+            Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+        }
     }
     public void verifyPermissionToAddBankAccount(String permission) {
-    	if (permission.contentEquals("A")) {
-    		clickBankInformation();
-    		new BankAccountInformation(driver).selectCountry("Vietnam");
-    	} else if (permission.contentEquals("D")) {
-    		// Not reproducible
-    	} else {
-    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
-    	}
+        if (permission.contentEquals("A")) {
+            clickBankInformation();
+            new BankAccountInformation(driver).selectCountry("Vietnam");
+        } else if (permission.contentEquals("D")) {
+            // Not reproducible
+        } else {
+            Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+        }
     }
     public void verifyPermissionToCustomizeAppearance(String permission) {
-		clickChangeDesign();
-		new Themes(driver).verifyPermissionToCustomizeAppearance(permission);
+        clickChangeDesign();
+        new Themes(driver).verifyPermissionToCustomizeAppearance(permission);
     }
-    
+
     /*-------------------------------------*/
-    
+
     public void verifyTextOfPage() throws Exception {
         Assert.assertEquals(commons.getText(homeUI.HOME_PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("home.pageTitle") + " " + getShopName());
         Assert.assertEquals(commons.getText(homeUI.GOPOS_LBL), PropertiesUtil.getPropertiesValueByDBLang("home.POSLbl"));

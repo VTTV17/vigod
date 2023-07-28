@@ -7,6 +7,7 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,9 +34,15 @@ public class Customers {
     private static String segmentName;
 
     private static int segmentID;
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
 
     API api = new API();
+    LoginInformation loginInformation;
+
+    public Customers(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
 
     public Customers createNewCustomer() {
         String apiCustomerName = randomAlphabetic(nextInt(MAX_CUSTOMER_NAME) + 1);
@@ -182,13 +189,13 @@ public class Customers {
 
     public void createSegmentByAPI(String account, String password, String phoneCode) throws InterruptedException {
         // login SF to create new Customer in Dashboard
-        new LoginSF().LoginToSF(account, password, phoneCode);
+        new LoginSF(loginInformation).LoginToSF(account, password, phoneCode);
 
         // wait customer is added
         sleep(3000);
 
         // add tag and create segment by tag name
-        new Customers().addCustomerTagForMailCustomer(account).createSegment();
+        addCustomerTagForMailCustomer(account).createSegment();
     }
 
     public List<Integer> getListCustomerInSegment(Integer segmentID) {

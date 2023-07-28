@@ -1,5 +1,6 @@
 package pages.dashboard.products.all_products.conversion_unit;
 
+import api.dashboard.login.Login;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -8,6 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,11 +33,11 @@ public class ConversionUnitPage extends ConversionUnitElement {
     int countFail;
     String language;
 
-    public ConversionUnitPage(WebDriver driver) {
+    public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        productPage = new ProductPage(driver);
+        productPage = new ProductPage(driver, loginInformation);
         language = productPage.getLanguage();
         countFail = productPage.getCountFail();
     }

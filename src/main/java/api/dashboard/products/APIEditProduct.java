@@ -6,12 +6,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 
 public class APIEditProduct {
     API api = new API();
     final static Logger logger = LogManager.getLogger(APIEditProduct.class);
     LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginInformation loginInformation;
+    public APIEditProduct(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
 
     public static String ITEM_LANGUAGES_PATH = "itemservice/api/item-languages";
     public static String DELETE_ITEM_PATH = "itemservice/api/items/%s";

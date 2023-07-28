@@ -8,8 +8,10 @@ import api.storefront.signup.SignUp;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
-import org.testng.annotations.*;
-
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.account.address.BuyerAddress;
@@ -21,16 +23,17 @@ import utilities.UICommonMobile;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
-import javax.swing.text.Utilities;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static utilities.account.AccountTest.*;
 
-public class MyProfileTest extends BaseTest{
+public class MyProfileTest {
+    WebDriver driver;
     String buyer;
     String passBuyer;
     NavigationBar navigationBar;
@@ -58,6 +61,7 @@ public class MyProfileTest extends BaseTest{
     String stateCheckout;
     String userName_UpdateAddress;
     String language;
+    LoginInformation loginInformation;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -80,11 +84,11 @@ public class MyProfileTest extends BaseTest{
         sellerPass = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         userName_EditInfo_HasBirthday = SF_USERNAME_VI_4;
         userName_PhoneAccount_EditInfo_HasBirthday = SF_USERNAME_PHONE_VI_1;
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
-        CreateProduct newProductInfo = new CreateProduct().createWithoutVariationProduct(false,30);
+        loginInformation = new Login().setLoginInformation("+84",sellerUsername,sellerPass).getLoginInformation();
+        CreateProduct newProductInfo = new CreateProduct(loginInformation).createWithoutVariationProduct(false,30);
         productIDToAddToCart = newProductInfo.getProductID();
         branchID = newProductInfo.getBranchIds().get(0);
-        new LoginSF().LoginToSF("qcgosell01@gmail.com","Psso12!@","+84");
+        new LoginSF(loginInformation).LoginToSF("qcgosell01@gmail.com","Psso12!@","+84");
         addressCheckout = "so 2 update";
         cityProvinceCheckout = "Gia Lai";
         districtCheckout = "Kbang";
@@ -101,7 +105,8 @@ public class MyProfileTest extends BaseTest{
         driver.quit();
     }
     @AfterMethod
-    public void restartApp(ITestResult result) {
+    public void restartApp(ITestResult result) throws IOException {
+        new Screenshot().takeScreenshot(driver);
         ((AndroidDriver) driver).resetApp();
     }
     public BuyerAccountPage login(String buyerAccount){
@@ -112,18 +117,18 @@ public class MyProfileTest extends BaseTest{
         return new BuyerAccountPage(driver);
     }
     public void callAPIAddToCart(String buyerUsername){
-        new LoginSF().LoginToSF(buyerUsername,passBuyer,"+84");
-        new APIProductDetail().callAddToCart(productIDToAddToCart,branchID,1);
+        new LoginSF(loginInformation).LoginToSF(buyerUsername,passBuyer,"+84");
+        new APIProductDetail(loginInformation).callAddToCart(productIDToAddToCart,branchID,1);
     }
     public String callAPISignUpAccount(boolean isEmailAccount){
-        new Login().loginToDashboardWithPhone("+84",sellerUsername,sellerPass);
+        loginInformation = new Login().setLoginInformation("+84",sellerUsername,sellerPass).getLoginInformation();
         String userName;
         if(isEmailAccount){
             userName = "email"+generator.randomNumberGeneratedFromEpochTime(7)+"@mailnesia.com";
-            new SignUp().signUpByMail(userName,passBuyer);
+            new SignUp(loginInformation).signUpByMail(userName,passBuyer);
         }else {
             userName= "01"+generator.randomNumberGeneratedFromEpochTime(7);
-            new SignUp().signUpByPhoneNumber(passBuyer,userName,"+84");
+            new SignUp(loginInformation).signUpByPhoneNumber(passBuyer,userName,"+84");
         }
         new UICommonMobile(driver).sleepInMiliSecond(5000);
         return userName;
@@ -542,7 +547,7 @@ public class MyProfileTest extends BaseTest{
         login(emailAccount);
         new LoginPage(driver).verifyToastMessage(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.login.loginError"));
         //check sign up again
-        new SignUp().signUpByMail(emailAccount,passBuyer);
+        new SignUp(loginInformation).signUpByMail(emailAccount,passBuyer);
         new LoginPage(driver).performLogin(emailAccount,passBuyer);
         new BuyerAccountPage(driver).verifyAvatarDisplay();
     }

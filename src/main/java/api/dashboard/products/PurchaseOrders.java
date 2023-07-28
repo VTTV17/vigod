@@ -6,20 +6,27 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 public class PurchaseOrders {
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    public PurchaseOrders(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
     String CREATE_PURCHASE_ORDER_PATH = "/itemservice/api/purchase-orders";
 
     JsonPath createPurchaseOrderJsonPath() {
-        SupplierAPI sup = new SupplierAPI();
+        SupplierAPI sup = new SupplierAPI(loginInformation);
         int supplierId = sup.getListSupplierID("").size() == 0 ? sup.createSupplierAndGetSupplierID() : sup.getListSupplierID("").get(0);
-        int branchId = new BranchManagement().getInfo() // get branch info
+        int branchId = new BranchManagement(loginInformation).getInfo() // get branch info
                 .getBranchID() // get list branch ID
                 .get(0); // get first branch in list
-        int itemId = new CreateProduct().createWithoutVariationProductAndGetProductID(false);
-        String inventoryManageType = new ProductInformation().getInfo(itemId).isManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
+        int itemId = new CreateProduct(loginInformation).createWithoutVariationProductAndGetProductID(false);
+        String inventoryManageType = new ProductInformation(loginInformation).getInfo(itemId).isManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
         String body = """
                 {
                     "note": "",

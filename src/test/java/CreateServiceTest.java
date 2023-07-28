@@ -1,9 +1,10 @@
 import api.dashboard.login.Login;
 import api.dashboard.services.CreateServiceAPI;
 import org.testng.ITestResult;
-import org.testng.annotations.*;
-
-import pages.buyerapp.navigationbar.NavigationBar;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.service.CreateServicePage;
@@ -20,14 +21,14 @@ import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.services.ServiceInfo;
-import utilities.screenshot.Screenshot;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.util.List;
 
 import static utilities.account.AccountTest.ADMIN_CREATE_NEW_SHOP_PASSWORD;
 import static utilities.file.FileNameAndPath.*;
-import static utilities.links.Links.*;
+import static utilities.links.Links.SF_ShopVi;
 
 public class CreateServiceTest extends BaseTest {
     LoginPage login;
@@ -63,6 +64,7 @@ public class CreateServiceTest extends BaseTest {
     String serviceEdit;
     String serviceDelete;
     String serviceTestStatus;
+    LoginInformation loginInformation;
     @BeforeClass
     public void beforeClass() throws Exception {
         userName = AccountTest.ADMIN_SHOP_VI_USERNAME;
@@ -83,7 +85,7 @@ public class CreateServiceTest extends BaseTest {
                 "</div></div>";
         generate = new DataGenerator();
         passWordTestPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
-        new Login().loginToDashboardWithPhone("+84",userName,passWord);
+        loginInformation = new Login().setLoginInformation("+84",userName,passWord).getLoginInformation();
         SF_URL = SF_ShopVi;
     }
     @BeforeMethod
@@ -104,7 +106,7 @@ public class CreateServiceTest extends BaseTest {
         String[] location = new String[]{"thu duc","quan 6","quan 8","quan 9"};
         String[] times = new String[]{"10:11","12:10"};
         boolean enableListing = false;
-        ServiceInfo serviceInfo = new CreateServiceAPI().createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
+        ServiceInfo serviceInfo = new CreateServiceAPI(loginInformation).createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,enableListing);
         return serviceInfo;
     }
     public CreateServicePage loginDbAndGoToCreateServicePage() throws Exception {

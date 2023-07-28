@@ -6,12 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
 
 public class EditServiceAPI {
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    public EditServiceAPI(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
     String EDIT_TRANSLATION_MODEL = "/itemservice/api/item-model-languages/bulk";
     String EDIT_SERVICE_PATH = "/itemservice/api/service/items";
     private String serviceName;
@@ -72,7 +79,7 @@ public class EditServiceAPI {
     }
     public List<String> editTranslationServiceLocations(int serviceId) {
 
-        Response serviceInfoRes = new ServiceInfoAPI().getServiceDetail(serviceId);
+        Response serviceInfoRes = new ServiceInfoAPI(loginInformation).getServiceDetail(serviceId);
         List<Integer> serviceModelIds = serviceInfoRes.jsonPath().getList("models.id");
         List<String> variationNames = serviceInfoRes.jsonPath().getList("models.orgName");
         StringBuilder body = new StringBuilder("[");
@@ -112,7 +119,7 @@ public class EditServiceAPI {
      * @throws JsonProcessingException
      */
     public void updateService(int serviceId) throws JsonProcessingException {
-        Response serviceInfoRes = new ServiceInfoAPI().getServiceDetail(serviceId);
+        Response serviceInfoRes = new ServiceInfoAPI(loginInformation).getServiceDetail(serviceId);
         Map<String, Object> serviceInfoMapping = new ObjectMapper().readValue(serviceInfoRes.body().asString(), HashMap.class);
         String serviceNamEdit = (String) serviceInfoMapping.get("name");
         if(serviceName!= null) serviceNamEdit = serviceName;

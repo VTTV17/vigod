@@ -4,12 +4,19 @@ import api.dashboard.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 
 public class APIProductCollection {
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    public APIProductCollection(LoginInformation loginInformation){
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
 
     public static String DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH = "itemservice/api/collections/delete/%s/%s";
     public static String DASHBOARD_PRODUCT_COLLECTION_LIST_PATH = "itemservice/api/collections/list/%s?page=0&size=100&itemType=BUSINESS_PRODUCT&search=";

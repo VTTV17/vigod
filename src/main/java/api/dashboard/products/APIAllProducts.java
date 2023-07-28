@@ -5,9 +5,9 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
 
-import java.net.ResponseCache;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -17,10 +17,16 @@ import java.util.stream.IntStream;
 
 public class APIAllProducts {
     API api = new API();
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
     public static String DASHBOARD_PRODUCT_LIST_PATH = "itemservice/api/store/dashboard/%storeID%/items-v2?langKey=vi&searchType=PRODUCT_NAME&searchSortItemEnum=null&searchItemName=&sort=%sort%&page=0&size=1000&inStock=false&saleChannel=&bhStatus=&branchIds=&shopeeId=&collectionId=%collectionId%&platform=&itemType=BUSINESS_PRODUCT";
     public static String DASHBOAR_CONVERSION_UNIT_ITEM_PATH = "itemservice/api/conversion-unit-items/item/%s";
     public static String DASHBOARD_PRODUCT_DETAIL_PATH = "itemservice/api/beehive-items/%s?langKey=vi";
+    LoginInformation loginInformation;
+    public  APIAllProducts(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+    }
+
 
     /**
      *
@@ -36,14 +42,12 @@ public class APIAllProducts {
         List<String> productNameList = response.jsonPath().getList("name");
         Map<String,Date> productCreatedDateMap = new HashMap<>();
         for(int i = 0; i<createdDateList.size();i++){
-            Date date = formatter.parse(createdDateList.get(i).replaceAll("Z$", " +0000"));
+            Date date = formatter.parse(createdDateList.get(i).replaceAll("Z$", "+0000"));
             productCreatedDateMap.put(productNameList.get(i).toLowerCase(),date);
-            System.out.println(date);
         }
         Map<String, Date> sortedMap = SortData.sortMapByValue(productCreatedDateMap);
         List<String> productSorted = new ArrayList<>(sortedMap.keySet().stream().toList());
         Collections.reverse(productSorted);
-        System.out.println(productSorted);
         return productSorted;
     }
 
@@ -282,25 +286,25 @@ public class APIAllProducts {
 
     public int getProductIDWithoutVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(false);
-        ProductInformation productInfo = new ProductInformation();
+        ProductInformation productInfo = new ProductInformation(loginInformation);
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", false, false, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
     public int getProductIDWithoutVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(false);
-        ProductInformation productInfo = new ProductInformation();
+        ProductInformation productInfo = new ProductInformation(loginInformation);
         return listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", false, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
     public int getProductIDWithVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(true);
-        ProductInformation productInfo = new ProductInformation();
+        ProductInformation productInfo = new ProductInformation(loginInformation);
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, false, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
     public int getProductIDWithVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         List<Integer> listProductId = getListProductId(true);
-        ProductInformation productInfo = new ProductInformation();
+        ProductInformation productInfo = new ProductInformation(loginInformation);
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 

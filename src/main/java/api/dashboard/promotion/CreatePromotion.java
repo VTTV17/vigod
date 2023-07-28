@@ -17,6 +17,7 @@ import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -82,8 +83,15 @@ public class CreatePromotion {
      * <p> SET value = 1: SPECIFIC BRANCH</p>
      */
 
-    LoginDashboardInfo loginInfo = new Login().getInfo();
-    BranchInfo brInfo = new BranchManagement().getInfo();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
+    public CreatePromotion (LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
+        brInfo = new BranchManagement(loginInformation).getInfo();
+    }
+
+    BranchInfo brInfo;
     Instant flashSaleStartTime;
     Instant productDiscountCampaignStartTime;
 
@@ -329,14 +337,14 @@ public class CreatePromotion {
         // segment type:
         // 0: all customers
         // 1: specific segment
-        if (new Customers().getSegmentID() == 0)
-            new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers(loginInformation).getSegmentID() == 0)
+            new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         int segmentConditionType = nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_SEGMENT_TYPE);
         String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
         String segmentConditionValue = segmentConditionType == 0 ? "" : """
                 {
                     "conditionValue": %s
-                }""".formatted(new Customers().getSegmentID());
+                }""".formatted(new Customers(loginInformation).getSegmentID());
         String segmentCondition = """
                 {
                     "conditionOption": "%s",
@@ -359,7 +367,7 @@ public class CreatePromotion {
                 {
                     "conditionValue": %s
                 }
-                """.formatted(appliesToType == 1 ? new ProductCollection().createCollection(productInfo).getCollectionID() : productInfo.getProductID());
+                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection(productInfo).getCollectionID() : productInfo.getProductID());
         String appliesToCondition = """
                 {
                     "conditionOption": "%s",
@@ -373,8 +381,7 @@ public class CreatePromotion {
         int min = 1;
         if (productInfo.isHasModel()) for (String key : productInfo.getProductStockQuantityMap().keySet())
             min = Math.min(min, Collections.min(productInfo.getProductStockQuantityMap().get(key)));
-        else
-            min = Collections.min(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductID())));
+        else min = Collections.min(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductID())));
         discountCampaignMinQuantity = nextInt(Math.max(1, min)) + 1;
 
         String minimumRequirement = """
@@ -470,8 +477,8 @@ public class CreatePromotion {
 
         // update discount campaign status
         List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH") ? conditionValueMap.get("APPLIES_TO_BRANCH").stream().map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID))).toList() : brInfo.getBranchName();
-        boolean appliesToProduct = (conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && conditionValueMap.get("APPLIES_TO").stream().map(integer -> new APIProductCollection().getListProductIDInCollections(integer)).flatMap(Collection::stream).toList().contains(Integer.parseInt(barcodeList.get(0).split("-")[0]))) || (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && (!conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS") || conditionValueMap.get("APPLIES_TO").contains(Integer.parseInt(barcodeList.get(0).split("-")[0]))));
-        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") || conditionValueMap.get("CUSTOMER_SEGMENT").stream().map(segID -> new Customers().getListCustomerInSegment(segID)).flatMap(Collection::stream).toList().contains(new Customers().getProfileId());
+        boolean appliesToProduct = (conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && conditionValueMap.get("APPLIES_TO").stream().map(integer -> new APIProductCollection(loginInformation).getListProductIDInCollections(integer)).flatMap(Collection::stream).toList().contains(Integer.parseInt(barcodeList.get(0).split("-")[0]))) || (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && (!conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS") || conditionValueMap.get("APPLIES_TO").contains(Integer.parseInt(barcodeList.get(0).split("-")[0]))));
+        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") || conditionValueMap.get("CUSTOMER_SEGMENT").stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(segID)).flatMap(Collection::stream).toList().contains(new Customers(loginInformation).getProfileId());
 
         if (appliesToProduct && appliesToCustomer) {
             brInfo.getBranchName().forEach(brName -> {
@@ -585,13 +592,13 @@ public class CreatePromotion {
         // 1: specific segment
 //        int segmentConditionType = nextInt(MAX_PRODUCT_DISCOUNT_CODE_SEGMENT_TYPE);
         int segmentConditionType = apiSegmentConditionType;
-        if (new Customers().getSegmentID() == 0)
-            new Customers().createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers(loginInformation).getSegmentID() == 0)
+            new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
         String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
         String segmentConditionValue = segmentConditionType == 0 ? "" : """
                 {
                     "conditionValue": %s
-                }""".formatted(new Customers().getSegmentID());
+                }""".formatted(new Customers(loginInformation).getSegmentID());
         String segmentCondition = """
                 {
                     "conditionOption": "%s",
@@ -616,7 +623,7 @@ public class CreatePromotion {
                 {
                     "conditionValue": %s
                 }
-                """.formatted(appliesToType == 1 ? new ProductCollection().createCollection().getCollectionID() : new CreateProduct().getProductID());
+                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection().getCollectionID() : new CreateProduct(loginInformation).getProductID());
         String appliesToCondition = """
                 {
                     "conditionOption": "%s",
@@ -636,12 +643,12 @@ public class CreatePromotion {
 
         String minimumRequirementLabel = minimumRequirementType == 0 ? "MIN_REQUIREMENTS_NONE" : (minimumRequirementType == 1) ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT" : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
         int minStock = 1;
-        if (new CreateProduct().isHasModel()) {
-            for (String key : new CreateProduct().getProductStockQuantity().keySet()) {
-                minStock = Math.min(minStock, Collections.min(new CreateProduct().getProductStockQuantity().get(key)));
+        if (new CreateProduct(loginInformation).isHasModel()) {
+            for (String key : new CreateProduct(loginInformation).getProductStockQuantity().keySet()) {
+                minStock = Math.min(minStock, Collections.min(new CreateProduct(loginInformation).getProductStockQuantity().get(key)));
             }
-        } else minStock = Collections.min(new CreateProduct().getProductStockQuantity().get(null));
-        long minPurchaseAmount = Collections.min(new CreateProduct().getProductSellingPrice());
+        } else minStock = Collections.min(new CreateProduct(loginInformation).getProductStockQuantity().get(null));
+        long minPurchaseAmount = Collections.min(new CreateProduct(loginInformation).getProductSellingPrice());
         String minimumRequirement = """
                 {
                     "conditionOption": "%s",

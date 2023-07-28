@@ -1,32 +1,12 @@
-import static utilities.account.AccountTest.ADMIN_USERNAME_GOAPP;
-import static utilities.account.AccountTest.ADMIN_USERNAME_GOLEAD;
-import static utilities.account.AccountTest.ADMIN_USERNAME_GOPOS;
-import static utilities.account.AccountTest.ADMIN_USERNAME_GOSOCIAL;
-import static utilities.account.AccountTest.ADMIN_USERNAME_GOWEB;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
+import api.dashboard.login.Login;
+import api.dashboard.orders.OrderAPI;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
-import api.dashboard.login.Login;
-import api.dashboard.orders.OrderAPI;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.orders.orderlist.OrderList;
@@ -37,10 +17,16 @@ import pages.storefront.header.HeaderSF;
 import pages.storefront.userprofile.MyOrders;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
-import utilities.jsonFileUtility;
 import utilities.data.DataGenerator;
 import utilities.data.FormatDate;
 import utilities.driver.InitWebdriver;
+import utilities.jsonFileUtility;
+import utilities.model.sellerApp.login.LoginInformation;
+
+import java.io.IOException;
+import java.util.*;
+
+import static utilities.account.AccountTest.*;
 
 public class ProductReviewTest extends BaseTest {
 
@@ -53,6 +39,7 @@ public class ProductReviewTest extends BaseTest {
 	ProductDetailPage sfProductDetailPage;
 	CheckOutStep1 checkOutStep1;
 	MyOrders myOrderPage;
+	LoginInformation loginInformation;
 
 	
 	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
@@ -96,24 +83,24 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	public String randomSearchProduct() {
-        List<String> allProducts = new api.dashboard.products.ProductReviews().getProductNameList();
+        List<String> allProducts = new api.dashboard.products.ProductReviews(loginInformation).getProductNameList();
         Set<String> uniqueNames = new HashSet<String>(allProducts);
         List<String> productNames = new ArrayList<String>(uniqueNames);
         return productNames.get(new Random().nextInt(0, productNames.size()));
 	}	
 
     public void confirmDeliverOrderByAPI(String orderID){
-        OrderAPI orderAPI = new OrderAPI();
+        OrderAPI orderAPI = new OrderAPI(loginInformation);
         orderAPI.confirmOrder(orderID);
         orderAPI.deliverOrder(orderID);
     }		
 	
 	public List<Integer> getRatingListByAPI() {
-		return new api.dashboard.products.ProductReviews().getAllReviewJsonPath().getList("rate");
+		return new api.dashboard.products.ProductReviews(loginInformation).getAllReviewJsonPath().getList("rate");
 	}	
 	
 	public List<Date> getCreatedDateListByAPI() {
-		List<String> rawList = new api.dashboard.products.ProductReviews().getAllReviewJsonPath().getList("reviewDate");
+		List<String> rawList = new api.dashboard.products.ProductReviews(loginInformation).getAllReviewJsonPath().getList("reviewDate");
 		List<Date> processedList = new ArrayList<>();
 		FormatDate formatDate = new FormatDate();
 		for (String date : rawList) {
@@ -125,7 +112,7 @@ public class ProductReviewTest extends BaseTest {
     /**
      * 
      * @param condition newToOld/oldToNew/highToLow/lowToHigh
-     * @param displayLanguage
+     * @param
      * @return
      * @throws Exception
      */
@@ -272,7 +259,7 @@ public class ProductReviewTest extends BaseTest {
 	
 	@BeforeClass
 	public void logIntoDashboardByAPI() {
-		new Login().loginToDashboardByMail(sellerUsername, sellerPassword);
+		loginInformation = new Login().setLoginInformation(sellerUsername, sellerPassword).getLoginInformation();
 	}	
 	
 	@BeforeMethod

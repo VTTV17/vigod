@@ -1,5 +1,6 @@
 package pages.dashboard.products.supplier.function.crud;
 
+import api.dashboard.login.Login;
 import api.dashboard.products.PurchaseOrders;
 import api.dashboard.products.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +17,7 @@ import org.testng.Assert;
 import pages.dashboard.products.supplier.function.management.SupplierManagementPage;
 import pages.dashboard.products.supplier.ui.crud.UICRUDSupplierPage;
 import utilities.UICommonAction;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -45,19 +47,22 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     Actions act;
     SupplierManagementPage supplierManagementPage;
     UICRUDSupplierPage uiCRUDSupplierPage;
-    SupplierAPI sup = new SupplierAPI();
+    SupplierAPI sup;
     String supplierName;
     String supplierCode;
     String phoneNumber;
     String email;
+    LoginInformation loginInformation;
 
     public CRUDSupplierPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         act = new Actions(driver);
-        supplierManagementPage = new SupplierManagementPage(driver);
+        supplierManagementPage = new SupplierManagementPage(driver, loginInformation);
         uiCRUDSupplierPage = new UICRUDSupplierPage(driver);
+        loginInformation = new Login().getLoginInformation();
+        sup = new SupplierAPI(loginInformation);
     }
 
     public CRUDSupplierPage setLanguage(String language) {
@@ -268,7 +273,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputSupplierName("abc");
 
         // get available supplier code
-        SupplierAPI sup = new SupplierAPI();
+        SupplierAPI sup = new SupplierAPI(loginInformation);
         List<String> supplierCodeList = sup.getListSupplierCode("");
         String supplierCode = (supplierCodeList.size() == 0) ? sup.createSupplierAndGetSupplierCode() : sup.getListSupplierCode("").get(0);
 
@@ -590,7 +595,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
         // if no purchase orders, post API to create data test
         List<String> listAvailablePurchaseId = sup.getListOrderId("", supplierID);
-        String purchaseId = (listAvailablePurchaseId.size() == 0) ? new PurchaseOrders().createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
+        String purchaseId = (listAvailablePurchaseId.size() == 0) ? new PurchaseOrders(loginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
 
         // input valid purchaseId and search
         wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).click();
