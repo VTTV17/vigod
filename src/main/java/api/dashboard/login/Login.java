@@ -3,7 +3,6 @@ package api.dashboard.login;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import utilities.api.API;
-import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -62,18 +61,16 @@ public class Login {
         return this;
     }
 
-    public LoginDashboardInfo getInfo(LoginInformation... loginInformation) {
-        LoginInformation logInfo = loginInformation.length > 0 ? loginInformation[0] : loginInfo;
-
+    public LoginDashboardInfo getInfo(LoginInformation loginInformation) {
         // init login dashboard info model
         LoginDashboardInfo info = new LoginDashboardInfo();
 
         // get login response
         Response res;
 
-        if (logInfo.getEmail() != null) {
-            res = getLoginResponse(logInfo.getEmail(), logInfo.getPassword()); //if account is email
-        } else res = getLoginWithPhoneResponse(logInfo.getPhoneCode(), logInfo.getPhoneNumber(), logInfo.getPassword());
+        if (loginInformation.getEmail() != null)
+            res = getLoginResponse(loginInformation.getEmail(), loginInformation.getPassword()); //if account is email
+        else res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
 
         // set accessToken
         info.setAccessToken(res.jsonPath().getString("accessToken"));

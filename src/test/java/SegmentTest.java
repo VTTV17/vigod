@@ -24,12 +24,14 @@ public class SegmentTest {
     String customerPhoneNum;
     int profileID;
     int buyerID;
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
     
     BranchInfo brInfo;
     LoginInformation loginInformation;
-    {
+    public SegmentTest (LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
         brInfo = new BranchManagement(loginInformation).getInfo();
+        loginInfo = new Login().getInfo(loginInformation);
     }
 
     void createNewPOSCustomer() {
@@ -60,7 +62,7 @@ public class SegmentTest {
                      ],
                      "storeName": "%s",
                      "langKey": "en"
-                 }""".formatted(customerName, customerPhoneNum, customerPhoneNum, new Login().getInfo().getStoreName());
+                 }""".formatted(customerName, customerPhoneNum, customerPhoneNum, loginInfo.getStoreName());
 
         Response createCustomerResponse = new API().post(CREATE_POS_CUSTOMER_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body);
         createCustomerResponse.prettyPrint();

@@ -16,10 +16,11 @@ public class SegmentAPI {
     String DELETE_SEGMENT_PATH = "/beehiveservices/api/segments/delete/%s/%s";
     API api = new API();
 
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
     public SegmentAPI(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
     }
 
     

@@ -17,7 +17,7 @@ public class OthersGroupAPI {
 
     public OthersGroupAPI(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo();
+        loginInfo = new Login().getInfo(loginInformation);
     }
 
     public JsonPath getAllOtherGroupJsonPath() {

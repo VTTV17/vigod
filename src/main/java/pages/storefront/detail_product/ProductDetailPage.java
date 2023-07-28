@@ -59,7 +59,6 @@ public class ProductDetailPage extends ProductDetailElement {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        loginInformation = new Login().getLoginInformation();
     }
     void checkHeader(String language) throws Exception {
         // check store logo
@@ -211,7 +210,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // check copyright
         String sfCopyright = wait.until(ExpectedConditions.visibilityOf(FOOTER_COPYRIGHT)).getText();
-        String copyright = getPropertiesValueBySFLang("footer.copyright", language).formatted(new DataGenerator().generateDateTime("yyyy"), new Login().getInfo().getStoreName());
+        String copyright = getPropertiesValueBySFLang("footer.copyright", language).formatted(new DataGenerator().generateDateTime("yyyy"), new Login().getInfo(loginInformation).getStoreName());
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfCopyright, copyright, "[Failed][Footer] Copyright title should be %s, but found %s.".formatted(copyright, sfCopyright));
         logger.info("[UI][%s] Check Footer - Copyright".formatted(language));
     }
@@ -713,7 +712,10 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void accessToProductDetailPageByProductIDAndCheckProductInformation(String language, ProductInfo productInfo) throws Exception {
+    public void accessToProductDetailPageByProductIDAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo) throws Exception {
+        // get login information
+        this.loginInformation = loginInformation;
+
         // get product information
         this.productInfo = productInfo;
 

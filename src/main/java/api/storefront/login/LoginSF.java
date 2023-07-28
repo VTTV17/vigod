@@ -25,7 +25,7 @@ public class LoginSF {
                     "phoneCode": "%s"
                 }""".formatted(username, password, phoneCode);
         Response loginSF = given().contentType(ContentType.JSON)
-                .cookie("StoreId=%s".formatted(new Login().getInfo().getStoreID()))
+                .cookie("StoreId=%s".formatted(new Login().getInfo(loginInformation).getStoreID()))
                 .when()
                 .body(body)
                 .post("https://%s%s/api/login".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));

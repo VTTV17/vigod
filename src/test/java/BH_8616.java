@@ -45,7 +45,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     // G2: IMEI product - without variation
@@ -80,7 +80,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     // G3: Normal product - Variation
@@ -116,7 +116,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
     @Test
         // Pre-condition:
@@ -169,7 +169,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
 
@@ -189,7 +189,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -225,7 +225,7 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
     @Test
         // Pre-condition:
@@ -242,6 +242,6 @@ public class BH_8616 extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 }

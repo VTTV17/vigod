@@ -124,7 +124,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -139,7 +139,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -154,7 +154,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -169,7 +169,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -181,7 +181,7 @@ public class ProductDetailTest extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -194,7 +194,7 @@ public class ProductDetailTest extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
 
@@ -210,7 +210,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
@@ -225,7 +225,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
@@ -240,7 +240,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
@@ -255,7 +255,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
@@ -267,7 +267,7 @@ public class ProductDetailTest extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
@@ -280,7 +280,7 @@ public class ProductDetailTest extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -295,7 +295,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -310,7 +310,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -325,7 +325,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -340,7 +340,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -352,7 +352,7 @@ public class ProductDetailTest extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
@@ -365,7 +365,7 @@ public class ProductDetailTest extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
 
@@ -381,7 +381,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
@@ -396,7 +396,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
@@ -411,7 +411,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
@@ -426,7 +426,7 @@ public class ProductDetailTest extends BaseTest {
                 .waitPromotionStart();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
@@ -438,7 +438,7 @@ public class ProductDetailTest extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
@@ -451,7 +451,7 @@ public class ProductDetailTest extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(language, productInfo);
+                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @AfterMethod

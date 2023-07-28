@@ -56,7 +56,7 @@ public class BH_9753 extends BaseTest {
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     // G2: IMEI product - without variation
@@ -121,7 +121,7 @@ public class BH_9753 extends BaseTest {
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     // G3: Normal product - Variation
@@ -186,7 +186,7 @@ public class BH_9753 extends BaseTest {
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -230,7 +230,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     // G4: IMEI product - Variation
@@ -253,7 +253,7 @@ public class BH_9753 extends BaseTest {
                 .inactiveAllPaidBranches();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -275,7 +275,7 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test
@@ -297,6 +297,6 @@ public class BH_9753 extends BaseTest {
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 }

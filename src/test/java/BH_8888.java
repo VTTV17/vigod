@@ -102,7 +102,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Without variation")
@@ -116,7 +116,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyFlashSale();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Without variation")
@@ -129,7 +129,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Without variation")
@@ -144,7 +144,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Without variation")
@@ -159,7 +159,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Without variation")
@@ -172,7 +172,7 @@ public class BH_8888 extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
 
@@ -188,7 +188,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Without variation")
@@ -203,7 +203,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Without variation")
@@ -216,7 +216,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Without variation")
@@ -231,7 +231,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Without variation")
@@ -246,7 +246,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Without variation")
@@ -259,7 +259,7 @@ public class BH_8888 extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Variation")
@@ -274,7 +274,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Variation")
@@ -289,7 +289,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Variation")
@@ -302,7 +302,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Variation")
@@ -317,7 +317,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Variation")
@@ -332,7 +332,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] Normal product - Variation")
@@ -345,7 +345,7 @@ public class BH_8888 extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     //
@@ -361,7 +361,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Variation")
@@ -376,7 +376,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Variation")
@@ -389,7 +389,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Variation")
@@ -404,7 +404,7 @@ public class BH_8888 extends BaseTest {
                 .waitPromotionStart();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Variation")
@@ -419,7 +419,7 @@ public class BH_8888 extends BaseTest {
                 .endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 
     @Test(groups = "[BH_8888] IMEI product - Variation")
@@ -432,6 +432,6 @@ public class BH_8888 extends BaseTest {
                 .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
     }
 }

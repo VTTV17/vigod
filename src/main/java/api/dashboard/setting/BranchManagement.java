@@ -4,8 +4,8 @@ import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
-import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
@@ -17,14 +17,14 @@ public class BranchManagement {
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
     LoginInformation loginInformation;
+    LoginDashboardInfo loginInfo;
+
     public BranchManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
+        loginInfo = new Login().getInfo(loginInformation);
     }
-    
-    JsonPath getBranchInfoResponseJsonPath() {
-        // get login dashboard information
-        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
 
+    JsonPath getBranchInfoResponseJsonPath() {
         // get all branches response
         Response branchRes = new API().get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         branchRes.then().statusCode(200);
@@ -94,9 +94,6 @@ public class BranchManagement {
         BranchInfo brInfo = getInfo();
         int index = brInfo.getBranchID().indexOf(brID);
 
-        // get login information
-        LoginDashboardInfo loginInfo = new Login().getInfo();
-
         String body = """
                 {
                       "createdDate": "2022-12-19T03:29:35.655Z",
@@ -157,6 +154,7 @@ public class BranchManagement {
         updateBranchInfo(brInfo.getBranchID().get(0), true, true, "ACTIVE");
         return this;
     }
+
     public BranchManagement showFreeBranchOnShopOnline() {
         // get current branch information
         BranchInfo brInfo = getInfo();

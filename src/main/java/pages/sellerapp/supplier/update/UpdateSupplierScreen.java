@@ -128,7 +128,6 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
     void selectVNCity() {
         // open city dropdown
         commonMobile.moveAndGetElement(SELECTED_VN_CITY).click();
-//        commonMobile.getElement(SELECTED_VN_CITY).click();
 
         // get index of selected city
         List<WebElement> cityList = commonMobile.getElements(VN_CITY_LIST, 10);
@@ -154,7 +153,6 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
     void selectVNDistrict() {
         // open district dropdown
         commonMobile.moveAndGetElement(SELECTED_VN_DISTRICT).click();
-//        commonMobile.getElement(SELECTED_VN_DISTRICT).click();
 
         // get index of selected district
         List<WebElement> districtList = commonMobile.getElements(VN_DISTRICT_LIST, 10);
@@ -176,7 +174,6 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
     void selectVNWard() {
         // open ward dropdown
         commonMobile.moveAndGetElement(SELECTED_VN_WARD).click();
-//        commonMobile.click(SELECTED_VN_WARD);
 
         // get index of selected ward
         List<WebElement> wardList = commonMobile.getElements(VN_WARD_LIST, 10);

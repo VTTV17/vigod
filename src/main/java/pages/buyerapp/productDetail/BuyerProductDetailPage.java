@@ -57,7 +57,6 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         commonMobile = new UICommonMobile(driver);
-        loginInformation = new Login().getLoginInformation();
     }
 
     /**
@@ -448,7 +447,10 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void openProductDetailScreenAndCheckProductInformation(String language, ProductInfo productInfo) throws Exception {
+    public void openProductDetailScreenAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo) throws Exception {
+        // get login information
+        this.loginInformation = loginInformation;
+
         // get product information
         this.productInfo = productInfo;
 

@@ -12,7 +12,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 public class APIEditProduct {
     API api = new API();
     final static Logger logger = LogManager.getLogger(APIEditProduct.class);
-    LoginDashboardInfo loginInfo = new Login().getInfo();
+    LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
     public APIEditProduct(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
