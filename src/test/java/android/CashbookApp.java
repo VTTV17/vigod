@@ -1,3 +1,4 @@
+package android;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -329,7 +330,7 @@ public class CashbookApp {
 
 	public AppiumDriver launchApp() throws Exception {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
+		capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
 		capabilities.setCapability("platformName", "Android");
 		capabilities.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
 		capabilities.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
@@ -682,8 +683,8 @@ public class CashbookApp {
 		int currentMonth = Integer.valueOf(dateArray[1]);
 		int currentYear = Integer.valueOf(dateArray[2]);
 		/*Need more code here*/
-		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, currentDay, currentMonth-1, currentYear);
-		cashbookPage.setDateFilter(currentDay, currentMonth-1, currentYear, currentDay, currentMonth, currentYear);
+		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, 30, currentMonth-1, currentYear);
+		cashbookPage.setDateFilter(30, currentMonth-1, currentYear, currentDay, currentMonth, currentYear);
 
 		cashbookPage.clickApplyDateBtn();
 
@@ -712,7 +713,7 @@ public class CashbookApp {
 
 		cashbookPage.clickTimeRangeFilter();
 		cashbookPage.setDateFilter(24, 7, 2023, 1, 7, 2023);
-		cashbookPage.setDateFilter(1, 7, 2023, 30, 7, 2023);
+		cashbookPage.setDateFilter(1, 7, 2023, 31, 7, 2023);
 
 		cashbookPage.clickApplyDateBtn();
 
@@ -804,7 +805,7 @@ public class CashbookApp {
 
 		cashbookPage.clickTimeRangeFilter();
 		cashbookPage.setDateFilter(24, 7, 2023, 1, 7, 2023);
-		cashbookPage.setDateFilter(1, 7, 2023, 30, 7, 2023);
+		cashbookPage.setDateFilter(1, 7, 2023, 31, 7, 2023);
 
 		cashbookPage.clickApplyDateBtn();
 

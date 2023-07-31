@@ -1,3 +1,4 @@
+package android;
 import java.io.IOException;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class ProductReviewApp {
 
 	public AppiumDriver launchApp() throws Exception {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability("udid", "10.10.2.100:5555"); // 192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
+		capabilities.setCapability("udid", "RF8N20PY57D"); // 192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
 		capabilities.setCapability("platformName", "Android");
 		capabilities.setCapability("appPackage", "com.mediastep.shop0017");
 		capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
