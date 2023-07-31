@@ -1,3 +1,4 @@
+package android;
 import static utilities.links.Links.SF_DOMAIN;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import pages.buyerapp.account.BuyerAccountPage;
 import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.navigationbar.NavigationBar;
+import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.buyerapp.signup.SignupPage;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
@@ -212,7 +214,7 @@ public class SignupBuyerApp {
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
 //        capabilities.setCapability("udid", "192.168.2.43:5555");
-        capabilities.setCapability("udid", "RF8N20PY57D");
+        capabilities.setCapability("udid", "RF8N20PY57D"); //10.10.2.100:5555 RF8N20PY57D
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0017");
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
@@ -232,8 +234,8 @@ public class SignupBuyerApp {
 		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
 		
-		commonAction.waitSplashScreenLoaded();
-//		new NotificationPermission(driver).clickAllowBtn();
+//		commonAction.waitSplashScreenLoaded();
+		new NotificationPermission(driver).clickAllowBtn();
 	}		
 	
     @BeforeClass
