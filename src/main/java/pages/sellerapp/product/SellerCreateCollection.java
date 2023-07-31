@@ -13,7 +13,9 @@ import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
 import utilities.data.DataGenerator;
+import utilities.screenshot.Screenshot;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 
@@ -127,6 +129,11 @@ public class SellerCreateCollection {
         logger.info("Input Collection name: "+collectionName);
         return this;
     }
+    public SellerCreateCollection tapCollectionName(){
+        common.clickElement(COLLECTION_NAME_INPUT);
+        logger.info("tap");
+        return this;
+    }
     public SellerCreateCollection selectImage(){
         new SellerGeneral(driver).selectImage();
         logger.info("Select image.");
@@ -135,6 +142,7 @@ public class SellerCreateCollection {
     public SellerProductCollection tapSaveIcon(){
         new SellerGeneral(driver).tapHeaderRightIcon();
         logger.info("Tap on Save icon.");
+        common.sleepInMiliSecond(1000);
         return new SellerProductCollection(driver);
     }
     public SellerCreateCollection tapAddProduct(){
@@ -178,7 +186,6 @@ public class SellerCreateCollection {
         List<WebElement> productNameList = common.getElements(PRODUCT_NAME_LIST,getListTimeout);
         List<WebElement> editPriorityList = common.getElements(EDIT_PRIORITY_LIST,getListTimeout);
         int productListSize =productNameList.size();
-        System.out.println("ProductSize: "+productListSize);
         List<Integer> priorityList;
         if (isInputAllProduct) {
             if (canInputDuplicate) {
@@ -193,12 +200,9 @@ public class SellerCreateCollection {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize - 2);
             }
         }
-        System.out.println("Priority: "+priorityList);
+        System.out.println("priorityList: "+priorityList);
         for (int i = 0; i < productListSize; i++) {
-            common.sleepInMiliSecond(500);
             if (i < priorityList.size()) {
-                common.clickElement(editPriorityList.get(i));
-                common.hideKeyboard("Android");
                 common.inputText(editPriorityList,i, String.valueOf(priorityList.get(i)));
                 productPriorityMap.put(common.getText(productNameList.get(i)).toLowerCase(), priorityList.get(i));
             } else {
