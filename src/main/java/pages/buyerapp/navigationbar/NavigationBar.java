@@ -39,6 +39,7 @@ public class NavigationBar extends UICommonMobile {
         return new BuyerSearchPage(driver);
     }
     public BuyerHomePage tapOnHomeIcon(){
+        new UICommonMobile(driver).waitPageLoaded(HOME_ICON);
         clickElement(HOME_ICON);
         logger.info("Tap on home icon.");
         return new BuyerHomePage(driver);

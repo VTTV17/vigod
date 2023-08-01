@@ -23,6 +23,7 @@ public class UpdateProductTest extends BaseTest {
     int productID;
     ProductInfo productInfo;
     LoginInformation loginInformation;
+    int customerId;
 
     @BeforeClass
     void setup() {
@@ -96,7 +97,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -115,7 +116,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -135,7 +136,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -155,7 +156,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -167,7 +168,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -179,7 +180,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -191,7 +192,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
@@ -203,7 +204,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
 
@@ -225,7 +226,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
@@ -245,7 +246,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
@@ -265,7 +266,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
@@ -285,7 +286,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
 
@@ -297,7 +298,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
@@ -309,7 +310,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
@@ -320,7 +321,7 @@ public class UpdateProductTest extends BaseTest {
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
 
@@ -331,7 +332,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     // G3: [UPDATE] Normal product - Variation
@@ -353,7 +354,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -374,7 +375,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -395,7 +396,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -416,7 +417,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -438,7 +439,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -459,7 +460,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -471,7 +472,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -483,7 +484,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -495,7 +496,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -504,7 +505,7 @@ public class UpdateProductTest extends BaseTest {
 
         new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -515,7 +516,7 @@ public class UpdateProductTest extends BaseTest {
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
@@ -524,7 +525,7 @@ public class UpdateProductTest extends BaseTest {
 
         new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     // G4: [UPDATE] IMEI product - Variation
@@ -545,7 +546,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -566,7 +567,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -587,7 +588,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -608,7 +609,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -629,7 +630,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -650,7 +651,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -662,7 +663,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -674,7 +675,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -686,7 +687,7 @@ public class UpdateProductTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -697,7 +698,7 @@ public class UpdateProductTest extends BaseTest {
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -706,7 +707,7 @@ public class UpdateProductTest extends BaseTest {
 
         new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
@@ -717,6 +718,6 @@ public class UpdateProductTest extends BaseTest {
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
-        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+        new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 }

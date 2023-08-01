@@ -24,7 +24,7 @@ public class BaseTest {
     @Parameters({"browser", "headless", "environment", "language"})
     void getConfig(@Optional("chrome") String browser,
                           @Optional("true") String headless,
-                          @Optional("STAG") String environment,
+                          @Optional("CA") String environment,
                           @Optional("VIE") String language) {
         this.browser = browser;
         this.headless = headless;

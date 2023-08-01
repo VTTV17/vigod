@@ -654,7 +654,7 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Verify all information on the SF is shown correctly
      */
-    void checkProductInformation(String language) throws IOException {
+    void checkProductInformation(String language, int customerId) throws IOException {
         // get the latest branch information
         brInfo = new BranchManagement(loginInformation).getInfo();
         branchStatus = getBranchStatus();
@@ -664,7 +664,7 @@ public class ProductDetailPage extends ProductDetailElement {
         flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
         discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, customerId);
 
         // verify on each variation
         for (String variationValue : productInfo.getVariationListMap().get(language)) {
@@ -712,7 +712,7 @@ public class ProductDetailPage extends ProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void accessToProductDetailPageByProductIDAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo) throws Exception {
+    public void accessToProductDetailPageByProductIDAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo, int customerId) throws Exception {
         // get login information
         this.loginInformation = loginInformation;
 
@@ -749,7 +749,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
                     if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
                         checkUIInStock(languageCode);
-                        checkProductInformation(languageCode);
+                        checkProductInformation(languageCode, customerId);
                     } else {
                         checkUIOutOfStock(languageCode);
 

@@ -272,7 +272,7 @@ public class ProductInformation {
     /**
      * return {barcode, list segment, list price, list stock}
      */
-    public WholesaleProductInfo wholesaleProductInfo(ProductInfo productInfo) {
+    public WholesaleProductInfo wholesaleProductInfo(ProductInfo productInfo, int customerID) {
         /* get wholesale product raw data from API */
         Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productInfo.getProductID()), loginInfo.getAccessToken());
         wholesaleProductInfo.then().statusCode(200);
@@ -297,7 +297,6 @@ public class ProductInformation {
         /* raw data */
         List<WholesaleProductRawData> configs = new ArrayList<>();
         int index = 0;
-        int customerID = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         for (int i = 0; i < totalElements.size(); i++) {
             WholesaleProductRawData wholesaleRawData = new WholesaleProductRawData();
             wholesaleRawData.setBarcode(barcodeList.get(i));

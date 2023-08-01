@@ -19,6 +19,7 @@ public class CreateProductTest extends BaseTest {
     int productID;
     ProductInfo productInfo;
     LoginInformation loginInformation;
+    int customerId;
 
     @BeforeClass
     void setup() {
@@ -48,7 +49,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -69,7 +70,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -90,7 +91,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -111,7 +112,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     // G2: IMEI product - without variation
@@ -133,7 +134,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -154,7 +155,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -175,7 +176,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -196,7 +197,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     // G3: Normal product - Variation
@@ -219,7 +220,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -241,7 +242,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -263,7 +264,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -285,7 +286,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -307,7 +308,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -329,7 +330,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     // G4: IMEI product - Variation
@@ -352,7 +353,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -374,7 +375,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -396,7 +397,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -418,7 +419,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -440,7 +441,7 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -462,6 +463,6 @@ public class CreateProductTest extends BaseTest {
                 .getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
-                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo);
+                .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 }

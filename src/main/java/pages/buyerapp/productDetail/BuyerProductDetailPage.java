@@ -1,6 +1,5 @@
 package pages.buyerapp.productDetail;
 
-import api.dashboard.login.Login;
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.promotion.CreatePromotion;
@@ -52,11 +51,13 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     Map<String, List<String>> salePriceMap;
     Map<String, List<String>> saleDisplayMap;
     LoginInformation loginInformation;
+    AssertCustomize assertCustomize;
 
     public BuyerProductDetailPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         commonMobile = new UICommonMobile(driver);
+        assertCustomize = new AssertCustomize(driver);
     }
 
     /**
@@ -100,26 +101,20 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         String dbProductName = StringUtils.capitalize(productInfo.getProductNameMap().get(barcode).get(language));
 
         // get product name on shop online
-        String sfProductName = commonMobile.moveAndGetElement(PRODUCT_NAME).getText();
+        String adrProductName = commonMobile.moveAndGetElement(PRODUCT_NAME).getText();
 
         // check product name
-        countFail = new AssertCustomize(driver).assertTrue(countFail, sfProductName.equals(dbProductName), "[Failed][Check product name] Product name should be %s but found %s.".formatted(dbProductName, sfProductName));
+        countFail = assertCustomize.assertTrue(countFail, adrProductName.equalsIgnoreCase(dbProductName), "[Failed][Check product name] Product name should be %s but found %s.".formatted(dbProductName, adrProductName));
 
         logger.info("[Check product name] Check product name show correctly.");
     }
 
-    void checkPriceOnBranch(int varIndex, long listingPrice, long sellingPrice, String brName) throws IOException {
+    void checkSellingPriceOnBranch(long sellingPrice, String brName){
         String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
-
-        if (!Objects.equals(productInfo.getProductSellingPrice().get(varIndex), productInfo.getProductListingPrice().get(varIndex))) {
-            String adrListingPrice = wait.until(ExpectedConditions.presenceOfElementLocated(LISTING_PRICE)).getText().replaceAll("\\D+", "");
-            long adrListingPriceValue = Long.parseLong(adrListingPrice);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, adrListingPriceValue, listingPrice, "[Failed]%s Listing price should be show %s instead of %s".formatted(branch, listingPrice, adrListingPriceValue));
-        } else logger.info("No discount product (listing price = selling price)");
         String adrSellingPrice = wait.until(ExpectedConditions.presenceOfElementLocated(ADD_TO_CART_POPUP_SELLING_PRICE)).getText().replaceAll("\\D+", "");
         long adrSellingPriceValue = Long.parseLong(adrSellingPrice);
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(adrSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, adrSellingPrice));
+        countFail = assertCustomize.assertTrue(countFail, Math.abs(adrSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, adrSellingPrice));
         logger.info("%s Check product price/ store currency show correctly".formatted(branch));
 
     }
@@ -133,7 +128,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         } catch (NoSuchElementException ex) {
             hasFlashSale = false;
         }
-        countFail = new AssertCustomize(driver).assertTrue(countFail, hasFlashSale, "%s Flash sale badge does not show".formatted(branch));
+        countFail = assertCustomize.assertTrue(countFail, hasFlashSale, "%s Flash sale badge does not show".formatted(branch));
         logger.info("%s Check flash sale badge is shown".formatted(branch));
     }
 
@@ -147,7 +142,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             hasDiscountCampaign = false;
         }
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, hasDiscountCampaign, "%s Discount campaign does not show".formatted(branch));
+        countFail = assertCustomize.assertTrue(countFail, hasDiscountCampaign, "%s Discount campaign does not show".formatted(branch));
         logger.info("%s Check discount campaign is shown".formatted(branch));
     }
 
@@ -160,7 +155,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         } catch (NoSuchElementException ex) {
             check = false;
         }
-        countFail = new AssertCustomize(driver).assertTrue(countFail, check, "[Failed]%s Wholesale product information is not shown".formatted(branch));
+        countFail = assertCustomize.assertTrue(countFail, check, "[Failed]%s Wholesale product information is not shown".formatted(branch));
         logger.info("%s Check wholesale product information is shown".formatted(branch));
     }
 
@@ -172,7 +167,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         List<String> variationNameListDB = Arrays.stream(productInfo.getVariationNameMap().get(language).split("\\|")).toList();
         List<String> variationNameListAndroid = commonMobile.getListElementText(VARIATION_NAME_LIST);
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, variationNameListAndroid.toString().equals(variationNameListDB.toString()), "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListAndroid));
+        countFail = assertCustomize.assertTrue(countFail, variationNameListAndroid.toString().equals(variationNameListDB.toString()), "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListAndroid));
         logger.info("[Check variation name] Check product variation show correctly");
     }
 
@@ -186,7 +181,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         } catch (NoSuchElementException ex) {
             checkSearchBox = false;
         }
-        countFail = new AssertCustomize(driver).assertTrue(countFail, checkSearchBox, "[Failed]%s 'Search box' should be shown but it is hidden.".formatted(varName));
+        countFail = assertCustomize.assertTrue(countFail, checkSearchBox, "[Failed]%s 'Search box' should be shown but it is hidden.".formatted(varName));
         logger.info("%s Check 'Search box' is displayed.".formatted(varName));
 
         // check Filter icon
@@ -197,7 +192,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         } catch (NoSuchElementException ex) {
             checkFilter = false;
         }
-        countFail = new AssertCustomize(driver).assertTrue(countFail, checkFilter, "[Failed]%s 'Filter dropdown' should be shown but it is hidden.".formatted(varName));
+        countFail = assertCustomize.assertTrue(countFail, checkFilter, "[Failed]%s 'Filter dropdown' should be shown but it is hidden.".formatted(varName));
         logger.info("%s Check 'Filter dropdown' is displayed.".formatted(varName));
     }
 
@@ -212,7 +207,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             checkSearchBox = false;
         }
 
-        countFail = new AssertCustomize(driver).assertFalse(countFail, checkSearchBox, "[Failed]%s 'Search box' should be hidden but it is shown.".formatted(varName));
+        countFail = assertCustomize.assertFalse(countFail, checkSearchBox, "[Failed]%s 'Search box' should be hidden but it is shown.".formatted(varName));
         logger.info("%s Check 'Search box' is hidden.".formatted(varName));
 
         // check Filter icon
@@ -223,7 +218,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             checkFilter = false;
         }
 
-        countFail = new AssertCustomize(driver).assertFalse(countFail, checkFilter, "[Failed]%s 'Filter dropdown' should be hidden but it is shown.".formatted(varName));
+        countFail = assertCustomize.assertFalse(countFail, checkFilter, "[Failed]%s 'Filter dropdown' should be hidden but it is shown.".formatted(varName));
         logger.info("%s Check 'Filter dropdown' is hidden.".formatted(varName));
     }
 
@@ -233,12 +228,12 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         // check branch information
         // check branch name
         String adrBranchName = brElementText.split(" - ")[0];
-        countFail = new AssertCustomize(driver).assertTrue(countFail, brInfo.getBranchName().contains(adrBranchName) && brStatus && (brStock > 0), "[Failed][Branch name: %s] Branch in-stock but is not shown.".formatted(adrBranchName));
+        countFail = assertCustomize.assertTrue(countFail, brInfo.getBranchName().contains(adrBranchName) && brStatus && (brStock > 0), "[Failed][Branch name: %s] Branch in-stock but is not shown.".formatted(adrBranchName));
 
         if (!productInfo.isHideStock() & brStatus) {
             // check branch stock
             int adrBranchStock = Integer.parseInt(brElementText.split(" - ")[1].replaceAll("\\D+", ""));
-            countFail = new AssertCustomize(driver).assertEquals(countFail, adrBranchStock, brStock, "[Failed]%s[Branch name: %s] Stock quantity should be %s, but found %s".formatted(varName, adrBranchName, brStock, adrBranchStock));
+            countFail = assertCustomize.assertEquals(countFail, adrBranchStock, brStock, "[Failed]%s[Branch name: %s] Stock quantity should be %s, but found %s".formatted(varName, adrBranchName, brStock, adrBranchStock));
         } else logger.info("Setting hide stock.");
         logger.info("%s Check branch '%s'".formatted(varName, adrBranchName));
     }
@@ -253,7 +248,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         // get SF product description
         if (dbDescription.length() > 1) {
             String adrDescription = commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_CONTENT).getText();
-            countFail = new AssertCustomize(driver).assertTrue(countFail, adrDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, adrDescription));
+            countFail = assertCustomize.assertTrue(countFail, adrDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, adrDescription));
         }
         logger.info("[Check description] Check product description is shown correctly.");
     }
@@ -266,7 +261,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     void checkSoldOutMark(String... variationName) {
         String varName = variationName.length > 0 ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         boolean isSoldOut = commonMobile.moveAndGetElement(SOLD_OUT_MARK) != null;
-        countFail = new AssertCustomize(driver).assertTrue(countFail, isSoldOut, "[Failed]%s Sold out mark does not show".formatted(varName));
+        countFail = assertCustomize.assertTrue(countFail, isSoldOut, "[Failed]%s Sold out mark does not show".formatted(varName));
         logger.info("%s Check 'SOLD OUT' mark is shown".formatted(varName));
     }
 
@@ -277,19 +272,19 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             // check Buy now button is shown
             boolean checkBuyNow = commonMobile.moveAndGetElement(BUY_NOW_BTN) != null;
 
-            countFail = new AssertCustomize(driver).assertTrue(countFail, checkBuyNow, "[Failed]%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
+            countFail = assertCustomize.assertTrue(countFail, checkBuyNow, "[Failed]%s 'Buy now' button should be shown but it is hidden.".formatted(varName));
             logger.info("%s Check 'Buy Now' button is displayed.".formatted(varName));
 
             // check Add to cart button is shown
             boolean checkAddToCart = commonMobile.moveAndGetElement(ADD_TO_CART_ICON) != null;
-            countFail = new AssertCustomize(driver).assertTrue(countFail, checkAddToCart, "[Failed]%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
+            countFail = assertCustomize.assertTrue(countFail, checkAddToCart, "[Failed]%s 'Add to cart' button should be shown but it is hidden.".formatted(varName));
             logger.info("%s Check 'Add to cart' button is displayed.".formatted(varName));
 
         } else {
             // check Contact Now button is shown
             boolean isContactNow = commonMobile.moveAndGetElement(CONTACT_NOW_BTN) != null;
 
-            countFail = new AssertCustomize(driver).assertTrue(countFail, isContactNow, "[Failed]%s 'Contact Now' button should be shown but it is hidden.".formatted(varName));
+            countFail = assertCustomize.assertTrue(countFail, isContactNow, "[Failed]%s 'Contact Now' button should be shown but it is hidden.".formatted(varName));
             logger.info("%s Check 'Contact Now' button is shown.".formatted(varName));
         }
     }
@@ -311,17 +306,24 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
 
         if (!(isEnableListingProduct && productInfo.isEnabledListing())) {
+            // check listing price
+            if (!Objects.equals(sellingPrice, listingPrice)) {
+                String adrListingPrice = commonMobile.moveAndGetElement(LISTING_PRICE).getText().replaceAll("\\D+", "");
+                long adrListingPriceValue = Long.parseLong(adrListingPrice);
+                countFail = assertCustomize.assertEquals(countFail, adrListingPriceValue, listingPrice, "[Failed]%s Listing price should be show %s instead of %s".formatted(brName, listingPrice, adrListingPriceValue));
+            } else logger.info("No discount product (listing price = selling price)");
+
             // open add to cart popup
             commonMobile.moveAndGetElement(ADD_TO_CART_ICON).click();
 
-            // check price
+            // check selling price
             switch (priceType) {
                 // check flash sale price
-                case "FLASH SALE" -> checkPriceOnBranch(varIndex, listingPrice, flashSalePrice, brName);
+                case "FLASH SALE" -> checkSellingPriceOnBranch(flashSalePrice, brName);
                 // check discount campaign price
                 case "DISCOUNT CAMPAIGN" -> {
                     driver.findElement(ADD_TO_CART_POPUP_BUY_IN_BULK_CHECKBOX).click();
-                    checkPriceOnBranch(varIndex, listingPrice, productDiscountCampaignPrice, brName);
+                    checkSellingPriceOnBranch(productDiscountCampaignPrice, brName);
                 }
                 case "WHOLESALE PRODUCT" -> {
                     // increase quantity to wholesale product minimum requirement
@@ -329,9 +331,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                     driver.findElement(ADD_TO_CART_POPUP_QUANTITY_TEXT_BOX).sendKeys(String.valueOf(wholesaleProductStock));
 
                     // check wholesale product price
-                    checkPriceOnBranch(varIndex, listingPrice, wholesaleProductPrice, brName);
+                    checkSellingPriceOnBranch(wholesaleProductPrice, brName);
                 }
-                default -> checkPriceOnBranch(varIndex, listingPrice, sellingPrice, brName);
+                default -> checkSellingPriceOnBranch(sellingPrice, brName);
             }
 
             // close add to cart popup
@@ -383,12 +385,12 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     /**
      * Verify all information on the SF is shown correctly
      */
-    void checkProductInformation(String language) throws IOException {
+    void checkProductInformation(String language, int customerId) throws IOException {
         // get branch information
         brInfo = new BranchManagement(loginInformation).getInfo();
 
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, customerId);
 
         // get flash sale, discount campaign information
         CreatePromotion promotion = new CreatePromotion(loginInformation);
@@ -447,15 +449,12 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     /**
      * Access to product detail on SF by URL
      */
-    public void openProductDetailScreenAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo) throws Exception {
+    public void openProductDetailScreenAndCheckProductInformation(LoginInformation loginInformation, String language, ProductInfo productInfo, int customerId) throws Exception {
         // get login information
         this.loginInformation = loginInformation;
 
         // get product information
         this.productInfo = productInfo;
-
-        // open product detail screen
-        searchAndNavigateToProductDetail(language, productInfo);
 
         // convert language to languageCode
         String languageCode = language.equals("VIE") || language.equals("vi") ? "vi" : "en";
@@ -464,10 +463,21 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         int maxStock = productInfo.isDeleted() ? 0 : Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
         storeInfo = new StoreInformation(loginInformation).getInfo();
 
+        // open product detail screen
+        boolean isShowOnApp = true;
+        try {
+            searchAndNavigateToProductDetail(language, productInfo);
+        } catch (NoSuchElementException ex) {
+            isShowOnApp = false;
+        }
+
+        countFail = assertCustomize.assertTrue(countFail, (maxStock == 0 && !productInfo.isShowOutOfStock()) == isShowOnApp,"[Failed][Supplier detail screen] should be %s, but found %s.");
+
+
         // check product is display or not
         if (!productInfo.isDeleted() && productInfo.isOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
             if (storeInfo.getSFLangList().contains(languageCode))
-                checkProductInformation(languageCode);
+                checkProductInformation(languageCode, customerId);
             else logger.info("'%s' language is not published, please publish it and try again.".formatted(language));
         }
 
