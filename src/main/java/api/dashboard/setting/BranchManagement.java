@@ -18,10 +18,12 @@ public class BranchManagement {
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
+    BranchInfo brInfo;
 
     public BranchManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
+        brInfo = getInfo();
     }
 
     JsonPath getBranchInfoResponseJsonPath() {
@@ -90,8 +92,6 @@ public class BranchManagement {
     }
 
     private void updateBranchInfo(int brID, boolean isDefault, boolean hideOnStoreFront, String branchStatus) {
-        // get branch information
-        BranchInfo brInfo = getInfo();
         int index = brInfo.getBranchID().indexOf(brID);
 
         String body = """
@@ -131,34 +131,22 @@ public class BranchManagement {
     }
 
     public void inactiveAllPaidBranches() {
-        // get current branch information
-        BranchInfo brInfo = getInfo();
-
         // inactive all paid branches
         IntStream.range(1, brInfo.getBranchID().size()).forEachOrdered(i -> updateBranchInfo(brInfo.getBranchID().get(i), false, brInfo.getIsHideOnStoreFront().get(i), "INACTIVE"));
     }
 
     public void activeAndShowAllPaidBranchesOnShopOnline() {
-        // get current branch information
-        BranchInfo brInfo = getInfo();
-
         // active and show all paid branches on shop online
         IntStream.range(1, brInfo.getBranchID().size()).forEachOrdered(i -> updateBranchInfo(brInfo.getBranchID().get(i), false, false, "ACTIVE"));
     }
 
     public BranchManagement hideFreeBranchOnShopOnline() {
-        // get current branch information
-        BranchInfo brInfo = getInfo();
-
         // hide free branch on shop online
         updateBranchInfo(brInfo.getBranchID().get(0), true, true, "ACTIVE");
         return this;
     }
 
     public BranchManagement showFreeBranchOnShopOnline() {
-        // get current branch information
-        BranchInfo brInfo = getInfo();
-
         // show free branch on shop online
         updateBranchInfo(brInfo.getBranchID().get(0), true, false, "ACTIVE");
         return this;

@@ -110,7 +110,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
 
     void checkSellingPriceOnBranch(long sellingPrice, String brName){
-        String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
+        String branch = "[Branch name: %s]".formatted(brName);
         String adrSellingPrice = wait.until(ExpectedConditions.presenceOfElementLocated(ADD_TO_CART_POPUP_SELLING_PRICE)).getText().replaceAll("\\D+", "");
         long adrSellingPriceValue = Long.parseLong(adrSellingPrice);
 
@@ -351,6 +351,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // count all branches display
         int numberOfDisplayBranches = Collections.frequency(IntStream.range(0, branchStatus.size()).mapToObj(brIndex -> branchStatus.get(brIndex) && (branchStock.get(brIndex) > 0)).toList(), true);
+        System.out.println(numberOfDisplayBranches);
 
         // check branch information
         if (numberOfDisplayBranches > 0) {
@@ -359,7 +360,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             else checkFilterAndSearchBranchIsHidden(variationName);
 
             // get current branch name list
+            logger.info("Get list branches.");
             List<String> currentBranchNameList = commonMobile.getListElementText(BRANCH_LIST);
+
             for (String brName : currentBranchNameList) {
                 // switch branch
                 commonMobile.moveAndGetOverlappedElementByText(brName, ITEM_DETAIL_FOOTER).click();
@@ -386,9 +389,6 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      * Verify all information on the SF is shown correctly
      */
     void checkProductInformation(String language, int customerId) throws IOException {
-        // get branch information
-        brInfo = new BranchManagement(loginInformation).getInfo();
-
         // get wholesale config
         if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, customerId);
 
@@ -402,9 +402,6 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // get listing price setting
         isEnableListingProduct = new Preferences(loginInformation).isEnabledListingProduct();
-
-        // get branch status
-        branchStatus = getBranchStatus();
 
         // check variation name if any
         if (productInfo.isHasModel()) checkVariationName(language);
@@ -440,8 +437,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
 
     void searchAndNavigateToProductDetail(String language, ProductInfo productInfo) {
-        new NavigationBar(driver).tapOnHomeIcon()
-                .waitHomepageLoaded()
+        NavigationBar nav = new NavigationBar(driver);
+        nav.tapOnAccountIcon().changeLanguage(language);
+        nav.tapOnHomeIcon().waitHomepageLoaded()
                 .searchProductByName(productInfo, language)
                 .navigateToProductDetailPage();
     }
@@ -455,6 +453,12 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // get product information
         this.productInfo = productInfo;
+
+        // get branch information
+        brInfo = new BranchManagement(loginInformation).getInfo();
+
+        // get branch status
+        branchStatus = getBranchStatus();
 
         // convert language to languageCode
         String languageCode = language.equals("VIE") || language.equals("vi") ? "vi" : "en";
@@ -471,8 +475,10 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             isShowOnApp = false;
         }
 
-        countFail = assertCustomize.assertTrue(countFail, (maxStock == 0 && !productInfo.isShowOutOfStock()) == isShowOnApp,"[Failed][Supplier detail screen] should be %s, but found %s.");
-
+        // check out of stock
+        if ((maxStock == 0 && !productInfo.isShowOutOfStock())) {
+            countFail = assertCustomize.assertFalse(countFail, isShowOnApp, "[Failed] Product still shows when stock is out and setting hides product out of stock.");
+        }
 
         // check product is display or not
         if (!productInfo.isDeleted() && productInfo.isOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {

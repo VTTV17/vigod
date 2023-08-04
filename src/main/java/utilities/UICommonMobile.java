@@ -266,7 +266,7 @@ public class UICommonMobile extends UICommonAction {
 
             // if list.size() > 0
             // add element text if not contains
-            if (listElement.size() > 0) for (int index = 0; index < listElement.size(); index++) {
+            if (!listElement.isEmpty()) for (int index = 0; index < listElement.size(); index++) {
 				String elementText = driver.findElements(locator).get(index).getText();
 				if (!listElementText.contains(elementText)) listElementText.add(elementText);
 			}
@@ -281,7 +281,7 @@ public class UICommonMobile extends UICommonAction {
             // get new element list
             listElement = driver.findElements(locator);
 
-        } while (((listElement.size() == 0) & (listElementText.size() == 0)) || ((listElement.size() > 0) & !new HashSet<>(listElementText).containsAll(IntStream.range(0, listElement.size()).mapToObj(index -> driver.findElements(locator).get(index).getText()).toList())));
+        } while (((listElement.isEmpty()) & (listElementText.isEmpty())) || ((!listElement.isEmpty()) & !new HashSet<>(listElementText).containsAll(IntStream.range(0, listElement.size()).mapToObj(index -> driver.findElements(locator).get(index).getText()).toList())));
         return listElementText;
     }
 

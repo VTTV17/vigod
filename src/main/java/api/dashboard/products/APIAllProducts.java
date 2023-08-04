@@ -3,6 +3,7 @@ package api.dashboard.products;
 import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Getter;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -282,6 +283,7 @@ public class APIAllProducts {
         return IntStream.range(0, allProductsId.size()).filter(i -> (variationNumber.get(i) > 0) == hasModel).mapToObj(allProductsId::get).toList();
     }
 
+    @Getter
     private int productID;
 
     public int getProductIDWithoutVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
@@ -308,7 +310,4 @@ public class APIAllProducts {
         return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
     }
 
-    public int getProductID() {
-        return productID;
-    }
 }

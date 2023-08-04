@@ -8,10 +8,7 @@ import api.dashboard.products.ProductInformation;
 import api.dashboard.products.WholesaleProduct;
 import api.dashboard.promotion.CreatePromotion;
 import api.dashboard.setting.BranchManagement;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
 import utilities.UICommonMobile;
@@ -327,6 +324,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -349,6 +348,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -369,6 +370,8 @@ public class ProductDetailTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -579,6 +582,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -600,6 +605,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -620,6 +627,8 @@ public class ProductDetailTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -907,6 +916,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -929,6 +940,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -950,6 +963,8 @@ public class ProductDetailTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1237,6 +1252,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -1259,6 +1276,8 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -1280,6 +1299,8 @@ public class ProductDetailTest extends BaseTest {
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
         new BuyerProductDetailPage(driver)
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);

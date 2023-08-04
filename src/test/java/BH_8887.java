@@ -1,3 +1,4 @@
+import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.*;
 import api.dashboard.promotion.CreatePromotion;
@@ -26,6 +27,7 @@ public class BH_8887 extends BaseTest {
     void setup() {
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
         driver = new InitWebdriver().getDriver(browser, headless);
+        customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
     }

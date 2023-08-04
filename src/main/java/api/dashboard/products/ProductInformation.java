@@ -18,8 +18,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
-
 public class ProductInformation {
     String GET_DASHBOARD_PRODUCT_LIST = "/itemservice/api/store/dashboard/storeID/items-v2?itemType=BUSINESS_PRODUCT&size=100&sort=lastModifiedDate%2Cdesc";
     String GET_PRODUCT_INFORMATION = "/itemservice/api/beehive-items/%s";
@@ -177,11 +175,11 @@ public class ProductInformation {
                     }
 
                     // if variation product name
-                    nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).equals("")).forEachOrdered(language -> nameMap.put(language, prdInfo.getDefaultProductNameMap().get(language)));
+                    nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).isEmpty()).forEachOrdered(language -> nameMap.put(language, prdInfo.getDefaultProductNameMap().get(language)));
                     productNameMap.put(prdInfo.getBarcodeList().get(modelsID), nameMap);
 
                     // get variation product description
-                    descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).equals("")).forEach(language -> descriptionMap.put(language, prdInfo.getDefaultProductDescriptionMap().get(language)));
+                    descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).isEmpty()).forEach(language -> descriptionMap.put(language, prdInfo.getDefaultProductDescriptionMap().get(language)));
                     productDescriptionMap.put(prdInfo.getBarcodeList().get(modelsID), descriptionMap);
 
                     // get variation branch stock
@@ -316,7 +314,7 @@ public class ProductInformation {
             }
             wholesaleRawData.setPrice(priceList);
             wholesaleRawData.setStock(stockList);
-            if (stockList.size() > 0) configs.add(wholesaleRawData);
+            if (!stockList.isEmpty()) configs.add(wholesaleRawData);
             index += totalElements.get(i);
         }
 

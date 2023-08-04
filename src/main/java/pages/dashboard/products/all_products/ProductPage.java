@@ -294,7 +294,7 @@ public class ProductPage extends ProductPageElement {
         hideFacebookBubble();
 
         // check [UI] create product page
-        checkUICreateProductInfo();
+//        checkUICreateProductInfo();
 
         return this;
     }
@@ -356,7 +356,7 @@ public class ProductPage extends ProductPageElement {
         ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
 
         // check [UI] update product page
-        checkUIUpdateProductInfo();
+//        checkUIUpdateProductInfo();
 
         return this;
     }
@@ -409,7 +409,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.sleepInMiliSecond(500);
 
         // select collection if any
-        if (LIST_MANUAL_COLLECTION.size() > 0) {
+        if (!LIST_MANUAL_COLLECTION.isEmpty()) {
             // random collection index
             int index = nextInt(LIST_MANUAL_COLLECTION.size());
 

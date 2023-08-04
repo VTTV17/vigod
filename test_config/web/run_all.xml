@@ -3,7 +3,7 @@
 <suite name="All suite">
     <parameter name="browser" value="chrome"/>
     <parameter name="headless" value="true"/>
-    <parameter name="environment" value="PROD"/>
+    <parameter name="environment" value="STAG"/>
     <parameter name="language" value="VIE"/>
     <suite-files>
         <suite-file path="BH_8616.xml"/>

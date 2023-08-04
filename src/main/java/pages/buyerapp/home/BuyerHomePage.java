@@ -62,7 +62,7 @@ public class BuyerHomePage extends BuyerHomeElement {
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(SEARCH_RESULT));
 
         // check View More button
-        boolean hasViewMore = driver.findElements(VIEW_MORE).size() > 0;
+        boolean hasViewMore = !driver.findElements(VIEW_MORE).isEmpty();
         if (hasViewMore) driver.findElement(VIEW_MORE).click();
 
         WebElement productElement;
