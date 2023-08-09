@@ -107,7 +107,7 @@ public class MyProfileTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
     public BuyerAccountPage login(String buyerAccount){
         navigationBar = new NavigationBar(driver);

@@ -61,7 +61,6 @@ public class ProductCollectionTest extends BaseTest {
     String userName_GoLead;
     String passwordCheckPermission;
     String collectNameEditPriority = "";
-    String collectionNameEditManual = "";
     static String collectionNameEditAutomationWithAndCondition = "";
     static String collectionNameEditAutomationWithOrCondition = "";
     String languageSF;
@@ -69,17 +68,6 @@ public class ProductCollectionTest extends BaseTest {
     String automatedMode;
     String manuallyMode;
     String productType;
-//    String productTitleTxt;
-//    String productPriceTxt;
-//    String containsOperateTxt;
-//    String equalToOperateProductTiteTxt;
-//    String equalToOperateProductPriceTxt;
-//    String Constant.STARTS_WITH;
-//    String endsWithOperateTxt;
-//    String Constant.GREATER_THAN;
-//    String Constant.LESS_THAN;
-//    String allConditionTxt;
-//    String Constant.ANY_CONDITION;
     LoginInformation loginInformation;
     @BeforeClass
     public void getData() throws Exception {
@@ -100,17 +88,6 @@ public class ProductCollectionTest extends BaseTest {
         automatedMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.automatedModeTxt");
         manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
         productType = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
-//        productTitleTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt");
-//        productPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productPriceTxt");
-//        containsOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.containsTxt");
-//        equalToOperateProductTiteTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productTitleIsEqualToTxt");
-//        Constant.STARTS_WITH = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.startsWithTxt");
-//        endsWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.endsWithTxt");
-//        Constant.GREATER_THAN = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isGeaterThanTxt");
-//        Constant.LESS_THAN = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isConstant.LESS_THAN");
-//        equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
-//        allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
-//        Constant.ANY_CONDITION = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.Constant.ANY_CONDITION");
         tcsFileName = FILE_PRODUCT_COLLECTION;
     }
     @BeforeMethod
