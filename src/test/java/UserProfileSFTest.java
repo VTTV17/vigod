@@ -157,7 +157,7 @@ public class UserProfileSFTest extends BaseTest {
     }
     @BeforeMethod
     public void setUp(){
-        driver = new InitWebdriver().getDriver(browser, headless);
+        driver = new InitWebdriver().getDriver(browser,"false");
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
@@ -485,7 +485,7 @@ public class UserProfileSFTest extends BaseTest {
     }
 
     @Test
-    public void UP03_UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount() throws Exception {
+    public void UP03_UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount() {
         testCaseId = "UP03";
         loginAndGoToUserProfile(userName_EditInfo_HasBirthday);
         userProfileInfo = new UserProfileInfo(driver);
@@ -602,7 +602,7 @@ public class UserProfileSFTest extends BaseTest {
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection();
         new UserProfileInfo(driver).clickMyAddressSection()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+                  .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
         // second checkout
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)

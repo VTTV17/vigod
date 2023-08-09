@@ -166,4 +166,7 @@ public class CreateServiceElement {
     WebElement DELETE_BTN;
     @FindBy(css = ".modal-footer button.gs-button__green")
     WebElement OK_BTN_CONFIRM_POPUP;
+    @FindBy(css = "#moreMisc-1")
+    WebElement VIEW_MORE_ICON;
+
 }

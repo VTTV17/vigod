@@ -105,6 +105,9 @@ public class BuyerHomePage extends BuyerHomeElement {
     }
     public Collection goToCollectionByMenuText(String text){
         clickOnMenuIcon();
+        if(!commonMobile.isElementDisplay(MENU_ITEMS)){
+            clickOnMenuIcon();
+        }
         clickOnMenuItemByText(text);
         return new Collection(driver);
     }

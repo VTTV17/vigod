@@ -73,16 +73,7 @@ public class CreateServiceTest extends BaseTest {
         languageSF = language;
         sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceCollection.allServicesPageTitle");
         tcsFileName = FILE_CREATE_SERVICE_TCS;
-        htmlDescription = "<div class=\"ct_box_detail width_common\">" +
-                "<div style=\"font-size: 13px!important; font-family: arial, helvetica, sans-serif;color: black!important;\">" +
-                "<p><strong>Sữa Chống Nắng Anessa Perfect UV Sunscreen Skincare Milk N SPF50+ PA++++ (New 2022) 60ml&nbsp;</strong>hiện đã có mặt tại <strong>Hasaki.</strong></p>" +
-                "<p><strong><br></strong></p>" +
-                "<p style=\"text-align: center;\"><img title=\"Sữa Chống Nắng Anessa Dưỡng Da Kiềm Dầu 60ml\" src=\"https://media.hasaki.vn/wysiwyg/HaNguyen1/sua-chong-nang-anessa-duong-da-kiem-dau-bao-ve-hoan-hao-1.jpg\" alt=\"Sữa Chống Nắng Anessa Dưỡng Da Kiềm Dầu 60ml (Mẫu Mới 2022)\" width=\"800\" class=\"loaded fr-fic fr-dii\" data-was-processed=\"true\"></p>" +
-                "<h2 style=\"font-size: 17px!important;font-weight: bolder;\"><strong>Thông số sản phẩm:</strong></h2>" +
-                "<p><strong>HSD:</strong> 3 năm kể từ ngày sản xuất</p>" +
-                "<p>&nbsp;</p>" +
-                "<p style=\"text-align: center;\"><span class=\"fr-video fr-fvc fr-dvi fr-draggable\" contenteditable=\"false\"><iframe src=\"https://www.youtube.com/embed/pIgHZv5MBxE\" frameborder=\"0\" width=\"425\" height=\"350\" class=\"fr-draggable\"></iframe></span></p>" +
-                "</div></div>";
+        htmlDescription = "<div style=\"font-size: 13px!important; font-family: arial, helvetica, sans-serif;color: black!important;\"><p><strong>Sữa Chống Nắng Anessa Perfect UV Sunscreen Skincare Milk N SPF50+ PA++++ (New 2022) 60ml&nbsp;</strong>hiện đã có mặt tại <strong>Hasaki.</strong></p><p><strong><br></strong></p><p style=\"text-align: center;\"><img title=\"Sữa Chống Nắng Anessa Dưỡng Da Kiềm Dầu 60ml\" src=\"https://media.hasaki.vn/wysiwyg/HaNguyen1/sua-chong-nang-anessa-duong-da-kiem-dau-bao-ve-hoan-hao-1.jpg\" alt=\"Sữa Chống Nắng Anessa Dưỡng Da Kiềm Dầu 60ml (Mẫu Mới 2022)\" class=\"fr-fic fr-dii\"></p><h2 style=\"font-size: 17px!important;font-weight: bolder;\"><strong>Thông số sản phẩm:</strong></h2><p><strong>HSD:</strong> 3 năm kể từ ngày sản xuất</p><p>&nbsp;</p><p style=\"text-align: center;\"><span><iframe src=\"https://www.youtube.com/embed/pIgHZv5MBxE\"></iframe></span></p></div>";
         generate = new DataGenerator();
         passWordTestPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
         loginInformation = new Login().setLoginInformation("+84",userName,passWord).getLoginInformation();

@@ -257,6 +257,7 @@ public class CreateServicePage extends HomePage{
     }
     public CreateServicePage clickCodeViewInDescription(){
         commons.sleepInMiliSecond(1000);
+        commons.clickElement(createServiceUI.VIEW_MORE_ICON);
         commons.clickElement(createServiceUI.CODE_VIEW_BTN);
         logger.info("Select code view.");
         return this;
@@ -377,6 +378,7 @@ public class CreateServicePage extends HomePage{
         return locations;
     }
     public CreateServicePage clickSaveTranslateBTN(){
+        commons.sleepInMiliSecond(2000);
         commons.clickElement(createServiceUI.SAVE_TRANSLATE_BTN);
         logger.info("Click on Save button in translate.");
         return this;

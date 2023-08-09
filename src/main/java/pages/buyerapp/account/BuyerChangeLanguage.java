@@ -29,7 +29,7 @@ public class BuyerChangeLanguage extends UICommonMobile {
         String selectLang = "";
         switch (lang){
             case "ENG"-> selectLang = "English";
-            case "VIE" -> selectLang = "Tiếng Việt";
+            case "VIE" -> selectLang = "Vietnamese";
             default -> {
                 try {
                     throw new Exception("Language not match!");
