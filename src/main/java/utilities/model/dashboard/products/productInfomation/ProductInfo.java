@@ -14,6 +14,7 @@ public class ProductInfo {
     private List<Long> productSellingPrice;
     private boolean hasModel;
     private boolean manageInventoryByIMEI;
+    private List<String> variationModelList;
     private List<String> barcodeList;
     private List<String> variationStatus;
     private Map<String, String> defaultProductNameMap;

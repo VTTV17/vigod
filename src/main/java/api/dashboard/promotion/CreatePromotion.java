@@ -128,7 +128,7 @@ public class CreatePromotion {
                 String barcode = productInfo.getBarcodeList().get(i);
                 // check in-stock
                 if (Collections.max(productInfo.getProductStockQuantityMap().get(barcode)) > 0) {
-                    if (!tempBody.toString().equals("")) {
+                    if (!tempBody.toString().isEmpty()) {
                         tempBody.append(",");
                     }
                     // sale stock
@@ -205,7 +205,7 @@ public class CreatePromotion {
         return this;
     }
 
-    void getFlashSaleInformation(int flashSaleID, List<String> barcodeList) {
+    void getFlashSaleInformation(int flashSaleID, List<String> listVariationModelId) {
         Response flashSaleDetail = api.get(FLASH_SALE_DETAIL.formatted(flashSaleID, loginInfo.getStoreID()), loginInfo.getAccessToken());
         flashSaleDetail.then().statusCode(200);
         JsonPath flashSaleDetailJson = flashSaleDetail.jsonPath();
@@ -213,7 +213,7 @@ public class CreatePromotion {
         // init flash sale stock list
         if (flashSaleStock == null) {
             flashSaleStock = new ArrayList<>();
-            barcodeList.forEach(barcode -> flashSaleStock.add(0));
+            listVariationModelId.forEach(barcode -> flashSaleStock.add(0));
         }
 
         // update flash sale status map
@@ -221,19 +221,19 @@ public class CreatePromotion {
         List<String> hasFlashSaleBarcodeList = flashSaleDetailJson.getList("items.itemModelId");
         brInfo.getBranchName().forEach(brName -> {
             List<String> statusList = new ArrayList<>(flashSaleStatus.get(brName));
-            hasFlashSaleBarcodeList.stream().filter(barcodeList::contains).forEachOrdered(promotionBarcode -> statusList.set(barcodeList.indexOf(promotionBarcode), status));
+            hasFlashSaleBarcodeList.stream().filter(listVariationModelId::contains).forEachOrdered(promotionBarcode -> statusList.set(listVariationModelId.indexOf(promotionBarcode), status));
             flashSaleStatus.put(brName, statusList);
         });
 
         // update flash sale price
         List<Long> flashSalePrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(flashSaleDetail.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
-        hasFlashSaleBarcodeList.stream().filter(barcodeList::contains).forEachOrdered(s -> this.flashSalePrice.set(barcodeList.indexOf(s), flashSalePrice.get(hasFlashSaleBarcodeList.indexOf(s))));
+        hasFlashSaleBarcodeList.stream().filter(listVariationModelId::contains).forEachOrdered(s -> this.flashSalePrice.set(listVariationModelId.indexOf(s), flashSalePrice.get(hasFlashSaleBarcodeList.indexOf(s))));
 
         // update flash sale stock
-        hasFlashSaleBarcodeList.stream().filter(barcodeList::contains).forEach(promotionBarcode -> flashSaleStock.set(barcodeList.indexOf(promotionBarcode), IntStream.range(0, flashSaleDetailJson.getList("items.saleStock").size()).mapToObj(itemID -> (int) flashSaleDetailJson.getFloat("items[%s].saleStock".formatted(itemID))).toList().get(hasFlashSaleBarcodeList.indexOf(promotionBarcode))));
+        hasFlashSaleBarcodeList.stream().filter(listVariationModelId::contains).forEach(promotionBarcode -> flashSaleStock.set(listVariationModelId.indexOf(promotionBarcode), IntStream.range(0, flashSaleDetailJson.getList("items.saleStock").size()).mapToObj(itemID -> (int) flashSaleDetailJson.getFloat("items[%s].saleStock".formatted(itemID))).toList().get(hasFlashSaleBarcodeList.indexOf(promotionBarcode))));
     }
 
-    public FlashSaleInfo getFlashSaleInfo(List<String> barcodeList, List<Long> sellingPrice) {
+    public FlashSaleInfo getFlashSaleInfo(List<String> listVariationModelId, List<Long> sellingPrice) {
         // init flash sale information model
         FlashSaleInfo info = new FlashSaleInfo();
 
@@ -249,19 +249,19 @@ public class CreatePromotion {
         if (scheduleList != null) flashSaleList.addAll(scheduleList);
 
         // init flash sale status map
-        if (flashSaleStatus == null || flashSaleStatus.keySet().size() == 0 || flashSaleList.size() == 0) {
+        if (flashSaleStatus == null || flashSaleStatus.keySet().isEmpty() || flashSaleList.isEmpty()) {
             flashSaleStatus = new HashMap<>();
-            brInfo.getBranchName().forEach(brName -> flashSaleStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
+            brInfo.getBranchName().forEach(brName -> flashSaleStatus.put(brName, listVariationModelId.stream().map(barcode -> "EXPIRED").toList()));
         }
 
         // init flash sale price list
-        if (flashSalePrice == null || flashSalePrice.size() == 0) {
+        if (flashSalePrice == null || flashSalePrice.isEmpty()) {
             flashSalePrice = new ArrayList<>();
-            barcodeList.forEach(barcode -> flashSalePrice.add(sellingPrice.get(barcodeList.indexOf(barcode))));
+            listVariationModelId.forEach(barcode -> flashSalePrice.add(sellingPrice.get(listVariationModelId.indexOf(barcode))));
         }
 
         // get last flash sale info
-        flashSaleList.forEach(flsID -> getFlashSaleInformation(flsID, barcodeList));
+        flashSaleList.forEach(flsID -> getFlashSaleInformation(flsID, listVariationModelId));
 
         // set last flash sale price
         info.setFlashSalePrice(flashSalePrice);
@@ -436,7 +436,7 @@ public class CreatePromotion {
         return this;
     }
 
-    void getDiscountCampaignInformation(int campaignID, List<String> barcodeList) {
+    void getDiscountCampaignInformation(int campaignID, List<String> listVariationModel, int customerId) {
         Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL.formatted(campaignID), loginInfo.getAccessToken());
         discountCampaignDetail.then().statusCode(200);
 
@@ -477,19 +477,19 @@ public class CreatePromotion {
 
         // update discount campaign status
         List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH") ? conditionValueMap.get("APPLIES_TO_BRANCH").stream().map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID))).toList() : brInfo.getBranchName();
-        boolean appliesToProduct = (conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && conditionValueMap.get("APPLIES_TO").stream().map(integer -> new APIProductCollection(loginInformation).getListProductIDInCollections(integer)).flatMap(Collection::stream).toList().contains(Integer.parseInt(barcodeList.get(0).split("-")[0]))) || (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && (!conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS") || conditionValueMap.get("APPLIES_TO").contains(Integer.parseInt(barcodeList.get(0).split("-")[0]))));
-        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") || conditionValueMap.get("CUSTOMER_SEGMENT").stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(segID)).flatMap(Collection::stream).toList().contains(new Customers(loginInformation).getProfileId());
+        boolean appliesToProduct = (conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && conditionValueMap.get("APPLIES_TO").stream().map(integer -> new APIProductCollection(loginInformation).getListProductIDInCollections(integer)).flatMap(Collection::stream).toList().contains(Integer.parseInt(listVariationModel.get(0).split("-")[0]))) || (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && (!conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS") || conditionValueMap.get("APPLIES_TO").contains(Integer.parseInt(listVariationModel.get(0).split("-")[0]))));
+        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") || conditionValueMap.get("CUSTOMER_SEGMENT").stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(segID)).flatMap(Collection::stream).toList().contains(customerId);
 
         if (appliesToProduct && appliesToCustomer) {
             brInfo.getBranchName().forEach(brName -> {
                 List<String> branchStatus = new ArrayList<>(discountCampaignStatus.get(brName));
-                IntStream.range(0, barcodeList.size()).filter(i -> appliesToBranch.contains(brName)).forEachOrdered(i -> branchStatus.set(i, status));
+                IntStream.range(0, listVariationModel.size()).filter(i -> appliesToBranch.contains(brName)).forEachOrdered(i -> branchStatus.set(i, status));
                 discountCampaignStatus.put(brName, branchStatus);
             });
         }
     }
 
-    public DiscountCampaignInfo getDiscountCampaignInfo(List<String> barcodeList, List<Long> sellingPrice) {
+    public DiscountCampaignInfo getDiscountCampaignInfo(List<String> listVariationModel, List<Long> sellingPrice, int customerId) {
         // init discount campaign information model
         DiscountCampaignInfo info = new DiscountCampaignInfo();
 
@@ -501,17 +501,17 @@ public class CreatePromotion {
         if (scheduleList != null) discountCampaignList.addAll(scheduleList);
 
         // init discount campaign price
-        if (discountCampaignPrice == null || discountCampaignPrice.size() == 0)
+        if (discountCampaignPrice == null || discountCampaignPrice.isEmpty())
             discountCampaignPrice = new ArrayList<>(sellingPrice);
 
         // init discount campaign status
-        if (discountCampaignStatus == null || discountCampaignStatus.keySet().size() == 0 || discountCampaignList.size() == 0) {
+        if (discountCampaignStatus == null || discountCampaignStatus.keySet().isEmpty() || discountCampaignList.isEmpty()) {
             discountCampaignStatus = new HashMap<>();
-            brInfo.getBranchName().forEach(brName -> discountCampaignStatus.put(brName, barcodeList.stream().map(barcode -> "EXPIRED").toList()));
+            brInfo.getBranchName().forEach(brName -> discountCampaignStatus.put(brName, listVariationModel.stream().map(barcode -> "EXPIRED").toList()));
         }
 
         // get last discount campaign information
-        discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, barcodeList));
+        discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, listVariationModel, customerId));
 
         // get last discount campaign status
         info.setDiscountCampaignStatus(discountCampaignStatus);

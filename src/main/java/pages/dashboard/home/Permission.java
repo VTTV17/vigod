@@ -7,15 +7,12 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import api.dashboard.login.Login;
-import lombok.extern.java.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.analytics.OrderAnalytics;
 import pages.dashboard.analytics.ReservationAnalytics;
@@ -35,7 +32,7 @@ import pages.dashboard.onlineshop.blog.BlogManagement;
 import pages.dashboard.onlineshop.menus.MenuManagement;
 import pages.dashboard.onlineshop.pages.PageManagement;
 import pages.dashboard.onlineshop.preferences.Configuration;
-import pages.dashboard.orders.POS;
+import pages.dashboard.orders.pos.POSPage;
 import pages.dashboard.orders.createquotation.CreateQuotation;
 import pages.dashboard.orders.orderlist.OrderList;
 import pages.dashboard.orders.returnorders.ReturnOrders;
@@ -254,7 +251,7 @@ public class Permission {
 						new CreateQuotation(driver).verifyPermissionToCreateQuotation(permission.get(menuComponent), url.get(menuComponent));
 					}
 					if (subMenu.contentEquals("POS")) {
-						new POS(driver).verifyPermissionToUsePOS(permission.get(menuComponent));
+						new POSPage(driver).verifyPermissionToUsePOS(permission.get(menuComponent));
 					}
 					break;
 				case "Reservations":

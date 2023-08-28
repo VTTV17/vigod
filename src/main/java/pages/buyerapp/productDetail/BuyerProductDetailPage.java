@@ -347,7 +347,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             if (variationName[0] != null) logger.info("*** var: %s ***".formatted(variationName[0]));
 
         // check product name
-        checkProductName(productInfo.getBarcodeList().get(varIndex), language);
+        checkProductName(productInfo.getVariationModelList().get(varIndex), language);
 
         // count all branches display
         int numberOfDisplayBranches = Collections.frequency(IntStream.range(0, branchStatus.size()).mapToObj(brIndex -> branchStatus.get(brIndex) && (branchStock.get(brIndex) > 0)).toList(), true);
@@ -379,7 +379,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         } else checkSoldOutMark(variationName);
 
         // check description
-        checkProductDescription(productInfo.getBarcodeList().get(varIndex), language);
+        checkProductDescription(productInfo.getVariationModelList().get(varIndex), language);
 
         // check Buy Now and Add To Cart button is shown
         checkBuyNowAddToCartAndContactNowBtn(variationName);
@@ -394,8 +394,8 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // get flash sale, discount campaign information
         CreatePromotion promotion = new CreatePromotion(loginInformation);
-        flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
+        flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
+        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), customerId);
         // get sale price map and display
         salePriceMap = getSalePriceMap();
         saleDisplayMap = getSaleDisplayMap();
@@ -407,9 +407,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         if (productInfo.isHasModel()) checkVariationName(language);
 
         // verify on each variation
-        List<String> barcodeList = productInfo.getBarcodeList();
-        for (int varIndex = 0; varIndex < barcodeList.size(); varIndex++) {
-            String barcode = barcodeList.get(varIndex);
+        List<String> variationModelList = productInfo.getVariationModelList();
+        for (int varIndex = 0; varIndex < variationModelList.size(); varIndex++) {
+            String modelId = variationModelList.get(varIndex);
 
             // variation value
             String variationValue = productInfo.getVariationListMap().get(language).get(varIndex);
@@ -428,7 +428,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                         discountCampaignInfo.getDiscountCampaignPrice().get(varIndex),
                         wholesaleProductInfo.getStockList().get(varIndex),
                         wholesaleProductInfo.getPriceList().get(varIndex),
-                        productInfo.getProductStockQuantityMap().get(barcode),
+                        productInfo.getProductStockQuantityMap().get(modelId),
                         language,
                         variationValue);
             }

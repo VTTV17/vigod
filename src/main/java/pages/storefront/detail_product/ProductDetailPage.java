@@ -217,7 +217,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkMetaTag(String language) throws IOException {
         // check SEO title
-        if (!productInfo.getSeoMap().get("title").get(language).equals("")) {
+        if (!productInfo.getSeoMap().get("title").get(language).isEmpty()) {
             String sfSEOTitle = META_TITLE.getAttribute("content");
             String dbSEOTitle = productInfo.getSeoMap().get("title").get(language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOTitle, dbSEOTitle, "[Failed] SEO title should be %s, but found %s.".formatted(dbSEOTitle, sfSEOTitle));
@@ -225,7 +225,7 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // check SEO description
-        if (!productInfo.getSeoMap().get("description").get(language).equals("")) {
+        if (!productInfo.getSeoMap().get("description").get(language).isEmpty()) {
             String sfSEODescription = META_DESCRIPTION.getAttribute("content");
             String dbSEODescription = productInfo.getSeoMap().get("description").get(language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEODescription, dbSEODescription, "[Failed] SEO description should be %s, but found %s.".formatted(dbSEODescription, sfSEODescription));
@@ -233,7 +233,7 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // check SEO keywords
-        if (!productInfo.getSeoMap().get("keywords").get(language).equals("")) {
+        if (!productInfo.getSeoMap().get("keywords").get(language).isEmpty()) {
             String sfSEOKeywords = META_KEYWORD.getAttribute("content");
             String dbSEOKeywords = productInfo.getSeoMap().get("keywords").get(language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, sfSEOKeywords, dbSEOKeywords, "[Failed] SEO keywords should be %s, but found %s.".formatted(dbSEOKeywords, sfSEOKeywords));
@@ -241,7 +241,7 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // check SEO Url
-        if (!productInfo.getSeoMap().get("url").get(language).equals("")) {
+        if (!productInfo.getSeoMap().get("url").get(language).isEmpty()) {
             String sfSEOUrl = META_URL.getAttribute("content");
             String dbSEOUrl = productInfo.getSeoMap().get("url").get(language);
             countFail = new AssertCustomize(driver).assertTrue(countFail, sfSEOUrl.contains(dbSEOUrl), "[Failed] SEO url should be contains %s, but found %s.".formatted(dbSEOUrl, sfSEOUrl));
@@ -322,7 +322,7 @@ public class ProductDetailPage extends ProductDetailElement {
      * Compare product price/currency on the SF with Dashboard
      */
     void checkPriceOnEachBranch(long listingPrice, long sellingPrice, String brName) throws IOException {
-        String branch = brName.equals("") ? "" : "[Branch name: %s]".formatted(brName);
+        String branch = brName.isEmpty() ? "" : "[Branch name: %s]".formatted(brName);
 
         if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             if (listingPrice != sellingPrice) {
@@ -478,7 +478,7 @@ public class ProductDetailPage extends ProductDetailElement {
         String dbDescription = productInfo.getProductDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // get SF product description
-        String sfDescription = wait.until(visibilityOf(PRODUCT_DESCRIPTION)).getText();
+        String sfDescription = wait.until(visibilityOf(PRODUCT_DESCRIPTION)).getText().replaceAll("\n", "");
 
         countFail = new AssertCustomize(driver).assertTrue(countFail, sfDescription.equals(dbDescription), "[Failed][Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, sfDescription));
         logger.info("[Check description] Check product description is shown correctly.");
@@ -605,13 +605,13 @@ public class ProductDetailPage extends ProductDetailElement {
             if (variationName[0] != null) logger.info("*** var: %s ***".formatted(variationName[0]));
 
         // check product name
-        checkProductName(productInfo.getBarcodeList().get(index), language);
+        checkProductName(productInfo.getVariationModelList().get(index), language);
 
         // check variation name if any
         if (productInfo.isHasModel()) checkVariationName(language);
 
         // check description
-        checkProductDescription(productInfo.getBarcodeList().get(index), language);
+        checkProductDescription(productInfo.getVariationModelList().get(index), language);
 
         int numberOfDisplayBranches = IntStream.range(0, brInfo.getAllBranchStatus().size()).filter(i -> !brInfo.getIsHideOnStoreFront().get(i) && brInfo.getAllBranchStatus().get(i).equals("ACTIVE") && (branchStock.get(i) > 0)).mapToObj(i -> true).toList().size();
         if (numberOfDisplayBranches > 0) {
@@ -661,8 +661,8 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // get flash sale, discount campaign information
         CreatePromotion promotion = new CreatePromotion(loginInformation);
-        flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getBarcodeList(), productInfo.getProductSellingPrice());
+        flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
+        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), customerId);
         // get wholesale config
         if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, customerId);
 
@@ -701,7 +701,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         discountCampaignInfo.getDiscountCampaignPrice().get(varIndex),
                         wholesaleProductInfo.getStockList().get(varIndex),
                         wholesaleProductInfo.getPriceList().get(varIndex),
-                        productInfo.getProductStockQuantityMap().get(productInfo.getBarcodeList().get(varIndex)),
+                        productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(varIndex)),
                         language,
                         variationValue);
             }
@@ -747,7 +747,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     // wait product detail page loaded
                     commonAction.waitElementVisible(PRODUCT_NAME);
 
-                    if ((maxStock > 0) && (BRANCH_NAME_LIST.size() > 0)) {
+                    if ((maxStock > 0) && (!BRANCH_NAME_LIST.isEmpty())) {
                         checkUIInStock(languageCode);
                         checkProductInformation(languageCode, customerId);
                     } else {
@@ -759,7 +759,7 @@ public class ProductDetailPage extends ProductDetailElement {
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
-            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, storeInfo.getStoreLanguageList().size() > 0 ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getProductID()));
+            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, !storeInfo.getStoreLanguageList().isEmpty() ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getProductID()));
             logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
 
             // sleep 1s
@@ -808,10 +808,9 @@ public class ProductDetailPage extends ProductDetailElement {
         return isDisplayed;
     }
 
-    public ProductDetailPage clickReviewTab() {
+    public void clickReviewTab() {
         commonAction.clickElement(REVIEW_TAB);
         logger.info("Clicked on Review tab");
-        return this;
     }
 
     public List<List<String>> getAllReviews() {
@@ -829,36 +828,31 @@ public class ProductDetailPage extends ProductDetailElement {
         return table;
     }
 
-    public ProductDetailPage inputRating(int rating) {
+    public void inputRating(int rating) {
         commonAction.clickElement(RATING_STARS.get(rating - 1));
         logger.info("Rated stars : " + rating);
-        return this;
     }
 
-    public ProductDetailPage inputReviewTitle(String reviewTitle) {
+    public void inputReviewTitle(String reviewTitle) {
         commonAction.inputText(REVIEW_TITLE, reviewTitle);
         logger.info("Input review title: " + reviewTitle);
-        return this;
     }
 
-    public ProductDetailPage inputReviewDescription(String reviewDescription) {
+    public void inputReviewDescription(String reviewDescription) {
         commonAction.inputText(REVIEW_DESCRIPTION, reviewDescription);
         logger.info("Input review description: " + reviewDescription);
-        return this;
     }
 
-    public ProductDetailPage clickSubmitReviewBtn() {
+    public void clickSubmitReviewBtn() {
         commonAction.clickElement(SUBMIT_REVIEW_BTN);
         logger.info("Clicked on Submit Review button");
-        return this;
     }
 
-    public ProductDetailPage leaveReview(int rating, String reviewTitle, String reviewDescription) {
+    public void leaveReview(int rating, String reviewTitle, String reviewDescription) {
         inputRating(rating);
         inputReviewTitle(reviewTitle);
         inputReviewDescription(reviewDescription);
         clickSubmitReviewBtn();
-        return this;
     }
 
 

@@ -39,7 +39,7 @@ public class WholesaleProduct {
         if (productInfo.isHasModel()) {
             for (int i = 0; i < num; i++) {
                 long price = nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
-                int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getBarcodeList().get(i))), 1)) + 1;
+                int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(i))), 1)) + 1;
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
                         {
@@ -52,14 +52,14 @@ public class WholesaleProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, stock, "%s_%s".formatted(productInfo.getProductID(), productInfo.getBarcodeList().get(i).split("-")[1]), STORE_CURRENCY, price, segmentIDs, productInfo.getProductID());
+                        }""".formatted(title, stock, "%s_%s".formatted(productInfo.getProductID(), productInfo.getVariationModelList().get(i).split("-")[1]), STORE_CURRENCY, price, segmentIDs, productInfo.getProductID());
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
             long price = nextLong(productInfo.getProductSellingPrice().get(0)) + 1;
-            int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getBarcodeList().get(0)))) + 1;
+            int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(0)))) + 1;
             String variationWholesaleConfig = """
                     {
                         "id": null,

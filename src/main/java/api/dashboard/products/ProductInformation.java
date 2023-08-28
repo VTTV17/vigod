@@ -124,6 +124,10 @@ public class ProductInformation {
             prdInfo.setProductSellingPrice(prdInfo.isHasModel() ? IntStream.range(1, sellingPrice.size()).mapToObj(sellingPrice::get).toList() : sellingPrice);
 
             if (prdInfo.isHasModel()) {
+                // set model list
+                List<String> modelList = resJson.getList("models.id").stream().map(modelId -> "%s-%s".formatted(productID, modelId)).toList();
+                prdInfo.setVariationModelList(modelList);
+
                 // set barcode list
                 prdInfo.setBarcodeList(resJson.getList("models.barcode"));
 
@@ -176,11 +180,11 @@ public class ProductInformation {
 
                     // if variation product name
                     nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).isEmpty()).forEachOrdered(language -> nameMap.put(language, prdInfo.getDefaultProductNameMap().get(language)));
-                    productNameMap.put(prdInfo.getBarcodeList().get(modelsID), nameMap);
+                    productNameMap.put(prdInfo.getVariationModelList().get(modelsID), nameMap);
 
                     // get variation product description
                     descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).isEmpty()).forEach(language -> descriptionMap.put(language, prdInfo.getDefaultProductDescriptionMap().get(language)));
-                    productDescriptionMap.put(prdInfo.getBarcodeList().get(modelsID), descriptionMap);
+                    productDescriptionMap.put(prdInfo.getVariationModelList().get(modelsID), descriptionMap);
 
                     // get variation branch stock
                     Map<Integer, Integer> varStock = new HashMap<>();
@@ -189,7 +193,7 @@ public class ProductInformation {
                     }
 
                     // get variation stock
-                    productStockQuantityMap.put(prdInfo.getBarcodeList().get(modelsID), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
+                    productStockQuantityMap.put(prdInfo.getVariationModelList().get(modelsID), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
 
                     // get variation status
                     variationStatus.add(resJson.getString("models[%s].status".formatted(modelsID)));
@@ -210,6 +214,9 @@ public class ProductInformation {
                 prdInfo.setProductDescriptionMap(productDescriptionMap);
 
             } else {
+                // set model list
+                prdInfo.setVariationModelList(List.of(String.valueOf(productID)));
+
                 // set barcode list
                 prdInfo.setBarcodeList(List.of(resJson.getString("barcode")));
 
@@ -231,18 +238,18 @@ public class ProductInformation {
 
                 // get variation product name
                 Map<String, Map<String, String>> productNameMap = new HashMap<>();
-                productNameMap.put(prdInfo.getBarcodeList().get(0), prdInfo.getDefaultProductNameMap());
+                productNameMap.put(prdInfo.getVariationModelList().get(0), prdInfo.getDefaultProductNameMap());
                 //set variation product name
                 prdInfo.setProductNameMap(productNameMap);
 
                 // get product description
                 Map<String, Map<String, String>> productDescriptionMap = new HashMap<>();
-                productDescriptionMap.put(prdInfo.getBarcodeList().get(0), prdInfo.getDefaultProductDescriptionMap());
+                productDescriptionMap.put(prdInfo.getVariationModelList().get(0), prdInfo.getDefaultProductDescriptionMap());
                 // set variation product description
                 prdInfo.setProductDescriptionMap(productDescriptionMap);
 
                 // set stock
-                prdInfo.setProductStockQuantityMap(Map.of(prdInfo.getBarcodeList().get(0), branchInfo.getBranchID().stream().map(IntStream.range(0, resJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> resJson.getInt("branches[%s].branchId".formatted(i)), i -> resJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList()));
+                prdInfo.setProductStockQuantityMap(Map.of(prdInfo.getVariationModelList().get(0), branchInfo.getBranchID().stream().map(IntStream.range(0, resJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> resJson.getInt("branches[%s].branchId".formatted(i)), i -> resJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList()));
 
 
                 // set variation status
@@ -302,7 +309,7 @@ public class ProductInformation {
             List<Integer> stockList = new ArrayList<>();
             for (int id = index; id < index + totalElements.get(i); id++) {
                 if (segmentList.get(id) != null) {
-                    if (segmentList.get(id).equals("ALL") || Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
+                    if (((customerID != 0) && segmentList.get(id).equals("ALL")) || Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
                         if (stockList.contains(saleStock.get(id))) {
                             priceList.set(stockList.indexOf(saleStock.get(id)), Math.min(salePrice.get(id), priceList.get(stockList.indexOf(saleStock.get(id)))));
                         } else {
@@ -320,8 +327,8 @@ public class ProductInformation {
 
         /* analyze data */
         // get product barcode list
-        List<String> productBarcodeList = new ArrayList<>(productInfo.getBarcodeList());
-        productBarcodeList.replaceAll(barcode -> barcode.replace("-", "_"));
+        List<String> listVariationModelId = new ArrayList<>(productInfo.getVariationModelList());
+        listVariationModelId.replaceAll(barcode -> barcode.replace("-", "_"));
 
         // get branch name
         List<String> branchNameList = branchInfo.getBranchName();
@@ -333,16 +340,16 @@ public class ProductInformation {
 
         // if variation has wholesale product => set status = true
         branchNameList.forEach(brName -> wholesaleProductStatus
-                .put(brName, productBarcodeList.stream().map(saleBarcode::contains).toList()));
+                .put(brName, listVariationModelId.stream().map(saleBarcode::contains).toList()));
 
         // get wholesale product price
         List<Long> wholesaleProductPrice = new ArrayList<>(productInfo.getProductSellingPrice());
-        configs.forEach(wpConfig -> wholesaleProductPrice.set(productBarcodeList.indexOf(wpConfig.getBarcode()), wpConfig.getPrice().get(0)));
+        configs.forEach(wpConfig -> wholesaleProductPrice.set(listVariationModelId.indexOf(wpConfig.getBarcode()), wpConfig.getPrice().get(0)));
 
         // get wholesale product stock
         List<Integer> wholesaleProductStock = new ArrayList<>();
-        IntStream.range(0, productBarcodeList.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
-        configs.forEach(wpConfig -> wholesaleProductStock.set(productBarcodeList.indexOf(wpConfig.getBarcode()), wpConfig.getStock().get(0)));
+        IntStream.range(0, listVariationModelId.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
+        configs.forEach(wpConfig -> wholesaleProductStock.set(listVariationModelId.indexOf(wpConfig.getBarcode()), wpConfig.getStock().get(0)));
 
         WholesaleProductInfo analyzedData = new WholesaleProductInfo();
         analyzedData.setStatusMap(wholesaleProductStatus);
