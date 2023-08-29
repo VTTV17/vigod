@@ -494,4 +494,28 @@ public class UICommonAction {
 	public WebElement getElement(By by) {
 		return driver.findElement(by);
 	}
+
+	/*
+		common for POM modals
+	 */
+	public List<WebElement> getListElement(By locator) {
+		return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+	}
+	public void click(By locator) {
+		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+	}
+
+	public void sendKeys(By locator, String content) {
+		wait.until(ExpectedConditions.elementToBeClickable(locator));
+		driver.findElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+		driver.findElement(locator).sendKeys(content);
+	}
+
+	public String getText(By locator) {
+		try {
+			return wait.until(ExpectedConditions.presenceOfElementLocated(locator)).getText();
+		} catch (StaleElementReferenceException ignore) {
+			return driver.findElement(locator).getText();
+		}
+	}
 }

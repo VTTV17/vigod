@@ -1,0 +1,51 @@
+package pages.dashboard.orders.pos;
+
+import org.openqa.selenium.By;
+
+public class POSElement {
+    By CURRENT_BRANCH = By.cssSelector(".pos-selector .uik-select__valueWrapper");
+    By BRANCH_DROPDOWN = By.cssSelector(".pos-selector");
+    By BRANCH_LIST = By.cssSelector(".uik-select__option");
+    By CONFIRM_CHANGE_BRANCH_BTN = By.cssSelector(".modal-footer .gs-button__green");
+    By SEARCH_PRODUCT_BOX = By.cssSelector("#dropdownSuggestionProduct input");
+    By SEARCH_TYPE = By.cssSelector("#dropdownSuggestionProduct +* .uik-select__valueRendered");
+    By LIST_SEARCH_TYPE = By.cssSelector(".uik-select__option");
+    By SEARCH_RESULT = By.cssSelector(".product-item-row__thumbnail");
+    String SEARCH_RESULT_BARCODE = "//code[text() = '%s']";
+    By SEARCH_RESULT_VARIATION_STOCK = By.cssSelector(".product-item-row__product-inventory span:nth-child(2)");
+    By PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");
+    By ADD_STOCK_ICON = By.cssSelector(".err-out-of-stock i");
+    By INSUFFICIENT_STOCK_QUANTITY_POPUP_STOCK = By.cssSelector(".order-in-store-purchase-complete__input-stock > input");
+    By INSUFFICIENT_STOCK_QUANTITY_POPUP_ADD_IMEI = By.cssSelector("[name = 'serial']");
+    By INSUFFICIENT_STOCK_QUANTITY_POPUP_APPLY_BTN = By.cssSelector(".modal-footer .gs-button__green");
+    By SELECT_IMEI = By.cssSelector(".action-select-IMEI");
+    By SELECT_IMEI_POPUP_LIST_AVAILABLE_IMEI = By.cssSelector("[class= 'content ']");
+    By SELECT_IMEI_POPUP_SAVE_BTN = By.cssSelector(".modal-footer .gs-button__green");
+    By SEARCH_CUSTOMER_BOX = By.cssSelector("#dropdownSuggestionCustomer input");
+    By SEARCH_CUSTOMER_RESULT_CUSTOMER_ID = By.cssSelector(".mobile-customer-profile-row__right");
+    By DISCOUNT = By.xpath("//*[contains(@class, 'delivery-group-info')]/preceding-sibling::div[1]/span[1]");
+    By DISCOUNT_DROPDOWN = By.cssSelector(".discount-options .dropdown-box");
+    By DISCOUNT_TYPE = By.cssSelector(".discount-options .uik-select__option");
+    By DISCOUNT_VALUE = By.cssSelector("#discount");
+    By DELIVERY_CHECKBOX = By.cssSelector(".delivery-group-info input");
+    By DELIVERY_POPUP_CUSTOMER_NAME = By.cssSelector("#customer_name");
+    By DELIVERY_POPUP_PHONE = By.cssSelector("#customer_phone");
+    By DELIVERY_POPUP_EMAIL = By.cssSelector("#email");
+    By DELIVERY_POPUP_COUNTRY_DROPDOWN = By.cssSelector("#countryCode");
+    By DELIVERY_POPUP_VN_ADDRESS = By.cssSelector("#address");
+    By DELIVERY_POPUP_VN_CITY = By.cssSelector("#city");
+    By DELIVERY_POPUP_VN_DISTRICT = By.cssSelector("#district");
+    By DELIVERY_POPUP_VN_WARD = By.cssSelector("#ward");
+    By DELIVERY_POPUP_OUTSIDE_VN_STREET_ADDRESS = By.cssSelector("#address");
+    By DELIVERY_POPUP_OUTSIDE_VN_ADDRESS2 = By.cssSelector("#address2");
+    By DELIVERY_POPUP_OUTSIDE_VN_STATE = By.cssSelector("#city");
+    By DELIVERY_POPUP_OUTSIDE_VN_CITY = By.cssSelector("#cityName");
+    By DELIVERY_POPUP_OUTSIDE_VN_ZIPCODE = By.cssSelector("#zipCode");
+    By DELIVERY_POPUP_SHIPPING_FEE = By.cssSelector("#selfDeliveryFee");
+    By DELIVERY_POPUP_SAVE_BTN = By.cssSelector(".modal-footer .gs-button__green");
+    By RECEIVED_AMOUNT = By.cssSelector(".order-pos__received-input");
+    By PAYMENT_METHOD = By.cssSelector(".order-pos__payment-select");
+    By POS_RECEIPT_CODE = By.cssSelector(".order-pos__input-mpos-code");
+    By POS_NOTE = By.cssSelector(".order-pos__note-input");
+    By COMPLETE_BTN = By.cssSelector(".order-pos__btn-create-order");
+}
