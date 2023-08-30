@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -36,12 +37,20 @@ public class PushNotificationManagement {
     WebElement EXPLORE_NOW_BTN;	
 	
     @FindBy(css = ".notification-header button.gs-button__green")
-    WebElement CREATE_CAMPAIGN_BTN;	
+    WebElement CREATE_CAMPAIGN_BTN;
+    By CREATECAMPAIGN_BUTTON_LOCATOR = By.cssSelector(".notification-header button.gs-button__green"); //Temporary
 
     
     public PushNotificationManagement clickExploreNow() {
     	commonAction.clickElement(EXPLORE_NOW_BTN);
     	logger.info("Clicked on 'Explore Now' button.");
+    	
+    	//Sometimes the element is not present even after the loading icon has disappeared. The code below fixes this intermittent issue
+    	for (int i=0; i<30; i++) {
+    		if (commonAction.getElements(CREATECAMPAIGN_BUTTON_LOCATOR).size() >0) break;
+    		commonAction.sleepInMiliSecond(500);
+    	}
+    	
     	return this;
     }        
     

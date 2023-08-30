@@ -345,7 +345,7 @@ public class Cashbook {
 
 	public Cashbook selectName(String name) {
 		commonAction.clickElement(NAME_DROPDOWN);
-		commonAction.sleepInMiliSecond(1000); // Sometimes the element representing the search box gets stale
+//		commonAction.sleepInMiliSecond(1000); // Sometimes the element representing the search box gets stale
 		commonAction.inputText(SEARCH_BOX, name);
 		commonAction
 				.clickElement(By.xpath("//*[ends-with(@resource-id,'tvFilterText') and @text='%s']".formatted(name)));

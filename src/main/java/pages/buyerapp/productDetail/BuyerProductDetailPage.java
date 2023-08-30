@@ -517,6 +517,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
     
     public boolean isReviewTabDisplayed() {
+    	commonMobile.sleepInMiliSecond(500); //Sometimes it does not scroll down to the element
     	commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_TAB);
         boolean isDisplayed = !commonMobile.isElementNotDisplay(commonMobile.getElements(PRODUCT_REVIEW_TAB));
         logger.info("Is Review tab displayed: " + isDisplayed);
@@ -525,7 +526,12 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     
     public String[] getReview() {
     	//Needs further updates
-    	commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_TAB);
+    	commonMobile.moveAndGetElement(REVIEWCONTENT);
+    	
+    	//Temporary
+    	if (commonMobile.getElements(EMPTYREVIEW).size() > 0) {
+    		return null;
+    	}
     	
     	String title = commonMobile.getText(PRODUCT_REVIEW_TITLE);
     	String description = commonMobile.getText(PRODUCT_REVIEW_DESCRIPTION);

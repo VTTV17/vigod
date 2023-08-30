@@ -25,7 +25,7 @@ public class HomePage {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
-        commonAction.waitPageLoaded(ACCOUNT_TAB);
+//        commonAction.waitPageLoaded(ACCOUNT_TAB);
     }
 
     By ACCOUNT_TAB = By.xpath("//*[contains(@resource-id, 'bottom_navigation_tab_account')]");

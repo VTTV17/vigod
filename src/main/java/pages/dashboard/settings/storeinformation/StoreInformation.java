@@ -1,10 +1,13 @@
 package pages.dashboard.settings.storeinformation;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -66,7 +69,8 @@ public class StoreInformation {
     @FindBy (id = "noticeEnabled")
     WebElement NOTICE_LOGO_TOGGLE;    
     
-    @FindBy (id = "registeredEnabled")
+    final String logoLocator ="registeredEnabled";
+    @FindBy (id = logoLocator)
     WebElement REGISTERED_LOGO_TOGGLE;    
     
     @FindBy (css = ".info-container .setting_btn_save")
@@ -76,7 +80,12 @@ public class StoreInformation {
     public StoreInformation navigate() {
     	clickStoreInformationTab();
     	new HomePage(driver).waitTillSpinnerDisappear1();
-    	commonAction.sleepInMiliSecond(500);
+    	
+    	//Sometimes the element is not present even after the loading icon has disappeared. The code below fixes this intermittent issue
+    	for (int i=0; i<30; i++) {
+    		if (commonAction.getElements(By.id(logoLocator)).size() >0) break;
+    		commonAction.sleepInMiliSecond(500);
+    	}
         return this;
     }
 

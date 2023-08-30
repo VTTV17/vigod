@@ -10,6 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
@@ -38,8 +39,7 @@ public class Themes {
     @FindBy (css = ".btn-create.ml-auto")
     WebElement COMPLETE_BTN;
     
-    @FindBy (css = ".theme-library-template__item__actions .gs-button.gs-button__green.gs-button--undefined")
-    WebElement EDIT_THEME_BTN;
+    By EDIT_THEME_BTN = By.cssSelector(".theme-library-template__item__actions .gs-button.gs-button__green.gs-button--undefined");
     
     By MODAL_CONTENT = By.cssSelector(".modal-content");
     
@@ -51,12 +51,13 @@ public class Themes {
     }
     
     public Themes clickEditTheme() {
-    	commonAction.hoverOverElement(EDIT_THEME_BTN);
-    	if (commonAction.isElementVisiblyDisabled(EDIT_THEME_BTN)) {
-    		new HomePage(driver).isMenuClicked(EDIT_THEME_BTN);
+    	WebElement el = wait.until(ExpectedConditions.presenceOfElementLocated(EDIT_THEME_BTN));
+    	commonAction.hoverOverElement(el);
+    	if (commonAction.isElementVisiblyDisabled(el)) {
+    		new HomePage(driver).isMenuClicked(el);
     		return this;
     	}
-    	commonAction.clickElement(EDIT_THEME_BTN);
+    	commonAction.clickElement(el);
     	logger.info("Clicked on 'Edit' button.");
     	return this;
     }

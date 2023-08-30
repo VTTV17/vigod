@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import pages.buyerapp.account.membershipinfo.MembershipInfo;
+import pages.buyerapp.account.myorders.MyOrders;
 import pages.buyerapp.login.LoginPage;
 import pages.buyerapp.signup.SignupPage;
 import utilities.UICommonMobile;
@@ -38,6 +39,7 @@ public class BuyerAccountPage {
     By ABORT_LOGOUT_BTN = By.xpath("//*[contains(@resource-id,'button2')]");
     By LANGUAGE_BTN = By.xpath("//android.widget.RelativeLayout[contains(@resource-id,'fragment_tab_account_user_profile_rl_language_container')]/android.widget.TextView");
     By MEMBERSHIP_SECTION = By.xpath("//*[ends-with(@resource-id,'tab_account_user_profile_rl_membership_information_container')]");
+    By MYORDER_SECTION = By.xpath("//*[ends-with(@resource-id,'tab_account_user_profile_rl_products_ordered_container')]");
     
     public LoginPage clickLoginBtn() {
     	commonAction.getElement(NAVIGATE_LOGIN_BTN, defaultTimeout).click();
@@ -80,6 +82,12 @@ public class BuyerAccountPage {
     	logger.info("Clicked on Membership Infomation section.");
     	return new MembershipInfo(driver);
 	}    
+    
+    public MyOrders clickMyOrdersSection() {
+    	commonAction.clickElement(MYORDER_SECTION);
+    	logger.info("Clicked on My Order section.");
+    	return new MyOrders(driver);
+    }    
     
     public BuyerChangeLanguage clickLanguageBtn(){
         commonAction.sleepInMiliSecond(1000);

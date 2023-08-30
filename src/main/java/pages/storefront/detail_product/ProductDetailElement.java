@@ -108,8 +108,9 @@ public class ProductDetailElement {
 
     @FindBy(css = "#nav-description-tab")
     WebElement DESCRIPTION_TAB;
-
-    @FindBy(css = "#nav-review-tab")
+    
+    final String reviewTabLocator = "#nav-review-tab";
+    @FindBy(css = reviewTabLocator)
     WebElement REVIEW_TAB;
     
     @FindBy(css = ".review-row")

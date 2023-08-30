@@ -3,6 +3,7 @@ package pages.internaltool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -121,6 +122,7 @@ public class InternalTool {
     public InternalTool openNewTabAndNavigateToInternalTool(){
         commons.openNewTab();
         commons.switchToWindow(1);
+        driver.manage().window().setSize(new Dimension(1920, 1080)); //When run in headless, the browser is small so some elements are not displayed
         commons.navigateToURL(INTERNAL_TOOL);
         return this;
     }
