@@ -194,10 +194,11 @@ public class SellerCreateCollection {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize);
             }
         } else {
+            int randomMax = generator.generatNumberInBound(1,productListSize);
             if (canInputDuplicate) {
-                priorityList = generator.randomListNumberCanDuplicate(productListSize - 2);
+                priorityList = generator.randomListNumberCanDuplicate(randomMax);
             } else {
-                priorityList = generator.randomListNumberWithNoDuplicate(productListSize - 2);
+                priorityList = generator.randomListNumberWithNoDuplicate(randomMax);
             }
         }
         System.out.println("priorityList: "+priorityList);

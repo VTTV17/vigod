@@ -189,10 +189,11 @@ public class CreateProductCollection extends HomePage {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize);
             }
         } else {
+            int random = generator.generatNumberInBound(1,productListSize);
             if (canInputDuplicate) {
-                priorityList = generator.randomListNumberCanDuplicate(productListSize - 2);
+                priorityList = generator.randomListNumberCanDuplicate(productListSize - random);
             } else {
-                priorityList = generator.randomListNumberWithNoDuplicate(productListSize - 2);
+                priorityList = generator.randomListNumberWithNoDuplicate(productListSize - random);
             }
         }
         for (int i = 0; i < productListSize; i++) {
@@ -214,10 +215,12 @@ public class CreateProductCollection extends HomePage {
         int productListSize = createCollectionUI.PRODUCT_NAME_LIST.size();
         for (int i = 0; i < productListSize; i++) {
             String priority = common.getElementAttribute(createCollectionUI.PRIORITIES_INPUT.get(i),"value");
-            if (priority!="") {
-                productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority));
-            } else {
+            if (priority.equals("")) {
                 productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(), productListSize);
+
+            } else {
+                productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority));
+
             }
         }
         return productPriorityMap;
