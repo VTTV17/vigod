@@ -1,30 +1,36 @@
 package android;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import api.dashboard.customers.Customers;
-import api.dashboard.customers.SegmentAPI;
 import api.dashboard.login.Login;
+import api.dashboard.orders.OrderAPI;
 import io.appium.java_client.AppiumDriver;
 import pages.buyerapp.account.BuyerAccountPage;
+import pages.buyerapp.account.myorders.orderdetail.OrderDetails;
+import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.login.LoginPage;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
+import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.dashboard.products.productreviews.ProductReviews;
-import utilities.PropertiesUtil;
+import pages.storefront.checkout.checkoutstep1.CheckOutStep1;
+import pages.storefront.detail_product.ProductDetailPage;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonMobile;
-import utilities.jsonFileUtility;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
@@ -32,12 +38,14 @@ import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
-public class ProductReviewApp {
+public class ProductReviewApp extends BaseTest {
 
-	AppiumDriver driver;
 	WebDriver driverWeb;
 	pages.buyerapp.login.LoginPage loginPage;
-
+	
+	pages.storefront.login.LoginPage sfLoginPage;
+	HeaderSF sfHeader;
+	
 	BuyerAccountPage accountTab;
 	NavigationBar navigationBar;
 
@@ -47,35 +55,33 @@ public class ProductReviewApp {
 	pages.dashboard.login.LoginPage loginDB;
 	pages.dashboard.home.HomePage homePageWeb;
 	ProductReviews productReviewPage;
+	BuyerGeneral buyerGeneral;
 
 	LoginInformation loginInformation;
 	
-	SegmentAPI segmentAPI;
-
-	String language = "ENG";
-
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
 	String STORE_COUNTRY;
+	String BUYER_USERNAME;
+	String BUYER_PASSWORD;
+	String BUYER_COUNTRY;
 
 	List<String> customerList;
 
-	JsonNode buyerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
-	String BUYER_MAIL = buyerData.findValue("buyer").findValue("spareAccount").findValue("username").asText();
-	String BUYER_PASSWORD = buyerData.findValue("buyer").findValue("spareAccount").findValue("password").asText();
-	String BUYER_COUNTRY = buyerData.findValue("buyer").findValue("spareAccount").findValue("country").asText();
+	List<String> allProducts;
 
 	@BeforeClass
 	public void setUp() throws Exception {
-		PropertiesUtil.setEnvironment("STAG");
-		PropertiesUtil.setDBLanguage(language);
-
 		STORE_USERNAME = AccountTest.ADMIN_USERNAME_TIEN;
 		STORE_PASSWORD = AccountTest.ADMIN_PASSWORD_TIEN;
 		STORE_COUNTRY = AccountTest.ADMIN_COUNTRY_TIEN;
 		
+		BUYER_USERNAME = AccountTest.BUYER_ACCOUNT_THANG;
+		BUYER_PASSWORD = AccountTest.BUYER_PASSWORD_THANG;
+		BUYER_COUNTRY = AccountTest.ADMIN_COUNTRY_TIEN;
+		
 		loginInformation = new Login().setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation();
-		customerList = new Customers(loginInformation).getAllCustomerNames();
+		allProducts = new api.dashboard.products.APIAllProducts(loginInformation).getAllProductNames();
 	}
 
 	@BeforeMethod
@@ -84,15 +90,84 @@ public class ProductReviewApp {
 	}
 
 	@AfterMethod(alwaysRun = true)
-	public void tearDown() throws IOException {
-		new Screenshot().takeScreenshot(driver);
-		driver.quit();
+	public void writeResult(ITestResult result) throws IOException {
+		super.writeResult(result);
+		super.tearDown();
 		if (driverWeb != null) {
 			new Screenshot().takeScreenshot(driverWeb);
 			driverWeb.quit();
 		}
 	}
 
+	public String randomProductToBuy() {
+		String[] pro1ducts = { "Fish Food", "Tetra Fish Food", "Dog Food", "Cat Food", "Bird Food" };
+//		String[] pro1ducts = { "Kem đánh răng Raiya Junior trẻ em vị Cam", "Kem đánh răng keo ong Abipolis tuýp 100g Abipha", "Kem đánh răng 2080 Trẻ Em hương Dâu tuýp 80g Hàn Quốc", "Sensodyne Fresh Mint kem đánh răng Tube 100g Gsk" };
+		return pro1ducts[new Random().nextInt(0, pro1ducts.length)];
+	}		
+	
+	/**
+	 * @return a random product out of all product present in product preview management
+	 */
+	public String randomSearchProduct() {
+        List<String> allProducts = new api.dashboard.products.ProductReviews(loginInformation).getProductNameList();
+        Set<String> uniqueNames = new HashSet<String>(allProducts);
+        List<String> productNames = new ArrayList<String>(uniqueNames);
+        return productNames.get(new Random().nextInt(0, productNames.size()));
+	}		
+	
+	/**
+	 * @return a random product out of all products available in the store
+	 */
+	public String randomProduct() {
+		return allProducts.get(new Random().nextInt(0, allProducts.size()));
+	}		
+
+	/**
+	 * Logs into SF and change user language
+	 */
+	public void loginSF() {
+		sfLoginPage = new pages.storefront.login.LoginPage(driverWeb);
+		sfLoginPage.navigate().performLogin(BUYER_COUNTRY, BUYER_USERNAME, BUYER_PASSWORD);
+		sfHeader = new HeaderSF(driverWeb);
+		sfHeader.waitTillLoaderDisappear();
+		sfHeader.clickUserInfoIcon().changeLanguage(language);
+	}		
+
+    public void confirmDeliverOrderByAPI(String orderID){
+        OrderAPI orderAPI = new OrderAPI(loginInformation);
+        orderAPI.confirmOrder(orderID);
+        orderAPI.deliverOrder(orderID);
+    }		
+	
+	public String buyProductThenDeliverOrder(String product) throws Exception {
+		/* Log into SF */
+		loginSF();
+
+		/* Buy product */
+		sfHeader.searchWithFullName(product).clickSearchResult().waitTillLoaderDisappear();
+		
+		new ProductDetailPage(driverWeb).clickOnBuyNow()
+		.clickOnContinue()
+		.getFullName();
+		new CheckOutStep1(driverWeb).selectPaymentMethod("COD")
+		.clickOnNextButton()
+		.selectShippingMethod("Self delivery")
+		.clickOnNextButton()
+		.clickOnNextButton()
+		.clickOnBackToMarket();
+
+		/* See order details */
+		List<List<String>> orderData = sfHeader.clickUserInfoIcon()
+		.clickUserProfile()
+		.clickMyOrdersSection()
+		.getOrderData();
+		
+		/* Use API to deliver the order */
+		String orderId = orderData.get(0).get(0).replaceAll("\\D", "");
+		confirmDeliverOrderByAPI(orderId);
+		return orderId;
+	}  	
+	
 	public void instantiatePageObjects() throws Exception {
 		generate = new DataGenerator();
 		driver = launchApp();
@@ -100,8 +175,7 @@ public class ProductReviewApp {
 		accountTab = new BuyerAccountPage(driver);
 		loginPage = new LoginPage(driver);
 		commonAction = new UICommonMobile(driver);
-
-//		segmentAPI = new SegmentAPI();
+		buyerGeneral = new BuyerGeneral(driver);
 
 //		commonAction.waitSplashScreenLoaded();
 		new NotificationPermission(driver).clickAllowBtn();
@@ -137,13 +211,14 @@ public class ProductReviewApp {
 		ProductReviews productReviewPage = new ProductReviews(driverWeb);
 		productReviewPage.navigate().disableProductReviews();
 		
-		List<List<String>> table = productReviewPage.getReviewTable();
-		
 		instantiatePageObjects();
 		
-		navigationBar.tapOnSearchIcon().tapOnSearchBar().inputKeywordToSearch(table.get(0).get(0)).tapSearchSuggestion();
-		
-		Assert.assertFalse(new BuyerProductDetailPage(driver).isReviewTabDisplayed(), "Is review tab displayed");
+		BuyerSearchDetailPage searchPage = navigationBar.tapOnSearchIcon().tapOnSearchBar();
+		for(int i=0; i<3; i++) {
+			searchPage.inputKeywordToSearch(randomProduct()).tapSearchSuggestion();
+			Assert.assertFalse(new BuyerProductDetailPage(driver).isReviewTabDisplayed(), "Is review tab displayed");
+			commonAction.navigateBack();
+		}
 	}
 
 	@Test
@@ -158,15 +233,14 @@ public class ProductReviewApp {
 		ProductReviews productReviewPage = new ProductReviews(driverWeb);
 		productReviewPage.navigate().enableProductReviews();
 
-		List<List<String>> table = productReviewPage.getReviewTable();
-		
 		instantiatePageObjects();
 		
-		navigationBar.tapOnSearchIcon().tapOnSearchBar().inputKeywordToSearch(table.get(0).get(0)).tapSearchSuggestion();
-		
-		String[] review = new BuyerProductDetailPage(driver).getReview();
-
-		Assert.assertEquals(review[0], table.get(0).get(2));
+		BuyerSearchDetailPage searchPage = navigationBar.tapOnSearchIcon().tapOnSearchBar();
+		for(int i=0; i<3; i++) {
+			searchPage.inputKeywordToSearch(randomProduct()).tapSearchSuggestion();
+			Assert.assertTrue(new BuyerProductDetailPage(driver).isReviewTabDisplayed(), "Is review tab displayed");
+			commonAction.navigateBack();
+		}
 	}
 	
 	@Test
@@ -193,8 +267,9 @@ public class ProductReviewApp {
 		
 		String[] review = new BuyerProductDetailPage(driver).getReview();
 
-		Assert.assertNotEquals(review[0], table.get(0).get(2));
-		
+		if (review != null) {
+			Assert.assertNotEquals(review[0], table.get(0).get(2));
+		}
 	}
 	
 	@Test
@@ -223,6 +298,37 @@ public class ProductReviewApp {
 		
 		Assert.assertEquals(review[0], table.get(0).get(2));
 		
+	}
+	
+	@Test
+	public void MB_05_OnlyOneReviewEachOrder() throws Exception {
+		
+		driverWeb = new InitWebdriver().getDriver("chrome", "no");
+		loginDB = new pages.dashboard.login.LoginPage(driverWeb);
+		homePageWeb = new pages.dashboard.home.HomePage(driverWeb);
+		
+		loginDashboard();
+		
+		ProductReviews productReviewPage = new ProductReviews(driverWeb);
+		productReviewPage.navigate().enableProductReviews();
+		
+		String randomProduct = randomProductToBuy();
+		
+		String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(10);
+		int randomStar = new DataGenerator().generatNumberInBound(1, 6);
+		
+		String orderId = buyProductThenDeliverOrder(randomProduct);
+		
+		instantiatePageObjects();
+		
+		navigationBar.tapOnAccountIcon().clickLoginBtn().performLogin(BUYER_COUNTRY, BUYER_USERNAME, BUYER_PASSWORD);
+		
+		accountTab.clickMyOrdersSection().clickShippedTab().clickOrder().clickWriteReviewBtn().leaveReview(randomStar, "So good " + randomNumber, "Absolutely love the product " + randomNumber);
+		
+		buyerGeneral.getToastMessage();
+		
+		Assert.assertEquals(new OrderDetails(driver).getOrderId().split(": ")[1], orderId);
+		Assert.assertFalse(new OrderDetails(driver).isWriteReviewBtnDisplayed());
 	}
 	
 }

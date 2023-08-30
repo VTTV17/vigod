@@ -801,7 +801,7 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public boolean isReviewTabDisplayed() {
-        boolean isDisplayed = REVIEW_TAB.isDisplayed();
+        boolean isDisplayed = !commonAction.getElements(By.cssSelector(reviewTabLocator)).isEmpty();
         logger.info("Is Review tab displayed: " + isDisplayed);
         return isDisplayed;
     }

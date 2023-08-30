@@ -24,6 +24,7 @@ import pages.dashboard.pagination.Pagination;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.account.AccountTest;
+import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -44,8 +45,6 @@ public class CashbookTest extends BaseTest {
 	List<String> branchList;
 	List<String> transactionIdList;
 	
-	String amount = "2000";
-	String note = "Simply a note";
 	LoginInformation loginInformation;
 
 	@BeforeClass
@@ -69,6 +68,7 @@ public class CashbookTest extends BaseTest {
 		cashbookPage = new Cashbook(driver);
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
+		generate = new DataGenerator();
 	}
 
     @AfterMethod
@@ -79,7 +79,7 @@ public class CashbookTest extends BaseTest {
 
 	public void loginDashboard() {
 		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language).hideFacebookBubble();
+		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
 	}    
     
 	public String getRandomListElement(List<String> list) {
@@ -113,6 +113,10 @@ public class CashbookTest extends BaseTest {
 	public String randomTransactionId() {
 		return getRandomListElement(transactionIdList);
 	}		
+
+	public String randomAmount() {
+		return String.valueOf(Math.round(generate.generatNumberInBound(1, 50))*1000);
+	}	
 	
 	/**
 	 * Extract numbers from a string
@@ -251,7 +255,7 @@ public class CashbookTest extends BaseTest {
 		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.filter.createdBy." + staff);
 	}	
 	
-	public void verifySummaryDataAfterReceiptCreated(List<Long> originalSummary, List<Long> laterSummary, boolean isAccountingChecked) {
+	public void verifySummaryDataAfterReceiptCreated(List<Long> originalSummary, List<Long> laterSummary, String amount, boolean isAccountingChecked) {
 		Long revenue = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALREVENUE_IDX) + Long.parseLong(amount) : originalSummary.get(Cashbook.TOTALREVENUE_IDX);
 		Assert.assertEquals(laterSummary.get(Cashbook.TOTALREVENUE_IDX), revenue, "Revenue");
 		Assert.assertEquals(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX), originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX), "Expenditure");
@@ -259,7 +263,7 @@ public class CashbookTest extends BaseTest {
 				"Ending Opening");
 	}
 
-	public void verifySummaryDataAfterPaymentCreated(List<Long> originalSummary, List<Long> laterSummary, boolean isAccountingChecked) {
+	public void verifySummaryDataAfterPaymentCreated(List<Long> originalSummary, List<Long> laterSummary, String amount, boolean isAccountingChecked) {
 		Long expenditure = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX) + Long.parseLong(amount) : originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX);
 		Assert.assertEquals(laterSummary.get(Cashbook.TOTALREVENUE_IDX), originalSummary.get(Cashbook.TOTALREVENUE_IDX), "Revenue");
 		Assert.assertEquals(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX), expenditure, "Expenditure");
@@ -345,6 +349,8 @@ public class CashbookTest extends BaseTest {
 		String sender = randomCustomer();
 		String branch = randomBranch();
 		boolean isAccountingChecked = randomAccountingChecked();
+		String amount = randomAmount();
+		String note = "%s %s".formatted(sender, amount);
 		
 		/* Log into dashboard */
 		loginDashboard();
@@ -393,7 +399,9 @@ public class CashbookTest extends BaseTest {
 			String sender = randomCustomer();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
-
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
+			
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
 
@@ -406,7 +414,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating receipts
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -436,6 +444,8 @@ public class CashbookTest extends BaseTest {
 			String sender = randomSupplier();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
 
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -449,7 +459,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating receipts
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -479,7 +489,9 @@ public class CashbookTest extends BaseTest {
 			String sender = randomStaff();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
-
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
+			
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
 
@@ -492,7 +504,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating receipts
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -522,6 +534,8 @@ public class CashbookTest extends BaseTest {
 			String sender = randomOthers();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
 
 			// Get cashbook summary before creating receipts
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
@@ -535,7 +549,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating receipts
-			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterReceiptCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating receipts
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -565,7 +579,9 @@ public class CashbookTest extends BaseTest {
 			String sender = randomCustomer();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
-
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
+			
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
 
@@ -578,7 +594,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating payments
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -608,7 +624,9 @@ public class CashbookTest extends BaseTest {
 			String sender = randomSupplier();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
-
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
+			
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
 
@@ -621,7 +639,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating payments
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -651,7 +669,9 @@ public class CashbookTest extends BaseTest {
 			String sender = randomStaff();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
-
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
+			
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
 
@@ -664,7 +684,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating payments
 			List<String> record = cashbookPage.getSpecificRecord(0);
@@ -694,7 +714,9 @@ public class CashbookTest extends BaseTest {
 			String sender = randomOthers();
 			String branch = randomBranch();
 			String paymentMethod = randomPaymentMethod();
-
+			String amount = randomAmount();
+			String note = "%s %s".formatted(sender, paymentMethod);
+			
 			// Get cashbook summary before creating payments
 			List<Long> originalSummary = cashbookPage.getCashbookSummary();
 
@@ -707,7 +729,7 @@ public class CashbookTest extends BaseTest {
 			List<Long> laterSummary = cashbookPage.getCashbookSummary();
 
 			// Check data summary after creating payments
-			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, isAccountingChecked);
+			verifySummaryDataAfterPaymentCreated(originalSummary, laterSummary, amount, isAccountingChecked);
 
 			// Check record data after creating payments
 			List<String> record = cashbookPage.getSpecificRecord(0);

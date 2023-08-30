@@ -54,15 +54,15 @@ public class UICommonMobile extends UICommonAction {
 	}
 
 	public void inputText(By bySelector, String text) {
-		try {
-			WebElement el = getElement(bySelector,5);
-			el.clear();
-			el.sendKeys(text);
-		} catch(StaleElementReferenceException ex) {
-			logger.debug("StaleElementReferenceException caught in inputText\n" + ex);
-			WebElement el = getElement(bySelector,30);
-			el.clear();
-			el.sendKeys(text);
+		for (int i=0; i<10; i++) { //There are times when the element is still stale after re-locating it
+			try {
+				WebElement el = getElement(bySelector,5);
+				el.clear();
+				el.sendKeys(text);
+				break;
+			} catch(StaleElementReferenceException ex) {
+				logger.debug("StaleElementReferenceException caught in inputText\n" + ex);
+			}			
 		}
 	}
 

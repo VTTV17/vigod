@@ -1,9 +1,12 @@
 package pages.dashboard.settings.account;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -40,6 +43,9 @@ public class AccountPage {
     
     @FindBy(css = ".current__plan_information .gs-button__green")
     WebElement RENEW_BTN;
+    
+    @FindBy(css = ".current__plan_information .setting__account")
+    List<WebElement> CURRENT_PLAN_INFO;
     
     @FindBy (id = "firstName")
     WebElement FIRST_NAME;
@@ -95,6 +101,27 @@ public class AccountPage {
     	new HomePage(driver).waitTillSpinnerDisappear();
     	return this;
     }
+
+    public List<List<String>> getPlanInfo() {
+    	List<List<String>> table = new ArrayList<>();
+    	for (WebElement row:CURRENT_PLAN_INFO) {
+    		List<String> rowOfData = new ArrayList<>();
+    		for (WebElement el:row.findElements(By.xpath(".//*[contains(@class,'account__line2')]"))) {
+    			rowOfData.add(el.getText());
+    		}
+    		table.add(rowOfData);
+    	}
+    	logger.info("Retrieved current plan info.");
+    	return table;
+    }    
+    
+    public List<String> getPlanInfo(String plan) {
+    	List<List<String>> table = getPlanInfo();
+    	for (List<String> row: table) {
+    		if (row.contains(plan)) return row;
+    	}
+    	return null;
+    }    
     
     public AccountPage clickSeePlans() {
     	commonAction.clickElement(SEEPLAN_BTN);

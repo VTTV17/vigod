@@ -71,11 +71,17 @@ public class ShippingAndPayment {
 
 	By TOGGLE_BTN = By.xpath(".//label[contains(@class,'uik-checkbox__toggle')]");
 	By ISBOXCHECKED = By.xpath(".//*[@class='uik-checkbox__checkboxIcon']");
+	By PAYPAL_IMAGE = By.xpath("//img[@alt='paypal']");
 
 	public ShippingAndPayment navigate() {
 		clickShippingAndPaymentTab();
     	new HomePage(driver).waitTillSpinnerDisappear1();
-    	commonAction.sleepInMiliSecond(1000);
+    	
+    	//Sometimes the element is not present even after the loading icon has disappeared. The code below fixes this intermittent issue
+    	for (int i=0; i<30; i++) {
+    		if (commonAction.getElements(PAYPAL_IMAGE).size() >0) break;
+    		commonAction.sleepInMiliSecond(500);
+    	}
 		return this;
 	}
 

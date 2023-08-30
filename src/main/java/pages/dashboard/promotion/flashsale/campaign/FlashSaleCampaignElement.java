@@ -70,6 +70,6 @@ public class FlashSaleCampaignElement {
     @FindBy(css = "tr > td:nth-child(6) > div > button > div > img")
     List<WebElement> DELETE_ICON;
 
-    @FindBy(xpath = ".information h3")
+    @FindBy(css = ".information h3")
     WebElement UI_PRODUCT_INFORMATION;
 }

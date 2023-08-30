@@ -14,6 +14,7 @@ import pages.dashboard.marketing.landingpage.LandingPage;
 import pages.dashboard.onlineshop.Domains;
 import pages.dashboard.onlineshop.Themes;
 import pages.dashboard.products.all_products.ProductPage;
+import pages.dashboard.saleschannels.shopee.Shopee;
 import pages.dashboard.settings.bankaccountinformation.BankAccountInformation;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
@@ -606,8 +607,9 @@ public class HomePage {
     public void clickImportFromShopee() {
         commons.clickElement(IMPORT_FROM_SHOPEE_BTN);
         logger.info("Clicked on 'Import From Shopee' button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear();
         commons.sleepInMiliSecond(2000);
+        new Shopee(driver).waitTillPageFinishLoading();
     }
 
     public void clickImportFromLazada() {

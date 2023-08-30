@@ -28,11 +28,6 @@ public class SignupPage {
 
 	final static Logger logger = LogManager.getLogger(SignupPage.class);
 	
-	
-	public String country;
-	public String countryCode;
-	public String currency;
-	
 	/* Message headers of mails sent to seller's mailbox */
 	public String WELCOME_MESSAGE_VI = "Chào mừng bạn đến với GoSell";
 	public String WELCOME_MESSAGE_EN = "Welcome to GoSell";
@@ -237,8 +232,6 @@ public class SignupPage {
     	} 
     	String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
     	logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
-    	this.country = selectedOption[0];
-    	this.countryCode = selectedOption[1];
     	return this;
     }
 
@@ -265,7 +258,6 @@ public class SignupPage {
     		selectedOption = commonAction.selectByVisibleText(CURRENCY, currency);
     	}        	
     	logger.info("Selected currency: " + selectedOption);
-    	this.currency = selectedOption;
     	return selectedOption;
     }
     

@@ -221,8 +221,8 @@ public class Cashbook {
 	
 	public Cashbook selectGroup(String group) {
 		commonAction.clickElement(SENDERGROUP_DROPDOWN);
-		By groupLocator = By.xpath(".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(group));
-		commonAction.clickElement(SENDERGROUP_DROPDOWN.findElement(groupLocator));
+		By groupLocator = By.xpath("//div[contains(@class,'uik-select__label') and text()='%s']".formatted(group));
+		commonAction.clickElement(commonAction.getElement(groupLocator));
 		logger.info("Selected Sender/Recipient Group: %s.".formatted(group));
 		return this;
 	}

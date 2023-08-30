@@ -65,7 +65,7 @@ public class ProductReviewTest extends BaseTest {
 	
 	public void loginDashboard() {
 		dbLoginPage.navigate().performLogin(sellerCountry, sellerUsername, sellerPassword);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language);
+		homePage.waitTillSpinnerDisappear1().selectLanguage(language);
 	}	
 	
 	/**
@@ -296,6 +296,7 @@ public class ProductReviewTest extends BaseTest {
 		productReviewPage.navigate().verifyTextAtReviewManagementScreen();
 	}    
     
+	@Test
 	public void PR_02_DisableProductReviews() throws Exception {
 		
 		String randomProduct = randomProduct();

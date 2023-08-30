@@ -142,14 +142,14 @@ public class LoginStorefront extends BaseTest {
 				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
 	}
 
-//	@Test
+	@Test
 	public void BH_1335_UnableToChangePasswordForFacebookAccount() {
 		loginPage.navigate();
 		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickFacebookIcon();
 		
 		commonAction.switchToWindow(1);
-		new Facebook(driver).performLogin("trangthuy9662@gmail.com", "0123456aA@");
+		new Facebook(driver).performLogin("trangthuy9662@gmail.com", "Password2@");
 		commonAction.switchToWindow(0);
 		
 		commonAction.sleepInMiliSecond(5000);
