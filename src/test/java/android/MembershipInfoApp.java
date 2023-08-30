@@ -1,16 +1,14 @@
 package android;
 import java.io.IOException;
-import java.util.List;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import api.dashboard.customers.Customers;
 import api.dashboard.customers.SegmentAPI;
@@ -22,43 +20,28 @@ import pages.buyerapp.login.LoginPage;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.dashboard.marketing.loyaltyprogram.LoyaltyProgram;
-import utilities.PropertiesUtil;
-import utilities.UICommonMobile;
-import utilities.jsonFileUtility;
 import utilities.account.AccountTest;
-import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
-public class MembershipInfoApp {
+public class MembershipInfoApp extends BaseTest {
 
-	AppiumDriver driver;
 	WebDriver driverWeb;
-	pages.buyerapp.login.LoginPage loginPage;
-	
+	LoginPage loginPage;
 	BuyerAccountPage accountTab;
 	NavigationBar navigationBar;
 	
-	UICommonMobile commonAction;
-	DataGenerator generate;
-	
-	pages.dashboard.login.LoginPage loginDB;
-	pages.dashboard.home.HomePage homePageWeb;
-	
-	api.dashboard.marketing.LoyaltyProgram loyaltyProgramAPI;
-	SegmentAPI segmentAPI;
-	
 	LoginInformation loginInformation;
 	
-	String language = "ENG";
-
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
 	String STORE_COUNTRY;
 
-	List<String> customerList;
+	String BUYER_MAIL;
+	String BUYER_PASSWORD;
+	String BUYER_COUNTRY;	
 	
 	// Loyalty program info
 	String tierName = "Rich Customers";
@@ -67,58 +50,43 @@ public class MembershipInfoApp {
 	String discountPercent = "50";
 	String maximunDiscount = "100000";
 	
-	JsonNode buyerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
-	String BUYER_MAIL = buyerData.findValue("buyer").findValue("spareAccount").findValue("username").asText();
-	String BUYER_PASSWORD = buyerData.findValue("buyer").findValue("spareAccount").findValue("password").asText();
-	String BUYER_COUNTRY = buyerData.findValue("buyer").findValue("spareAccount").findValue("country").asText();	
-	
 	@BeforeClass
 	public void setUp() throws Exception {
-		PropertiesUtil.setEnvironment("STAG");
-		PropertiesUtil.setDBLanguage(language);
 		
 		STORE_USERNAME = AccountTest.ADMIN_USERNAME_TIEN;
 		STORE_PASSWORD = AccountTest.ADMIN_PASSWORD_TIEN;
 		STORE_COUNTRY = AccountTest.ADMIN_COUNTRY_TIEN;
 		
-		loginInformation = new Login().setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation();
+		BUYER_MAIL = AccountTest.BUYER_ACCOUNT_THANG;
+		BUYER_PASSWORD = AccountTest.BUYER_PASSWORD_THANG;
+		BUYER_COUNTRY = AccountTest.ADMIN_COUNTRY_TIEN;
 		
-        customerList = new Customers(loginInformation).getAllCustomerNames();
+		loginInformation = new Login().setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation();
 	}
 
-	@BeforeMethod
-	public void generateData() throws Exception {
-		instantiatePageObjects();
-	}	
-
-	@AfterMethod(alwaysRun = true)
-	public void tearDown() throws IOException {
-		new Screenshot().takeScreenshot(driver);
-		driver.quit();
-		if (driverWeb != null) {
-			new Screenshot().takeScreenshot(driverWeb);
-			driverWeb.quit();
-		}
-	}	
-	
 	public void instantiatePageObjects() throws Exception {
-		generate = new DataGenerator();
 		driver = launchApp();
 		navigationBar = new NavigationBar(driver);
 		accountTab = new BuyerAccountPage(driver);
 		loginPage = new LoginPage(driver);
-		commonAction = new UICommonMobile(driver);
-		
-		segmentAPI = new SegmentAPI(loginInformation);
-		loyaltyProgramAPI = new api.dashboard.marketing.LoyaltyProgram(loginInformation);
 		
 //		commonAction.waitSplashScreenLoaded();
 		new NotificationPermission(driver).clickAllowBtn();
 	}	
+	
+	@AfterMethod(alwaysRun = true)
+	public void writeResult(ITestResult result) throws IOException {
+		super.writeResult(result);
+		super.tearDown();
+		if (driverWeb != null) {
+			new Screenshot().takeScreenshot(driverWeb);
+			driverWeb.quit();
+		}
+	}
 
 	public AppiumDriver launchApp() throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "RF8N20PY57D"); //10.10.2.100:5555 RF8N20PY57D 
+        capabilities.setCapability("udid", "10.10.2.100:5555"); //10.10.2.100:5555 RF8N20PY57D 
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0017");
         capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
@@ -130,30 +98,25 @@ public class MembershipInfoApp {
 	}	
 
 	public void loginDashboard() {
-		loginDB.navigate()
-        .performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		homePageWeb.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		driverWeb = new InitWebdriver().getDriver(browser, headless);
+		new pages.dashboard.login.LoginPage(driverWeb).navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
+		new pages.dashboard.home.HomePage(driverWeb).waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
 	}		
 	
 	@Test
 	public void MB_01_LoginWithNonMembershipAccount() throws Exception {
 		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		loginPage.performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
+		instantiatePageObjects();
 		
-		MembershipInfo membershipPage = accountTab.clickMembershipInfoSection();
+		navigationBar.tapOnAccountIcon().clickLoginBtn().performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
 		
-		Assert.assertEquals(membershipPage.getMembershipIntroduction(), "Bạn chưa thỏa điều kiện chương trình Hội Viên");
+		Assert.assertEquals(accountTab.clickMembershipInfoSection().getMembershipIntroduction(), "Bạn chưa thỏa điều kiện chương trình Hội Viên");
 	}
 	
 	@Test
 	public void MB_02_LoginWithMembershipAccount() throws Exception {
 		
-		driverWeb = new InitWebdriver().getDriver("chrome", "no");
-		loginDB = new pages.dashboard.login.LoginPage(driverWeb);
-		homePageWeb = new pages.dashboard.home.HomePage(driverWeb);
-		
-		// Create customer segment
+		// Create customer segment using API
 		Customers customerAPI = new Customers(loginInformation);
 		customerAPI.createSegment();
 		String segment = customerAPI.getSegmentName();
@@ -166,8 +129,9 @@ public class MembershipInfoApp {
 		new LoyaltyProgram(driverWeb).navigate().clickCreateMembershipBtn()
 		.createMembershipLevel(tierName, avatar, segment, description, discountPercent, maximunDiscount);
 		
-		navigationBar.tapOnAccountIcon().clickLoginBtn();
-		loginPage.performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
+		instantiatePageObjects();
+		
+		navigationBar.tapOnAccountIcon().clickLoginBtn().performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
 		accountTab.verifyMemberShipLevel(tierName);
 		
 		MembershipInfo membershipPage = accountTab.clickMembershipInfoSection();
@@ -176,9 +140,10 @@ public class MembershipInfoApp {
 		Assert.assertEquals(membershipPage.getMembershipDescription(), description);
 		
 		// Delete loyalty program
+		api.dashboard.marketing.LoyaltyProgram loyaltyProgramAPI = new api.dashboard.marketing.LoyaltyProgram(loginInformation);
 		loyaltyProgramAPI.deleteMembership(loyaltyProgramAPI.getMembershipIdByName(tierName));
 		
 		// Delete customer segment
-		segmentAPI.deleteSegment(segmentId);
+		new SegmentAPI(loginInformation).deleteSegment(segmentId);
 	}
 }

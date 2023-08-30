@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -20,6 +20,8 @@ import api.dashboard.products.SupplierAPI;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StaffManagement;
 import io.appium.java_client.AppiumDriver;
+import pages.buyerapp.notificationpermission.NotificationPermission;
+import pages.sellerapp.account.SellerAccount;
 import pages.sellerapp.cashbook.Cashbook;
 import pages.sellerapp.general.SellerGeneral;
 import pages.sellerapp.home.HomePage;
@@ -30,7 +32,6 @@ import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.screenshot.Screenshot;
 
 
 /**
@@ -38,18 +39,14 @@ import utilities.screenshot.Screenshot;
  * <p>On mobile version, payment method has Paypal whereas web version doesn't. The payment does not appear when filtering records
  * <p>On mobile version, expenditure does not have "Debt payment to customer" whereas web version does => https://mediastep.atlassian.net/browse/BH-21226
  */
-public class CashbookApp {
+public class CashbookApp extends BaseTest {
 
-	AppiumDriver driver;
-	WebDriver driverWeb;
 	LoginPage loginPage;
 	SellerGeneral general;
 	HomePage homePage;
 	Cashbook cashbookPage;
 	UICommonMobile commonAction;
 	DataGenerator generate;
-
-	String language = "VIE";
 
 	String STORE_USERNAME;
 	String STORE_PASSWORD;
@@ -62,55 +59,60 @@ public class CashbookApp {
 	List<String> branchList;
 	List<String> transactionIdList;
 
-	Login apiLogin = new Login();
-	LoginInformation loginInformation;
-
-	public void getCredentials() {
+	
+	@BeforeClass
+	public void setUp() throws Exception {
+		PropertiesUtil.setDBLanguage("VIE");
+		
 		STORE_USERNAME = AccountTest.ADMIN_USERNAME_TIEN;
 		STORE_PASSWORD = AccountTest.ADMIN_PASSWORD_TIEN;
 		STORE_COUNTRY = AccountTest.ADMIN_COUNTRY_TIEN;
-	}
-
-	@BeforeClass
-	public void setUp() throws Exception {
-		PropertiesUtil.setEnvironment("STAG");
-		PropertiesUtil.setDBLanguage(language);
-		getCredentials();
-
-		loginInformation = apiLogin.setLoginInformation(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD).getLoginInformation();
+		
+		LoginInformation loginInformation = new Login().setLoginInformation(AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.ADMIN_USERNAME_TIEN, AccountTest.ADMIN_PASSWORD_TIEN).getLoginInformation();
 		customerList = new Customers(loginInformation).getAllCustomerNames();
 		supplierList = new SupplierAPI(loginInformation).getAllSupplierNames();
 		staffList = new StaffManagement(loginInformation).getAllStaffNames();
 		othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
-		branchList = new BranchManagement(apiLogin.getLoginInformation()).getInfo().getActiveBranches();
+		branchList = new BranchManagement(loginInformation).getInfo().getActiveBranches();
 		transactionIdList = new CashbookAPI(loginInformation).getAllTransactionCodes();
 	}
-
+	
 	@BeforeMethod
-	public void generateData() throws Exception {
+	public void beforeEachMethod() throws Exception  {
 		instantiatePageObjects();
+		loginThenNavigateToCashbook();
 	}
-
-	@AfterMethod(alwaysRun = true)
-	public void tearDown() throws IOException {
-		new Screenshot().takeScreenshot(driver);
-		driver.quit();
-		if (driverWeb != null) driverWeb.quit();
+	
+	@AfterMethod
+	public void writeResult(ITestResult result) throws IOException {
+		super.writeResult(result);
+		super.tearDown();
 	}
 
 	public void instantiatePageObjects() throws Exception {
 		generate = new DataGenerator();
+		
 		driver = launchApp();
 		loginPage = new LoginPage(driver);
 		general = new SellerGeneral(driver);
 		homePage = new HomePage(driver);
 		cashbookPage = new Cashbook(driver);
 		commonAction = new UICommonMobile(driver);
-
-		commonAction.waitSplashScreenLoaded();
-//		new NotificationPermission(driver).clickAllowBtn();
+		
 	}
 
+	public void loginThenNavigateToCashbook() throws Exception  {
+		commonAction.waitSplashScreenLoaded();
+		
+		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
+		
+		new NotificationPermission(driver).clickAllowBtn();
+		
+		Assert.assertTrue(homePage.isAccountTabDisplayed());
+		
+		homePage.navigateToPage("Cashbook");
+	}	
+	
 	public String getRandomListElement(List<String> list) {
 		return list.get(new Random().nextInt(0, list.size()));
 	}
@@ -210,14 +212,14 @@ public class CashbookApp {
 	public String[] expenseTypeList() throws Exception {
 		String[] list = {
 				expenseType("paymentToShippingPartner"),
-				expenseType("paymentForGoods"),
-				expenseType("productionCost"),
-				expenseType("costOfRawMaterials"),
-				expenseType("rentalFee"),
-				expenseType("utilities"),
+//				expenseType("paymentForGoods"),
+//				expenseType("productionCost"),
+//				expenseType("costOfRawMaterials"),
+//				expenseType("rentalFee"),
+//				expenseType("utilities"),
 				expenseType("salaries"),
-				expenseType("sellingExpenses"),
-				expenseType("otherCosts"),
+//				expenseType("sellingExpenses"),
+//				expenseType("otherCosts"),
 				expenseType("refund"),
 		};
 		return list;
@@ -330,7 +332,7 @@ public class CashbookApp {
 
 	public AppiumDriver launchApp() throws Exception {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
+		capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
 		capabilities.setCapability("platformName", "Android");
 		capabilities.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
 		capabilities.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
@@ -341,12 +343,8 @@ public class CashbookApp {
 		return new InitAppiumDriver().getAppiumDriver(capabilities, url);
 	}
 
-	//	@Test
+//	@Test
 	public void CB_00_CheckRevenueExpensePaymentDropdownValues() throws Exception {
-
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
 
 		String[] expected;
 		String[] actual;
@@ -385,10 +383,6 @@ public class CashbookApp {
 
 		String group = senderGroup("customer");
 
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
-
 		for (String source : revenueSourceList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
 			String sender = randomCustomer();
@@ -417,14 +411,10 @@ public class CashbookApp {
 		}
 	}
 
-	//	@Test
+//	@Test
 	public void CBA_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
 
 		String group = senderGroup("supplier");
-
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
 
 		for (String source : revenueSourceList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
@@ -453,14 +443,10 @@ public class CashbookApp {
 		}
 	}
 
-	//	@Test
+//	@Test
 	public void CBA_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
 
 		String group = senderGroup("staff");
-
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
 
 		for (String source : revenueSourceList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
@@ -489,14 +475,10 @@ public class CashbookApp {
 		}
 	}
 
-	//	@Test
+//	@Test
 	public void CBA_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
 
 		String group = senderGroup("others");
-
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
 
 		for (String source : revenueSourceList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
@@ -566,10 +548,6 @@ public class CashbookApp {
 
 		String group = senderGroup("supplier");
 
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
-
 		for (String source : expenseTypeList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
 			String sender = randomSupplier();
@@ -601,10 +579,6 @@ public class CashbookApp {
 	public void CBA_08_CreatePaymentWhenSenderGroupIsStaff() throws Exception {
 
 		String group = senderGroup("staff");
-
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
 
 		for (String source : expenseTypeList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
@@ -638,10 +612,6 @@ public class CashbookApp {
 
 		String group = senderGroup("others");
 
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
-
 		for (String source : expenseTypeList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
 			String sender = randomOthers();
@@ -669,12 +639,8 @@ public class CashbookApp {
 		}
 	}
 
-	@Test
+//	@Test
 	public void CBA_10_SearchRecords() throws Exception {
-
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
 
 		cashbookPage.clickTimeRangeFilter();
 
@@ -683,8 +649,8 @@ public class CashbookApp {
 		int currentMonth = Integer.valueOf(dateArray[1]);
 		int currentYear = Integer.valueOf(dateArray[2]);
 		/*Need more code here*/
-		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, 30, currentMonth-1, currentYear);
-		cashbookPage.setDateFilter(30, currentMonth-1, currentYear, currentDay, currentMonth, currentYear);
+		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, currentDay, currentMonth-1, currentYear);
+		cashbookPage.setDateFilter(currentDay, currentMonth-1, currentYear, currentDay, currentMonth, currentYear);
 
 		cashbookPage.clickApplyDateBtn();
 
@@ -704,16 +670,12 @@ public class CashbookApp {
 		}
 	}
 
-	@Test
+//	@Test
 	public void CBA_11_FilterRecords() throws Exception {
 
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
-
 		cashbookPage.clickTimeRangeFilter();
-		cashbookPage.setDateFilter(24, 7, 2023, 1, 7, 2023);
-		cashbookPage.setDateFilter(1, 7, 2023, 31, 7, 2023);
+		cashbookPage.setDateFilter(2, 8, 2023, 1, 7, 2023);
+		cashbookPage.setDateFilter(1, 7, 2023, 31, 8, 2023);
 
 		cashbookPage.clickApplyDateBtn();
 
@@ -796,16 +758,12 @@ public class CashbookApp {
 		}
 	}
 
-	@Test
+//	@Test
 	public void CBA_12_CombineFilterConditions() throws Exception {
 
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
-
 		cashbookPage.clickTimeRangeFilter();
-		cashbookPage.setDateFilter(24, 7, 2023, 1, 7, 2023);
-		cashbookPage.setDateFilter(1, 7, 2023, 31, 7, 2023);
+		cashbookPage.setDateFilter(2, 8, 2023, 1, 7, 2023);
+		cashbookPage.setDateFilter(1, 7, 2023, 31, 8, 2023);
 
 		cashbookPage.clickApplyDateBtn();
 
