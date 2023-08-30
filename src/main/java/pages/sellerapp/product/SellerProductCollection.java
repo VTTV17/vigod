@@ -98,7 +98,7 @@ public class SellerProductCollection {
         return this;
     }
     public SellerProductCollection refreshPage(){
-//        common.sleepInMiliSecond(1000);
+        common.sleepInMiliSecond(1000);
         common.swipeByCoordinatesInPercent(0.5,0.25,0.5,0.5);
         common.sleepInMiliSecond(1000);
         return this;
