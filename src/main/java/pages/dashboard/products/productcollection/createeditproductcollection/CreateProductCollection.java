@@ -98,9 +98,9 @@ public class CreateProductCollection extends HomePage {
      * @throws Exception if param does not match.
      */
     public CreateProductCollection selectCollectionType(String collectionType) throws Exception {
-        if (collectionType.equalsIgnoreCase("Manual")) {
+        if (collectionType.equalsIgnoreCase(Constant.MANUAL_OPTION)) {
             common.checkTheCheckBoxOrRadio(createCollectionUI.MANUAL_RADIO_VALUE, createCollectionUI.MANUAL_RADIO_ACTION);
-        } else if (collectionType.equalsIgnoreCase("Automated")) {
+        } else if (collectionType.equalsIgnoreCase(Constant.AUTOMATED_OPTION)) {
             common.checkTheCheckBoxOrRadio(createCollectionUI.AUTOMATED_RADIO_VALUE, createCollectionUI.AUTOMATED_RADIO_ACTION);
         } else {
             throw new Exception("Input value does not match any of the accepted values: Manual/Automated");
@@ -284,7 +284,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createManualCollectionWithoutSEO_NoPriority(String collectionName, String[] productList) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Manual");
+        selectCollectionType(Constant.MANUAL_OPTION);
         selectProductWithKeyword(productList);
         clickOnSaveBTN();
         logger.info("Create manual collection without SEO, no priority successfully.");
@@ -296,7 +296,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createManualCollectionWithoutSEO_HasPriority(String collectionName, String[] productList, boolean isSetPriorityForAll, boolean canSetDuplicatePriority) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Manual");
+        selectCollectionType(Constant.MANUAL_OPTION);
         selectProductWithKeyword(productList);
         productPriorityMap = inputPriority(isSetPriorityForAll, canSetDuplicatePriority);
         clickOnSaveBTN(); //click outside
@@ -310,7 +310,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createManualCollectionWithSEO(String collectionName, String[] productList, String SEOTitle, String SEODescription, String SEOKeyword, String SEOUrl) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Manual");
+        selectCollectionType(Constant.MANUAL_OPTION);
         selectProductWithKeyword(productList);
         inputSEOInfo(SEOTitle, SEODescription, SEOKeyword, SEOUrl);
         clickOnSaveBTN();
@@ -405,7 +405,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createProductAutomationCollectionWithoutSEO(String collectionName, String conditionType, String... conditions) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Automated");
+        selectCollectionType(Constant.AUTOMATED_OPTION);
         selectConditionType(conditionType);
         selectCondition(false,conditions);
         clickOnSaveBTN();
@@ -559,7 +559,7 @@ public class CreateProductCollection extends HomePage {
         Assert.assertEquals(common.getText(createCollectionUI.OK_BTN),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.selectProductModal.okBtn"));
         Assert.assertEquals(common.getText(createCollectionUI.MODAL_CANCEL_BTN),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.selectProductModal.cancelBtn"));
         clickOnCancelBTNONSelectProductModal();
-        selectCollectionType("Automated");
+        selectCollectionType(Constant.AUTOMATED_OPTION);
         Assert.assertEquals(common.getText(createCollectionUI.CONDITIONS_TILE),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.condtionTitle"));
         Assert.assertEquals(common.getText(createCollectionUI.PRODUCT_MUST_MATCH_TXT),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.productMusMatchTxt"));
         Assert.assertEquals(common.getText(createCollectionUI.ALL_CONDITION_RADIO_ACTION),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt"));

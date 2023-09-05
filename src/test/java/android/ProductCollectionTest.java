@@ -27,6 +27,7 @@ import utilities.Constant;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
+import utilities.enums.MenuItemType;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
@@ -137,7 +138,7 @@ public class ProductCollectionTest extends BaseTest{
         int collectIDNewest = getNewestCollectionId();
         apiMenus = new APIMenus(loginInformation);
         int menuID = new APIHeader(loginInformation).getCurrentMenuId();
-        apiMenus.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
+        apiMenus.CreateMenuItemParent(collectIDNewest, collectionName, MenuItemType.COLLECTION_PRODUCT);
     }
     public void callDeleteCollectionAPI(){
         int collectIDNewest = getNewestCollectionId();
@@ -425,7 +426,7 @@ public class ProductCollectionTest extends BaseTest{
         String collectionName = "Collection product title equals keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
         condition = Constant.PRODUCT_TITLE+"-"+Constant.EQUAL_TO_TITLE+"-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
         createAutomationCollectionAndVerify(collectionName,Constant.ALL_CONDITION,condition);
-        //set up data to run testcase:
+        //set up data to run testcase
         collectionUpdateToAnyCondition = collectionName;
         //set up data to check buyer app (the next testcase)
         callCreateMenuItemParentAPI(collectionName);

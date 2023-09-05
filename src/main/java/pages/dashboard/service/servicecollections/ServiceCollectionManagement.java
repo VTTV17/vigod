@@ -15,6 +15,7 @@ import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
+import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import pages.dashboard.service.CreateServicePage;
 import pages.dashboard.service.ServiceManagementPage;
 import utilities.UICommonAction;
@@ -42,12 +43,20 @@ public class ServiceCollectionManagement {
 	List<WebElement> LIST_SERVICE_COLLECTION_NAME;
 	@FindBy(css = ".d-desktop-block .first-button")
 	List<WebElement> EDIT_ICON_LIST;
+	@FindBy(css = ".collection-name b")
+	List<WebElement> COLLECTION_NAMES;
+	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]")
+	List<WebElement> TYPES;
+	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][2]")
+	List<WebElement> MODES;
+	@FindBy(xpath = "//div[contains(@class,'products')]")
+	List<WebElement> ITEMS;
 
-	public ServiceCollectionManagement clickCreateServiceCollection() {
+	public CreateServiceCollection clickCreateServiceCollection() {
 		commonAction.clickElement(CREATE_SERVICE_COLLECTION_BTN);
 		logger.info("Clicked on 'Create Service Collection' button.");
 		new HomePage(driver).waitTillSpinnerDisappear();
-		return this;
+		return new CreateServiceCollection(driver);
 	}
 
     /*Verify permission for certain feature*/
@@ -81,5 +90,44 @@ public class ServiceCollectionManagement {
 		logger.info("Go to collection: "+collectionName);
 		return new CreateServiceCollection(driver);
 	}
+	public ServiceCollectionManagement verifyCollectionName(String expected, int index) {
+		String actual = commonAction.getText(COLLECTION_NAMES.get(index));
+		Assert.assertEquals(actual, expected);
+		logger.info("Verify collection name after created");
+		return this;
+	}
 
+	public ServiceCollectionManagement verifyType(String expected, int index) {
+		String actual = commonAction.getText(TYPES.get(index));
+		Assert.assertEquals(actual, expected);
+		logger.info("Verify type after collection created");
+		return this;
+	}
+
+	public ServiceCollectionManagement verifyMode(String expected, int index) {
+		String actual = commonAction.getText(MODES.get(index));
+		Assert.assertEquals(actual, expected);
+		logger.info("Verify mode after collection created");
+		return this;
+	}
+
+	public ServiceCollectionManagement verifyItem(String expected, int index) {
+		String actual = commonAction.getText(ITEMS.get(index));
+		Assert.assertEquals(actual, expected);
+		logger.info("Verify items after collection created");
+		return this;
+	}
+	public ServiceCollectionManagement refreshPage(){
+		commonAction.refreshPage();
+		new HomePage(driver).waitTillSpinnerDisappear();
+		return this;
+	}
+	public ServiceCollectionManagement verifyCollectionInfoAfterCreated(String collectionName, String type, String mode, String items) {
+		verifyCollectionName(collectionName, 0);
+		verifyType(type, 0);
+		verifyMode(mode, 0);
+		verifyItem(items, 0);
+		logger.info("Verify collection info after created.");
+		return this;
+	}
 }

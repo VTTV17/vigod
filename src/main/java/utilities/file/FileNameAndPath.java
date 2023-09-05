@@ -26,6 +26,7 @@ public class FileNameAndPath {
     public static final String FILE_USER_PROFILE_TCS = "UserProfileSFTcs.xlsx";
     public static final String FILE_BUY_LINK_TCS = "BuyLinkTCs.xlsx";
     public static final String FILE_PRODUCT_COLLECTION = "ProductCollection.xlsx";
+    public static final String FILE_NAME_IMAGE_SERVICE_COLLECTION_1 = "serviceCollection.jpg";
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
     }

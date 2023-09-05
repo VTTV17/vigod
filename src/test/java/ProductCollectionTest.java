@@ -28,6 +28,7 @@ import java.util.Map;
 
 import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
 import static utilities.account.AccountTest.*;
+import static utilities.enums.MenuItemType.COLLECTION_PRODUCT;
 import static utilities.file.FileNameAndPath.FILE_PRODUCT_COLLECTION;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -112,7 +113,7 @@ public class ProductCollectionTest extends BaseTest {
         productCollectAPI = new APIProductCollection(loginInformation);
         int collectIDNewest = productCollectAPI.getNewestCollectionID();
         menu = new APIMenus(loginInformation);
-        menu.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
+        menu.CreateMenuItemParent(collectIDNewest, collectionName,COLLECTION_PRODUCT);
     }
 
     public void callDeleteMenuItemAndCollectionAPI(String collectionName) throws Exception {
