@@ -32,5 +32,6 @@ public class ProductInfo {
     private boolean onWeb;
     private boolean inStore;
     private boolean inGosocial;
+    private List<Integer> collectionIdList;
     private Map<Integer, Map<String, String>> collectionNameMap;
 }

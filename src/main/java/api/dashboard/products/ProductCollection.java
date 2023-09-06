@@ -22,7 +22,7 @@ public class ProductCollection {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    public ProductCollection createCollection(ProductInfo... productInfo) {
+    public int createCollection(ProductInfo... productInfo) {
         String productName = productInfo.length > 0 ? productInfo[0].getDefaultProductNameMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage()) : "auto";
         String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
@@ -50,13 +50,9 @@ public class ProductCollection {
 
         createCollection.then().statusCode(200);
 
-        collectionID = createCollection.jsonPath().getInt("id");
-        return this;
+        return createCollection.jsonPath().getInt("id");
     }
     public void deleteCollection(int collectionId){
         api.delete(DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionId),loginInfo.getAccessToken());
-    }
-    public int getCollectionID() {
-        return collectionID;
     }
 }

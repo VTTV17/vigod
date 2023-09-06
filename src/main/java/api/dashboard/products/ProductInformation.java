@@ -1,6 +1,5 @@
 package api.dashboard.products;
 
-import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
@@ -259,6 +258,7 @@ public class ProductInformation {
             Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());
             collectionsList.then().statusCode(200);
             List<Integer> collectionIDList = collectionsList.jsonPath().getList("id");
+            prdInfo.setCollectionIdList(collectionIDList);
 
             Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();
             for (int colID : collectionIDList) {
@@ -277,7 +277,7 @@ public class ProductInformation {
     /**
      * return {barcode, list segment, list price, list stock}
      */
-    public WholesaleProductInfo wholesaleProductInfo(ProductInfo productInfo, int customerID) {
+    public WholesaleProductInfo wholesaleProductInfo(ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
         /* get wholesale product raw data from API */
         Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productInfo.getProductID()), loginInfo.getAccessToken());
         wholesaleProductInfo.then().statusCode(200);
@@ -309,13 +309,14 @@ public class ProductInformation {
             List<Integer> stockList = new ArrayList<>();
             for (int id = index; id < index + totalElements.get(i); id++) {
                 if (segmentList.get(id) != null) {
-                    if (((customerID != 0) && segmentList.get(id).equals("ALL")) || Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(Integer.valueOf(segID))).flatMap(Collection::stream).toList().contains(customerID)) {
-                        if (stockList.contains(saleStock.get(id))) {
-                            priceList.set(stockList.indexOf(saleStock.get(id)), Math.min(salePrice.get(id), priceList.get(stockList.indexOf(saleStock.get(id)))));
-                        } else {
-                            priceList.add(salePrice.get(id));
-                            stockList.add(saleStock.get(id));
-                        }
+                    if (listSegmentOfCustomer != null) {
+                        if (segmentList.get(id).equals("ALL") || (!listSegmentOfCustomer.isEmpty() && Arrays.stream(segmentList.get(id).toString().split(",")).toList().stream().anyMatch(segId -> listSegmentOfCustomer.contains(Integer.valueOf(segId)))))
+                            if (stockList.contains(saleStock.get(id)))
+                                priceList.set(stockList.indexOf(saleStock.get(id)), Math.min(salePrice.get(id), priceList.get(stockList.indexOf(saleStock.get(id)))));
+                            else {
+                                priceList.add(salePrice.get(id));
+                                stockList.add(saleStock.get(id));
+                            }
                     }
                 }
             }
@@ -344,12 +345,12 @@ public class ProductInformation {
 
         // get wholesale product price
         List<Long> wholesaleProductPrice = new ArrayList<>(productInfo.getProductSellingPrice());
-        configs.forEach(wpConfig -> wholesaleProductPrice.set(listVariationModelId.indexOf(wpConfig.getBarcode()), wpConfig.getPrice().get(0)));
+        configs.forEach(wpConfig -> Arrays.stream(wpConfig.getBarcode().split(",")).toList().forEach(code -> wholesaleProductPrice.set(listVariationModelId.indexOf(code), wpConfig.getPrice().get(0))));
 
         // get wholesale product stock
         List<Integer> wholesaleProductStock = new ArrayList<>();
         IntStream.range(0, listVariationModelId.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
-        configs.forEach(wpConfig -> wholesaleProductStock.set(listVariationModelId.indexOf(wpConfig.getBarcode()), wpConfig.getStock().get(0)));
+        configs.forEach(wpConfig -> Arrays.stream(wpConfig.getBarcode().split(",")).toList().forEach(code -> wholesaleProductStock.set(listVariationModelId.indexOf(code), wpConfig.getStock().get(0))));
 
         WholesaleProductInfo analyzedData = new WholesaleProductInfo();
         analyzedData.setStatusMap(wholesaleProductStatus);

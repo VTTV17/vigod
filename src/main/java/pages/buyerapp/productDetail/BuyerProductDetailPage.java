@@ -1,5 +1,6 @@
 package pages.buyerapp.productDetail;
 
+import api.dashboard.customers.Customers;
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.promotion.CreatePromotion;
@@ -389,13 +390,16 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      * Verify all information on the SF is shown correctly
      */
     void checkProductInformation(String language, int customerId) throws IOException {
+        // get list segment of customer
+        List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
+
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, customerId);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // get flash sale, discount campaign information
         CreatePromotion promotion = new CreatePromotion(loginInformation);
         flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), customerId);
+        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), listSegmentOfCustomer);
         // get sale price map and display
         salePriceMap = getSalePriceMap();
         saleDisplayMap = getSaleDisplayMap();

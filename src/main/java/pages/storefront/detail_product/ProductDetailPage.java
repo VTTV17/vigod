@@ -1,5 +1,6 @@
 package pages.storefront.detail_product;
 
+import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
@@ -659,12 +660,16 @@ public class ProductDetailPage extends ProductDetailElement {
         brInfo = new BranchManagement(loginInformation).getInfo();
         branchStatus = getBranchStatus();
 
+        // get list segment of customer
+        List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
+
         // get flash sale, discount campaign information
         CreatePromotion promotion = new CreatePromotion(loginInformation);
         flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), customerId);
+        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), listSegmentOfCustomer);
+
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, customerId);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // verify on each variation
         for (String variationValue : productInfo.getVariationListMap().get(language)) {

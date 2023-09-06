@@ -98,7 +98,6 @@ public class CreatePromotion {
     public void waitPromotionStart() throws InterruptedException {
         long wait = flashSaleStartTime == null && productDiscountCampaignStartTime == null ? Instant.now().toEpochMilli() : flashSaleStartTime == null ? productDiscountCampaignStartTime.toEpochMilli() : productDiscountCampaignStartTime == null ? flashSaleStartTime.toEpochMilli() : Math.min(flashSaleStartTime.toEpochMilli(), productDiscountCampaignStartTime.toEpochMilli());
         wait = wait - Instant.now().toEpochMilli();
-        System.out.println(wait);
         sleep(wait);
     }
 
@@ -288,11 +287,6 @@ public class CreatePromotion {
         return this;
     }
 
-    public CreatePromotion setDiscountCampaignBranchConditionType(int branchConditionType) {
-        this.discountCampaignBranchConditionType = branchConditionType;
-        return this;
-    }
-
     public CreatePromotion createProductDiscountCampaign(ProductInfo productInfo, int... time) throws InterruptedException {
         // end early discount campaign
         endEarlyDiscountCampaign();
@@ -367,7 +361,7 @@ public class CreatePromotion {
                 {
                     "conditionValue": %s
                 }
-                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection(productInfo).getCollectionID() : productInfo.getProductID());
+                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection(productInfo) : productInfo.getProductID());
         String appliesToCondition = """
                 {
                     "conditionOption": "%s",
@@ -436,7 +430,21 @@ public class CreatePromotion {
         return this;
     }
 
-    void getDiscountCampaignInformation(int campaignID, List<String> listVariationModel, int customerId) {
+    private String getSegmentCondition(int segmentConditionType) {
+        String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
+        String segmentConditionValue = segmentConditionType == 0 ? "" : """
+                {
+                    "conditionValue": %s
+                }""".formatted(new Customers(loginInformation).getSegmentID());
+        return """
+                {
+                    "conditionOption": "%s",
+                    "conditionType": "CUSTOMER_SEGMENT",
+                    "values": [ %s ]
+                },""".formatted(segmentConditionLabel, segmentConditionValue);
+    }
+
+    void getDiscountCampaignInformation(int campaignID, List<String> listVariationModel, List<Integer> listSegmentOfCustomer) {
         Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL.formatted(campaignID), loginInfo.getAccessToken());
         discountCampaignDetail.then().statusCode(200);
 
@@ -478,7 +486,8 @@ public class CreatePromotion {
         // update discount campaign status
         List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH") ? conditionValueMap.get("APPLIES_TO_BRANCH").stream().map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID))).toList() : brInfo.getBranchName();
         boolean appliesToProduct = (conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && conditionValueMap.get("APPLIES_TO").stream().map(integer -> new APIProductCollection(loginInformation).getListProductIDInCollections(integer)).flatMap(Collection::stream).toList().contains(Integer.parseInt(listVariationModel.get(0).split("-")[0]))) || (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") && (!conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS") || conditionValueMap.get("APPLIES_TO").contains(Integer.parseInt(listVariationModel.get(0).split("-")[0]))));
-        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") || conditionValueMap.get("CUSTOMER_SEGMENT").stream().map(segID -> new Customers(loginInformation).getListCustomerInSegment(segID)).flatMap(Collection::stream).toList().contains(customerId);
+
+        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") || (listSegmentOfCustomer != null && !listSegmentOfCustomer.isEmpty() && conditionValueMap.get("CUSTOMER_SEGMENT").stream().anyMatch(listSegmentOfCustomer::contains));
 
         if (appliesToProduct && appliesToCustomer) {
             brInfo.getBranchName().forEach(brName -> {
@@ -489,7 +498,7 @@ public class CreatePromotion {
         }
     }
 
-    public DiscountCampaignInfo getDiscountCampaignInfo(List<String> listVariationModel, List<Long> sellingPrice, int customerId) {
+    public DiscountCampaignInfo getDiscountCampaignInfo(List<String> listVariationModel, List<Long> sellingPrice, List<Integer> listSegmentOfCustomer) {
         // init discount campaign information model
         DiscountCampaignInfo info = new DiscountCampaignInfo();
 
@@ -511,7 +520,7 @@ public class CreatePromotion {
         }
 
         // get last discount campaign information
-        discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, listVariationModel, customerId));
+        discountCampaignList.forEach(campaignID -> getDiscountCampaignInformation(campaignID, listVariationModel, listSegmentOfCustomer));
 
         // get last discount campaign status
         info.setDiscountCampaignStatus(discountCampaignStatus);
@@ -623,7 +632,7 @@ public class CreatePromotion {
                 {
                     "conditionValue": %s
                 }
-                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection().getCollectionID() : new CreateProduct(loginInformation).getProductID());
+                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection() : new CreateProduct(loginInformation).getProductID());
         String appliesToCondition = """
                 {
                     "conditionOption": "%s",
