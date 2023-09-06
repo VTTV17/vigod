@@ -18,7 +18,7 @@ public class NotificationPermission {
     WebDriverWait wait;
     UICommonMobile commonAction;
 
-    int defaultTimeout = 5;
+    int defaultTimeout = 10;
     
     public NotificationPermission (WebDriver driver) {
         this.driver = driver;
@@ -30,7 +30,7 @@ public class NotificationPermission {
     By DENY_BTN = By.xpath("//*[ends-with(@resource-id,'permission_deny_button')]");
     
     public NotificationPermission clickAllowBtn() {
-    	commonAction.clickElement(ALLOW_BTN);
+    	commonAction.clickElement(ALLOW_BTN, defaultTimeout);
     	logger.info("Clicked on 'Allow' button.");
     	return this;
     }

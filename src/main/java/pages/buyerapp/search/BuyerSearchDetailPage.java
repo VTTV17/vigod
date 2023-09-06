@@ -62,7 +62,8 @@ public class BuyerSearchDetailPage extends UICommonMobile {
         return new BuyerSearchPage(driver);
     }
     public BuyerSearchDetailPage verifySearchNotFound(String itemName){
-        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
+//        waitForElementVisible(getElement(SEARCH_SUGGESTION,5));
+        sleepInMiliSecond(2000);
         List<WebElement> suggestionsName_el = getElements(SEARCH_SUGGESTION);
         for (int i=0;i<suggestionsName_el.size();i++){
             if(getText(suggestionsName_el.get(i)).equalsIgnoreCase(itemName)){

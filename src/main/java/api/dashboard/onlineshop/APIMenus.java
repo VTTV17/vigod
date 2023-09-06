@@ -1,9 +1,11 @@
 package api.dashboard.onlineshop;
 import api.dashboard.login.Login;
+import api.storefront.header.APIHeader;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.enums.MenuItemType;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -24,11 +26,12 @@ public class APIMenus {
     /**
      * Call API login to set account before call this api
      * Create menuitem with level = 0
-     * @param menuID: ID of current menu
      * @param collectionID
      * @param menuItemName
+     * @type COLLECTION_PRODUCT, COLLECTION_SERVICE, BLOG...
      */
-    public void CreateMenuItemParent(int menuID, int collectionID, String menuItemName){
+    public void CreateMenuItemParent(int collectionID, String menuItemName, MenuItemType type){
+        int menuID = new APIHeader(loginInformation).getCurrentMenuId();
         String body = """
                [{
                 "hasChildren":false,
@@ -39,10 +42,11 @@ public class APIMenus {
                 "parentId":0,
                 "order":0,
                 "actionList":"EDIT,REMOVE",
-                "dataType":"COLLECTION_PRODUCT",
+                "dataType":"%s",
                 "dataValue":%s,
                 "collectionId":%s}]
-                """.formatted(menuID,menuItemName,collectionID,collectionID);
+                """.formatted(menuID,menuItemName,type,collectionID,collectionID);
+        System.out.println(body);
         Response menuItemRespone = api.put(ADD_MENU_ITEM_PATH,loginInfo.getAccessToken(),body);
         menuItemRespone.then().statusCode(200);
         logger.info("Create menuItem successful.");

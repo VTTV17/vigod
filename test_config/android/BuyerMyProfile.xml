@@ -19,6 +19,12 @@
                     <include name="MUP12_CheckAddValidOtherPhoneOtherEmail"/>
                     <include name="MUP13_CheckEditOtherPhoneEmail"/>
                     <include name="MUP14_CheckDeleteOtherPhoneOtherEmail"/>
+                    <include name="MUP15_CheckDeleteEmail"/>
+                    <include name="MUP16_CheckDeletePhoneNumber"/>
+                    <include name="MUP17_CheckInputOtherPhoneEmailOutOfRange"/>
+                    <include name="MUP18_CheckTextDeleteAccount"/>
+                    <include name="MUP19_DeleteAccount"/>
+
                 </methods>
             </class>
         </classes>

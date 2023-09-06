@@ -583,7 +583,7 @@ public class ProductPageElement {
     WebElement UI_DEPOSIT_DESCRIPTION;
 
     /* SEO */
-    By UI_SEO_SETTING = By.xpath("//div[contains(@class, ' seo-editor')]/div/h3");
+    By UI_SEO_SETTING = By.xpath("//div[contains(@class, ' seo-editor')]//div/h3");
 
     @FindBy(xpath = "//div[@aria-describedby='tippy-tooltip-2']/parent::div/preceding-sibling::span")
     WebElement UI_LIVE_PREVIEW;

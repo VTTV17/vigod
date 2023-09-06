@@ -30,6 +30,9 @@ public class BuyerGeneral extends UICommonMobile {
     By HEADER_CLOSE_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_select_region_btn_close')]");
     By HEADER_CANCEL_SEARCH = By.xpath("//*[ends-with(@resource-id,'search_module_btn_cancel')]");
     By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
+    By DATE_PICKER_YEAR = By.xpath("//*[ends-with(@resource-id,'date_picker_year')]");
+    By DATE_PICKER_DAY_FRAME = By.xpath("//*[ends-with(@resource-id,'animator')]");
+    By YEAR_LIST = By.xpath("//*[ends-with(@resource-id,'month_text_view')]");
 
     public BuyerGeneral waitLoadingDisappear(){
         waitTillElementDisappear(getElement(el_loading_icon,30),30);

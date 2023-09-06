@@ -7,7 +7,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import pages.buyerapp.collection.Collection;
+import pages.dashboard.home.HomePage;
+import pages.storefront.header.HeaderSF;
 import utilities.UICommonMobile;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 
@@ -91,16 +94,24 @@ public class BuyerHomePage extends BuyerHomeElement {
         return this;
     }
 
-    public BuyerHomePage clickOnMenuIcon() {
+    public BuyerHomePage clickOnMenuIcon(){
         commonMobile.sleepInMiliSecond(2000);
         commonMobile.clickElement(MENU_ICON);
         logger.info("Click on menu icon");
         return this;
     }
-
-    public Collection goToCollectionByMenuText(String text) {
+    public Collection goToCollectionByMenuText(String text){
         clickOnMenuIcon();
+        if(!commonMobile.isElementDisplay(MENU_ITEMS)){
+            clickOnMenuIcon();
+        }
         clickOnMenuItemByText(text);
         return new Collection(driver);
+    }
+    public BuyerHomePage verifyMenuItemNotShow(String item){
+        clickOnMenuIcon();
+        Assert.assertFalse(commonMobile.isElementDisplayInList(MENU_ITEMS,item));
+        logger.info("Verify %s not display in list".formatted(item));
+        return this;
     }
 }

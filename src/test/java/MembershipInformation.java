@@ -73,7 +73,7 @@ public class MembershipInformation extends BaseTest {
 	public void loginDashboard() {
 		loginDB.navigate()
         .performLogin(SELLER_COUNTRY, SELLER_MAIL, SELLER_PASSWORD);
-		homePage.waitTillSpinnerDisappear().selectLanguage(language).hideFacebookBubble();
+		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
 	}	
 	
 	/**

@@ -21,8 +21,13 @@ public class Constant {
     public static final String EQUAL_TO_PRICE;
     public static final String ALL_CONDITION;
     public static final String ANY_CONDITION;
-
-
+    public static final String MANUAL_OPTION;
+    public static final String AUTOMATED_OPTION;
+    public static final String MANUALLY_MODE;
+    public static final String AUTOMATED_MODE;
+    public static final String PRODUCT_TYPE;
+    public static final String SERVICE_TYPE;
+    public static final String SERVICE_TITLE;
     static {
         try {
             VIETNAM = PropertiesUtil.getPropertiesValueBySFLang("buyerApp.country.vietnam");
@@ -37,6 +42,13 @@ public class Constant {
             EQUAL_TO_PRICE = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
             ALL_CONDITION = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
             ANY_CONDITION = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
+            MANUAL_OPTION = PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.manual");
+            AUTOMATED_OPTION = PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.automated");
+            AUTOMATED_MODE = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.automatedModeTxt");
+            MANUALLY_MODE = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
+            PRODUCT_TYPE = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
+            SERVICE_TYPE = PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.management.table.serviceTypeTxt");
+            SERVICE_TITLE = PropertiesUtil.getPropertiesValueByDBLang("");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

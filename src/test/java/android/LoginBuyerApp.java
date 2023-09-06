@@ -1,3 +1,4 @@
+package android;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.login.LoginPage;
 import pages.buyerapp.navigationbar.NavigationBar;
+import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.buyerapp.signup.SignupPage;
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
@@ -124,8 +126,8 @@ public class LoginBuyerApp {
 		buyerGeneral = new BuyerGeneral(driver);
 		commonAction = new UICommonMobile(driver);
 
-		commonAction.waitSplashScreenLoaded();
-//		new NotificationPermission(driver).clickAllowBtn();
+//		commonAction.waitSplashScreenLoaded();
+		new NotificationPermission(driver).clickAllowBtn();
 	}	
 	
 	public AppiumDriver launchApp() throws Exception {
@@ -386,9 +388,9 @@ public class LoginBuyerApp {
 		commonAction.swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.2);
 		oldPass = resetToOriginalPassword(newPassword, password);
 		
-//		String [][] mailContent = getEmailContent(username);
-//		Assert.assertEquals(mailContent[0][3], expectedChangePasswordMsg);
-//		Assert.assertEquals(mailContent[1][3], code + " " + expectedCodeMsg);
+		String [][] mailContent = getEmailContent(username);
+		Assert.assertEquals(mailContent[0][3], expectedChangePasswordMsg);
+		Assert.assertEquals(mailContent[1][3], code + " " + expectedCodeMsg);
 	}
 	
 	@Test

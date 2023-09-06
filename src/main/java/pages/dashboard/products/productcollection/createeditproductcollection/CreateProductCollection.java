@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
+import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
@@ -97,9 +98,9 @@ public class CreateProductCollection extends HomePage {
      * @throws Exception if param does not match.
      */
     public CreateProductCollection selectCollectionType(String collectionType) throws Exception {
-        if (collectionType.equalsIgnoreCase("Manual")) {
+        if (collectionType.equalsIgnoreCase(Constant.MANUAL_OPTION)) {
             common.checkTheCheckBoxOrRadio(createCollectionUI.MANUAL_RADIO_VALUE, createCollectionUI.MANUAL_RADIO_ACTION);
-        } else if (collectionType.equalsIgnoreCase("Automated")) {
+        } else if (collectionType.equalsIgnoreCase(Constant.AUTOMATED_OPTION)) {
             common.checkTheCheckBoxOrRadio(createCollectionUI.AUTOMATED_RADIO_VALUE, createCollectionUI.AUTOMATED_RADIO_ACTION);
         } else {
             throw new Exception("Input value does not match any of the accepted values: Manual/Automated");
@@ -188,10 +189,11 @@ public class CreateProductCollection extends HomePage {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize);
             }
         } else {
+            int random = generator.generatNumberInBound(1,productListSize);
             if (canInputDuplicate) {
-                priorityList = generator.randomListNumberCanDuplicate(productListSize - 2);
+                priorityList = generator.randomListNumberCanDuplicate(productListSize - random);
             } else {
-                priorityList = generator.randomListNumberWithNoDuplicate(productListSize - 2);
+                priorityList = generator.randomListNumberWithNoDuplicate(productListSize - random);
             }
         }
         for (int i = 0; i < productListSize; i++) {
@@ -213,10 +215,12 @@ public class CreateProductCollection extends HomePage {
         int productListSize = createCollectionUI.PRODUCT_NAME_LIST.size();
         for (int i = 0; i < productListSize; i++) {
             String priority = common.getElementAttribute(createCollectionUI.PRIORITIES_INPUT.get(i),"value");
-            if (priority!="") {
-                productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority));
-            } else {
+            if (priority.equals("")) {
                 productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(), productListSize);
+
+            } else {
+                productPriorityMap.put(common.getText(createCollectionUI.PRODUCT_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority));
+
             }
         }
         return productPriorityMap;
@@ -280,7 +284,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createManualCollectionWithoutSEO_NoPriority(String collectionName, String[] productList) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Manual");
+        selectCollectionType(Constant.MANUAL_OPTION);
         selectProductWithKeyword(productList);
         clickOnSaveBTN();
         logger.info("Create manual collection without SEO, no priority successfully.");
@@ -292,7 +296,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createManualCollectionWithoutSEO_HasPriority(String collectionName, String[] productList, boolean isSetPriorityForAll, boolean canSetDuplicatePriority) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Manual");
+        selectCollectionType(Constant.MANUAL_OPTION);
         selectProductWithKeyword(productList);
         productPriorityMap = inputPriority(isSetPriorityForAll, canSetDuplicatePriority);
         clickOnSaveBTN(); //click outside
@@ -306,7 +310,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createManualCollectionWithSEO(String collectionName, String[] productList, String SEOTitle, String SEODescription, String SEOKeyword, String SEOUrl) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Manual");
+        selectCollectionType(Constant.MANUAL_OPTION);
         selectProductWithKeyword(productList);
         inputSEOInfo(SEOTitle, SEODescription, SEOKeyword, SEOUrl);
         clickOnSaveBTN();
@@ -401,7 +405,7 @@ public class CreateProductCollection extends HomePage {
     public ProductCollectionManagement createProductAutomationCollectionWithoutSEO(String collectionName, String conditionType, String... conditions) throws Exception {
         inputCollectionName(collectionName);
         uploadImages("AoG.png");
-        selectCollectionType("Automated");
+        selectCollectionType(Constant.AUTOMATED_OPTION);
         selectConditionType(conditionType);
         selectCondition(false,conditions);
         clickOnSaveBTN();
@@ -447,30 +451,30 @@ public class CreateProductCollection extends HomePage {
     public Map productsBelongCollectionExpected_MultipleCondition(LoginInformation loginInformation, String conditionType, String... conditions) throws Exception {
         APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
         int countItemExpected = 0;
-        Map mergeProductMap = new HashMap<>();
         Map mergeProductCountItemMap = new HashMap<>();
         Map compareProductMap = new HashMap<>();
         Map compareCountItemMap = new HashMap<>();
-        for (String condition : conditions) {
-            String conditionField = condition.split("-")[0];
-            String operater = condition.split("-")[1];
-            String value = condition.split("-")[2];
+        Map mergeProductMap = new HashMap<>();
+        for (int i=0;i< conditions.length;i++) {
+            String conditionField = conditions[i].split("-")[0];
+            String operater = conditions[i].split("-")[1];
+            String value = conditions[i].split("-")[2];
             Map productCreatedDateMap = new HashMap();
             Map productCountItemMap = new HashMap();
-            if (conditionField.equalsIgnoreCase(productTitleTxt)) {
+            if (conditionField.equalsIgnoreCase(Constant.PRODUCT_TITLE)) {
                 Map productCollection = apiAllProducts.getMapOfProductCreateDateMatchTitleCondition(operater, value);
                 productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
                 productCountItemMap = (Map) productCollection.get("productCountItemMap");
-            } else if (conditionField.equalsIgnoreCase(productPriceTxt)) {
+            } else if (conditionField.equalsIgnoreCase(Constant.PRODUCT_PRICE)) {
                 Map productCollection = apiAllProducts.getProductMatchPriceCondition(operater, Long.parseLong(value));
                 productCreatedDateMap = (Map) productCollection.get("productCreatedDateMap");
                 productCountItemMap = (Map) productCollection.get("productCountItemMap");
             }
-            if (conditionType.equalsIgnoreCase(anyConditionTxt)) {
-                mergeProductMap.putAll(productCreatedDateMap);
-                mergeProductCountItemMap.putAll(productCountItemMap);
-            } else if (conditionType.equalsIgnoreCase(allConditionTxt)) {
-                if (compareProductMap.isEmpty()) {
+            if (conditionType.equalsIgnoreCase(Constant.ANY_CONDITION)) {
+                compareProductMap.putAll(productCreatedDateMap);
+                compareCountItemMap.putAll(productCountItemMap);
+            } else if (conditionType.equalsIgnoreCase(Constant.ALL_CONDITION)) {
+                if (i==0) {
                     compareProductMap.putAll(productCreatedDateMap);
                     compareCountItemMap.putAll(productCountItemMap);
                 } else {
@@ -480,15 +484,19 @@ public class CreateProductCollection extends HomePage {
                             mergeProductCountItemMap.put(key, productCountItemMap.get(key));
                         }
                     }
+                    compareProductMap=mergeProductMap;
+                    compareCountItemMap=mergeProductCountItemMap;
                 }
+                mergeProductMap = new HashMap<>();
+                mergeProductCountItemMap= new HashMap<>();
             }
+
         }
-        Collection<Integer> values = mergeProductCountItemMap.values();
-        System.out.println("values: " + values);
+        Collection<Integer> values = compareCountItemMap.values();
         for (int v : values) {
             countItemExpected = countItemExpected + v;
         }
-        List<String> productExpectedList = apiAllProducts.getProductListCollection_SortNewest(mergeProductMap);
+        List<String> productExpectedList = apiAllProducts.getProductListCollection_SortNewest(compareProductMap);
         Map productCollectInfoMap = new HashMap<>();
         productCollectInfoMap.put("productExpectedList", productExpectedList);
         productCollectInfoMap.put("CountItem", countItemExpected);
@@ -551,7 +559,7 @@ public class CreateProductCollection extends HomePage {
         Assert.assertEquals(common.getText(createCollectionUI.OK_BTN),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.selectProductModal.okBtn"));
         Assert.assertEquals(common.getText(createCollectionUI.MODAL_CANCEL_BTN),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.selectProductModal.cancelBtn"));
         clickOnCancelBTNONSelectProductModal();
-        selectCollectionType("Automated");
+        selectCollectionType(Constant.AUTOMATED_OPTION);
         Assert.assertEquals(common.getText(createCollectionUI.CONDITIONS_TILE),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.condtionTitle"));
         Assert.assertEquals(common.getText(createCollectionUI.PRODUCT_MUST_MATCH_TXT),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.productMusMatchTxt"));
         Assert.assertEquals(common.getText(createCollectionUI.ALL_CONDITION_RADIO_ACTION),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt"));

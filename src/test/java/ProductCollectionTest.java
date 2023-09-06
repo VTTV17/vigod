@@ -15,6 +15,7 @@ import pages.dashboard.products.productcollection.createeditproductcollection.Ed
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.productcollection.ProductCollectionSF;
+import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
@@ -27,6 +28,8 @@ import java.util.Map;
 
 import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
 import static utilities.account.AccountTest.*;
+import static utilities.enums.MenuItemType.COLLECTION_PRODUCT;
+import static utilities.file.FileNameAndPath.FILE_PRODUCT_COLLECTION;
 import static utilities.links.Links.SF_ShopVi;
 
 public class ProductCollectionTest extends BaseTest {
@@ -59,7 +62,6 @@ public class ProductCollectionTest extends BaseTest {
     String userName_GoLead;
     String passwordCheckPermission;
     String collectNameEditPriority = "";
-    String collectionNameEditManual = "";
     static String collectionNameEditAutomationWithAndCondition = "";
     static String collectionNameEditAutomationWithOrCondition = "";
     String languageSF;
@@ -67,17 +69,6 @@ public class ProductCollectionTest extends BaseTest {
     String automatedMode;
     String manuallyMode;
     String productType;
-    String productTitleTxt;
-    String productPriceTxt;
-    String containsOperateTxt;
-    String equalToOperateProductTiteTxt;
-    String equalToOperateProductPriceTxt;
-    String startWithOperateTxt;
-    String endsWithOperateTxt;
-    String greaterThanTxt;
-    String lessThanTxt;
-    String allConditionTxt;
-    String anyConditionTxt;
     LoginInformation loginInformation;
     @BeforeClass
     public void getData() throws Exception {
@@ -98,17 +89,7 @@ public class ProductCollectionTest extends BaseTest {
         automatedMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.automatedModeTxt");
         manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
         productType = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
-        productTitleTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productTitleTxt");
-        productPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.conditionOptions.productPriceTxt");
-        containsOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.containsTxt");
-        equalToOperateProductTiteTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productTitleIsEqualToTxt");
-        startWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.startsWithTxt");
-        endsWithOperateTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.endsWithTxt");
-        greaterThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isGeaterThanTxt");
-        lessThanTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isLessThanTxt");
-        equalToOperateProductPriceTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt");
-        allConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.allConditionsTxt");
-        anyConditionTxt = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.anyConditionTxt");
+        tcsFileName = FILE_PRODUCT_COLLECTION;
     }
     @BeforeMethod
     public void setUp(){
@@ -132,7 +113,7 @@ public class ProductCollectionTest extends BaseTest {
         productCollectAPI = new APIProductCollection(loginInformation);
         int collectIDNewest = productCollectAPI.getNewestCollectionID();
         menu = new APIMenus(loginInformation);
-        menu.CreateMenuItemParent(menuID, collectIDNewest, collectionName);
+        menu.CreateMenuItemParent(collectIDNewest, collectionName,COLLECTION_PRODUCT);
     }
 
     public void callDeleteMenuItemAndCollectionAPI(String collectionName) throws Exception {
@@ -265,7 +246,7 @@ public class ProductCollectionTest extends BaseTest {
                 .clickLogout();
     }
 
-    @Test
+    @Test(priority = 1)
     public void PC_01_BH_4783_CreateManualProductCollection_V2() throws Exception {
         //product list is empty
         collectionName = "Manually: has no product " + generate.generateString(10);
@@ -312,7 +293,7 @@ public class ProductCollectionTest extends BaseTest {
 //        collectionNameEditManual = collectionName;
     }
 
-    @Test
+    @Test(priority = 2)
     public void PC_02_BH_4784_CreateManualProductCollectionAndAddAProductSEO() throws Exception {
         collectionName = "Manually: has SEO info" + generate.generateString(5);
         productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin"};
@@ -339,79 +320,79 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 3)
     public void PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword() throws Exception {
-        condition = productTitleTxt+"-"+containsOperateTxt+"-Gilaa";
+        condition = Constant.PRODUCT_TITLE+"-"+Constant.CONTAINS+"-Gilaa";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         collectionNameEditAutomationWithOrCondition = collectionName;
     }
 
-    @Test
+    @Test(priority = 4)
     public void PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword() throws Exception {
-        condition = productTitleTxt+"-"+startWithOperateTxt+"-Kem Dưỡng";
+        condition = Constant.PRODUCT_TITLE+"-"+Constant.STARTS_WITH+"-Kem Dưỡng";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         collectionNameEditAutomationWithAndCondition = collectionName;
     }
 
-    @Test
+    @Test(priority = 5)
     public void PC_05_BH_4788_CreateAutomationProductCollectionWithTitleEndsWithKeyword() throws Exception {
-        condition = productTitleTxt+"-"+endsWithOperateTxt+"-Skin";
+        condition = Constant.PRODUCT_TITLE+"-"+Constant.ENDS_WITH+"-Skin";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 6)
     public void PC_06_BH_4789_CreateAutomationProductCollectionWithTitleEqualToKeyword() throws Exception {
-        condition = productTitleTxt+"-"+equalToOperateProductTiteTxt+"-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
+        condition = Constant.PRODUCT_TITLE+"-"+Constant.EQUAL_TO_TITLE+"-Bột Uống Collagen Gilaa Kết Hợp Saffron 2gx60 Gói Premium Saffron Collagen";
         collectionName = generate.generateString(5) + " - " + "Product title-is equal to";
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 7)
     public void PC_07_BH_4790_CreateAutomationProductCollectionWithPriceEqualToNumber() throws Exception {
-        condition = productPriceTxt+"-"+equalToOperateProductPriceTxt+"-328000";
+        condition = Constant.PRODUCT_PRICE+"-"+Constant.EQUAL_TO_PRICE+"-328000";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 8)
     public void PC_08_BH_4791_CreateAutomationProductCollectionWithPriceLessThanNumber() throws Exception {
-        condition = productPriceTxt+"-"+lessThanTxt+"-100000";
+        condition = Constant.PRODUCT_PRICE+"-"+Constant.LESS_THAN+"-100000";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 9)
     public void PC_09_BH_4792_CreateAutomationProductCollectionWithPriceGreaterThanNumber() throws Exception {
-        condition = productPriceTxt+"-"+greaterThanTxt+"-50000000000";
+        condition = Constant.PRODUCT_PRICE+"-"+Constant.GREATER_THAN+"-30000";
         collectionName = generate.generateString(5) + " - " + condition;
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, condition);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 10)
     public void PC_10_BH_4793_CreateAutomationProductCollectionWithANDMultipleCondition() throws Exception {
-        String[] conditions = {productTitleTxt+"-"+containsOperateTxt+"-Skin", productPriceTxt+"-"+greaterThanTxt+"-300000"};
+        String[] conditions = {Constant.PRODUCT_TITLE+"-"+Constant.CONTAINS+"-Skin", Constant.PRODUCT_PRICE+"-"+Constant.GREATER_THAN+"-300000"};
         collectionName = generate.generateString(5) + " - " + "and multiple condition";
-        createAutomationCollectionAndVerify(collectionName, allConditionTxt, conditions);
+        createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 11)
     public void PC_11_BH_4794_CreateAutomationProductCollectionWithORMultipleCondition() throws Exception {
-        String[] conditions = {productTitleTxt+"-"+containsOperateTxt+"-Phấn", productPriceTxt+"-"+lessThanTxt+"-200000"};
+        String[] conditions = {Constant.PRODUCT_TITLE+"-"+Constant.CONTAINS+"-Phấn", Constant.PRODUCT_PRICE+"-"+Constant.LESS_THAN+"-200000"};
         collectionName = generate.generateString(5) + " - " + "OR multiple condition";
-        createAutomationCollectionAndVerify(collectionName, anyConditionTxt, conditions);
+        createAutomationCollectionAndVerify(collectionName, Constant.ANY_CONDITION, conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test
+    @Test(priority = 12)
     public void PC_12_BH_5239_CheckPermission() throws IOException {
         checkPlanPermission("GoWeb", userName_goWeb);
         checkPlanPermission("GoApp", userName_goApp);
@@ -420,7 +401,7 @@ public class ProductCollectionTest extends BaseTest {
         checkPlanPermission("GoLead", userName_GoLead);
     }
 
-    @Test
+    @Test(priority = 13)
     public void PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber() throws Exception {
         collectionName = "Manually collection has product and priority " + generate.generateString(5);
         productList = new String[]{"Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin",
@@ -442,7 +423,7 @@ public class ProductCollectionTest extends BaseTest {
         collectNameEditPriority = collectionName;
     }
 
-    @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber")
+    @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber",priority = 14)
     public void PC_14_BH_7671_UpdatePriorityNumberForProductInCollection() throws Exception {
         loginAndNavigateToEditCollection(collectNameEditPriority)
                 .editProductPriorityInCollection();
@@ -450,7 +431,7 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectNameEditPriority);
     }
 
-    @Test()
+    @Test(priority = 15)
     public void PC_15_BH_4785_EditManualProductCollection() throws Exception {
         //create collection and edit new list
         collectionName = "Manually collection has product " + generate.generateString(5);
@@ -477,7 +458,7 @@ public class ProductCollectionTest extends BaseTest {
         navigateToSFAndVerifyCollectionPage(collectionName, true);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
-    @Test()
+    @Test(priority = 16)
     public void PC_16_BH_4796_AddProductToExistingManualCollection() throws Exception {
         //create collection
         collectionName = "Manually collection has product " + generate.generateString(5);
@@ -493,20 +474,20 @@ public class ProductCollectionTest extends BaseTest {
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
 
-    @Test(dependsOnMethods = "PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword")
+    @Test(dependsOnMethods = "PC_04_BH_4787_CreateAutomationProductCollectionWithTitleStartsWithKeyword",priority = 17)
     public void PC_17_BH_4797_UpdateAutomationCollection_AndCondition() throws Exception {
-        condition = productTitleTxt+"-"+containsOperateTxt+"-La Roche-Posay";
-        editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, allConditionTxt, condition);
+        condition = Constant.PRODUCT_TITLE+"-"+Constant.CONTAINS+"-La Roche-Posay";
+        editAutomationCollectionAndVerify(collectionNameEditAutomationWithAndCondition, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithAndCondition);
     }
 
-    @Test(dependsOnMethods = "PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword")
+    @Test(dependsOnMethods = "PC_03_BH_4786_CreateAutomationProductCollectionWithTitleContainKeyword",priority = 18)
     public void PC_18_BH_4798_UpdateAutomationCollection_OrCondition() throws Exception {
-        condition = productPriceTxt+"-"+lessThanTxt+"-100000";
-        editAutomationCollectionAndVerify(collectionNameEditAutomationWithOrCondition, anyConditionTxt, condition);
+        condition = Constant.PRODUCT_PRICE+"-"+Constant.LESS_THAN+"-100000";
+        editAutomationCollectionAndVerify(collectionNameEditAutomationWithOrCondition, Constant.ANY_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionNameEditAutomationWithOrCondition);
     }
-    @Test
+    @Test(priority = 19)
     public void PC_19_BH_4795_DeleteAProductCollection() {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userNameDb, passwordDb);
@@ -518,7 +499,7 @@ public class ProductCollectionTest extends BaseTest {
         productCollectionManagement.deleteTheFirstCollection();
         productCollectionManagement.verifyCollectNameNotDisplayInList(firstCollection);
     }
-    @Test
+    @Test(priority = 20)
     public void PC_20_VerifyText() throws Exception {
         loginAndNavigateToCreateProductCollection()
                 .verifyTextOfPage();

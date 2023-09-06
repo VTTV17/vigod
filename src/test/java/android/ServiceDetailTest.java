@@ -9,6 +9,7 @@ import api.dashboard.services.ServiceInfoAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -28,10 +29,12 @@ import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
 import java.util.List;
-public class ServiceDetailTest {
+
+import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
+
+public class ServiceDetailTest extends BaseTest{
     NavigationBar navigationBar;
     BuyerServiceDetail serviceDetail;
-    WebDriver driver;
     DataGenerator generator;
     String userDb;
     String passDb;
@@ -68,14 +71,15 @@ public class ServiceDetailTest {
         sellingPrice = serviceInfo.getSellingPrice();
         locations = serviceInfo.getLocations();
         serviceDescription = serviceInfo.getServiceDescription();
+        tcsFileName = FILE_CREATE_SERVICE_TCS;
     }
     @AfterClass
     public void tearDown(){
         driver.quit();
     }
     @AfterMethod
-    public void restartApp() throws IOException {
-        new Screenshot().takeScreenshot(driver);
+    public void restartApp(ITestResult result) throws IOException {
+        super.writeResult(result);
         ((AndroidDriver) driver).resetApp();
     }
     public ServiceInfo callAPICreateService(boolean enableListing){
@@ -93,6 +97,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD01_CheckNormalService() throws Exception {
+        testCaseId = "SD01";
         //Check on buyer app
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -111,6 +116,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD02_CheckListingService() throws Exception {
+        testCaseId = "SD02";
         //call api create service
         ServiceInfo serviceInfo = callAPICreateService(true);
         serviceListingCheck = serviceInfo.getServiceName();
@@ -134,6 +140,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD03_CheckServiceDetailAfterEditTranslation() throws Exception {
+        testCaseId = "SD03";
         //call api create service
         ServiceInfo serviceInfo = callAPICreateService(false);
         int serviceId = serviceInfo.getServiceId();
@@ -166,6 +173,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD04_CheckGuestTapOnBookNow(){
+        testCaseId = "SD04";
         new APIPreferences(loginInformation).setUpGuestCheckout(false);
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -178,6 +186,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD05_CheckCustomerTapOnBookNow(){
+        testCaseId = "SD05";
         //call api if serviceName = null
         if(serviceNormalCheck == null){
             ServiceInfo serviceInfo = callAPICreateService(false);
@@ -202,6 +211,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD06_CheckTapOnContactNow(){
+        testCaseId = "SD06";
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -213,6 +223,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD07_CheckTextByLanguage() throws Exception {
+        testCaseId = "SD07";
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -235,6 +246,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD08_CheckSimilarSectionDisplay(){
+        testCaseId = "SD08";
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -245,6 +257,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD09_CheckWhenTapOnDescriptionLocationSimilar(){
+        testCaseId = "SD09";
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
                 .tapOnSearchBar()
@@ -260,6 +273,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD10_CheckGuestTapAddToCart(){
+        testCaseId = "SD10";
         new APIPreferences(loginInformation).setUpGuestCheckout(false);
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnSearchIcon()
@@ -272,6 +286,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD11_CheckCustomerTapAddToCart(){
+        testCaseId = "SD11";
         navigationBar = new NavigationBar(driver);
         navigationBar.tapOnAccountIcon()
                 .clickLoginBtn()
@@ -286,6 +301,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD12_CheckServiceInfoAfterUpdate() throws Exception {
+        testCaseId = "SD12";
         //Call api create service
         ServiceInfo createService = callAPICreateService(false);
         //Call api edit service
@@ -321,6 +337,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD13_CheckServiceAfterDeactiveActive() throws JsonProcessingException {
+        testCaseId = "SD13";
         //Call api edit service to deactive service
         EditServiceAPI editServiceAPI = new EditServiceAPI(loginInformation);
         editServiceAPI.setActiveStatus(false);
@@ -343,6 +360,7 @@ public class ServiceDetailTest {
     }
     @Test
     public void SD14_CheckServiceAfterDelete(){
+        testCaseId = "SD14";
         callAPIDeleteService(serviceNormalId);
         //Check on SF when service deleted
         navigationBar = new NavigationBar(driver);

@@ -135,14 +135,21 @@ public class APIAllProducts {
     }
 
     public String fortmatIfCreateDateMissMiliSecond(String time) {
+        //handle when missing milisecond
         Matcher m = Pattern.compile("\\d+").matcher(time);
         List<String> aa = new ArrayList<>();
         while (m.find()) {
             aa.add(m.group());
         }
         if (aa.size() < 7) {
-            time = time.replaceAll("Z", ".00Z");
+            time = time.replaceAll("Z", ".0000Z");
         }
+        //handle when milisecond has more than 4 characters
+        String minisecond = time.split("\\.|Z")[1];
+        if(minisecond.length()>4){
+            minisecond = minisecond.substring(0,4);
+        }
+        time = time.split("\\.|Z")[0]+"."+minisecond+ "Z";
         return time;
     }
 
@@ -175,6 +182,7 @@ public class APIAllProducts {
             for (Long productPrice:productPriceList) {
                 boolean isChecked= false;
                 String createDate = fortmatIfCreateDateMissMiliSecond(createdDateList.get(i));
+                String dateString = createDate.replaceAll("Z$", "+0000");
                 Date date = formatter.parse(createDate.replaceAll("Z$", "+0000"));
                 switch (operator){
                     case "is greater than","lớn hơn":
@@ -185,6 +193,7 @@ public class APIAllProducts {
                             int countConversionItem = countProductItem(hasConversionList.get(i),productIDList.get(i).toString());
                             count = count + countConversionItem;
                             productCountItemMap.put(productName,countConversionItem);
+                            System.out.println(productName+"---"+createDate+"---"+date.toString()+"---"+dateString);
                         }
                         break;
                     case "is less than","nhỏ hơn":
@@ -218,6 +227,7 @@ public class APIAllProducts {
         productCollectionInfo.put("productCreatedDateMap",productCreatedDateMap);
         productCollectionInfo.put("CountItem",count);
         productCollectionInfo.put("productCountItemMap",productCountItemMap);
+        System.out.println("productCollectionInfo: before sort: "+productCollectionInfo);
         return productCollectionInfo;
     }
 

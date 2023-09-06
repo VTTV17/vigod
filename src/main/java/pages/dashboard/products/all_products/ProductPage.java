@@ -2612,6 +2612,7 @@ public class ProductPage extends ProductPageElement {
         for (WebElement el : DELETE_VARIATION_BTN) {
             commonAction.clickElement(el);
         }
+        wait.until(elementToBeClickable(SAVE_BTN)).click();
         completeUpdateProduct();
     }
 }

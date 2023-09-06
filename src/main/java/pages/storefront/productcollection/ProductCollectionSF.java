@@ -7,6 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.storefront.GeneralSF;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 import java.time.Duration;
@@ -96,6 +97,14 @@ public class ProductCollectionSF extends GeneralSF {
             Assert.assertEquals(SEOKeywordActual, SEOKeyword);
         }
         logger.info("Verify SEO info");
+        return this;
+    }
+    public ProductCollectionSF verifyCollectionEmpty(){
+        try {
+            Assert.assertEquals(common.getText(productCollectionSFUI.PRODUCT_NOT_FOUND_LBL), PropertiesUtil.getPropertiesValueBySFLang("collection.noItem"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return this;
     }
 }

@@ -35,7 +35,7 @@ public class ServiceDiscountCodePage {
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = "div.col-xl-12 > div[class = ' '] > label:nth-child(1)")
+	@FindBy(xpath = "(//form//div[contains(@class,'col-xl-12')]//label[contains(@class, 'custom-check-box')])[1]")
 	WebElement APPLY_DISCOUNT_CODE_AS_REWARD_CHECKBOX;
 
 	@FindBy(css = ".show-placeholder > div")
