@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import static java.lang.Thread.sleep;
 
 public class Customers {
-    String CUSTOMER_INFORMATION_PATH = "/beehiveservices/api/customer-profiles/detail/storeId/customerId";
+    String CUSTOMER_INFORMATION_PATH = "/beehiveservices/api/customer-profiles/detail/%s/%s";
     String CREATE_SEGMENT_PATH = "/beehiveservices/api/segments/create/";
     String GET_LIST_SEGMENT_OF_CUSTOMER = "/beehiveservices/api/segments/%s/%s";
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
@@ -132,8 +132,8 @@ public class Customers {
     }
 
     public JsonPath getAllCustomerJsonPath() {
-        Response response = api.get(GET_200_CUSTOMERS_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        response.then().statusCode(200);
+        Response response = api.get(GET_200_CUSTOMERS_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                .then().statusCode(200).extract().response();
         return response.jsonPath();
     }
 
@@ -147,8 +147,10 @@ public class Customers {
 
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
-            Response getCustomerInfo = api.get(CUSTOMER_INFORMATION_PATH.replace("customerId", String.valueOf(customerId)).replace("storeId", String.valueOf(loginInfo.getStoreID())), loginInfo.getAccessToken());
-            getCustomerInfo.then().statusCode(200);
+            Response getCustomerInfo = api.get(CUSTOMER_INFORMATION_PATH.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken()).then()
+                    .statusCode(200)
+                    .extract()
+                    .response();
 
             CustomerInfo customerInfo = new CustomerInfo();
             customerInfo.setCustomerId(customerId);

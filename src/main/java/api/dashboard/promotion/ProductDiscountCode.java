@@ -3,6 +3,7 @@ package api.dashboard.promotion;
 import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,13 +12,15 @@ import utilities.data.DataGenerator;
 import utilities.model.api.promotion.productDiscountCode.ProductDiscountCodeConditions;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.dashboard.promotion.DiscountCodeInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -27,7 +30,9 @@ import static utilities.character_limit.CharacterLimit.*;
 
 public class ProductDiscountCode {
     String CREATE_PRODUCT_DISCOUNT_CODE_PATH = "/orderservices2/api/gs-discount-campaigns/coupons";
+    String PRODUCT_DISCOUNT_CODE_DETAIL_PATH = "/orderservices2/api/gs-discount-campaigns/%s/full-condition";
     String END_EARLY_DISCOUNT_CODE_PATH = "/orderservices2/api/gs-discount?id=%s&storeId=%s";
+    String LIST_DISCOUNT_CODE_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=COUPON&status=IN_PROGRESS&page=%s&size=20";
     API api = new API();
     Logger logger = LogManager.getLogger(ProductDiscountCode.class);
     LoginInformation loginInformation;
@@ -35,7 +40,6 @@ public class ProductDiscountCode {
     BranchInfo brInfo;
     ProductInfo productInfo;
     ProductDiscountCodeConditions conditions;
-
 
     public ProductDiscountCode(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -56,10 +60,16 @@ public class ProductDiscountCode {
         // 1: specific segment
         Customers customers = new Customers(loginInformation);
         List<Integer> listSegmentOfCustomer = customers.getListSegmentOfCustomer(conditions.getCustomerId());
-        int segmentConditionType = (conditions.getSegmentConditionType() != null) ? conditions.getSegmentConditionType() : (((listSegmentOfCustomer == null) || listSegmentOfCustomer.isEmpty()) ? 0 : 1);
+        int segmentConditionType = (conditions.getSegmentConditionType() != null)
+                ? conditions.getSegmentConditionType()
+                : (((listSegmentOfCustomer == null) || listSegmentOfCustomer.isEmpty()) ? 0 : 1);
 
-        String segmentConditionLabel = segmentConditionType == 0 ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS" : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
-        String segmentConditionValue = segmentConditionType == 0 ? "" : """
+        String segmentConditionLabel = segmentConditionType == 0
+                ? "CUSTOMER_SEGMENT_ALL_CUSTOMERS"
+                : "CUSTOMER_SEGMENT_SPECIFIC_SEGMENT";
+        String segmentConditionValue = segmentConditionType == 0
+                ? ""
+                : """
                 {
                     "conditionValue": %s
                 }""".formatted(listSegmentOfCustomer.get(0));
@@ -76,10 +86,16 @@ public class ProductDiscountCode {
         // 0: all products
         // 1: specific collections
         // 2: specific products
-        int appliesToType = (conditions.getAppliesToType() != null) ? conditions.getAppliesToType() : (!productInfo.getCollectionIdList().isEmpty() ? 1 : List.of(0, 2).get(nextInt(2)));
-        String appliesToLabel = appliesToType == 0 ? "APPLIES_TO_ALL_PRODUCTS"
+        int appliesToType = (conditions.getAppliesToType() != null)
+                ? conditions.getAppliesToType()
+                : (!productInfo.getCollectionIdList().isEmpty() ? 1 : List.of(0, 2).get(nextInt(2)));
+
+        String appliesToLabel = appliesToType == 0
+                ? "APPLIES_TO_ALL_PRODUCTS"
                 : (appliesToType == 1) ? "APPLIES_TO_SPECIFIC_COLLECTIONS" : "APPLIES_TO_SPECIFIC_PRODUCTS";
-        String appliesToValue = (appliesToType == 0) ? "" : """
+        String appliesToValue = (appliesToType == 0)
+                ? ""
+                : """
                 {
                     "conditionValue": %s
                 }
@@ -99,8 +115,15 @@ public class ProductDiscountCode {
         // 0: None
         // 1: Minimum purchase amount (Only satisfied products)
         // 2: Minimum quantity of satisfied products
-        int minimumRequirementType = (conditions.getMinimumRequirementType() != null) ? conditions.getMinimumRequirementType() : nextInt(MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE);
-        String minimumRequirementLabel = minimumRequirementType == 0 ? "MIN_REQUIREMENTS_NONE" : (minimumRequirementType == 1) ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT" : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
+        int minimumRequirementType = (conditions.getMinimumRequirementType() != null)
+                ? conditions.getMinimumRequirementType()
+                : nextInt(MAX_PRODUCT_DISCOUNT_CODE_MINIMUM_REQUIREMENT_TYPE);
+
+        String minimumRequirementLabel = minimumRequirementType == 0
+                ? "MIN_REQUIREMENTS_NONE"
+                : (minimumRequirementType == 1)
+                ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT"
+                : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
 
         // get list models
         List<String> variationModelList = productInfo.getVariationModelList();
@@ -122,14 +145,23 @@ public class ProductDiscountCode {
                             "conditionValue": "%s"
                         }
                     ]
-                }""".formatted(minimumRequirementLabel, (minimumRequirementType == 1) ? (nextLong(Math.max(minStock, 1) * minPurchaseAmount) + 1) : (nextInt(Math.max(minStock, 1)) + 1));
+                }""".formatted(minimumRequirementLabel,
+                (minimumRequirementType == 1)
+                        ? (nextLong(Math.max(minStock, 1) * minPurchaseAmount) + 1)
+                        : (nextInt(Math.max(minStock, 1)) + 1));
     }
 
     String getPlatformCondition() {
         // get platform
-        boolean appliesToApp = conditions.getAppliesToApp() != null ? conditions.getAppliesToApp() : nextBoolean();
-        boolean appliesToWeb = conditions.getAppliesToWeb() != null ? conditions.getAppliesToWeb() : nextBoolean();
-        boolean appliesToPOS = conditions.getAppliesToPOS() != null ? conditions.getAppliesToPOS() : nextBoolean();
+        boolean appliesToApp = conditions.getAppliesToApp() != null
+                ? conditions.getAppliesToApp()
+                : nextBoolean();
+        boolean appliesToWeb = conditions.getAppliesToWeb() != null
+                ? conditions.getAppliesToWeb()
+                : nextBoolean();
+        boolean appliesToPOS = conditions.getAppliesToPOS() != null
+                ? conditions.getAppliesToPOS()
+                : nextBoolean();
 
         // need to select at least one platform
         while (!appliesToApp & !appliesToWeb & !appliesToPOS) {
@@ -139,10 +171,12 @@ public class ProductDiscountCode {
         }
 
         // init platform condition options
-        String conditionOption = "PLATFORMS%s%s%s".formatted(appliesToApp ? "_APP" : "", appliesToWeb ? "_WEB" : "", appliesToPOS ? "_INSTORE" : "");
+        String conditionOption = "PLATFORMS%s%s%s".formatted(appliesToApp ? "_APP" : "",
+                appliesToWeb ? "_WEB" : "",
+                appliesToPOS ? "_INSTORE" : "");
 
         // in case, add _ONLY when only one platform is selected
-        conditionOption = "%s%s".formatted(conditionOption, conditionOption.split("_").length == 2 ? "_ONLY" : "");
+        conditionOption = "%s%s".formatted(conditionOption, (conditionOption.split("_").length == 2) ? "_ONLY" : "");
 
         return """
                 {
@@ -153,11 +187,18 @@ public class ProductDiscountCode {
     }
 
     String getBranchCondition() {
-        int discountCampaignBranchConditionType = conditions.getDiscountCampaignBranchConditionType() != null ? conditions.getDiscountCampaignBranchConditionType() : nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
-        String applicableCondition = discountCampaignBranchConditionType == 0 ? "APPLIES_TO_BRANCH_ALL_BRANCHES" : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
+        int discountCodeBranchConditionType = conditions.getDiscountCodeBranchConditionType() != null
+                ? conditions.getDiscountCodeBranchConditionType()
+                : nextInt(MAX_PRODUCT_WHOLESALE_CAMPAIGN_APPLICABLE_BRANCH_TYPE);
+        String applicableCondition = discountCodeBranchConditionType == 0
+                ? "APPLIES_TO_BRANCH_ALL_BRANCHES"
+                : "APPLIES_TO_BRANCH_SPECIFIC_BRANCH";
         String applicableConditionValue = "";
-        if (discountCampaignBranchConditionType != 0) {
-            List<Integer> activeBranchList = IntStream.range(0, brInfo.getBranchID().size()).filter(i -> brInfo.getAllBranchStatus().get(i).equals("ACTIVE")).mapToObj(i -> brInfo.getBranchID().get(i)).toList();
+        if (discountCodeBranchConditionType != 0) {
+            List<Integer> activeBranchList = IntStream.range(0, brInfo.getBranchID().size())
+                    .filter(i -> brInfo.getAllBranchStatus().get(i).equals("ACTIVE"))
+                    .mapToObj(i -> brInfo.getBranchID().get(i))
+                    .toList();
             int brID = activeBranchList.get(nextInt(activeBranchList.size()));
             applicableConditionValue = """
                     {
@@ -194,25 +235,43 @@ public class ProductDiscountCode {
         String couponCode = "AUTO" + Instant.now().toEpochMilli();
 
         // usage limit
-        boolean couponLimitToOne = conditions.getCouponLimitToOne() != null ? conditions.getCouponLimitToOne() : nextBoolean();
-        boolean couponLimitedUsage = conditions.getCouponLimitedUsage() != null ? conditions.getCouponLimitedUsage() : nextBoolean();
+        boolean couponLimitToOne = conditions.getCouponLimitToOne() != null
+                ? conditions.getCouponLimitToOne()
+                : nextBoolean();
+        boolean couponLimitedUsage = conditions.getCouponLimitedUsage() != null
+                ? conditions.getCouponLimitedUsage()
+                : nextBoolean();
         int apiLimitTimesUse = nextInt(MAX_COUPON_USED_NUM) + 1;
-        String couponTotal = couponLimitedUsage ? String.valueOf(apiLimitTimesUse) : "null";
+        String couponTotal = couponLimitedUsage
+                ? String.valueOf(apiLimitTimesUse)
+                : "null";
 
         // coupon type
         // 0: percentage
         // 1: fixed amount
         // 2: free shipping
-        int couponType = conditions.getCouponType() != null ? conditions.getCouponType() : nextInt(MAX_PRODUCT_CODE_DISCOUNT_TYPE);
-        String couponTypeLabel = (couponType == 0) ? "PERCENTAGE" : ((couponType == 1) ? "FIXED_AMOUNT" : "FREE_SHIPPING");
+        int couponType = conditions.getCouponType() != null
+                ? conditions.getCouponType()
+                : nextInt(MAX_PRODUCT_CODE_DISCOUNT_TYPE);
+        String couponTypeLabel = (couponType == 0)
+                ? "PERCENTAGE"
+                : ((couponType == 1)
+                ? "FIXED_AMOUNT"
+                : "FREE_SHIPPING");
         // coupon value
-        int couponValue = (couponType == 0) ? (nextInt(MAX_PERCENT_DISCOUNT) + 1) : ((couponType == 1) ? (nextInt(MAX_FIXED_AMOUNT) + 1) : (nextInt(MAX_FREE_SHIPPING) + 1));
+        int couponValue = (couponType == 0)
+                ? (nextInt(MAX_PERCENT_DISCOUNT) + 1)
+                : ((couponType == 1)
+                ? (nextInt(MAX_FIXED_AMOUNT) + 1)
+                : (nextInt(MAX_FREE_SHIPPING) + 1));
 
         // free shipping provided
         String freeShippingProviders = "giaohangnhanh,giaohangtietkiem,ahamove_bike,selfdelivery,ahamove_truck";
 
         // apply discount code as a reward
-        boolean enabledRewards = conditions.getEnableReward() != null ? conditions.getEnableReward() : nextBoolean();
+        boolean enabledRewards = conditions.getEnableReward() != null
+                ? conditions.getEnableReward()
+                : nextBoolean();
 
         String rewardsDescription = enabledRewards ? "Reward description" : "";
         return """
@@ -278,5 +337,200 @@ public class ProductDiscountCode {
 
         // check discount code is created
         response.then().statusCode(200);
+    }
+
+    boolean isMatchWithConditions(List<String> conditionOption, Map<String, List<String>> conditionValueMap, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        // check product condition
+        boolean appliesToProduct = conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS")
+                ? conditionValueMap.get("APPLIES_TO").contains(String.valueOf(productInfo.getProductID()))
+                : (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") || conditionValueMap.get("APPLIES_TO")
+                .stream()
+                .anyMatch(collectionId -> productInfo.getCollectionIdList().contains(Integer.valueOf(collectionId))));
+
+        return appliesToProduct
+                && (!conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") // check segment condition
+                || ((listSegmentOfCustomer != null)
+                && !listSegmentOfCustomer.isEmpty()
+                && conditionValueMap.get("CUSTOMER_SEGMENT")
+                .stream()
+                .anyMatch(segmentId -> listSegmentOfCustomer.contains(Integer.valueOf(segmentId)))));
+    }
+
+    public DiscountCodeInfo getDiscountInformation(int discountId, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        Response discountCodeDetail = api.get(PRODUCT_DISCOUNT_CODE_DETAIL_PATH.formatted(discountId), loginInfo.getAccessToken());
+        discountCodeDetail.then().statusCode(200);
+
+        // get jsonPath
+        JsonPath json = discountCodeDetail.jsonPath();
+
+        /* Get all discount code conditions */
+        // get condition type
+        List<String> conditionType = Pattern.compile("conditionType.{4}(\\w+)")
+                .matcher(discountCodeDetail.asPrettyString())
+                .results()
+                .map(matchResult -> String.valueOf(matchResult.group(1)))
+                .toList();
+
+        // get condition options
+        List<String> conditionOption = Pattern.compile("conditionOption.{4}(\\w+)")
+                .matcher(discountCodeDetail.asPrettyString())
+                .results()
+                .map(matchResult -> String.valueOf(matchResult.group(1)))
+                .toList();
+
+        // get condition value map <condition type, condition value list>
+        Map<String, List<String>> conditionValueMap = new HashMap<>();
+        for (int conditionTypeId = 0; conditionTypeId < conditionType.size(); conditionTypeId++) {
+            List<String> conditionValueList = new ArrayList<>();
+            if (conditionType.get(conditionTypeId).equals("PLATFORMS")) {
+                String platformCondition = json.getString("discounts[0].conditions[%s].conditionOption".formatted(conditionTypeId)).replaceAll("PLATFORMS_|_ONLY", "");
+                conditionValueList = Arrays.stream(platformCondition.split("_")).toList();
+            } else
+                for (int conditionValueId = 0; conditionValueId < json.getList("discounts[0].conditions[%s].values.id".formatted(conditionTypeId)).size(); conditionValueId++)
+                    conditionValueList.add(String.valueOf(json.getInt("discounts[0].conditions[%s].values[%s].conditionValue".formatted(conditionTypeId, conditionValueId))));
+            conditionValueMap.put(conditionType.get(conditionTypeId), conditionValueList);
+        }
+
+        // init discount code information model
+        DiscountCodeInfo info = new DiscountCodeInfo();
+
+        if (isMatchWithConditions(conditionOption, conditionValueMap, productInfo, listSegmentOfCustomer)) {
+            /* Get discount code information */
+            // get couponType
+            String couponType = json.getString("discounts[0].couponType");
+            info.setCouponType(couponType);
+
+            // get couponCode
+            String couponCode = json.getString("discounts[0].couponCode");
+            info.setCouponCode(couponCode);
+
+            // get couponValue
+            long couponValue = Pattern.compile("couponValue.{4}(\\d+)")
+                    .matcher(discountCodeDetail.asPrettyString())
+                    .results()
+                    .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                    .toList().get(0);
+            info.setCouponValue(couponValue);
+
+            // get couponLimitedUsage
+            boolean couponLimitedUsage = json.getBoolean("discounts[0].couponLimitedUsage");
+            info.setCouponLimitedUsage(couponLimitedUsage);
+            if (couponLimitedUsage) {
+                // get total coupon
+                int couponTotal = json.getInt("discounts[0].couponTotal");
+                info.setCouponTotal(couponTotal);
+
+                // get total used coupon
+                try {
+                    int couponUsed = json.getInt("discounts[0].couponUsed");
+                    info.setCouponUsed(couponUsed);
+                } catch (NullPointerException ex) {
+                    info.setCouponUsed(0);
+                }
+            }
+
+            // get couponLimitToOne
+            boolean couponLimitToOne = json.getBoolean("discounts[0].couponLimitToOne");
+            info.setCouponLimitToOne(couponLimitToOne);
+
+            // get freeShippingProviders
+            String freeShippingProviders = json.getString("discounts[0].freeShippingProviders");
+            info.setFreeShippingProviders(freeShippingProviders);
+
+            // get enabledRewards
+            boolean enabledRewards = json.getBoolean("discounts[0].enabledRewards");
+            info.setEnabledRewards(enabledRewards);
+
+            // get rewardsDescription
+            String rewardsDescription = json.getString("discounts[0].rewardsDescription");
+            info.setRewardsDescription(rewardsDescription.replaceAll("<.*?>", ""));
+
+            if (conditionOption.contains("MIN_REQUIREMENTS_PURCHASE_AMOUNT"))
+                // set min total amount
+                info.setMinTotal(Long.valueOf(conditionValueMap.get("MINIMUM_REQUIREMENTS").get(0)));
+            else if (conditionOption.contains("MIN_REQUIREMENTS_QUANTITY_OF_ITEMS"))
+                // set min quantity
+                info.setMinQuantity(Integer.valueOf(conditionValueMap.get("MINIMUM_REQUIREMENTS").get(0)));
+            else
+                // set none required
+                info.setNoneRequired(true);
+
+            // get platform
+            info.setPlatform(conditionValueMap.get("PLATFORMS"));
+
+            // get discount status
+            String status = json.getString("discounts[0].status");
+
+            // get list branches can apply discount code
+            List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH")
+                    ? conditionValueMap.get("APPLIES_TO_BRANCH")
+                    .stream()
+                    .map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(Integer.valueOf(brID))))
+                    .toList()
+                    : brInfo.getBranchName();
+
+            Map<String, List<String>> statusMap = brInfo.getBranchName()
+                    .stream()
+                    .collect(Collectors.toMap(brName -> brName,
+                            brName -> IntStream.range(0, productInfo.getVariationModelList().size()).mapToObj(varIndex -> appliesToBranch.contains(brName) ? status : "EXPIRED").toList(),
+                            (a, b) -> b));
+            info.setDiscountCodeStatus(statusMap);
+        }
+
+        // return discount code info
+        return info;
+    }
+
+    List<Integer> getListInProgressDiscount(String discountType) {
+        // get list in-progress discount code by API
+        Response listDiscount = api.get(LIST_DISCOUNT_CODE_PATH.formatted(loginInfo.getStoreID(), 0), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        // get in-progress discount code list
+        List<Integer> discountList = new ArrayList<>(listDiscount.jsonPath().getList("findAll{ it.discounts[0].couponType == '%s' }.id".formatted(discountType)));
+
+        // get total page
+        int totalPage = Integer.parseInt(listDiscount.getHeader("X-Total-Count")) / 20;
+
+        // get next page
+        if (totalPage > 1)
+            IntStream.range(1, totalPage).<List<Integer>>mapToObj(pageIndex ->
+                            new ArrayList<>(api.get(LIST_DISCOUNT_CODE_PATH.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken())
+                                    .then()
+                                    .statusCode(200)
+                                    .extract()
+                                    .response()
+                                    .jsonPath()
+                                    .getList("findAll{ it.discounts[0].couponType == '%s' }.id".formatted(discountType))))
+                    .forEach(discountList::addAll);
+
+        // return list discount code by discount type
+        return discountList;
+    }
+
+    /**
+     * Discount type: FREE_SHIPPING, PERCENTAGE, FIXED_AMOUNT
+     */
+    public DiscountCodeInfo getAvailableDiscountCode(String discountType, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        // get list in-progress discount code
+        List<Integer> listDiscountCode = getListInProgressDiscount(discountType);
+
+        // init discount code information model
+        DiscountCodeInfo info = new DiscountCodeInfo();
+
+        // in case, have some discount code available, check it conditions
+        if (!listDiscountCode.isEmpty()) for (int discountId : listDiscountCode) {
+            // get discount code information
+            info = getDiscountInformation(discountId, productInfo, listSegmentOfCustomer);
+
+            // find first
+            if (info.getCouponCode() != null) break;
+        }
+
+        // return discount code information
+        return info;
     }
 }

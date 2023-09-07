@@ -15,5 +15,5 @@ public class ProductDiscountCodeConditions {
     private Boolean appliesToApp;
     private Boolean appliesToWeb;
     private Boolean appliesToPOS;
-    private Integer discountCampaignBranchConditionType;
+    private Integer discountCodeBranchConditionType;
 }

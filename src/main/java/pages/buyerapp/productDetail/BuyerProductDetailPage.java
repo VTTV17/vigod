@@ -3,7 +3,8 @@ package pages.buyerapp.productDetail;
 import api.dashboard.customers.Customers;
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
-import api.dashboard.promotion.CreatePromotion;
+import api.dashboard.promotion.FlashSale;
+import api.dashboard.promotion.ProductDiscountCampaign;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
 import org.apache.commons.lang3.StringUtils;
@@ -397,9 +398,8 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // get flash sale, discount campaign information
-        CreatePromotion promotion = new CreatePromotion(loginInformation);
-        flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), listSegmentOfCustomer);
+        flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
+        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
         // get sale price map and display
         salePriceMap = getSalePriceMap();
         saleDisplayMap = getSaleDisplayMap();
