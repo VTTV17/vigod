@@ -10,10 +10,8 @@ public class POSElement {
     By SEARCH_PRODUCT_BOX = By.cssSelector("#dropdownSuggestionProduct input");
     By SEARCH_TYPE = By.cssSelector("#dropdownSuggestionProduct +* .uik-select__valueRendered");
     By LIST_SEARCH_TYPE = By.cssSelector(".uik-select__option");
-    By SEARCH_RESULT = By.cssSelector(".product-item-row__thumbnail");
-    String SEARCH_RESULT_BARCODE = "//code[text() = '%s']";
-    By SEARCH_RESULT_VARIATION_STOCK = By.cssSelector(".product-item-row__product-inventory span:nth-child(2)");
-    By PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");
+    By CART_PRODUCT_PRICE = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__stock-input')]/parent::td/preceding-sibling::td[1]");
+    By CART_PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");
     By ADD_STOCK_ICON = By.cssSelector(".err-out-of-stock i");
     By INSUFFICIENT_STOCK_QUANTITY_POPUP_STOCK = By.cssSelector(".order-in-store-purchase-complete__input-stock > input");
     By INSUFFICIENT_STOCK_QUANTITY_POPUP_ADD_IMEI = By.cssSelector("[name = 'serial']");

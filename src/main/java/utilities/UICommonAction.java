@@ -492,7 +492,7 @@ public class UICommonAction {
 		return driver.findElements(by);
 	}
 	public WebElement getElement(By by) {
-		return driver.findElement(by);
+		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
 	}
 
 	/*
@@ -505,10 +505,20 @@ public class UICommonAction {
 		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
 	}
 
+	public void click(By locator, int index) {
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index).click();
+	}
+
 	public void sendKeys(By locator, String content) {
 		wait.until(ExpectedConditions.elementToBeClickable(locator));
 		driver.findElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
 		driver.findElement(locator).sendKeys(content);
+	}
+
+	public void sendKeys(By locator, int index, String content) {
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+		driver.findElements(locator).get(index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+		driver.findElements(locator).get(index).sendKeys(content);
 	}
 
 	public String getText(By locator) {
@@ -516,6 +526,14 @@ public class UICommonAction {
 			return wait.until(ExpectedConditions.presenceOfElementLocated(locator)).getText();
 		} catch (StaleElementReferenceException ignore) {
 			return driver.findElement(locator).getText();
+		}
+	}
+
+	public String getText(By locator, int index) {
+		try {
+			return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index).getText();
+		} catch (StaleElementReferenceException ignore) {
+			return driver.findElements(locator).get(index).getText();
 		}
 	}
 }
