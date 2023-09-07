@@ -6,13 +6,18 @@ import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.products.WholesaleProduct;
-import api.dashboard.promotion.CreatePromotion;
+import api.dashboard.promotion.FlashSale;
+import api.dashboard.promotion.ProductDiscountCampaign;
 import api.dashboard.setting.BranchManagement;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.Test;
 import pages.buyerapp.navigationbar.NavigationBar;
 import pages.buyerapp.productDetail.BuyerProductDetailPage;
 import utilities.UICommonMobile;
 import utilities.driver.InitAppiumDriver;
+import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -21,6 +26,7 @@ import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
 import static utilities.account.AccountTest.*;
 
 public class ProductDetailTest extends BaseTest {
@@ -35,21 +41,33 @@ public class ProductDetailTest extends BaseTest {
     String URL = "http://127.0.0.1:4723/wd/hub";
     LoginInformation loginInformation;
     List<Integer> branchID;
+    BuyerProductDetailPage productDetailPage;
+    ProductDiscountCampaignConditions conditions;
+    FlashSale flashSale;
+    ProductDiscountCampaign discountCampaign;
     int customerId;
+    int startMin;
+    int endMin;
 
     @BeforeClass
     void setup() throws MalformedURLException {
         tcsFileName = "android/Check product detail.xlsx".replace("/", File.separator);
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
+        flashSale = new FlashSale(loginInformation);
+        discountCampaign = new ProductDiscountCampaign(loginInformation);
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
 
         driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage, appActivity, URL);
+
+        productDetailPage = new BuyerProductDetailPage(driver);
 
         new UICommonMobile(driver).waitSplashScreenLoaded();
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickLoginBtn()
                 .performLogin(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        conditions = new ProductDiscountCampaignConditions();
+        conditions.setCustomerId(customerId);
     }
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -58,8 +76,9 @@ public class ProductDetailTest extends BaseTest {
         int branchStock = 5;
         // get product ID
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
-                .getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
+                    .getProductID();
         // get product information
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
@@ -72,8 +91,9 @@ public class ProductDetailTest extends BaseTest {
         isIMEIProduct = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
-                .getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
+                    .getProductID();
         // get product information
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
@@ -119,103 +139,91 @@ public class ProductDetailTest extends BaseTest {
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void Android_Buyer_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G1_Case1_1";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void Android_Buyer_G1_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G1_Case1_2";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void Android_Buyer_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G1_Case1_3";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void Android_Buyer_G1_Case1_4_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G1_Case1_4";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void Android_Buyer_G1_Case1_5_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G1_Case1_5";
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.endEarlyDiscountCampaign();
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void Android_Buyer_G1_Case1_6_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G1_Case1_6";
-        int endMin = 120;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
-    
+
     @Test
-    // Pre-condition:
-    // setting: Hide remaining stock on online store
-    // stock quantity > 0
+        // Pre-condition:
+        // setting: Hide remaining stock on online store
+        // stock quantity > 0
     void Android_Buyer_G1_Case2_1_HideStockAndInStock() throws Exception {
         testCaseId = "Android_Buyer_G1_Case2_1";
         boolean isIMEIProduct = false;
         isHideStock = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -228,11 +236,11 @@ public class ProductDetailTest extends BaseTest {
         isHideStock = false;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
-                .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+        productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test
@@ -245,10 +253,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -262,12 +271,13 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         System.out.println(productId);
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         System.out.println(productInfo.isShowOutOfStock());
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -281,10 +291,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -298,10 +309,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -318,7 +330,8 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
@@ -326,7 +339,7 @@ public class ProductDetailTest extends BaseTest {
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -342,7 +355,8 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
@@ -350,7 +364,7 @@ public class ProductDetailTest extends BaseTest {
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -366,14 +380,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -381,60 +396,56 @@ public class ProductDetailTest extends BaseTest {
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void Android_Buyer_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G2_Case1_1";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void Android_Buyer_G2_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G2_Case1_2";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void Android_Buyer_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G2_Case1_3";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void Android_Buyer_G2_Case1_4_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G2_Case1_4";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -442,24 +453,22 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_Case1_5_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G2_Case1_5";
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.endEarlyDiscountCampaign();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void Android_Buyer_G2_Case1_6_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G2_Case1_6";
-        int endMin = 120;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -473,10 +482,11 @@ public class ProductDetailTest extends BaseTest {
         isHideStock = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -490,10 +500,11 @@ public class ProductDetailTest extends BaseTest {
         isHideStock = false;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -507,10 +518,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -524,10 +536,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = true;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -541,10 +554,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -558,10 +572,11 @@ public class ProductDetailTest extends BaseTest {
         isDisplayIfOutOfStock = false;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -577,14 +592,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -600,14 +616,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -623,74 +640,73 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void Android_Buyer_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G3_Case1_1";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void Android_Buyer_G3_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G3_Case1_2";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
+
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void Android_Buyer_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G3_Case1_3";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
+
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void Android_Buyer_G3_Case1_4_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G3_Case1_4";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -698,24 +714,22 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_Case1_5_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G3_Case1_5";
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.endEarlyDiscountCampaign();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void Android_Buyer_G3_Case1_6_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G3_Case1_6";
-        int endMin = 120;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -730,10 +744,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -748,10 +763,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -766,12 +782,14 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
+
     @Test
         // Pre-condition:
         // setting: Hide remaining stock on online store
@@ -783,10 +801,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -801,10 +820,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -819,10 +839,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -837,10 +858,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -855,10 +877,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -873,10 +896,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -891,10 +915,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -911,14 +936,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -935,14 +961,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -959,14 +986,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -974,60 +1002,58 @@ public class ProductDetailTest extends BaseTest {
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void Android_Buyer_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G4_Case1_1";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
+
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void Android_Buyer_G4_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G4_Case1_2";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void Android_Buyer_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G4_Case1_3";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
+
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void Android_Buyer_G4_Case1_4_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "Android_Buyer_G4_Case1_4";
-        int startMin = 1;
-        int endMin = 120;
+        startMin = 1;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1035,24 +1061,22 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_Case1_5_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "Android_Buyer_G4_Case1_5";
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .endEarlyDiscountCampaign();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.endEarlyDiscountCampaign();
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void Android_Buyer_G4_Case1_6_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "Android_Buyer_G4_Case1_6";
-        int endMin = 120;
+        endMin = 120;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1067,10 +1091,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1085,10 +1110,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1103,12 +1129,14 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
+
     @Test
         // Pre-condition:
         // setting: Hide remaining stock on online store
@@ -1120,10 +1148,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1138,10 +1167,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1156,10 +1186,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1174,10 +1205,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1192,10 +1224,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 2;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1210,10 +1243,11 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 1;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1228,12 +1262,14 @@ public class ProductDetailTest extends BaseTest {
         int increaseNum = 0;
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
+
     @Test
         // Pre-condition:
         // store only active 1 branch
@@ -1247,14 +1283,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1271,14 +1308,15 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -1295,19 +1333,28 @@ public class ProductDetailTest extends BaseTest {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, branchStock);
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0) productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
+        if (productId == 0)
+            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
 
-        new BuyerProductDetailPage(driver)
+        productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @AfterMethod
     void teardown() {
         new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+    }
+
+    void waitPromotionStart() {
+        try {
+            sleep((long) startMin * 60 * 1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

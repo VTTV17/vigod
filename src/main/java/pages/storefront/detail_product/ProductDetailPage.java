@@ -5,7 +5,8 @@ import api.dashboard.login.Login;
 import api.dashboard.onlineshop.Preferences;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.products.ProductReviews;
-import api.dashboard.promotion.CreatePromotion;
+import api.dashboard.promotion.FlashSale;
+import api.dashboard.promotion.ProductDiscountCampaign;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
@@ -588,7 +589,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 QUANTITY.sendKeys(String.valueOf(wholesaleProductStock));
 
                 // wait spinner loading if any
-                commonAction.waitForElementInvisible(SPINNER, 15);
+//                commonAction.waitForElementInvisible(SPINNER, 15);
 
                 // check wholesale product price
                 checkPriceOnEachBranch(listingPrice, wholesaleProductPrice, brName);
@@ -632,7 +633,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click()", BRANCH_NAME_LIST.get(brElementIndex));
 
                 // wait spinner loading if any
-                commonAction.waitForElementInvisible(SPINNER, 15);
+//                commonAction.waitForElementInvisible(SPINNER, 15);
 
                 // branch name
                 String brName = ((JavascriptExecutor) driver).executeScript("return arguments[0].textContent", BRANCH_NAME_LIST.get(brElementIndex)).toString();
@@ -664,9 +665,8 @@ public class ProductDetailPage extends ProductDetailElement {
         List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
 
         // get flash sale, discount campaign information
-        CreatePromotion promotion = new CreatePromotion(loginInformation);
-        flashSaleInfo = promotion.getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = promotion.getDiscountCampaignInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice(), listSegmentOfCustomer);
+        flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
+        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
 
         // get wholesale config
         if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
@@ -692,7 +692,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     }
 
                     // wait spinner loading if any
-                    commonAction.waitForElementInvisible(SPINNER, 15);
+//                    commonAction.waitForElementInvisible(SPINNER, 15);
 
                     // wait page loaded
                     commonAction.sleepInMiliSecond(3000);
@@ -747,7 +747,7 @@ public class ProductDetailPage extends ProductDetailElement {
                     logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
 
                     //wait spinner loaded
-                    commonAction.waitForElementInvisible(SPINNER, 30);
+//                    commonAction.waitForElementInvisible(SPINNER, 30);
 
                     // wait product detail page loaded
                     commonAction.waitElementVisible(PRODUCT_NAME);
@@ -771,7 +771,7 @@ public class ProductDetailPage extends ProductDetailElement {
             commonAction.sleepInMiliSecond(1000);
 
             // wait spinner loaded if any
-            commonAction.waitForElementInvisible(SPINNER, 15);
+//            commonAction.waitForElementInvisible(SPINNER, 15);
 
             // check 404 page is shown
             check404Page();

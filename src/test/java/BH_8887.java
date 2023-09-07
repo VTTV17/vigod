@@ -1,18 +1,24 @@
 import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
-import api.dashboard.products.*;
-import api.dashboard.promotion.CreatePromotion;
+import api.dashboard.products.APIAllProducts;
+import api.dashboard.products.CreateProduct;
+import api.dashboard.products.ProductInformation;
+import api.dashboard.products.WholesaleProduct;
+import api.dashboard.promotion.FlashSale;
+import api.dashboard.promotion.ProductDiscountCampaign;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import pages.storefront.detail_product.ProductDetailPage;
 import pages.storefront.login.LoginPage;
 import utilities.driver.InitWebdriver;
+import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.File;
 
+import static java.lang.Thread.sleep;
 import static utilities.account.AccountTest.*;
 
 public class BH_8887 extends BaseTest {
@@ -22,12 +28,21 @@ public class BH_8887 extends BaseTest {
     boolean isDisplayIfOutOfStock = true;
     LoginInformation loginInformation;
     int customerId;
+    int startMin;
+    int endMin;
+    FlashSale flashSale;
+    ProductDiscountCampaignConditions conditions;
+    ProductDiscountCampaign discountCampaign;
 
     @BeforeClass
     void setup() {
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
+        flashSale = new FlashSale(loginInformation);
+        discountCampaign = new ProductDiscountCampaign(loginInformation);
         driver = new InitWebdriver().getDriver(browser, headless);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        conditions = new ProductDiscountCampaignConditions();
+        conditions.setCustomerId(customerId);
         new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
         tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
     }
@@ -38,8 +53,9 @@ public class BH_8887 extends BaseTest {
         int branchStock = 5;
         // get product ID
         productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
-                .getProductID();
+        if (productID == 0)
+            productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
+                    .getProductID();
         // get product information
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
@@ -52,8 +68,9 @@ public class BH_8887 extends BaseTest {
         boolean isIMEIProduct = true;
         int branchStock = 5;
         productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
-                .getProductID();
+        if (productID == 0)
+            productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
+                    .getProductID();
         // get product information
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
@@ -96,13 +113,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Without variation")
     void BH_8887_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "BH_8887_G1_Case1_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -111,14 +128,12 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Without variation")
     void BH_8887_G1_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "BH_8887_G1_Case1_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -127,13 +142,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Without variation")
     void BH_8887_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "BH_8887_G1_Case1_3";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -142,13 +157,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Without variation")
     void BH_8887_G1_Case2_1_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "BH_8887_G1_Case2_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -157,13 +172,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Without variation")
     void BH_8887_G1_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "BH_8887_G1_Case2_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .endEarlyDiscountCampaign();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -172,11 +187,11 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Without variation")
     void BH_8887_G1_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "BH_8887_G1_Case2_3";
-        int endMin = 60;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+
+        flashSale.endEarlyFlashSale();
+                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -186,13 +201,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Without variation")
     void BH_8887_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "BH_8887_G2_Case1_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -201,14 +216,14 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Without variation")
     void BH_8887_G2_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "BH_8887_G2_Case1_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -217,13 +232,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Without variation")
     void BH_8887_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "BH_8887_G2_Case1_3";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -232,13 +247,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Without variation")
     void BH_8887_G2_Case2_1_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "BH_8887_G2_Case2_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -247,13 +262,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Without variation")
     void BH_8887_G2_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "BH_8887_G2_Case2_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .endEarlyDiscountCampaign();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -262,11 +277,11 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Without variation")
     void BH_8887_G2_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "BH_8887_G2_Case2_3";
-        int endMin = 60;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+
+        flashSale.endEarlyFlashSale();
+                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -275,13 +290,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Variation")
     void BH_8887_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "BH_8887_G3_Case1_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -290,14 +305,14 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Variation")
     void BH_8887_G3_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "BH_8887_G3_Case1_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -306,13 +321,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Variation")
     void BH_8887_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "BH_8887_G3_Case1_3";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -321,13 +336,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Variation")
     void BH_8887_G3_Case2_1_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "BH_8887_G3_Case2_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -336,13 +351,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Variation")
     void BH_8887_G3_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "BH_8887_G3_Case2_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .endEarlyDiscountCampaign();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -351,11 +366,11 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] Normal product - Variation")
     void BH_8887_G3_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "BH_8887_G3_Case2_3";
-        int endMin = 60;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+
+        flashSale.endEarlyFlashSale();
+                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -365,13 +380,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Variation")
     void BH_8887_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
         testCaseId = "BH_8887_G4_Case1_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -380,14 +395,14 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Variation")
     void BH_8887_G4_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "BH_8887_G4_Case1_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, startMin, endMin)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, startMin, endMin);
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -396,13 +411,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Variation")
     void BH_8887_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
         testCaseId = "BH_8887_G4_Case1_3";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .createFlashSale(productInfo, endMin - 1, endMin)
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.createFlashSale(productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -411,13 +426,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Variation")
     void BH_8887_G4_Case2_1_DiscountCampaignIsInProgress() throws Exception {
         testCaseId = "BH_8887_G4_Case2_1";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .waitPromotionStart();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -426,13 +441,13 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Variation")
     void BH_8887_G4_Case2_2_DiscountCampaignIsExpired() throws Exception {
         testCaseId = "BH_8887_G4_Case2_2";
-        int startMin = 1;
-        int endMin = 60;
+        startMin = 1;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, startMin, endMin)
-                .endEarlyDiscountCampaign();
+
+        flashSale.endEarlyFlashSale();
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -441,13 +456,21 @@ public class BH_8887 extends BaseTest {
     @Test(groups = "[BH_8887] IMEI product - Variation")
     void BH_8887_G4_Case2_3_DiscountCampaignIsSchedule() throws Exception {
         testCaseId = "BH_8887_G4_Case2_3";
-        int endMin = 60;
+        endMin = 60;
 
-        new CreatePromotion(loginInformation)
-                .endEarlyFlashSale()
-                .createProductDiscountCampaign(productInfo, endMin - 1, endMin);
+
+        flashSale.endEarlyFlashSale();
+                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
+    }
+
+    void waitPromotionStart() {
+        try {
+            sleep((long) startMin * 60 * 1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
