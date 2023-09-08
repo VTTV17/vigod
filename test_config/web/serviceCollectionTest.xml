@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="ServiceCollectionTest">
+        <classes>
+            <class name="ServiceCollectionTest">
+                <methods>
+                    <include name="SC01_CreateManualServiceCollectionHasNoService"/>
+                    <include name="SC02_AddServiceToExistingManualCollection"/>
+                    <include name="SC03_CreateManuaServiceCollectionHasAService"/>
+                    <include name="SC04_CreateManualServiceCollectionWithServiceHasPriority"/>
+                    <include name="SC05_UpdatePriorityNumber"/>
+                    <include name="SC06_CreateManualServiceCollectionWithAServiceAndSEO"/>
+                    <include name="SC07_CreateAutomatedServiceCollection_TitleContainKeyword"/>
+                    <include name="SC08_CreateAutomatedServiceCollection_TitleStartsWithKeyword"/>
+                    <include name="SC09_CreateAutomatedServiceCollection_TitleEndsWithKeyword"/>
+                    <include name="SC10_UpdateAutomedCollection_AndCondition"/>
+                    <include name="SC11_CreateAutomatedServiceCollection_TitleEqualKeyword"/>
+                    <include name="SC12_UpdateAutomedCollection_OrCondition"/>
+                    <include name="SC13_EditTranslation"/>
+                    <include name="SC14_DeleteCollection"/>
+                    <include name="SC15_CheckPermission"/>
+                </methods>
+            </class> <!-- CreateServiceTest -->
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->
