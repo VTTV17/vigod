@@ -16,7 +16,10 @@ import utilities.model.dashboard.promotion.DiscountCodeInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -222,14 +225,22 @@ public class ProductDiscountCode {
                 getBranchCondition());
     }
 
-    String getDiscountConfig(int... time) {
+    String getDiscountConfig(int startDatePlus) {
+        // Get the current local time
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        // Get the time zone of the local time
+        ZoneId localZoneId = ZoneId.systemDefault();
+
+        // Get the GMT+0 time zone
+        ZoneId gmtZoneId = ZoneId.of("GMT+0");
+
         // start date
-        int startMin = time.length > 0 ? time[0] : nextInt(60);
-        Instant productDiscountCodeStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
+        Instant productDiscountCodeStartTime = localDateTime.truncatedTo(ChronoUnit.DAYS).atZone(localZoneId).withZoneSameInstant(gmtZoneId).plusDays(startDatePlus).toInstant();
 
         // end date
-        int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
-        Instant productDiscountCodeEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
+        Instant productDiscountCodeEndTime = localDateTime.truncatedTo(ChronoUnit.DAYS).atZone(localZoneId).withZoneSameInstant(gmtZoneId).plusDays(startDatePlus).plus(Duration.ofHours(23).plusMinutes(59)).toInstant();
+
 
         // coupon code
         String couponCode = "AUTO" + Instant.now().toEpochMilli();
@@ -309,7 +320,7 @@ public class ProductDiscountCode {
                 rewardsDescription);
     }
 
-    String getDiscountCodeBody(int... time) {
+    String getDiscountCodeBody(int startDatePlus) {
         // coupon name
         String name = "Auto - [Product] Discount code - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         return """
@@ -319,10 +330,10 @@ public class ProductDiscountCode {
                     "timeCopy": 0,
                     "description": "",
                     "discounts": %s
-                }""".formatted(name, loginInfo.getStoreID(), getDiscountConfig(time));
+                }""".formatted(name, loginInfo.getStoreID(), getDiscountConfig(startDatePlus));
     }
 
-    public void createProductDiscountCode(ProductDiscountCodeConditions conditions, ProductInfo productInfo, int... time) {
+    public void createProductDiscountCode(ProductDiscountCodeConditions conditions, ProductInfo productInfo, int startDatePlus) {
         // set product information
         this.productInfo = productInfo;
 
@@ -330,7 +341,7 @@ public class ProductDiscountCode {
         this.conditions = conditions;
 
         // init product discount code body
-        String body = getDiscountCodeBody(time);
+        String body = getDiscountCodeBody(startDatePlus);
 
         // POST API to create new discount code
         Response response = api.post(CREATE_PRODUCT_DISCOUNT_CODE_PATH, loginInfo.getAccessToken(), body);
@@ -357,8 +368,11 @@ public class ProductDiscountCode {
     }
 
     public DiscountCodeInfo getDiscountInformation(int discountId, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
-        Response discountCodeDetail = api.get(PRODUCT_DISCOUNT_CODE_DETAIL_PATH.formatted(discountId), loginInfo.getAccessToken());
-        discountCodeDetail.then().statusCode(200);
+        Response discountCodeDetail = api.get(PRODUCT_DISCOUNT_CODE_DETAIL_PATH.formatted(discountId), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
 
         // get jsonPath
         JsonPath json = discountCodeDetail.jsonPath();

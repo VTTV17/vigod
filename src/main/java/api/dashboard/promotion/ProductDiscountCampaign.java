@@ -16,10 +16,14 @@ import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -49,7 +53,7 @@ public class ProductDiscountCampaign {
         brInfo = new BranchManagement(loginInformation).getInfo();
     }
 
-    public ProductDiscountCampaign endEarlyDiscountCampaign() {
+    public void endEarlyDiscountCampaign() {
         // get list schedule discount campaign
         List<Integer> scheduleList = api.get(DISCOUNT_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(loginInfo.getStoreID()),
                 loginInfo.getAccessToken()).jsonPath().getList("id");
@@ -63,7 +67,6 @@ public class ProductDiscountCampaign {
 
         // end in-progress discount campaign
         inProgressList.forEach(campaignID -> api.delete(DELETE_DISCOUNT_CAMPAIGN_PATH + campaignID, loginInfo.getAccessToken()).then().statusCode(200));
-        return this;
     }
 
     String getSegmentCondition() {
@@ -184,14 +187,22 @@ public class ProductDiscountCampaign {
                 getBranchCondition());
     }
 
-    String getDiscountConfig(int... time) {
+    String getDiscountConfig(int startDatePlus) {
+
+        // Get the current local time
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        // Get the time zone of the local time
+        ZoneId localZoneId = ZoneId.systemDefault();
+
+        // Get the GMT+0 time zone
+        ZoneId gmtZoneId = ZoneId.of("GMT+0");
+
         // start date
-        int startMin = time.length > 0 ? time[0] : nextInt(60);
-        Instant productDiscountCampaignStartTime = Instant.now().plus(startMin, ChronoUnit.MINUTES);
+        Instant productDiscountCampaignStartTime = localDateTime.truncatedTo(ChronoUnit.DAYS).atZone(localZoneId).withZoneSameInstant(gmtZoneId).plusDays(startDatePlus).toInstant();
 
         // end date
-        int endMin = time.length > 1 ? time[1] : startMin + nextInt(60);
-        Instant productDiscountCampaignEndTime = Instant.now().plus(endMin, ChronoUnit.MINUTES);
+        Instant productDiscountCampaignEndTime = localDateTime.truncatedTo(ChronoUnit.DAYS).atZone(localZoneId).withZoneSameInstant(gmtZoneId).plusDays(startDatePlus).plus(Duration.ofHours(23).plusMinutes(59)).toInstant();
 
         // coupon type
         // 0: percentage
@@ -225,7 +236,7 @@ public class ProductDiscountCampaign {
                 getAllCondition());
     }
 
-    String getDiscountCampaignBody(int... time) {
+    String getDiscountCampaignBody(int startDatePlus) {
         // campaign name
         String name = "Auto - [Product] Discount campaign - %s".formatted(new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
 
@@ -236,10 +247,10 @@ public class ProductDiscountCampaign {
                     "timeCopy": 0,
                     "description": "",
                     "discounts": %s
-                }""".formatted(name, loginInfo.getStoreID(), getDiscountConfig(time));
+                }""".formatted(name, loginInfo.getStoreID(), getDiscountConfig(startDatePlus));
     }
 
-    public void createProductDiscountCampaign(ProductDiscountCampaignConditions conditions, ProductInfo productInfo, int... time) {
+    public void createProductDiscountCampaign(ProductDiscountCampaignConditions conditions, ProductInfo productInfo, int startDatePlus) {
         // get product information
         this.productInfo = productInfo;
 
@@ -250,7 +261,7 @@ public class ProductDiscountCampaign {
         endEarlyDiscountCampaign();
 
         // get discount campaign body
-        String body = getDiscountCampaignBody(time);
+        String body = getDiscountCampaignBody(startDatePlus);
 
         // POST API to create new product discount campaign
         Response createProductDiscountCampaign = api.post(CREATE_PRODUCT_DISCOUNT_CAMPAIGN_PATH, loginInfo.getAccessToken(), body);
@@ -260,6 +271,106 @@ public class ProductDiscountCampaign {
 
         // debug log
         logger.debug("Create product discount campaign: %s".formatted(createProductDiscountCampaign.asPrettyString()));
+    }
+
+    boolean isMatchWithConditions(List<String> conditionOption, Map<String, List<Integer>> conditionValueMap, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        // check product condition
+        boolean appliesToProduct = conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS")
+                ? conditionValueMap.get("APPLIES_TO").contains(productInfo.getProductID())
+                : (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") || conditionValueMap.get("APPLIES_TO")
+                .stream()
+                .anyMatch(collectionId -> productInfo.getCollectionIdList().contains(collectionId)));
+
+        return appliesToProduct
+                && (!conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT") // check segment condition
+                || ((listSegmentOfCustomer != null)
+                && !listSegmentOfCustomer.isEmpty()
+                && conditionValueMap.get("CUSTOMER_SEGMENT")
+                .stream()
+                .anyMatch(listSegmentOfCustomer::contains)));
+    }
+
+    DiscountCampaignInfo getInfo(int campaignID, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        // GET discount campaign information by API
+        Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL_PATH.formatted(campaignID), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract().response();
+
+        // get jsonPath
+        JsonPath json = discountCampaignDetail.jsonPath();
+
+        // get condition type
+        List<String> conditionType = Pattern.compile("conditionType.{4}(\\w+)")
+                .matcher(discountCampaignDetail.asPrettyString())
+                .results()
+                .map(matchResult -> String.valueOf(matchResult.group(1)))
+                .toList();
+
+        // get condition options
+        List<String> conditionOption = Pattern.compile("conditionOption.{4}(\\w+)")
+                .matcher(discountCampaignDetail.asPrettyString())
+                .results()
+                .map(matchResult -> String.valueOf(matchResult.group(1)))
+                .toList();
+
+        // get condition value map <condition type, condition value list>
+        Map<String, List<Integer>> conditionValueMap = new HashMap<>();
+        for (int conditionID = 0; conditionID < conditionType.size(); conditionID++) {
+            List<Integer> conditionValueList = new ArrayList<>();
+            for (int valueID = 0; valueID < json.getList("discounts[0].conditions[%s].values.id".formatted(conditionID)).size(); valueID++)
+                conditionValueList.add(json.getInt("discounts[0].conditions[%s].values[%s].conditionValue".formatted(conditionID, valueID)));
+            conditionValueMap.put(conditionType.get(conditionID), conditionValueList);
+        }
+
+        // init discount campaign information
+        DiscountCampaignInfo info = new DiscountCampaignInfo();
+
+        if (isMatchWithConditions(conditionOption, conditionValueMap, productInfo, listSegmentOfCustomer)) {
+            /* Get discount campaign information */
+            // get couponType
+            String couponType = json.getString("discounts[0].couponType");
+            info.setCouponType(couponType);
+
+            // get coupon value
+            long couponValue = Pattern.compile("couponValue.{4}(\\d+)")
+                    .matcher(discountCampaignDetail.asPrettyString())
+                    .results()
+                    .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                    .toList().get(0);
+            info.setCouponValue(couponValue);
+
+            /* Update discount campaign status, price, stock */
+            // update min requirements quantity of items
+            int discountCampaignMinQuantity = conditionValueMap.get("MINIMUM_REQUIREMENTS").get(0);
+            info.setDiscountCampaignMinQuantity(discountCampaignMinQuantity);
+
+            // update discount campaign price
+            List<Long> discountCampaignPrice = new ArrayList<>(productInfo.getProductSellingPrice());
+            discountCampaignPrice.replaceAll(variationPrice -> couponType.equals("FIXED_AMOUNT")
+                    ? ((variationPrice > couponValue) ? (variationPrice - couponValue) : 0)
+                    : ((variationPrice * (100 - couponValue)) / 100));
+            info.setDiscountCampaignPrice(discountCampaignPrice);
+
+            // update discount campaign status
+            List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH")
+                    ? conditionValueMap.get("APPLIES_TO_BRANCH")
+                    .stream()
+                    .map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID)))
+                    .toList()
+                    : brInfo.getBranchName();
+
+            // get discount status
+            String status = json.getString("discounts[0].status");
+            Map<String, List<String>> statusMap = brInfo.getBranchName()
+                    .stream()
+                    .collect(Collectors.toMap(brName -> brName,
+                            brName -> IntStream.range(0, productInfo.getVariationModelList().size()).mapToObj(varIndex -> appliesToBranch.contains(brName) ? status : "EXPIRED").toList(),
+                            (a, b) -> b));
+            info.setDiscountCampaignStatus(statusMap);
+        }
+
+        return info;
     }
 
     void getDiscountCampaignInformation(int campaignID, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
@@ -318,21 +429,21 @@ public class ProductDiscountCampaign {
         // update discount campaign status
         List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH")
                 ? conditionValueMap.get("APPLIES_TO_BRANCH")
-                    .stream()
-                    .map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID)))
-                    .toList()
+                .stream()
+                .map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID)))
+                .toList()
                 : brInfo.getBranchName();
 
         boolean appliesToProduct = conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS")
                 ? conditionValueMap.get("APPLIES_TO").contains(productInfo.getProductID())
                 : (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") || conditionValueMap.get("APPLIES_TO")
-                    .stream()
-                    .anyMatch(collectionId -> productInfo.getCollectionIdList().contains(collectionId)));
+                .stream()
+                .anyMatch(collectionId -> productInfo.getCollectionIdList().contains(collectionId)));
 
         boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT")
                 || ((listSegmentOfCustomer != null) && !listSegmentOfCustomer.isEmpty() && conditionValueMap.get("CUSTOMER_SEGMENT")
-                    .stream()
-                    .anyMatch(listSegmentOfCustomer::contains));
+                .stream()
+                .anyMatch(listSegmentOfCustomer::contains));
 
         if (appliesToProduct && appliesToCustomer) {
             for (String brName : brInfo.getBranchName()) {

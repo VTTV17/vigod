@@ -118,7 +118,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -132,7 +132,7 @@ public class BH_8887 extends BaseTest {
         endMin = 60;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -147,7 +147,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -162,7 +162,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -177,7 +177,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -191,7 +191,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -206,7 +206,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -222,7 +222,7 @@ public class BH_8887 extends BaseTest {
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -237,7 +237,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -252,7 +252,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -267,7 +267,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -281,7 +281,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -295,7 +295,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -311,7 +311,7 @@ public class BH_8887 extends BaseTest {
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -326,7 +326,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -341,7 +341,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -356,7 +356,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -370,7 +370,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -385,7 +385,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -401,7 +401,7 @@ public class BH_8887 extends BaseTest {
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -416,7 +416,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -431,7 +431,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         new ProductDetailPage(driver)
@@ -446,7 +446,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -460,7 +460,7 @@ public class BH_8887 extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-                discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
