@@ -4,14 +4,11 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.*;
 
-import api.dashboard.products.APIAllProducts;
 import api.dashboard.services.ServiceInfoAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -19,10 +16,6 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
-import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
-import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollectionElement;
-import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
-import pages.dashboard.service.CreateServicePage;
 import utilities.Constant;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
@@ -42,7 +35,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     public static Map<String, Integer> servicePriorityMap = new HashMap<>();
 
     SoftAssert soft = new SoftAssert();
-    public static int productSelectedNumber = 0;
+    public static int serviceSelectedNumber = 0;
     DataGenerator generator;
     public CreateServiceCollection(WebDriver driver) {
         super(driver);
@@ -123,20 +116,20 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         logger.info("Click on OK button");
         return this;
     }
-    public CreateServiceCollection selectProductWithKeyword(String... keywords) {
+    public CreateServiceCollection selectServiceWithKeyword(String... keywords) {
         if (keywords.length == 0) {
             logger.info("No select product.");
             return this;
         }
         clickOnSelectService();
         new HomePage(driver).waitTillLoadingDotsDisappear();
-        for (String productName : keywords) {
-            new CreateServiceCollection(driver).inputSearchKeyword(productName);
+        for (String serviceName : keywords) {
+            new CreateServiceCollection(driver).inputSearchKeyword(serviceName);
             new HomePage(driver).waitTillSpinnerDisappear();
             new CreateServiceCollection(driver).selectAllProductInCurrentPage();
         }
         clickOnOKBTN();
-        productSelectedNumber = SERVICE_NAME_LIST.size();
+        serviceSelectedNumber = SERVICE_NAME_LIST.size();
         logger.info("Select product: " + Arrays.toString(keywords));
         return this;
     }
@@ -176,32 +169,42 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         inputSEOUrl(serviceCollectionsInfo.getSEODescription());
         return this;
     }
-    public Map<String, Integer> inputPriority(ServiceCollectionsInfo serviceCollectionsInfo) {
+
+    /**
+     *
+     * @param priorityForAll: input priority for all service in collection
+     * @param canDuplicatePriority: priority can duplicate or not
+     * @return
+     */
+    public Map<String, Integer> inputPriority(boolean priorityForAll, boolean canDuplicatePriority) {
         Map<String, Integer> servicePriorityMap = new HashMap<>();
         commonAction.sleepInMiliSecond(1000);
         int serviceListSize = SERVICE_NAME_LIST.size();
         List<Integer> priorityList;
-        if (serviceCollectionsInfo.isSetPriorityForAll()) {
-            if (serviceCollectionsInfo.isSetDuplicatePriority()) {
+        if (priorityForAll) {
+            if (canDuplicatePriority) {
                 priorityList = generator.randomListNumberCanDuplicate(serviceListSize);
             } else {
                 priorityList = generator.randomListNumberWithNoDuplicate(serviceListSize);
             }
         } else {
-            int random = generator.generatNumberInBound(1,serviceListSize);
-            if (serviceCollectionsInfo.isSetDuplicatePriority() ) {
+            int random = generator.generatNumberInBound(1,serviceListSize-1);
+            if (canDuplicatePriority) {
                 priorityList = generator.randomListNumberCanDuplicate(serviceListSize - random);
             } else {
                 priorityList = generator.randomListNumberWithNoDuplicate(serviceListSize - random);
             }
         }
+        System.out.println("priorityList: "+priorityList);
         for (int i = 0; i < serviceListSize; i++) {
             if (i < priorityList.size()) {
                 commonAction.sleepInMiliSecond(1000);
                 commonAction.inputText(PRIORITIES_INPUT.get(i), String.valueOf(priorityList.get(i)));
                 servicePriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(), priorityList.get(i));
             } else {
-                servicePriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(), priorityList.size());
+                commonAction.sleepInMiliSecond(1000);
+                commonAction.clearText(PRIORITIES_INPUT.get(i));
+                servicePriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(), serviceListSize+1);
             }
         }
         logger.info("Input product priority: " + servicePriorityMap);
@@ -227,14 +230,6 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
             }
             for (int j = 0; j < 5; j++) {
                 try {
-                    commonAction.selectByVisibleText(new CreateEditServiceCollectionElement(driver).CONDITION_DROPDOWN.get(i), conditionContent[0].trim());
-                    break;
-                } catch (StaleElementReferenceException ex) {
-                    logger.debug("StaleElementReferenceException caught when selecting condition \n" + ex);
-                }
-            }
-            for (int j = 0; j < 5; j++) {
-                try {
                     commonAction.selectByVisibleText(new CreateEditServiceCollectionElement(driver).OPERATOR_DROPDOWN.get(i), conditionContent[1].trim());
                     break;
                 } catch (StaleElementReferenceException ex) {
@@ -251,11 +246,11 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         commonAction.clickElement(AUTOMATED_RADIO_ACTION);//click outside
         return this;
     }
-    public ProductCollectionManagement clickOnClose() {
+    public ServiceCollectionManagement clickOnClose() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         commonAction.clickElement(wait.until(ExpectedConditions.visibilityOf(CLOSE_BTN)));
         logger.info("Click on Close button");
-        return new ProductCollectionManagement(driver);
+        return new ServiceCollectionManagement(driver);
     }
     public ServiceCollectionManagement createServiceCollection(ServiceCollectionsInfo serviceCollectionsInfo) throws Exception {
         inputCollectionName(serviceCollectionsInfo.getCollectionName());
@@ -263,13 +258,13 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         selectCollectionType(serviceCollectionsInfo.getCollectionType());
         if(serviceCollectionsInfo.getCollectionType().equalsIgnoreCase(Constant.MANUAL_OPTION)){
             if(serviceCollectionsInfo.getServiceList().length>0){
-                selectProductWithKeyword(serviceCollectionsInfo.getServiceList());
+                selectServiceWithKeyword(serviceCollectionsInfo.getServiceList());
                 if(serviceCollectionsInfo.isInputPriority()){
-                    servicePriorityMap = inputPriority(serviceCollectionsInfo);
+                    servicePriorityMap = inputPriority(serviceCollectionsInfo.isSetPriorityForAll(),serviceCollectionsInfo.isSetDuplicatePriority());
                     clickOnSaveBTN(); //tap outside
                 }}
         }else {
-            selectConditionType(serviceCollectionsInfo.getCollectionType());
+            selectConditionType(serviceCollectionsInfo.getConditionType());
             selectCondition(false,serviceCollectionsInfo.getAutomatedConditions());
         }
         if(serviceCollectionsInfo.isInputSEO()){
@@ -300,14 +295,16 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
                 serviceKey2 = sortedMap.keySet().toArray()[i+1].toString();
             }
             if (value1 == value2) {
-                serviceUpdatedMap.putAll(serviceInfoAPI.getServiceLastModifedDateMapByProductName(collectionID, serviceKey1));
-                serviceUpdatedMap.putAll(serviceInfoAPI.getServiceLastModifedDateMapByProductName(collectionID, serviceKey2));
+                serviceUpdatedMap.putAll(serviceInfoAPI.getServiceLastModifiedDateMapByServiceName(collectionID, serviceKey1));
+                serviceUpdatedMap.putAll(serviceInfoAPI.getServiceLastModifiedDateMapByServiceName(collectionID, serviceKey2));
                 if(i == values.size()-1){
+                    System.out.println(i+"----"+serviceUpdatedMap);
                     sortedList.addAll(serviceInfoAPI.getServiceListCollection_SortNewest(serviceUpdatedMap));
                 }
             }else if (serviceUpdatedMap.isEmpty()) {
                 sortedList.add(serviceKey1);
             } else {
+                System.out.println(i+"----"+serviceUpdatedMap);
                 sortedList.addAll(serviceInfoAPI.getServiceListCollection_SortNewest(serviceUpdatedMap));
                 serviceUpdatedMap = new HashMap<>();
             }
@@ -316,4 +313,51 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         logger.debug("Get sorted list by priority and created date: " + sortedList);
         return sortedList;
     }
+
+    public List<String> servicesBelongCollectionExpected_MultipleCondition(LoginInformation loginInformation, String conditionType, String... conditions) throws Exception {
+        ServiceInfoAPI serviceInfoAPI = new ServiceInfoAPI(loginInformation);
+        int countItemExpected = 0;
+        Map compareProductMap = new HashMap<>();
+        Map compareCountItemMap = new HashMap<>();
+        Map mergeProductMap = new HashMap<>();
+        for (int i=0;i< conditions.length;i++) {
+            String operater = conditions[i].split("-")[1];
+            String value = conditions[i].split("-")[2];
+           Map productCreatedDateMap =  serviceInfoAPI.getMapOfServiceLastModifiedDateMatchTitleCondition(operater, value);
+            if (conditionType.equalsIgnoreCase(Constant.ANY_CONDITION)) {
+                compareProductMap.putAll(productCreatedDateMap);
+            } else if (conditionType.equalsIgnoreCase(Constant.ALL_CONDITION)) {
+                if (i==0) {
+                    compareProductMap.putAll(productCreatedDateMap);
+                } else {
+                    for (Object key : productCreatedDateMap.keySet()) {
+                        if (compareProductMap.containsKey(key)) {
+                            mergeProductMap.put(key, productCreatedDateMap.get(key));
+                        }
+                    }
+                    compareProductMap=mergeProductMap;
+                }
+                mergeProductMap = new HashMap<>();
+            }
+
+        }
+        Collection<Integer> values = compareCountItemMap.values();
+        for (int v : values) {
+            countItemExpected = countItemExpected + v;
+        }
+        List<String> productExpectedList = serviceInfoAPI.getServiceListCollection_SortNewest(compareProductMap);
+        logger.info("Get service match multiple condition: "+productExpectedList);
+        return productExpectedList;
+    }
+    public List<String> servicesBelongCollectionExpected_OneCondition(LoginInformation loginInformation, String condition) throws Exception {
+        ServiceInfoAPI serviceInfoAPI = new ServiceInfoAPI(loginInformation);
+        String operater = condition.split("-")[1];
+        String value = condition.split("-")[2];
+        List<String> productExpectedList = new ArrayList<>();
+        Map serviceCollection = serviceInfoAPI.getMapOfServiceLastModifiedDateMatchTitleCondition(operater, value);
+        productExpectedList = serviceInfoAPI.getServiceListCollection_SortNewest(serviceCollection);
+        logger.info("Get product match 1 condition: "+productExpectedList);
+        return productExpectedList;
+    }
+
 }

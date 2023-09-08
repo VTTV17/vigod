@@ -16,4 +16,10 @@ public class ServiceCollectionsInfo {
     private boolean inputPriority;
     private String[] automatedConditions;
     private boolean inputSEO;
+    private String conditionType;
+    private String collectionNameTranslation;
+    private String SEOTitleTranslation;
+    private String SEODescriptionTranslation;
+    private String SEOKeywordTranslation;
+    private String SEOUrlTranslation;
 }

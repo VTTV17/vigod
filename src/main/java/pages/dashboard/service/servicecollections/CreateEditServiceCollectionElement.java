@@ -75,5 +75,19 @@ public class CreateEditServiceCollectionElement {
     WebElement SEO_KEYWORD;
     @FindBy(id = "seoUrl")
     WebElement SEO_URL;
-
+    /*--------------Edit translation-------------*/
+    @FindBy(xpath = "//button[contains(@class,'gs-button__gray')][1]")
+    WebElement EDIT_TRANSLATION_BTN;
+    @FindBy(id="name")
+    WebElement NAME_TRANSLATION;
+    @FindBy(css = "button[name='submit-translate']")
+    WebElement SAVE_TRANSLATE_BTN;
+    @FindBy(css = ".product-translate #seoTitle")
+    WebElement SEO_TITLE_TRANSLATE;
+    @FindBy(css = ".product-translate #seoDescription")
+    WebElement SEO_DESCRIPTION_TRANSLATE;
+    @FindBy(css = ".product-translate #seoKeywords")
+    WebElement SEO_KEYWORDS_TRANSLATE;
+    @FindBy(css = ".product-translate #seoUrl")
+    WebElement SEO_URL_TRANSLATE;
 }

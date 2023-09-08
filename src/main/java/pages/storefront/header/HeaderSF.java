@@ -12,6 +12,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import pages.storefront.GeneralSF;
+import pages.storefront.productcollection.*;
+import pages.storefront.productcollection.ProductCollectionSFElement;
 import pages.storefront.userprofile.userprofileinfo.UserProfileInfo;
 import utilities.UICommonAction;
 
@@ -23,6 +25,8 @@ public class HeaderSF extends GeneralSF {
     WebDriverWait wait;
     UICommonAction commons;
     final static Logger logger = LogManager.getLogger(HeaderSF.class);
+    ProductCollectionSFElement productCollectionSFUI;
+
 
     public HeaderSF(WebDriver driver) {
         super(driver);
@@ -216,6 +220,16 @@ public class HeaderSF extends GeneralSF {
         String menuItemNewXpath = MENU_ITEM_BY_TEXT.formatted(menuItemByText);
         commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));
         logger.info("Click on menu: " + menuItemByText);
+        productCollectionSFUI = new ProductCollectionSFElement(driver);
+        int i=0;
+        while (i<5){
+            if(productCollectionSFUI.PRODUCT_NAMES.size() == 0){
+                commons.sleepInMiliSecond(1000);
+                commons.clickElement(wait.until(ExpectedConditions.visibilityOf(commons.getElementByXpath(menuItemNewXpath))));
+                logger.info("Click on menu again: " + menuItemByText);
+            }else break;
+            i++;
+        }
         return this;
     }
 
