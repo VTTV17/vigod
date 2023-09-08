@@ -276,17 +276,18 @@ public class LoginPage {
     public void clickLoginBtnJS() {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LOGIN_BTN);
         logger.info("Clicked on Login button.");
-        new GeneralSF(driver).waitTillLoaderDisappear();
+//        new GeneralSF(driver).waitTillLoaderDisappear();
     }
 
     public void performLoginJS(String username, String password, LoginInformation loginInformation) {
         navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
-        new GeneralSF(driver).waitTillLoaderDisappear();
+//        new GeneralSF(driver).waitTillLoaderDisappear();
         new HeaderSF(driver).clickUserInfoIconJS()
                 .clickLoginIconJS();
         inputEmailOrPhoneNumberJS(username);
         inputPasswordJS(password);
         clickLoginBtnJS();
+        navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
     }
 
     public void verifyTextAtLoginScreen(String signinLanguage) throws Exception {

@@ -143,7 +143,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -156,7 +156,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -169,7 +169,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -182,7 +182,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -204,7 +204,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -400,7 +400,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -414,7 +414,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -428,7 +428,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -442,7 +442,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -466,7 +466,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -659,7 +659,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -674,7 +674,7 @@ public class ProductDetailTest extends BaseTest {
 
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -689,7 +689,7 @@ public class ProductDetailTest extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -703,7 +703,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -727,7 +727,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1007,7 +1007,7 @@ public class ProductDetailTest extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -1021,7 +1021,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -1036,7 +1036,7 @@ public class ProductDetailTest extends BaseTest {
 
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -1050,7 +1050,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, startMin, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitPromotionStart();
 
         productDetailPage
@@ -1074,7 +1074,7 @@ public class ProductDetailTest extends BaseTest {
         endMin = 120;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin - 1, endMin);
+        discountCampaign.createProductDiscountCampaign(conditions, productInfo, endMin);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);

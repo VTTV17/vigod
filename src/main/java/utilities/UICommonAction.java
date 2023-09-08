@@ -502,7 +502,7 @@ public class UICommonAction {
 		return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
 	}
 	public void click(By locator) {
-		wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+		wait.until(ExpectedConditions.presenceOfElementLocated(locator)).click();
 	}
 
 	public void click(By locator, int index) {
@@ -510,7 +510,7 @@ public class UICommonAction {
 	}
 
 	public void sendKeys(By locator, String content) {
-		wait.until(ExpectedConditions.elementToBeClickable(locator));
+		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 		driver.findElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
 		driver.findElement(locator).sendKeys(content);
 	}

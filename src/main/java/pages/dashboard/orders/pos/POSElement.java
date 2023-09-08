@@ -10,6 +10,7 @@ public class POSElement {
     By SEARCH_PRODUCT_BOX = By.cssSelector("#dropdownSuggestionProduct input");
     By SEARCH_TYPE = By.cssSelector("#dropdownSuggestionProduct +* .uik-select__valueRendered");
     By LIST_SEARCH_TYPE = By.cssSelector(".uik-select__option");
+    By CART_PRODUCT_VARIATION = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name+span");
     By CART_PRODUCT_PRICE = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__stock-input')]/parent::td/preceding-sibling::td[1]");
     By CART_PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");
     By ADD_STOCK_ICON = By.cssSelector(".err-out-of-stock i");

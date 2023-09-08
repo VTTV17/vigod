@@ -7,7 +7,10 @@ import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.home.HomePage;
@@ -40,6 +43,7 @@ public class POSPage extends POSElement {
     UICommonAction commons;
     DiscountCampaignInfo discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
+    AssertCustomize assertCustomize;
     DiscountCodeInfo discountCodeInfo;
     BranchInfo brInfo;
     StoreInfo storeInfo;
@@ -49,6 +53,7 @@ public class POSPage extends POSElement {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commons = new UICommonAction(driver);
+        assertCustomize = new AssertCustomize(driver);
     }
 
     public void inputProductSearchTerm(String searchTerm) {
@@ -96,10 +101,13 @@ public class POSPage extends POSElement {
             // confirm change branch
             commons.click(CONFIRM_CHANGE_BRANCH_BTN);
         }
+
+        // log
+        logger.info("Select branch: %s.".formatted(brName));
     }
 
     void selectProduct(ProductInfo productInfo) {
-        // search by barcode
+        // search by product name
         commons.sendKeys(SEARCH_PRODUCT_BOX, productInfo.getDefaultProductNameMap().get(storeInfo.getDefaultLanguage()));
 
         // add product to cart
@@ -108,15 +116,24 @@ public class POSPage extends POSElement {
 
             // select product
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commons.getElement(By.xpath("//code[text() = '%s']".formatted(barcode))));
+
+            // log
+            logger.info("Select variation with barcode: %s.".formatted(barcode));
         }
     }
 
     void selectCustomer(CustomerInfo customerInfo) {
         if (customerInfo.getCustomerId() != 0) {
+            // search customer
             String key = customerInfo.getMainEmail() != null ? customerInfo.getMainEmail() : customerInfo.getMainPhoneNumber();
             commons.sendKeys(SEARCH_CUSTOMER_BOX, key);
 
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commons.getElement(By.xpath("//div[contains(., '%s')][@class = 'mobile-customer-profile-row__right']".formatted(customerInfo.getCustomerId()))));
+            // select customer
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()",
+                    commons.getElement(By.xpath("//div[contains(., '%s')][@class = 'mobile-customer-profile-row__right']".formatted(customerInfo.getCustomerId()))));
+
+            // log
+            logger.info("Select customer with customerId: %s.".formatted(customerInfo.getCustomerId()));
         }
     }
 
@@ -140,36 +157,29 @@ public class POSPage extends POSElement {
                         (a, b) -> b));
     }
 
-    void checkVariationPrice(int varIndex, long sellingPrice, String brName) {
+    void checkVariationPrice(int varIndex, long sellingPrice, String branchName, String variationName) {
         String varPrice = commons.getText(CART_PRODUCT_PRICE, varIndex).split(STORE_CURRENCY)[0];
         long variationPrice = Long.parseLong(varPrice.replaceAll("\\D+", ""));
 
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Math.abs(variationPrice - sellingPrice) <= 1, "[Failed][%s] Variation price should be show %s ±1 instead of %s".formatted(brName, sellingPrice, variationPrice));
-        logger.info("[%s] Check variation price.".formatted(brName));
+        String varName = variationName.isEmpty() ? "" : "[%s]".formatted(variationName);
+        countFail = assertCustomize.assertTrue(countFail, Math.abs(variationPrice - sellingPrice) <= 1, "[Failed][%s]%s Variation price should be show %s ±1 instead of %s".formatted(branchName, varName, sellingPrice, variationPrice));
+        logger.info("[%s]%s Check variation price.".formatted(branchName, varName));
     }
 
-    void checkVariationPriceAndDiscount(String priceType, int varIndex, long sellingPrice, int minDiscountCampaignStock, int wholesaleProductStock, long wholesaleProductPrice, String brName) {
-        // check price
-        switch (priceType) {
-            // check discount campaign price
-            case "DISCOUNT CAMPAIGN" -> {
-                // increase quantity to discount campaign minimum requirement
-                commons.sendKeys(CART_PRODUCT_QUANTITY, varIndex, String.valueOf(minDiscountCampaignStock));
-                checkVariationPrice(varIndex, sellingPrice, brName);
-            }
-            case "WHOLESALE PRODUCT" -> {
-                // increase quantity to wholesale product minimum requirement
+    void changeProductQuantityToAppliesDiscount(String priceType, int varIndex, int minDiscountCampaignStock, int wholesaleProductStock, String branchName, String variationName) {
+        // get variation name
+        String varName = variationName.isEmpty() ? "" : "[%s]".formatted(variationName);
+
+        // increase quantity to discount campaign minimum requirement
+        if (priceType.equals("DISCOUNT CAMPAIGN")) {
+            commons.sendKeys(CART_PRODUCT_QUANTITY, varIndex, String.valueOf(minDiscountCampaignStock));
+            // log
+            logger.info("[%s]%s Increase quantity to match with minimum discount campaign quantity.".formatted(branchName, varName));
+        } else // increase quantity to wholesale product minimum requirement
+            if (priceType.equals("WHOLESALE PRODUCT")) {
                 commons.sendKeys(CART_PRODUCT_QUANTITY, varIndex, String.valueOf(wholesaleProductStock));
-                commons.click(CART_PRODUCT_PRICE, varIndex);
-
-                // wait wholesale API response
-                commons.sleepInMiliSecond(500);
-
-                // check wholesale product price
-                checkVariationPrice(varIndex, wholesaleProductPrice, brName);
+                logger.info("[%s]%s Increase quantity to match with minimum wholesale product quantity.".formatted(branchName, varName));
             }
-            default -> checkVariationPrice(varIndex, sellingPrice, brName);
-        }
     }
 
     public void checkProductInformation(LoginInformation loginInformation, ProductInfo productInfo, int customerId) {
@@ -188,21 +198,43 @@ public class POSPage extends POSElement {
         // get wholesale product information
         wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
-        Map<String, List<String>> salePriceMap = getSalePriceMap();
-        String brName = "[QC] Shop PROD VN";
-//        changeBranch(brName);
-        selectProduct(productInfo);
+        // get customer information
         CustomerInfo customerInfo = new Customers(loginInformation).getInfo(customerId);
-        selectCustomer(customerInfo);
-        for (int varIndex = 0; varIndex < productInfo.getVariationModelList().size(); varIndex++) {
-            int modelIndex = productInfo.getVariationModelList().size() - varIndex - 1;
-            checkVariationPriceAndDiscount(salePriceMap.get(brName).get(modelIndex),
-                    varIndex,
-                    productInfo.getProductSellingPrice().get(modelIndex),
-                    discountCampaignInfo.getDiscountCampaignMinQuantity(),
-                    wholesaleProductInfo.getStockList().get(modelIndex),
-                    wholesaleProductInfo.getPriceList().get(modelIndex),
-                    brName);
+
+        // get sale price map
+        Map<String, List<String>> salePriceMap = getSalePriceMap();
+
+        // check product price on each branch
+        for (String brName : brInfo.getActiveBranches()) {
+            changeBranch(brName);
+            selectProduct(productInfo);
+            int listProductSize = productInfo.getVariationModelList().size();
+            IntStream.range(0, listProductSize).forEachOrdered(quantityIndex -> {
+                int modelIndex = listProductSize - quantityIndex - 1;
+                String varName = productInfo.isHasModel() ? commons.getText(CART_PRODUCT_VARIATION, quantityIndex) : "";
+                changeProductQuantityToAppliesDiscount(salePriceMap.get(brName).get(modelIndex),
+                        quantityIndex,
+                        discountCampaignInfo.getDiscountCampaignMinQuantity(),
+                        wholesaleProductInfo.getStockList().get(modelIndex),
+                        brName,
+                        varName);
+            });
+            selectCustomer(customerInfo);
+
+            commons.sleepInMiliSecond(2000);
+            logger.info("Wait api check discount response.");
+
+            IntStream.range(0, listProductSize).forEachOrdered(priceIndex -> {
+                int modelIndex = listProductSize - priceIndex - 1;
+                String varName = productInfo.isHasModel() ? commons.getText(CART_PRODUCT_VARIATION, priceIndex) : "";
+                checkVariationPrice(priceIndex,
+                        salePriceMap.get(brName).get(modelIndex).equals("WHOLESALE PRODUCT")
+                                ? wholesaleProductInfo.getPriceList().get(modelIndex)
+                                : productInfo.getProductSellingPrice().get(modelIndex),
+                        brName,
+                        varName);
+            });
+
         }
     }
 
