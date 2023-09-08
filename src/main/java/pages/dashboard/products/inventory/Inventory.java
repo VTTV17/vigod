@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
@@ -31,11 +32,16 @@ public class Inventory {
 	@FindBy(css = ".inventory-list-page .gs-page-title button")
 	WebElement INVENTORY_HISTORY_BTN;
 
-	public Inventory clickInventoryHistory() {
+    public Inventory navigate() {
+    	new HomePage(driver).navigateToPage("Products", "Inventory");
+        return this;
+    }	
+	
+	public InventoryHistory clickInventoryHistory() {
 		commons.clickElement(INVENTORY_HISTORY_BTN);
 		logger.info("Clicked on 'Inventory History' button.");
 		new HomePage(driver).waitTillSpinnerDisappear();
-		return this;
+		return new InventoryHistory(driver);
 	}
 
     /*Verify permission for certain feature*/
