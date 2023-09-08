@@ -59,6 +59,8 @@ public class ProductPageElement {
     @FindBy(css = "[class *=--n2] > div:nth-child(3) .align-items-center > span")
     WebElement UP_PRODUCT_SKU_WITHOUT_VARIATION;
 
+    @FindBy(xpath = "//div[contains(@class,'gs-witget-warehousing')]//div[contains(@class,'uik-widget-title')]//span[@class='gs-fake-link ']")
+    WebElement UPDATE_STOCK_LINKTEXT;
 
     @FindBy(css = "#manageInventory")
     WebElement MANAGE_INVENTORY;
@@ -211,6 +213,9 @@ public class ProductPageElement {
 
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement POPUP_UPDATE_BTN;
+    
+    @FindBy(css = ".modal-footer .gs-button__gray--outline")
+    WebElement POPUP_CANCEL_BTN;
 
     @FindBy(css = ".modal-body .uik-select__valueWrapper")
     WebElement UPDATE_STOCK_POPUP_BRANCH_DROPDOWN;
