@@ -304,7 +304,6 @@ public class ProductCollectionTest extends BaseTest{
         productListBelongCollectionCheckBuyer= apiAllProducts.getProductListInCollectionByLatest(String.valueOf(getNewestCollectionId()));
         collectioNameCheckBuyer = collectionName;
         collectionUpdateProductList = collectionName;
-        collectionUpdatePriority = collectionName;
     }
     @Test(dependsOnMethods = "MPC04_CreateManualCollection_HasProduct_NoPriotity",priority = 5)
     public void MPC05_CheckCollectionDetail_HasProductNoPriority_Buyer() {
@@ -365,6 +364,8 @@ public class ProductCollectionTest extends BaseTest{
         callCreateMenuItemParentAPI(collectionName);
         productListBelongCollectionCheckBuyer = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(loginInformation,priorityMap, getNewestCollectionId());
         collectioNameCheckBuyer = collectionName;
+        collectionUpdatePriority = collectionName;
+
     }
     @Test(dependsOnMethods = "MPC08_CreateManualCollection_HasProduct_HasPrioity",priority = 9)
     public void MPC09_CheckCollectionDetail_HasProductHasPriority_Buyer() {

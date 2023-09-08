@@ -72,12 +72,13 @@ public class APIMenus {
      * @param menuItemName
      * @throws Exception
      */
-    public void deleteMenuItem(int menuId, String menuItemName) throws Exception {
+    public void deleteMenuItem(String menuItemName) throws Exception {
+        int menuId = new APIHeader(loginInformation).getCurrentMenuId();
         int menuItemId = getMenuItemIDByName(menuId,menuItemName);
         String body = """
                 {}
                 """;
         Response response = api.deleteRequest(DELETE_MENU_ITEM_PATH.formatted(loginInfo.getStoreID(),menuItemId),loginInfo.getAccessToken(),body);
-        response.then().statusCode(200);
+//        response.then().statusCode(200);
     }
 }

@@ -119,11 +119,11 @@ public class ProductCollectionTest extends BaseTest {
     public void callDeleteMenuItemAndCollectionAPI(String collectionName) throws Exception {
         callLoginAPI();
         menu = new APIMenus(loginInformation);
-        menu.deleteMenuItem(menuID, collectionName);
+        menu.deleteMenuItem(collectionName);
         APIProductCollection productCollectAPI = new APIProductCollection(loginInformation);
         int collectIDNewest = productCollectAPI.getNewestCollectionID();
         APIProductCollection productCollection = new APIProductCollection(loginInformation);
-        productCollection.deleteCollection(token, storeId, String.valueOf(collectIDNewest));
+        productCollection.deleteCollection(String.valueOf(collectIDNewest));
     }
 
     public CreateProductCollection loginAndNavigateToCreateProductCollection() throws Exception {

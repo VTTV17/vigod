@@ -14,7 +14,7 @@ public class ProductCollectionSFElement {
         PageFactory.initElements(driver, this);
     }
     @FindBy(css = ".product-name")
-    List<WebElement> PRODUCT_NAMES;
+    public List<WebElement> PRODUCT_NAMES;
     @FindBy(xpath = "//meta[@name='title']")
     WebElement META_TITLE;
     @FindBy(xpath = "//meta[@name='description']")

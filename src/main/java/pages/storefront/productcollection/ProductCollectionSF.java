@@ -73,7 +73,7 @@ public class ProductCollectionSF extends GeneralSF {
 
     public ProductCollectionSF verifyProductCollectionName(String expected) {
         Assert.assertEquals(common.getText(productCollectionSFUI.PRODUCT_COLLECTION_NAME), expected);
-        logger.info("Verif product collection name show correctly.");
+        logger.info("Verify product collection name show correctly.");
         return this;
     }
 

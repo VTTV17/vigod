@@ -26,8 +26,8 @@ public class APIProductCollection {
         listCollectionRes.then().statusCode(200);
         return  (int) listCollectionRes.jsonPath().getList("lstCollection.id").get(0);
     }
-    public void deleteCollection(String token, String storeID, String collectionID){
-        api.delete(DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH.formatted(storeID,collectionID),token);
+    public void deleteCollection(String collectionID){
+        api.delete(DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionID),loginInfo.getAccessToken());
     }
 
     public List<Integer> getListProductIDInCollections(int collectionID) {
