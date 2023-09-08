@@ -35,7 +35,7 @@ public class ConfirmationDialog {
 	@FindBy(css = ".modal-dialog.confirm-modal")
 	List<WebElement> CONFIRMATION_DIALOG;
 
-	@FindBy(css = ".modal-footer button.gs-button__gray--outline")
+	@FindBy(xpath = "//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')]")
 	WebElement CANCEL_BTN;
 
 	@FindBy(css = ".modal-footer button.gs-button__green")
