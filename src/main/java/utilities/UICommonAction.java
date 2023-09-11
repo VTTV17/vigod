@@ -536,4 +536,8 @@ public class UICommonAction {
 			return driver.findElements(locator).get(index).getText();
 		}
 	}
+
+	public void clearText(WebElement el) {
+		el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
+	}
 }
