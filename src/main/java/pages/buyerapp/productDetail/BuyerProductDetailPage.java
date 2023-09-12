@@ -23,7 +23,7 @@ import utilities.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
-import utilities.model.dashboard.promotion.DiscountCampaignInfo;
+import utilities.model.dashboard.promotion.BranchDiscountCampaignInfo;
 import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
@@ -45,7 +45,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     BranchInfo brInfo;
     StoreInfo storeInfo;
     FlashSaleInfo flashSaleInfo;
-    DiscountCampaignInfo discountCampaignInfo;
+    Map<String, BranchDiscountCampaignInfo> discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
     int countFail;
     List<Boolean> branchStatus;
@@ -84,9 +84,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
             case "IN_PROGRESS" -> "FLASH SALE";
             case "SCHEDULED" ->
-                    (!discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS")) && (wholesaleProductInfo.getStatusMap().get(brName).get(i)) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
+                    ((discountCampaignInfo.get(brName) == null) && (wholesaleProductInfo.getStatusMap().get(brName).get(i))) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
             default ->
-                    discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
+                    (discountCampaignInfo.get(brName) != null) ? "DISCOUNT CAMPAIGN" : (wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE");
         }).toList(), (a, b) -> b));
     }
 
@@ -94,7 +94,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
             case "IN_PROGRESS", "SCHEDULED" -> "FLASH SALE";
             default ->
-                    discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(i).equals("IN_PROGRESS") ? "DISCOUNT CAMPAIGN" : wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE";
+                    (discountCampaignInfo.get(brName) != null) ? "DISCOUNT CAMPAIGN" : (wholesaleProductInfo.getStatusMap().get(brName).get(i) ? "WHOLESALE PRODUCT" : "SELLING PRICE");
         }).toList(), (a, b) -> b));
     }
 
@@ -291,7 +291,30 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
     }
 
-    void checkVariationPrice(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, String brName) throws IOException {
+    Long getDiscountCampaignPrice(long sellingPrice, String brName) {
+        List<Integer> listOfMinimumRequirements = discountCampaignInfo.get(brName).getListOfMinimumRequirements();
+        int minRequirement = Collections.min(listOfMinimumRequirements);
+        List<Integer> indexOfAllMinRequirements = IntStream.range(0, listOfMinimumRequirements.size()).filter(index -> listOfMinimumRequirements.get(index).equals(minRequirement)).boxed().toList();
+
+        String couponType = discountCampaignInfo.get(brName).getListOfCouponTypes().get(indexOfAllMinRequirements.get(0));
+        long couponValue = discountCampaignInfo.get(brName).getListOfCouponValues().get(indexOfAllMinRequirements.get(0));
+        long productDiscountCampaignPrice = couponType.equals("FIXED_AMOUNT")
+                ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
+                : ((sellingPrice * (100 - couponValue)) / 100);
+
+        if (indexOfAllMinRequirements.size() > 1) {
+            for (int index = 1; index < indexOfAllMinRequirements.size(); index++) {
+                couponType = discountCampaignInfo.get(brName).getListOfCouponTypes().get(index);
+                couponValue = discountCampaignInfo.get(brName).getListOfCouponValues().get(index);
+                productDiscountCampaignPrice = Math.min(productDiscountCampaignPrice, couponType.equals("FIXED_AMOUNT")
+                        ? ((sellingPrice > couponValue) ? (sellingPrice - couponValue) : 0)
+                        : ((sellingPrice * (100 - couponValue)) / 100));
+            }
+        }
+        return productDiscountCampaignPrice;
+    }
+
+    void checkVariationPrice(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, String brName) throws IOException {
         String priceType = salePriceMap.get(brName).get(varIndex);
         System.out.println("price: " + priceType);
         String displayType = saleDisplayMap.get(brName).get(varIndex);
@@ -325,7 +348,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                 // check discount campaign price
                 case "DISCOUNT CAMPAIGN" -> {
                     driver.findElement(ADD_TO_CART_POPUP_BUY_IN_BULK_CHECKBOX).click();
-                    checkSellingPriceOnBranch(productDiscountCampaignPrice, brName);
+                    checkSellingPriceOnBranch(getDiscountCampaignPrice(sellingPrice, brName), brName);
                 }
                 case "WHOLESALE PRODUCT" -> {
                     // increase quantity to wholesale product minimum requirement
@@ -343,7 +366,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
     }
 
-    void checkVariationInformation(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, long productDiscountCampaignPrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) throws IOException {
+    void checkVariationInformation(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) throws IOException {
         // log
         if (variationName.length > 0)
             if (variationName[0] != null) logger.info("*** var: %s ***".formatted(variationName[0]));
@@ -353,7 +376,6 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // count all branches display
         int numberOfDisplayBranches = Collections.frequency(IntStream.range(0, branchStatus.size()).mapToObj(brIndex -> branchStatus.get(brIndex) && (branchStock.get(brIndex) > 0)).toList(), true);
-        System.out.println(numberOfDisplayBranches);
 
         // check branch information
         if (numberOfDisplayBranches > 0) {
@@ -375,7 +397,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                 checkBranchNameAndStock(brName, branchStatus.get(brIndex), branchStock.get(brIndex), variationName);
 
                 // check product price
-                checkVariationPrice(varIndex, listingPrice, sellingPrice, flashSalePrice, productDiscountCampaignPrice, wholesaleProductStock, wholesaleProductPrice, brName.split(" - ")[0]);
+                checkVariationPrice(varIndex, listingPrice, sellingPrice, flashSalePrice, wholesaleProductStock, wholesaleProductPrice, brName.split(" - ")[0]);
             }
 
         } else checkSoldOutMark(variationName);
@@ -399,7 +421,8 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
         // get flash sale, discount campaign information
         flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
+        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getAllDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
+
         // get sale price map and display
         salePriceMap = getSalePriceMap();
         saleDisplayMap = getSaleDisplayMap();
@@ -429,7 +452,6 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
                         productInfo.getProductListingPrice().get(varIndex),
                         productInfo.getProductSellingPrice().get(varIndex),
                         flashSaleInfo.getFlashSalePrice().get(varIndex),
-                        discountCampaignInfo.getDiscountCampaignPrice().get(varIndex),
                         wholesaleProductInfo.getStockList().get(varIndex),
                         wholesaleProductInfo.getPriceList().get(varIndex),
                         productInfo.getProductStockQuantityMap().get(modelId),
@@ -551,16 +573,14 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     	commonMobile.moveAndGetElement(REVIEWCONTENT);
     	
     	//Temporary
-    	if (commonMobile.getElements(EMPTYREVIEW).size() > 0) {
+    	if (!commonMobile.getElements(EMPTYREVIEW).isEmpty()) {
     		return null;
     	}
     	
     	String title = commonMobile.getText(PRODUCT_REVIEW_TITLE);
     	String description = commonMobile.getText(PRODUCT_REVIEW_DESCRIPTION);
-    	
-    	String[] review = {title, description};
-    	
-    	return review;
+
+        return new String[]{title, description};
     }
     
 }

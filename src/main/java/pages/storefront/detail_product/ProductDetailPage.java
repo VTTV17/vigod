@@ -24,7 +24,6 @@ import utilities.data.DataGenerator;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
 import utilities.model.dashboard.promotion.BranchDiscountCampaignInfo;
-import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
@@ -53,7 +52,6 @@ public class ProductDetailPage extends ProductDetailElement {
     BranchInfo brInfo;
     StoreInfo storeInfo;
     FlashSaleInfo flashSaleInfo;
-    DiscountCampaignInfo discountCampaignInfo;
     Map<String, BranchDiscountCampaignInfo> productDiscountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
     List<Boolean> branchStatus;
@@ -690,7 +688,6 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // get flash sale, discount campaign information
         flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());
-        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
         productDiscountCampaignInfo = new ProductDiscountCampaign(loginInformation).getAllDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
 
         // get wholesale config

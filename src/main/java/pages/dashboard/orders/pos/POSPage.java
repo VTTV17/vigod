@@ -19,13 +19,14 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
-import utilities.model.dashboard.promotion.DiscountCampaignInfo;
+import utilities.model.dashboard.promotion.BranchDiscountCampaignInfo;
 import utilities.model.dashboard.promotion.DiscountCodeInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class POSPage extends POSElement {
     WebDriver driver;
     WebDriverWait wait;
     UICommonAction commons;
-    DiscountCampaignInfo discountCampaignInfo;
+    Map<String, BranchDiscountCampaignInfo> discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
     AssertCustomize assertCustomize;
     DiscountCodeInfo discountCodeInfo;
@@ -145,14 +146,14 @@ public class POSPage extends POSElement {
      * <p>Branch B = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN} </p>
      * <p>Branch C = {FLASH SALE, DISCOUNT CAMPAIGN, DISCOUNT CAMPAIGN, SELLING PRICE} </p>
      */
-    Map<String, List<String>> getSalePriceMap() {
+    Map<String, List<String>> getSalePriceMap(ProductInfo productInfo) {
         return brInfo.getBranchName()
                 .stream()
                 .collect(Collectors.toMap(brName -> brName,
-                        brName -> IntStream.range(0, discountCampaignInfo.getDiscountCampaignStatus().get(brName).size())
-                                .mapToObj(varIndex -> discountCampaignInfo.getDiscountCampaignStatus().get(brName).get(varIndex).equals("IN_PROGRESS")
+                        brName -> IntStream.range(0, productInfo.getVariationModelList().size())
+                                .mapToObj(varIndex -> (discountCampaignInfo.get(brName) != null)
                                         ? "DISCOUNT CAMPAIGN"
-                                        : wholesaleProductInfo.getStatusMap().get(brName).get(varIndex) ? "WHOLESALE PRODUCT" : "SELLING PRICE")
+                                        : (wholesaleProductInfo.getStatusMap().get(brName).get(varIndex) ? "WHOLESALE PRODUCT" : "SELLING PRICE"))
                                 .toList(),
                         (a, b) -> b));
     }
@@ -193,7 +194,7 @@ public class POSPage extends POSElement {
         List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
 
         // get discount campaign information
-        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
+        discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getAllDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
 
         // get wholesale product information
         wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
@@ -202,19 +203,29 @@ public class POSPage extends POSElement {
         CustomerInfo customerInfo = new Customers(loginInformation).getInfo(customerId);
 
         // get sale price map
-        Map<String, List<String>> salePriceMap = getSalePriceMap();
+        Map<String, List<String>> salePriceMap = getSalePriceMap(productInfo);
 
         // check product price on each branch
         for (String brName : brInfo.getActiveBranches()) {
             changeBranch(brName);
             selectProduct(productInfo);
             int listProductSize = productInfo.getVariationModelList().size();
+
+            int minimumOfRequirements = discountCampaignInfo.get(brName) != null
+                    ? discountCampaignInfo.get(brName).getListOfMinimumRequirements().get(0) : 1;
+
+            // Tạo list mới
+            List<Integer> branchMinimumRequirement = new ArrayList<>();
+
+            // Thêm phần tử vào list
+            IntStream.range(0, listProductSize).forEach(varIndex -> branchMinimumRequirement.add(Math.max((minimumOfRequirements - branchMinimumRequirement.stream().mapToInt(Integer::intValue).sum()) / (listProductSize - varIndex), 1)));
+
             IntStream.range(0, listProductSize).forEachOrdered(quantityIndex -> {
                 int modelIndex = listProductSize - quantityIndex - 1;
                 String varName = productInfo.isHasModel() ? commons.getText(CART_PRODUCT_VARIATION, quantityIndex) : "";
                 changeProductQuantityToAppliesDiscount(salePriceMap.get(brName).get(modelIndex),
                         quantityIndex,
-                        discountCampaignInfo.getDiscountCampaignMinQuantity(),
+                        branchMinimumRequirement.get(quantityIndex),
                         wholesaleProductInfo.getStockList().get(modelIndex),
                         brName,
                         varName);
