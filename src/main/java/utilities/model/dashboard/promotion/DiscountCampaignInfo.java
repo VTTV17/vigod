@@ -9,7 +9,9 @@ import java.util.Map;
 public class DiscountCampaignInfo {
     private String couponType;
     private Long couponValue;
-    private int discountCampaignMinQuantity;
+    private Integer discountCampaignMinQuantity;
+    private String status;
+    private List<String> appliesBranch;
     private List<Long> discountCampaignPrice;
     private Map<String, List<String>> discountCampaignStatus;
 }

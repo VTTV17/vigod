@@ -38,7 +38,9 @@ public class WholesaleProduct {
         int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationListMap().get(defaultLanguage).size()) + 1 : 1;
         if (productInfo.isHasModel()) {
             for (int i = 0; i < num; i++) {
-                long price = nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
+                long price = productInfo.getProductSellingPrice().get(i) == 0
+                        ? productInfo.getProductSellingPrice().get(i)
+                        : nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
                 int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(i))), 1)) + 1;
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """

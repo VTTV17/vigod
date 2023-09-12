@@ -42,8 +42,8 @@ public class BH_8888 extends BaseTest {
         driver = new InitWebdriver().getDriver(browser, headless);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         conditions = new ProductDiscountCampaignConditions();
-        conditions.setCustomerId(customerId);
-        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
+//        conditions.setCustomerId(customerId);
+//        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
         tcsFileName = "check_product_detail_sf/BH_8888_View wholesale product at product detail.xlsx".replace("/", File.separator);
     }
 
@@ -116,7 +116,7 @@ public class BH_8888 extends BaseTest {
         endMin = 60;
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        waitPromotionStart();
+        waitFlashSaleStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -125,10 +125,7 @@ public class BH_8888 extends BaseTest {
     @Test(groups = "[BH_8888] Normal product - Without variation")
     void BH_8888_G1_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "BH_8888_G1_Case1_2";
-        startMin = 1;
-        endMin = 60;
 
-        flashSale.createFlashSale(productInfo, startMin, endMin);
         flashSale.endEarlyFlashSale();
 
         new ProductDetailPage(driver)
@@ -155,7 +152,6 @@ public class BH_8888 extends BaseTest {
 
         flashSale.endEarlyFlashSale();
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
-        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -168,7 +164,6 @@ public class BH_8888 extends BaseTest {
         endMin = 60;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -195,8 +190,7 @@ public class BH_8888 extends BaseTest {
         endMin = 60;
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
-        discountCampaign.endEarlyDiscountCampaign();
-        waitPromotionStart();
+        waitFlashSaleStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -205,10 +199,7 @@ public class BH_8888 extends BaseTest {
     @Test(groups = "[BH_8888] IMEI product - Without variation")
     void BH_8888_G2_Case1_2_FlashSaleIsExpired() throws Exception {
         testCaseId = "BH_8888_G2_Case1_2";
-        startMin = 1;
-        endMin = 60;
 
-        flashSale.createFlashSale(productInfo, startMin, endMin);
         flashSale.endEarlyFlashSale();
         discountCampaign.endEarlyDiscountCampaign();
 
@@ -236,7 +227,6 @@ public class BH_8888 extends BaseTest {
 
         flashSale.endEarlyFlashSale();
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
-        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -249,7 +239,6 @@ public class BH_8888 extends BaseTest {
         endMin = 60;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -276,7 +265,7 @@ public class BH_8888 extends BaseTest {
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
         discountCampaign.endEarlyDiscountCampaign();
-        waitPromotionStart();
+        waitFlashSaleStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -316,7 +305,6 @@ public class BH_8888 extends BaseTest {
 
         flashSale.endEarlyFlashSale();
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
-        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -329,7 +317,6 @@ public class BH_8888 extends BaseTest {
         endMin = 60;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -357,7 +344,7 @@ public class BH_8888 extends BaseTest {
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
         discountCampaign.endEarlyDiscountCampaign();
-        waitPromotionStart();
+        waitFlashSaleStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -397,7 +384,6 @@ public class BH_8888 extends BaseTest {
 
         flashSale.endEarlyFlashSale();
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
-        waitPromotionStart();
 
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -410,7 +396,6 @@ public class BH_8888 extends BaseTest {
         endMin = 60;
 
         flashSale.endEarlyFlashSale();
-        discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         discountCampaign.endEarlyDiscountCampaign();
 
         new ProductDetailPage(driver)
@@ -429,7 +414,7 @@ public class BH_8888 extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
-    void waitPromotionStart() {
+    void waitFlashSaleStart() {
         try {
             sleep((long) startMin * 60 * 1000);
         } catch (InterruptedException e) {

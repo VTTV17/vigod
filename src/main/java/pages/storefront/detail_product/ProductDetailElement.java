@@ -48,7 +48,7 @@ public class ProductDetailElement {
     WebElement FLASH_SALE_BADGE;
 
     @FindBy (css = ".buy-in-bulk__checkbox")
-    WebElement WHOLESALE_CAMPAIGN_CHECKBOX;
+    WebElement DISCOUNT_CAMPAIGN_CHECKBOX;
 
     @FindBy (css = ".product-wholesale-pricing")
     WebElement WHOLESALE_PRODUCT_INFO;

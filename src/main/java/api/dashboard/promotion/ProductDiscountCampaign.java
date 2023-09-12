@@ -12,6 +12,7 @@ import utilities.data.DataGenerator;
 import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.dashboard.promotion.BranchDiscountCampaignInfo;
 import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -216,7 +217,7 @@ public class ProductDiscountCampaign {
         long minFixAmount = Collections.min(productInfo.getProductSellingPrice());
         long couponValue = productDiscountCouponType == 0
                 ? nextInt(MAX_PERCENT_DISCOUNT) + 1
-                : nextLong(minFixAmount) + 1;
+                : nextLong(Math.max(minFixAmount, 1)) + 1;
 
         return """
                 [
@@ -359,9 +360,12 @@ public class ProductDiscountCampaign {
                     .map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID)))
                     .toList()
                     : brInfo.getBranchName();
+            info.setAppliesBranch(appliesToBranch);
 
             // get discount status
             String status = json.getString("discounts[0].status");
+            info.setStatus(status);
+
             Map<String, List<String>> statusMap = brInfo.getBranchName()
                     .stream()
                     .collect(Collectors.toMap(brName -> brName,
@@ -454,6 +458,62 @@ public class ProductDiscountCampaign {
                 discountCampaignStatus.put(brName, branchStatus);
             }
         }
+    }
+
+    public Map<String, BranchDiscountCampaignInfo> getAllDiscountCampaignInfo(ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        // get list in-progress discount campaign
+        List<Integer> discountCampaignList = api.get(DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
+
+        // init discount campaign information model
+        List<DiscountCampaignInfo> infoList;
+
+        // init discount campaign information
+        Map<String, BranchDiscountCampaignInfo> discountCampaignInfo = new HashMap<>();
+        if (!discountCampaignList.isEmpty()) {
+            // get all in-progress discount campaign information
+            infoList = discountCampaignList.stream()
+                    .mapToInt(discountCampaignId -> discountCampaignId)
+                    .mapToObj(discountCampaignId -> getInfo(discountCampaignId, productInfo, listSegmentOfCustomer))
+                    .filter(info -> info.getDiscountCampaignMinQuantity() != null)
+                    .toList();
+
+            // map all information to map
+            discountCampaignInfo = brInfo.getBranchName().stream().filter(brName -> !getCampaignInfo(brName, infoList).getListOfMinimumRequirements().isEmpty()).collect(Collectors.toMap(brName -> brName, brName -> getCampaignInfo(brName, infoList), (a, b) -> b));
+        }
+
+        // return all discount campaign information
+        return discountCampaignInfo;
+    }
+
+    BranchDiscountCampaignInfo getCampaignInfo(String brName, List<DiscountCampaignInfo> infoList) {
+        BranchDiscountCampaignInfo discountInfo = new BranchDiscountCampaignInfo();
+        // all minimum of requirements
+        List<Integer> listOfMinimumRequirements = new ArrayList<>();
+
+        // all coupon types
+        List<String> listOfCouponTypes = new ArrayList<>();
+
+        // all coupon values
+        List<Long> listOfCouponValues = new ArrayList<>();
+
+        // get branch discount information
+        for (DiscountCampaignInfo info : infoList) {
+            if (info.getAppliesBranch().contains(brName)) {
+                listOfMinimumRequirements.add(info.getDiscountCampaignMinQuantity());
+                listOfCouponTypes.add(info.getCouponType());
+                listOfCouponValues.add(info.getCouponValue());
+            }
+        }
+
+        discountInfo.setListOfMinimumRequirements(listOfMinimumRequirements);
+        discountInfo.setListOfCouponTypes(listOfCouponTypes);
+        discountInfo.setListOfCouponValues(listOfCouponValues);
+        return discountInfo;
     }
 
     public DiscountCampaignInfo getDiscountCampaignInfo(ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
