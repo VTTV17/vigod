@@ -16,6 +16,7 @@ import org.testng.Assert;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
@@ -27,6 +28,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +40,7 @@ import static utilities.links.Links.STORE_CURRENCY;
 public class POSPage extends POSElement {
 
     final static Logger logger = LogManager.getLogger(POSPage.class);
+    DataGenerator data = new DataGenerator();
 
     WebDriver driver;
     WebDriverWait wait;
@@ -159,12 +162,22 @@ public class POSPage extends POSElement {
     }
 
     void checkVariationPrice(int varIndex, long sellingPrice, String branchName, String variationName) {
-        String varPrice = commons.getText(CART_PRODUCT_PRICE, varIndex).split(STORE_CURRENCY)[0];
+        String varPrice;
+        do {
+            varPrice = commons.getText(CART_PRODUCT_PRICE, varIndex).split(STORE_CURRENCY)[0];
+        } while (varPrice.isEmpty());
+
         long variationPrice = Long.parseLong(varPrice.replaceAll("\\D+", ""));
 
         String varName = variationName.isEmpty() ? "" : "[%s]".formatted(variationName);
-        countFail = assertCustomize.assertTrue(countFail, Math.abs(variationPrice - sellingPrice) <= 1, "[Failed][%s]%s Variation price should be show %s ±1 instead of %s".formatted(branchName, varName, sellingPrice, variationPrice));
+        countFail = assertCustomize.assertEquals(countFail, variationPrice, sellingPrice, "[Failed][%s]%s Variation price should be show %s instead of %s".formatted(branchName, varName, sellingPrice, variationPrice));
         logger.info("[%s]%s Check variation price.".formatted(branchName, varName));
+
+        // get variation quantity
+        int varStock = Integer.parseInt(commons.getValue(CART_PRODUCT_QUANTITY, varIndex));
+        long priceTotal = Long.parseLong(commons.getText(CART_PRICE_TOTAL, varIndex).replaceAll("\\D+", ""));
+        countFail = assertCustomize.assertEquals(countFail, priceTotal, sellingPrice * varStock, "[Failed][%s]%s Variation price total should be show %s instead of %s".formatted(branchName, varName, sellingPrice * varStock, priceTotal));
+        logger.info("[%s]%s Check variation total price.".formatted(branchName, varName));
     }
 
     void changeProductQuantityToAppliesDiscount(String priceType, int varIndex, int minDiscountCampaignStock, int wholesaleProductStock, String branchName, String variationName) {
@@ -207,25 +220,30 @@ public class POSPage extends POSElement {
 
         // check product price on each branch
         for (String brName : brInfo.getActiveBranches()) {
+            // select branch
             changeBranch(brName);
+
+            // add product to cart
             selectProduct(productInfo);
+
+            // get total variation
             int listProductSize = productInfo.getVariationModelList().size();
 
+            // get minimum requirement of discount campaign
             int minimumOfRequirements = discountCampaignInfo.get(brName) != null
                     ? discountCampaignInfo.get(brName).getListOfMinimumRequirements().get(0) : 1;
 
-            // Tạo list mới
-            List<Integer> branchMinimumRequirement = new ArrayList<>();
-
-            // Thêm phần tử vào list
-            IntStream.range(0, listProductSize).forEach(varIndex -> branchMinimumRequirement.add(Math.max((minimumOfRequirements - branchMinimumRequirement.stream().mapToInt(Integer::intValue).sum()) / (listProductSize - varIndex), 1)));
+            // divided minimum requirement for all variations
+            List<Integer> variationMinimumRequirements = new ArrayList<>();
+            IntStream.range(0, listProductSize).forEach(varIndex -> variationMinimumRequirements.add(Math.max((minimumOfRequirements - variationMinimumRequirements.stream().mapToInt(Integer::intValue).sum()) / (listProductSize - varIndex), 1)));
+            Collections.reverse(variationMinimumRequirements);
 
             IntStream.range(0, listProductSize).forEachOrdered(quantityIndex -> {
                 int modelIndex = listProductSize - quantityIndex - 1;
                 String varName = productInfo.isHasModel() ? commons.getText(CART_PRODUCT_VARIATION, quantityIndex) : "";
                 changeProductQuantityToAppliesDiscount(salePriceMap.get(brName).get(modelIndex),
                         quantityIndex,
-                        branchMinimumRequirement.get(quantityIndex),
+                        variationMinimumRequirements.get(modelIndex),
                         wholesaleProductInfo.getStockList().get(modelIndex),
                         brName,
                         varName);
@@ -246,7 +264,100 @@ public class POSPage extends POSElement {
                         varName);
             });
 
+            checkSubtotalAndVAT(salePriceMap, productInfo, brName);
+//            inputDiscountCode(1, String.valueOf(1000), brName);
         }
+    }
+
+    void checkSubtotalAndVAT(Map<String, List<String>> salePriceMap, ProductInfo productInfo, String branchName) {
+        // get subtotal
+        long subtotal = Long.parseLong(commons.getText(SUB_TOTAL).replaceAll("\\D+", ""));
+
+        // init expected subtotal
+        long expectedSubtotal = 0;
+
+        // list variations size
+        int listProductSize = productInfo.getVariationModelList().size();
+
+        // get total variations price
+        for (int varIndex = 0; varIndex < listProductSize; varIndex++) {
+            // get quantity index
+            int quantityIndex = listProductSize - varIndex - 1;
+
+            // get variation price
+            long sellingPrice = salePriceMap.get(branchName).get(varIndex).equals("WHOLESALE PRODUCT")
+                    ? wholesaleProductInfo.getPriceList().get(varIndex)
+                    : productInfo.getProductSellingPrice().get(varIndex);
+
+            // add variation price to subtotal price
+            expectedSubtotal += Long.parseLong(commons.getValue(CART_PRODUCT_QUANTITY, quantityIndex)) * sellingPrice;
+        }
+
+        // check subtotal
+        countFail = assertCustomize.assertEquals(countFail, subtotal, expectedSubtotal, "[Failed][%s] Subtotal should be show %s instead of %s".formatted(branchName, expectedSubtotal, subtotal));
+        logger.info("[%s] Check subtotal.".formatted(branchName));
+
+        // get VAT
+        long totalVAT = Long.parseLong(commons.getText(VAT_TOTAL).replaceAll("\\D+", ""));
+        long expectedVAT = (long) (expectedSubtotal * productInfo.getTaxRate());
+
+        // check VAT
+        countFail = assertCustomize.assertEquals(countFail, totalVAT, expectedSubtotal * productInfo.getTaxRate(), "[Failed][%s] VAT should be show %s instead of %s".formatted(branchName, expectedVAT, totalVAT));
+        logger.info("[%s] Check VAT.".formatted(branchName));
+
+    }
+
+    /**
+     * discountType -> 0: discount code, 1: direct discount (amount), 2: direct discount (%)
+     */
+    void inputDiscountCode(int discountType, String value, String branchName) {
+        if (discountCampaignInfo.get(branchName) == null) {
+            // open coupon popup
+            commons.click(DISCOUNT);
+            logger.info("[%s] Open discount popup.".formatted(branchName));
+
+            // select discount type
+            commons.click(DISCOUNT_POPUP_DISCOUNT_DROPDOWN);
+            logger.info("[%s] Open discount dropdown.".formatted(branchName));
+
+            // select discount type
+            commons.click(DISCOUNT_POPUP_DISCOUNT_TYPE, discountType);
+            logger.info("[%s] Select discount type: %s.".formatted(branchName, discountType == 0 ? "discount code" : discountType == 1 ? "fix amount discount" : "percentage discount"));
+
+            // input discount value
+            commons.sendKeys(DISCOUNT_POPUP_DISCOUNT_VALUE, value);
+            logger.info("[%s] Input discount value: %s.".formatted(branchName, discountType == 2 ? "%s%%".formatted(value) : value));
+
+            // apply discount
+            commons.click(DISCOUNT_POPUP_APPLY_BTN);
+            logger.info("[%s] Apply discount.");
+        }
+    }
+
+    void selectDelivery() {
+        String epoch = new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+
+        // open delivery popup
+        commons.click(DELIVERY_CHECKBOX);
+        logger.info("Open delivery popup.");
+
+        // input customer name
+        String customerName = "POS customer - %s".formatted(epoch);
+        commons.sendKeys(DELIVERY_POPUP_CUSTOMER_NAME, customerName);
+        logger.info("Input customer name: %s.".formatted(customerName));
+
+        // input phone number
+        commons.sendKeys(DELIVERY_POPUP_PHONE, epoch);
+        logger.info("Input customer phone: %s.".formatted(epoch));
+
+        // input email
+        String email = "%s@qa.team".formatted(epoch);
+        commons.sendKeys(DELIVERY_POPUP_EMAIL, email);
+        logger.info("Input customer email: %s.".formatted(email));
+
+        // select country
+        String countryCode = new DataGenerator().getCountryCode(new DataGenerator().randomCountry());
+
     }
 
 }
