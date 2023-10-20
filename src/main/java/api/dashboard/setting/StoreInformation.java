@@ -42,8 +42,11 @@ public class StoreInformation {
         languageRes.then().statusCode(200);
         List<Boolean> publishLangList = languageRes.jsonPath().getList("published");
 
-        // set all store languages
+        // set all store languages code.
         storeInfo.setStoreLanguageList(languageRes.jsonPath().getList("langCode"));
+
+        // set all store languages name.
+        storeInfo.setStoreLanguageName(languageRes.jsonPath().getList("langName"));
 
         // set published language
         storeInfo.setSFLangList(IntStream.range(0, publishLangList.size()).filter(publishLangList::get).mapToObj(storeInfo.getStoreLanguageList()::get).toList());

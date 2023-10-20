@@ -514,10 +514,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
 
         // complete verify
-        if (countFail + new ProductPage(driver, loginInformation).getCountFail() > 0) {
-            int count = countFail + new ProductPage(driver, loginInformation).getCountFail();
+        if (countFail > 0) {
+            int count = countFail;
             countFail = 0;
-            new ProductPage(driver, loginInformation).setCountFail();
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
     }

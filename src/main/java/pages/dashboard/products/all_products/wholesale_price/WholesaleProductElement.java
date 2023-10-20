@@ -20,7 +20,7 @@ public class WholesaleProductElement {
     @FindBy(css = ".uik-checkbox__wrapper > [name='enabledListing']")
     WebElement ADD_WHOLESALE_PRICING_CHECKBOX;
 
-    @FindBy(css = "div:nth-child(6)  .bg-light-white > div > button")
+    @FindBy(xpath = "//label/*[@name = 'enabledListing']//ancestor::div[contains(@class,'gs-widget__header')]/following-sibling::div//button")
     WebElement CONFIGURE_BTN;
 
     @FindBy(css = ".loading .lds-dual-ring-grey")

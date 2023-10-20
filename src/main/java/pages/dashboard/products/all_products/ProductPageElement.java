@@ -33,8 +33,7 @@ public class ProductPageElement {
     @FindBy(css = "input#productName")
     WebElement PRODUCT_NAME;
 
-    @FindBy(css = "div.fr-wrapper > div")
-    WebElement PRODUCT_DESCRIPTION;
+    By PRODUCT_DESCRIPTION = By.cssSelector("div.fr-wrapper > div");
 
     By REMOVE_PRODUCT_IMAGE_BTN = By.cssSelector(".image-widget__btn-remove");
 
@@ -47,8 +46,7 @@ public class ProductPageElement {
     @FindBy(css = ".uik-select__option")
     List<WebElement> VAT_LIST;
 
-    @FindBy(css = ".clear-up-down-btn")
-    WebElement COLLECTION_SEARCH_BOX;
+    By COLLECTION_SEARCH_BOX = By.cssSelector(".product-form-collection-selector2 input");
 
     @FindBy(css = ".product-form-collection-selector2__search-item")
     List<WebElement> LIST_MANUAL_COLLECTION;
@@ -315,8 +313,7 @@ public class ProductPageElement {
     @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(1) > .gs-widget__header > h3")
     WebElement UI_PRODUCT_INFORMATION;
 
-    @FindBy(css = "[for = productName]")
-    WebElement UI_PRODUCT_NAME;
+    By UI_PRODUCT_NAME = By.cssSelector("[for = productName]");
 
     @FindBy(xpath = "//*[@name='productName']/following-sibling::div")
     WebElement UI_PRODUCT_NAME_BLANK_ERROR;

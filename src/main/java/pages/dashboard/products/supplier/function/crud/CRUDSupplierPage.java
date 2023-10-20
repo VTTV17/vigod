@@ -389,7 +389,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
     void navigateSupplierDetailPage() {
         // navigate to supplier detail page
-        supplierCode = (sup.getListSupplierCode("").size() == 0) ? sup.createSupplierAndGetSupplierCode() : sup.getListSupplierCode("").get(0);
+        supplierCode = (sup.getListSupplierCode("").isEmpty()) ? sup.createSupplierAndGetSupplierCode() : sup.getListSupplierCode("").get(0);
         supplierManagementPage.findAndNavigateToSupplierDetailPage(supplierCode);
     }
 

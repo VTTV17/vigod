@@ -44,7 +44,6 @@ public class UpdateProductTest extends BaseTest {
         productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0) productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                 .getProductID();
-        System.out.println(productID);
     }
 
     @BeforeGroups(groups = "[UPDATE] IMEI product - Without variation")
@@ -94,6 +93,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -113,6 +113,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -133,6 +134,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -153,6 +155,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -223,6 +226,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -243,6 +247,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -263,6 +268,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -283,6 +289,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateWithoutVariationProduct(branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -331,6 +338,8 @@ public class UpdateProductTest extends BaseTest {
 
         new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -351,6 +360,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -372,6 +382,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -393,6 +404,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -414,6 +426,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -436,6 +449,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -457,6 +471,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -479,7 +494,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_08_EditTranslationForEachVariation() throws Exception {
         testCaseId = "UP_PRODUCT_G3_08";
 
-        new ProductPage(driver, loginInformation).setLanguage(language).editVariationTranslation();
+        new ProductPage(driver, loginInformation).setLanguage(language).editVariationTranslation(productID);
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
@@ -505,6 +520,8 @@ public class UpdateProductTest extends BaseTest {
 
         new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
 
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -525,6 +542,8 @@ public class UpdateProductTest extends BaseTest {
 
         new ProductPage(driver, loginInformation).setLanguage(language).deleteProduct(productID);
 
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
@@ -543,6 +562,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -564,6 +584,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -585,6 +606,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -606,6 +628,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -627,6 +650,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -648,6 +672,7 @@ public class UpdateProductTest extends BaseTest {
                 .updateVariationProduct(increaseNum, branchStock)
                 .configConversionUnit()
                 .configWholesaleProduct();
+
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
@@ -670,7 +695,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_08_EditTranslationForEachVariation() throws Exception {
         testCaseId = "UP_PRODUCT_G4_08";
 
-        new ProductPage(driver, loginInformation).setLanguage(language).editVariationTranslation();
+        new ProductPage(driver, loginInformation).setLanguage(language).editVariationTranslation(productID);
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
@@ -706,6 +731,8 @@ public class UpdateProductTest extends BaseTest {
         testCaseId = "UP_PRODUCT_G4_11";
 
         new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).uncheckWebPlatform();
+
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver).accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }

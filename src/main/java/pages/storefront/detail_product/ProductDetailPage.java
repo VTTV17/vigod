@@ -65,7 +65,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkHeader(String language) throws Exception {
         // check store logo
-        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src").replace("/200/", "/");
+        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(HEADER_SHOP_LOGO)).getAttribute("src").replaceAll("\\d+/", "");
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeInfo.getStoreLogo(), "[Failed][Header] Store logo should be %s, but found %s.".formatted(storeInfo.getStoreLogo(), sfStoreLogo));
         logger.info("[UI][%s] Check Header - Store Logo".formatted(language));
 
@@ -195,7 +195,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
     void checkFooter(String language) throws Exception {
         // check store logo
-        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(FOOTER_SHOP_LOGO)).getAttribute("src").replace("/200/", "/");
+        String sfStoreLogo = wait.until(ExpectedConditions.visibilityOf(FOOTER_SHOP_LOGO)).getAttribute("src").replaceAll("\\d+/", "");
         countFail = new AssertCustomize(driver).assertEquals(countFail, sfStoreLogo, storeInfo.getStoreLogo(), "[Failed][Footer] Store logo should be %s, but found %s.".formatted(storeInfo.getStoreLogo(), sfStoreLogo));
         logger.info("[UI][%s] Check Footer - Shop Logo".formatted(language));
 
@@ -802,10 +802,10 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // complete verify
-        if (countFail + new ProductPage(driver, loginInformation).getCountFail() > 0) {
-            int count = countFail + new ProductPage(driver, loginInformation).getCountFail();
+        if (countFail + ProductPage.getCountFail() > 0) {
+            int count = countFail + ProductPage.getCountFail();
             countFail = 0;
-            new ProductPage(driver, loginInformation).setCountFail();
+            ProductPage.setCountFail(0);
             Assert.fail("[Failed] Fail %d cases".formatted(count));
         }
 

@@ -5,6 +5,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.List;
+
 public class VariationDetailElement {
     WebDriver driver;
     VariationDetailElement(WebDriver driver) {
@@ -33,6 +35,12 @@ public class VariationDetailElement {
     @FindBy(css = ".modal-content")
     WebElement POPUP;
 
+    @FindBy(css = ".uik-select__valueRenderedWrapper .text-truncate")
+    WebElement EDIT_TRANSLATION_POPUP_SELECTED_LANGUAGE;
+
+    @FindBy(css = ".uik-select__optionList .text-truncate")
+    List<WebElement> EDIT_TRANSLATION_POPUP_LIST_LANGUAGE;
+
     @FindBy(css = "#informationName")
     WebElement EDIT_TRANSLATION_POPUP_PRODUCT_NAME;
 
@@ -41,6 +49,9 @@ public class VariationDetailElement {
 
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement EDIT_TRANSLATION_POPUP_SAVE_BTN;
+
+    @FindBy(css = ".modal-header > button")
+    WebElement EDIT_TRANSLATION_POPUP_CLOSE_BTN;
 
     /* UI */
     @FindBy(css = ".toolbar__product-status")

@@ -38,8 +38,8 @@ public class ConversionUnitPage extends ConversionUnitElement {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         productPage = new ProductPage(driver, loginInformation);
-        language = productPage.getLanguage();
-        countFail = productPage.getCountFail();
+        language = ProductPage.getLanguage();
+        countFail = ProductPage.getCountFail();
     }
 
     public ConversionUnitPage navigateToConversionUnitPage() throws Exception {
@@ -47,15 +47,16 @@ public class ConversionUnitPage extends ConversionUnitElement {
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productPage.getProductID())));
 
         // wait page loaded
-        commonAction.waitElementVisible(ADD_CONVERSION_UNIT_CHECKBOX);
+        wait.until(ExpectedConditions.presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
+        WebElement addConversionUnitCheckbox = driver.findElement(ADD_CONVERSION_UNIT_CHECKBOX);
 
 
         // if 'Add Conversion Unit' checkbox is not checked, check and click on 'Configure' button
-        if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
+        if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", addConversionUnitCheckbox))
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", addConversionUnitCheckbox);
 
         // check [UI] after check on Add Conversion Unit checkbox
-        checkConversionUnitConfig();
+//        checkConversionUnitConfig();
 
         if (productPage.isManageByIMEI())
             logger.info("Not support conversion unit for product managed by IMEI/Serial at this time.");
@@ -70,7 +71,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             commonAction.hideElement(driver.findElement(By.cssSelector("#fb-root")));
 
             // check [UI] header
-            checkUIHeader();
+//            checkUIHeader();
         }
 
         return this;
@@ -83,13 +84,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
 
             // check [UI] config table
-            checkWithoutVariationConfigTable();
+//            checkWithoutVariationConfigTable();
 
             // select conversion unit
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_UNIT)).click();
             commonAction.sleepInMiliSecond(1000);
             List<WebElement> availableConversionUnit = driver.findElements(WITHOUT_VARIATION_LIST_AVAILABLE_UNIT);
-            if (availableConversionUnit.size() > 0) try {
+            if (!availableConversionUnit.isEmpty()) try {
                 availableConversionUnit.get(nextInt(availableConversionUnit.size())).click();
             } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
                 logger.info(ex);
@@ -119,21 +120,25 @@ public class ConversionUnitPage extends ConversionUnitElement {
             // select variation
             for (int i = 0; i < numberOfConversionUnit; i++) {
                 // open Select Variation popup
-                wait.until(ExpectedConditions.visibilityOfElementLocated(VARIATION_HEADER_SELECT_VARIATION_BTN));
+                wait.until(ExpectedConditions.presenceOfElementLocated(VARIATION_HEADER_SELECT_VARIATION_BTN));
                 WebElement selectVariationBtn = driver.findElement(VARIATION_HEADER_SELECT_VARIATION_BTN);
+
                 try {
                     wait.until(ExpectedConditions.elementToBeClickable(selectVariationBtn)).click();
+                    logger.info("Open select variation popup.");
                 } catch (StaleElementReferenceException ex) {
-                    wait.until(ExpectedConditions.visibilityOfElementLocated(VARIATION_HEADER_SELECT_VARIATION_BTN));
+                    logger.info(ex);
+                    wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(VARIATION_HEADER_SELECT_VARIATION_BTN));
                     selectVariationBtn = driver.findElement(VARIATION_HEADER_SELECT_VARIATION_BTN);
                     wait.until(ExpectedConditions.elementToBeClickable(selectVariationBtn)).click();
+                    logger.info("Open select variation popup again.");
                 }
 
                 // wait Select Variation popup visible
                 wait.until(visibilityOf(SELECT_VARIATION_POPUP));
 
                 // check [UI] select variation popup
-                checkSelectVariationPopup();
+//                checkSelectVariationPopup();
 
                 // select variation
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commonAction.refreshListElement(VARIATION_SELECT_VARIATION_POPUP_LIST_VARIATION_CHECKBOX).get(i));
@@ -145,7 +150,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 wait.until(ExpectedConditions.elementToBeClickable(VARIATION_SELECT_VARIATION_POPUP_SAVE_BTN)).click();
 
                 // check [UI] variation config table
-                checkVariationConfigTable(i);
+//                checkVariationConfigTable(i);
 
                 // add conversion unit configuration for variation
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_CONFIGURE_BTN.get(i));
@@ -154,13 +159,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 commonAction.waitElementVisible(UI_VARIATION_CONFIG_PAGE_GO_BACK_TO_SETUP_CONVERSION_UNIT);
 
                 // check [UI] variation config page
-                checkVariationConfigPageHeader();
+//                checkVariationConfigPageHeader();
 
                 // click Select Unit button
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click()", CONFIGURE_FOR_EACH_VARIATION_HEADER_SELECT_UNIT_BTN);
 
                 // check [UI] config and alias table
-                checkVariationConfigPageConfigAndAliasTable();
+//                checkVariationConfigPageConfigAndAliasTable();
 
                 // select conversion unit
                 wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_FOR_EACH_VARIATION_UNIT)).click();

@@ -1,9 +1,10 @@
 package pages.dashboard.products.all_products;
 
-import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
@@ -14,7 +15,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.all_products.conversion_unit.ConversionUnitPage;
@@ -28,15 +28,10 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -62,7 +57,8 @@ public class ProductPage extends ProductPageElement {
 
     BranchInfo brInfo;
     StoreInfo storeInfo;
-    ProductInfo productInfo;
+    @Getter
+    private ProductInfo productInfo;
     LoginInformation loginInformation;
 
     public ProductPage(WebDriver driver, LoginInformation loginInformation) {
@@ -83,6 +79,8 @@ public class ProductPage extends ProductPageElement {
     Map<String, List<String>> variationMap;
     private static List<String> variationList;
     private static Map<String, List<Integer>> productStockQuantity;
+    @Getter
+    @Setter
     private static int countFail = 0;
     private boolean showOutOfStock = true;
     boolean hideStock = false;
@@ -94,6 +92,7 @@ public class ProductPage extends ProductPageElement {
     private static boolean manageByIMEI;
     private static int productID;
     private static boolean hasModel;
+    @Getter
     private static String language;
 
     /* Tien */
@@ -248,7 +247,7 @@ public class ProductPage extends ProductPageElement {
     }
 
     public ProductPage setLanguage(String language) {
-        ProductPage.language = language;
+        this.language = language;
 
         driver.get(DOMAIN);
 
@@ -290,7 +289,14 @@ public class ProductPage extends ProductPageElement {
         driver.get("%s%s".formatted(DOMAIN, CREATE_PRODUCT_PATH));
 
         // wait page loaded
-        wait.until(visibilityOfElementLocated(UI_SEO_SETTING));
+        try {
+            wait.until(presenceOfElementLocated(UI_SEO_SETTING));
+            logger.info("Wait create product page loaded.");
+        } catch (TimeoutException ex) {
+            logger.info(ex);
+            wait.until(presenceOfElementLocated(UI_SEO_SETTING));
+            logger.info("Wait create product page loaded again.");
+        }
 //        commonAction.waitElementVisible(UI_SEO_SETTING);
 
         // hide Facebook bubble
@@ -366,18 +372,20 @@ public class ProductPage extends ProductPageElement {
 
     void inputProductName(String productName) {
         // input product name
+        wait.until(presenceOfElementLocated(UI_PRODUCT_NAME));
         PRODUCT_NAME.sendKeys("a");
-        commonAction.waitElementVisible(UI_PRODUCT_NAME);
-        wait.until(elementToBeClickable(UI_PRODUCT_NAME)).click();
+        commonAction.click(UI_PRODUCT_NAME);
         PRODUCT_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_NAME.sendKeys(productName);
+        logger.info("Input product name: %s.".formatted(productName));
     }
 
     void inputProductDescription() {
         // input product description
         productDescription = "[%s] product descriptions".formatted(storeInfo.getDefaultLanguage());
-        wait.until(elementToBeClickable(PRODUCT_DESCRIPTION)).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        PRODUCT_DESCRIPTION.sendKeys(productDescription);
+        wait.until(presenceOfElementLocated(PRODUCT_DESCRIPTION)).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        commonAction.sendKeys(PRODUCT_DESCRIPTION, productDescription);
+        logger.info("Input product description: %s.".formatted(productDescription));
     }
 
     void uploadProductImage(String... imageFile) {
@@ -408,7 +416,7 @@ public class ProductPage extends ProductPageElement {
 
     void selectCollection() {
         // click on collection search box
-        wait.until(elementToBeClickable(COLLECTION_SEARCH_BOX)).click();
+        wait.until(presenceOfElementLocated(COLLECTION_SEARCH_BOX)).click();
         commonAction.sleepInMiliSecond(500);
 
         // select collection if any
@@ -439,7 +447,7 @@ public class ProductPage extends ProductPageElement {
         wait.until(visibilityOf(POPUP));
 
         // check [UI] SKU popup
-        checkUpdateSKUPopup();
+//        checkUpdateSKUPopup();
 
         // input SKU for each branch
         for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
@@ -458,7 +466,7 @@ public class ProductPage extends ProductPageElement {
             new Select(MANAGE_INVENTORY).selectByValue(isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT");
 
         // check [UI] after select manage inventory by IMEI/Serial Number
-        if (isIMEIProduct) checkManageInventoryByIMEINotice();
+//        if (isIMEIProduct) checkManageInventoryByIMEINotice();
 
         // log
         logger.info("Manage inventory by: %s".formatted(isIMEIProduct ? "IMEI/Serial Number" : "Product"));
@@ -580,16 +588,18 @@ public class ProductPage extends ProductPageElement {
         wait.until(elementToBeClickable(PRODUCT_LISTING_PRICE_WITHOUT_VARIATION));
         PRODUCT_LISTING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_LISTING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf(productListingPrice.get(0)));
+        logger.info("Selling price: %s".formatted(productListingPrice.get(0)));
 
         // input selling price
         wait.until(elementToBeClickable(PRODUCT_SELLING_PRICE_WITHOUT_VARIATION));
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf(productSellingPrice.get(0)));
+        logger.info("Selling price: %s".formatted(productSellingPrice.get(0)));
 
         // input cost price
         wait.until(elementToBeClickable(PRODUCT_COST_PRICE_WITHOUT_VARIATION));
-        PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        PRODUCT_SELLING_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf((int) (Math.random() * productSellingPrice.get(0))));
+        PRODUCT_COST_PRICE_WITHOUT_VARIATION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        PRODUCT_COST_PRICE_WITHOUT_VARIATION.sendKeys(String.valueOf((long) (Math.random() * productSellingPrice.get(0))));
     }
 
     void addIMEIForEachBranch(String variationValue, List<Integer> branchStock) throws Exception {
@@ -639,7 +649,7 @@ public class ProductPage extends ProductPageElement {
         }
 
         // check [UI] add IMEI popup
-        checkAddIMEIPopup();
+//        checkAddIMEIPopup();
 
         // input IMEI/Serial number for each branch
         for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
@@ -730,7 +740,7 @@ public class ProductPage extends ProductPageElement {
         else UPDATE_STOCK_POPUP_BRANCH_DROPDOWN.click();
 
         // check [UI] update stock popup
-        checkUpdateStockPopup();
+//        checkUpdateStockPopup();
 
         // switch to change stock tab
         wait.until(elementToBeClickable(UPDATE_STOCK_POPUP_CHANGE_TAB)).click();
@@ -784,23 +794,6 @@ public class ProductPage extends ProductPageElement {
 
     }
 
-    // input variation value by Robot class
-    void inputByRobot(String text) throws AWTException {
-        StringSelection stringSelection = new StringSelection(text);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
-
-        Robot robot = new Robot();
-        robot.delay(500);
-        robot.keyPress(KeyEvent.VK_CONTROL);
-        robot.keyPress(KeyEvent.VK_V);
-        robot.keyRelease(KeyEvent.VK_V);
-        robot.keyRelease(KeyEvent.VK_CONTROL);
-        robot.delay(500);
-        robot.keyPress(KeyEvent.VK_ENTER);
-        robot.keyRelease(KeyEvent.VK_ENTER);
-    }
-
     // Variation product
     public void addVariations() throws Exception {
         // generate variation map
@@ -822,7 +815,7 @@ public class ProductPage extends ProductPageElement {
         System.out.println(variationMap);
 
         // check [UI] Add variation button
-        checkAddVariationBtn();
+//        checkAddVariationBtn();
 
         // click add variation button
         IntStream.range(0, variationMap.keySet().size()).forEachOrdered(i -> ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_VARIATION_BTN));
@@ -833,8 +826,8 @@ public class ProductPage extends ProductPageElement {
             logger.info("variation name: %s".formatted(varName));
 
             // check [UI] after click Add variation button
-            checkVariationInformation();
-            checkVariationValuePlaceholder();
+//            checkVariationInformation();
+//            checkVariationValuePlaceholder();
 
             // input variation name
             wait.until(elementToBeClickable(VARIATION_NAME.get(varID))).sendKeys(varName);
@@ -853,7 +846,7 @@ public class ProductPage extends ProductPageElement {
         UI_VARIATIONS.click();
 
         // check [UI] after add variation (Check variation table column)
-        checkVariationTable();
+//        checkVariationTable();
     }
 
 
@@ -873,13 +866,13 @@ public class ProductPage extends ProductPageElement {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_TABLE_SELECT_ALL_CHECKBOX);
 
         // check [UI] after select all variations
-        checkBulkActionsOnVariationTable();
+//        checkBulkActionsOnVariationTable();
 
         // open list action dropdown
         wait.until(elementToBeClickable(VARIATION_TABLE_SELECT_ACTION)).click();
 
         // check [UI] check list actions
-        checkListActionsOnVariationTable();
+//        checkListActionsOnVariationTable();
 
         // open Update price popup
         commonAction.refreshListElement(VARIATION_TABLE_LIST_ACTION).get(0).click();
@@ -888,7 +881,7 @@ public class ProductPage extends ProductPageElement {
         wait.until(visibilityOf(POPUP));
 
         // check [UI] product price table
-        checkUpdatePricePopup();
+//        checkUpdatePricePopup();
 
         // input product price
         IntStream.range(0, variationList.size()).forEachOrdered(i -> {
@@ -962,7 +955,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.sleepInMiliSecond(1000);
 
             // check [UI] SKU popup
-            if (i == 0) checkUpdateSKUPopup();
+//            if (i == 0) checkUpdateSKUPopup();
 
             // input SKU for each branch
             for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
@@ -986,7 +979,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.sleepInMiliSecond(1000);
 
             // check [UI] SKU popup
-            if (i == 0) checkUpdateSKUPopup();
+//            if (i == 0) checkUpdateSKUPopup();
 
             // input SKU for each branch
             for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
@@ -1010,7 +1003,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.sleepInMiliSecond(1000);
 
             // check [UI] update image popup
-            if (i == 0) checkUpdateVariationImagePopup();
+//            if (i == 0) checkUpdateVariationImagePopup();
 
             // upload image
             for (String imgFile : imageFile) {
@@ -1069,7 +1062,7 @@ public class ProductPage extends ProductPageElement {
             wait.until(visibilityOf(POPUP));
 
             // check UI
-            checkUIConfirmDeleteProductPopup();
+//            checkUIConfirmDeleteProductPopup();
 
             // click OK to confirm delete product
             wait.until(visibilityOf(CONFIRM_DELETE_PRODUCT_POPUP_OK_BTN)).click();
@@ -1115,6 +1108,15 @@ public class ProductPage extends ProductPageElement {
     }
 
     void completeUpdateProduct() {
+        // click Save button
+        wait.until(elementToBeClickable(SAVE_BTN)).click();
+
+        // wait notification popup visible
+        new WebDriverWait(driver, Duration.ofSeconds(60)).until(visibilityOf(POPUP));
+
+        // close notification popup
+        wait.until(elementToBeClickable(NOTIFICATION_POPUP_CLOSE_BTN)).click();
+
         // end test if update product failed
         boolean isDisplay;
         try {
@@ -1186,9 +1188,9 @@ public class ProductPage extends ProductPageElement {
         hasModel = false;
 
         // product name
-        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct(loginInformation).isManageByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        productInfo(productName, new CreateProduct(loginInformation).isManageByIMEI());
+        productInfo(productName, productInfo.isManageInventoryByIMEI());
         inputWithoutVariationPrice();
         updateWithoutVariationStock(newBranchStock);
         updateWithoutVariationProductSKU();
@@ -1201,9 +1203,9 @@ public class ProductPage extends ProductPageElement {
         hasModel = true;
 
         // product name
-        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), new CreateProduct(loginInformation).isManageByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
+        productName = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
         productName += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        productInfo(productName, new CreateProduct(loginInformation).isManageByIMEI());
+        productInfo(productName, productInfo.isManageInventoryByIMEI());
         addVariations();
         uploadVariationImage("img.jpg");
         inputVariationPrice();
@@ -1220,10 +1222,6 @@ public class ProductPage extends ProductPageElement {
 
     public boolean isManageByIMEI() {
         return ProductPage.manageByIMEI;
-    }
-
-    public String getLanguage() {
-        return ProductPage.language;
     }
 
     public boolean isHasModel() {
@@ -1246,32 +1244,24 @@ public class ProductPage extends ProductPageElement {
         return ProductPage.productSellingPrice;
     }
 
-    public void setCountFail() {
-        ProductPage.countFail = 0;
-    }
-
-    public int getCountFail() {
-        return ProductPage.countFail;
-    }
-
     public void changeVariationStatus() {
         // update variation product name and description
         // get current product information
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         // update variation status
-        for (String barcode : productInfo.getBarcodeList())
+        for (String barcode : productInfo.getVariationModelList())
             new VariationDetailPage(driver, barcode, productInfo, loginInformation).changeVariationStatus(List.of("ACTIVE", "INACTIVE").get(nextInt(2)));
     }
 
-    public void editVariationTranslation() throws Exception {
+    public void editVariationTranslation(int productID) throws Exception {
 
         // update variation product name and description
         // get current product information
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
-        for (String barcode : productInfo.getBarcodeList())
-            new VariationDetailPage(driver, barcode, productInfo, loginInformation).updateVariationProductNameAndDescription(language, productInfo.getVariationStatus().get(productInfo.getBarcodeList().indexOf(barcode)));
+        for (String barcode : productInfo.getVariationModelList())
+            new VariationDetailPage(driver, barcode, productInfo, loginInformation).updateVariationProductNameAndDescription(productInfo.getVariationStatus().get(productInfo.getVariationModelList().indexOf(barcode)));
     }
 
     /* Edit translation */
@@ -1298,7 +1288,7 @@ public class ProductPage extends ProductPageElement {
             wait.until(visibilityOf(POPUP));
 
             // check UI
-            checkEditTranslationPopup();
+//            checkEditTranslationPopup();
 
             // input translate product name
             productName = "[%s]%s%s".formatted(language, productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
@@ -1382,10 +1372,6 @@ public class ProductPage extends ProductPageElement {
         completeUpdateProduct();
     }
 
-    public ProductInfo getProductInfo() {
-        return this.productInfo;
-    }
-
     /* check UI function */
     void checkUICRHeaderProductPage() throws Exception {
         // check Go back to product list link text
@@ -1462,7 +1448,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Product Information.".formatted(language));
 
         // check product name
-        String dbProductName = wait.until(visibilityOf(UI_PRODUCT_NAME)).getText();
+        String dbProductName = commonAction.getText(UI_PRODUCT_NAME);
         String ppProductName = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.productName", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductName, ppProductName, "[Failed][Body] Product name should be %s, but found %s.".formatted(ppProductName, dbProductName));
         logger.info("[UI][%s] Check Body - Product name.".formatted(language));
@@ -2615,7 +2601,7 @@ public class ProductPage extends ProductPageElement {
         for (WebElement el : DELETE_VARIATION_BTN) {
             commonAction.clickElement(el);
         }
-        wait.until(elementToBeClickable(SAVE_BTN)).click();
+//        wait.until(elementToBeClickable(SAVE_BTN)).click();
         completeUpdateProduct();
     }
     

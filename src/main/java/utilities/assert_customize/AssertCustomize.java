@@ -17,22 +17,26 @@ public class AssertCustomize {
 
     Logger logger = LogManager.getLogger(AssertCustomize.class);
 
-    public Integer assertEquals(int countFalse, Object actual, Object expected, String mess) throws IOException {
+    public Integer assertEquals(int countFalse, Object actual, Object expected, String mess){
         try {
             Assert.assertEquals(actual, expected, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            try {
+                new Screenshot().takeScreenshot(driver);
+            } catch (IOException ignore) {}
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
         return countFalse;
     }
 
-    public Integer assertNotEquals(int countFalse, Object actual, Object expected, String mess) throws IOException {
+    public Integer assertNotEquals(int countFalse, Object actual, Object expected, String mess) {
         try {
             Assert.assertNotEquals(actual, expected, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            try {
+                new Screenshot().takeScreenshot(driver);
+            } catch (IOException ignore) {}
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -45,20 +49,20 @@ public class AssertCustomize {
         } catch (AssertionError ex) {
             try {
 				new Screenshot().takeScreenshot(driver);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			} catch (IOException ignore) {}
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
         return countFalse;
     }
 
-    public Integer assertFalse(int countFalse, boolean actual, String mess) throws IOException {
+    public Integer assertFalse(int countFalse, boolean actual, String mess) {
         try {
             Assert.assertFalse(actual, mess);
         } catch (AssertionError ex) {
-            new Screenshot().takeScreenshot(driver);
+            try {
+                new Screenshot().takeScreenshot(driver);
+            } catch (IOException ignore) {}
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }

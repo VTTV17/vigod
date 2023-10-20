@@ -10,5 +10,6 @@ public class StoreInfo {
     private String storeLogo;
     private String defaultLanguage;
     private List<String> storeLanguageList;
+    private List<String> storeLanguageName;
     private List<String> sFLangList;
 }

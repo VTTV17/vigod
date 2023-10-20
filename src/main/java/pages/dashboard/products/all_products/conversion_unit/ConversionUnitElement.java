@@ -17,8 +17,7 @@ class ConversionUnitElement {
     }
 
     /* Conversion unit config */
-    @FindBy(css = ".uik-checkbox__wrapper > [name='conversionUnitCheckbox']")
-    WebElement ADD_CONVERSION_UNIT_CHECKBOX;
+    By ADD_CONVERSION_UNIT_CHECKBOX = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
 
     @FindBy(css = "div:nth-child(5)  .bg-light-white > div > button")
     WebElement CONFIGURE_BTN;

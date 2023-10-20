@@ -34,4 +34,5 @@ public class ProductInfo {
     private boolean inGosocial;
     private List<Integer> collectionIdList;
     private Map<Integer, Map<String, String>> collectionNameMap;
+    private double taxRate;
 }

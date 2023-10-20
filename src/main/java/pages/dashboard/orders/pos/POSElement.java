@@ -13,6 +13,7 @@ public class POSElement {
     By CART_PRODUCT_VARIATION = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name+span");
     By CART_PRODUCT_PRICE = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__stock-input')]/parent::td/preceding-sibling::td[1]");
     By CART_PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");
+    By CART_PRICE_TOTAL = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__td-action')]//preceding-sibling::td[1]");
     By ADD_STOCK_ICON = By.cssSelector(".err-out-of-stock i");
     By INSUFFICIENT_STOCK_QUANTITY_POPUP_STOCK = By.cssSelector(".order-in-store-purchase-complete__input-stock > input");
     By INSUFFICIENT_STOCK_QUANTITY_POPUP_ADD_IMEI = By.cssSelector("[name = 'serial']");
@@ -21,11 +22,13 @@ public class POSElement {
     By SELECT_IMEI_POPUP_LIST_AVAILABLE_IMEI = By.cssSelector("[class= 'content ']");
     By SELECT_IMEI_POPUP_SAVE_BTN = By.cssSelector(".modal-footer .gs-button__green");
     By SEARCH_CUSTOMER_BOX = By.cssSelector("#dropdownSuggestionCustomer input");
-    By SEARCH_CUSTOMER_RESULT_CUSTOMER_ID = By.cssSelector(".mobile-customer-profile-row__right");
-    By DISCOUNT = By.xpath("//*[contains(@class, 'delivery-group-info')]/preceding-sibling::div[1]/span[1]");
-    By DISCOUNT_DROPDOWN = By.cssSelector(".discount-options .dropdown-box");
-    By DISCOUNT_TYPE = By.cssSelector(".discount-options .uik-select__option");
-    By DISCOUNT_VALUE = By.cssSelector("#discount");
+    By SUB_TOTAL = By.xpath("//*[@class = 'align-self-baseline' and not(child::*)]");
+    By VAT_TOTAL = By.xpath("//*[@class = 'align-self-baseline' and not(child::*)]/parent::div/following-sibling::div[1]/span[2]");
+    By DISCOUNT = By.xpath("//*[contains(@class, 'delivery-group-info')]/preceding-sibling::div[1]/span[1]/span[1]");
+    By DISCOUNT_POPUP_DISCOUNT_DROPDOWN = By.cssSelector(".discount-options .dropdown-box");
+    By DISCOUNT_POPUP_DISCOUNT_TYPE = By.cssSelector(".discount-options .uik-select__option");
+    By DISCOUNT_POPUP_DISCOUNT_VALUE = By.cssSelector("#discount");
+    By DISCOUNT_POPUP_APPLY_BTN = By.cssSelector(".modal-body .gs-button__green");
     By DELIVERY_CHECKBOX = By.cssSelector(".delivery-group-info input");
     By DELIVERY_POPUP_CUSTOMER_NAME = By.cssSelector("#customer_name");
     By DELIVERY_POPUP_PHONE = By.cssSelector("#customer_phone");

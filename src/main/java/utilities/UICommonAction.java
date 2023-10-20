@@ -529,6 +529,22 @@ public class UICommonAction {
 		}
 	}
 
+	public String getValue(By locator, int index) {
+		try {
+			return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index).getAttribute("value");
+		} catch (StaleElementReferenceException ignore) {
+			return driver.findElements(locator).get(index).getAttribute("value");
+		}
+	}
+
+	public String getValue(By locator) {
+		try {
+			return wait.until(ExpectedConditions.presenceOfElementLocated(locator)).getAttribute("value");
+		} catch (StaleElementReferenceException ignore) {
+			return driver.findElement(locator).getAttribute("value");
+		}
+	}
+
 	public String getText(By locator, int index) {
 		try {
 			return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index).getText();

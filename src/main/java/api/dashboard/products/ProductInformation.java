@@ -254,6 +254,10 @@ public class ProductInformation {
                 // set variation status
                 prdInfo.setVariationStatus(List.of(resJson.getString("bhStatus")));
             }
+            // s.out
+            int taxId = resJson.getInt("taxId");
+            String taxRate = resJson.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
+            prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
 
             Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());
             collectionsList.then().statusCode(200);
