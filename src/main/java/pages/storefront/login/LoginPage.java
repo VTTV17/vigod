@@ -56,12 +56,10 @@ public class LoginPage {
     
     @FindBy (id = "forgot-pwd-country-code")
     WebElement COUNTRY_FORGOT_DROPDOWN;       
+
+    By USERNAME = By.cssSelector("#login-username");
     
-    @FindBy(id = "login-username")
-    WebElement USERNAME;
-    
-    @FindBy (id = "login-password")
-    WebElement PASSWORD;    
+    By PASSWORD = By.cssSelector("#login-password");
 
     @FindBy (id = "open-forgot-pwd")
     WebElement FORGOT_PASSWORD;       
@@ -92,6 +90,7 @@ public class LoginPage {
     
     @FindBy (xpath = "(//button[@class='btn btn-primary btn-block btn-submit'])[1]")
     WebElement LOGIN_BTN;
+    By loginPopup = By.cssSelector("#login-country-code");
 
     @FindBy(css = ".loader")
     WebElement SPINNER;
@@ -263,29 +262,17 @@ public class LoginPage {
         soft.assertAll();
     }
 
-    void inputEmailOrPhoneNumberJS(String username) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value = '%s'".formatted(username), USERNAME);
-        logger.info("Input '" + username + "' into Username field.");
-    }
-
-    void inputPasswordJS(String password) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value = '%s'".formatted(password), PASSWORD);
-        logger.info("Input '" + password + "' into Password field.");
-    }
-
     public void clickLoginBtnJS() {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LOGIN_BTN);
         logger.info("Clicked on Login button.");
-//        new GeneralSF(driver).waitTillLoaderDisappear();
     }
 
     public void performLoginJS(String username, String password, LoginInformation loginInformation) {
         navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
-//        new GeneralSF(driver).waitTillLoaderDisappear();
         new HeaderSF(driver).clickUserInfoIconJS()
                 .clickLoginIconJS();
-        inputEmailOrPhoneNumberJS(username);
-        inputPasswordJS(password);
+        inputEmailOrPhoneNumber(username);
+        inputPassword(password);
         clickLoginBtnJS();
         navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
     }

@@ -556,4 +556,7 @@ public class UICommonAction {
 	public void clearText(WebElement el) {
 		el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
 	}
+	public void inputText(By locator, String text) {
+		new Actions(driver).moveToElement(getElement(locator)).click().sendKeys(text);
+	}
 }
