@@ -148,7 +148,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
 
     void selectVNDistrict() {
         // open district dropdown
-        commonMobile.getElement(SELECTED_VN_DISTRICT).click();
+        commonMobile.moveAndGetElement(SELECTED_VN_DISTRICT).click();
 
         // get index of selected district
         List<WebElement> districtList = commonMobile.getElements(VN_DISTRICT_LIST, 10);
@@ -169,7 +169,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
 
     void selectVNWard() {
         // open ward dropdown
-        commonMobile.click(SELECTED_VN_WARD);
+        commonMobile.moveAndGetElement(SELECTED_VN_WARD).click();
 
         // get index of selected ward
         List<WebElement> wardList = commonMobile.getElements(VN_WARD_LIST, 10);

@@ -23,7 +23,7 @@ import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
 public class SupplierTest extends BaseTest{
-    String udid = "10HC8G04UP0003U";
+    String udid = "RFCW81B9BRX";
     String appPackage = "com.mediastep.GoSellForSeller.STG";
     String appActivity = "com.mediastep.gosellseller.modules.splash_screen.SplashScreenActivity";
     String URL = "http://127.0.0.1:4723/wd/hub";
@@ -185,6 +185,6 @@ public class SupplierTest extends BaseTest{
 
     @AfterMethod
     void teardown() {
-        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
+//        new UICommonMobile(driver).restartAppKeepLogin(appPackage, appActivity);
     }
 }

@@ -232,7 +232,7 @@ public class UICommonMobile extends UICommonAction {
 
     public WebElement moveAndGetElement(By locator) {
 		// if element is presented, end
-		if (driver.findElements(locator).size() > 0) return driver.findElement(locator);
+		if (!driver.findElements(locator).isEmpty()) return driver.findElement(locator);
 		// else, scroll to top
 		else moveToTopScreen();
 
@@ -240,7 +240,7 @@ public class UICommonMobile extends UICommonAction {
 		String currentPageSource;
 		String nextPageSource;
         do {
-            if (driver.findElements(locator).size() > 0) return driver.findElement(locator);
+            if (!driver.findElements(locator).isEmpty()) return driver.findElement(locator);
 			currentPageSource = driver.getPageSource().replaceAll(flashSaleRegex, "");
 
 			swipeByCoordinatesInPercent(0.5, 0.75, 0.5, 0.5);

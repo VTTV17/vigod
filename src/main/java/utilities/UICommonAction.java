@@ -557,6 +557,11 @@ public class UICommonAction {
 		el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
 	}
 	public void inputText(By locator, String text) {
-		new Actions(driver).moveToElement(getElement(locator)).click().sendKeys(text);
+		try {
+			wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).sendKeys(text);
+		} catch (TimeoutException ex) {
+			logger.info(ex);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).sendKeys(text);
+		}
 	}
 }

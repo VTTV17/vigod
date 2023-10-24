@@ -32,6 +32,7 @@ public class InitAppiumDriver {
         capabilities.setCapability("noReset", "false");
 		capabilities.setCapability("fastReset", "true");
 		capabilities.setCapability("resetOnSessionStartOnly", "true");
+		capabilities.setCapability("autoGrantPermissions","true");
         return getAppiumDriver(capabilities, url);
     }
 
