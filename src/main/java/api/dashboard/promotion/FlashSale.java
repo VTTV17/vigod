@@ -47,7 +47,7 @@ public class FlashSale {
         brInfo = new BranchManagement(loginInformation).getInfo();
     }
 
-    public FlashSale endEarlyFlashSale() {
+    public void endEarlyFlashSale() {
         // get schedule flash sale list
         List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
         logger.debug("schedule flash sale list: %s".formatted(scheduleList));
@@ -59,23 +59,23 @@ public class FlashSale {
         logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
         if (inProgressList != null)
             inProgressList.forEach(id -> new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200));
-        return this;
     }
 
     String getItem(ProductInfo productInfo, int varIndex) {
         // get model
         String model = productInfo.getVariationModelList().get(varIndex);
 
-        // sale stock
-        int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(model)), 1)) + 1;
+        // if variation stock > 0 => add variation to flash sale campaign
+        if (Collections.max(productInfo.getProductStockQuantityMap().get(model))  > 0) {
+            int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(model))) + 1;
 
-        // purchase limit
-        int purchaseLimit = nextInt(stock + 1);
+            // purchase limit
+            int purchaseLimit = nextInt(stock) + 1;
 
-        // variation price
-        long price = nextLong(productInfo.getProductSellingPrice().get(varIndex));
+            // variation price
+            long price = nextLong(productInfo.getProductSellingPrice().get(varIndex));
 
-        return productInfo.isHasModel() ? """
+            return productInfo.isHasModel() ? """
                 {
                             "itemId": "%s",
                             "limitPurchaseStock": "%s",
@@ -84,7 +84,7 @@ public class FlashSale {
                             "saleStock": "%s"
                         }
                 """.formatted(productInfo.getProductID(), purchaseLimit, model.split("-")[1], price, stock)
-                : """
+                    : """
                 {
                             "itemId": "%s",
                             "limitPurchaseStock": "%s",
@@ -92,10 +92,11 @@ public class FlashSale {
                             "saleStock": "%s"
                         }
                 """.formatted(productInfo.getProductID(), purchaseLimit, price, stock);
+        } else return "";
     }
 
     String getItems(ProductInfo productInfo) {
-        return IntStream.range(0, nextInt(productInfo.getBarcodeList().size()) + 1).mapToObj(varIndex -> getItem(productInfo, varIndex)).toList().toString();
+        return IntStream.range(0, nextInt(productInfo.getVariationModelList().size()) + 1).mapToObj(varIndex -> getItem(productInfo, varIndex)).filter(item -> !item.isEmpty()).toList().toString();
     }
 
     String getFlashSaleBody(ProductInfo productInfo, int... time) {
@@ -117,7 +118,7 @@ public class FlashSale {
                     "items": %s}""".formatted(flashSaleName, flashSaleStartTime, flashSaleEndTime, getItems(productInfo));
     }
 
-    public FlashSale createFlashSale(ProductInfo productInfo, int... time) {
+    public void createFlashSale(ProductInfo productInfo, int... time) {
         endEarlyFlashSale();
         // post api create new flash sale campaign
         Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBody(productInfo, time));
@@ -126,7 +127,6 @@ public class FlashSale {
 
         createFlashSale.then().statusCode(200);
 
-        return this;
     }
 
     void getFlashSaleInformation(int flashSaleID, List<String> listVariationModelId) {
