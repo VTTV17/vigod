@@ -47,7 +47,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     FlashSaleInfo flashSaleInfo;
     Map<String, BranchDiscountCampaignInfo> discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
-    int countFail;
+    int countFail = 0;
     List<Boolean> branchStatus;
     boolean isEnableListingProduct;
     Map<String, List<String>> salePriceMap;

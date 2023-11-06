@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
@@ -74,7 +75,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
 
         // [UI] check UI after check on Add Wholesale Pricing checkbox
-//        checkWholesaleProductConfig();
+        checkWholesaleProductConfig();
 
         // click Configure button
         wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
@@ -86,7 +87,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         commonAction.waitElementVisible(UI_NO_WHOLESALE_CONFIG);
 
         // check [UI] header
-//        checkUIHeader();
+        checkUIHeader();
 
         // hide Facebook bubble
         ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
@@ -114,7 +115,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN)).click();
 
         // check [UI] wholesale product page
-//        checkWithoutVariationConfigTable();
+        checkWithoutVariationConfigTable();
 
         // wait and input buy from
         wait.until(visibilityOf(WITHOUT_VARIATION_BUY_FROM)).click();
@@ -134,16 +135,16 @@ public class WholesaleProductPage extends WholesaleProductElement {
         commonAction.sleepInMiliSecond(1000);
 
         // check [UI] segment default value and search box placeholder
-//        checkSegmentInformation();
+        checkSegmentInformation();
 
         // search segment
         if (new Customers(loginInformation).getSegmentName() == null)
             new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
-        wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-        act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
+        WebElement customerSegmentSearchBox = wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_SEARCH_BOX));
+        act.moveToElement(customerSegmentSearchBox).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
 
         // select segment
-        wait.until(visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();
+        wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_CHECKBOX)).click();
 
         // close segment dropdown
         wait.until(visibilityOf(WITHOUT_VARIATION_CUSTOMER_SEGMENT_DROPDOWN)).click();
@@ -160,7 +161,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
             // open Add variation popup
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_ADD_VARIATION_BTN)).click();
             logger.info("Open select variation popup on wholesale config page.");
-//            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_HEADER_ADD_VARIATION_BTN);
 
             // wait popup visible
             try {
@@ -175,7 +175,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             }
 
             // check [UI] Add variation popup
-//            if (i == 0) checkAddVariationPopup();
+            if (i == 0) checkAddVariationPopup();
 
             // wait list variation visible
             commonAction.sleepInMiliSecond(500);
@@ -211,7 +211,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             commonAction.waitForElementInvisible(SPINNER, 60);
 
             // check [UI] after add new config
-//            checkVariationConfigTable(i);
+            checkVariationConfigTable(i);
 
             // wait and input buy from
             wait.until(ExpectedConditions.elementToBeClickable(VARIATION_BUY_FROM.get(i)));
@@ -232,15 +232,16 @@ public class WholesaleProductPage extends WholesaleProductElement {
             commonAction.sleepInMiliSecond(1000);
 
             // check [UI] segment default value and search box placeholder
-//            checkSegmentInformation();
+            checkSegmentInformation();
 
             // search segment
             commonAction.sleepInMiliSecond(1000);
-            wait.until(visibilityOf(CUSTOMER_SEGMENT_SEARCH_BOX));
-            act.moveToElement(CUSTOMER_SEGMENT_SEARCH_BOX).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
+            WebElement customerSegmentSearchBox =  wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_SEARCH_BOX));
+
+            act.moveToElement(customerSegmentSearchBox).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
 
             // select segment
-            wait.until(visibilityOf(CUSTOMER_SEGMENT_CHECKBOX)).click();
+            wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_CHECKBOX)).click();
 
             // close segment dropdown
             wait.until(visibilityOf(commonAction.refreshListElement(VARIATION_CUSTOMER_SEGMENT_DROPDOWN).get(i))).click();
@@ -300,7 +301,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         } else {
             // check add wholesale pricing button
             String dbAddWholesalePricingBtn = wait.until(visibilityOf(UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN)).getText();
-            while (dbAddWholesalePricingBtn.equals("")) {
+            while (dbAddWholesalePricingBtn.isEmpty()) {
                 dbAddWholesalePricingBtn = UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN.getText();
             }
             String ppAddWholesalePricingBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.withoutVariation.addWholesalePricingBtn", language);

@@ -127,11 +127,12 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
             logger.info("Select country: Vietnam");
         } else {
             // select another country
-            List<String> countryCode = COUNTRY_LIST.stream().map(webElement -> webElement.getAttribute("value")).toList();
+            List<WebElement> countryList = driver.findElements(this.countryList);
+            List<String> countryCode = countryList.stream().map(webElement -> webElement.getAttribute("value")).toList();
             int index = nextInt(countryCode.size());
             while (countryCode.get(index).equals("VN")) index = nextInt(countryCode.size());
             new Select(COUNTRY_DROPDOWN).selectByIndex(index);
-            logger.info("Select country: %s".formatted(COUNTRY_LIST.get(index).getText()));
+            logger.info("Select country: %s".formatted(driver.findElements(this.countryList).get(index).getText()));
         }
 
         commonAction.sleepInMiliSecond(2000);

@@ -35,7 +35,7 @@ public class ProductDetailTest extends BaseTest {
     boolean isHideStock = false;
     boolean isDisplayIfOutOfStock = true;
     ProductInfo productInfo;
-    String udid = "10HC8G04UP0003U";
+    String udid = "RFCW81B9BRX";
     String appPackage = "com.mediastep.shop0018";
     String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
     String URL = "http://127.0.0.1:4723/wd/hub";
@@ -51,7 +51,7 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeClass
     void setup() throws MalformedURLException {
-        tcsFileName = "android/Check product detail.xlsx".replace("/", File.separator);
+//        tcsFileName = "android/Check product detail.xlsx".replace("/", File.separator);
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
         flashSale = new FlashSale(loginInformation);
         discountCampaign = new ProductDiscountCampaign(loginInformation);

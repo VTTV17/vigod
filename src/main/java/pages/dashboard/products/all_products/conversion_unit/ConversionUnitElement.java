@@ -23,8 +23,7 @@ class ConversionUnitElement {
     WebElement CONFIGURE_BTN;
 
     /* Without variation config */
-    @FindBy(css = ".btn-header-wrapper > .gs-button__green--outline")
-    WebElement WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN;
+    By WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
 
     @FindBy(css = ".btn-header-wrapper > .gs-button__green")
     WebElement WITHOUT_VARIATION_HEADER_SAVE_BTN;

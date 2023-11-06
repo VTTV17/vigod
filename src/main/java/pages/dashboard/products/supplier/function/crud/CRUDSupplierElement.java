@@ -1,5 +1,6 @@
 package pages.dashboard.products.supplier.function.crud;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -41,8 +42,7 @@ class CRUDSupplierElement {
     @FindBy(css = "#countryCode")
     WebElement COUNTRY_DROPDOWN;
 
-    @FindBy(css = "#countryCode option")
-    List<WebElement> COUNTRY_LIST;
+    By countryList = By.cssSelector("#countryCode option");
 
     @FindBy(css = "#address")
     WebElement VN_ADDRESS;

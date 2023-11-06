@@ -3,6 +3,8 @@ package api.dashboard.setting;
 import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -16,9 +18,12 @@ public class BranchManagement {
 
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
+    String changeBranchStatusPath = "/storeservice/api/store-branch/setting-status/%s/%s?status=%s";
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
+    Logger logger = LogManager.getLogger(BranchManagement.class);
+    API api = new API();
 
     public BranchManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -28,7 +33,7 @@ public class BranchManagement {
 
     JsonPath getBranchInfoResponseJsonPath() {
         // get all branches response
-        Response branchRes = new API().get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
+        Response branchRes = api.get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         branchRes.then().statusCode(200);
         return branchRes.jsonPath();
     }
@@ -93,6 +98,7 @@ public class BranchManagement {
 
     private void updateBranchInfo(int brID, boolean isDefault, boolean hideOnStoreFront, String branchStatus) {
         int index = brInfo.getBranchID().indexOf(brID);
+        String branchName = brInfo.getBranchName().get(index);
 
         String body = """
                 {
@@ -123,11 +129,15 @@ public class BranchManagement {
                 brInfo.getCityCode().get(index),
                 brInfo.getPhoneNumberFirst().get(index),
                 isDefault,
-                branchStatus,
+                brInfo.getAllBranchStatus().get(index),
                 loginInfo.getStoreName(),
                 hideOnStoreFront,
                 brInfo.getCountryCode().get(index));
-        new API().put(UPDATE_BRANCH_INFORMATION_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(200);
+        api.put(UPDATE_BRANCH_INFORMATION_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(200);
+        logger.info("[API]Change '%s' setting hide on store online: %s.".formatted(branchName, hideOnStoreFront));
+
+        api.put(changeBranchStatusPath.formatted(loginInfo.getStoreID(), brID, branchStatus), loginInfo.getAccessToken());
+        logger.info("[API]Change '%s' status: %s.".formatted(branchName, branchStatus));
     }
 
     public void inactiveAllPaidBranches() {

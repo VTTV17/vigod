@@ -294,7 +294,6 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     Map<String, List<String>> getSaleDisplayMap() {
-        System.out.println(productDiscountCampaignInfo);
         return brInfo.getBranchName().stream().collect(Collectors.toMap(brName -> brName, brName -> IntStream.range(0, flashSaleInfo.getFlashSaleStatus().get(brName).size()).mapToObj(i -> switch (flashSaleInfo.getFlashSaleStatus().get(brName).get(i)) {
             case "IN_PROGRESS", "SCHEDULED" -> "FLASH SALE";
             default ->
@@ -359,12 +358,30 @@ public class ProductDetailPage extends ProductDetailElement {
         try {
             if (DISCOUNT_CAMPAIGN_CHECKBOX.getAttribute("class").contains("unchecked")) {
                 DISCOUNT_CAMPAIGN_CHECKBOX.click();
+                // wait page loaded
+                try {
+                    wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                    logger.info("Wait page loaded after apply discount campaign.");
+                } catch (TimeoutException ex) {
+                    logger.info(ex);
+                    wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                    logger.info("Wait page loaded after apply discount campaign again.");
+                }
             } else {
                 // uncheck
                 DISCOUNT_CAMPAIGN_CHECKBOX.click();
 
                 // check again
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click()", DISCOUNT_CAMPAIGN_CHECKBOX);
+                // wait page loaded
+                try {
+                    wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                    logger.info("Wait page loaded after apply discount campaign.");
+                } catch (TimeoutException ex) {
+                    logger.info(ex);
+                    wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                    logger.info("Wait page loaded after apply discount campaign again.");
+                }
             }
         } catch (NoSuchElementException ex) {
             check = false;
@@ -611,7 +628,14 @@ public class ProductDetailPage extends ProductDetailElement {
                 QUANTITY.sendKeys(String.valueOf(wholesaleProductStock));
 
                 // wait spinner loading if any
-//                commonAction.waitForElementInvisible(SPINNER, 15);
+                try {
+                    wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                    logger.info("Wait page loaded after apply wholesale product discount.");
+                } catch (TimeoutException ex) {
+                    logger.info(ex);
+                    wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                    logger.info("Wait page loaded after apply wholesale product discount again.");
+                }
 
                 // check wholesale product price
                 checkPriceOnEachBranch(listingPrice, wholesaleProductPrice, brName);
@@ -623,10 +647,6 @@ public class ProductDetailPage extends ProductDetailElement {
     void checkAllVariationsAndDiscount(int index, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) throws IOException {
         // get branch info
         brInfo = new BranchManagement(loginInformation).getInfo();
-
-        // log
-        if (variationName.length > 0)
-            if (variationName[0] != null) logger.info("*** var: %s ***".formatted(variationName[0]));
 
         // check product name
         checkProductName(productInfo.getVariationModelList().get(index), language);
@@ -705,21 +725,32 @@ public class ProductDetailPage extends ProductDetailElement {
                 if (productInfo.isHasModel()) {
                     // get variation value
                     List<String> varName = Arrays.stream(variationValue.replace("|", " ").split(" ")).toList();
-
-                    // wait list variation value is visible
-                    commonAction.sleepInMiliSecond(3000);
+                    logger.info("*** var: %s ***".formatted(variationValue));
 
                     // select variation
                     for (String var : varName) {
                         int index = varName.indexOf(var);
+                        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[aria-owns='bs-select-%s']".formatted(index + 1))));
                         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", driver.findElement(By.cssSelector("[aria-owns='bs-select-%s']".formatted(index + 1))));
-                        commonAction.sleepInMiliSecond(500);
+                        logger.info("Open variation dropdown %s.".formatted(index));
+
+                        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@class, 'type-of-item')]//span[text() = '%s']".formatted(var))));
                         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", driver.findElement(By.xpath("//*[contains(@class, 'type-of-item')]//span[text() = '%s']".formatted(var))));
-                        commonAction.sleepInMiliSecond(500);
+                        logger.info("Select variation: %s.".formatted(var));
+
+                        // check variation is selected or not
+                        Assert.assertEquals(driver.findElement(By.cssSelector("[aria-owns='bs-select-%s']".formatted(index + 1))).getAttribute("title"), var, "[Failed] Can not select variation: %s.".formatted(var));
                     }
 
                     // wait page loaded
-                    commonAction.sleepInMiliSecond(3000);
+                    try {
+                        wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                        logger.info("Wait page loaded after select variation.");
+                    } catch (TimeoutException ex) {
+                        logger.info(ex);
+                        wait.until(ExpectedConditions.invisibilityOfElementLocated(SPINNER));
+                        logger.info("Wait page loaded after select variation again.");
+                    }
                 }
 
                 // check product information
@@ -770,11 +801,16 @@ public class ProductDetailPage extends ProductDetailElement {
                     driver.navigate().refresh();
                     logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
 
-                    //wait spinner loaded
-//                    commonAction.waitForElementInvisible(SPINNER, 30);
-
                     // wait product detail page loaded
-                    commonAction.waitElementVisible(PRODUCT_NAME);
+                    try {
+                        commonAction.waitElementVisible(PRODUCT_NAME);
+                        logger.info("Wait page loaded.");
+                    } catch (TimeoutException ex) {
+                        logger.info(ex);
+                        driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductID()));
+                        commonAction.waitElementVisible(PRODUCT_NAME);
+                        logger.info("Wait page loaded.");
+                    }
 
                     if ((maxStock > 0) && (!BRANCH_NAME_LIST.isEmpty())) {
 //                        checkUIInStock(languageCode);

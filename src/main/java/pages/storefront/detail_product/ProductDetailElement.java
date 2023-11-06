@@ -1,5 +1,6 @@
 package pages.storefront.detail_product;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -58,9 +59,7 @@ public class ProductDetailElement {
 
     @FindBy (css = "#button-add-to-cart")
     WebElement ADD_TO_CART_BTN;
-
-    @FindBy(css = ".loader")
-    WebElement SPINNER;
+    By SPINNER = By.cssSelector(".loader");
 
     @FindBy (css = "#locationCode")
     WebElement FILTER_BRANCH;

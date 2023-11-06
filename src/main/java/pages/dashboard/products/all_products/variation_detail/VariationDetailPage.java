@@ -3,10 +3,7 @@ package pages.dashboard.products.all_products.variation_detail;
 import api.dashboard.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -21,6 +18,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.links.Links.DOMAIN;
@@ -57,7 +56,7 @@ public class VariationDetailPage extends VariationDetailElement {
     }
 
     void updateVariationProductName() {
-        wait.until(ExpectedConditions.visibilityOf(PRODUCT_VERSION_NAME)).click();
+        wait.until(visibilityOf(PRODUCT_VERSION_NAME)).click();
         PRODUCT_VERSION_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         PRODUCT_VERSION_NAME.sendKeys("[Update][%s][%s] product version name".formatted(storeInfo.getDefaultLanguage(), productInfo.getVariationListMap().get(storeInfo.getDefaultLanguage()).get(productInfo.getBarcodeList().indexOf(barcode))));
         logger.info("Update product version name.");
@@ -69,7 +68,7 @@ public class VariationDetailPage extends VariationDetailElement {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", REUSE_DESCRIPTION_CHECKBOX);
 
         if (!reuseDescription) {
-            wait.until(ExpectedConditions.elementToBeClickable(DESCRIPTION));
+            wait.until(elementToBeClickable(DESCRIPTION));
             DESCRIPTION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
             DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(storeInfo.getDefaultLanguage(), productInfo.getVariationListMap().get(storeInfo.getDefaultLanguage()).get(productInfo.getBarcodeList().indexOf(barcode))));
         }
@@ -77,17 +76,25 @@ public class VariationDetailPage extends VariationDetailElement {
     }
 
     void completeUpdateProductVersionNameAndDescription() {
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        wait.until(elementToBeClickable(SAVE_BTN)).click();
         logger.info("Complete update variation version name and description.");
 
         commonAction.sleepInMiliSecond(5000);
     }
 
     void updateVariationTranslation(String languageCode, String languageName) throws Exception {
-        wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_BTN)).click();
+        wait.until(presenceOfElementLocated(EDIT_TRANSLATION_BTN)).click();
         logger.info("Open edit translation popup.");
 
-        wait.until(visibilityOf(POPUP));
+        try {
+            wait.until(presenceOfElementLocated(POPUP));
+            logger.info("Wait edit translation popup visible.");
+        } catch (TimeoutException ex) {
+            wait.until(presenceOfElementLocated(EDIT_TRANSLATION_BTN)).click();
+            logger.info("Open edit translation popup again.");
+            wait.until(presenceOfElementLocated(POPUP));
+            logger.info("Wait edit translation popup visible again.");
+        }
 
         if (languageCode.equals("en") && uiLanguage.equals("vi")) languageName = "Tiếng Anh";
 
@@ -104,22 +111,22 @@ public class VariationDetailPage extends VariationDetailElement {
 
         checkUIEditTranslationPopup(uiLanguage);
 
-        wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_PRODUCT_NAME));
+        wait.until(elementToBeClickable(EDIT_TRANSLATION_POPUP_PRODUCT_NAME));
         EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         EDIT_TRANSLATION_POPUP_PRODUCT_NAME.sendKeys("[Update][%s][%s] Product version name".formatted(languageCode, productInfo.getVariationListMap().get(languageCode).get(productInfo.getBarcodeList().indexOf(barcode))));
         logger.info("Edit translation for product version name.");
 
-        wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_DESCRIPTION));
+        wait.until(elementToBeClickable(EDIT_TRANSLATION_POPUP_DESCRIPTION));
         EDIT_TRANSLATION_POPUP_DESCRIPTION.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         EDIT_TRANSLATION_POPUP_DESCRIPTION.sendKeys("[Update][%s][%s] Product description".formatted(languageCode, productInfo.getVariationListMap().get(languageCode).get(productInfo.getBarcodeList().indexOf(barcode))));
         logger.info("Edit translation for product description.");
 
         commonAction.sleepInMiliSecond(1000);
-        wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_SAVE_BTN)).click();
+        wait.until(elementToBeClickable(EDIT_TRANSLATION_POPUP_SAVE_BTN)).click();
         logger.info("Complete edit translation for variation.");
 
         // close edit translation popup
-        wait.until(ExpectedConditions.elementToBeClickable(EDIT_TRANSLATION_POPUP_CLOSE_BTN)).click();
+        wait.until(elementToBeClickable(EDIT_TRANSLATION_POPUP_CLOSE_BTN)).click();
 
     }
 

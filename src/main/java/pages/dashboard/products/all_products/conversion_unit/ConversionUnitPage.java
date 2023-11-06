@@ -45,9 +45,17 @@ public class ConversionUnitPage extends ConversionUnitElement {
     public ConversionUnitPage navigateToConversionUnitPage() throws Exception {
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productPage.getProductID())));
+        logger.info("Navigate to product detail page by URL, productId: %s".formatted(productPage.getProductID()));
 
         // wait page loaded
-        wait.until(ExpectedConditions.presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
+            logger.info("Wait add conversion unit checkbox presented.");
+        } catch (TimeoutException ex) {
+            logger.info(ex);
+            wait.until(ExpectedConditions.presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
+            logger.info("Wait add conversion unit checkbox presented again.");
+        }
         WebElement addConversionUnitCheckbox = driver.findElement(ADD_CONVERSION_UNIT_CHECKBOX);
 
 
@@ -81,10 +89,10 @@ public class ConversionUnitPage extends ConversionUnitElement {
     public void addConversionUnitWithoutVariation() throws Exception {
         if (!productPage.isManageByIMEI()) {
             // click Select Unit button
-            wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
+            wait.until(ExpectedConditions.presenceOfElementLocated(WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN)).click();
 
             // check [UI] config table
-//            checkWithoutVariationConfigTable();
+            checkWithoutVariationConfigTable();
 
             // select conversion unit
             wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_UNIT)).click();

@@ -154,6 +154,27 @@ public class ProductDiscountCode {
                         : (nextInt(Math.max(minStock, 1)) + 1));
     }
 
+    String getPaymentMethodCondition() {
+        // default all payment methods
+        List<String> allPaymentMethod = List.of("VISA", "ATM", "DEBT", "COD", "MOMO", "PAYPAL", "BANK_TRANSFER");
+
+        // get payment method condition
+        List<String> paymentMethod = new ArrayList<>(conditions.getPaymentMethod());
+
+        // when no payment method is provided, check all payment method
+        if (paymentMethod.isEmpty()) paymentMethod.addAll(allPaymentMethod);
+
+        // get list payment method condition
+        List<String> paymentMethodCondition = paymentMethod.stream().map("{\"conditionValue\": \"%s\"}"::formatted).toList();
+
+        return  """
+                {
+                    "conditionOption": "PAYMENT_METHOD",
+                    "conditionType": "PAYMENT_METHOD",
+                    "values": %s
+                }""".formatted(paymentMethodCondition);
+    }
+
     String getPlatformCondition() {
         // get platform
         boolean appliesToApp = conditions.getAppliesToApp() != null
@@ -218,10 +239,11 @@ public class ProductDiscountCode {
 
     String getAllCondition() {
         return """
-                [%s, %s, %s, %s, %s]""".formatted(getSegmentCondition(),
+                [%s, %s, %s, %s, %s, %s]""".formatted(getSegmentCondition(),
                 getAppliesToCondition(),
                 getMinimumRequirement(),
                 getPlatformCondition(),
+                getPaymentMethodCondition(),
                 getBranchCondition());
     }
 

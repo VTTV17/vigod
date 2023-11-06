@@ -1,5 +1,6 @@
 package pages.dashboard.products.all_products;
 
+import api.dashboard.products.ProductCollection;
 import api.dashboard.products.ProductInformation;
 import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
@@ -322,11 +323,20 @@ public class ProductPage extends ProductPageElement {
         driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
 
         // wait page loaded
-        commonAction.waitElementVisible(ADD_CONVERSION_UNIT_CHECKBOX);
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
+            logger.info("Wait add conversion unit checkbox presented.");
+        } catch (TimeoutException ex) {
+            logger.info(ex);
+            wait.until(ExpectedConditions.presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
+            logger.info("Wait add conversion unit checkbox presented again.");
+        }
+
+        WebElement addConversionUnitCheckbox = driver.findElement(ADD_CONVERSION_UNIT_CHECKBOX);
 
         // clear old conversion unit config
-        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_CONVERSION_UNIT_CHECKBOX))
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_CONVERSION_UNIT_CHECKBOX);
+        if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", addConversionUnitCheckbox))
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", addConversionUnitCheckbox);
 
         // delete old wholesale product config if any
         if ((boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX)) {
@@ -359,7 +369,7 @@ public class ProductPage extends ProductPageElement {
         driver.navigate().refresh();
 
         // wait page loaded
-        commonAction.waitElementVisible(ADD_CONVERSION_UNIT_CHECKBOX);
+        wait.until(presenceOfElementLocated(ADD_CONVERSION_UNIT_CHECKBOX));
 
         // hide Facebook bubble
         ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
@@ -416,22 +426,28 @@ public class ProductPage extends ProductPageElement {
 
     void selectCollection() {
         // click on collection search box
-        wait.until(presenceOfElementLocated(COLLECTION_SEARCH_BOX)).click();
-        commonAction.sleepInMiliSecond(500);
+        List<String> collectionsNameList = new ProductCollection(loginInformation).getListOfManualProductCollectionsName();
+        if (collectionsNameList.isEmpty()) {
+            logger.info("Store has not created any collections yet.");
+        } else {
+            try {
+                wait.until(presenceOfElementLocated(COLLECTION_SEARCH_BOX)).click();
+                logger.info("Open list product collections.");
+            } catch (TimeoutException ex) {
+                wait.until(presenceOfElementLocated(COLLECTION_SEARCH_BOX)).click();
+                logger.info("Open list product collections.");
+            }
 
-        // select collection if any
-        if (!LIST_MANUAL_COLLECTION.isEmpty()) {
             // random collection index
-            int index = nextInt(LIST_MANUAL_COLLECTION.size());
+            int index = nextInt(collectionsNameList.size());
 
             // log
-            String collectionName = LIST_MANUAL_COLLECTION.get(index).getText();
-            logger.info("Collection: %s".formatted(collectionName));
+            logger.info("Collection: %s".formatted(collectionsNameList.get(index)));
 
             // select collection
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", LIST_MANUAL_COLLECTION.get(index));
+            WebElement collectionElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[text() = '%s']".formatted(collectionsNameList.get(index)))));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", collectionElement);
         }
-
     }
 
     void inputWithoutVariationProductSKU() {
@@ -447,7 +463,7 @@ public class ProductPage extends ProductPageElement {
         wait.until(visibilityOf(POPUP));
 
         // check [UI] SKU popup
-//        checkUpdateSKUPopup();
+        checkUpdateSKUPopup();
 
         // input SKU for each branch
         for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
@@ -466,7 +482,7 @@ public class ProductPage extends ProductPageElement {
             new Select(MANAGE_INVENTORY).selectByValue(isIMEIProduct ? "IMEI_SERIAL_NUMBER" : "PRODUCT");
 
         // check [UI] after select manage inventory by IMEI/Serial Number
-//        if (isIMEIProduct) checkManageInventoryByIMEINotice();
+        if (isIMEIProduct) checkManageInventoryByIMEINotice();
 
         // log
         logger.info("Manage inventory by: %s".formatted(isIMEIProduct ? "IMEI/Serial Number" : "Product"));
@@ -862,7 +878,7 @@ public class ProductPage extends ProductPageElement {
 
         // select all variation
         commonAction.sleepInMiliSecond(1000);
-        if (!(boolean) ((JavascriptExecutor)driver).executeScript("return arguments[0].checked", VARIATION_TABLE_SELECT_ALL_CHECKBOX))
+        if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", VARIATION_TABLE_SELECT_ALL_CHECKBOX))
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_TABLE_SELECT_ALL_CHECKBOX);
 
         // check [UI] after select all variations
@@ -1282,7 +1298,14 @@ public class ProductPage extends ProductPageElement {
         // open edit translation popup
         if (storeInfo.getStoreLanguageList().size() > 1) {
             // open edit translation popup
-            wait.until(elementToBeClickable(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).click();
+            try {
+                wait.until(presenceOfElementLocated(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).click();
+                logger.info("Open translation popup.");
+            } catch (TimeoutException ex) {
+                logger.info(ex);
+                wait.until(presenceOfElementLocated(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).click();
+                logger.info("Open translation popup again.");
+            }
 
             // wait edit translation popup
             wait.until(visibilityOf(POPUP));
@@ -1409,7 +1432,7 @@ public class ProductPage extends ProductPageElement {
 
         // check header Edit translation button
         if (storeInfo.getStoreLanguageList().size() > 1) {
-            String dbEditTranslationBtn = wait.until(visibilityOf(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).getText();
+            String dbEditTranslationBtn = wait.until(presenceOfElementLocated(UI_HEADER_UP_EDIT_TRANSLATION_BTN)).getText();
             String ppEditTranslationBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.header.editTranslation", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, dbEditTranslationBtn, ppEditTranslationBtn, "[Failed][Header] Edit translation button should be %s, but found %s.".formatted(ppEditTranslationBtn, dbEditTranslationBtn));
             logger.info("[UI][%s] Check Header - Edit translation button.".formatted(language));
@@ -2604,159 +2627,159 @@ public class ProductPage extends ProductPageElement {
 //        wait.until(elementToBeClickable(SAVE_BTN)).click();
         completeUpdateProduct();
     }
-    
-    public void navigateToProductDetailById(int productId) {
-    	commonAction.navigateToURL(DOMAIN + PRODUCT_DETAIL_PAGE_PATH.formatted(productId));
-    	new HomePage(driver).waitTillSpinnerDisappear();
-    	wait.until(ExpectedConditions.presenceOfElementLocated(UI_SEO_SETTING));
-    }
-    
-    public Map<String, Integer> getStock() {
-    	
-    	By branchLocator = By.xpath("//*[@class='branch-list-stock__wrapper__row row']");
-    	
-		/*
-		 * Loop through branches
-		 * then store its name and stock into a hashmap.
-		 * Retry the process when StaleElementReferenceException occurs
-		 */
-    	Map<String, Integer> stockByBranch = new HashMap<String, Integer>();
-    	for (int i=0; i<commonAction.getElements(branchLocator).size(); i++) {
 
-    		String branchName = "";
-    		String stock = "";
-    		
-    		try {
-    			branchName = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//div[1]")).getText();
-    			stock = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//input")).getAttribute("value");
-    			stockByBranch.put(branchName, Integer.valueOf(stock));
-    		} catch (StaleElementReferenceException ex) {
-    			logger.debug("StaleElementReferenceException caught in getSpecificRecord(). Retrying...");
-    			branchName = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//div[1]")).getText();
-    			stock = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//input")).getAttribute("value");
-    			stockByBranch.put(branchName, Integer.valueOf(stock));
-    		}
-    	}
-    	return stockByBranch;
-    }    
-    
-    public Map<String, Integer> getStockOfProductHavingVariations(String barcodeModel) {
-    	
-    	By variationLocator = By.xpath("(//input[contains(@id, 'barcode') and @value='%s']//ancestor::tr//span[@class='gs-fake-link '])[1]".formatted(barcodeModel));
-    	
-    	By branchLocator = By.xpath("//div[contains(@class,'h-fit-content')]//table[contains(@class,'stock_editor_modal__branch-table')]/thead//th");
-    	By quantityLocator = By.xpath("//div[contains(@class,'h-fit-content')]//table[contains(@class,'stock_editor_modal__branch-table')]/tbody//td");
-    	
-    	
-    	commonAction.clickElement(commonAction.getElement(variationLocator));
-    	wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
-    	
-    	/*
-    	 * Loop through branches
-    	 * then store its name and stock into a hashmap.
-    	 * Retry the process when StaleElementReferenceException occurs
-    	 */
-    	Map<String, Integer> stockByBranch = new HashMap<String, Integer>();
-    	for (int i=0; i<commonAction.getElements(branchLocator).size(); i++) {
-    		
-    		String branchName = "";
-    		String stock = "";
-    		
-    		try {
-    			branchName = commonAction.getElements(branchLocator).get(i).getText();
-    			stock = commonAction.getElements(quantityLocator).get(i).getText();
-    			stockByBranch.put(branchName, Integer.valueOf(stock));
-    		} catch (StaleElementReferenceException ex) {
-    			logger.debug("StaleElementReferenceException caught in getStockOfProductHavingVariations(). Retrying...");
-    			branchName = commonAction.getElements(branchLocator).get(i).getText();
-    			stock = commonAction.getElements(quantityLocator).get(i).getText();
-    			stockByBranch.put(branchName, Integer.valueOf(stock));
-    		}
-    	}
-    	
-    	commonAction.clickElement(POPUP_CANCEL_BTN);
-    	
-    	return stockByBranch;
-    }   
-    
-    public Map<String, List<String>> getIMEI() {
-    	
-    	By branchLocator = By.xpath("//table/thead//th");
-    	By quantityLocator = By.xpath("//table/tbody//td");
-    	By imeiLocator = By.xpath(".//div[@class='code']");
-    	
-    	
-    	commonAction.clickElement(UPDATE_STOCK_LINKTEXT);
-    	wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
-    	commonAction.sleepInMiliSecond(2000); // It takes some time for the IMEI to be rendered
-    	
-    	/*
-    	 * Loop through branches
-    	 * then store its name and IMEI values into a hashmap.
-    	 * Retry the process when StaleElementReferenceException occurs
-    	 */
-    	Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
-    	for (int i=1; i<commonAction.getElements(branchLocator).size(); i++) {
-    		
-    		String branchName = "";
-    		String[] imeiArray;
-    		
-    		try {
-    			branchName = commonAction.getElements(branchLocator).get(i).getText();
-    			imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
-    			stockByBranch.put(branchName, Arrays.asList(imeiArray));
-    		} catch (StaleElementReferenceException ex) {
-    			logger.debug("StaleElementReferenceException caught in getIMEI(). Retrying...");
-    			branchName = commonAction.getElements(branchLocator).get(i).getText();
-    			imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
-    			stockByBranch.put(branchName, Arrays.asList(imeiArray));
-    		}
-    	}
-    	
-    	new ConfirmationDialog(driver).clickCancelBtn();
-    
-    	return stockByBranch;
+    public void navigateToProductDetailById(int productId) {
+        commonAction.navigateToURL(DOMAIN + PRODUCT_DETAIL_PAGE_PATH.formatted(productId));
+        new HomePage(driver).waitTillSpinnerDisappear();
+        wait.until(ExpectedConditions.presenceOfElementLocated(UI_SEO_SETTING));
     }
-    
+
+    public Map<String, Integer> getStock() {
+
+        By branchLocator = By.xpath("//*[@class='branch-list-stock__wrapper__row row']");
+
+        /*
+         * Loop through branches
+         * then store its name and stock into a hashmap.
+         * Retry the process when StaleElementReferenceException occurs
+         */
+        Map<String, Integer> stockByBranch = new HashMap<String, Integer>();
+        for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
+
+            String branchName = "";
+            String stock = "";
+
+            try {
+                branchName = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//div[1]")).getText();
+                stock = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//input")).getAttribute("value");
+                stockByBranch.put(branchName, Integer.valueOf(stock));
+            } catch (StaleElementReferenceException ex) {
+                logger.debug("StaleElementReferenceException caught in getSpecificRecord(). Retrying...");
+                branchName = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//div[1]")).getText();
+                stock = commonAction.getElements(branchLocator).get(i).findElement(By.xpath(".//input")).getAttribute("value");
+                stockByBranch.put(branchName, Integer.valueOf(stock));
+            }
+        }
+        return stockByBranch;
+    }
+
+    public Map<String, Integer> getStockOfProductHavingVariations(String barcodeModel) {
+
+        By variationLocator = By.xpath("(//input[contains(@id, 'barcode') and @value='%s']//ancestor::tr//span[@class='gs-fake-link '])[1]".formatted(barcodeModel));
+
+        By branchLocator = By.xpath("//div[contains(@class,'h-fit-content')]//table[contains(@class,'stock_editor_modal__branch-table')]/thead//th");
+        By quantityLocator = By.xpath("//div[contains(@class,'h-fit-content')]//table[contains(@class,'stock_editor_modal__branch-table')]/tbody//td");
+
+
+        commonAction.clickElement(commonAction.getElement(variationLocator));
+        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+
+        /*
+         * Loop through branches
+         * then store its name and stock into a hashmap.
+         * Retry the process when StaleElementReferenceException occurs
+         */
+        Map<String, Integer> stockByBranch = new HashMap<String, Integer>();
+        for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
+
+            String branchName = "";
+            String stock = "";
+
+            try {
+                branchName = commonAction.getElements(branchLocator).get(i).getText();
+                stock = commonAction.getElements(quantityLocator).get(i).getText();
+                stockByBranch.put(branchName, Integer.valueOf(stock));
+            } catch (StaleElementReferenceException ex) {
+                logger.debug("StaleElementReferenceException caught in getStockOfProductHavingVariations(). Retrying...");
+                branchName = commonAction.getElements(branchLocator).get(i).getText();
+                stock = commonAction.getElements(quantityLocator).get(i).getText();
+                stockByBranch.put(branchName, Integer.valueOf(stock));
+            }
+        }
+
+        commonAction.clickElement(POPUP_CANCEL_BTN);
+
+        return stockByBranch;
+    }
+
+    public Map<String, List<String>> getIMEI() {
+
+        By branchLocator = By.xpath("//table/thead//th");
+        By quantityLocator = By.xpath("//table/tbody//td");
+        By imeiLocator = By.xpath(".//div[@class='code']");
+
+
+        commonAction.clickElement(UPDATE_STOCK_LINKTEXT);
+        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+        commonAction.sleepInMiliSecond(2000); // It takes some time for the IMEI to be rendered
+
+        /*
+         * Loop through branches
+         * then store its name and IMEI values into a hashmap.
+         * Retry the process when StaleElementReferenceException occurs
+         */
+        Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
+        for (int i = 1; i < commonAction.getElements(branchLocator).size(); i++) {
+
+            String branchName = "";
+            String[] imeiArray;
+
+            try {
+                branchName = commonAction.getElements(branchLocator).get(i).getText();
+                imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
+                stockByBranch.put(branchName, Arrays.asList(imeiArray));
+            } catch (StaleElementReferenceException ex) {
+                logger.debug("StaleElementReferenceException caught in getIMEI(). Retrying...");
+                branchName = commonAction.getElements(branchLocator).get(i).getText();
+                imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
+                stockByBranch.put(branchName, Arrays.asList(imeiArray));
+            }
+        }
+
+        new ConfirmationDialog(driver).clickCancelBtn();
+
+        return stockByBranch;
+    }
+
     public Map<String, List<String>> getIMEIOfProductHavingVariations(String barcodeModel) {
-    	
-    	
-    	By variationLocator = By.xpath("(//input[contains(@id, 'barcode') and @value='%s']//ancestor::tr//span[@class='gs-fake-link '])[1]".formatted(barcodeModel));
-    	
-    	By branchLocator = By.xpath("(//div[@class='table']//table/thead//th[@class='label'])[last()]//following-sibling::*");
-    	By quantityLocator = By.xpath("//div[@class='table']//table/tbody//form");
-    	By imeiLocator = By.xpath(".//div[@class='code']");
-    	
-    	commonAction.clickElement(commonAction.getElement(variationLocator));
-    	wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
-    	commonAction.sleepInMiliSecond(2000); // It takes some time for the IMEI to be rendered
-    	
-    	/*
-    	 * Loop through branches
-    	 * then store its name and IMEI values into a hashmap.
-    	 * Retry the process when StaleElementReferenceException occurs
-    	 */
-    	Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
-    	for (int i=0; i<commonAction.getElements(branchLocator).size(); i++) {
-    		
-    		String branchName = "";
-    		String[] imeiArray;
-    		
-    		try {
-    			branchName = commonAction.getElements(branchLocator).get(i).getText();
-    			imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
-    			stockByBranch.put(branchName, Arrays.asList(imeiArray));
-    		} catch (StaleElementReferenceException ex) {
-    			logger.debug("StaleElementReferenceException caught in getIMEI(). Retrying...");
-    			branchName = commonAction.getElements(branchLocator).get(i).getText();
-    			imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
-    			stockByBranch.put(branchName, Arrays.asList(imeiArray));
-    		}
-    	}
-    	
-    	new ConfirmationDialog(driver).clickCancelBtn();
-    	
-    	return stockByBranch;
-    }     
-    
+
+
+        By variationLocator = By.xpath("(//input[contains(@id, 'barcode') and @value='%s']//ancestor::tr//span[@class='gs-fake-link '])[1]".formatted(barcodeModel));
+
+        By branchLocator = By.xpath("(//div[@class='table']//table/thead//th[@class='label'])[last()]//following-sibling::*");
+        By quantityLocator = By.xpath("//div[@class='table']//table/tbody//form");
+        By imeiLocator = By.xpath(".//div[@class='code']");
+
+        commonAction.clickElement(commonAction.getElement(variationLocator));
+        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+        commonAction.sleepInMiliSecond(2000); // It takes some time for the IMEI to be rendered
+
+        /*
+         * Loop through branches
+         * then store its name and IMEI values into a hashmap.
+         * Retry the process when StaleElementReferenceException occurs
+         */
+        Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
+        for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
+
+            String branchName = "";
+            String[] imeiArray;
+
+            try {
+                branchName = commonAction.getElements(branchLocator).get(i).getText();
+                imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
+                stockByBranch.put(branchName, Arrays.asList(imeiArray));
+            } catch (StaleElementReferenceException ex) {
+                logger.debug("StaleElementReferenceException caught in getIMEI(). Retrying...");
+                branchName = commonAction.getElements(branchLocator).get(i).getText();
+                imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
+                stockByBranch.put(branchName, Arrays.asList(imeiArray));
+            }
+        }
+
+        new ConfirmationDialog(driver).clickCancelBtn();
+
+        return stockByBranch;
+    }
+
 }

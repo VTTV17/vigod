@@ -215,7 +215,7 @@ public class ProductPageElement {
     @FindBy(css = ".modal-footer .gs-button__gray--outline")
     WebElement POPUP_CANCEL_BTN;
 
-    @FindBy(css = ".modal-body .uik-select__valueWrapper")
+    @FindBy(css = ".gs-dropdown-multiple-select__drop-header .uik-select__valueWrapper")
     WebElement UPDATE_STOCK_POPUP_BRANCH_DROPDOWN;
 
     @FindBy(css = ".modal-body .uik-menuDrop__list > button:nth-child(1)  input")
@@ -275,8 +275,7 @@ public class ProductPageElement {
     @FindBy(css = ".modal-footer .gs-button__green")
     WebElement EDIT_TRANSLATION_POPUP_SAVE_BTN;
 
-    @FindBy(css = ".uik-checkbox__wrapper > [name='conversionUnitCheckbox']")
-    WebElement ADD_CONVERSION_UNIT_CHECKBOX;
+    By ADD_CONVERSION_UNIT_CHECKBOX = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
 
     @FindBy(css = ".uik-checkbox__wrapper > [name='enabledListing']")
     WebElement ADD_WHOLESALE_PRICING_CHECKBOX;
@@ -295,8 +294,7 @@ public class ProductPageElement {
     @FindBy(css = ".gss-content-header .gs-page-title")
     WebElement UI_HEADER_CR_PAGE_TITLE;
 
-    @FindBy(xpath = "//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/preceding-sibling::button")
-    WebElement UI_HEADER_UP_EDIT_TRANSLATION_BTN;
+    By UI_HEADER_UP_EDIT_TRANSLATION_BTN = By.xpath("//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/preceding-sibling::button");
     @FindBy(css = ".gss-content-header .gs-button__green")
     WebElement UI_HEADER_SAVE_BTN;
 

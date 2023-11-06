@@ -69,11 +69,8 @@ public class WholesaleProductElement {
     By VARIATION_CUSTOMER_SEGMENT_DROPDOWN = By.cssSelector(".dropdown-search-checkbox-custom");
 
     /* reuse element */
-    @FindBy(css = ".search-box")
-    WebElement CUSTOMER_SEGMENT_SEARCH_BOX;
-
-    @FindBy(css = ".label-list > .label:nth-child(2)")
-    WebElement CUSTOMER_SEGMENT_CHECKBOX;
+    By CUSTOMER_SEGMENT_SEARCH_BOX = By.cssSelector(".search-box");
+    By CUSTOMER_SEGMENT_CHECKBOX = By.cssSelector(".label-list > .label:nth-child(2)");
 
     @FindBy(css = "#fb-root")
     WebElement FB_BUBBLE;
@@ -121,13 +118,13 @@ public class WholesaleProductElement {
     @FindBy(css = "#ALL +*")
     WebElement UI_SEGMENT_ALL_CUSTOMERS;
 
-    @FindBy(xpath = "//div[contains(@class,'gs-widget')]/descendant::span[1]")
+    @FindBy(css = ".wholesale-group-header.ml-2 span:nth-child(1)")
     List<WebElement> UI_VARIATION_ADD_WHOLESALE_PRICING_BTN;
 
-    @FindBy(xpath = "//div[contains(@class,'gs-widget')]/descendant::span[2]")
+    @FindBy(css = ".wholesale-group-header.ml-2 span:nth-child(2)")
     List<WebElement> UI_VARIATION_DELETE_BTN;
 
-    @FindBy(xpath = "//div[contains(@class,'gs-widget')]/descendant::span[3]")
+    @FindBy(css = ".wholesale-group-header.ml-2 span:nth-child(3)")
     List<WebElement> UI_VARIATION_EDIT_BTN;
 
     @FindBy(css = ".wholesale-grid-item:nth-child(1) label")

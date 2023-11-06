@@ -1,5 +1,6 @@
 package pages.dashboard.products.all_products.variation_detail;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -26,14 +27,12 @@ public class VariationDetailElement {
     @FindBy(css = ".gss-content-header .gs-button__green")
     WebElement SAVE_BTN;
 
-    @FindBy(css = ".gss-content-header span > .gs-button__gray--outline")
-    WebElement EDIT_TRANSLATION_BTN;
+    By EDIT_TRANSLATION_BTN = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
 
     @FindBy(css = ".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline")
     WebElement DEACTIVATE_BTN;
 
-    @FindBy(css = ".modal-content")
-    WebElement POPUP;
+    By POPUP = By.cssSelector(".modal-content");
 
     @FindBy(css = ".uik-select__valueRenderedWrapper .text-truncate")
     WebElement EDIT_TRANSLATION_POPUP_SELECTED_LANGUAGE;
