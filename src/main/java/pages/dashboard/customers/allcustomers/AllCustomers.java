@@ -162,7 +162,7 @@ public class AllCustomers extends HomePage{
 
 	public AllCustomers clickUser(String user) {
 		new HomePage(driver).hideFacebookBubble();
-		String xpath = "//div[@class='full-name' and text()='%s']".formatted(user);
+		String xpath = "//div[@class='text-truncate' and text()='%s']".formatted(user);
 		commonAction.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
 		logger.info("Clicked on user: " + user);
 		new HomePage(driver).waitTillSpinnerDisappear();

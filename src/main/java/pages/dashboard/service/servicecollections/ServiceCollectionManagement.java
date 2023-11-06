@@ -129,6 +129,10 @@ public class ServiceCollectionManagement {
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}
+	public ServiceCollectionManagement waitToUpdateAutomatedCollection(int second){
+		commonAction.sleepInMiliSecond(1000*second);
+		return this;
+	}
 	public ServiceCollectionManagement verifyCollectionInfoAfterCreated(String collectionName, String type, String mode, String items) {
 		verifyCollectionName(collectionName, 0);
 		verifyType(type, 0);

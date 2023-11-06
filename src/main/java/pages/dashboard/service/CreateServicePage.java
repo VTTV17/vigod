@@ -269,7 +269,7 @@ public class CreateServicePage extends HomePage{
     }
     public void checkStockInventoryInDatabase(int itemId, int expected) throws SQLException {
         String query = "SELECT * FROM \"item-services\".inventory WHERE item_id =%s".formatted(itemId);
-        ResultSet resultSet = new InitConnection().createConnection(DB_HOST_ITEM2,DB_ITEM2_USER, DB_ITEM2_PASS).prepareStatement(query).executeQuery();
+        ResultSet resultSet = new InitConnection().createConnection(DB_HOST,DB_USER, DB_PASS).prepareStatement(query).executeQuery();
         while (resultSet.next()) {
             System.out.println(resultSet.getInt("stock"));
             Assert.assertEquals(resultSet.getInt("stock"), expected);

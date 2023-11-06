@@ -16,6 +16,7 @@ import pages.buyerapp.account.BuyerMyProfile;
 import pages.buyerapp.account.address.BuyerAddress;
 import pages.buyerapp.login.LoginPage;
 import pages.buyerapp.navigationbar.NavigationBar;
+import pages.buyerapp.notificationpermission.NotificationPermission;
 import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
@@ -58,7 +59,10 @@ public class MyProfileTest extends BaseTest{
     String stateCheckout;
     String userName_UpdateAddress;
     LoginInformation loginInformation;
-
+    String emailAccount_NoBirthday;
+    String phoneAccounnt_NoBirthday;
+    String emailAccount_NoAddressCheckOut;
+    String emailAccount_UpdateAddress;
     @BeforeClass
     public void setUp() throws Exception {
         buyer = AccountTest.SF_USERNAME_VI_1;
@@ -87,6 +91,11 @@ public class MyProfileTest extends BaseTest{
         stateCheckout = "Annaba";
         userName_UpdateAddress = SF_USERNAME_VI_3;
         tcsFileName = FileNameAndPath.FILE_USER_PROFILE_TCS;
+        emailAccount_NoBirthday = callAPISignUpAccount(true);
+        phoneAccounnt_NoBirthday = callAPISignUpAccount(false);
+        emailAccount_NoAddressCheckOut = callAPISignUpAccount(true);
+        emailAccount_UpdateAddress = callAPISignUpAccount(true);
+
     }
     @BeforeMethod
     public void launchApp() {
@@ -130,7 +139,6 @@ public class MyProfileTest extends BaseTest{
             userName= "01"+generator.randomNumberGeneratedFromEpochTime(7);
             new SignUp(loginInformation).signUpByPhoneNumber(passBuyer,userName,"+84");
         }
-        new UICommonMobile(driver).sleepInMiliSecond(5000);
         return userName;
     }
     @Test
@@ -153,7 +161,7 @@ public class MyProfileTest extends BaseTest{
     @Test
     public void MUP03_UpdateUserProfile_EmailAccount_NoBirthdayBefore(){
         testCaseId = "MUP03";
-        String emailAccount = callAPISignUpAccount(true);
+        String emailAccount = emailAccount_NoBirthday;
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name "+randomNumber;
         String identityCardEdit = randomNumber;
@@ -217,9 +225,9 @@ public class MyProfileTest extends BaseTest{
                 .verifyBirthdayDisabled();
     }
     @Test
-    public void MUP05_UpdateUserProfile_PhoneAccount_NoBirthdayBefore(){
+    public void MUP05_UpdateUserProfile_PhoneAccount_NoBirthdayBefore() {
         testCaseId = "MUP05";
-        String phoneNumber = callAPISignUpAccount(false);
+        String phoneNumber = phoneAccounnt_NoBirthday;
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name "+randomNumber;
         String identityCardEdit = randomNumber;
@@ -229,6 +237,8 @@ public class MyProfileTest extends BaseTest{
         String birthdayEdit =generator.generateDateTime("dd-MM-yyyy");
         login(phoneNumber).
         changeLanguage(language).clickProfile()
+//                .tapOnSaveBtn()
+//                .clickProfile()
                 .inputYourName(nameEdit)
                 .inputEmail(emailEdit)
                 .inputIdentityCard(identityCardEdit)
@@ -332,12 +342,12 @@ public class MyProfileTest extends BaseTest{
     public void MUP08_CheckAddress_NoAddressThenCheckout(){
         testCaseId = "MUP08";
         String radomPhone = generator.randomVNPhone();
-        String emailAccount = callAPISignUpAccount(true);
+        String emailAccount = emailAccount_NoAddressCheckOut;
         login(emailAccount).
         changeLanguage(language);
         //Go to checkout to verify address, then checkout with new address
         callAPIAddToCart(emailAccount);
-        new NavigationBar(driver).tapOnCartIcon()
+        new NavigationBar(driver).tapOnCartIcon().waitLoadingDisapear()
                 .tapOnContinueBtn().scrollDown()
                 .inputPhone("+84",radomPhone)
                 .inputAddressVN("",addressCheckout,cityProvinceCheckout,districtCheckout,wardCheckout)
@@ -391,7 +401,7 @@ public class MyProfileTest extends BaseTest{
     public void MUP10_UpdateAddress_NewAccount(){
         testCaseId = "MUP10";
         //Call api create buyer
-        String emailAccount = callAPISignUpAccount(true);
+        String emailAccount = emailAccount_UpdateAddress;
         //Check update address VN
         String radomPhone = generator.randomVNPhone();
         login(emailAccount).

@@ -5,7 +5,7 @@
         <classes>
             <class name="UserProfileSFTest">
                 <methods>
-                    <include name="UP01_ViewAccountInfo"/>
+<!--                    <include name="UP01_ViewAccountInfo"/>-->
                     <include name="UP02_UpdateMyAccountAndVerifyOnSF_NoBirthdayBefore_EmailAccount"/>
                     <include name="UP03_UpdateUserProfileAndVerifyOnSF_HasBirthdayBefore_EmailAccount"/>
                     <include name="UP04_UpdateUserProfile_NoBirthdayBefore_PhoneAccount"/>

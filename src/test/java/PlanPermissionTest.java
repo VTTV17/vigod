@@ -52,7 +52,7 @@ public class PlanPermissionTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
     public void setupShop(String username, String storeName, String url, String contact, String pickupAddress, String province, String district, String ward) {
         signupPage.inputStoreName(storeName);

@@ -3,6 +3,7 @@ import api.dashboard.onlineshop.APIMenus;
 import api.dashboard.products.APIProductCollection;
 import api.dashboard.products.ProductCollection;
 import api.dashboard.services.CreateServiceAPI;
+import api.dashboard.services.EditServiceAPI;
 import api.dashboard.services.ServiceCollectionAPI;
 import api.dashboard.services.ServiceInfoAPI;
 import org.testng.ITestResult;
@@ -119,7 +120,7 @@ public class ServiceCollectionTest extends BaseTest{
         pages.storefront.login.LoginPage loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(domainSF);
         HeaderSF headerSF = new HeaderSF(driver);
-        headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
+        headerSF.clickUserInfoIcon().changeLanguage(languageSF);
         headerSF. clickOnMenuItemByText(collectionName).waitTillLoaderDisappear();
         return new ProductCollectionSF(driver);
     }
@@ -275,9 +276,11 @@ public class ServiceCollectionTest extends BaseTest{
                 .verifyCollectionEmpty();
     }
     @Test(dependsOnMethods = "SC01_CreateManualServiceCollectionHasNoService",priority = 2)
+//    @Test
     public void SC02_AddServiceToExistingManualCollection() throws Exception {
         testCaseId = "SC02";
         serviceList = callAPICreateService(1);
+//        serviceCollectionNameEdit="Collection has no service mhbNdmzpni";
         loginAndNavigateToEditServiceCollection(serviceCollectionNameEdit)
                 .editServiceListInManualCollection(serviceList,false,false)
                 .refreshPage()
@@ -335,10 +338,13 @@ public class ServiceCollectionTest extends BaseTest{
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),serviceListExpected);
     }
     @Test(dependsOnMethods = "SC04_CreateManualServiceCollectionWithServiceHasPriority",priority = 5)
+//    @Test
     public void SC05_UpdatePriorityNumber() throws Exception {
         testCaseId = "SC05";
+//        serviceCollectionNameEdit="Collection service has priority TItXtDWIrL";
         loginAndNavigateToEditServiceCollection(serviceCollectionNameEdit)
                 .editServicePriorityInCollection()
+                .refreshPage()
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit, Constant.SERVICE_TYPE, MANUALLY_MODE, String.valueOf(serviceList.length));
         navigateToSFAndVerifyCollectionPage(serviceCollectionNameEdit,true);
@@ -479,5 +485,71 @@ public class ServiceCollectionTest extends BaseTest{
         checkPlanPermission(userName_goPOS,false);
         checkPlanPermission(userName_goSocial,false);
         checkPlanPermission(userName_GoLead,false);
+    }
+    @Test(priority = 16)
+    public void SC16_CheckText() throws Exception {
+        loginAndNavigateToCreateServiceCollection().verifyText();
+    }
+    @Test(priority = 17)
+    public void SC17_VerifyAutomatedCollectionWhenHasNewServiceMeetsCondition() throws Exception {
+        testCaseId = "SC17";
+        String randomText =  generate.generateString(10);
+        String serviceName = "Service contain keyword "+ randomText;
+        String serviceCollectionName = "Collection service contains " + randomText;
+        String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.CONTAINS+"-"+randomText};
+        ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
+        serviceCollectionsInfo.setCollectionName(serviceCollectionName);
+        serviceCollectionsInfo.setCollectionType(Constant.AUTOMATED_OPTION);
+        serviceCollectionsInfo.setConditionType(ALL_CONDITION);
+        serviceCollectionsInfo.setAutomatedConditions(condition);
+        loginAndNavigateToCreateServiceCollection()
+                .createServiceCollection(serviceCollectionsInfo)
+                .refreshPage()
+                .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "0");
+        callAPICreateService(serviceName);
+        callCreateMenuItemParentAPI(serviceCollectionsInfo.getCollectionName());
+        serviceList = new String[]{serviceName.toLowerCase()};
+        new ServiceCollectionManagement(driver)
+                .waitToUpdateAutomatedCollection(2)
+                .refreshPage()
+                .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "1");
+        //Check on SF
+        navigateSFAndGoToCollectionPage(serviceCollectionsInfo.getCollectionName());
+        productCollectionSF = new ProductCollectionSF(driver);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(), Arrays.stream(serviceList).toList());
+    }
+//    @Test(priority = 18)
+    public void SC18_VerifyAutomatedCollectionWhenServiceBelongCollectionDoesNotMeetCondition() throws Exception {
+//        testCaseId = "SC18";
+        String randomText =  generate.generateString(10);
+        String serviceName = "Service contain keyword "+ randomText;
+        String serviceCollectionName = "Collection service contains " + randomText;
+        String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.CONTAINS+"-"+randomText};
+        ServiceInfo serviceInfo = callAPICreateService(serviceName);
+        serviceList = new String[]{serviceName.toLowerCase()};
+
+        ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
+        serviceCollectionsInfo.setCollectionName(serviceCollectionName);
+        serviceCollectionsInfo.setCollectionType(Constant.AUTOMATED_OPTION);
+        serviceCollectionsInfo.setConditionType(ALL_CONDITION);
+        serviceCollectionsInfo.setAutomatedConditions(condition);
+        loginAndNavigateToCreateServiceCollection()
+                .createServiceCollection(serviceCollectionsInfo)
+                .refreshPage()
+                .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "1");
+        //Update service
+        EditServiceAPI editServiceAPI = new EditServiceAPI(loginInformation);
+        editServiceAPI.setServiceNameEdit("Update name"+generate.generateString(5));
+        editServiceAPI.updateService(serviceInfo.getServiceId());
+        //Create menu item
+        callCreateMenuItemParentAPI(serviceCollectionsInfo.getCollectionName());
+        new ServiceCollectionManagement(driver)
+                .waitToUpdateAutomatedCollection(3)
+                .refreshPage()
+                .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "0");
+        //Check on SF
+        navigateSFAndGoToCollectionPage(serviceCollectionsInfo.getCollectionName());
+        productCollectionSF = new ProductCollectionSF(driver);
+        productCollectionSF.verifyCollectionEmpty();
     }
 }

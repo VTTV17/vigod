@@ -3,7 +3,9 @@ import api.dashboard.marketing.APIBuyLink;
 import api.dashboard.onlineshop.APIPreferences;
 import api.dashboard.products.APIEditProduct;
 import api.dashboard.products.CreateProduct;
+import api.dashboard.products.ProductInformation;
 import api.dashboard.promotion.CreatePromotion;
+import api.dashboard.promotion.ProductDiscountCode;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -24,6 +26,8 @@ import utilities.PropertiesUtil;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.model.api.promotion.productDiscountCode.ProductDiscountCodeConditions;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
@@ -159,6 +163,17 @@ public class BuyLinkTest extends BaseTest {
         CreateProduct productInfo = new CreateProduct(loginInformation).createWithoutVariationProduct(false,10);
         int productId =  productInfo.getProductID();
         new CreatePromotion(loginInformation).createProductDiscountCode(0);
+
+//        ProductInfo productInfo1 = new ProductInformation(loginInformation).getInfo(productId);
+//        ProductDiscountCodeConditions codeConditions = new ProductDiscountCodeConditions();
+//        codeConditions.setCouponType(1);
+//        codeConditions.setCouponLimitedUsage(false);
+//        codeConditions.setCouponLimitToOne(false);
+//        codeConditions.setEnableReward(false);
+//        codeConditions.setAppliesToWeb(true);
+//        codeConditions.setSegmentConditionType(0);
+//        codeConditions.setAppliesToType(0);
+//        new ProductDiscountCode(loginInformation).createProductDiscountCode(codeConditions, productInfo1, 0);
         productName = new String[]{new CreateProduct(loginInformation).getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = new CreateProduct(loginInformation).getProductSellingPrice().get(0);

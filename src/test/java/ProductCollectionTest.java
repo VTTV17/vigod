@@ -10,6 +10,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
+import pages.dashboard.products.all_products.ProductPage;
 import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
 import pages.dashboard.products.productcollection.createeditproductcollection.EditProductCollection;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
@@ -19,6 +20,8 @@ import utilities.Constant;
 import utilities.PropertiesUtil;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.excel.Excel;
+import utilities.file.FileNameAndPath;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -29,7 +32,7 @@ import java.util.Map;
 import static utilities.Constant.PAGE_SIZE_SF_COLLECTION;
 import static utilities.account.AccountTest.*;
 import static utilities.enums.MenuItemType.COLLECTION_PRODUCT;
-import static utilities.file.FileNameAndPath.FILE_PRODUCT_COLLECTION;
+import static utilities.file.FileNameAndPath.*;
 import static utilities.links.Links.SF_ShopVi;
 
 public class ProductCollectionTest extends BaseTest {
@@ -70,6 +73,7 @@ public class ProductCollectionTest extends BaseTest {
     String manuallyMode;
     String productType;
     LoginInformation loginInformation;
+    int collectionIdHasPriority;
     @BeforeClass
     public void getData() throws Exception {
         userNameDb = ADMIN_SHOP_VI_USERNAME;
@@ -421,6 +425,7 @@ public class ProductCollectionTest extends BaseTest {
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
         collectNameEditPriority = collectionName;
+        collectionIdHasPriority = collectIDNewest;
     }
 
     @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber",priority = 14)
@@ -428,7 +433,7 @@ public class ProductCollectionTest extends BaseTest {
         loginAndNavigateToEditCollection(collectNameEditPriority)
                 .editProductPriorityInCollection();
         navigateToSFAndVerifyCollectionPage(collectNameEditPriority, true);
-        callDeleteMenuItemAndCollectionAPI(collectNameEditPriority);
+//        callDeleteMenuItemAndCollectionAPI(collectNameEditPriority);
     }
 
     @Test(priority = 15)
@@ -504,5 +509,16 @@ public class ProductCollectionTest extends BaseTest {
         loginAndNavigateToCreateProductCollection()
                 .verifyTextOfPage();
     }
+//    @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber",priority = 14)
+    @Test
+    public void PC_21_VerifyCollectionAfterImportProductToAvailableCollection_HasPriority(){
+        collectionIdHasPriority =33218;
+        Excel excel = new Excel();
+        excel.writeCellValue(0,2,16,String.valueOf(collectionIdHasPriority),FOLDER_UPLOAD_FILE,FOLDER_IMPORT_PRODUCT, FILE_IMPORT_PRODUCT);
+        loginDashboard = new LoginPage(driver);
+        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        new HomePage(driver).navigateToPage("Products");
+        new ProductPage(driver,loginInformation).importProduct(FILE_IMPORT_PRODUCT);
 
+    }
 }

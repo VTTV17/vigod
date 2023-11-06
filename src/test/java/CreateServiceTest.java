@@ -417,7 +417,6 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyDescriptionAsHTMLFormat(htmlDescription);
     }
-
     @Test
     public void CS09_CheckServiceQuantity() throws Exception {
         testCaseId = "CS09";
@@ -439,7 +438,7 @@ public class CreateServiceTest extends BaseTest {
                 .clickOnEditNewestService();
         int serviceId = createService.getServiceId();
         createService = new CreateServicePage(driver);
-        createService.checkStockInventoryInDatabase(serviceId, 1000000);
+        createService.checkStockInventoryInDatabase(serviceId, 1000000);  //Has check database
     }
 
     @Test

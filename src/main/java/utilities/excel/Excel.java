@@ -125,6 +125,35 @@ public class Excel {
     		return true;
     	}
     	return false;
-    }    
-    
+    }
+    public void writeCellValue(int sheetId, int rowIndex, int columnIndex, String value, String...folderAndFileName) {
+        String pathChild ="";
+        for (int i=0;i<folderAndFileName.length;i++){
+            if(i<folderAndFileName.length -1){
+                pathChild = pathChild + getDirectorySlash(folderAndFileName[i]);
+            }else pathChild = pathChild + folderAndFileName[i];
+        }
+        String filePath = projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + pathChild;
+        System.out.println(filePath);
+        try {
+            FileInputStream excelFile = new FileInputStream(filePath);
+            workbook = new XSSFWorkbook(excelFile);
+            sheet = workbook.getSheetAt(sheetId);
+            row = sheet.getRow(rowIndex);
+            cell = row.getCell(columnIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell == null) {
+                cell = row.createCell(columnIndex);
+                cell.setCellValue(value);
+            } else {
+                cell.setCellValue(value);
+            }
+            FileOutputStream fileOut = new FileOutputStream(filePath);
+            workbook.write(fileOut);
+            fileOut.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }
+

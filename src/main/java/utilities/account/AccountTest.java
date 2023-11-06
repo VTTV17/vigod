@@ -9,7 +9,8 @@ public class AccountTest {
     public final static String BUYER_PASSWORD_THANG = PropertiesUtil.getEnvironmentData("buyerShopThangPassword");
     // 10.10.0.15
     // beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com
-    public static String DB_HOST = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
+//    public static String DB_HOST = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
+    public static String DB_HOST = "172.16.113.55";
     public static String DB_HOST_ITEM2 = "beecow-staging-item.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_HOST_CATALOG = "beecow-staging.clvpjm611njd.ap-southeast-1.rds.amazonaws.com";
     public static String DB_PORT = "5432";
