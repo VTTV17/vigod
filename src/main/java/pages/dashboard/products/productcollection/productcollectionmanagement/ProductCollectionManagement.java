@@ -41,7 +41,7 @@ public class ProductCollectionManagement extends HomePage {
 
     public CreateProductCollection clickOnCreateCollection() {
         commonAction.clickElement(collectionManagementUI.CREATE_PRODUCT_COLLECTION_BTN);
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         logger.info("Click on Create Product Collection button.");
         return new CreateProductCollection(driver);
     }

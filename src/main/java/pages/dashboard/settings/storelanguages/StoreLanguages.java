@@ -31,7 +31,7 @@ public class StoreLanguages {
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = "li:nth-child(8) > a.nav-link")
+	@FindBy(css = "li:nth-child(9) > a.nav-link")
 	WebElement STORE_LANGUAGE_TAB;
 	
 	@FindBy(css = ".languages-setting .gs-button__green")

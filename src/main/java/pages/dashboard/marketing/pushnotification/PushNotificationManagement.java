@@ -64,6 +64,7 @@ public class PushNotificationManagement {
     public void verifyPermissionToCreatePushNotification(String permission, String url) {
 		if (permission.contentEquals("A")) {
 			clickExploreNow();
+			commonAction.sleepInMiliSecond(1000); //Sometimes it navigates to Create Campaign screen. Temporary
 			clickCreateCampaign();
 		} else if (permission.contentEquals("D")) {
 			Assert.assertFalse(commonAction.getCurrentURL().contains(url));

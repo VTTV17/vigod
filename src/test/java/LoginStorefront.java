@@ -276,7 +276,7 @@ public class LoginStorefront extends BaseTest {
 		// Verify user info in Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear();
+//		new HomePage(driver).waitTillSpinnerDisappear();
 		
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName).clickUser(displayName);
 		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), phone);

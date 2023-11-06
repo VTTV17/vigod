@@ -40,7 +40,7 @@ public class Inventory {
 	public InventoryHistory clickInventoryHistory() {
 		commons.clickElement(INVENTORY_HISTORY_BTN);
 		logger.info("Clicked on 'Inventory History' button.");
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear1();
 		return new InventoryHistory(driver);
 	}
 

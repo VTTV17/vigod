@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class UICommonAction {
@@ -79,16 +80,19 @@ public class UICommonAction {
 
 
 	public void clickElement(WebElement element) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-		} catch (StaleElementReferenceException ex) {
-			logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
-			List<WebElement> listOfElements = refreshElement(element);
-			if (listOfElements.size() == 1) element = listOfElements.get(0);
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-		} catch (ElementNotInteractableException ex) {
-			logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+		for (int i=0; i<5; i++) { //There are times when the element is still stale after re-locating it
+			try {
+				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+				break;
+			} catch (StaleElementReferenceException ex) {
+				logger.debug("StaleElementReferenceException caught in clickElement \n" + ex);
+				List<WebElement> listOfElements = refreshElement(element);
+				if (listOfElements.size() == 1) element = listOfElements.get(0);
+				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+			} catch (ElementNotInteractableException ex) {
+				logger.debug("ElementNotInteractableException caught in clickElement \n" + ex);
+				wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+			}
 		}
 	}
 	

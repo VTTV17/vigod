@@ -13,7 +13,7 @@ public class DiscountElement {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy (css = ".d-flex > div:not(.second-button-group)")
+    @FindBy (css = ".discount-header .d-flex > div:not(.second-button-group)")
     WebElement CREATE_PROMOTION_BTN;
 
     @FindBy (xpath = "(//div[contains(@class,'discount-header')]//div[contains(@class,'uik-menuDrop__list')]//button)[1]")

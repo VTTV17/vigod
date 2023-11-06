@@ -47,7 +47,7 @@ public class OrderList {
 	@FindBy(xpath = "(//div[contains(@class,'uik-menuDrop__list')]//button)[2]")
 	WebElement EXPORT_ORDER__BY_PRODUCT_BTN;
 
-	@FindBy(xpath = "(//div[contains(@class,'uik-menuDrop__list')]//button)[3]")
+	@FindBy(xpath = "(//div[contains(@class,'uik-menuDrop__list')]//button)[last()]")
 	WebElement EXPORT_HISTORY_BTN;
 	
 	@FindBy(id = "btn-readyToShip")
@@ -98,6 +98,7 @@ public class OrderList {
 			return this;
 		}
 		commonAction.clickElement(EXPORT_HISTORY_BTN);
+		new HomePage(driver).waitTillLoadingDotsDisappear();
 		logger.info("Clicked on 'Export History' button.");
 		return this;
 	}

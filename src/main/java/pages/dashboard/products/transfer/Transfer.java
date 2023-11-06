@@ -3,6 +3,7 @@ package pages.dashboard.products.transfer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +17,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import pages.dashboard.cashbook.Cashbook;
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
@@ -30,7 +30,7 @@ public class Transfer {
 
 	public Transfer(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		commons = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
 	}
@@ -93,6 +93,9 @@ public class Transfer {
 	public Transfer inputProductSearchTerm(String searchTerm) {
 		commons.inputText(PRODUCTSEARCH_BOX, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Product Search box.");
+		commons.sleepInMiliSecond(500); //There's a delay of 500ms before search operation commences
+		By searchLoadingIcon = By.xpath("//div[contains(@class,'search-result')]/div[contains(@class,'loading')]");
+		commons.waitForElementInvisible(commons.getElement(searchLoadingIcon), 30);
 		return this;
 	}
 
@@ -109,6 +112,48 @@ public class Transfer {
 		commons.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(branchName)));
 		logger.info("Selected source branch: " + name);
 		return this;
+	}	
+	
+	public List<List<String>> getSearchResults() {
+		By results = By.xpath("//div[contains(@class,'search-result')]/div[contains(@class,'product-item')]");
+		
+		By name = By.xpath(".//div[contains(@class,'search-item')]/div/span[position()=1 %s]".formatted(""));
+		By barcode = By.xpath(".//div[contains(@class,'search-item')]/div/span[position()=2 %s]".formatted(""));
+		By variation = By.xpath(".//div[contains(@class,'search-item')]/div/span[position()=3 %s]".formatted(""));
+		By inventory = By.xpath(".//div[contains(@class,'search-item')]/span/p[position()=1 %s]".formatted(""));
+		By unit = By.xpath(".//div[contains(@class,'search-item')]/span/p[position()=2 %s]".formatted(""));
+		 
+		List<List<String>> resultList = new ArrayList<>();
+		
+		for (int i=0; i<commons.getElements(results).size(); i++) {
+			List<String> temp = new ArrayList<>();
+			
+			// Get name
+			temp.add(commons.getElements(results).get(i).findElement(name).getText());
+			
+			// Get barcode
+			temp.add(commons.getElements(results).get(i).findElement(barcode).getText());
+			
+			// Get variation value if the product has variations
+			if (commons.getElements(results).get(i).findElements(variation).size() > 0) {
+				temp.add(commons.getElements(results).get(i).findElement(variation).getText());
+			} else {
+				temp.add("");
+			}
+			
+			// Get inventory
+			temp.add(commons.getElements(results).get(i).findElement(inventory).getText());
+			
+			// Get conversion units if the product has conversion units
+			if (commons.getElements(results).get(i).findElements(unit).size() > 0) {
+				temp.add(commons.getElements(results).get(i).findElement(unit).getText());
+			} else {
+				temp.add("");
+			}
+			
+			resultList.add(temp);
+		}
+		return resultList;
 	}	
 	
 	public Transfer selectDestinationBranch(String name) {

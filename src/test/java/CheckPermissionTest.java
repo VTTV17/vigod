@@ -45,6 +45,7 @@ public class CheckPermissionTest extends BaseTest {
 		dbLoginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
+		productReviewPage = new ProductReviews(driver);
 	}	
 	
 	@BeforeMethod

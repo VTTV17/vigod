@@ -516,7 +516,7 @@ public class LoginBuyerApp {
 		Assert.assertEquals(new BuyerMyProfile(driver).getNewPasswordError(), "Mật khẩu phải có ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt(!@#$%...)");
 	}	
 	
-//	@Test
+	@Test
 	public void Login_15_ChangePasswordWithValidData() {
 		String country = BUYER_FORGOT_MAIL_COUNTRY;
 		String username = BUYER_FORGOT_MAIL_USERNAME;

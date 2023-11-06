@@ -46,7 +46,7 @@ public class AllCustomers extends HomePage{
 	@FindBy(xpath = "(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[3]")
 	WebElement IMPORT_CUSTOMER_BTN;	
 
-    @FindBy(xpath = "(//div[contains(@class,'customer-list')]//button)[4]")
+    @FindBy(xpath = "(//div[contains(@class,'customer-list')]//div[contains(@class,'buttons-row')]//button)[last()]")
     WebElement PRINT_BARCODE_BTN;	
 	
 	@FindBy(css = ".customer-list__filter-container .gs-search-box__wrapper .uik-input__input")
@@ -75,6 +75,7 @@ public class AllCustomers extends HomePage{
 	
 	public AllCustomers navigate() {
 		new HomePage(driver).navigateToPage("Customers");
+		commonAction.sleepInMiliSecond(2000);
 		return this;
 	}
 

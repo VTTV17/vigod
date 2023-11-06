@@ -560,8 +560,9 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
     
     public boolean isReviewTabDisplayed() {
-    	commonMobile.sleepInMiliSecond(500); //Sometimes it does not scroll down to the element
+    	commonMobile.sleepInMiliSecond(1000); //Sometimes it does not scroll down to the element
     	commonMobile.moveAndGetElement(PRODUCT_DESCRIPTION_TAB);
+    	commonMobile.sleepInMiliSecond(1000); //Sometimes it does not scroll down to the element
         boolean isDisplayed = !commonMobile.isElementNotDisplay(commonMobile.getElements(PRODUCT_REVIEW_TAB));
         logger.info("Is Review tab displayed: " + isDisplayed);
         return isDisplayed;

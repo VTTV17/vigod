@@ -31,7 +31,7 @@ public class VATInformation {
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = "li:nth-child(7) > a.nav-link")
+	@FindBy(css = "li:nth-child(8) > a.nav-link")
 	WebElement VAT_TAB;
 	
 	@FindBy(css = ".VAT .gs-button__green")

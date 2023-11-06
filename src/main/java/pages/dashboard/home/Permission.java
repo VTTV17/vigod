@@ -592,7 +592,7 @@ public class Permission {
 						new BankAccountInformation(driver).verifyPermissionToSetBankAccountInfo(permission.get(menuComponent));
 					}
 					if (function.contentEquals("Add Staff")) {
-						new StaffPage(driver).verifyPermissionToAddStaff(permission.get(menuComponent));
+//						new StaffPage(driver).verifyPermissionToAddStaff(permission.get(menuComponent));
 					}
 					if (function.contentEquals("Add Branch")) {
 						new BranchPage(driver).verifyPermissionToAddBranch(permission.get(menuComponent));

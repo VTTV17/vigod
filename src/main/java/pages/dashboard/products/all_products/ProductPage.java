@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -24,7 +25,6 @@ import pages.dashboard.products.all_products.wholesale_price.WholesaleProductPag
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.data.DataGenerator;
-import utilities.file.FileNameAndPath;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
@@ -2740,44 +2740,50 @@ public class ProductPage extends ProductPageElement {
     }
 
     public Map<String, List<String>> getIMEIOfProductHavingVariations(String barcodeModel) {
-
-
-        By variationLocator = By.xpath("(//input[contains(@id, 'barcode') and @value='%s']//ancestor::tr//span[@class='gs-fake-link '])[1]".formatted(barcodeModel));
-
-        By branchLocator = By.xpath("(//div[@class='table']//table/thead//th[@class='label'])[last()]//following-sibling::*");
-        By quantityLocator = By.xpath("//div[@class='table']//table/tbody//form");
-        By imeiLocator = By.xpath(".//div[@class='code']");
-
-        commonAction.clickElement(commonAction.getElement(variationLocator));
-        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
-        commonAction.sleepInMiliSecond(2000); // It takes some time for the IMEI to be rendered
-
-        /*
-         * Loop through branches
-         * then store its name and IMEI values into a hashmap.
-         * Retry the process when StaleElementReferenceException occurs
-         */
-        Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
-        for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
-            String branchName = "";
-            String[] imeiArray;
-
-            try {
-                branchName = commonAction.getElements(branchLocator).get(i).getText();
-                imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
-                stockByBranch.put(branchName, Arrays.asList(imeiArray));
-            } catch (StaleElementReferenceException ex) {
-                logger.debug("StaleElementReferenceException caught in getIMEI(). Retrying...");
-                branchName = commonAction.getElements(branchLocator).get(i).getText();
-                imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
-                stockByBranch.put(branchName, Arrays.asList(imeiArray));
-            }
-        }
-
-        new ConfirmationDialog(driver).clickCancelBtn();
-
-        return stockByBranch;
-    }
+    	By variationLocator = By.xpath("(//input[contains(@id, 'barcode') and @value='%s']//ancestor::tr//span[@class='gs-fake-link '])[1]".formatted(barcodeModel));
+    	
+    	By branchLocator = By.xpath("(//div[@class='table']//table/thead//th[@class='label'])[last()]//following-sibling::*");
+    	By quantityLocator = By.xpath("//div[@class='table']//table/tbody//form");
+    	By imeiLocator = By.xpath(".//div[@class='code']");
+    	
+    	commonAction.clickElement(commonAction.getElement(variationLocator));
+    	wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+    	// Sometimes the dialog has appeared but the IMEI values is not displayed
+    	commonAction.sleepInMiliSecond(1000);
+    	for (int i=0; i<5; i++) {
+    		int sixe = commonAction.getElements(new ByChained(imeiLocator, By.xpath("./div"))).size();
+    		logger.debug("========= Size: " + sixe);
+    		if (sixe>0) break;
+    		commonAction.sleepInMiliSecond(1000);
+    	}
+    	
+    	/*
+    	 * Loop through branches
+    	 * then store its name and IMEI values into a hashmap.
+    	 * Retry the process when StaleElementReferenceException occurs
+    	 */
+    	Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
+    	for (int i=0; i<commonAction.getElements(branchLocator).size(); i++) {
+    		
+    		String branchName = "";
+    		String[] imeiArray;
+    		
+    		try {
+    			branchName = commonAction.getElements(branchLocator).get(i).getText();
+    			imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
+    			stockByBranch.put(branchName, Arrays.asList(imeiArray));
+    		} catch (StaleElementReferenceException ex) {
+    			logger.debug("StaleElementReferenceException caught in getIMEI(). Retrying...");
+    			branchName = commonAction.getElements(branchLocator).get(i).getText();
+    			imeiArray = commonAction.getElements(quantityLocator).get(i).findElement(imeiLocator).getText().split("\n");
+    			stockByBranch.put(branchName, Arrays.asList(imeiArray));
+    		}
+    	}
+    	
+    	new ConfirmationDialog(driver).clickCancelBtn();
+    	
+    	return stockByBranch;
+    }  
     public ProductPage clickImport(){
         commonAction.clickElement(IMPORT_BTN);
         logger.info("Click on import button.");
