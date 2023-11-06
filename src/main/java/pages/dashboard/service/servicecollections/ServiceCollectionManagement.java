@@ -61,7 +61,7 @@ public class ServiceCollectionManagement {
 	public CreateServiceCollection clickCreateServiceCollection() {
 		commonAction.clickElement(CREATE_SERVICE_COLLECTION_BTN);
 		logger.info("Clicked on 'Create Service Collection' button.");
-		new HomePage(driver).waitTillSpinnerDisappear();
+		new HomePage(driver).waitTillSpinnerDisappear1();
 		return new CreateServiceCollection(driver);
 	}
 

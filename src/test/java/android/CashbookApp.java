@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -138,7 +139,7 @@ public class CashbookApp extends BaseTest {
 	}
 
 	public boolean randomAccountingChecked() {
-		return Boolean.parseBoolean(getRandomListElement(Arrays.asList("true", "false")));
+		return RandomUtils.nextBoolean();
 	}
 
 	public String randomTransactionId() {
@@ -212,14 +213,14 @@ public class CashbookApp extends BaseTest {
 	public String[] expenseTypeList() throws Exception {
 		String[] list = {
 				expenseType("paymentToShippingPartner"),
-//				expenseType("paymentForGoods"),
-//				expenseType("productionCost"),
-//				expenseType("costOfRawMaterials"),
-//				expenseType("rentalFee"),
-//				expenseType("utilities"),
+				expenseType("paymentForGoods"),
+				expenseType("productionCost"),
+				expenseType("costOfRawMaterials"),
+				expenseType("rentalFee"),
+				expenseType("utilities"),
 				expenseType("salaries"),
-//				expenseType("sellingExpenses"),
-//				expenseType("otherCosts"),
+				expenseType("sellingExpenses"),
+				expenseType("otherCosts"),
 				expenseType("refund"),
 		};
 		return list;
@@ -332,7 +333,7 @@ public class CashbookApp extends BaseTest {
 
 	public AppiumDriver launchApp() throws Exception {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability("udid", "10.10.2.100:5555"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
+		capabilities.setCapability("udid", "RF8N20PY57D"); //192.168.2.43:5555 10.10.2.100:5555 RF8N20PY57D
 		capabilities.setCapability("platformName", "Android");
 		capabilities.setCapability("appPackage", "com.mediastep.GoSellForSeller.STG");
 		capabilities.setCapability("appActivity", "com.mediastep.gosellseller.modules.credentials.login.LoginActivity");
@@ -512,10 +513,6 @@ public class CashbookApp extends BaseTest {
 
 		String group = senderGroup("customer");
 
-		loginPage.performLogin(STORE_USERNAME, STORE_PASSWORD);
-		Assert.assertTrue(homePage.isAccountTabDisplayed());
-		homePage.navigateToPage("Cashbook");
-
 		for (String source : expenseTypeList()) {
 			boolean isAccountingChecked = randomAccountingChecked();
 			String sender = randomCustomer();
@@ -639,7 +636,7 @@ public class CashbookApp extends BaseTest {
 		}
 	}
 
-//	@Test
+	@Test
 	public void CBA_10_SearchRecords() throws Exception {
 
 		cashbookPage.clickTimeRangeFilter();
@@ -649,8 +646,8 @@ public class CashbookApp extends BaseTest {
 		int currentMonth = Integer.valueOf(dateArray[1]);
 		int currentYear = Integer.valueOf(dateArray[2]);
 		/*Need more code here*/
-		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, currentDay, currentMonth-1, currentYear);
-		cashbookPage.setDateFilter(currentDay, currentMonth-1, currentYear, currentDay, currentMonth, currentYear);
+		cashbookPage.setDateFilter(currentDay, currentMonth, currentYear, currentDay, currentMonth-2, currentYear);
+		cashbookPage.setDateFilter(currentDay, currentMonth-2, currentYear, currentDay, currentMonth, currentYear);
 
 		cashbookPage.clickApplyDateBtn();
 
@@ -670,11 +667,11 @@ public class CashbookApp extends BaseTest {
 		}
 	}
 
-//	@Test
+	@Test
 	public void CBA_11_FilterRecords() throws Exception {
 
 		cashbookPage.clickTimeRangeFilter();
-		cashbookPage.setDateFilter(2, 8, 2023, 1, 7, 2023);
+		cashbookPage.setDateFilter(8, 9, 2023, 1, 7, 2023);
 		cashbookPage.setDateFilter(1, 7, 2023, 31, 8, 2023);
 
 		cashbookPage.clickApplyDateBtn();
@@ -758,11 +755,11 @@ public class CashbookApp extends BaseTest {
 		}
 	}
 
-//	@Test
+	@Test
 	public void CBA_12_CombineFilterConditions() throws Exception {
 
 		cashbookPage.clickTimeRangeFilter();
-		cashbookPage.setDateFilter(2, 8, 2023, 1, 7, 2023);
+		cashbookPage.setDateFilter(8, 9, 2023, 1, 7, 2023);
 		cashbookPage.setDateFilter(1, 7, 2023, 31, 8, 2023);
 
 		cashbookPage.clickApplyDateBtn();

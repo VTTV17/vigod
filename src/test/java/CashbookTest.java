@@ -49,6 +49,8 @@ public class CashbookTest extends BaseTest {
 
 	@BeforeClass
 	public void loadTestData() {
+//		username = "hoa.phan.hong@mediastep.com";
+//		password = "123456a@";
 		username = AccountTest.ADMIN_USERNAME_TIEN;
 		password = AccountTest.ADMIN_PASSWORD_TIEN;
 		country = AccountTest.ADMIN_COUNTRY_TIEN;
@@ -256,6 +258,7 @@ public class CashbookTest extends BaseTest {
 	}	
 	
 	public void verifySummaryDataAfterReceiptCreated(List<Long> originalSummary, List<Long> laterSummary, String amount, boolean isAccountingChecked) {
+//		commonAction.sleepInMiliSecond(3000);
 		Long revenue = (isAccountingChecked) ? originalSummary.get(Cashbook.TOTALREVENUE_IDX) + Long.parseLong(amount) : originalSummary.get(Cashbook.TOTALREVENUE_IDX);
 		Assert.assertEquals(laterSummary.get(Cashbook.TOTALREVENUE_IDX), revenue, "Revenue");
 		Assert.assertEquals(laterSummary.get(Cashbook.TOTALEXPENDITURE_IDX), originalSummary.get(Cashbook.TOTALEXPENDITURE_IDX), "Expenditure");

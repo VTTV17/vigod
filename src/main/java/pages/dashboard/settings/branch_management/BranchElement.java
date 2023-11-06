@@ -14,7 +14,7 @@ public class BranchElement {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy (css = "li:nth-child(6) > a.nav-link")
+    @FindBy (css = "li:nth-child(7) > a.nav-link")
     WebElement BRANCH_MANAGEMENT_MENU;
     
     @FindBy (xpath = "(//div[contains(@class,'branch-management')]//button[contains(@class,'gs-button__green')])[1]")

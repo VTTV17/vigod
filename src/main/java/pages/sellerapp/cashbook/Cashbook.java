@@ -68,7 +68,7 @@ public class Cashbook {
 			By.xpath("//*[ends-with(@resource-id,'tvOwner')]"), By.xpath("//*[ends-with(@resource-id,'tvPrice')]"), };
 
 	public List<Long> getCashbookSummary() {
-		commonAction.sleepInMiliSecond(1000); // Sometimes it takes longer for the element to change its data
+		commonAction.sleepInMiliSecond(3000); // Sometimes it takes longer for the element to change its data
 		By[] CASHBOOKSUMMARY = { By.xpath("//*[ends-with(@resource-id,'tvOpening')]"),
 				By.xpath("//*[ends-with(@resource-id,'tvTotalRev')]"),
 				By.xpath("//*[ends-with(@resource-id,'tvExpenditure')]"),
@@ -79,7 +79,7 @@ public class Cashbook {
 
 			// Sometimes element is present but the data it contains is not yet rendered
 			String text = "";
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 5; i++) {
 				text = commonAction.getText(bySelector);
 				if (!text.isEmpty())
 					break;

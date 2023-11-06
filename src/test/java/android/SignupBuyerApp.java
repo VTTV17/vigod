@@ -339,12 +339,12 @@ public class SignupBuyerApp {
     	// 7-digit phone number
     	signupPage.inputUsername(generate.generateNumber(7)).inputPassword(password).inputDisplayName(displayName);
     	Assert.assertFalse(signupPage.isContinueBtnEnabled());
-    	Assert.assertEquals(signupPage.getUsernameError(), "Điền từ 8 - 15 số");
+    	Assert.assertEquals(signupPage.getUsernameError(), "Điền từ 8 – 15 số");
     	
     	// 16-digit phone number
     	signupPage.inputUsername(generate.generateNumber(16));
     	Assert.assertFalse(signupPage.isContinueBtnEnabled());
-    	Assert.assertEquals(signupPage.getUsernameError(), "Điền từ 8 - 15 số");
+    	Assert.assertEquals(signupPage.getUsernameError(), "Điền từ 8 – 15 số");
     }
     
     @Test

@@ -31,7 +31,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 
     public ServiceManagementPage goToCreateServicePage(){
         commons.clickElement(CREATE_SERVICE_BTN);
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
         return this;
     }
     

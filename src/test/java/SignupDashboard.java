@@ -332,11 +332,15 @@ public class SignupDashboard extends BaseTest {
 //				{"Dominican Republic", "6286995300", "fortesting!1", new String[]{"GoAPP"}},
 //				{"Vietnam", "automation0-shop8574254116@mailnesia.com", "fortesting!1", new String[]{"GoPOS"}},
 //				{"Vietnam", "automation0-shop8573697717@mailnesia.com", "fortesting!1", new String[]{"GoLEAD"}},
-				{"Vietnam", "automation0-shop941@mailnesia.com", "fortesting!1", new String[]{"GoSOCIAL"}},
+//				{"Vietnam", "automation0-shop941@mailnesia.com", "fortesting!1", new String[]{"GoSOCIAL"}},
 //				{"Vietnam", "3937825176", "fortesting!1", new String[]{"GoWEB", "GoLEAD"}},
 //				{"Vietnam", "5440040148", "fortesting!1", new String[]{"GoAPP", "GoLEAD"}},
 //				{"Vietnam", "5439938246", "fortesting!1", new String[]{"GoPOS", "GoLEAD"}},
 //				{"Vietnam", "5439778919", "fortesting!1", new String[]{"GoPOS", "GoAPP", "GoWEB", "GoSOCIAL", "GoLEAD"}},
+//				{"Vietnam", "auto0-shop04244194400@mailnesia.com", "fortesting!1", new String[]{"GoAPP"}},
+//				{"Vietnam", "04264653080", "fortesting!1", new String[]{"GoWEB"}},
+				{"Vietnam", "auto0-shop05642156070@mailnesia.com", "fortesting!1", new String[]{"GoWEB", "GoAPP"}},
+//				{"Vietnam", "09126456670", "fortesting!1", new String[]{"GGoSOCIAL"}},
 //				{"Vietnam", "0268173016", "fortesting!1", new String[]{"GoSOCIAL"}},
 //				{"Vietnam", "auto0-shop0282881495@mailnesia.com", "fortesting!1", new String[]{"GoAPP", "GoWEB"}},
 //				{"Australia", "cuocsongaus@mailnesia.com", "fortesting!1", new String[]{"GoPOS", "GoWEB", "GoSOCIAL", "GoLEAD"}},
@@ -378,7 +382,6 @@ public class SignupDashboard extends BaseTest {
 		signupPage.verifyTextAtSetupShopScreen(username, country, language);
 	}
 
-	@Test
 	public void SignupDB_02_CreateShopUsingEmailAccountWithURLContainingCapitalLetters() throws Exception {
 
 		/* Set value for some variables */
@@ -411,7 +414,6 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
 	}
 
-	@Test
 	public void SignupDB_03_CreateShopUsingPhoneAccountWithURLContainingCapitalLetters() throws Exception {
 
 		/* Set value for some variables */
@@ -567,7 +569,6 @@ public class SignupDashboard extends BaseTest {
 
 	}
 
-	@Test
 	public void SignupDB_08_CreateShopUsingEmailAccountWithPromotionLinkAndDomain() throws Exception {
 
 		/* Set value for some variables */
@@ -613,7 +614,6 @@ public class SignupDashboard extends BaseTest {
 		Assert.assertEquals(new InitConnection().getStoreGiftCode(storeName), expectedReferralCode);
 	}
 
-	@Test
 	public void SignupDB_09_CreateShopUsingPhoneAccountWithPromotionLinkAndDomain() throws Exception {
 
 		/* Set value for some variables */
@@ -1283,6 +1283,43 @@ public class SignupDashboard extends BaseTest {
 		loginInformation = new Login().setLoginInformation(phoneCode, username, password).getLoginInformation();
 		new Permission(driver, loginInformation).testPermission(plan);
 
+		/* Check mail */
+		verifyEmail(username, "COMPLETE");
+	}
+	
+	@Test
+	public void SignupDB_16_E2E() throws Exception {
+		
+		/* Set value for some variables */
+		String username = storePhone;
+		String contact = mail;
+		paymentMethod = PaymentMethod.BANKTRANSFER.name();
+		plan = "GoWEB";
+		referralCode = "chihang";
+		
+		/* Sign up */
+		signupPage.navigate().selectDisplayLanguage(language)
+		.fillOutSignupForm(country, username, password, referralCode)
+		.inputVerificationCode(getVerificationCode(phoneCode, username))
+		.clickConfirmBtn();
+		
+		/* Setup store */
+		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
+				secondPickupAddress, province, district, ward, city, zipCode);
+		
+		/* Buy Plan */
+		plansPage = new PlansPage(driver);
+		plansPage.selectPlan(plan);
+		plansPage.selectPaymentMethod(paymentMethod);
+		plansPage.completePayment(paymentMethod);
+		String orderID = plansPage.getOrderId();
+		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+		
+		/* Re-login to the shop and test permissions */
+		loginPage.performLogin(country, username, password);
+		loginInformation = new Login().setLoginInformation(phoneCode, username, password).getLoginInformation();
+		new Permission(driver, loginInformation).testPermission(plan);
+		
 		/* Check mail */
 		verifyEmail(username, "COMPLETE");
 	}

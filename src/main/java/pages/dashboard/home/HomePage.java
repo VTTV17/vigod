@@ -215,6 +215,7 @@ public class HomePage {
 
     public void navigateToPage(String pageName) {
         commons.waitForElementInvisible(SPINNER, 60);
+        waitTillLoadingDotsDisappear();
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
@@ -284,7 +285,7 @@ public class HomePage {
     }
 
     public HomePage waitTillLoadingDotsDisappear() {
-        commons.waitForElementInvisible(LOADING_DOTS, 15);
+        commons.waitForElementInvisible(LOADING_DOTS, 30);
         logger.info("Loading dots have disappeared");
         return this;
     }
@@ -437,6 +438,7 @@ public class HomePage {
     }
 
     public boolean isStatisticsDisplayed() {
+    	waitTillSpinnerDisappear1();
         return !commons.isElementNotDisplay(driver.findElements(STATISTICS));
     }
 
@@ -602,13 +604,13 @@ public class HomePage {
     public void clickCreateProduct() {
         commons.clickElement(CREATE_PRODUCT_BTN);
         logger.info("Clicked on 'Create Products' button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
     }
 
     public void clickImportFromShopee() {
         commons.clickElement(IMPORT_FROM_SHOPEE_BTN);
         logger.info("Clicked on 'Import From Shopee' button");
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         commons.sleepInMiliSecond(2000);
         new Shopee(driver).waitTillPageFinishLoading();
     }
@@ -616,7 +618,7 @@ public class HomePage {
     public void clickImportFromLazada() {
         commons.clickElement(IMPORT_FROM_LAZADA_BTN);
         logger.info("Clicked on 'Import From Lazada' button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
     }
 
     public void clickChangeDesign() {
@@ -637,7 +639,7 @@ public class HomePage {
         commons.clickElement(ADD_BANK_ACCOUNT_ICON);
         commons.clickElement(BANK_INFORMATION_BTN);
         logger.info("Clicked on 'Bank Information' button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
         commons.sleepInMiliSecond(2000);
     }
 

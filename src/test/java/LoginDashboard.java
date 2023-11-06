@@ -27,9 +27,9 @@ public class LoginDashboard extends BaseTest {
 	JsonNode data = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
 	String MAIL = data.findValue("seller").findValue("mail").findValue("username").asText();
 	String PASSWORD = data.findValue("seller").findValue("mail").findValue("password").asText();
-	String PHONE = data.findValue("seller").findValue("phone").findValue("username").asText();
-	String PHONE_PASSWORD = data.findValue("seller").findValue("phone").findValue("password").asText();
-	String PHONE_COUNTRY = data.findValue("seller").findValue("phone").findValue("country").asText();
+	String PHONE = "0707159324";
+	String PHONE_PASSWORD = "Psso124@";
+	String PHONE_COUNTRY = "Vietnam";
 	String PHONE_COUNTRYCODE = data.findValue("seller").findValue("phone").findValue("countryCode").asText();
 	String FACEBOOK = data.findValue("seller").findValue("facebook").findValue("username").asText();
 	String FACEBOOK_PASSWORD = data.findValue("seller").findValue("facebook").findValue("password").asText();
@@ -314,7 +314,7 @@ public class LoginDashboard extends BaseTest {
 			.clickContinueOrConfirmBtn();
 			
 			// Logout
-			homePage.waitTillSpinnerDisappear().clickLogout();
+			homePage.clickLogout();
 
 			// Re-login with new password
 			loginPage.navigate().performLogin(country, username, newPassword);
