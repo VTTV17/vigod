@@ -7,15 +7,15 @@ import api.dashboard.services.CreateServiceAPI;
 import api.dashboard.services.EditServiceAPI;
 import api.dashboard.services.ServiceInfoAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.buyerapp.buyergeneral.BuyerGeneral;
 import pages.buyerapp.navigationbar.NavigationBar;
+import pages.buyerapp.notificationpermission.NotificationPermission;
 import pages.buyerapp.search.BuyerSearchDetailPage;
 import pages.buyerapp.servicedetail.BuyerServiceDetail;
 import pages.buyerapp.servicedetail.SelectLocationPage;
@@ -28,6 +28,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import static utilities.file.FileNameAndPath.FILE_CREATE_SERVICE_TCS;
@@ -50,18 +51,15 @@ public class ServiceDetailTest extends BaseTest{
     LoginInformation loginInformation;
     @BeforeClass
     public void setUp() throws Exception {
-        String udid = "R5CR92R4K7V";
-        String platformName = "Android";
         String appPackage = "com.mediastep.shop0037";
         String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
-        String url = "http://127.0.0.1:4723/wd/hub";
+        launchApp(appPackage,appActivity);
         generator = new DataGenerator();
         PropertiesUtil.setEnvironment("STAG");
         PropertiesUtil.setSFLanguage("VIE");
         userDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         loginInformation = new Login().setLoginInformation("+84",userDb,passDb).getLoginInformation();
-        driver = new InitAppiumDriver().getAppiumDriver(udid, platformName, appPackage, appActivity, url);
         buyer = AccountTest.SF_USERNAME_VI_1;
         passBuyer = AccountTest.SF_SHOP_VI_PASSWORD;
         selectLocationTitle = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.selectLocationTitle");
@@ -76,6 +74,21 @@ public class ServiceDetailTest extends BaseTest{
     @AfterClass
     public void tearDown(){
         driver.quit();
+    }
+    public AppiumDriver launchApp(String appPackage, String appActivity) {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("udid", "R5CR92R4K7V");
+        capabilities.setCapability("platformName", "Android");
+        capabilities.setCapability("appPackage", appPackage);
+        capabilities.setCapability("appActivity", appActivity);
+        capabilities.setCapability("noReset", "false");
+        capabilities.setCapability("autoGrantPermissions","true");
+        String url = "http://127.0.0.1:4723/wd/hub";
+        try {
+            return new InitAppiumDriver().getAppiumDriver(capabilities, url);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
     @AfterMethod
     public void restartApp(ITestResult result) throws IOException {

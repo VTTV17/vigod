@@ -87,6 +87,7 @@ public class ProductCollectionManagement extends HomePage {
     }
 
     public ProductCollectionManagement verifyCollectionInfoAfterUpdated(String collectionName, String type, String mode, String items) throws Exception {
+        commonAction.sleepInMiliSecond(3000);
         commonAction.refreshPage();
         waitTillSpinnerDisappear();
         boolean isSelected = false;

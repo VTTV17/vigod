@@ -120,7 +120,7 @@ public class UserProfileSFTest extends BaseTest {
         MAX_PRICE = 9999999L;
         loginInformation = new Login().setLoginInformation("+84",userNameDb_ShopVi,passWordDashboard).getLoginInformation();
         productIDToBuyNow = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
-        new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB);
+        loginInformation = new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB).getLoginInformation();
         productIDToBuyNowShopB = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
         membershipLevel = PropertiesUtil.getEnvironmentData("membershipLevel");

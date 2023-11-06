@@ -174,7 +174,7 @@ public class SignupPage {
     public SignupPage navigate(String link) {
     	String url = DOMAIN + link;
         driver.get(url);
-//        wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
+        wait.until(ExpectedConditions.titleIs(SIGNUP_PAGE_TITLE));
         logger.info("Navigated to '%s'.".formatted(url));
     	return this;
     }

@@ -189,7 +189,7 @@ public class CreateProductCollection extends HomePage {
                 priorityList = generator.randomListNumberWithNoDuplicate(productListSize);
             }
         } else {
-            int random = generator.generatNumberInBound(1,productListSize);
+            int random = generator.generatNumberInBound(1,productListSize-1);
             if (canInputDuplicate) {
                 priorityList = generator.randomListNumberCanDuplicate(productListSize - random);
             } else {

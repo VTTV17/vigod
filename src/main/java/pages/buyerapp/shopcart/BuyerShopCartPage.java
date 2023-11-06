@@ -34,6 +34,7 @@ public class BuyerShopCartPage extends BuyerShopCartElement {
         return new CheckoutStep1(driver);
     }
     public BuyerShopCartPage waitLoadingDisapear(){
+        logger.info("Wait loading...");
         new BuyerGeneral(driver).waitLoadingDisappear();
         return this;
     }

@@ -789,4 +789,15 @@ public class ProductPageElement {
 
     @FindBy(css = ".modal-footer .gs-button__gray--outline")
     WebElement UI_CONFIRM_DELETE_PRODUCT_POPUP_CANCEL_BTN;
+    /* Import product */
+    @FindBy(xpath = "(//button[contains(@class,'gs-button__green')])[3]")
+    WebElement IMPORT_BTN;
+    @FindBy(xpath = "(//button[contains(@class,'gs-button__green')])[3]/following-sibling::div//button[1]")
+    WebElement IMPORT_PRODUCT_BTN;
+    @FindBy(xpath = "//input[@type='file']")
+    WebElement FILE_INPUT;
+    @FindBy(css = ".modal-footer .gs-button__green")
+    WebElement IMPORT_BTN_MODAL;
+    @FindBy(css = ".text-primary")
+    WebElement IMPORTING_LBL;
 }

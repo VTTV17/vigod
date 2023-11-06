@@ -290,6 +290,7 @@ public class HomePage {
     }
 
     public void clickLogout() {
+        commons.sleepInMiliSecond(1000);
         commons.clickElement(LOGOUT_BTN);
         logger.info("Clicked on Logout linktext");
     }

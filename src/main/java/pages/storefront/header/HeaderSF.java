@@ -199,6 +199,8 @@ public class HeaderSF extends GeneralSF {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        commons.sleepInMiliSecond(5000);
+//        hideLoadingIcon();
         waitTillLoaderDisappear();
         return this;
     }

@@ -96,4 +96,9 @@ public class GeneralSF {
 		commons.waitForElementInvisible(SEARCH_LOADING);
 		return this;
 	}
+	public GeneralSF hideLoadingIcon() {
+		commons.hideElement(SPINNER);
+		logger.info("Hid Loading icon.");
+		return this;
+	}
 }

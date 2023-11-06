@@ -7,6 +7,7 @@ import java.util.*;
 import api.dashboard.services.ServiceInfoAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.ScriptKey;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
@@ -17,6 +18,7 @@ import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.Constant;
+import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.file.FileNameAndPath;
@@ -250,6 +252,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         commonAction.clickElement(wait.until(ExpectedConditions.visibilityOf(CLOSE_BTN)));
         logger.info("Click on Close button");
+        commonAction.sleepInMiliSecond(5000);
         return new ServiceCollectionManagement(driver);
     }
     public ServiceCollectionManagement createServiceCollection(ServiceCollectionsInfo serviceCollectionsInfo) throws Exception {
@@ -359,5 +362,37 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         logger.info("Get product match 1 condition: "+productExpectedList);
         return productExpectedList;
     }
-
+    public CreateServiceCollection verifyText() throws Exception {
+        Assert.assertEquals(commonAction.getText(PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.pageTitle"));
+        Assert.assertEquals(commonAction.getText(GENERAL_INFORMATION_LBL),PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.generalInfomationLbl"));
+        Assert.assertEquals(commonAction.getText(COLLECTION_NAME_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionNameLbl"));
+        Assert.assertEquals(commonAction.getText(IMAGES_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.imagesLbl"));
+        Assert.assertEquals(commonAction.getText(DRAG_AND_DROP_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.dragAndDropLbl"));
+        Assert.assertEquals(commonAction.getText(COLLECTION_TYPE_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionTypeLbl"));
+        Assert.assertEquals(commonAction.getText(MANUAL_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.manual"));
+        Assert.assertEquals(commonAction.getText(MANUAL_DESCRIPTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manualDescription"));
+        Assert.assertEquals(commonAction.getText(AUTOMATED_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.automated"));
+        Assert.assertEquals(commonAction.getText(AUTOMATED_DESCRIPTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automatedDescription"));
+        Assert.assertEquals(commonAction.getText(SERVICE_LIST_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.serviceListLbl"));
+        Assert.assertEquals(commonAction.getText(NO_SERVICES_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.noServicesMessage"));
+        Assert.assertEquals(commonAction.getText(SELECT_SERVICE_BTN), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.selectServiceBtn"));
+        selectCollectionType(Constant.AUTOMATED_OPTION);
+        Assert.assertEquals(commonAction.getText(CONDITIONS_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.conditionsLbl"));
+        Assert.assertEquals(commonAction.getText(ADD_MORE_CONDITION_BTN), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.addMoreConditionBtn"));
+        Assert.assertEquals(commonAction.getText(SERVICE_MUST_MATCH_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.serviceMustMatchLbl"));
+        Assert.assertEquals(commonAction.getText(ALL_CONDITION_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.allCondition"));
+        Assert.assertEquals(commonAction.getText(ANY_CONDITION_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.anyCondition"));
+        //SEO
+        Assert.assertEquals(commonAction.getText(SEO_SETTINGS_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOSettingLbl"));
+        Assert.assertEquals(commonAction.getText(LIVE_PREVIEW_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.livePreviewLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(LIVE_PREVIEW_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.livePriviewToolTip"));
+        Assert.assertEquals(commonAction.getText(SEO_TITLE_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOTitleLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(SEO_TITLE_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOTitleTooltip"));
+        Assert.assertEquals(commonAction.getText(SEO_DESCRIPTION_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEODescriptionLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(SEO_DESCRIPTION_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEODescriptionToolTip"));
+        Assert.assertEquals(commonAction.getText(SEO_KEYWORDS_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOKeywordsLbl"));
+        Assert.assertEquals(commonAction.getElementAttribute(SEO_KEYWORD_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOKeywordToolTip"));
+        Assert.assertEquals(commonAction.getText(URL_LINK_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.URLLinkLbl"));
+        return this;
+    }
 }

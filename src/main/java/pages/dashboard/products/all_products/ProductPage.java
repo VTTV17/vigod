@@ -24,6 +24,7 @@ import pages.dashboard.products.all_products.wholesale_price.WholesaleProductPag
 import utilities.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.data.DataGenerator;
+import utilities.file.FileNameAndPath;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
@@ -2645,7 +2646,6 @@ public class ProductPage extends ProductPageElement {
          */
         Map<String, Integer> stockByBranch = new HashMap<String, Integer>();
         for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
-
             String branchName = "";
             String stock = "";
 
@@ -2681,7 +2681,6 @@ public class ProductPage extends ProductPageElement {
          */
         Map<String, Integer> stockByBranch = new HashMap<String, Integer>();
         for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
-
             String branchName = "";
             String stock = "";
 
@@ -2720,7 +2719,6 @@ public class ProductPage extends ProductPageElement {
          */
         Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
         for (int i = 1; i < commonAction.getElements(branchLocator).size(); i++) {
-
             String branchName = "";
             String[] imeiArray;
 
@@ -2761,7 +2759,6 @@ public class ProductPage extends ProductPageElement {
          */
         Map<String, List<String>> stockByBranch = new HashMap<String, List<String>>();
         for (int i = 0; i < commonAction.getElements(branchLocator).size(); i++) {
-
             String branchName = "";
             String[] imeiArray;
 
@@ -2781,5 +2778,35 @@ public class ProductPage extends ProductPageElement {
 
         return stockByBranch;
     }
-
+    public ProductPage clickImport(){
+        commonAction.clickElement(IMPORT_BTN);
+        logger.info("Click on import button.");
+        return this;
+    }
+    public ProductPage clickImportProduct(){
+        commonAction.clickElement(IMPORT_PRODUCT_BTN);
+        logger.info("Click on import product button.");
+        return this;
+    }
+    public ProductPage clickImportBtbOnModal(){
+        commonAction.clickElement(IMPORT_BTN_MODAL);
+        logger.info("Click on Import button on Import Product List modal.");
+        return this;
+    }
+    public ProductPage importProduct(String fileName){
+        clickImport();
+        clickImportProduct();
+        commonAction.sleepInMiliSecond(2000);
+        commonAction.uploadMultipleFile(FILE_INPUT,"import_product", fileName);
+        commonAction.sleepInMiliSecond(1000);
+        clickImportBtbOnModal();
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+        waitImportingTextDisapear();
+        return this;
+    }
+    public ProductPage waitImportingTextDisapear(){
+        commonAction.waitForElementInvisible(IMPORTING_LBL, 15);
+        logger.info("Importing text have disappeared");
+        return this;
+    }
 }

@@ -75,6 +75,51 @@ public class CreateEditServiceCollectionElement {
     WebElement SEO_KEYWORD;
     @FindBy(id = "seoUrl")
     WebElement SEO_URL;
+    @FindBy(css = ".gs-page-title")
+    WebElement PAGE_TITLE;
+    @FindBy(xpath = "//label[@for='collectionName']//parent::div/preceding-sibling::div/h3")
+    WebElement GENERAL_INFORMATION_LBL;
+    @FindBy(xpath = "//label[@for='collectionName']")
+    WebElement COLLECTION_NAME_LBL;
+    @FindBy(xpath = "//label[@for='collectionName']/following-sibling::label")
+    WebElement IMAGES_LBL;
+    @FindBy(xpath = "//input[@type='file']//following-sibling::div[2]")
+    WebElement DRAG_AND_DROP_LBL;
+    @FindBy(xpath = "(//div[contains(@class,'widget__header--text-align-right')])[2]")
+    WebElement COLLECTION_TYPE_LBL;
+    @FindBy(xpath = "//div[@class='collection-description'][1]")
+    WebElement MANUAL_DESCRIPTION;
+    @FindBy(xpath = "//div[@class='collection-description'][2]")
+    WebElement AUTOMATED_DESCRIPTION;
+    @FindBy(css = ".automated-config__header h3")
+    WebElement CONDITIONS_LBL;
+    @FindBy(xpath = "//div[@class='automated-config__condition-type']/span[1]")
+    WebElement SERVICE_MUST_MATCH_LBL;
+    @FindBy(xpath = "(//div[contains(@class,'widget__header--text-align-right')])[3]/h3")
+    WebElement SERVICE_LIST_LBL;
+    @FindBy(css = ".product-list__group span")
+    WebElement NO_SERVICES_LBL;
+    @FindBy(xpath = "//div[contains(@class,'seo-editor')]//div[contains(@class,'gs-widget__header')]//h3[1]")
+    WebElement SEO_SETTINGS_LBL;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div//preceding-sibling::div//span")
+    WebElement LIVE_PREVIEW_LBL;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div//preceding-sibling::div//span/following-sibling::div//div")
+    WebElement LIVE_PREVIEW_TOOLTIP;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][1]/span")
+    WebElement SEO_TITLE_LBL;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][1]//div/div")
+    WebElement SEO_TITLE_TOOLTIP;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][2]/span")
+    WebElement SEO_DESCRIPTION_LBL;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][2]//div/div")
+    WebElement SEO_DESCRIPTION_TOOLTIP;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][3]/span")
+    WebElement SEO_KEYWORDS_LBL;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][3]//div/div")
+    WebElement SEO_KEYWORD_TOOLTIP;
+    @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div/following-sibling::div[@class='mb-2'][4]/span")
+    WebElement URL_LINK_LBL;
+
     /*--------------Edit translation-------------*/
     @FindBy(xpath = "//button[contains(@class,'gs-button__gray')][1]")
     WebElement EDIT_TRANSLATION_BTN;

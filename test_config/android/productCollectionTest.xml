@@ -5,17 +5,17 @@
         <classes>
             <class name="android.ProductCollectionTest">
                 <methods>
-<!--                    <include name="MPC01_VerifyTextByLanguage"/>-->
-<!--                    <include name="MPC02_CreateManualCollectionWithNoProduct"/>-->
-<!--                    <include name="MPC03_CheckCollectionDetail_NoProduct_Buyer"/>-->
-<!--                    <include name="MPC04_CreateManualCollection_HasProduct_NoPriotity"/>-->
-<!--                    <include name="MPC05_CheckCollectionDetail_HasProductNoPriority_Buyer"/>-->
-<!--                    <include name="MPC06_UpdateProductList_ManualCollection"/>-->
-<!--                    <include name="MPC07_CheckCollectionDetail_UpdateProductList_Buyer"/>-->
-<!--                    <include name="MPC08_CreateManualCollection_HasProduct_HasPrioity"/>-->
-<!--                    <include name="MPC09_CheckCollectionDetail_HasProductHasPriority_Buyer"/>-->
-<!--                    <include name="MPC10_UdatePriorityNumber"/>-->
-<!--                    <include name="MPC11_CheckCollectionDetail_AfterUpdatePriority_Buyer"/>-->
+                    <include name="MPC01_VerifyTextByLanguage"/>
+                    <include name="MPC02_CreateManualCollectionWithNoProduct"/>
+                    <include name="MPC03_CheckCollectionDetail_NoProduct_Buyer"/>
+                    <include name="MPC04_CreateManualCollection_HasProduct_NoPriotity"/>
+                    <include name="MPC05_CheckCollectionDetail_HasProductNoPriority_Buyer"/>
+                    <include name="MPC06_UpdateProductList_ManualCollection"/>
+                    <include name="MPC07_CheckCollectionDetail_UpdateProductList_Buyer"/>
+                    <include name="MPC08_CreateManualCollection_HasProduct_HasPrioity"/>
+                    <include name="MPC09_CheckCollectionDetail_HasProductHasPriority_Buyer"/>
+                    <include name="MPC10_UdatePriorityNumber"/>
+                    <include name="MPC11_CheckCollectionDetail_AfterUpdatePriority_Buyer"/>
                     <include name="MPC12_CreateAutomationCollection_ProductTitleContainsKeyword"/>
                     <include name="MPC13_CheckCollectionDetail_TitleContainKeyword_Buyer"/>
                     <include name="MPC14_CreateAutomationCollection_ProductTitleEqualKeyword"/>

@@ -28,6 +28,9 @@ public class FileNameAndPath {
     public static final String FILE_PRODUCT_COLLECTION = "ProductCollection.xlsx";
     public static final String FILE_SERVICE_COLLECTION_TCS = "ServiceCollectionTcs.xlsx";
     public static final String FILE_NAME_IMAGE_SERVICE_COLLECTION_1 = "serviceCollection.jpg";
+    public static final String FILE_IMPORT_PRODUCT = "import_product.xlsx";
+    public static final String FOLDER_UPLOAD_FILE = "uploadfile";
+    public static final String FOLDER_IMPORT_PRODUCT = "import_product";
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
     }
