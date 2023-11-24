@@ -299,7 +299,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.removeFbBubble();
 
         // check [UI] create product page
-//        checkUICreateProductInfo();
+        checkUICreateProductInfo();
 
         return this;
     }
@@ -344,9 +344,6 @@ public class ProductPage extends ProductPageElement {
 
         // refresh page
         driver.navigate().refresh();
-
-        // wait page loaded
-        commonAction.getElement(addConversionUnitCheckbox);
 
         // hide Facebook bubble
         commonAction.removeFbBubble();
@@ -723,7 +720,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.sendKeys(stockQuantityTextBoxOnUpdateStockPopup, String.valueOf(brStockIndex));
         }
         // close Update stock popup
-        commonAction.click(updateBtnOnPopup);
+        commonAction.clickActions(updateBtnOnPopup);
     }
 
     void updateWithoutVariationStock(int... branchStockQuantity) throws Exception {
@@ -859,9 +856,23 @@ public class ProductPage extends ProductPageElement {
 
         // input product price
         IntStream.range(0, variationList.size()).forEachOrdered(varIndex -> {
-            act.moveToElement(commonAction.getElement(listingPriceOnUpdatePricePopup, varIndex)).doubleClick().sendKeys(String.valueOf(productListingPrice.get(varIndex))).build().perform();
-            act.moveToElement(commonAction.getElement(sellingPriceOnUpdatePricePopup, varIndex)).doubleClick().sendKeys(String.valueOf(productSellingPrice.get(varIndex))).build().perform();
-            act.moveToElement(commonAction.getElement(costPriceOnUpdatePricePopup, varIndex)).doubleClick().sendKeys(String.valueOf(nextLong(productSellingPrice.get(varIndex)))).build().perform();
+            // get current variation
+            String variation = variationList.get(varIndex);
+
+            // input listing price
+            long listingPrice = productListingPrice.get(varIndex);
+            commonAction.sendKeysActions(listingPriceOnUpdatePricePopup, varIndex, String.valueOf(listingPrice));
+            logger.info("[%s] Listing price: %s.".formatted(variation, listingPrice));
+
+            // input selling price
+            long sellingPrice = productSellingPrice.get(varIndex);
+            commonAction.sendKeysActions(sellingPriceOnUpdatePricePopup, varIndex, String.valueOf(sellingPrice));
+            logger.info("[%s] Selling price: %s.".formatted(variation, sellingPrice));
+
+            // input costPrice
+            long costPrice = nextLong(sellingPrice);
+            commonAction.sendKeysActions(costPriceOnUpdatePricePopup, varIndex, String.valueOf(costPrice));
+            logger.info("[%s] Cost price: %s.".formatted(variation, costPrice));
         });
 
         // close Update price popup
@@ -911,7 +922,7 @@ public class ProductPage extends ProductPageElement {
             }
 
             // close Update SKU popup
-            commonAction.click(updateBtnOnPopup);
+            commonAction.clickActions(updateBtnOnPopup);
         }
     }
 
@@ -1028,19 +1039,19 @@ public class ProductPage extends ProductPageElement {
 
     void completeUpdateProduct() {
         // click Save button
-        commonAction.click(saveBtn);
+        commonAction.clickActions(saveBtn);
 
         // wait notification popup visible
         commonAction.getElement(popup);
 
+        // end test if update product failed
+        Assert.assertTrue(commonAction.getListElement(failPopup).isEmpty(), "[Failed][Update product] Can not update product.");
+
         // close notification popup
         commonAction.click(closeBtnOnNotificationPopup);
-
-        // end test if update product failed
-        Assert.assertFalse(commonAction.getListElement(failPopup).isEmpty(), "[Failed][Update product] Can not update product.");
     }
 
-    public ProductPage configWholesaleProduct() throws Exception {
+    public void configWholesaleProduct() throws Exception {
         if (hasModel) new WholesaleProductPage(driver, loginInformation)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
@@ -1049,7 +1060,6 @@ public class ProductPage extends ProductPageElement {
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductWithoutVariation();
-        return this;
     }
 
     public ProductPage configConversionUnit() throws Exception {
@@ -1825,7 +1835,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Add conversion unit checkbox.".formatted(language));
 
         // check conversion unit tooltips
-        act.moveToElement(commonAction.getElement(conversionUnitTooltips)).build().perform();
+        commonAction.hoverActions(conversionUnitTooltips);
         String dbConversionUnitTooltips = commonAction.getAttribute(conversionUnitTooltips, "data-original-title");
         String ppConversionUnitTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.tooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnitTooltips, ppConversionUnitTooltips, "[Failed][Body] Conversion unit tooltips should be %s, but found %s.".formatted(ppConversionUnitTooltips, dbConversionUnitTooltips));
@@ -1874,7 +1884,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Live preview.".formatted(language));
 
         // check SEO live preview tooltips
-        act.moveToElement(commonAction.getElement(livePreviewTooltips)).build().perform();
+        commonAction.hoverActions(livePreviewTooltips);
         String dbLivePreviewTooltips = commonAction.getAttribute(livePreviewTooltips, "data-original-title");
         String ppLivePreviewTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.livePreviewTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbLivePreviewTooltips, ppLivePreviewTooltips, "[Failed][Body] Live preview tooltips should be %s, but found %s.".formatted(ppLivePreviewTooltips, dbLivePreviewTooltips));
@@ -1887,7 +1897,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - SEO Title.".formatted(language));
 
         // check SEO title tooltips
-        act.moveToElement(commonAction.getElement(seoTitleTooltips)).build().perform();
+        commonAction.hoverActions(seoTitleTooltips);
         String dbSEOTitleTooltips = commonAction.getAttribute(seoTitleTooltips, "data-original-title");
         String ppSEOTitleTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoTitleTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOTitleTooltips, ppSEOTitleTooltips, "[Failed][Body] SEO Title tooltips should be %s, but found %s.".formatted(ppSEOTitleTooltips, dbSEOTitleTooltips));
@@ -1900,7 +1910,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - SEO description.".formatted(language));
 
         // check SEO description tooltips
-        act.moveToElement(commonAction.getElement(seoDescriptionTooltips)).build().perform();
+        commonAction.hoverActions(seoDescriptionTooltips);
         String dbSEODescriptionTooltips = commonAction.getAttribute(seoDescriptionTooltips, "data-original-title");
         String ppSEODescriptionTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoDescriptionTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEODescriptionTooltips, ppSEODescriptionTooltips, "[Failed][Body] SEO descriptions tooltips should be %s, but found %s.".formatted(ppSEODescriptionTooltips, dbSEODescriptionTooltips));
@@ -1913,7 +1923,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - SEO keywords.".formatted(language));
 
         // check SEO keywords tooltips
-        act.moveToElement(commonAction.getElement(seoKeywordsTooltips)).build().perform();
+        commonAction.hoverActions(seoKeywordsTooltips);
         String dbSEOKeywordsTooltips = commonAction.getAttribute(seoKeywordsTooltips, "data-original-title");
         String ppSEOKeywordsTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoKeywordsTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOKeywordsTooltips, ppSEOKeywordsTooltips, "[Failed][Body] SEO keywords tooltips should be %s, but found %s.".formatted(ppSEOKeywordsTooltips, dbSEOKeywordsTooltips));
@@ -1934,21 +1944,21 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Sale chanel title.".formatted(language));
 
         // check Online shop tooltips
-        act.moveToElement(commonAction.getElement(onlineShopLabel)).build().perform();
+        commonAction.hoverActions(onlineShopLabel);
         String dbOnlineShopTooltips = commonAction.getText(onlineShopTooltips);
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbOnlineShopTooltips, ppOnlineShopTooltips, "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, dbOnlineShopTooltips));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
         // check Gomua tooltips
-        act.moveToElement(commonAction.getElement(gomuaLabel)).build().perform();
+        commonAction.hoverActions(gomuaLabel);
         String dbGomuaTooltips = commonAction.getText(gomuaTooltips);
         String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGomuaTooltips, ppGomuaTooltips, "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, dbGomuaTooltips));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
-        act.moveToElement(commonAction.getElement(shopeeLabel)).build().perform();
+        commonAction.hoverActions(shopeeLabel);
         String dbShopeeTooltips = commonAction.getText(shopeeTooltips);
         List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
@@ -1957,7 +1967,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
-        act.moveToElement(commonAction.getElement(tiktokLabel)).build().perform();
+        commonAction.hoverActions(tiktokLabel);
         String dbTiktokTooltips = commonAction.getText(tiktokTooltips);
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
         countFail = new AssertCustomize(driver).assertTrue(countFail, ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
@@ -2168,7 +2178,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.clickJS(closeBtnOnRemainingPopup);
 
         // wait invisible remaining stock
-        commonAction.getElement(popup);
+        commonAction.invisibilityOfElementLocated(popup);
     }
 
     void checkViewSoldCountPopup() throws Exception {
@@ -2274,7 +2284,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Package information title.".formatted(language));
 
         // check package information tooltips
-        act.moveToElement(commonAction.getElement(packageInformationTooltips)).build().perform();
+        commonAction.hoverActions(packageInformationTooltips);
         String dbPackageInformationTooltips = commonAction.getAttribute(packageInformationTooltips, "data-original-title");
         String ppPackageInformationTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.tooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbPackageInformationTooltips, ppPackageInformationTooltips, "[Failed][Body] Package information tooltips should be %s, but found %s.".formatted(ppPackageInformationTooltips, dbPackageInformationTooltips));
@@ -2319,7 +2329,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Priority Title.".formatted(language));
 
         // check priority tooltips
-        act.moveToElement(commonAction.getElement(priorityTooltips)).build().perform();
+        commonAction.hoverActions(priorityTooltips);
         String dbPriorityTooltips = commonAction.getAttribute(priorityTooltips, "data-original-title");
         String ppPriorityTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.priority.tooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbPriorityTooltips, ppPriorityTooltips, "[Failed][Body] Priority tooltips should be %s, but found %s.".formatted(ppPriorityTooltips, dbPriorityTooltips));
@@ -2340,7 +2350,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Platform title.".formatted(language));
 
         // check platform tooltips
-        act.moveToElement(commonAction.getElement(platformTooltips)).build().perform();
+        commonAction.hoverActions(platformTooltips);
         String dbPlatformTooltips = commonAction.getAttribute(platformTooltips, "data-original-title");
         String ppPlatformTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.tooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbPlatformTooltips, ppPlatformTooltips, "[Failed][Body] Platform tooltips should be %s, but found %s.".formatted(ppPlatformTooltips, dbPlatformTooltips));

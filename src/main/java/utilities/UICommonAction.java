@@ -1,6 +1,5 @@
 package utilities;
 
-import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -9,7 +8,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.screenshot.Screenshot;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -563,19 +561,23 @@ public class UICommonAction {
     }
 
     public void clickActions(By locator) {
-        try {
-            actions.moveToElement(getElement(locator)).click().build().perform();
-        } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
-            actions.moveToElement(getElement(locator)).click().build().perform();
-        }
+        hoverActions(locator);
+        actions.click().build().perform();
     }
 
     public void clickActions(By locator, int index) {
-        try {
-            actions.moveToElement(getElement(locator, index)).click().build().perform();
-        } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
-            actions.moveToElement(getElement(locator, index)).click().build().perform();
-        }
+        hoverActions(locator, index);
+        actions.click().build().perform();
+    }
+
+    public void doubleClickActions(By locator) {
+        hoverActions(locator);
+        actions.doubleClick().build().perform();
+    }
+
+    public void doubleClickActions(By locator, int index) {
+        hoverActions(locator, index);
+        actions.doubleClick().build().perform();
     }
 
     public void hoverActions(By locator) {
@@ -583,6 +585,14 @@ public class UICommonAction {
             actions.moveToElement(getElement(locator)).build().perform();
         } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
             actions.moveToElement(getElement(locator)).build().perform();
+        }
+    }
+
+    public void hoverActions(By locator, int index) {
+        try {
+            actions.moveToElement(getElement(locator, index)).build().perform();
+        } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
+            actions.moveToElement(getElement(locator, index)).build().perform();
         }
     }
 
@@ -612,28 +622,13 @@ public class UICommonAction {
     }
 
     public void sendKeysActions(By locator, CharSequence content) {
-        try {
-            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        } catch (InvalidArgumentException | ElementNotInteractableException ignore) {
-        } catch (StaleElementReferenceException ex) {
-            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        }
-        try {
-            getElement(locator).sendKeys(content);
-        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
-            actions.moveToElement(getElement(locator)).click();
-            actions.sendKeys(content);
-        }
+        doubleClickActions(locator);
+        actions.sendKeys(content).build().perform();
     }
 
     public void sendKeysActions(By locator, int index, CharSequence content) {
-        try {
-            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        } catch (InvalidArgumentException | ElementNotInteractableException ignore) {
-        } catch (StaleElementReferenceException ex) {
-            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        }
-        getElement(locator, index).sendKeys(content);
+        doubleClickActions(locator, index);
+        actions.sendKeys(content).build().perform();
     }
 
     public String getText(By locator) {
@@ -747,16 +742,12 @@ public class UICommonAction {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
     }
 
-    @SneakyThrows
     public void waitURLShouldBeContains(String path) {
         // wait product list page is loaded
-        try {
-            wait.until((ExpectedCondition<Boolean>) driver -> {
-                assert driver != null;
-                return driver.getCurrentUrl().contains(path);
-            });
-        } catch (TimeoutException ex) {
-            new Screenshot().takeScreenshot(driver);
-        }
+        wait.until((ExpectedCondition<Boolean>) driver -> {
+            assert driver != null;
+            return driver.getCurrentUrl().contains(path);
+        });
+
     }
 }
