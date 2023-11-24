@@ -8,4 +8,5 @@ import java.util.List;
 public class TaxInfo {
     private List<Integer> taxID;
     private List<Float> taxRate;
+    private List<String> taxName;
 }

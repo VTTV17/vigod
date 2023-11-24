@@ -37,6 +37,11 @@ public class VAT {
         IntStream.range(0, taxRate.size()).filter(i -> taxRate.get(i) == null).forEachOrdered(i -> taxRate.set(i, 0F));
         //set tax rate
         info.setTaxRate(taxRate);
+
+        // get tax name
+        List<String> taxName = taxResponse.jsonPath().getList("name");
+        // set tax name
+        info.setTaxName(taxName);
         return info;
     }
 }

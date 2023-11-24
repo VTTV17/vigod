@@ -30,7 +30,7 @@ public class BH_8616 extends BaseTest {
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
         driver = new InitWebdriver().getDriver(browser, headless);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
-        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
+        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
     }
 
     // G1: Normal product - without variation

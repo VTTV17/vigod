@@ -2,12 +2,13 @@ package api.dashboard.customers;
 
 import api.dashboard.login.Login;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+
+import java.util.List;
 
 public class SegmentAPI {
 	final static Logger logger = LogManager.getLogger(SegmentAPI.class);
@@ -25,9 +26,12 @@ public class SegmentAPI {
 
     
     public JsonPath getAllSegmentJsonPath() {
-    	Response response = api.get(GET_SEGMENT_LIST.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-    	response.then().statusCode(200);
-    	return response.jsonPath();
+    	return api.get(GET_SEGMENT_LIST.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .jsonPath();
     }
     
     /**
@@ -46,6 +50,10 @@ public class SegmentAPI {
     public void deleteSegment(int segmentId) {
     	new API().delete(DELETE_SEGMENT_PATH.formatted(loginInfo.getStoreID(), segmentId), loginInfo.getAccessToken()).then().statusCode(200);
     	logger.info("Deleted customer segment with id: " + segmentId);
-    }     
+    }
+
+    public List<Integer> getListSegmentIdInStore() {
+        return getAllSegmentJsonPath().getList("id");
+    }
     
 }

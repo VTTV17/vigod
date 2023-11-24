@@ -2,11 +2,7 @@ package pages.dashboard.products.all_products.conversion_unit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 class ConversionUnitElement {
     WebDriver driver;
@@ -16,111 +12,43 @@ class ConversionUnitElement {
         PageFactory.initElements(driver, this);
     }
 
-    /* Conversion unit config */
-    By ADD_CONVERSION_UNIT_CHECKBOX = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
-
-    @FindBy(css = "div:nth-child(5)  .bg-light-white > div > button")
-    WebElement CONFIGURE_BTN;
-
     /* Without variation config */
-    By WITHOUT_VARIATION_HEADER_SELECT_UNIT_BTN = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
-
-    @FindBy(css = ".btn-header-wrapper > .gs-button__green")
-    WebElement WITHOUT_VARIATION_HEADER_SAVE_BTN;
-
-    @FindBy(css = "#unit-0")
-    WebElement WITHOUT_VARIATION_UNIT;
-
-    By WITHOUT_VARIATION_LIST_AVAILABLE_UNIT = By.cssSelector(".expanded > div > div");
-
-    @FindBy(css = ".icon_add_unit")
-    WebElement WITHOUT_VARIATION_ADD_BTN;
-
-    @FindBy(css = "[name *= quantity]")
-    WebElement WITHOUT_VARIATION_QUANTITY;
-
+    By withoutVariationSelectUnitBtn = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
+     By withoutVariationSaveBtn = By.cssSelector(".btn-header-wrapper > .gs-button__green");
+    By withoutVariationUnitTextBox = By.cssSelector("#unit-0");
+    String unitLocator = "//*[text() = '%s']";
+    By withoutVariationQuantity = By.cssSelector("[name *= quantity]");
     /* Variation config */
-    By VARIATION_HEADER_SELECT_VARIATION_BTN = By.cssSelector(".gs-button__green--outline");
-
-    By VARIATION_HEADER_SAVE_BTN = By.cssSelector(".gs-button__green");
-
-    @FindBy(css = ".modal-content")
-    WebElement SELECT_VARIATION_POPUP;
-
-    By VARIATION_SELECT_VARIATION_POPUP_LIST_VARIATION_CHECKBOX = By.cssSelector("input[name = variationUnit]");
-
-    @FindBy(css = ".modal-footer > .gs-button__green")
-    WebElement VARIATION_SELECT_VARIATION_POPUP_SAVE_BTN;
-
-    @FindBy(css = ".conversion-configure > .gs-button__blue--outline")
-    List<WebElement> VARIATION_CONFIGURE_BTN;
-
-    @FindBy(css = ".btn-header-wrapper > .gs-button__green--outline")
-    WebElement CONFIGURE_FOR_EACH_VARIATION_HEADER_SELECT_UNIT_BTN;
-
-    @FindBy(css = ".btn-header-wrapper > .gs-button__green")
-    WebElement CONFIGURE_FOR_EACH_VARIATION_HEADER_SAVE_BTN;
-
-    @FindBy(css = "#unit-0")
-    WebElement CONFIGURE_FOR_EACH_VARIATION_UNIT;
-
-    By CONFIGURE_FOR_EACH_VARIATION_LIST_AVAILABLE_UNIT = By.cssSelector(".expanded > div > div");
-
-    @FindBy(css = ".icon_add_unit")
-    WebElement CONFIGURE_FOR_EACH_VARIATION_ADD_BTN;
-
-    @FindBy(css = "[name *= quantity]")
-    WebElement CONFIGURE_FOR_EACH_VARIATION_QUANTITY;
-
+    By selectVariationBtn = By.cssSelector(".gs-button__green--outline");
+    By variationSaveBtn = By.cssSelector(".gs-button__green");
+    By selectVariationPopup = By.cssSelector(".modal-content");
+    By variationOptions = By.cssSelector("input[name = variationUnit]");
+    String variationLocator = "//*[text() ='%s']";
+    By saveBtnOnSelectVariationPopup = By.cssSelector(".modal-footer > .gs-button__green");
+    By variationConfigureBtn = By.cssSelector(".conversion-configure > .gs-button__blue--outline");
+    By selectUnitBtnOnSetupVariationConversionUnitPage = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
+    By saveBtnOnSetupVariationConversionUnitPage = By.cssSelector(".btn-header-wrapper > .gs-button__green");
+    By unitTextBoxOnSetupVariationConversionUnitPage = By.cssSelector("#unit-0");
+    By quantityOnSetupVariationConversionUnitPage = By.cssSelector("[name *= quantity]");
     /* UI element */
-    @FindBy(css = ".gs-widget__content .bg-light-white p")
-    WebElement UI_CONVERSION_UNIT_INFORMATION;
+    By configureText = By.cssSelector(".gs-widget__content .bg-light-white button");
 
-    @FindBy(css = ".gs-widget__content .bg-light-white button")
-    WebElement UI_CONVERSION_UNIT_CONFIGURE_BTN;
-
-    @FindBy(css = "[class $= --n1] > .gs-widget:nth-child(5) small")
-    WebElement UI_CONVERSION_UNIT_FOR_IMEI_NOTICE;
-
-    @FindBy(css = ".gs-fake-link")
-    WebElement UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL;
-
-    @FindBy(css = ".container-fluid h6")
-    WebElement UI_HEADER_WITHOUT_VARIATION_PAGE_TITLE;
-
-    @FindBy(css = ".container-fluid h6, .container-fluid h5")
-    WebElement UI_HEADER_VARIATION_PAGE_TITLE;
-
-    @FindBy(css = ".gs-button__green")
-    WebElement UI_HEADER_SAVE_BTN;
-
-    @FindBy(css = ".bg-white > p")
-    WebElement UI_NO_CONFIG;
-
+    By goBackToProductDetailLinkText = By.xpath("//*[contains(@class, 'gs-button__green--outline')]/parent::div/preceding-sibling::*");
+    By withoutVariationPageTitle = By.cssSelector(".container-fluid h6");
+    By variationPageTitle = By.cssSelector(".container-fluid h6, .container-fluid h5");
+    By saveText = By.cssSelector(".gs-button__green");
+    By noConfig = By.cssSelector(".bg-white > p");
     /* UI without variation */
-    @FindBy(css = ".gs-button__green--outline")
-    WebElement UI_HEADER_WITHOUT_VARIATION_SELECT_UNIT_BTN;
-
-    @FindBy(css = ".gs-button__gray--outline")
-    WebElement UI_HEADER_WITHOUT_VARIATION_CANCEL_BTN;
-
+    By withoutVariationSelectUnitText = By.cssSelector(".gs-button__green--outline");
+    By withoutVariationCancelText = By.cssSelector(".gs-button__gray--outline");
     /**
      * <p>0: Unit</p>
      * <p>1: Quantity</p>
      */
-    @FindBy(css = ".border label")
-    List<WebElement> UI_WITHOUT_VARIATION_CONFIG_TABLE_COLUMN;
-
-    @FindBy(css = "#unit-0")
-    WebElement UI_WITHOUT_VARIATION_CONFIG_TABLE_INPUT_UNIT_PLACEHOLDER;
-
-    @FindBy(css = ".search-list > .loading")
-    WebElement SEARCH_LOADING;
-    @FindBy(css = ".search-list > p")
-    WebElement UI_WITHOUT_VARIATION_CONFIG_TABLE_SEARCH_UNIT_NO_RESULT;
-
-    @FindBy(css = ".icon_add_unit")
-    WebElement UI_WITHOUT_VARIATION_CONFIG_TABLE_ADD_BTN;
+    By withoutVariationSetupConversionUnitTable = By.cssSelector(".border label");
+    By withoutVariationUnitPlaceholder = By.cssSelector("#unit-0");
+    By withoutVariationNoResult = By.cssSelector(".search-list > p");
+    By withoutVariationAddText = By.cssSelector(".icon_add_unit");
 
     /**
      * <p>0: Conversion unit</p>
@@ -135,58 +63,24 @@ class ConversionUnitElement {
      * <p>9: Width</p>
      * <p>10: Height</p>
      */
-    @FindBy(css = ".table-conversion-list > thead th")
-    List<WebElement> UI_WITHOUT_VARIATION_CONFIG_ALIAS_TABLE_COLUMN;
-
+    By withoutVariationAliasTable = By.cssSelector(".table-conversion-list > thead th");
     /* UI variation */
-    @FindBy(css = ".gs-button__green--outline")
-    WebElement UI_HEADER_VARIATION_SELECT_VARIATION_BTN;
-
-    @FindBy(css = ".modal-title")
-    WebElement UI_SELECT_VARIATION_POPUP_TITLE;
-
-    @FindBy(css = ".modal-footer .gs-button__green")
-    WebElement UI_SELECT_VARIATION_POPUP_OK_BTN;
-
-    @FindBy(css = ".modal-footer .gs-button__gray--outline")
-    WebElement UI_SELECT_VARIATION_POPUP_CANCEL_BTN;
-
-    @FindBy(css = ".action-variation > span:nth-child(1)")
-    List<WebElement> UI_VARIATION_CONFIG_TABLE_DELETE_BTN;
-
-    @FindBy(css = ".action-variation > span:nth-child(2)")
-    List<WebElement> UI_VARIATION_CONFIG_TABLE_EDIT_BTN;
-
-    @FindBy(css = ".gs-button__blue--outline")
-    List<WebElement> UI_VARIATION_CONFIG_TABLE_CONFIGURE_BTN;
-
-    @FindBy(css = ".gs-fake-link")
-    WebElement UI_VARIATION_CONFIG_PAGE_GO_BACK_TO_SETUP_CONVERSION_UNIT;
-
-    @FindBy(css = ".conversion-unit-wrapper h5")
-    WebElement UI_VARIATION_CONFIG_PAGE_TITLE;
-
-    @FindBy(css = ".gs-button__green--outline")
-    WebElement UI_VARIATION_CONFIG_PAGE_HEADER_SELECT_UNIT_BTN;
-
-    @FindBy(css = ".gs-button__gray--outline")
-    WebElement UI_VARIATION_CONFIG_PAGE_HEADER_CANCEL_BTN;
-
-    @FindBy(css = ".gs-button__green")
-    WebElement UI_VARIATION_CONFIG_PAGE_HEADER_SAVE_BTN;
-
-    @FindBy(css = ".border label")
-    List<WebElement> UI_VARIATION_CONFIG_PAGE_CONVERSION_UNIT_TABLE_COLUMN;
-
-    @FindBy(css = "#unit-0")
-    WebElement UI_VARIATION_CONFIG_PAGE_CONVERSION_UNIT_TABLE_INPUT_UNIT_PLACEHOLDER;
-
-    @FindBy(css = ".search-list > p")
-    WebElement UI_VARIATION_CONFIG_PAGE_CONVERSION_UNIT_TABLE_SEARCH_UNIT_NO_RESULT;
-
-    @FindBy(css = ".icon_add_unit")
-    WebElement UI_VARIATION_CONFIG_PAGE_CONVERSION_UNIT_TABLE_ADD_BTN;
-
+    By variationSelectVariationText = By.cssSelector(".gs-button__green--outline");
+    By titleOfSelectVariationPopup = By.cssSelector(".modal-title");
+    By okTextOnSelectVariationPopup = By.cssSelector(".modal-footer .gs-button__green");
+    By cancelTextOnSelectVariationPopup = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By deleteTextOnSetupConversionUnitTable = By.cssSelector(".action-variation > span:nth-child(1)");
+    By editTextOnSetupConversionUnitTable = By.cssSelector(".action-variation > span:nth-child(2)");
+    By configureTextOnSetupConversionUnitTable = By.cssSelector(".gs-button__blue--outline");
+    By goBackToSetupConversionUnitLinkText = By.cssSelector(".gs-fake-link");
+    By setupVariationConversionUnitPageTitle = By.cssSelector(".conversion-unit-wrapper h5");
+    By selectUnitTextOnSetupVariationConversionUnit = By.cssSelector(".gs-button__green--outline");
+    By cancelTextOnSetupVariationConversionUnit = By.cssSelector(".gs-button__gray--outline");
+    By saveTextOnSetupVariationConversionUnit = By.cssSelector(".gs-button__green");
+    By setupVariationConversionUnitTable = By.cssSelector(".border label");
+    By unitPlaceholderOnSetupVariationConversionUnitTable = By.cssSelector("#unit-0");
+    By noResultTextOnSetupVariationConversionUnitTable = By.cssSelector(".search-list > p");
+    By addTextOnSetupVariationConversionUnitTable = By.cssSelector(".icon_add_unit");
     /**
      * <p>0: Conversion unit</p>
      * <p>1: SKU</p>
@@ -200,6 +94,5 @@ class ConversionUnitElement {
      * <p>9: Width</p>
      * <p>10: Height</p>
      */
-    @FindBy(css = ".table-conversion-list > thead th")
-    List<WebElement> UI_VARIATION_CONFIG_PAGE_CONVERSION_UNIT_ALIAS_TABLE_COLUMN;
+    By variationAliasTable = By.cssSelector(".table-conversion-list > thead th");
 }

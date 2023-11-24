@@ -1,11 +1,10 @@
 package pages.dashboard.products.all_products.wholesale_price;
 
-import api.dashboard.customers.Customers;
+import api.dashboard.customers.SegmentAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
@@ -21,15 +20,10 @@ import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
-import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOf;
 import static utilities.PropertiesUtil.getPropertiesValueByDBLang;
-import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
-import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;
 import static utilities.links.Links.DOMAIN;
 
 public class WholesaleProductPage extends WholesaleProductElement {
-    String PRODUCT_DETAIL_PAGE_PATH = "/product/edit/%s";
     UICommonAction commonAction;
     WebDriverWait wait;
     Actions act;
@@ -49,48 +43,43 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation) {
         super(driver);
-        commonAction = new UICommonAction(driver);
         act = new Actions(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         this.loginInformation = loginInformation;
         productPage = new ProductPage(driver, loginInformation);
-        productID = productPage.getProductID();
-        variationList = productPage.getVariationList();
-        productStockQuantity = productPage.getProductStockQuantity();
+        commonAction = productPage.getCommonAction();
+        productID = ProductPage.getProductID();
+        variationList = ProductPage.getVariationList();
+        productStockQuantity = ProductPage.getProductStockQuantity();
         countFail = ProductPage.getCountFail();
         language = ProductPage.getLanguage();
-        hasModel = productPage.isHasModel();
-        productSellingPrice = productPage.getProductSellingPrice();
+        hasModel = ProductPage.isHasModel();
+        productSellingPrice = ProductPage.getProductSellingPrice();
     }
 
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, PRODUCT_DETAIL_PAGE_PATH.formatted(productID)));
-
-        // wait page loaded
-        commonAction.waitElementVisible(ADD_WHOLESALE_PRICING_CHECKBOX);
+        driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(productID)));
 
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
-        if (!(boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", ADD_WHOLESALE_PRICING_CHECKBOX))
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", ADD_WHOLESALE_PRICING_CHECKBOX);
+        if (!commonAction.isCheckedJS(productPage.getAddWholesalePricingCheckbox()))
+            commonAction.clickJS(productPage.getAddWholesalePricingCheckbox());
 
         // [UI] check UI after check on Add Wholesale Pricing checkbox
         checkWholesaleProductConfig();
 
         // click Configure button
-        wait.until(ExpectedConditions.elementToBeClickable(CONFIGURE_BTN)).click();
+        commonAction.click(productPage.getConfigureWholesalePricingBtn());
 
-        // wait spinner loading hidden
-        commonAction.waitForElementInvisible(SPINNER, 60);
 
         // wait wholesale product page loaded
-        commonAction.waitElementVisible(UI_NO_WHOLESALE_CONFIG);
+        commonAction.getElement(noConfigText);
 
         // check [UI] header
         checkUIHeader();
 
         // hide Facebook bubble
-        ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", FB_BUBBLE);
+        commonAction.removeFbBubble();
 
         return this;
     }
@@ -102,165 +91,156 @@ public class WholesaleProductPage extends WholesaleProductElement {
         wholesaleProductStock = new ArrayList<>();
         IntStream.range(0, wholesaleProductPrice.size()).forEachOrdered(i -> wholesaleProductStock.add(0));
         numOfWholesaleProduct = nextInt(variationList.size()) + 1;
-        for (int i = 0; i < numOfWholesaleProduct; i++) {
-            wholesaleProductPrice.set(i, nextLong(productSellingPrice.get(i)) + 1);
-            wholesaleProductStock.set(i, nextInt(Math.max(Collections.max(productStockQuantity.get(variationList.get(i))), 1)) + 1);
-        }
+        IntStream.range(0, numOfWholesaleProduct).forEach(varIndex -> {
+            wholesaleProductPrice.set(varIndex, nextLong(productSellingPrice.get(varIndex)) + 1);
+            wholesaleProductStock.set(varIndex, nextInt(Math.max(Collections.max(productStockQuantity.get(variationList.get(varIndex))), 1)) + 1);
+        });
         return this;
     }
 
     /* Without variation config */
     public void addWholesaleProductWithoutVariation() throws Exception {
         // click add wholesale pricing button
-        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN)).click();
+        commonAction.click(withoutVariationAddWholesalePricingBtn);
+        logger.info("Open setup wholesale price table.");
 
         // check [UI] wholesale product page
         checkWithoutVariationConfigTable();
 
         // wait and input buy from
-        wait.until(visibilityOf(WITHOUT_VARIATION_BUY_FROM)).click();
-        WITHOUT_VARIATION_BUY_FROM.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        WITHOUT_VARIATION_BUY_FROM.sendKeys(String.valueOf(wholesaleProductStock.get(0)));
+        commonAction.sendKeys(withoutVariationBuyFrom, String.valueOf(wholesaleProductStock.get(0)));
+        logger.info("Input buy from: %s.".formatted(wholesaleProductStock.get(0)));
 
         // wait and input price per item
-        wait.until(visibilityOf(WITHOUT_VARIATION_PRICE_PER_ITEM)).click();
-        WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        WITHOUT_VARIATION_PRICE_PER_ITEM.sendKeys(String.valueOf(wholesaleProductPrice.get(0)));
-        logger.info("wholesale price: %s".formatted(wholesaleProductPrice.get(0)));
+        commonAction.sendKeys(withoutVariationWholesalePrice, String.valueOf(wholesaleProductPrice.get(0)));
+        logger.info("Input price per item: %s".formatted(wholesaleProductPrice.get(0)));
 
         // open segment dropdown
-        wait.until(visibilityOf(WITHOUT_VARIATION_CUSTOMER_SEGMENT_DROPDOWN)).click();
-
-        // wait segment dropdown show
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.click(withoutVariationSegmentDropdown);
+        logger.info("Open segment dropdown.");
 
         // check [UI] segment default value and search box placeholder
         checkSegmentInformation();
 
-        // search segment
-        if (new Customers(loginInformation).getSegmentName() == null)
-            new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
-        WebElement customerSegmentSearchBox = wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_SEARCH_BOX));
-        act.moveToElement(customerSegmentSearchBox).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
-
         // select segment
-        wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_CHECKBOX)).click();
+        List<Integer> listSegmentIdInStore = new SegmentAPI(loginInformation).getListSegmentIdInStore();
+        if (listSegmentIdInStore.isEmpty()) {
+            // if store do not have any segment, select All customers option
+            logger.info("Select segment: %s.".formatted(commonAction.getText(allCustomerTextInDropdown)));
+            commonAction.click(allCustomerCheckbox);
+        } else {
+            // in-case store have some segment, select any segment.
+            int segmentId = listSegmentIdInStore.get(nextInt(listSegmentIdInStore.size()));
+            logger.info("Select segment: %s.".formatted(commonAction.getText(By.cssSelector(segmentText.formatted(segmentId)))));
+            commonAction.click(By.cssSelector(segmentLocator.formatted(segmentId)));
+        }
 
         // close segment dropdown
-        wait.until(visibilityOf(WITHOUT_VARIATION_CUSTOMER_SEGMENT_DROPDOWN)).click();
+        commonAction.click(withoutVariationSegmentDropdown);
+        logger.info("Close segment dropdown.");
 
         // complete config wholesale product
-        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SAVE_BTN)).click();
+        commonAction.click(saveBtn);
     }
 
     /* Variation config */
-    List<String> variationSaleList = new ArrayList<>();
-
-    void selectVariation() throws Exception {
-        for (int i = 0; i < numOfWholesaleProduct; i++) {
+    List<String> selectVariation() throws Exception {
+        List<String> variationSaleList = new ArrayList<>();
+        for (int varIndex = 0; varIndex < numOfWholesaleProduct; varIndex++) {
             // open Add variation popup
-            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_ADD_VARIATION_BTN)).click();
+            commonAction.click(variationAddVariationBtn);
             logger.info("Open select variation popup on wholesale config page.");
 
             // wait popup visible
             try {
-                wait.until(visibilityOf(ADD_VARIATION_POPUP));
+                commonAction.getElement(addVariationPopup);
                 logger.info("Wait select variation popup visible.");
             } catch (TimeoutException ex) {
                 logger.info(ex);
-                wait.until(ExpectedConditions.elementToBeClickable(VARIATION_HEADER_ADD_VARIATION_BTN)).click();
+                commonAction.click(variationAddVariationBtn);
                 logger.info("Open select variation popup on wholesale config page.");
-                wait.until(visibilityOf(ADD_VARIATION_POPUP));
+                commonAction.getElement(addVariationPopup);
                 logger.info("Wait select variation popup visible again.");
             }
 
             // check [UI] Add variation popup
-            if (i == 0) checkAddVariationPopup();
-
-            // wait list variation visible
-            commonAction.sleepInMiliSecond(500);
+            if (varIndex == 0) checkAddVariationPopup();
 
             // select variation
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_ADD_VARIATION_POPUP_LIST_VARIATION_CHECKBOX.get(i));
+            commonAction.clickJS(listVariationCheckboxOnAddVariationPopup, varIndex);
 
             // close Add variation popup
-            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_ADD_VARIATION_POPUP_OK_BTN)).click();
+            commonAction.click(okBtnOnAddVariationPopup);
 
-            variationSaleList.add("%s,".formatted(variationList.get(i).replace(" ", "|")));
+            // add variation to sale list
+            variationSaleList.add("%s,".formatted(variationList.get(varIndex).replace(" ", "|")));
         }
+        return variationSaleList;
     }
 
     public void addWholesaleProductVariation() throws Exception {
-        selectVariation();
-        for (int i = 0; i < variationSaleList.size(); i++) {
+        // get list variation has wholesale pricing config
+        List<String> variationSaleList = selectVariation();
+
+        // add config for each variation
+        for (int index = 0; index < variationSaleList.size(); index++) {
             // get variation value
-            String varValue = commonAction.refreshListElement(VARIATION_HEADER_VARIATION_VALUE).get(i).getText();
+            String value = commonAction.getText(variationValue, index);
 
             // get variation index
-            System.out.println(varValue);
-            System.out.println(variationSaleList);
-            int varIndex = variationSaleList.indexOf(varValue);
-
-            // wait list add wholesale pricing button visible
-            commonAction.waitElementList(VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN, variationSaleList.size());
+            int varIndex = variationSaleList.indexOf(value);
 
             // click add wholesale pricing button
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN.get(i));
-
-            // wait wholesale product page loaded
-            commonAction.waitForElementInvisible(SPINNER, 60);
+            commonAction.clickJS(variationAddWholesalePricingBtn, index);
 
             // check [UI] after add new config
-            checkVariationConfigTable(i);
+            if (index == 0) checkVariationConfigTable();
 
             // wait and input buy from
-            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_BUY_FROM.get(i)));
-            VARIATION_BUY_FROM.get(i).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-            VARIATION_BUY_FROM.get(i).sendKeys(String.valueOf(wholesaleProductStock.get(varIndex)));
+            commonAction.sendKeys(variationBuyFrom, index, String.valueOf(wholesaleProductStock.get(varIndex)));
+            logger.info("[%s] Input buy from: %s.".formatted(value, wholesaleProductStock.get(varIndex)));
 
             // wait and input price per item
-            wait.until(ExpectedConditions.elementToBeClickable(VARIATION_PRICE_PER_ITEM.get(i)));
-            VARIATION_PRICE_PER_ITEM.get(i).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-            VARIATION_PRICE_PER_ITEM.get(i).sendKeys(String.valueOf(wholesaleProductPrice.get(varIndex)));
-            logger.info("variation: %s".formatted(varValue));
-            logger.info("wholesale price: %s".formatted(wholesaleProductPrice.get(varIndex)));
+            commonAction.sendKeys(variationWholesalePrice, index, String.valueOf(wholesaleProductPrice.get(varIndex)));
+            logger.info("%s] Input price per item: %s.".formatted(value, wholesaleProductPrice.get(varIndex)));
 
             // open segment dropdown
-            wait.until(visibilityOf(commonAction.refreshListElement(VARIATION_CUSTOMER_SEGMENT_DROPDOWN).get(i))).click();
-
-            // wait segment dropdown show
-            commonAction.sleepInMiliSecond(1000);
+            commonAction.click(variationSegmentDropdown, index);
 
             // check [UI] segment default value and search box placeholder
-            checkSegmentInformation();
-
-            // search segment
-            commonAction.sleepInMiliSecond(1000);
-            WebElement customerSegmentSearchBox =  wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_SEARCH_BOX));
-
-            act.moveToElement(customerSegmentSearchBox).doubleClick().sendKeys("%s\n".formatted(new Customers(loginInformation).getSegmentName()));
+            if (index == 0) checkSegmentInformation();
 
             // select segment
-            wait.until(presenceOfElementLocated(CUSTOMER_SEGMENT_CHECKBOX)).click();
+            List<Integer> listSegmentIdInStore = new SegmentAPI(loginInformation).getListSegmentIdInStore();
+            if (listSegmentIdInStore.isEmpty()) {
+                // if store do not have any segment, select All customers option
+                logger.info("Select segment: %s.".formatted(commonAction.getText(allCustomerTextInDropdown)));
+                commonAction.click(allCustomerCheckbox);
+            } else {
+                // in-case store have some segment, select any segment.
+                int segmentId = listSegmentIdInStore.get(nextInt(listSegmentIdInStore.size()));
+                logger.info("Select segment: %s.".formatted(commonAction.getText(By.cssSelector(segmentText.formatted(segmentId)))));
+                commonAction.click(By.cssSelector(segmentLocator.formatted(segmentId)));
+            }
 
             // close segment dropdown
-            wait.until(visibilityOf(commonAction.refreshListElement(VARIATION_CUSTOMER_SEGMENT_DROPDOWN).get(i))).click();
+            commonAction.click(variationSegmentDropdown, index);
         }
 
         // complete config wholesale product
-        wait.until(ExpectedConditions.elementToBeClickable(WITHOUT_VARIATION_HEADER_SAVE_BTN)).click();
+        commonAction.click(saveBtn);
     }
 
     /* check UI function */
     void checkWholesaleProductConfig() throws Exception {
         // check wholesale product information
-        String dbWholesaleProductInformation = wait.until(visibilityOf(UI_WHOLESALE_PRODUCT_INFORMATION)).getText();
+        String dbWholesaleProductInformation = commonAction.getText(productPage.getNoWholesaleProductConfigText());
         String ppWholesaleProductInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.wholesaleProductInformation", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbWholesaleProductInformation, ppWholesaleProductInformation, "[Failed][Wholesale config table] Wholesale product information should be %s, but found %s.".formatted(ppWholesaleProductInformation, dbWholesaleProductInformation));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale product information.".formatted(language));
 
         // check wholesale product configure button
-        String dbWholesaleProductConfigBtn = wait.until(visibilityOf(UI_WHOLESALE_PRODUCT_CONFIGURE_BTN)).getText();
+        String dbWholesaleProductConfigBtn = commonAction.getText(productPage.getConfigureText());
         String ppWholesaleProductConfigBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.wholesaleProductConfigureBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbWholesaleProductConfigBtn, ppWholesaleProductConfigBtn, "[Failed][Wholesale config table] Wholesale product configure button should be %s, but found %s.".formatted(ppWholesaleProductConfigBtn, dbWholesaleProductConfigBtn));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale product configure button.".formatted(language));
@@ -271,16 +251,16 @@ public class WholesaleProductPage extends WholesaleProductElement {
         String dbGoBackToProductDetailPage;
         try {
             // get text
-            dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
+            dbGoBackToProductDetailPage = commonAction.getText(goBackToProductDetailLinkText);
         } catch (TimeoutException ex) {
             // log error
             logger.info(ex);
 
             // check wholesale product page is loaded
-            if (driver.getCurrentUrl().contains("wholesale-price")) {
-                // get text again
-                dbGoBackToProductDetailPage = wait.until(visibilityOf(UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL)).getText();
-            } else throw new Exception("Can not navigate to Wholesale product page.");
+            // get text again
+            if (driver.getCurrentUrl().contains("wholesale-price"))
+                dbGoBackToProductDetailPage = commonAction.getText(goBackToProductDetailLinkText);
+            else throw new Exception("Can not navigate to Wholesale product page.");
         }
         String ppGoBackToProductDetailPage = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.goBackToProductDetail", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
@@ -288,21 +268,21 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         if (hasModel) {
             // check page title
-            String dbPageTitle = wait.until(visibilityOf(UI_HEADER_PAGE_TITLE)).getText();
+            String dbPageTitle = commonAction.getText(pageTitle);
             String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.pageTitle", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
             logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
             // check add variation button
-            String dbAddVariationBtn = wait.until(visibilityOf(UI_VARIATION_HEADER_ADD_VARIATION_BTN)).getText();
+            String dbAddVariationBtn = commonAction.getText(addVariationText);
             String ppAddVariationBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.addVariationBtn", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddVariationBtn, ppAddVariationBtn, "[Failed][Wholesale config table] Add variation button should be %s, but found %s.".formatted(ppAddVariationBtn, dbAddVariationBtn));
             logger.info("[UI][%s] Check Header - Add variation button.".formatted(language));
         } else {
             // check add wholesale pricing button
-            String dbAddWholesalePricingBtn = wait.until(visibilityOf(UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN)).getText();
+            String dbAddWholesalePricingBtn = commonAction.getText(withoutVariationAddWholeSalePricingText);
             while (dbAddWholesalePricingBtn.isEmpty()) {
-                dbAddWholesalePricingBtn = UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN.getText();
+                dbAddWholesalePricingBtn = commonAction.getText(withoutVariationAddWholeSalePricingText);
             }
             String ppAddWholesalePricingBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.withoutVariation.addWholesalePricingBtn", language);
             countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Header] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
@@ -310,13 +290,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
         }
 
         // check save button
-        String dbSaveBtn = wait.until(visibilityOf(UI_HEADER_SAVE_BTN)).getText();
+        String dbSaveBtn = commonAction.getText(saveText);
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.saveBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s] Check Header - Save button.".formatted(language));
 
         // check UI when no wholesale config
-        String dbNoConfig = wait.until(visibilityOf(UI_NO_WHOLESALE_CONFIG)).getText();
+        String dbNoConfig = commonAction.getText(noConfigText);
         String ppNoConfig = hasModel ? getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.variation", language)
                 : getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.withoutVariation", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoConfig, ppNoConfig, "[Failed][Wholesale config table] UI when no wholesale config should be %s, but found %s.".formatted(ppNoConfig, dbNoConfig));
@@ -327,25 +307,25 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     void checkAddVariationPopup() throws Exception {
         // check popup title
-        String dbAddVariationPopupTitle = wait.until(visibilityOf(UI_ADD_VARIATION_POPUP_TITLE)).getText();
+        String dbAddVariationPopupTitle = commonAction.getText(titleOfAddVariationPopup);
         String ppAddVariationPopupTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.title", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddVariationPopupTitle, ppAddVariationPopupTitle, "[Failed][Add variation popup] Title should be %s, but found %s.".formatted(ppAddVariationPopupTitle, dbAddVariationPopupTitle));
         logger.info("[UI][%s] Check Add variation popup - Title.".formatted(language));
 
         // check select all checkbox
-        String dbSelectAllCheckbox = wait.until(visibilityOf(UI_ADD_VARIATION_POPUP_SELECT_ALL_CHECKBOX)).getText();
+        String dbSelectAllCheckbox = commonAction.getText(selectAllLabelOnAddVariationPopup);
         String ppSelectAllCheckbox = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.selectAllCheckbox", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectAllCheckbox, ppSelectAllCheckbox, "[Failed][ Add variation popup] Select all checkbox should be %s, but found %s.".formatted(ppSelectAllCheckbox, dbSelectAllCheckbox));
         logger.info("[UI][%s] Check Add variation popup - Select all checkbox.".formatted(language));
 
         // check OK button
-        String dbOKBtn = wait.until(visibilityOf(UI_ADD_VARIATION_POPUP_OK_BTN)).getText();
+        String dbOKBtn = commonAction.getText(okTextOnAddVariationPopup);
         String ppOKBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.okBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbOKBtn, ppOKBtn, "[Failed][Add variation popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
         logger.info("[UI][%s] Check Add variation popup - OK button.".formatted(language));
 
         // check Cancel button
-        String dbCancelBtn = wait.until(visibilityOf(UI_ADD_VARIATION_POPUP_CANCEL_BTN)).getText();
+        String dbCancelBtn = commonAction.getText(cancelTextOnAddVariationPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.cancelBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][ Add variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Add variation popup - Cancel button.".formatted(language));
@@ -353,13 +333,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     void checkWithoutVariationConfigTable() throws Exception {
         // check page title
-        String dbPageTitle = wait.until(visibilityOf(UI_HEADER_PAGE_TITLE)).getText();
+        String dbPageTitle = commonAction.getText(pageTitle);
         String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.pageTitle", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
         logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
         // check wholesale config table
-        List<String> dbWholesaleConfigTable = UI_WITHOUT_VARIATION_WHOLESALE_CONFIG_TABLE_COLUMN.stream().map(WebElement::getText).toList();
+        List<String> dbWholesaleConfigTable = commonAction.getListElement(withoutVariationSetupWholesalePriceTable).stream().map(WebElement::getText).toList();
         List<String> ppWholesaleConfigTable = List.of(getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.0", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.1", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.2", language),
@@ -369,8 +349,8 @@ public class WholesaleProductPage extends WholesaleProductElement {
         logger.info("[UI][%s] Check Wholesale config table - Wholesale config table.".formatted(language));
 
         // check customer segment tooltips
-        act.moveToElement(UI_WITHOUT_VARIATION_WHOLESALE_CONFIG_TABLE_COLUMN.get(4)).build().perform();
-        String dbCustomerSegmentTooltips = wait.until(visibilityOf(UI_SEGMENT_TOOLTIPS)).getText();
+        commonAction.click(withoutVariationSetupWholesalePriceTable, 4);
+        String dbCustomerSegmentTooltips = commonAction.getText(segmentTooltips);
         String ppCustomerSegmentTooltips = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.segmentTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbCustomerSegmentTooltips, ppCustomerSegmentTooltips, "[Failed][Wholesale config table] Customer segment tooltips should be %s, but found %s.".formatted(ppCustomerSegmentTooltips, dbCustomerSegmentTooltips));
         logger.info("[UI][%s] Check Wholesale config table - Customer segment tooltips.".formatted(language));
@@ -378,44 +358,39 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     void checkSegmentInformation() throws Exception {
         // check search box placeholder
-        String dbSearchBoxPlaceholder = wait.until(visibilityOf(UI_SEGMENT_SEARCH_BOX_PLACEHOLDER)).getAttribute("placeholder");
+        String dbSearchBoxPlaceholder = commonAction.getAttribute(segmentSearchPlaceholder, "placeholder");
         String ppSearchBoxPlaceholder = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.segment.searchBoxPlaceholder", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbSearchBoxPlaceholder, ppSearchBoxPlaceholder, "[Failed][Wholesale config table] Segment search box placeholder should be %s, but found %s.".formatted(ppSearchBoxPlaceholder, dbSearchBoxPlaceholder));
         logger.info("[UI][%s] Check Wholesale config table - Segment search box placeholder.".formatted(language));
 
         // check all customer checkbox
-        String dbAllCustomers = wait.until(visibilityOf(UI_SEGMENT_ALL_CUSTOMERS)).getText();
+        String dbAllCustomers = commonAction.getText(allCustomerTextInDropdown);
         String ppAllCustomers = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.segment.allCustomers", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbAllCustomers, ppAllCustomers, "[Failed][Wholesale config table] Segment All customers checkbox should be %s, but found %s.".formatted(ppAllCustomers, dbAllCustomers));
         logger.info("[UI][%s] Check Wholesale config table - Segment All customers checkbox.".formatted(language));
     }
 
-    void checkVariationConfigTable(int index) throws Exception {
+    void checkVariationConfigTable() throws Exception {
         // check Add wholesale pricing button
-        String dbAddWholesalePricingBtn = wait.until(visibilityOf(UI_VARIATION_ADD_WHOLESALE_PRICING_BTN.get(index))).getText();
+        String dbAddWholesalePricingBtn = commonAction.getText(variationAddWholesalePricingText, 0);
         String ppAddWholesalePricingBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.addWholesalePricingBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Wholesale config table] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
         logger.info("[UI][%s] Check Wholesale config table - Add wholesale pricing button.".formatted(language));
 
         // check Edit button
-        String dbEditBtn = wait.until(visibilityOf(UI_VARIATION_EDIT_BTN.get(index))).getText();
+        String dbEditBtn = commonAction.getText(variationEditText, 0);
         String ppEditBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.editBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbEditBtn, ppEditBtn, "[Failed][Wholesale config table] Edit button should be %s, but found %s.".formatted(ppEditBtn, dbEditBtn));
         logger.info("[UI][%s] Check Wholesale config table - Edit button.".formatted(language));
 
         // check Delete button
-        String dbDeleteBtn = wait.until(visibilityOf(UI_VARIATION_DELETE_BTN.get(index))).getText();
+        String dbDeleteBtn = commonAction.getText(variationDeleteText, 0);
         String ppDeleteBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.deleteBtn", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeleteBtn, ppDeleteBtn, "[Failed][Wholesale config table] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
         logger.info("[UI][%s] Check Wholesale config table - Delete button.".formatted(language));
 
         // check variation config table
-        List<String> dbConfigTable = new ArrayList<>();
-        dbConfigTable.add(wait.until(visibilityOf(UI_VARIATION_WHOLESALE_TITLE_COLUMN.get(index))).getText());
-        dbConfigTable.add(wait.until(visibilityOf(UI_VARIATION_BUY_FROM_COLUMN.get(index))).getText());
-        dbConfigTable.add(wait.until(visibilityOf(UI_VARIATION_PRICE_PER_ITEM_COLUMN.get(index))).getText());
-        dbConfigTable.add(wait.until(visibilityOf(UI_VARIATION_DISCOUNT_COLUMN.get(index))).getText());
-        dbConfigTable.add(wait.until(visibilityOf(UI_VARIATION_CUSTOMER_SEGMENT_COLUMN.get(index))).getText());
+        List<String> dbConfigTable = commonAction.getListElement(variationSetupWholesalePriceTable).stream().map(WebElement::getText).toList();
         List<String> ppConfigTable = List.of(getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.0", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.1", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.2", language),
@@ -425,8 +400,8 @@ public class WholesaleProductPage extends WholesaleProductElement {
         logger.info("[UI][%s] Check Wholesale config table - Variation config table.".formatted(language));
 
         // check customer segment tooltips
-        UI_VARIATION_CUSTOMER_SEGMENT_COLUMN.get(index).click();
-        String dbCustomerSegmentTooltips = wait.until(visibilityOf(UI_SEGMENT_TOOLTIPS)).getText();
+        commonAction.click(variationSetupWholesalePriceTable, 4);
+        String dbCustomerSegmentTooltips = commonAction.getText(segmentTooltips);
         String ppCustomerSegmentTooltips = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.segmentTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbCustomerSegmentTooltips, ppCustomerSegmentTooltips, "[Failed][Wholesale config table] Customer segment tooltips should be %s, but found %s.".formatted(ppCustomerSegmentTooltips, dbCustomerSegmentTooltips));
         logger.info("[UI][%s] Check Wholesale config table - Customer segment tooltips.".formatted(language));

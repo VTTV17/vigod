@@ -1,3 +1,4 @@
+import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
 import api.dashboard.products.APIAllProducts;
 import api.dashboard.products.CreateProduct;
@@ -30,8 +31,8 @@ public class UpdateProductTest extends BaseTest {
         driver = new InitWebdriver().getDriver(browser, headless);
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
-        new pages.storefront.login.LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
-        driver.get(DOMAIN);
+        customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        new pages.storefront.login.LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
         tcsFileName = "check_product_detail_sf/Update product.xlsx".replace("/", File.separator);
     }
 

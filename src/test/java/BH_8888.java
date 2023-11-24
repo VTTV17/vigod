@@ -43,7 +43,7 @@ public class BH_8888 extends BaseTest {
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         conditions = new ProductDiscountCampaignConditions();
         conditions.setCustomerId(customerId);
-        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
+        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
         tcsFileName = "check_product_detail_sf/BH_8888_View wholesale product at product detail.xlsx".replace("/", File.separator);
     }
 

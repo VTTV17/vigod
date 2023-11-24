@@ -2,11 +2,7 @@ package pages.dashboard.products.all_products.wholesale_price;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 public class WholesaleProductElement {
     WebDriver driver;
@@ -16,90 +12,33 @@ public class WholesaleProductElement {
         PageFactory.initElements(driver, this);
     }
 
-    /* Wholesale product config */
-    @FindBy(css = ".uik-checkbox__wrapper > [name='enabledListing']")
-    WebElement ADD_WHOLESALE_PRICING_CHECKBOX;
-
-    @FindBy(xpath = "//label/*[@name = 'enabledListing']//ancestor::div[contains(@class,'gs-widget__header')]/following-sibling::div//button")
-    WebElement CONFIGURE_BTN;
-
-    @FindBy(css = ".loading .lds-dual-ring-grey")
-    WebElement SPINNER;
-
     /* Without variation config*/
-    @FindBy(css = ".wholesale-btn-group-header .gs-button__gray--outline")
-    WebElement WITHOUT_VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN;
-
-    @FindBy(css = ".wholesale-btn-group-header > .gs-button__green")
-    WebElement WITHOUT_VARIATION_HEADER_SAVE_BTN;
-
-    @FindBy(css = "[name ^= 'buyFrom']")
-    WebElement WITHOUT_VARIATION_BUY_FROM;
-
-    @FindBy(xpath = "//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input")
-    WebElement WITHOUT_VARIATION_PRICE_PER_ITEM;
-
-    @FindBy(css = ".dropdown-search-checkbox-custom")
-    WebElement WITHOUT_VARIATION_CUSTOMER_SEGMENT_DROPDOWN;
-
+    By withoutVariationAddWholesalePricingBtn = By.cssSelector(".wholesale-btn-group-header .gs-button__gray--outline");
+    By saveBtn = By.cssSelector(".wholesale-btn-group-header > .gs-button__green");
+    By withoutVariationBuyFrom = By.cssSelector("[name ^= 'buyFrom']");
+    By withoutVariationWholesalePrice = By.xpath("//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input");
+    By withoutVariationSegmentDropdown = By.cssSelector(".dropdown-search-checkbox-custom");
+    By allCustomerCheckbox = By.cssSelector("#ALL");
+    String segmentLocator = "[id = '%s']";
+    String segmentText = "[for = '%s']";
     /* Variation config */
-    @FindBy(css = ".wholesale-btn-group-header > .gs-button__gray--outline")
-    WebElement VARIATION_HEADER_ADD_VARIATION_BTN;
-
-    @FindBy(css = ".modal-content")
-    WebElement ADD_VARIATION_POPUP;
-
-    @FindBy(css = ".product-list input")
-    List<WebElement> VARIATION_ADD_VARIATION_POPUP_LIST_VARIATION_CHECKBOX;
-
-    @FindBy(css = ".footer-btn .gs-button__green")
-    WebElement VARIATION_ADD_VARIATION_POPUP_OK_BTN;
-
-    @FindBy(css = ".border-bottom > .wholesale-group-header .gs-fake-link:nth-child(1)")
-    List<WebElement> VARIATION_HEADER_ADD_WHOLESALE_PRICING_BTN;
-
-    By VARIATION_HEADER_VARIATION_VALUE = By.cssSelector(".border-bottom > .wholesale-group-header > div > div");
-
-    @FindBy(css = "[name^='buyFrom-']")
-    List<WebElement> VARIATION_BUY_FROM;
-
-    @FindBy(xpath = "//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input")
-    List<WebElement> VARIATION_PRICE_PER_ITEM;
-
-    By VARIATION_CUSTOMER_SEGMENT_DROPDOWN = By.cssSelector(".dropdown-search-checkbox-custom");
-
-    /* reuse element */
-    By CUSTOMER_SEGMENT_SEARCH_BOX = By.cssSelector(".search-box");
-    By CUSTOMER_SEGMENT_CHECKBOX = By.cssSelector(".label-list > .label:nth-child(2)");
-
-    @FindBy(css = "#fb-root")
-    WebElement FB_BUBBLE;
-
-    /* UI element */
-    @FindBy(css = ".gs-widget__content.bg-light-white p")
-    WebElement UI_WHOLESALE_PRODUCT_INFORMATION;
-
-    @FindBy(css = ".gs-widget__content.bg-light-white .gs-button__green")
-    WebElement UI_WHOLESALE_PRODUCT_CONFIGURE_BTN;
+    By variationAddVariationBtn = By.cssSelector(".wholesale-btn-group-header > .gs-button__gray--outline");
+    By addVariationPopup = By.cssSelector(".modal-content");
+    By listVariationCheckboxOnAddVariationPopup = By.cssSelector(".product-list input");
+    By okBtnOnAddVariationPopup = By.cssSelector(".footer-btn .gs-button__green");
+    By variationAddWholesalePricingBtn = By.cssSelector(".border-bottom > .wholesale-group-header .gs-fake-link:nth-child(1)");
+    By variationValue = By.cssSelector(".border-bottom > .wholesale-group-header > div > div");
+    By variationBuyFrom = By.cssSelector("[name^='buyFrom-']");
+    By variationWholesalePrice = By.xpath("//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input");
+    By variationSegmentDropdown = By.cssSelector(".dropdown-search-checkbox-custom");
 
     /* Header */
-    @FindBy(css = ".wholesale-group-header > span")
-    WebElement UI_HEADER_GO_BACK_TO_PRODUCT_DETAIL;
-
-    @FindBy(css = ".container-fluid h5")
-    WebElement UI_HEADER_PAGE_TITLE;
-
-    @FindBy(css = ".wholesale-group-header .gs-button__gray--outline")
-    WebElement UI_WITHOUT_VARIATION_ADD_WHOLESALE_PRICING_BTN;
-
-    @FindBy(css = ".container-fluid p")
-    WebElement UI_NO_WHOLESALE_CONFIG;
-
-    @FindBy(css = ".wholesale-group-header .gs-button__gray--outline")
-    WebElement UI_VARIATION_HEADER_ADD_VARIATION_BTN;
-
-    @FindBy(css = ".wholesale-group-header .gs-button__green")
-    WebElement UI_HEADER_SAVE_BTN;
+    By goBackToProductDetailLinkText = By.cssSelector(".wholesale-group-header > span");
+    By pageTitle = By.cssSelector(".container-fluid h5");
+    By withoutVariationAddWholeSalePricingText = By.cssSelector(".wholesale-group-header .gs-button__gray--outline");
+    By noConfigText = By.cssSelector(".container-fluid p");
+    By addVariationText = By.cssSelector(".wholesale-group-header .gs-button__gray--outline");
+    By saveText = By.cssSelector(".wholesale-group-header .gs-button__green");
 
     /**
      * <p>0: wholesale title</p>
@@ -109,52 +48,17 @@ public class WholesaleProductElement {
      * <p>4: customer segment</p>
      * <p></p>
      */
-    @FindBy(css = ".wholesale-grid-item label")
-    List<WebElement> UI_WITHOUT_VARIATION_WHOLESALE_CONFIG_TABLE_COLUMN;
-
-    @FindBy(css = ".search-box input")
-    WebElement UI_SEGMENT_SEARCH_BOX_PLACEHOLDER;
-
-    @FindBy(css = "#ALL +*")
-    WebElement UI_SEGMENT_ALL_CUSTOMERS;
-
-    @FindBy(css = ".wholesale-group-header.ml-2 span:nth-child(1)")
-    List<WebElement> UI_VARIATION_ADD_WHOLESALE_PRICING_BTN;
-
-    @FindBy(css = ".wholesale-group-header.ml-2 span:nth-child(2)")
-    List<WebElement> UI_VARIATION_DELETE_BTN;
-
-    @FindBy(css = ".wholesale-group-header.ml-2 span:nth-child(3)")
-    List<WebElement> UI_VARIATION_EDIT_BTN;
-
-    @FindBy(css = ".wholesale-grid-item:nth-child(1) label")
-    List<WebElement> UI_VARIATION_WHOLESALE_TITLE_COLUMN;
-
-    @FindBy(css = ".wholesale-grid-item:nth-child(2) label")
-    List<WebElement> UI_VARIATION_BUY_FROM_COLUMN;
-
-    @FindBy(css = ".wholesale-grid-item:nth-child(3) label")
-    List<WebElement> UI_VARIATION_PRICE_PER_ITEM_COLUMN;
-
-    @FindBy(css = ".wholesale-grid-item:nth-child(4) label")
-    List<WebElement> UI_VARIATION_DISCOUNT_COLUMN;
-
-    @FindBy(css = ".wholesale-grid-item:nth-child(5) label")
-    List<WebElement> UI_VARIATION_CUSTOMER_SEGMENT_COLUMN;
-
-    @FindBy(css = ".tippy-tooltip-content")
-    WebElement UI_SEGMENT_TOOLTIPS;
-
+    By withoutVariationSetupWholesalePriceTable = By.cssSelector(".wholesale-grid-item label");
+    By segmentSearchPlaceholder = By.cssSelector(".search-box input");
+    By allCustomerTextInDropdown = By.xpath("(//*[@class ='options-checked'])[1]");
+    By variationAddWholesalePricingText = By.cssSelector(".wholesale-group-header.ml-2 span:nth-child(1)");
+    By variationDeleteText = By.cssSelector(".wholesale-group-header.ml-2 span:nth-child(2)");
+    By variationEditText = By.cssSelector(".wholesale-group-header.ml-2 span:nth-child(3)");
+    By variationSetupWholesalePriceTable = By.xpath("(//*[contains(@class, 'wholesale-grid-wrapper')])[1]//*[@class = 'wholesale-grid-item']//label");
+    By segmentTooltips = By.cssSelector(".tippy-tooltip-content");
     /* Add variation popup */
-    @FindBy(css = ".modal-title")
-    WebElement UI_ADD_VARIATION_POPUP_TITLE;
-
-    @FindBy(css = ".modal-body > section > div > label")
-    WebElement UI_ADD_VARIATION_POPUP_SELECT_ALL_CHECKBOX;
-
-    @FindBy(css = ".footer-btn > .gs-button__green")
-    WebElement UI_ADD_VARIATION_POPUP_OK_BTN;
-
-    @FindBy(css = ".footer-btn > .gs-button__gray--outline")
-    WebElement UI_ADD_VARIATION_POPUP_CANCEL_BTN;
+    By titleOfAddVariationPopup = By.cssSelector(".modal-title");
+    By selectAllLabelOnAddVariationPopup = By.cssSelector(".modal-body > section > div > label");
+    By okTextOnAddVariationPopup = By.cssSelector(".footer-btn > .gs-button__green");
+    By cancelTextOnAddVariationPopup = By.cssSelector(".footer-btn > .gs-button__gray--outline");
 }

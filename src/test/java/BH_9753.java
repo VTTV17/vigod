@@ -34,7 +34,7 @@ public class BH_9753 extends BaseTest {
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
-        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, loginInformation);
+        new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
         tcsFileName = "check_product_detail_sf/BH_9753_Search and view branchs in product detail page.xlsx".replace("/", File.separator);
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
     }

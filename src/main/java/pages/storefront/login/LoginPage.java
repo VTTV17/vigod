@@ -1,6 +1,7 @@
 package pages.storefront.login;
 
 import api.dashboard.setting.StoreInformation;
+import api.storefront.login.LoginSF;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -13,7 +14,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.signup.SignupPage;
@@ -21,9 +21,9 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import static utilities.links.Links.*;
-
 import java.time.Duration;
+
+import static utilities.links.Links.*;
 
 public class LoginPage {
 	
@@ -57,9 +57,10 @@ public class LoginPage {
     @FindBy (id = "forgot-pwd-country-code")
     WebElement COUNTRY_FORGOT_DROPDOWN;       
 
-    By USERNAME = By.cssSelector("#login-username");
-    
-    By PASSWORD = By.cssSelector("#login-password");
+    @FindBy(css = "#login-username")
+    WebElement USERNAME;
+    @FindBy(css = "#login-password")
+    WebElement PASSWORD;
 
     @FindBy (id = "open-forgot-pwd")
     WebElement FORGOT_PASSWORD;       
@@ -90,10 +91,7 @@ public class LoginPage {
     
     @FindBy (xpath = "(//button[@class='btn btn-primary btn-block btn-submit'])[1]")
     WebElement LOGIN_BTN;
-    By loginPopup = By.cssSelector("#login-country-code");
-
-    @FindBy(css = ".loader")
-    WebElement SPINNER;
+    By loginPopup = By.cssSelector(".modal-open");
     
     @FindBy (id = "login-username-error")
     WebElement USER_ERROR;
@@ -267,14 +265,20 @@ public class LoginPage {
         logger.info("Clicked on Login button.");
     }
 
-    public void performLoginJS(String username, String password, LoginInformation loginInformation) {
+    public void performLoginJS(String username, String password, String phoneCode, LoginInformation loginInformation) {
+        // get buyer accessToken
+        LoginSF login = new LoginSF(loginInformation);
+        login.LoginToSF(username, password, phoneCode);
+        String accessToken = login.getInfo().getAccessToken();
+
+        // navigate to storefront
         navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
-        new HeaderSF(driver).clickUserInfoIconJS()
-                .clickLoginIconJS();
-        inputEmailOrPhoneNumber(username);
-        inputPassword(password);
-        clickLoginBtnJS();
-        navigate("https://%s%s/".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN));
+
+        // update accessToken cookie
+        ((JavascriptExecutor) driver).executeScript("document.cookie = 'Authorization=\"Bearer %s\"'".formatted(accessToken));
+
+        // refresh page to get the newest configuration
+        driver.navigate().refresh();
     }
 
     public void verifyTextAtLoginScreen(String signinLanguage) throws Exception {
