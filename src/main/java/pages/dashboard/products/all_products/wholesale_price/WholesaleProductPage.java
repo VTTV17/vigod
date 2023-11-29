@@ -3,7 +3,10 @@ package pages.dashboard.products.all_products.wholesale_price;
 import api.dashboard.customers.SegmentAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.products.all_products.ProductPage;
@@ -25,6 +28,7 @@ import static utilities.links.Links.DOMAIN;
 
 public class WholesaleProductPage extends WholesaleProductElement {
     UICommonAction commonAction;
+    WebDriver driver;
     WebDriverWait wait;
     Actions act;
     Logger logger = LogManager.getLogger(WholesaleProductPage.class);
@@ -42,7 +46,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     LoginInformation loginInformation;
 
     public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation) {
-        super(driver);
+        this.driver = driver;
         act = new Actions(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         this.loginInformation = loginInformation;

@@ -46,6 +46,7 @@ import static utilities.links.Links.DOMAIN;
 
 public class ProductPage extends ProductPageElement {
     WebDriverWait wait;
+    WebDriver driver;
     Actions act;
     @Getter
     UICommonAction commonAction;
@@ -65,7 +66,7 @@ public class ProductPage extends ProductPageElement {
     LoginInformation loginInformation;
 
     public ProductPage(WebDriver driver, LoginInformation loginInformation) {
-        super(driver);
+        this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         act = new Actions(driver);
         commonAction = new UICommonAction(driver);
@@ -155,7 +156,7 @@ public class ProductPage extends ProductPageElement {
 
     public boolean isDeleteVariationBtnDisplayed() {
         commonAction.sleepInMiliSecond(500);
-        return !commonAction.isElementNotDisplay(DELETE_VARIATION_BTN);
+        return !commonAction.isElementNotDisplay(commonAction.getElements(loc_btnDeleteVariation));
     }
 
     public boolean isDeleteDepositBtnDisplayed() {
@@ -308,18 +309,19 @@ public class ProductPage extends ProductPageElement {
         // get product id
         ProductPage.productID = productID;
 
-        // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
-
         // log
         logger.info("Product id: %s".formatted(productID));
+
+        // get product information
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productID)));
 
         // clear old conversion unit config
-        if (commonAction.isCheckedJS(addConversionUnitCheckbox))
+        if (commonAction.isCheckedJS(addConversionUnitCheckbox)) {
             commonAction.clickJS(addConversionUnitCheckbox);
+        }
 
         // delete old wholesale product config if any
         if (commonAction.isCheckedJS(addWholesalePricingCheckbox)) {
@@ -402,7 +404,8 @@ public class ProductPage extends ProductPageElement {
             // remove all collections
             List<WebElement> removeIcons = commonAction.getListElement(removeCollectionBtn);
             if (!removeIcons.isEmpty()) {
-                IntStream.range(0, removeIcons.size()).forEach(index -> commonAction.clickJS(removeCollectionBtn, index));
+                IntStream.iterate(removeIcons.size() - 1, index -> index >= 0, index -> index - 1)
+                        .forEach(index -> commonAction.clickJS(removeCollectionBtn, index));
                 logger.info("Remove assigned collections.");
             }
             // open collection dropdown
@@ -432,7 +435,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("Open update SKU popup.");
 
         // wait Update SKU popup visible
-        commonAction.getElement(popup);
+        commonAction.getElement(loc_dlgUpdateSKU);
         logger.info("Wait update SKU popup visible.");
 
         // check [UI] SKU popup
@@ -579,23 +582,9 @@ public class ProductPage extends ProductPageElement {
         commonAction.sendKeys(productCostPriceWithoutVariation, String.valueOf((long) (Math.random() * productSellingPrice.get(0))));
     }
 
-    void addIMEIForEachBranch(String variationValue, List<Integer> branchStock) throws Exception {
+    void addIMEIForEachBranch(String variationValue, List<Integer> branchStock, int varIndex) throws Exception {
         // wait Update stock popup visible
-        commonAction.getElement(popup);
-
-        // Remove old IMEI/ Serial number
-        for (int index = commonAction.getListElement(removeIMEIIcon).size() - 1; index >= 0; index--) {
-            try {
-                // remove IMEI
-                commonAction.click(removeIMEIIcon, index);
-            } catch (StaleElementReferenceException ex) {
-                // log error
-                logger.info(ex);
-
-                // remove IMEI again
-                commonAction.clickJS(removeIMEIIcon, index);
-            }
-        }
+        commonAction.getElement(loc_dlgAddIMEI);
 
         // select all branches
         try {
@@ -625,14 +614,15 @@ public class ProductPage extends ProductPageElement {
         }
 
         // check [UI] add IMEI popup
-        checkAddIMEIPopup();
+        if (varIndex == 0) checkAddIMEIPopup();
 
         // input IMEI/Serial number for each branch
         for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
             int brStockIndex = brInfo.getBranchName().indexOf(brInfo.getActiveBranches().get(brIndex));
             for (int i = 0; i < branchStock.get(brStockIndex); i++) {
-                String sku = "%s%s_IMEI_%s_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", brInfo.getActiveBranches().get(brIndex), epoch, i);
-                commonAction.sendKeys(textBoxOnAddIMEIPopup, brIndex, sku);
+                String imei = "%s%s_IMEI_%s_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", brInfo.getActiveBranches().get(brIndex), epoch, i);
+                commonAction.sendKeys(textBoxOnAddIMEIPopup, brIndex, imei);
+                logger.info("Input IMEI: %s.".formatted(imei));
             }
         }
 
@@ -664,7 +654,7 @@ public class ProductPage extends ProductPageElement {
         }
         if (manageByIMEI) {
             // add IMEI/Serial number for each branch
-            addIMEIForEachBranch(null, productStockQuantity.get(null));
+            addIMEIForEachBranch(null, productStockQuantity.get(null), 0);
         } else {
             // handle StaleElementReference exception
             // clear old stock value
@@ -697,7 +687,7 @@ public class ProductPage extends ProductPageElement {
 
     void addNormalStockForEachBranch(List<Integer> branchStock) throws Exception {
         // wait Update stock popup visible
-        commonAction.getElement(popup);
+        commonAction.getElement(loc_dlgUpdateStock);
 
         // select all branches
         commonAction.click(branchDropdownOnUpdateStockPopup);
@@ -748,7 +738,7 @@ public class ProductPage extends ProductPageElement {
 
         if (manageByIMEI) {
             // add IMEI/Serial number for each branch
-            addIMEIForEachBranch(null, productStockQuantity.get(null));
+            addIMEIForEachBranch(null, productStockQuantity.get(null), 0);
         } else {
             // add stock for each branch
             addNormalStockForEachBranch(productStockQuantity.get(null));
@@ -773,7 +763,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("Variation list: %s".formatted(variationList));
 
         // delete old variation
-        DELETE_VARIATION_BTN.forEach(WebElement::click);
+        commonAction.getListElement(loc_btnDeleteVariation).forEach(WebElement::click);
         System.out.println(variationMap);
 
         // check [UI] Add variation button
@@ -896,9 +886,9 @@ public class ProductPage extends ProductPageElement {
             // open Update stock popup
             commonAction.clickJS(stockQuantityOnVariationTable, varIndex);
 
-            if (manageByIMEI)
-                addIMEIForEachBranch(variationList.get(varIndex), productStockQuantity.get(variationList.get(varIndex)));
-            else addNormalStockForEachBranch(productStockQuantity.get(variationList.get(varIndex)));
+            if (manageByIMEI) {
+                addIMEIForEachBranch(variationList.get(varIndex), productStockQuantity.get(variationList.get(varIndex)), varIndex);
+            } else addNormalStockForEachBranch(productStockQuantity.get(variationList.get(varIndex)));
         }
     }
 
@@ -909,7 +899,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.clickJS(skuOnVariationTable, varIndex);
 
             // wait Update SKU popup visible
-            commonAction.getElement(popup);
+            commonAction.getElement(loc_dlgUpdateSKU);
 
             // check [UI] SKU popup
             if (varIndex == 0) checkUpdateSKUPopup();
@@ -1944,21 +1934,21 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Sale chanel title.".formatted(language));
 
         // check Online shop tooltips
-        commonAction.hoverActions(onlineShopLabel);
+        commonAction.hoverActions(onlineShopIcon);
         String dbOnlineShopTooltips = commonAction.getText(onlineShopTooltips);
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbOnlineShopTooltips, ppOnlineShopTooltips, "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, dbOnlineShopTooltips));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
         // check Gomua tooltips
-        commonAction.hoverActions(gomuaLabel);
+        commonAction.hoverActions(gomuaIcon);
         String dbGomuaTooltips = commonAction.getText(gomuaTooltips);
         String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
         countFail = new AssertCustomize(driver).assertEquals(countFail, dbGomuaTooltips, ppGomuaTooltips, "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, dbGomuaTooltips));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
-        commonAction.hoverActions(shopeeLabel);
+        commonAction.hoverActions(shopeeIcon);
         String dbShopeeTooltips = commonAction.getText(shopeeTooltips);
         List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
@@ -1967,7 +1957,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
-        commonAction.hoverActions(tiktokLabel);
+        commonAction.hoverActions(tiktokIcon);
         String dbTiktokTooltips = commonAction.getText(tiktokTooltips);
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
         countFail = new AssertCustomize(driver).assertTrue(countFail, ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
@@ -2442,7 +2432,7 @@ public class ProductPage extends ProductPageElement {
     public void navigateToProductAndDeleteAllVariation(int productId) {
         commonAction.navigateToURL(DOMAIN + updateProductPath.formatted(productId));
         new HomePage(driver).waitTillSpinnerDisappear();
-        for (WebElement el : DELETE_VARIATION_BTN) {
+        for (WebElement el : commonAction.getElements(loc_btnDeleteVariation)) {
             commonAction.clickElement(el);
         }
         completeUpdateProduct();

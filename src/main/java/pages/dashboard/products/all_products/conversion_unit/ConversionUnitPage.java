@@ -23,6 +23,7 @@ import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 
 public class ConversionUnitPage extends ConversionUnitElement {
+    WebDriver driver;
     WebDriverWait wait;
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger(ConversionUnitPage.class);
@@ -33,7 +34,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
     List<String> variationList;
 
     public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation) {
-        super(driver);
+        this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         productPage = new ProductPage(driver, loginInformation);
@@ -48,9 +49,14 @@ public class ConversionUnitPage extends ConversionUnitElement {
         driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(ProductPage.getProductID())));
         logger.info("Navigate to product detail page by URL, productId: %s".formatted(ProductPage.getProductID()));
 
-        // if 'Add Conversion Unit' checkbox is not checked, check and click on 'Configure' button
-        if (!commonAction.isCheckedJS(productPage.getAddConversionUnitCheckBox()))
+        // If product has conversion unit, remove that to add new configuration
+        if (commonAction.isCheckedJS(productPage.getAddConversionUnitCheckBox())) {
+            // uncheck to clear old configuration
             commonAction.clickJS(productPage.getAddConversionUnitCheckBox());
+        }
+
+        // Check "Add Conversion Unit" checkbox to add new configuration
+        commonAction.clickJS(productPage.getAddConversionUnitCheckBox());
 
         // check [UI] after check on Add Conversion Unit checkbox
         checkConversionUnitConfig();
@@ -164,7 +170,6 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
                 // click Save button on variation config
                 commonAction.click(saveBtnOnSetupVariationConversionUnitPage);
-
                 logger.info("[%s] Complete configure conversion unit.".formatted(variation));
 
                 // wait conversion unit page loaded

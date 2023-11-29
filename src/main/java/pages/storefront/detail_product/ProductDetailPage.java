@@ -724,7 +724,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 // switch variation if any
                 if (productInfo.isHasModel()) {
                     // get variation value
-                    List<String> varName = Arrays.stream(variationValue.replace("|", " ").split(" ")).toList();
+                    List<String> varName = Arrays.stream(variationValue.split("\\|")).toList();
                     logger.info("*** var: %s ***".formatted(variationValue));
 
                     // select variation
@@ -734,7 +734,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", driver.findElement(By.cssSelector("[aria-owns='bs-select-%s']".formatted(index + 1))));
                         logger.info("Open variation dropdown %s.".formatted(index));
 
-                        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(@class, 'type-of-item')]//span[text() = '%s']".formatted(var))));
+                        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[text() = '%s']".formatted(var))));
                         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", driver.findElement(By.xpath("//*[contains(@class, 'type-of-item')]//span[text() = '%s']".formatted(var))));
                         logger.info("Select variation: %s.".formatted(var));
 

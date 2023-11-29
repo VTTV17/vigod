@@ -255,9 +255,11 @@ public class ProductInformation {
                 prdInfo.setVariationStatus(List.of(resJson.getString("bhStatus")));
             }
             // s.out
-            int taxId = resJson.getInt("taxId");
-            String taxRate = resJson.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
-            prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
+            try {
+                int taxId = resJson.getInt("taxId");
+                String taxRate = resJson.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
+                prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
+            } catch (NullPointerException ignore) {}
 
             Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());
             collectionsList.then().statusCode(200);

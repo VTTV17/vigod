@@ -1,16 +1,8 @@
 package pages.dashboard.products.all_products.wholesale_price;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
 
 public class WholesaleProductElement {
-    WebDriver driver;
-
-    WholesaleProductElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
 
     /* Without variation config*/
     By withoutVariationAddWholesalePricingBtn = By.cssSelector(".wholesale-btn-group-header .gs-button__gray--outline");

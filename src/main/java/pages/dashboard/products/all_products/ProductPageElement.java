@@ -2,20 +2,12 @@ package pages.dashboard.products.all_products;
 
 import lombok.Getter;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import java.util.List;
 
 public class ProductPageElement {
-    WebDriver driver;
-
-    ProductPageElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
     By selectedLanguage = By.cssSelector(".language-selector .uik-select__valueWrapper");
     String languageLocator = "//*[@class = 'uik-select__label']/span[text()= '%s']";
     By createProductBtn = By.cssSelector(".product-list-page > div > div > div >  button.gs-button__green");
@@ -29,9 +21,10 @@ public class ProductPageElement {
     By vatDropDown = By.cssSelector(".form-group .uik-select__valueWrapper");
     By noTax = By.xpath("//*[@class = 'uik-select__optionContent']/div[text()='Không áp dụng thuế'] | //*[@class = 'uik-select__optionContent']/div[text()='Tax does not apply']");
     String othersTaxLocator = "//*[@class = 'uik-select__optionContent']/div[text()='%s']";
-    By removeCollectionBtn = By.cssSelector(".product-form-collection-selector2__selected-item .gs-action-button");
+    By removeCollectionBtn = By.xpath("//*[@class = 'product-form-collection-selector2__selected-item-name']/following-sibling::*");
     By collectionSearchBox = By.cssSelector(".product-form-collection-selector2 input");
     String collectionLocator = "//div[text() = '%s']";
+    By loc_dlgUpdateSKU = By.cssSelector(".product-multiple-branch-sku_editor_modal");
     By productSKUWithoutVariation = By.cssSelector("#productSKU,[class *=--n2] > div:nth-child(3) .align-items-center > span");
     @FindBy(xpath = "//div[contains(@class,'gs-witget-warehousing')]//div[contains(@class,'uik-widget-title')]//span[@class='gs-fake-link ']")
     WebElement UPDATE_STOCK_LINKTEXT;
@@ -64,8 +57,9 @@ public class ProductPageElement {
     By hideRemainingStockOnOnlineStoreCheckbox = By.xpath("//*[@name='isHideStock']/parent::div/preceding-sibling::label[2]/input");
     By showAsListingProductOnStoreFrontCheckbox = By.xpath("//*[@name='enabledListing']/parent::div/preceding-sibling::label[2]/input");
     By branchStockWithoutVariation = By.cssSelector(".branch-list-stock__wrapper__row  input");
+    By loc_dlgUpdateStock = By.cssSelector(".product-multiple-branch-stock_editor_modal");
+    By loc_dlgAddIMEI = By.cssSelector(".managed-inventory-modal");
     By branchDropdownOnAddIMEIPopup = By.cssSelector(".modal-body button.uik-select__valueRendered");
-    By removeIMEIIcon = By.cssSelector(".fa-times");
     By selectAllBranchesCheckboxOnAddIMEIPopup = By.cssSelector(".modal-body .uik-menuDrop__list > button:nth-child(1)  input");
     By textBoxOnAddIMEIPopup = By.cssSelector(".input-code input");
     By saveBtnOnAddIMEIPopup = By.cssSelector(".modal-footer > .gs-button__green");
@@ -101,8 +95,7 @@ public class ProductPageElement {
     By searchBox = By.cssSelector(".d-mobile-none .uik-input__input");
     By productId = By.cssSelector("tbody > tr > td:nth-child(1) > span > b");
     /* Tien */
-    @FindBy(xpath = "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/following-sibling::*/button")
-    List<WebElement> DELETE_VARIATION_BTN;
+    By loc_btnDeleteVariation = By.xpath("//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/following-sibling::*/button");
     @FindBy(xpath = "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/parent::*/following-sibling::*/button")
     List<WebElement> DELETE_DEPOSIT_BTN;
     By PRINT_BARCODE_MODAL = By.cssSelector(".modal-content.product-list-barcode-printer");
@@ -239,22 +232,22 @@ public class ProductPageElement {
     By productDescriptionLabelOnEditTranslationPopup = By.xpath("//*[@for='informationName']/parent::div/following-sibling::div/label");
     By variationLabelOnEditTranslationPopup = By.xpath("//div[@class='row']/preceding::div[@class = 'product-translate__titleBody'][1]");
     By seoSettingLabelOnEditTranslationPopup= By.xpath("//div[@class=' seo-editor']/preceding::div[@class = 'product-translate__titleBody'][1]");
-    By livePreviewLabelOnEditTranslationPopup = By.xpath("//*[@class = 'product-translate-modal']//*[contains(@class,'seo-editor__live-preview-wrapper')]//preceding-sibling::div/span");
-    By livePreviewTooltipsOnEditTranslationPopup = By.cssSelector("[aria-describedby = tippy-tooltip-20]");
-    By seoTitleLabelOnEditTranslationPopup = By.xpath("//*[@aria-describedby='tippy-tooltip-21']/parent::div/preceding-sibling::span");
-    By seoTitleTooltipsOnEditTranslationPopup = By.cssSelector("[aria-describedby='tippy-tooltip-21']");
-    By seoDescriptionLabelOnEditTranslationPopup = By.xpath("//*[@aria-describedby='tippy-tooltip-22']/parent::div/preceding-sibling::span");
-    By seoDescriptionTooltipsOnEditTranslationPopup = By.cssSelector("[aria-describedby='tippy-tooltip-22']");
-    By seoKeywordsLabelOnEditTranslationPopup = By.xpath("//*[@aria-describedby='tippy-tooltip-23']/parent::div/preceding-sibling::span");
-    By seoKeywordsTooltipsOnEditTranslationPopup = By.cssSelector("[aria-describedby='tippy-tooltip-23']");
-    By urlLabelOnEditTranslationPopup = By.xpath("//*[@class='product-translate-modal']/descendant::*[@name='seoUrl']/parent::div/preceding-sibling::div[1]//span");
+    By livePreviewLabelOnEditTranslationPopup = By.xpath("(//*[contains(@class, 'seo-editor__live-preview-wrapper')]/preceding-sibling::div/span)[2]");
+    By livePreviewTooltipsOnEditTranslationPopup = By.xpath("(//*[contains(@class, 'seo-editor__live-preview-wrapper')]/preceding-sibling::div//*[@data-tooltipped = ''])[2]");
+    By seoTitleLabelOnEditTranslationPopup = By.xpath("(//*[@name= 'seoTitle']/parent::div/parent::div/preceding-sibling::div[1]/span)[2]");
+    By seoTitleTooltipsOnEditTranslationPopup = By.xpath("(//*[contains(@class,  'seo-editor__live-preview-wrapper')]/following-sibling::div[1]//*[@data-tooltipped])[2]");
+    By seoDescriptionLabelOnEditTranslationPopup = By.xpath("(//*[@name= 'seoDescription']/parent::div/parent::div/preceding-sibling::div[1]/span)[2]");
+    By seoDescriptionTooltipsOnEditTranslationPopup = By.xpath("(//*[@name= 'seoDescription']/parent::div/parent::div/preceding-sibling::div[1]//*[@data-tooltipped])[2]");
+    By seoKeywordsLabelOnEditTranslationPopup = By.xpath("(//*[@name= 'seoKeywords']/parent::div/preceding-sibling::div[1]//span)[2]");
+    By seoKeywordsTooltipsOnEditTranslationPopup = By.xpath("(//*[@name= 'seoKeywords']/parent::div/preceding-sibling::div[1]//*[@data-tooltipped])[2]");
+    By urlLabelOnEditTranslationPopup = By.xpath("(//*[@name= 'seoUrl']/parent::div/preceding-sibling::div[1]//span)[2]");
     By saveTextOnEditTranslationPopup = By.cssSelector(".modal-footer .gs-button__green");
     By cancelTextOnEditTranslationPopup = By.cssSelector(".modal-footer .gs-button__white");
     /* Conversion unit */
     By unitLabel = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(5) > .gs-widget__header > h3 > span");
     By searchUnitPlaceholder = By.cssSelector("#input-search");
     By addConversionUnitLabel = By.xpath("//*[@name='conversionUnitCheckbox']/parent::label/div");
-    By conversionUnitTooltips = By.cssSelector("[aria-describedby='tippy-tooltip-1'],[aria-describedby='tippy-tooltip-15']");
+    By conversionUnitTooltips = By.xpath("//*[@name= 'input-search']//ancestor::div[@class = 'gs-dropdown-search-form']/following-sibling::div//*[@data-tooltipped]");
     /* Wholesale product */
     By addWholesalePricingLabel = By.xpath("//*[@name='enabledListing']/parent::label");
     @Getter
@@ -267,24 +260,24 @@ public class ProductPageElement {
     By depositDescription = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(7)  .gs-widget__content > p");
     /* SEO */
     By uiSEOSetting = By.xpath("//div[contains(@class, ' seo-editor')]//div/h3");
-    By livePreviewLabel = By.xpath("//div[@aria-describedby='tippy-tooltip-2']/parent::div/preceding-sibling::span");
-    By livePreviewTooltips = By.cssSelector("[aria-describedby='tippy-tooltip-2']");
-    By seoTitleLabel = By.xpath("//div[@aria-describedby='tippy-tooltip-3']/parent::div/preceding-sibling::span");
-    By seoTitleTooltips = By.cssSelector("[aria-describedby='tippy-tooltip-3']");
-    By seoDescriptionLabel = By.xpath("//div[@aria-describedby='tippy-tooltip-4']/parent::div/preceding-sibling::span");
-    By seoDescriptionTooltips = By.cssSelector("[aria-describedby='tippy-tooltip-4']");
-    By seoKeywordsLabel = By.xpath("//div[@aria-describedby='tippy-tooltip-5']/parent::div/preceding-sibling::span");
-    By seoKeywordsTooltips = By.cssSelector("[aria-describedby='tippy-tooltip-5']");
-    By seoURLLabel = By.xpath("//div[@class='mb-2'][last()]");
+    By livePreviewLabel = By.xpath("(//*[contains(@class, 'seo-editor__live-preview-wrapper')]/preceding-sibling::div/span)[1]");
+    By livePreviewTooltips = By.xpath("(//*[contains(@class, 'seo-editor__live-preview-wrapper')]/preceding-sibling::div//*[@data-tooltipped = ''])[1]");
+    By seoTitleLabel = By.xpath("(//*[@name= 'seoTitle']/parent::div/parent::div/preceding-sibling::div[1]/span)[1]");
+    By seoTitleTooltips = By.xpath("(//*[contains(@class,  'seo-editor__live-preview-wrapper')]/following-sibling::div[1]//*[@data-tooltipped])[1]");
+    By seoDescriptionLabel = By.xpath("(//*[@name= 'seoDescription']/parent::div/parent::div/preceding-sibling::div[1]/span)[1]");
+    By seoDescriptionTooltips = By.xpath("(//*[@name= 'seoDescription']/parent::div/parent::div/preceding-sibling::div[1]//*[@data-tooltipped])[1]");
+    By seoKeywordsLabel = By.xpath("(//*[@name= 'seoKeywords']/parent::div/preceding-sibling::div[1]//span)[1]");
+    By seoKeywordsTooltips = By.xpath("(//*[@name= 'seoKeywords']/parent::div/preceding-sibling::div[1]//*[@data-tooltipped])[1]");
+    By seoURLLabel = By.xpath("(//*[@name= 'seoUrl']/parent::div/preceding-sibling::div[1]//span)[1]");
     /* Sale chanel */
     By saleChannelLabel = By.cssSelector("[class $= --n2] > div:nth-child(1) h3");
-    By onlineShopLabel = By.cssSelector(".store-front");
+    By onlineShopIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[1]");
     By onlineShopTooltips = By.cssSelector("#tippy-tooltip-6 .tippy-tooltip-content");
-    By gomuaLabel = By.cssSelector(".beecow");
+    By gomuaIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[2]");
     By gomuaTooltips = By.cssSelector("#tippy-tooltip-7 .tippy-tooltip-content");
-    By shopeeLabel = By.cssSelector(".shopee");
+    By shopeeIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[3]");
     By shopeeTooltips = By.cssSelector("#tippy-tooltip-8 .tippy-tooltip-content");
-    By tiktokLabel = By.cssSelector("[aria-describedby='tippy-tooltip-9']");
+    By tiktokIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[4]");
     By tiktokTooltips = By.cssSelector("#tippy-tooltip-9 .tippy-tooltip-content");
     /* Collections */
     By collectionsLabel = By.cssSelector("[class $= --n2] > div:nth-child(2) h3");
@@ -318,7 +311,7 @@ public class ProductPageElement {
     By hideRemainingStockOnOnlineStoreText = By.xpath("//*[@id='isHideStock']/parent::div/preceding-sibling::label/div");
     /* Package information */
     By packageInformationLabel = By.cssSelector("[class $= --n2] > div:nth-child(4) h3");
-    By packageInformationTooltips = By.cssSelector("[aria-describedby = tippy-tooltip-12]");
+    By packageInformationTooltips = By.xpath("//*[contains(@class, 'gs-witget-warehousing')]/following-sibling::div[1]//*[@data-tooltipped]");
     By weightLabel = By.cssSelector("[for = productWeight]");
     By lengthLabel = By.cssSelector("[for = productLength]");
     By widthLabel = By.cssSelector("[for = productWidth]");
@@ -326,11 +319,11 @@ public class ProductPageElement {
     By packageNote = By.cssSelector("[class $= --n2] > div:nth-child(4)  p > em");
     /* Priority */
     By priorityLabel = By.cssSelector("[class $= --n2] > div:nth-child(5) h3");
-    By priorityTooltips = By.cssSelector("[aria-describedby = tippy-tooltip-13]");
+    By priorityTooltips = By.xpath("//*[contains(@class, 'gs-witget-warehousing')]/following-sibling::div[2]//*[@data-tooltipped]");
     By priorityPlaceholder = By.cssSelector("[name = productPriority]");
     /* Platform */
     By platformLabel = By.cssSelector("[class $= --n2] > div:nth-child(6) h3");
-    By platformTooltips = By.cssSelector("[aria-describedby = tippy-tooltip-14]");
+    By platformTooltips = By.xpath("//*[contains(@class, 'gs-witget-warehousing')]/following-sibling::div[3]//*[@data-tooltipped]");
     By appLabel = By.xpath("//*[@name='onApp']/following-sibling::div");
     By webLabel =  By.xpath("//*[@name='onWeb']/following-sibling::div");
     By inStoreLabel = By.xpath("//*[@name='inStore']/following-sibling::div");

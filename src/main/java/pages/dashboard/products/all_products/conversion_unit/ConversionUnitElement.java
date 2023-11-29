@@ -1,16 +1,8 @@
 package pages.dashboard.products.all_products.conversion_unit;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
 
 class ConversionUnitElement {
-    WebDriver driver;
-
-    ConversionUnitElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
 
     /* Without variation config */
     By withoutVariationSelectUnitBtn = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
@@ -23,7 +15,6 @@ class ConversionUnitElement {
     By variationSaveBtn = By.cssSelector(".gs-button__green");
     By selectVariationPopup = By.cssSelector(".modal-content");
     By variationOptions = By.cssSelector("input[name = variationUnit]");
-    String variationLocator = "//*[text() ='%s']";
     By saveBtnOnSelectVariationPopup = By.cssSelector(".modal-footer > .gs-button__green");
     By variationConfigureBtn = By.cssSelector(".conversion-configure > .gs-button__blue--outline");
     By selectUnitBtnOnSetupVariationConversionUnitPage = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");

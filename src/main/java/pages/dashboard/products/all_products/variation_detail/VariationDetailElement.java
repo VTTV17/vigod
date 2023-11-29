@@ -1,139 +1,48 @@
 package pages.dashboard.products.all_products.variation_detail;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 public class VariationDetailElement {
-    WebDriver driver;
-    VariationDetailElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
-
-    @FindBy(css = "#variationName")
-    WebElement PRODUCT_VERSION_NAME;
-
-    @FindBy(css = ".des-header > div > label > input")
-    WebElement REUSE_DESCRIPTION_CHECKBOX;
-
-    @FindBy(css = ".fr-element")
-    WebElement DESCRIPTION;
-
-    @FindBy(css = ".gss-content-header .gs-button__green")
-    WebElement SAVE_BTN;
-
-    By EDIT_TRANSLATION_BTN = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
-
-    @FindBy(css = ".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline")
-    WebElement DEACTIVATE_BTN;
-
-    By POPUP = By.cssSelector(".modal-content");
-
-    @FindBy(css = ".uik-select__valueRenderedWrapper .text-truncate")
-    WebElement EDIT_TRANSLATION_POPUP_SELECTED_LANGUAGE;
-
-    @FindBy(css = ".uik-select__optionList .text-truncate")
-    List<WebElement> EDIT_TRANSLATION_POPUP_LIST_LANGUAGE;
-
-    @FindBy(css = "#informationName")
-    WebElement EDIT_TRANSLATION_POPUP_PRODUCT_NAME;
-
-    @FindBy(css = ".modal-body .fr-element")
-    WebElement EDIT_TRANSLATION_POPUP_DESCRIPTION;
-
-    @FindBy(css = ".modal-footer .gs-button__green")
-    WebElement EDIT_TRANSLATION_POPUP_SAVE_BTN;
-
-    @FindBy(css = ".modal-header > button")
-    WebElement EDIT_TRANSLATION_POPUP_CLOSE_BTN;
-
+    By loc_txtProductVersionName = By.cssSelector("#variationName");
+    By loc_chkReuse = By.cssSelector(".des-header > div > label > input");
+    By loc_rtfDescription = By.cssSelector(".fr-element");
+    By loc_btnSave = By.cssSelector(".gss-content-header .gs-button__green");
+    By btnEditTranslation = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
+    By loc_btnDeactivate = By.cssSelector(".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline");
+    By loc_dlgEditTranslation = By.cssSelector(".modal-content");
+    By loc_dlgEditTranslation_selectedLanguage = By.cssSelector(".uik-select__valueRenderedWrapper .text-truncate");
+    String str_dlgEditTranslation_languageInDropdown = "//*[@class = 'uik-select__label']//*[text()='%s']";
+    By loc_dlgEditTranslation_variationName = By.cssSelector("#informationName");
+    By loc_dlgEditTranslation_variationDescription = By.cssSelector(".modal-body .fr-element");
+    By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_dlgEditTranslation_btnClose = By.cssSelector(".modal-header > button");
     /* UI */
-    @FindBy(css = ".toolbar__product-status")
-    WebElement UI_HEADER_VARIATION_STATUS;
-
-    @FindBy(css = ".gss-content-header span > .gs-button__gray--outline")
-    WebElement UI_HEADER_EDIT_TRANSLATION_BTN;
-
-    @FindBy(css = ".gss-content-header .gs-button__green")
-    WebElement UI_HEADER_SAVE_BTN;
-
-    @FindBy(css = ".gss-content-header .gs-button__green ~.gs-button__gray--outline")
-    WebElement UI_HEADER_CANCEL_BTN;
-
-    @FindBy(css = ".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline")
-    WebElement UI_HEADER_DEACTIVATE_BTN;
-
-    @FindBy(xpath = "//*[@for='productName']/parent::div/parent::div/preceding-sibling::div")
-    WebElement UI_PRODUCT_VERSION;
-
-    @FindBy(css = "[for='productName']")
-    WebElement UI_PRODUCT_VERSION_NAME;
-
-    @FindBy(css = "[for='productDescription']")
-    WebElement UI_DESCRIPTION;
-
-    @FindBy(xpath = "//*[@for='productDescription']/following-sibling::div")
-    WebElement UI_REUSE_DESCRIPTION;
-
-    @FindBy(xpath = "//*[@for='productName']/parent::div/parent::div/parent::div/following-sibling::div[1]//h3")
-    WebElement UI_IMAGES;
-
-    @FindBy(xpath = "//*[@for='productName']/parent::div/parent::div/parent::div/following-sibling::div[2]//h3")
-    WebElement UI_PRICING;
-
-    @FindBy(css = "[for='productPrice']")
-    WebElement UI_LISTING_PRICE;
-
-    @FindBy(css = "[for='productDiscountPrice']")
-    WebElement UI_SELLING_PRICE;
-
-    @FindBy(css = ".variation-number")
-    WebElement UI_NUM_OF_VARIATIONS;
-
-    @FindBy(xpath = "//*[contains(@class, 'branch-list')]/parent::div/preceding-sibling::div")
-    WebElement UI_BRANCH;
-
-    @FindBy(xpath = "//*[contains(@class, 'variation-list')]/parent::div/parent::div/preceding-sibling::div")
-    WebElement UI_VARIATION;
-
-    @FindBy(xpath = "//*[@for='remaining']/parent::div/parent::div/preceding-sibling::div/h3")
-    WebElement UI_WAREHOUSING;
-
-    @FindBy(xpath = "//*[@for='remaining']/parent::div/parent::div/preceding-sibling::div/span")
-    WebElement UI_UPDATE_STOCK;
-
-    @FindBy(css = "[for='variationSKU']")
-    WebElement UI_SKU;
-
-    @FindBy(css = "[for='barcode']")
-    WebElement UI_BARCODE;
-
-    @FindBy(css = "[for='remaining']")
-    WebElement UI_REMAINING_STOCK;
-
-    @FindBy(css = "[for='soldItem']")
-    WebElement UI_SOLD_COUNT;
-
-    @FindBy(css = ".product-translate__titleHeader > p")
-    WebElement UI_EDIT_TRANSLATION_POPUP_TITLE;
-
-    @FindBy(css = ".product-translate__titleBody > h3")
-    WebElement UI_EDIT_TRANSLATION_POPUP_INFORMATION;
-
-    @FindBy(css = "[for='informationName']")
-    WebElement UI_EDIT_TRANSLATION_POPUP_NAME;
-
-    @FindBy(xpath = "//*[@for='informationName']/parent::div/following-sibling::div/label")
-    WebElement UI_EDIT_TRANSLATION_POPUP_DESCRIPTION;
-
-    @FindBy(css = ".modal-footer .gs-button__green")
-    WebElement UI_EDIT_TRANSLATION_POPUP_SAVE_BTN;
-
-    @FindBy(css = ".modal-footer .gs-button__white")
-    WebElement UI_EDIT_TRANSLATION_POPUP_CANCEL_BTN;
+    By loc_lblVariationStatus = By.cssSelector(".toolbar__product-status");
+    By loc_btnEditTranslation = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
+    By loc_lblSave = By.cssSelector(".gss-content-header .gs-button__green");
+    By loc_lblCancel = By.cssSelector(".gss-content-header .gs-button__green ~.gs-button__gray--outline");
+    By loc_lblDeactivate = By.cssSelector(".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline");
+    By loc_lblProductVersion = By.xpath("//*[@for='productName']/parent::div/parent::div/preceding-sibling::div");
+    By loc_lblProductVersionName = By.cssSelector("[for='productName']");
+    By loc_lblDescription = By.cssSelector("[for='productDescription']");
+    By loc_lblReuseDescription = By.xpath("//*[@for='productDescription']/following-sibling::div");
+    By loc_lblImages = By.xpath("//*[@for='productName']/parent::div/parent::div/parent::div/following-sibling::div[1]//h3");
+    By loc_lblPricing = By.xpath("//*[@for='productName']/parent::div/parent::div/parent::div/following-sibling::div[2]//h3");
+    By loc_lblListingPrice = By.cssSelector("[for='productPrice']");
+    By loc_lblSellingPrice = By.cssSelector("[for='productDiscountPrice']");
+    By loc_lblNumberOfVariations = By.cssSelector(".variation-number");
+    By loc_lblBranch = By.xpath("//*[contains(@class, 'branch-list')]/parent::div/preceding-sibling::div");
+    By loc_lblVariation = By.xpath("//*[contains(@class, 'variation-list')]/parent::div/parent::div/preceding-sibling::div");
+    By loc_lblWarehousing = By.xpath("//*[@for='remaining']/parent::div/parent::div/preceding-sibling::div/h3");
+    By loc_lblUpdateStock = By.xpath("//*[@for='remaining']/parent::div/parent::div/preceding-sibling::div/span");
+    By loc_lblSKU = By.cssSelector("[for='variationSKU']");
+    By loc_lblBarcode = By.cssSelector("[for='barcode']");
+    By loc_lblRemainingStock = By.cssSelector("[for='remaining']");
+    By loc_lblSoldCount = By.cssSelector("[for='soldItem']");
+    By loc_dlgEditTranslationTitle = By.cssSelector(".product-translate__titleHeader > p");
+    By loc_dlgEditTranslation_lblInformation = By.cssSelector(".product-translate__titleBody > h3");
+    By loc_dlgEditTranslation_lblName = By.cssSelector("[for='informationName']");
+    By loc_dlgEditTranslation_lblDescription = By.xpath("//*[@for='informationName']/parent::div/following-sibling::div/label");
+    By loc_dlgEditTranslation_lblSave = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_dlgEditTranslation_lblCancel =  By.cssSelector(".modal-footer .gs-button__white");
 }
