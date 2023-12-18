@@ -252,7 +252,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         commonAction.clickElement(wait.until(ExpectedConditions.visibilityOf(CLOSE_BTN)));
         logger.info("Click on Close button");
-        commonAction.sleepInMiliSecond(5000);
+//        commonAction.sleepInMiliSecond(5000);
         return new ServiceCollectionManagement(driver);
     }
     public ServiceCollectionManagement createServiceCollection(ServiceCollectionsInfo serviceCollectionsInfo) throws Exception {
@@ -275,7 +275,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         }
         clickOnSaveBTN();
         clickOnClose();
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
         return new ServiceCollectionManagement(driver);
     }
     public static List<String> sortServiceListByPriorityAndLastUpdatedDate(LoginInformation loginInformation, Map<String, Integer> servicePriorityMap, int collectionID) throws ParseException {

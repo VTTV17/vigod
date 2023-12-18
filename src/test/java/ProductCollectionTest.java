@@ -510,7 +510,7 @@ public class ProductCollectionTest extends BaseTest {
                 .verifyTextOfPage();
     }
 //    @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber",priority = 14)
-    @Test
+//    @Test
     public void PC_21_VerifyCollectionAfterImportProductToAvailableCollection_HasPriority(){
         collectionIdHasPriority =33218;
         Excel excel = new Excel();

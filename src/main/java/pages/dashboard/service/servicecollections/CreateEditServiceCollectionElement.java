@@ -77,7 +77,7 @@ public class CreateEditServiceCollectionElement {
     WebElement SEO_URL;
     @FindBy(css = ".gs-page-title")
     WebElement PAGE_TITLE;
-    @FindBy(xpath = "//label[@for='collectionName']//parent::div/preceding-sibling::div/h3")
+    @FindBy(xpath = "//label[@for='collectionName']//parent::div/preceding-sibling::div//h3")
     WebElement GENERAL_INFORMATION_LBL;
     @FindBy(xpath = "//label[@for='collectionName']")
     WebElement COLLECTION_NAME_LBL;
@@ -85,7 +85,7 @@ public class CreateEditServiceCollectionElement {
     WebElement IMAGES_LBL;
     @FindBy(xpath = "//input[@type='file']//following-sibling::div[2]")
     WebElement DRAG_AND_DROP_LBL;
-    @FindBy(xpath = "(//div[contains(@class,'widget__header--text-align-right')])[2]")
+    @FindBy(xpath = "//fieldset[@name='collectionType']//parent::div//preceding-sibling::div//h3")
     WebElement COLLECTION_TYPE_LBL;
     @FindBy(xpath = "//div[@class='collection-description'][1]")
     WebElement MANUAL_DESCRIPTION;
@@ -95,11 +95,11 @@ public class CreateEditServiceCollectionElement {
     WebElement CONDITIONS_LBL;
     @FindBy(xpath = "//div[@class='automated-config__condition-type']/span[1]")
     WebElement SERVICE_MUST_MATCH_LBL;
-    @FindBy(xpath = "(//div[contains(@class,'widget__header--text-align-right')])[3]/h3")
+    @FindBy(xpath = "//div[@class='bnt-group_add_product']//preceding-sibling::h3")
     WebElement SERVICE_LIST_LBL;
     @FindBy(css = ".product-list__group span")
     WebElement NO_SERVICES_LBL;
-    @FindBy(xpath = "//div[contains(@class,'seo-editor')]//div[contains(@class,'gs-widget__header')]//h3[1]")
+    @FindBy(xpath = "//div[contains(@class,'seo-editor')]//div[contains(@class,'gs-widget__header')]//h3")
     WebElement SEO_SETTINGS_LBL;
     @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div//preceding-sibling::div//span")
     WebElement LIVE_PREVIEW_LBL;

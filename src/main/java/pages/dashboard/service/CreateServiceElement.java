@@ -1,5 +1,6 @@
 package pages.dashboard.service;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -13,6 +14,37 @@ public class CreateServiceElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+    By loc_btnSave = By.xpath("(//button[contains(@class,'btn-save')])[1]");
+    By loc_btnCancel= By.xpath("(//div[contains(@class,'action-btn--group')])[1]//button[2]");
+    By loc_txtServiceName = By.xpath( "//input[@name='serviceName']");
+    By loc_txtListingPrice = By.xpath("(//input[@inputmode='numeric'])[1]");
+    By loc_txtSellingPrice = By.xpath( "(//input[@inputmode='numeric'])[2]");
+    By loc_chbShowAsListingValue = By.xpath("(//input[@type='checkbox'])[1]");
+    By loc_chbShowAsListingAction = By.xpath("(//input[@type='checkbox'])[1]/following-sibling::div");
+    By loc_txaServiceDescription = By.xpath("//label[@for='serviceDescription']//following::div[@class='fr-element fr-view']");
+    By loc_frmCollection = By.cssSelector(".product-form-collection-selector");
+    By loc_lstCollectionSuggestion = By.xpath("//div[contains(@id,'react-select-2-option')]");
+    By loc_lblSelectedCollection = By.xpath("//div[@class='product-form-collection-selector']//div[contains(@class,'multiValue')]/div[1]");
+    By loc_txtUploadImage = By.xpath("//input[@type='file' and @style ='display: none;']");
+    By loc_txtLocation = By.cssSelector("#locations");
+    By loc_txtTimeSlot = By.cssSelector("#timeSlots");
+    By loc_txtSEOTitle = By.cssSelector("#seoTitle");
+    By loc_txtSEODescription = By.cssSelector("#seoDescription");
+    By loc_txtSEOKeyWords = By.cssSelector("#seoKeywords");
+    By loc_txtSEOUrl = By.cssSelector("#seoUrl");
+    By loc_dlgPopupMessage = By.cssSelector(".modal-body");
+    By loc_lblBasicInformationTitle = By.xpath("//button[@type='submit']//following-sibling::div[1]//h3");
+    By loc_lblServiceName = By.xpath("//input[@id='serviceName']/preceding-sibling::label");
+    By loc_lblListingPrice = By.xpath("(//section[@class='service-basic-info']//label)[1]");
+    By loc_lblSellingPrice = By.xpath("(//section[@class='service-basic-info']//label)[2]");
+    By loc_lblDescription = By.xpath("//label[@for='serviceDescription']");
+    By loc_lblCollection = By.xpath("//label[@for='productCollection']");
+    By loc_lblImages = By.xpath("//button[@type='submit']//following-sibling::div[2]//h3");
+    By loc_lblDrapAndDrop = By.xpath("//input[@type='file']/following-sibling::div[2]");
+    By loc_lblLocationsAndTimesTitleAndDescription = By.xpath("//button[@type='submit']//following-sibling::div[3]/child::div/h3");
+    By loc_lblLocations = By.xpath("//input[@id='locations']/ancestor::div[@class='variation-item']/preceding-sibling::label");
+    By loc_lblTimeSlots = By.xpath("//label[@class='has-tooltip']");
+
     @FindBy(xpath = "(//button[contains(@class,'btn-save')])[1]")
     WebElement SAVE_BTN;
     @FindBy(xpath = "(//div[contains(@class,'action-btn--group')])[1]//button[2]")

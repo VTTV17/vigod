@@ -33,7 +33,7 @@ public class EditServiceCollection extends CreateServiceCollection{
     }
     public EditServiceCollection navigateEditServiceCollection(String collectioName) throws Exception {
         HomePage home = new HomePage(driver);
-        home.waitTillSpinnerDisappear();
+        home.waitTillSpinnerDisappear1();
         home.navigateToPage("Services", "Service Collections");
         home.hideFacebookBubble();
         serviceCollectionManagement = new ServiceCollectionManagement(driver);
