@@ -127,7 +127,7 @@ public class CreateProductCollectionElement {
     WebElement PRODUCT_LIST_TITLE;
     @FindBy(xpath = "//div[@class='product-list__group']//span")
     WebElement NO_PRODUCT_TXT;
-    @FindBy(xpath = "//button[@type='submit']//following-sibling::div[5]/child::div/h3")
+    @FindBy(xpath = "//div[contains(@class,' seo-editor')]//div[contains(@class,'gs-widget__header')]//h3")
     WebElement SEO_SETTINGS_TITLE;
     @FindBy(xpath = "//span[@class='gs-fake-link ']//parent::div//preceding-sibling::div//span")
     WebElement LIVE_PREVIEW_LBL;

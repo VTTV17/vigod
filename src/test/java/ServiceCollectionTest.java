@@ -1,7 +1,6 @@
 import api.dashboard.login.Login;
 import api.dashboard.onlineshop.APIMenus;
 import api.dashboard.products.APIProductCollection;
-import api.dashboard.products.ProductCollection;
 import api.dashboard.services.CreateServiceAPI;
 import api.dashboard.services.EditServiceAPI;
 import api.dashboard.services.ServiceCollectionAPI;
@@ -10,7 +9,6 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
-import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import pages.dashboard.service.servicecollections.CreateServiceCollection;
 import pages.dashboard.service.servicecollections.EditServiceCollection;
 import pages.dashboard.service.servicecollections.ServiceCollectionManagement;
@@ -283,6 +281,7 @@ public class ServiceCollectionTest extends BaseTest{
 //        serviceCollectionNameEdit="Collection has no service mhbNdmzpni";
         loginAndNavigateToEditServiceCollection(serviceCollectionNameEdit)
                 .editServiceListInManualCollection(serviceList,false,false)
+                .waitToUpdateCollection(3)
                 .refreshPage()
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit,SERVICE_TYPE,MANUALLY_MODE,String.valueOf(serviceList.length));
@@ -344,6 +343,7 @@ public class ServiceCollectionTest extends BaseTest{
 //        serviceCollectionNameEdit="Collection service has priority TItXtDWIrL";
         loginAndNavigateToEditServiceCollection(serviceCollectionNameEdit)
                 .editServicePriorityInCollection()
+                .waitToUpdateCollection(3)
                 .refreshPage()
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit, Constant.SERVICE_TYPE, MANUALLY_MODE, String.valueOf(serviceList.length));
@@ -492,7 +492,7 @@ public class ServiceCollectionTest extends BaseTest{
     }
     @Test(priority = 17)
     public void SC17_VerifyAutomatedCollectionWhenHasNewServiceMeetsCondition() throws Exception {
-        testCaseId = "SC17";
+//        testCaseId = "SC17";
         String randomText =  generate.generateString(10);
         String serviceName = "Service contain keyword "+ randomText;
         String serviceCollectionName = "Collection service contains " + randomText;
@@ -510,7 +510,7 @@ public class ServiceCollectionTest extends BaseTest{
         callCreateMenuItemParentAPI(serviceCollectionsInfo.getCollectionName());
         serviceList = new String[]{serviceName.toLowerCase()};
         new ServiceCollectionManagement(driver)
-                .waitToUpdateAutomatedCollection(2)
+                .waitToUpdateCollection(2)
                 .refreshPage()
                 .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "1");
         //Check on SF
@@ -544,7 +544,7 @@ public class ServiceCollectionTest extends BaseTest{
         //Create menu item
         callCreateMenuItemParentAPI(serviceCollectionsInfo.getCollectionName());
         new ServiceCollectionManagement(driver)
-                .waitToUpdateAutomatedCollection(3)
+                .waitToUpdateCollection(3)
                 .refreshPage()
                 .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "0");
         //Check on SF

@@ -95,7 +95,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 	}
 	public CreateServicePage clickOnEditNewestService() throws Exception {
 		HomePage homePage = new HomePage(driver);
-		homePage.waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear1();
 		commons.clickElement(LIST_EDIT_BTN.get(0));
 		logger.info("Click on edit newest service.");
 		return new CreateServicePage(driver);
@@ -118,8 +118,8 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			throw new Exception("Service not found: "+serviceName);
 		}
 		logger.info("Go to service detail: "+serviceName);
-		new HomePage(driver).waitTillSpinnerDisappear();
-		commons.sleepInMiliSecond(2000);
+		new HomePage(driver).waitTillSpinnerDisappear1();
+//		commons.sleepInMiliSecond(2000);
 		return new CreateServicePage(driver);
 	}
 	public ServiceManagementPage verifyServiceNotDisplayInList(String serviceName){
