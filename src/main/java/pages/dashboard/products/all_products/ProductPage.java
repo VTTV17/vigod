@@ -6,15 +6,11 @@ import api.dashboard.setting.BranchManagement;
 import api.dashboard.setting.StoreInformation;
 import api.dashboard.setting.VAT;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.pagefactory.ByChained;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
@@ -32,7 +28,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -45,21 +40,18 @@ import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 
 public class ProductPage extends ProductPageElement {
-    WebDriverWait wait;
     WebDriver driver;
-    Actions act;
     @Getter
     UICommonAction commonAction;
     String createProductPath = "/product/create";
     @Getter
     String updateProductPath = "/product/edit/%s";
-
-    String epoch;
+    @Getter
+    private static AssertCustomize assertCustomize;
+    String epoch = String.valueOf(Instant.now().toEpochMilli());
     private boolean noDiscount = nextBoolean();
     private boolean hasDimension = nextBoolean();
-
     Logger logger = LogManager.getLogger(ProductPage.class);
-
     BranchInfo brInfo;
     private static StoreInfo storeInfo;
     private static ProductInfo productInfo;
@@ -67,13 +59,28 @@ public class ProductPage extends ProductPageElement {
 
     public ProductPage(WebDriver driver, LoginInformation loginInformation) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        act = new Actions(driver);
+
+        // init common function
         commonAction = new UICommonAction(driver);
-        epoch = String.valueOf(Instant.now().toEpochMilli());
+
+        // get login information (username, password)
         this.loginInformation = loginInformation;
+
+        // get branch information
         brInfo = new BranchManagement(loginInformation).getInfo();
+
+        // get store information
         storeInfo = new StoreInformation(loginInformation).getInfo();
+
+        // always reset count false when init ProductPage model.
+        AssertCustomize.setResetCountFalse(true);
+
+        // init assert customize function
+        assertCustomize = new AssertCustomize(driver);
+
+        // turn off count false flag to keep number of failure
+        // combine with another test on product detail page
+        AssertCustomize.setResetCountFalse(false);
     }
 
     String name;
@@ -87,9 +94,6 @@ public class ProductPage extends ProductPageElement {
     private static List<String> variationList;
     @Getter
     private static Map<String, List<Integer>> productStockQuantity;
-    @Getter
-    @Setter
-    private static int countFail = 0;
     private boolean showOutOfStock = true;
     boolean hideStock = false;
     boolean enableListing = false;
@@ -589,13 +593,17 @@ public class ProductPage extends ProductPageElement {
         // select all branches
         try {
             // open branch dropdown
-            commonAction.clickJS(branchDropdownOnAddIMEIPopup);
+            commonAction.click(branchDropdownOnAddIMEIPopup);
         } catch (StaleElementReferenceException ex) {
             // log error
             logger.info(ex);
 
             // open branch dropdown again
-            commonAction.clickJS(branchDropdownOnAddIMEIPopup);
+            commonAction.click(branchDropdownOnAddIMEIPopup);
+
+            if (commonAction.getListElement(selectAllBranchesCheckboxOnAddIMEIPopup).isEmpty())  {
+                commonAction.click(branchDropdownOnAddIMEIPopup);
+            }
         }
 
         if (!commonAction.getElement(selectAllBranchesCheckboxOnAddIMEIPopup).isSelected()) {
@@ -603,16 +611,15 @@ public class ProductPage extends ProductPageElement {
         } else {
             try {
                 // close branch dropdown
-                commonAction.clickJS(branchDropdownOnAddIMEIPopup);
+                commonAction.click(branchDropdownOnAddIMEIPopup);
             } catch (StaleElementReferenceException ex) {
                 // log error
                 logger.info(ex);
 
                 // close branch dropdown again
-                commonAction.clickJS(branchDropdownOnAddIMEIPopup);
+                commonAction.click(branchDropdownOnAddIMEIPopup);
             }
         }
-
         // check [UI] add IMEI popup
         if (varIndex == 0) checkAddIMEIPopup();
 
@@ -851,18 +858,18 @@ public class ProductPage extends ProductPageElement {
 
             // input listing price
             long listingPrice = productListingPrice.get(varIndex);
-            commonAction.sendKeysActions(listingPriceOnUpdatePricePopup, varIndex, String.valueOf(listingPrice));
-            logger.info("[%s] Listing price: %s.".formatted(variation, listingPrice));
+            commonAction.sendKeysActions(listingPriceOnUpdatePricePopup, varIndex, String.valueOf(String.format("%,d", listingPrice)));
+            logger.info("[%s] Listing price: %s.".formatted(variation, String.format("%,d",listingPrice)));
 
             // input selling price
             long sellingPrice = productSellingPrice.get(varIndex);
             commonAction.sendKeysActions(sellingPriceOnUpdatePricePopup, varIndex, String.valueOf(sellingPrice));
-            logger.info("[%s] Selling price: %s.".formatted(variation, sellingPrice));
+            logger.info("[%s] Selling price: %s.".formatted(variation, String.format("%,d", sellingPrice)));
 
             // input costPrice
             long costPrice = nextLong(sellingPrice);
             commonAction.sendKeysActions(costPriceOnUpdatePricePopup, varIndex, String.valueOf(costPrice));
-            logger.info("[%s] Cost price: %s.".formatted(variation, costPrice));
+            logger.info("[%s] Cost price: %s.".formatted(variation, String.format("%,d", costPrice)));
         });
 
         // close Update price popup
@@ -1252,25 +1259,25 @@ public class ProductPage extends ProductPageElement {
         // check Go back to product list link text
         String dbGoBackToProductList = commonAction.getText(goBackToProductListText);
         String ppGoBackToProductList = getPropertiesValueByDBLang("products.allProducts.createProduct.header.goBackToProductList", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductList, ppGoBackToProductList, "[Failed][Header] Go back to product list link text should be %s, but found %s.".formatted(ppGoBackToProductList, dbGoBackToProductList));
+        assertCustomize.assertEquals(dbGoBackToProductList, ppGoBackToProductList, "[Failed][Header] Go back to product list link text should be %s, but found %s.".formatted(ppGoBackToProductList, dbGoBackToProductList));
         logger.info("[UI][%s] Check Header - Go back to product list.".formatted(language));
 
         // check header page title
         String dbHeaderPageTitle = commonAction.getText(pageTitleText);
         String ppHeaderPageTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.header.headerPageTitle", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHeaderPageTitle, ppHeaderPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppHeaderPageTitle, dbHeaderPageTitle));
+        assertCustomize.assertEquals(dbHeaderPageTitle, ppHeaderPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppHeaderPageTitle, dbHeaderPageTitle));
         logger.info("[UI][%s] Check Header - Header page title.".formatted(language));
 
         // check header Save button
         String dbHeaderSaveBtn = commonAction.getText(saveText);
         String ppHeaderSaveBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.header.saveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHeaderSaveBtn, ppHeaderSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppHeaderSaveBtn, dbHeaderSaveBtn));
+        assertCustomize.assertEquals(dbHeaderSaveBtn, ppHeaderSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppHeaderSaveBtn, dbHeaderSaveBtn));
         logger.info("[UI][%s] Check Header - Save button .".formatted(language));
 
         // check header Cancel button
         String dbHeaderCancelBtn = commonAction.getText(cancelText);
         String ppHeaderCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.header.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHeaderCancelBtn, ppHeaderCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppHeaderCancelBtn, dbHeaderCancelBtn));
+        assertCustomize.assertEquals(dbHeaderCancelBtn, ppHeaderCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppHeaderCancelBtn, dbHeaderCancelBtn));
         logger.info("[UI][%s] Check Header - Cancel button.".formatted(language));
     }
 
@@ -1278,39 +1285,39 @@ public class ProductPage extends ProductPageElement {
         // check Go back to product list link text
         String dbGoBackToProductList = commonAction.getText(goBackToProductListText);
         String ppGoBackToProductList = getPropertiesValueByDBLang("products.allProducts.createProduct.header.goBackToProductList", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductList, ppGoBackToProductList, "[Failed][Header] Go back to product list link text should be %s, but found %s.".formatted(ppGoBackToProductList, dbGoBackToProductList));
+        assertCustomize.assertEquals(dbGoBackToProductList, ppGoBackToProductList, "[Failed][Header] Go back to product list link text should be %s, but found %s.".formatted(ppGoBackToProductList, dbGoBackToProductList));
         logger.info("[UI][%s] Check Header - Go back to product list.".formatted(language));
 
         // check header Edit translation button
         if (storeInfo.getStoreLanguageList().size() > 1) {
             String dbEditTranslationBtn = commonAction.getText(editTranslationText);
             String ppEditTranslationBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.header.editTranslation", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbEditTranslationBtn, ppEditTranslationBtn, "[Failed][Header] Edit translation button should be %s, but found %s.".formatted(ppEditTranslationBtn, dbEditTranslationBtn));
+            assertCustomize.assertEquals(dbEditTranslationBtn, ppEditTranslationBtn, "[Failed][Header] Edit translation button should be %s, but found %s.".formatted(ppEditTranslationBtn, dbEditTranslationBtn));
             logger.info("[UI][%s] Check Header - Edit translation button.".formatted(language));
         }
 
         // check header Save button
         String dbHeaderSaveBtn = commonAction.getText(saveText);
         String ppHeaderSaveBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.header.saveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHeaderSaveBtn, ppHeaderSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppHeaderSaveBtn, dbHeaderSaveBtn));
+        assertCustomize.assertEquals(dbHeaderSaveBtn, ppHeaderSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppHeaderSaveBtn, dbHeaderSaveBtn));
         logger.info("[UI][%s] Check Header - Save button .".formatted(language));
 
         // check header Cancel button
         String dbHeaderCancelBtn = commonAction.getText(cancelText);
         String ppHeaderCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.header.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHeaderCancelBtn, ppHeaderCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppHeaderCancelBtn, dbHeaderCancelBtn));
+        assertCustomize.assertEquals(dbHeaderCancelBtn, ppHeaderCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppHeaderCancelBtn, dbHeaderCancelBtn));
         logger.info("[UI][%s] Check Header - Cancel button.".formatted(language));
 
         // check header Deactivate button
         String dbDeactivateBtn = commonAction.getText(deactivateText);
         String ppDeactivateBtn = getPropertiesValueByDBLang(productInfo.getBhStatus().equals("ACTIVE") ? "products.allProducts.updateProduct.header.deactivateBtn" : "products.allProducts.updateProduct.header.activeBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeactivateBtn, ppDeactivateBtn, "[Failed][Header] Deactivate button should be %s, but found %s.".formatted(ppDeactivateBtn, dbDeactivateBtn));
+        assertCustomize.assertEquals(dbDeactivateBtn, ppDeactivateBtn, "[Failed][Header] Deactivate button should be %s, but found %s.".formatted(ppDeactivateBtn, dbDeactivateBtn));
         logger.info("[UI][%s] Check Header - Deactivate button.".formatted(language));
 
         // check header Delete button
         String dbDeleteBtn = commonAction.getText(deleteText);
         String ppDeleteBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.header.deleteBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeleteBtn, ppDeleteBtn, "[Failed][Header] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
+        assertCustomize.assertEquals(dbDeleteBtn, ppDeleteBtn, "[Failed][Header] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
         logger.info("[UI][%s] Check Header - Delete button.".formatted(language));
     }
 
@@ -1318,13 +1325,13 @@ public class ProductPage extends ProductPageElement {
         // check product information
         String dbProductInformation = commonAction.getText(productInformationLabel);
         String ppProductInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductInformation, ppProductInformation, "[Failed][Body] Product information should be %s, but found %s.".formatted(ppProductInformation, dbProductInformation));
+        assertCustomize.assertEquals(dbProductInformation, ppProductInformation, "[Failed][Body] Product information should be %s, but found %s.".formatted(ppProductInformation, dbProductInformation));
         logger.info("[UI][%s] Check Body - Product Information.".formatted(language));
 
         // check product name
         String dbProductName = commonAction.getText(productNameLabel);
         String ppProductName = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.productName", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductName, ppProductName, "[Failed][Body] Product name should be %s, but found %s.".formatted(ppProductName, dbProductName));
+        assertCustomize.assertEquals(dbProductName, ppProductName, "[Failed][Body] Product name should be %s, but found %s.".formatted(ppProductName, dbProductName));
         logger.info("[UI][%s] Check Body - Product name.".formatted(language));
 
         // check product name error
@@ -1333,13 +1340,13 @@ public class ProductPage extends ProductPageElement {
         commonAction.click(productDescription);
         String dbProductNameError = commonAction.getText(productBlankErrorMessage);
         String ppProductNameError = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.productNameError", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductNameError, ppProductNameError, "[Failed][Body] Product name error should be %s, but found %s.".formatted(ppProductNameError, dbProductNameError));
+        assertCustomize.assertEquals(dbProductNameError, ppProductNameError, "[Failed][Body] Product name error should be %s, but found %s.".formatted(ppProductNameError, dbProductNameError));
         logger.info("[UI][%s] Check Body - Product name error.".formatted(language));
 
         // check product description
         String dbProductDescription = commonAction.getText(productDescriptionLabel);
         String ppProductDescription = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.description", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductDescription, ppProductDescription, "[Failed][Body] Product description should be %s, but found %s.".formatted(ppProductDescription, dbProductDescription));
+        assertCustomize.assertEquals(dbProductDescription, ppProductDescription, "[Failed][Body] Product description should be %s, but found %s.".formatted(ppProductDescription, dbProductDescription));
         logger.info("[UI][%s] Check Body - Product description.".formatted(language));
     }
 
@@ -1360,13 +1367,13 @@ public class ProductPage extends ProductPageElement {
         // check images title
         String dbImages = commonAction.getText(imagesLabel);
         String ppImages = getPropertiesValueByDBLang("products.allProducts.createProduct.images.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbImages, ppImages, "[Failed][Body] Images should be %s, but found %s.".formatted(ppImages, dbImages));
+        assertCustomize.assertEquals(dbImages, ppImages, "[Failed][Body] Images should be %s, but found %s.".formatted(ppImages, dbImages));
         logger.info("[UI][%s] Check Body - Images.".formatted(language));
 
         // check images drag and drop placeholder
         String dbImagesDragAndDrop = commonAction.getText(dragAndDropText);
         String ppImagesDragAndDrop = getPropertiesValueByDBLang("products.allProducts.createProduct.images.dragAndDrop", language);
-        countFail = new AssertCustomize(driver).assertTrue(countFail, Objects.equals(dbImagesDragAndDrop, ppImagesDragAndDrop), "[Failed][Body] Images drag and drop placeholder should be %s, but found %s.".formatted(ppImagesDragAndDrop, dbImagesDragAndDrop));
+        assertCustomize.assertTrue(Objects.equals(dbImagesDragAndDrop, ppImagesDragAndDrop), "[Failed][Body] Images drag and drop placeholder should be %s, but found %s.".formatted(ppImagesDragAndDrop, dbImagesDragAndDrop));
         logger.info("[UI][%s] Check Body - Images drag and drop placeholder.".formatted(language));
     }
 
@@ -1374,7 +1381,7 @@ public class ProductPage extends ProductPageElement {
         // check pricing title
         String dbProductPriceTitle = commonAction.getText(pricingLabel);
         String ppProductPriceTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductPriceTitle, ppProductPriceTitle, "[Failed][Body] Product price title should be %s, but found %s.".formatted(ppProductPriceTitle, dbProductPriceTitle));
+        assertCustomize.assertEquals(dbProductPriceTitle, ppProductPriceTitle, "[Failed][Body] Product price title should be %s, but found %s.".formatted(ppProductPriceTitle, dbProductPriceTitle));
         logger.info("[UI][%s] Check Body - Product price title.".formatted(language));
 
         // check product price for without variation product
@@ -1382,32 +1389,32 @@ public class ProductPage extends ProductPageElement {
             // check product listing price
             String dbProductListingPrice = commonAction.getText(listingPriceLabel);
             String ppProductListingPrice = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.listingPrice", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductListingPrice, ppProductListingPrice, "[Failed][Body] Product listing price should be %s, but found %s.".formatted(ppProductListingPrice, dbProductListingPrice));
+            assertCustomize.assertEquals(dbProductListingPrice, ppProductListingPrice, "[Failed][Body] Product listing price should be %s, but found %s.".formatted(ppProductListingPrice, dbProductListingPrice));
             logger.info("[UI][%s] Check Body - Product listing price.".formatted(language));
 
             // check product selling price
             String dbProductSellingPrice = commonAction.getText(sellingPriceLabel);
             String ppProductSellingPrice = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.sellingPrice", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductSellingPrice, ppProductSellingPrice, "[Failed][Body] Product selling price should be %s, but found %s.".formatted(ppProductSellingPrice, dbProductSellingPrice));
+            assertCustomize.assertEquals(dbProductSellingPrice, ppProductSellingPrice, "[Failed][Body] Product selling price should be %s, but found %s.".formatted(ppProductSellingPrice, dbProductSellingPrice));
             logger.info("[UI][%s] Check Body - Product selling price.".formatted(language));
 
             // check product cost price
             String dbProductCostPrice = commonAction.getText(costPriceLabel);
             String ppProductCostPrice = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.costPrice", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductCostPrice, ppProductCostPrice, "[Failed][Body] Product cost price should be %s, but found %s.".formatted(ppProductCostPrice, dbProductCostPrice));
+            assertCustomize.assertEquals(dbProductCostPrice, ppProductCostPrice, "[Failed][Body] Product cost price should be %s, but found %s.".formatted(ppProductCostPrice, dbProductCostPrice));
             logger.info("[UI][%s] Check Body - Product cost price.".formatted(language));
         }
 
         // check VAT title
         String dbVATTitle = commonAction.getText(vatLabel);
         String ppVATTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.vat", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbVATTitle, ppVATTitle, "[Failed][Body] VAT title should be %s, but found %s.".formatted(ppVATTitle, dbVATTitle));
+        assertCustomize.assertEquals(dbVATTitle, ppVATTitle, "[Failed][Body] VAT title should be %s, but found %s.".formatted(ppVATTitle, dbVATTitle));
         logger.info("[UI][%s] Check Body - VAT title.".formatted(language));
 
         // show as listing product on storefront checkbox
         String dbShowAsListingProduct = commonAction.getText(showAsListingProductOnStoreFrontText);
         String ppShowAsListingProduct = getPropertiesValueByDBLang("products.allProducts.createProduct.pricing.showAsListingProductCheckbox", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbShowAsListingProduct, ppShowAsListingProduct, "[Failed][Body] Show as listing product on storefront label should be %s, but found %s.".formatted(ppShowAsListingProduct, dbShowAsListingProduct));
+        assertCustomize.assertEquals(dbShowAsListingProduct, ppShowAsListingProduct, "[Failed][Body] Show as listing product on storefront label should be %s, but found %s.".formatted(ppShowAsListingProduct, dbShowAsListingProduct));
         logger.info("[UI][%s] Check Body - Show as listing product on storefront checkbox.".formatted(language));
     }
 
@@ -1415,13 +1422,13 @@ public class ProductPage extends ProductPageElement {
         // check variations title
         String dbVariations = commonAction.getText(variationsLabel);
         String ppVariations = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbVariations, ppVariations, "[Failed][Body] Variations title should be %s, but found %s.".formatted(ppVariations, dbVariations));
+        assertCustomize.assertEquals(dbVariations, ppVariations, "[Failed][Body] Variations title should be %s, but found %s.".formatted(ppVariations, dbVariations));
         logger.info("[UI][%s] Check Body - Variations title.".formatted(language));
 
         // check variation description
         String dbVariationDescription = commonAction.getText(variationDescriptionText);
         String ppVariationDescription = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationDescription", language);
-        countFail = new AssertCustomize(driver).assertTrue(countFail, dbVariationDescription.equals(ppVariationDescription), "[Failed][Body] Variation description should be %s, but found %s.".formatted(ppVariationDescription, dbVariationDescription));
+        assertCustomize.assertTrue(dbVariationDescription.equals(ppVariationDescription), "[Failed][Body] Variation description should be %s, but found %s.".formatted(ppVariationDescription, dbVariationDescription));
         logger.info("[UI][%s] Check Body - Variation description.".formatted(language));
     }
 
@@ -1429,7 +1436,7 @@ public class ProductPage extends ProductPageElement {
         // check add variation button
         String dbAddVariationBtn = commonAction.getText(addVariationText);
         String ppAddVariationBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addVariationBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddVariationBtn, ppAddVariationBtn, "[Failed][Body] Add variation button should be %s, but found %s.".formatted(ppAddVariationBtn, dbAddVariationBtn));
+        assertCustomize.assertEquals(dbAddVariationBtn, ppAddVariationBtn, "[Failed][Body] Add variation button should be %s, but found %s.".formatted(ppAddVariationBtn, dbAddVariationBtn));
         logger.info("[UI][%s] Check Body - Add variation button.".formatted(language));
     }
 
@@ -1437,13 +1444,13 @@ public class ProductPage extends ProductPageElement {
         //check variation name
         String dbVariationName = commonAction.getText(variationNameLabel);
         String ppVariationName = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationName", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbVariationName, ppVariationName, "[Failed][Body] Variation name should be %s, but found %s.".formatted(ppVariationName, dbVariationName));
+        assertCustomize.assertEquals(dbVariationName, ppVariationName, "[Failed][Body] Variation name should be %s, but found %s.".formatted(ppVariationName, dbVariationName));
         logger.info("[UI][%s] Check Body - Variation name.".formatted(language));
 
         // check variation value
         String dbVariationValue = commonAction.getText(variationValueLabel);
         String ppVariationValue = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationValue", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbVariationValue, ppVariationValue, "[Failed][Body] Variation value should be %s, but found %s.".formatted(ppVariationValue, dbVariationValue));
+        assertCustomize.assertEquals(dbVariationValue, ppVariationValue, "[Failed][Body] Variation value should be %s, but found %s.".formatted(ppVariationValue, dbVariationValue));
         logger.info("[UI][%s] Check Body - Variation value.".formatted(language));
     }
 
@@ -1451,7 +1458,7 @@ public class ProductPage extends ProductPageElement {
         // check variation value placeholder
         String dbVariationValuePlaceholder = commonAction.getText(variationValuePlaceholder, 0);
         String ppVariationValuePlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationValuePlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbVariationValuePlaceholder, ppVariationValuePlaceholder, "[Failed][Body] Variation value placeholder should be %s, but found %s.".formatted(ppVariationValuePlaceholder, dbVariationValuePlaceholder));
+        assertCustomize.assertEquals(dbVariationValuePlaceholder, ppVariationValuePlaceholder, "[Failed][Body] Variation value placeholder should be %s, but found %s.".formatted(ppVariationValuePlaceholder, dbVariationValuePlaceholder));
         logger.info("[UI][%s] Check Body - Variation value placeholder.".formatted(language));
     }
 
@@ -1459,13 +1466,13 @@ public class ProductPage extends ProductPageElement {
         // check number of selected variation
         String[] dbNumberOfSelectedVariation = commonAction.getText(numberOfSelectedVariationsText).split("\n")[0].split("\\d+");
         String[] ppNumberOfSelectedVariation = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.numberOfSelectedVariations", language).split("\\d+");
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNumberOfSelectedVariation, ppNumberOfSelectedVariation, "[Failed][Body][Variation] Number of selected variations should be %s, but found %s.".formatted(ppNumberOfSelectedVariation, dbNumberOfSelectedVariation));
+        assertCustomize.assertEquals(dbNumberOfSelectedVariation, ppNumberOfSelectedVariation, "[Failed][Body][Variation] Number of selected variations should be %s, but found %s.".formatted(ppNumberOfSelectedVariation, dbNumberOfSelectedVariation));
         logger.info("[UI][%s] Check Body - Number of selected variations on variation table.".formatted(language));
 
         // check Select action button
         String dbSelectActionLinkText = commonAction.getText(selectActionText);
         String ppSelectActionLinkText = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.selectAction", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectActionLinkText, ppSelectActionLinkText, "[Failed][Body][Variation table] Select action link text should be %s, but found %s.".formatted(ppSelectActionLinkText, dbSelectActionLinkText));
+        assertCustomize.assertEquals(dbSelectActionLinkText, ppSelectActionLinkText, "[Failed][Body][Variation table] Select action link text should be %s, but found %s.".formatted(ppSelectActionLinkText, dbSelectActionLinkText));
         logger.info("[UI][%s] Check Body - Select action link text on variation table".formatted(language));
     }
 
@@ -1476,7 +1483,7 @@ public class ProductPage extends ProductPageElement {
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.listAction.1", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.listAction.2", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.listAction.3", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbListActions, ppListActions, "[Failed][Body][Variation table] List action should be %s, but found %s.".formatted(ppListActions, dbListActions));
+        assertCustomize.assertEquals(dbListActions, ppListActions, "[Failed][Body][Variation table] List action should be %s, but found %s.".formatted(ppListActions, dbListActions));
         logger.info("[UI][%s] Check Body - List action on variation table.".formatted(language));
     }
 
@@ -1490,14 +1497,14 @@ public class ProductPage extends ProductPageElement {
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.column.4", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.column.5", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.column.6", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbVariationTableImageColumn, ppVariationTableImageColumn, "[Failed][Body] Variation table column should be %s, but found %s.".formatted(ppVariationTableImageColumn, dbVariationTableImageColumn));
+        assertCustomize.assertEquals(dbVariationTableImageColumn, ppVariationTableImageColumn, "[Failed][Body] Variation table column should be %s, but found %s.".formatted(ppVariationTableImageColumn, dbVariationTableImageColumn));
         logger.info("[UI][%s] Check Body - Variation table column.".formatted(language));
 
         // check Edit SKU link text
         if (!commonAction.getListElement(editSKUTextOnVariationTable).isEmpty()) {
             String dbEditSKULinkText = commonAction.getText(editSKUTextOnVariationTable, 0);
             String ppEditSKULinkText = getPropertiesValueByDBLang("products.allProducts.updateProduct.variations.variationTable.editSKU", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbEditSKULinkText, ppEditSKULinkText, "[Failed][Variation table] Edit SKU should be %s, but found %s.".formatted(ppEditSKULinkText, dbEditSKULinkText));
+            assertCustomize.assertEquals(dbEditSKULinkText, ppEditSKULinkText, "[Failed][Variation table] Edit SKU should be %s, but found %s.".formatted(ppEditSKULinkText, dbEditSKULinkText));
             logger.info("[UI][%s] Check Variation table - Edit SKU.".formatted(language));
         }
     }
@@ -1506,109 +1513,109 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfEditTranslationPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Edit translation popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Edit translation popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Edit translation popup - Title.".formatted(language));
 
         // check information
         String dbInformation = commonAction.getText(informationLabelOnEditTranslationPopup);
         String ppInformation = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.information", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbInformation, ppInformation, "[Failed][Edit translation popup] Information should be %s, but found %s.".formatted(ppInformation, dbInformation));
+        assertCustomize.assertEquals(dbInformation, ppInformation, "[Failed][Edit translation popup] Information should be %s, but found %s.".formatted(ppInformation, dbInformation));
         logger.info("[UI][%s] Check Edit translation popup - Information.".formatted(language));
 
         // check product name
         String dbProductName = commonAction.getText(productNameLabelOnEditTranslationPopup);
         String ppProductName = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.productName", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductName, ppProductName, "[Failed][Edit translation popup] Product name should be %s, but found %s.".formatted(ppProductName, dbProductName));
+        assertCustomize.assertEquals(dbProductName, ppProductName, "[Failed][Edit translation popup] Product name should be %s, but found %s.".formatted(ppProductName, dbProductName));
         logger.info("[UI][%s] Check Edit translation popup - Product name.".formatted(language));
 
         // check product description
         String dbProductDescription = commonAction.getText(productDescriptionLabelOnEditTranslationPopup);
         String ppProductDescription = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.productDescription", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductDescription, ppProductDescription, "[Failed][Edit translation popup] Product description should be %s, but found %s.".formatted(ppProductDescription, dbProductDescription));
+        assertCustomize.assertEquals(dbProductDescription, ppProductDescription, "[Failed][Edit translation popup] Product description should be %s, but found %s.".formatted(ppProductDescription, dbProductDescription));
         logger.info("[UI][%s] Check Edit translation popup - Product description.".formatted(language));
 
         // check variation if any
         if (productInfo.isHasModel()) {
             String dbVariation = commonAction.getText(variationLabelOnEditTranslationPopup);
             String ppVariation = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.variation", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbVariation, ppVariation, "[Failed][Edit translation popup] Variation should be %s, but found %s.".formatted(ppVariation, dbVariation));
+            assertCustomize.assertEquals(dbVariation, ppVariation, "[Failed][Edit translation popup] Variation should be %s, but found %s.".formatted(ppVariation, dbVariation));
             logger.info("[UI][%s] Check Edit translation popup - Variation.".formatted(language));
         }
 
         // check SEO setting
         String dbSEOSetting = commonAction.getText(seoSettingLabelOnEditTranslationPopup);
         String ppSEOSetting = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoSetting", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOSetting, ppSEOSetting, "[Failed][Edit translation popup] SEO setting should be %s, but found %s.".formatted(ppSEOSetting, dbSEOSetting));
+        assertCustomize.assertEquals(dbSEOSetting, ppSEOSetting, "[Failed][Edit translation popup] SEO setting should be %s, but found %s.".formatted(ppSEOSetting, dbSEOSetting));
         logger.info("[UI][%s] Check Edit translation popup - SEO Setting.".formatted(language));
 
         // check Live preview
         String dbLivePreview = commonAction.getText(livePreviewLabelOnEditTranslationPopup);
         String ppLivePreview = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.livePreview", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbLivePreview, ppLivePreview, "[Failed][Edit translation popup] Live preview should be %s, but found %s.".formatted(ppLivePreview, dbLivePreview));
+        assertCustomize.assertEquals(dbLivePreview, ppLivePreview, "[Failed][Edit translation popup] Live preview should be %s, but found %s.".formatted(ppLivePreview, dbLivePreview));
         logger.info("[UI][%s] Check Edit translation popup - Live Preview.".formatted(language));
 
         // check Live preview tooltips
         commonAction.hoverActions(livePreviewTooltipsOnEditTranslationPopup);
         String dbLivePreviewTooltips = commonAction.getAttribute(livePreviewTooltipsOnEditTranslationPopup, "data-original-title");
         String ppLivePreviewTooltips = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.livePreviewTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbLivePreviewTooltips, ppLivePreviewTooltips, "[Failed][Edit translation popup] Live preview tooltips should be %s, but found %s.".formatted(ppLivePreviewTooltips, dbLivePreviewTooltips));
+        assertCustomize.assertEquals(dbLivePreviewTooltips, ppLivePreviewTooltips, "[Failed][Edit translation popup] Live preview tooltips should be %s, but found %s.".formatted(ppLivePreviewTooltips, dbLivePreviewTooltips));
         logger.info("[UI][%s] Check Edit translation popup - Live Preview Tooltips.".formatted(language));
 
         // check SEO title
         String dbSEOTitle = commonAction.getText(seoTitleLabelOnEditTranslationPopup);
         String ppSEOTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoTitle", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOTitle, ppSEOTitle, "[Failed][Edit translation popup] SEO title should be %s, but found %s.".formatted(ppSEOTitle, dbSEOTitle));
+        assertCustomize.assertEquals(dbSEOTitle, ppSEOTitle, "[Failed][Edit translation popup] SEO title should be %s, but found %s.".formatted(ppSEOTitle, dbSEOTitle));
         logger.info("[UI][%s] Check Edit translation popup - SEO Title.".formatted(language));
 
         // check SEO title tooltips
         commonAction.hoverActions(seoTitleTooltipsOnEditTranslationPopup);
         String dbSEOTitleTooltips = commonAction.getAttribute(seoTitleTooltipsOnEditTranslationPopup, "data-original-title");
         String ppSEOTitleTooltips = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoTitleTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOTitleTooltips, ppSEOTitleTooltips, "[Failed][Edit translation popup] SEO title tooltips should be %s, but found %s.".formatted(ppSEOTitleTooltips, dbSEOTitleTooltips));
+        assertCustomize.assertEquals(dbSEOTitleTooltips, ppSEOTitleTooltips, "[Failed][Edit translation popup] SEO title tooltips should be %s, but found %s.".formatted(ppSEOTitleTooltips, dbSEOTitleTooltips));
         logger.info("[UI][%s] Check Edit translation popup - SEO Title Tooltips.".formatted(language));
 
         // check SEO description
         String dbSEODescription = commonAction.getText(seoDescriptionLabelOnEditTranslationPopup);
         String ppSEODescription = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoDescription", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEODescription, ppSEODescription, "[Failed][Edit translation popup] SEO description should be %s, but found %s.".formatted(ppSEODescription, dbSEODescription));
+        assertCustomize.assertEquals(dbSEODescription, ppSEODescription, "[Failed][Edit translation popup] SEO description should be %s, but found %s.".formatted(ppSEODescription, dbSEODescription));
         logger.info("[UI][%s] Check Edit translation popup - SEO Description.".formatted(language));
 
         // check SEO description tooltips
         commonAction.hoverActions(seoDescriptionTooltipsOnEditTranslationPopup);
         String dbSEODescriptionTooltips = commonAction.getAttribute(seoDescriptionTooltipsOnEditTranslationPopup, "data-original-title");
         String ppSEODescriptionTooltips = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoDescriptionTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEODescriptionTooltips, ppSEODescriptionTooltips, "[Failed][Edit translation popup] SEO description tooltips should be %s, but found %s.".formatted(ppSEODescriptionTooltips, dbSEODescriptionTooltips));
+        assertCustomize.assertEquals(dbSEODescriptionTooltips, ppSEODescriptionTooltips, "[Failed][Edit translation popup] SEO description tooltips should be %s, but found %s.".formatted(ppSEODescriptionTooltips, dbSEODescriptionTooltips));
         logger.info("[UI][%s] Check Edit translation popup - SEO Description Tooltips.".formatted(language));
 
         // check SEO keywords
         String dbSEOKeywords = commonAction.getText(seoKeywordsLabelOnEditTranslationPopup);
         String ppSEOKeywords = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoKeywords", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOKeywords, ppSEOKeywords, "[Failed][Edit translation popup] SEO keywords should be %s, but found %s.".formatted(ppSEOKeywords, dbSEOKeywords));
+        assertCustomize.assertEquals(dbSEOKeywords, ppSEOKeywords, "[Failed][Edit translation popup] SEO keywords should be %s, but found %s.".formatted(ppSEOKeywords, dbSEOKeywords));
         logger.info("[UI][%s] Check Edit translation popup - SEO Keywords.".formatted(language));
 
         // check SEO keywords tooltips
         commonAction.hoverActions(seoKeywordsTooltipsOnEditTranslationPopup);
         String dbSEOKeywordsTooltips = commonAction.getAttribute(seoKeywordsTooltipsOnEditTranslationPopup, "data-original-title");
         String ppSEOKeywordsTooltips = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoKeywordsTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOKeywordsTooltips, ppSEOKeywordsTooltips, "[Failed][Edit translation popup] SEO keywords tooltips should be %s, but found %s.".formatted(ppSEOKeywordsTooltips, dbSEOKeywordsTooltips));
+        assertCustomize.assertEquals(dbSEOKeywordsTooltips, ppSEOKeywordsTooltips, "[Failed][Edit translation popup] SEO keywords tooltips should be %s, but found %s.".formatted(ppSEOKeywordsTooltips, dbSEOKeywordsTooltips));
         logger.info("[UI][%s] Check Edit translation popup - SEO Keywords tooltips.".formatted(language));
 
         // check SEO Url
         String dbSEOUrl = commonAction.getText(urlLabelOnEditTranslationPopup);
         String ppSEOUrl = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.seoURLLink", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOUrl, ppSEOUrl, "[Failed][Edit translation popup] SEO Url should be %s, but found %s.".formatted(ppSEOUrl, dbSEOUrl));
+        assertCustomize.assertEquals(dbSEOUrl, ppSEOUrl, "[Failed][Edit translation popup] SEO Url should be %s, but found %s.".formatted(ppSEOUrl, dbSEOUrl));
         logger.info("[UI][%s] Check Edit translation popup - SEO Url.".formatted(language));
 
         // Save button
         String dbSaveBtn = commonAction.getText(saveTextOnEditTranslationPopup);
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.SaveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Edit translation popup] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
+        assertCustomize.assertEquals(dbSaveBtn, ppSaveBtn, "[Failed][Edit translation popup] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s] Check Edit translation popup - Save button.".formatted(language));
 
         // Cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnEditTranslationPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.editTranslationPopup.CancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Edit translation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Edit translation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Edit translation popup - Cancel button.".formatted(language));
     }
 
@@ -1617,7 +1624,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.sleepInMiliSecond(1000);
         String dbTitle = commonAction.getText(titleOfUpdatePricePopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Update price popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Update price popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Update price popup - Title.".formatted(language));
 
         // check price list in dropdown
@@ -1628,7 +1635,7 @@ public class ProductPage extends ProductPageElement {
         List<String> ppListPriceInDropdown = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.1", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.2", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbListPriceInDropdown, ppListPriceInDropdown, "[Failed][Update price popup] List price in dropdown should be %s, but found %s.".formatted(ppListPriceInDropdown, dbListPriceInDropdown));
+        assertCustomize.assertEquals(dbListPriceInDropdown, ppListPriceInDropdown, "[Failed][Update price popup] List price in dropdown should be %s, but found %s.".formatted(ppListPriceInDropdown, dbListPriceInDropdown));
         logger.info("[UI][%s] Check Update price popup - List price in dropdown.".formatted(language));
 
         // close price dropdown
@@ -1637,7 +1644,7 @@ public class ProductPage extends ProductPageElement {
         // check apply all button
         String dbApplyAllBtn = commonAction.getText(applyTextOnUpdatePricePopup);
         String ppApplyAllBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.applyAllBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbApplyAllBtn, ppApplyAllBtn, "[Failed][Update price popup] Apply all button should be %s, but found %s.".formatted(ppApplyAllBtn, dbApplyAllBtn));
+        assertCustomize.assertEquals(dbApplyAllBtn, ppApplyAllBtn, "[Failed][Update price popup] Apply all button should be %s, but found %s.".formatted(ppApplyAllBtn, dbApplyAllBtn));
         logger.info("[UI][%s] Check Update price popup - Apply all button.".formatted(language));
 
         // check price list in table
@@ -1646,19 +1653,19 @@ public class ProductPage extends ProductPageElement {
         List<String> ppListPriceInTable = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInTable.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInTable.1", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInTable.2", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbListPriceInTable, ppListPriceInTable, "[Failed][Update price popup] List price in table should be %s, but found %s.".formatted(ppListPriceInTable, dbListPriceInTable));
+        assertCustomize.assertEquals(dbListPriceInTable, ppListPriceInTable, "[Failed][Update price popup] List price in table should be %s, but found %s.".formatted(ppListPriceInTable, dbListPriceInTable));
         logger.info("[UI][%s] Check Update price popup - List price in table.".formatted(language));
 
         // check update button
         String dbUpdateBtn = commonAction.getText(updateTextOnUpdatePricePopup);
         String ppUpdateBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.updateBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbUpdateBtn, ppUpdateBtn, "[Failed][Update price popup] Update button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
+        assertCustomize.assertEquals(dbUpdateBtn, ppUpdateBtn, "[Failed][Update price popup] Update button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
         logger.info("[UI][%s] Check Update price popup - Update button.".formatted(language));
 
         // check cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnUpdatePricePopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Update price popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Update price popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Update price popup - Cancel button.".formatted(language));
     }
 
@@ -1666,45 +1673,45 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfUpdateStockPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Update normal variation stock popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Update normal variation stock popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Update normal variation stock popup - Title.".formatted(language));
 
         // check selected branches
         String[] dbNumberOfSelectedBranches = commonAction.getText(branchDropdownOnUpdateStockPopup).split("\\d+");
         String[] ppNumberOfSelectedBranches = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.numberOfSelectedBranches", language).split("\\d+");
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNumberOfSelectedBranches, ppNumberOfSelectedBranches, "[Failed][Update normal variation stock popup] Number of selected branches should be %s, but found %s.".formatted(ppNumberOfSelectedBranches, dbNumberOfSelectedBranches));
+        assertCustomize.assertEquals(dbNumberOfSelectedBranches, ppNumberOfSelectedBranches, "[Failed][Update normal variation stock popup] Number of selected branches should be %s, but found %s.".formatted(ppNumberOfSelectedBranches, dbNumberOfSelectedBranches));
         logger.info("[UI][%s] Check Update normal variation stock popup - Number of selected branches.".formatted(language));
 
         // check list actions
         List<String> dbListActions = commonAction.getListElement(listActionsOnUpdateStockPopup).stream().map(WebElement::getText).toList();
         List<String> ppListActions = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.1", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbListActions, ppListActions, "[Failed][Update normal variation stock popup] List actions should be %s, but found %s.".formatted(ppListActions, dbListActions));
+        assertCustomize.assertEquals(dbListActions, ppListActions, "[Failed][Update normal variation stock popup] List actions should be %s, but found %s.".formatted(ppListActions, dbListActions));
         logger.info("[UI][%s] Check Update normal variation stock popup - List actions.".formatted(language));
 
         // check input stock placeholder
         String dbInputStockPlaceholder = commonAction.getAttribute(stockQuantityPlaceholderOnUpdateStockPopup, "placeholder");
         String ppInputStockPlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.inputStockPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbInputStockPlaceholder, ppInputStockPlaceholder, "[Failed][Update normal variation stock popup] Input stock placeholder should be %s, but found %s.".formatted(ppInputStockPlaceholder, dbInputStockPlaceholder));
+        assertCustomize.assertEquals(dbInputStockPlaceholder, ppInputStockPlaceholder, "[Failed][Update normal variation stock popup] Input stock placeholder should be %s, but found %s.".formatted(ppInputStockPlaceholder, dbInputStockPlaceholder));
         logger.info("[UI][%s] Check Update normal variation stock popup - Input stock placeholder.".formatted(language));
 
         // check action type
         String dbActionType = commonAction.getText(actionTypeOnUpdateStockPopup).split(": ")[0];
         String ppActionType0 = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.0", language);
         String ppActionType1 = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.1", language);
-        countFail = new AssertCustomize(driver).assertTrue(countFail, dbActionType.equals(ppActionType1) || dbActionType.equals(ppActionType0), "[Failed][Update normal variation popup] Action type should be %s or %s, but found %s.".formatted(ppActionType0, ppActionType1, dbActionType));
+        assertCustomize.assertTrue(dbActionType.equals(ppActionType1) || dbActionType.equals(ppActionType0), "[Failed][Update normal variation popup] Action type should be %s or %s, but found %s.".formatted(ppActionType0, ppActionType1, dbActionType));
         logger.info("[UI][%s] Check Update normal variation popup - Action type.".formatted(language));
 
         // check update button
         String dbUpdateBtn = commonAction.getText(updateTextOnUpdateStockPopup);
         String ppUpdateBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.updateBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbUpdateBtn, ppUpdateBtn, "[Failed][Update normal variation popup] Update button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
+        assertCustomize.assertEquals(dbUpdateBtn, ppUpdateBtn, "[Failed][Update normal variation popup] Update button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
         logger.info("[UI][%s] Check Update normal variation popup - Update button.".formatted(language));
 
         // check cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnUpdateStockPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Update normal variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Update normal variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Update normal variation popup - Cancel button.".formatted(language));
     }
 
@@ -1712,44 +1719,44 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfAddIMEIPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Add IMEI popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Add IMEI popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Add IMEI popup - Title.".formatted(language));
 
         // check branch title
         String dbBranchTitle = commonAction.getText(branchTextOnAddIMEIPopup);
         String ppBranchTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.branchLabel", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbBranchTitle, ppBranchTitle, "[Failed][Add IMEI popup] Branch title should be %s, but found %s.".formatted(ppBranchTitle, dbBranchTitle));
+        assertCustomize.assertEquals(dbBranchTitle, ppBranchTitle, "[Failed][Add IMEI popup] Branch title should be %s, but found %s.".formatted(ppBranchTitle, dbBranchTitle));
         logger.info("[UI][%s] Check Add IMEI popup - Branch title.".formatted(language));
 
         // check number of selected branches
         String[] dbNumberOfSelectedBranches = commonAction.getText(branchDropdownOnAddIMEIPopup).split("\\d+");
 
         String[] ppNumberOfSelectedBranches = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.numberOfSelectedBranches", language).split("\\d+");
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNumberOfSelectedBranches, ppNumberOfSelectedBranches, "[Failed][Add IMEI popup] Number of selected branches should be %s, but found %s.".formatted(Arrays.toString(ppNumberOfSelectedBranches), Arrays.toString(dbNumberOfSelectedBranches)));
+        assertCustomize.assertEquals(dbNumberOfSelectedBranches, ppNumberOfSelectedBranches, "[Failed][Add IMEI popup] Number of selected branches should be %s, but found %s.".formatted(Arrays.toString(ppNumberOfSelectedBranches), Arrays.toString(dbNumberOfSelectedBranches)));
         logger.info("[UI][%s] Check Add IMEI popup - Number of selected branches.".formatted(language));
 
         // check add IMEI placeholder
         String dbIMEIPlaceholder = commonAction.getAttribute(inputIMEIPlaceholderOnAddIMEIPopup, 0, "placeholder");
         String ppIMEIPlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.addIMEITextBoxPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbIMEIPlaceholder, ppIMEIPlaceholder, "[Failed][Add IMEI popup] Input IMEI placeholder should be %s, but found %s.".formatted(ppIMEIPlaceholder, dbIMEIPlaceholder));
+        assertCustomize.assertEquals(dbIMEIPlaceholder, ppIMEIPlaceholder, "[Failed][Add IMEI popup] Input IMEI placeholder should be %s, but found %s.".formatted(ppIMEIPlaceholder, dbIMEIPlaceholder));
         logger.info("[UI][%s] Check Add IMEI popup - Input IMEI placeholder.".formatted(language));
 
         // check product name column
         String dbProductNameColumn = commonAction.getText(productNameLabelOnAddIMEITable);
         String ppProductNameColumn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.productNameColumn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbProductNameColumn, ppProductNameColumn, "[Failed][Add IMEI popup] Product name column should be %s, but found %s.".formatted(ppProductNameColumn, dbProductNameColumn));
+        assertCustomize.assertEquals(dbProductNameColumn, ppProductNameColumn, "[Failed][Add IMEI popup] Product name column should be %s, but found %s.".formatted(ppProductNameColumn, dbProductNameColumn));
         logger.info("[UI][%s] Check Add IMEI popup - Product name column.".formatted(language));
 
         // check save button
         String dbSaveBtn = commonAction.getText(saveTextOnAddIMEIPopup);
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.saveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Add IMEI popup] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
+        assertCustomize.assertEquals(dbSaveBtn, ppSaveBtn, "[Failed][Add IMEI popup] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s] Check Add IMEI popup - Save button.".formatted(language));
 
         // check cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnAddIMEIPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.addIMEIPopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Add IMEI popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Add IMEI popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Add IMEI popup - Cancel button.".formatted(language));
     }
 
@@ -1757,25 +1764,25 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfUpdateSKUPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateSKUPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Update SKU popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Update SKU popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Update SKU popup - Title.".formatted(language));
 
         // check number of selected branches
         String[] dbNumberOfSelectedBranches = commonAction.getText(branchDropdownOnUpdateSKUPopup).split("\\d+");
         String[] ppNumberOfSelectedBranches = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateSKUPopup.numberOfSelectedBranches", language).split("\\d+");
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNumberOfSelectedBranches, ppNumberOfSelectedBranches, "[Failed][Update SKU popup] Number of selected branches should be %s, but found %s.".formatted(ppNumberOfSelectedBranches, dbNumberOfSelectedBranches));
+        assertCustomize.assertEquals(dbNumberOfSelectedBranches, ppNumberOfSelectedBranches, "[Failed][Update SKU popup] Number of selected branches should be %s, but found %s.".formatted(ppNumberOfSelectedBranches, dbNumberOfSelectedBranches));
         logger.info("[UI][%s] Check Update SKU popup - Number of selected branches.".formatted(language));
 
         // check update button
         String dbUpdateBtn = commonAction.getText(updateTextOnUpdateSKUPopup);
         String ppUpdateBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateSKUPopup.updateBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbUpdateBtn, ppUpdateBtn, "[Failed][Update SKU popup] Update button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
+        assertCustomize.assertEquals(dbUpdateBtn, ppUpdateBtn, "[Failed][Update SKU popup] Update button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
         logger.info("[UI][%s] Check Update SKU popup - Update button.".formatted(language));
 
         // check cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnUpdateSKUPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateSKUPopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Update SKU popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Update SKU popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Update SKU popup - Cancel button.".formatted(language));
     }
 
@@ -1783,25 +1790,25 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfUploadImagePopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateImagePopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Upload image popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Upload image popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Upload image popup - Title.".formatted(language));
 
         // check upload image button placeholder
         String dbUploadImageBtnPlaceholder = commonAction.getText(uploadImagePlaceholderOnUploadImagePopup);
         String ppUploadImageBtnPlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateImagePopup.uploadBtnPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbUploadImageBtnPlaceholder, ppUploadImageBtnPlaceholder, "[Failed][Upload image popup] Upload image button placeholder should be %s, but found %s.".formatted(ppUploadImageBtnPlaceholder, dbUploadImageBtnPlaceholder));
+        assertCustomize.assertEquals(dbUploadImageBtnPlaceholder, ppUploadImageBtnPlaceholder, "[Failed][Upload image popup] Upload image button placeholder should be %s, but found %s.".formatted(ppUploadImageBtnPlaceholder, dbUploadImageBtnPlaceholder));
         logger.info("[UI][%s] Check Upload image popup - Upload image button placeholder.".formatted(language));
 
         // check update button
         String dbUpdateBtn = commonAction.getText(selectTextOnUploadImagePopup);
         String ppUpdateBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateImagePopup.selectBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbUpdateBtn, ppUpdateBtn, "[Failed][Upload image popup] Select button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
+        assertCustomize.assertEquals(dbUpdateBtn, ppUpdateBtn, "[Failed][Upload image popup] Select button should be %s, but found %s.".formatted(ppUpdateBtn, dbUpdateBtn));
         logger.info("[UI][%s] Check Upload image popup - Select button.".formatted(language));
 
         // check cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnUploadImagePopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateImagePopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Upload image popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Upload image popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Upload image popup - Cancel button.".formatted(language));
     }
 
@@ -1809,26 +1816,26 @@ public class ProductPage extends ProductPageElement {
         // check conversion unit title
         String dbConversionUnit = commonAction.getText(unitLabel);
         String ppConversionUnit = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnit, ppConversionUnit, "[Failed][Body] Conversion unit title should be %s, but found %s.".formatted(ppConversionUnit, dbConversionUnit));
+        assertCustomize.assertEquals(dbConversionUnit, ppConversionUnit, "[Failed][Body] Conversion unit title should be %s, but found %s.".formatted(ppConversionUnit, dbConversionUnit));
         logger.info("[UI][%s] Check Body - Conversion unit title.".formatted(language));
 
         // check conversion unit search box placeholder
         String dbConversionUnitSearchBoxPlaceholder = commonAction.getAttribute(searchUnitPlaceholder, "placeholder");
         String ppConversionUnitSearchBoxPlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.searchBoxPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnitSearchBoxPlaceholder, ppConversionUnitSearchBoxPlaceholder, "[Failed][Body] Conversion unit search box placeholder should be %s, but found %s.".formatted(ppConversionUnitSearchBoxPlaceholder, dbConversionUnitSearchBoxPlaceholder));
+        assertCustomize.assertEquals(dbConversionUnitSearchBoxPlaceholder, ppConversionUnitSearchBoxPlaceholder, "[Failed][Body] Conversion unit search box placeholder should be %s, but found %s.".formatted(ppConversionUnitSearchBoxPlaceholder, dbConversionUnitSearchBoxPlaceholder));
         logger.info("[UI][%s] Check Body - Conversion unit search box placeholder.".formatted(language));
 
         // check add conversion unit checkbox
         String dbAddConversionUnitCheckbox = commonAction.getText(addConversionUnitLabel);
         String ppAddConversionUnitCheckbox = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.addConversionUnitCheckbox", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddConversionUnitCheckbox, ppAddConversionUnitCheckbox, "[Failed][Body] Add conversion unit checkbox label should be %s, but found %s.".formatted(ppAddConversionUnitCheckbox, dbAddConversionUnitCheckbox));
+        assertCustomize.assertEquals(dbAddConversionUnitCheckbox, ppAddConversionUnitCheckbox, "[Failed][Body] Add conversion unit checkbox label should be %s, but found %s.".formatted(ppAddConversionUnitCheckbox, dbAddConversionUnitCheckbox));
         logger.info("[UI][%s] Check Body - Add conversion unit checkbox.".formatted(language));
 
         // check conversion unit tooltips
         commonAction.hoverActions(conversionUnitTooltips);
         String dbConversionUnitTooltips = commonAction.getAttribute(conversionUnitTooltips, "data-original-title");
         String ppConversionUnitTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.tooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnitTooltips, ppConversionUnitTooltips, "[Failed][Body] Conversion unit tooltips should be %s, but found %s.".formatted(ppConversionUnitTooltips, dbConversionUnitTooltips));
+        assertCustomize.assertEquals(dbConversionUnitTooltips, ppConversionUnitTooltips, "[Failed][Body] Conversion unit tooltips should be %s, but found %s.".formatted(ppConversionUnitTooltips, dbConversionUnitTooltips));
         logger.info("[UI][%s] Check Body - Conversion unit tooltips.".formatted(language));
     }
 
@@ -1836,7 +1843,7 @@ public class ProductPage extends ProductPageElement {
         // check add wholesale product checkbox
         String dbAddWholesaleProductCheckbox = commonAction.getText(addWholesalePricingLabel);
         String ppAddWholesaleProductCheckbox = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.addWholesaleProductCheckbox", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddWholesaleProductCheckbox, ppAddWholesaleProductCheckbox, "[Failed][Body] Add wholesale product checkbox label should be %s, but found %s.".formatted(ppAddWholesaleProductCheckbox, dbAddWholesaleProductCheckbox));
+        assertCustomize.assertEquals(dbAddWholesaleProductCheckbox, ppAddWholesaleProductCheckbox, "[Failed][Body] Add wholesale product checkbox label should be %s, but found %s.".formatted(ppAddWholesaleProductCheckbox, dbAddWholesaleProductCheckbox));
         logger.info("[UI][%s] Check Body - Add wholesale product checkbox.".formatted(language));
     }
 
@@ -1844,19 +1851,19 @@ public class ProductPage extends ProductPageElement {
         // check deposit title
         String dbDeposit = commonAction.getText(depositLabel);
         String ppDeposit = getPropertiesValueByDBLang("products.allProducts.createProduct.deposit.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeposit, ppDeposit, "[Failed][Body] Deposit title should be %s, but found %s.".formatted(ppDeposit, dbDeposit));
+        assertCustomize.assertEquals(dbDeposit, ppDeposit, "[Failed][Body] Deposit title should be %s, but found %s.".formatted(ppDeposit, dbDeposit));
         logger.info("[UI][%s] Check Body - Deposit.".formatted(language));
 
         // check Add deposit button
         String dbAddDepositBtn = commonAction.getText(addDepositText);
         String ppAddDepositBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.deposit.addDepositBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddDepositBtn, ppAddDepositBtn, "[Failed][Body] Add deposit button should be %s, but found %s.".formatted(ppAddDepositBtn, dbAddDepositBtn));
+        assertCustomize.assertEquals(dbAddDepositBtn, ppAddDepositBtn, "[Failed][Body] Add deposit button should be %s, but found %s.".formatted(ppAddDepositBtn, dbAddDepositBtn));
         logger.info("[UI][%s] Check Body - Add deposit button.".formatted(language));
 
         // check deposit description
         String dbDepositDescription = commonAction.getText(depositDescription);
         String ppDepositDescription = getPropertiesValueByDBLang("products.allProducts.createProduct.deposit.depositDescription", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDepositDescription, ppDepositDescription, "[Failed][Body] Deposit description should be %s, but found %s.".formatted(ppDepositDescription, dbDepositDescription));
+        assertCustomize.assertEquals(dbDepositDescription, ppDepositDescription, "[Failed][Body] Deposit description should be %s, but found %s.".formatted(ppDepositDescription, dbDepositDescription));
         logger.info("[UI][%s] Check Body - Deposit description.".formatted(language));
     }
 
@@ -1864,65 +1871,65 @@ public class ProductPage extends ProductPageElement {
         // check SEO setting
         String dbSEOSetting = commonAction.getText(uiSEOSetting);
         String ppSEOSetting = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOSetting, ppSEOSetting, "[Failed][Body] SEO setting should be %s, but found %s.".formatted(ppSEOSetting, dbSEOSetting));
+        assertCustomize.assertEquals(dbSEOSetting, ppSEOSetting, "[Failed][Body] SEO setting should be %s, but found %s.".formatted(ppSEOSetting, dbSEOSetting));
         logger.info("[UI][%s] Check Body - SEO setting.".formatted(language));
 
         // check SEO live preview
         String dbLivePreview = commonAction.getText(livePreviewLabel);
         String ppLivePreview = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.livePreview", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbLivePreview, ppLivePreview, "[Failed][Body] Live preview should be %s, but found %s.".formatted(ppLivePreview, dbLivePreview));
+        assertCustomize.assertEquals(dbLivePreview, ppLivePreview, "[Failed][Body] Live preview should be %s, but found %s.".formatted(ppLivePreview, dbLivePreview));
         logger.info("[UI][%s] Check Body - Live preview.".formatted(language));
 
         // check SEO live preview tooltips
         commonAction.hoverActions(livePreviewTooltips);
         String dbLivePreviewTooltips = commonAction.getAttribute(livePreviewTooltips, "data-original-title");
         String ppLivePreviewTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.livePreviewTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbLivePreviewTooltips, ppLivePreviewTooltips, "[Failed][Body] Live preview tooltips should be %s, but found %s.".formatted(ppLivePreviewTooltips, dbLivePreviewTooltips));
+        assertCustomize.assertEquals(dbLivePreviewTooltips, ppLivePreviewTooltips, "[Failed][Body] Live preview tooltips should be %s, but found %s.".formatted(ppLivePreviewTooltips, dbLivePreviewTooltips));
         logger.info("[UI][%s] Check Body - Live preview tooltips.".formatted(language));
 
         // check SEO title
         String dbSEOTitle = commonAction.getText(seoTitleLabel);
         String ppSEOTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoTitle", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOTitle, ppSEOTitle, "[Failed][Body] SEO Title should be %s, but found %s.".formatted(ppSEOTitle, dbSEOTitle));
+        assertCustomize.assertEquals(dbSEOTitle, ppSEOTitle, "[Failed][Body] SEO Title should be %s, but found %s.".formatted(ppSEOTitle, dbSEOTitle));
         logger.info("[UI][%s] Check Body - SEO Title.".formatted(language));
 
         // check SEO title tooltips
         commonAction.hoverActions(seoTitleTooltips);
         String dbSEOTitleTooltips = commonAction.getAttribute(seoTitleTooltips, "data-original-title");
         String ppSEOTitleTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoTitleTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOTitleTooltips, ppSEOTitleTooltips, "[Failed][Body] SEO Title tooltips should be %s, but found %s.".formatted(ppSEOTitleTooltips, dbSEOTitleTooltips));
+        assertCustomize.assertEquals(dbSEOTitleTooltips, ppSEOTitleTooltips, "[Failed][Body] SEO Title tooltips should be %s, but found %s.".formatted(ppSEOTitleTooltips, dbSEOTitleTooltips));
         logger.info("[UI][%s] Check Body - SEO Title tooltips.".formatted(language));
 
         // check SEO description
         String dbSEODescription = commonAction.getText(seoDescriptionLabel);
         String ppSEODescription = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoDescription", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEODescription, ppSEODescription, "[Failed][Body] SEO description should be %s, but found %s.".formatted(ppSEODescription, dbSEODescription));
+        assertCustomize.assertEquals(dbSEODescription, ppSEODescription, "[Failed][Body] SEO description should be %s, but found %s.".formatted(ppSEODescription, dbSEODescription));
         logger.info("[UI][%s] Check Body - SEO description.".formatted(language));
 
         // check SEO description tooltips
         commonAction.hoverActions(seoDescriptionTooltips);
         String dbSEODescriptionTooltips = commonAction.getAttribute(seoDescriptionTooltips, "data-original-title");
         String ppSEODescriptionTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoDescriptionTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEODescriptionTooltips, ppSEODescriptionTooltips, "[Failed][Body] SEO descriptions tooltips should be %s, but found %s.".formatted(ppSEODescriptionTooltips, dbSEODescriptionTooltips));
+        assertCustomize.assertEquals(dbSEODescriptionTooltips, ppSEODescriptionTooltips, "[Failed][Body] SEO descriptions tooltips should be %s, but found %s.".formatted(ppSEODescriptionTooltips, dbSEODescriptionTooltips));
         logger.info("[UI][%s] Check Body - SEO description tooltips.".formatted(language));
 
         // check SEO keywords
         String dbSEOKeywords = commonAction.getText(seoKeywordsLabel);
         String ppSEOKeywords = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoKeywords", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOKeywords, ppSEOKeywords, "[Failed][Body] SEO keywords should be %s, but found %s.".formatted(ppSEOKeywords, dbSEOKeywords));
+        assertCustomize.assertEquals(dbSEOKeywords, ppSEOKeywords, "[Failed][Body] SEO keywords should be %s, but found %s.".formatted(ppSEOKeywords, dbSEOKeywords));
         logger.info("[UI][%s] Check Body - SEO keywords.".formatted(language));
 
         // check SEO keywords tooltips
         commonAction.hoverActions(seoKeywordsTooltips);
         String dbSEOKeywordsTooltips = commonAction.getAttribute(seoKeywordsTooltips, "data-original-title");
         String ppSEOKeywordsTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoKeywordsTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOKeywordsTooltips, ppSEOKeywordsTooltips, "[Failed][Body] SEO keywords tooltips should be %s, but found %s.".formatted(ppSEOKeywordsTooltips, dbSEOKeywordsTooltips));
+        assertCustomize.assertEquals(dbSEOKeywordsTooltips, ppSEOKeywordsTooltips, "[Failed][Body] SEO keywords tooltips should be %s, but found %s.".formatted(ppSEOKeywordsTooltips, dbSEOKeywordsTooltips));
         logger.info("[UI][%s] Check Body - SEO keywords tooltips.".formatted(language));
 
         // check SEO URL link
         String dbSEOUrlLink = commonAction.getText(seoURLLabel);
         String ppSEOUrlLink = getPropertiesValueByDBLang("products.allProducts.createProduct.seoSettings.seoUrlLink", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSEOUrlLink, ppSEOUrlLink, "[Failed][Body] SEO URL link should be %s, but found %s.".formatted(ppSEOUrlLink, dbSEOUrlLink));
+        assertCustomize.assertEquals(dbSEOUrlLink, ppSEOUrlLink, "[Failed][Body] SEO URL link should be %s, but found %s.".formatted(ppSEOUrlLink, dbSEOUrlLink));
         logger.info("[UI][%s] Check Body - SEO URL link.".formatted(language));
     }
 
@@ -1930,21 +1937,21 @@ public class ProductPage extends ProductPageElement {
         // check Sale chanel title
         String dbSaleChanel = commonAction.getText(saleChannelLabel);
         String ppSaleChanel = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaleChanel, ppSaleChanel, "[Failed][Body] Sale chanel title should be %s, but found %s.".formatted(ppSaleChanel, dbSaleChanel));
+        assertCustomize.assertEquals(dbSaleChanel, ppSaleChanel, "[Failed][Body] Sale chanel title should be %s, but found %s.".formatted(ppSaleChanel, dbSaleChanel));
         logger.info("[UI][%s] Check Body - Sale chanel title.".formatted(language));
 
         // check Online shop tooltips
         commonAction.hoverActions(onlineShopIcon);
         String dbOnlineShopTooltips = commonAction.getText(onlineShopTooltips);
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbOnlineShopTooltips, ppOnlineShopTooltips, "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, dbOnlineShopTooltips));
+        assertCustomize.assertEquals(dbOnlineShopTooltips, ppOnlineShopTooltips, "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, dbOnlineShopTooltips));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
         // check Gomua tooltips
         commonAction.hoverActions(gomuaIcon);
         String dbGomuaTooltips = commonAction.getText(gomuaTooltips);
         String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGomuaTooltips, ppGomuaTooltips, "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, dbGomuaTooltips));
+        assertCustomize.assertEquals(dbGomuaTooltips, ppGomuaTooltips, "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, dbGomuaTooltips));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
@@ -1953,14 +1960,14 @@ public class ProductPage extends ProductPageElement {
         List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedShopeeTooltips", language));
-        countFail = new AssertCustomize(driver).assertTrue(countFail, ppShopeeTooltips.contains(dbShopeeTooltips), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips, dbShopeeTooltips));
+        assertCustomize.assertTrue(ppShopeeTooltips.contains(dbShopeeTooltips), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips, dbShopeeTooltips));
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
         commonAction.hoverActions(tiktokIcon);
         String dbTiktokTooltips = commonAction.getText(tiktokTooltips);
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
-        countFail = new AssertCustomize(driver).assertTrue(countFail, ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
+        assertCustomize.assertTrue(ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
         logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
 
@@ -1968,20 +1975,20 @@ public class ProductPage extends ProductPageElement {
         // check collections title
         String dbCollectionsTitle = commonAction.getText(collectionsLabel);
         String ppCollectionsTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.collections.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCollectionsTitle, ppCollectionsTitle, "[Failed][Body] Collections title should be %s, but found %s.".formatted(ppCollectionsTitle, dbCollectionsTitle));
+        assertCustomize.assertEquals(dbCollectionsTitle, ppCollectionsTitle, "[Failed][Body] Collections title should be %s, but found %s.".formatted(ppCollectionsTitle, dbCollectionsTitle));
         logger.info("[UI][%s] Check Body - Collections title.".formatted(language));
 
         // check collections search box placeholder
         String dbCollectionsSearchBoxPlaceholder = commonAction.getAttribute(searchCollectionPlaceholder, "placeholder");
         String ppCollectionsSearchBoxPlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.collections.searchBoxPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCollectionsSearchBoxPlaceholder, ppCollectionsSearchBoxPlaceholder, "[Failed][Body] Collections search box placeholder should be %s, but found %s.".formatted(ppCollectionsSearchBoxPlaceholder, dbCollectionsSearchBoxPlaceholder));
+        assertCustomize.assertEquals(dbCollectionsSearchBoxPlaceholder, ppCollectionsSearchBoxPlaceholder, "[Failed][Body] Collections search box placeholder should be %s, but found %s.".formatted(ppCollectionsSearchBoxPlaceholder, dbCollectionsSearchBoxPlaceholder));
         logger.info("[UI][%s] Check Body - Collections search box placeholder.".formatted(language));
 
         if (new ProductCollection(loginInformation).getListOfManualProductCollectionsName().isEmpty()) {
             // check when no collection created
             String dbNoCreatedCollection = commonAction.getText(noCollectionText);
             String ppNoCreatedCollection = getPropertiesValueByDBLang("products.allProducts.createProduct.collections.noCreatedCollection", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoCreatedCollection, ppNoCreatedCollection, "[Failed][Body] No created collection should be %s, but found %s.".formatted(ppNoCreatedCollection, dbNoCreatedCollection));
+            assertCustomize.assertEquals(dbNoCreatedCollection, ppNoCreatedCollection, "[Failed][Body] No created collection should be %s, but found %s.".formatted(ppNoCreatedCollection, dbNoCreatedCollection));
             logger.info("[UI][%s] Check Body - No created collection.".formatted(language));
         }
     }
@@ -1990,61 +1997,61 @@ public class ProductPage extends ProductPageElement {
         // check warehousing title
         String dbWarehousing = commonAction.getText(warehousingLabel);
         String ppWarehousing = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWarehousing, ppWarehousing, "[Failed][Body] Warehousing title should be %s, but found %s.".formatted(ppWarehousing, dbWarehousing));
+        assertCustomize.assertEquals(dbWarehousing, ppWarehousing, "[Failed][Body] Warehousing title should be %s, but found %s.".formatted(ppWarehousing, dbWarehousing));
         logger.info("[UI][%s] Check Body - Warehousing title.".formatted(language));
 
         // check SKU
         String dbSKU = commonAction.getText(withoutVariationSKULabel);
         String ppSKU = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.sku", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSKU, ppSKU, "[Failed][Body] SKU title should be %s, but found %s.".formatted(ppSKU, dbSKU));
+        assertCustomize.assertEquals(dbSKU, ppSKU, "[Failed][Body] SKU title should be %s, but found %s.".formatted(ppSKU, dbSKU));
         logger.info("[UI][%s] Check Body - SKU title.".formatted(language));
 
         // check Barcode
         String dbBarcode = commonAction.getText(withoutVariationBarcodeLabel);
         String ppBarcode = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.barcode", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbBarcode, ppBarcode, "[Failed][Body] Barcode title should be %s, but found %s.".formatted(ppBarcode, dbBarcode));
+        assertCustomize.assertEquals(dbBarcode, ppBarcode, "[Failed][Body] Barcode title should be %s, but found %s.".formatted(ppBarcode, dbBarcode));
         logger.info("[UI][%s] Check Body - Barcode title.".formatted(language));
 
         // check manage inventory
         String dbManageInventory = commonAction.getText(manageInventoryLabel);
         String ppManageInventory = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbManageInventory, ppManageInventory, "[Failed][Body] Manage inventory title should be %s, but found %s.".formatted(ppManageInventory, dbManageInventory));
+        assertCustomize.assertEquals(dbManageInventory, ppManageInventory, "[Failed][Body] Manage inventory title should be %s, but found %s.".formatted(ppManageInventory, dbManageInventory));
         logger.info("[UI][%s] Check Body - Manage inventory.".formatted(language));
 
         // check manage inventory by product
         String dbManageInventoryByProduct = commonAction.getText(manageByProductText);
         String ppManageInventoryByProduct = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.byProduct", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbManageInventoryByProduct, ppManageInventoryByProduct, "[Failed][Body] Manage inventory by product should be %s, but found %s.".formatted(ppManageInventoryByProduct, dbManageInventoryByProduct));
+        assertCustomize.assertEquals(dbManageInventoryByProduct, ppManageInventoryByProduct, "[Failed][Body] Manage inventory by product should be %s, but found %s.".formatted(ppManageInventoryByProduct, dbManageInventoryByProduct));
         logger.info("[UI][%s] Check Body - Manage inventory by product.".formatted(language));
 
         // check manage inventory by IMEI/Serial number
         String dbManageInventoryByIMEI = commonAction.getText(manageByIMEIText);
         String ppManageInventoryByIMEI = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.byIMEI", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbManageInventoryByIMEI, ppManageInventoryByIMEI, "[Failed][Body] Manage inventory by IMEI/Serial number should be %s, but found %s.".formatted(ppManageInventoryByIMEI, dbManageInventoryByIMEI));
+        assertCustomize.assertEquals(dbManageInventoryByIMEI, ppManageInventoryByIMEI, "[Failed][Body] Manage inventory by IMEI/Serial number should be %s, but found %s.".formatted(ppManageInventoryByIMEI, dbManageInventoryByIMEI));
         logger.info("[UI][%s] Check Body - Manage inventory by IMEI/Serial number.".formatted(language));
 
         // check stock quantity title
         String dbStockQuantity = commonAction.getText(withoutVariationStockQuantityLabel);
         String ppStockQuantity = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.stockQuantity.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbStockQuantity, ppStockQuantity, "[Failed][Body] Stock quantity title should be %s, but found %s.".formatted(ppStockQuantity, dbStockQuantity));
+        assertCustomize.assertEquals(dbStockQuantity, ppStockQuantity, "[Failed][Body] Stock quantity title should be %s, but found %s.".formatted(ppStockQuantity, dbStockQuantity));
         logger.info("[UI][%s] Check Body - Stock quantity title.".formatted(language));
 
         // check apply stock for all branches button
         String dbApplyAllBtn = commonAction.getText(stockQuantityApplyAllText);
         String ppApplyAllBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.stockQuantity.applyAllBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbApplyAllBtn, ppApplyAllBtn, "[Failed][Body] Apply all button should be %s, but found %s.".formatted(ppApplyAllBtn, dbApplyAllBtn));
+        assertCustomize.assertEquals(dbApplyAllBtn, ppApplyAllBtn, "[Failed][Body] Apply all button should be %s, but found %s.".formatted(ppApplyAllBtn, dbApplyAllBtn));
         logger.info("[UI][%s] Check Body - Apply all button.".formatted(language));
 
         // check display if out of stock checkbox
         String dbDisplayIfOutOfStockCheckbox = commonAction.getText(displayIfOutOfStockText);
         String ppDisplayIfOutOfStockCheckbox = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.displayIfOutOfStock", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDisplayIfOutOfStockCheckbox, ppDisplayIfOutOfStockCheckbox, "[Failed][Body] Display if out of stock checkbox label should be %s, but found %s.".formatted(ppDisplayIfOutOfStockCheckbox, dbDisplayIfOutOfStockCheckbox));
+        assertCustomize.assertEquals(dbDisplayIfOutOfStockCheckbox, ppDisplayIfOutOfStockCheckbox, "[Failed][Body] Display if out of stock checkbox label should be %s, but found %s.".formatted(ppDisplayIfOutOfStockCheckbox, dbDisplayIfOutOfStockCheckbox));
         logger.info("[UI][%s] Check Body - Display if out of stock checkbox.".formatted(language));
 
         // check hide remaining stock on online store
         String dbHideRemainingOnOnlineStoreCheckbox = commonAction.getText(hideRemainingStockOnOnlineStoreText);
         String ppHideRemainingOnOnlineStoreCheckbox = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.hideRemainingStock", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHideRemainingOnOnlineStoreCheckbox, ppHideRemainingOnOnlineStoreCheckbox, "[Failed][Body] Hide remaining stock on online store checkbox label should be %s, but found %s.".formatted(ppHideRemainingOnOnlineStoreCheckbox, dbHideRemainingOnOnlineStoreCheckbox));
+        assertCustomize.assertEquals(dbHideRemainingOnOnlineStoreCheckbox, ppHideRemainingOnOnlineStoreCheckbox, "[Failed][Body] Hide remaining stock on online store checkbox label should be %s, but found %s.".formatted(ppHideRemainingOnOnlineStoreCheckbox, dbHideRemainingOnOnlineStoreCheckbox));
         logger.info("[UI][%s] Check Body - Hide remaining stock on online store checkbox.".formatted(language));
     }
 
@@ -2052,45 +2059,45 @@ public class ProductPage extends ProductPageElement {
         // check warehousing title
         String dbWarehousing = commonAction.getText(warehousingLabel);
         String ppWarehousing = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWarehousing, ppWarehousing, "[Failed][Body] Warehousing title should be %s, but found %s.".formatted(ppWarehousing, dbWarehousing));
+        assertCustomize.assertEquals(dbWarehousing, ppWarehousing, "[Failed][Body] Warehousing title should be %s, but found %s.".formatted(ppWarehousing, dbWarehousing));
         logger.info("[UI][%s] Check Body - Warehousing title.".formatted(language));
 
         // check SKU
         if (!commonAction.getListElement(withoutVariationSKULabel).isEmpty()) {
             String dbSKU = commonAction.getText(withoutVariationSKULabel);
             String ppSKU = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.sku", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbSKU, ppSKU, "[Failed][Body] SKU title should be %s, but found %s.".formatted(ppSKU, dbSKU));
+            assertCustomize.assertEquals(dbSKU, ppSKU, "[Failed][Body] SKU title should be %s, but found %s.".formatted(ppSKU, dbSKU));
             logger.info("[UI][%s] Check Body - SKU title.".formatted(language));
 
             // check Barcode
             String dbBarcode = commonAction.getText(withoutVariationBarcodeLabel);
             String ppBarcode = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.barcode", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbBarcode, ppBarcode, "[Failed][Body] Barcode title should be %s, but found %s.".formatted(ppBarcode, dbBarcode));
+            assertCustomize.assertEquals(dbBarcode, ppBarcode, "[Failed][Body] Barcode title should be %s, but found %s.".formatted(ppBarcode, dbBarcode));
             logger.info("[UI][%s] Check Body - Barcode title.".formatted(language));
         }
 
         // check manage inventory
         String dbManageInventory = commonAction.getText(manageInventoryLabel);
         String ppManageInventory = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbManageInventory, ppManageInventory, "[Failed][Body] Manage inventory title should be %s, but found %s.".formatted(ppManageInventory, dbManageInventory));
+        assertCustomize.assertEquals(dbManageInventory, ppManageInventory, "[Failed][Body] Manage inventory title should be %s, but found %s.".formatted(ppManageInventory, dbManageInventory));
         logger.info("[UI][%s] Check Body - Manage inventory.".formatted(language));
 
         // check manage inventory by product
         String dbManageInventoryByProduct = commonAction.getText(manageByProductText);
         String ppManageInventoryByProduct = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.byProduct", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbManageInventoryByProduct, ppManageInventoryByProduct, "[Failed][Body] Manage inventory by product should be %s, but found %s.".formatted(ppManageInventoryByProduct, dbManageInventoryByProduct));
+        assertCustomize.assertEquals(dbManageInventoryByProduct, ppManageInventoryByProduct, "[Failed][Body] Manage inventory by product should be %s, but found %s.".formatted(ppManageInventoryByProduct, dbManageInventoryByProduct));
         logger.info("[UI][%s] Check Body - Manage inventory by product.".formatted(language));
 
         // check manage inventory by IMEI/Serial number
         String dbManageInventoryByIMEI = commonAction.getText(manageByIMEIText);
         String ppManageInventoryByIMEI = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.byIMEI", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbManageInventoryByIMEI, ppManageInventoryByIMEI, "[Failed][Body] Manage inventory by IMEI/Serial number should be %s, but found %s.".formatted(ppManageInventoryByIMEI, dbManageInventoryByIMEI));
+        assertCustomize.assertEquals(dbManageInventoryByIMEI, ppManageInventoryByIMEI, "[Failed][Body] Manage inventory by IMEI/Serial number should be %s, but found %s.".formatted(ppManageInventoryByIMEI, dbManageInventoryByIMEI));
         logger.info("[UI][%s] Check Body - Manage inventory by IMEI/Serial number.".formatted(language));
 
         // check remaining stock
         String dbRemainingStock = commonAction.getText(remainingStockLabel);
         String ppRemainingStock = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.remainingStock", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbRemainingStock, ppRemainingStock, "[Failed][Body] Remaining stock should be %s, but found %s.".formatted(ppRemainingStock, dbRemainingStock));
+        assertCustomize.assertEquals(dbRemainingStock, ppRemainingStock, "[Failed][Body] Remaining stock should be %s, but found %s.".formatted(ppRemainingStock, dbRemainingStock));
         logger.info("[UI][%s] Check Body - Remaining stock.".formatted(language));
 
         // check view remaining stock popup
@@ -2099,7 +2106,7 @@ public class ProductPage extends ProductPageElement {
         // check sold count
         String dbSoldCount = commonAction.getText(soldCountLabel);
         String ppSoldCount = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.soldCount", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSoldCount, ppSoldCount, "[Failed][Body] Sold count should be %s, but found %s.".formatted(ppSoldCount, dbSoldCount));
+        assertCustomize.assertEquals(dbSoldCount, ppSoldCount, "[Failed][Body] Sold count should be %s, but found %s.".formatted(ppSoldCount, dbSoldCount));
         logger.info("[UI][%s] Check Body - Sold count.".formatted(language));
 
         // check view sold count popup
@@ -2108,13 +2115,13 @@ public class ProductPage extends ProductPageElement {
         // check display if out of stock checkbox
         String dbDisplayIfOutOfStockCheckbox = commonAction.getText(displayIfOutOfStockText);
         String ppDisplayIfOutOfStockCheckbox = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.displayIfOutOfStock", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDisplayIfOutOfStockCheckbox, ppDisplayIfOutOfStockCheckbox, "[Failed][Body] Display if out of stock checkbox label should be %s, but found %s.".formatted(ppDisplayIfOutOfStockCheckbox, dbDisplayIfOutOfStockCheckbox));
+        assertCustomize.assertEquals(dbDisplayIfOutOfStockCheckbox, ppDisplayIfOutOfStockCheckbox, "[Failed][Body] Display if out of stock checkbox label should be %s, but found %s.".formatted(ppDisplayIfOutOfStockCheckbox, dbDisplayIfOutOfStockCheckbox));
         logger.info("[UI][%s] Check Body - Display if out of stock checkbox.".formatted(language));
 
         // check hide remaining stock on online store
         String dbHideRemainingOnOnlineStoreCheckbox = commonAction.getText(hideRemainingStockOnOnlineStoreText);
         String ppHideRemainingOnOnlineStoreCheckbox = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.hideRemainingStock", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHideRemainingOnOnlineStoreCheckbox, ppHideRemainingOnOnlineStoreCheckbox, "[Failed][Body] Hide remaining stock on online store checkbox label should be %s, but found %s.".formatted(ppHideRemainingOnOnlineStoreCheckbox, dbHideRemainingOnOnlineStoreCheckbox));
+        assertCustomize.assertEquals(dbHideRemainingOnOnlineStoreCheckbox, ppHideRemainingOnOnlineStoreCheckbox, "[Failed][Body] Hide remaining stock on online store checkbox label should be %s, but found %s.".formatted(ppHideRemainingOnOnlineStoreCheckbox, dbHideRemainingOnOnlineStoreCheckbox));
         logger.info("[UI][%s] Check Body - Hide remaining stock on online store checkbox.".formatted(language));
     }
 
@@ -2128,13 +2135,13 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfRemainingStockPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewRemainingStockPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][View remaining stock popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][View remaining stock popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check View remaining stock popup - Title.".formatted(language));
 
         // check text in dropdown when select all branches
         String dbSelectAllBranches = commonAction.getText(branchDropdownOnRemainingStockPopup);
         String ppSelectAllBranches = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewRemainingStockPopup.branchDropdown.text.allBranch", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectAllBranches, ppSelectAllBranches, "[Failed][ View remaining stock popup] Dropdown text when select all branches should be %s, but found %s.".formatted(ppSelectAllBranches, dbSelectAllBranches));
+        assertCustomize.assertEquals(dbSelectAllBranches, ppSelectAllBranches, "[Failed][ View remaining stock popup] Dropdown text when select all branches should be %s, but found %s.".formatted(ppSelectAllBranches, dbSelectAllBranches));
         logger.info("[UI][%s] Check View remaining stock popup - Check dropdown text when select all branches.".formatted(language));
 
         // open branch dropdown
@@ -2146,13 +2153,13 @@ public class ProductPage extends ProductPageElement {
         // check text in dropdown when no select any branch
         String dbNoSelectAnyBranch = commonAction.getText(branchDropdownOnRemainingStockPopup);
         String ppNoSelectAnyBranch = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewRemainingStockPopup.branchDropdown.text.noBranch", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoSelectAnyBranch, ppNoSelectAnyBranch, "[Failed][ View remaining stock popup] Dropdown text when no select any branch should be %s, but found %s.".formatted(ppNoSelectAnyBranch, dbNoSelectAnyBranch));
+        assertCustomize.assertEquals(dbNoSelectAnyBranch, ppNoSelectAnyBranch, "[Failed][ View remaining stock popup] Dropdown text when no select any branch should be %s, but found %s.".formatted(ppNoSelectAnyBranch, dbNoSelectAnyBranch));
         logger.info("[UI][%s] Check View remaining stock popup -  Check dropdown text when no select any branch.".formatted(language));
 
         // check All branches checkbox label
         String dbAllBranchesCheckbox = commonAction.getText(allBranchesCheckboxOnRemainingStockPopup);
         String ppAllBranchesCheckbox = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewRemainingStockPopup.branchDropDown.allBranchCheckbox", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAllBranchesCheckbox, ppAllBranchesCheckbox, "[Failed][ View remaining stock popup] All branches checkbox label should be %s, but found %s.".formatted(ppAllBranchesCheckbox, dbAllBranchesCheckbox));
+        assertCustomize.assertEquals(dbAllBranchesCheckbox, ppAllBranchesCheckbox, "[Failed][ View remaining stock popup] All branches checkbox label should be %s, but found %s.".formatted(ppAllBranchesCheckbox, dbAllBranchesCheckbox));
         logger.info("[UI][%s] Check View remaining stock popup - All branches checkbox.".formatted(language));
 
         // close branch dropdown
@@ -2161,7 +2168,7 @@ public class ProductPage extends ProductPageElement {
         // check error when no select any branch
         String dbNoSelectBranchError = commonAction.getText(noBranchErrorMessageOnRemainingStockPopup);
         String ppNoSelectBranchError = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewRemainingStockPopup.noBranchError", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoSelectBranchError, ppNoSelectBranchError, "[Failed][ View remaining stock popup] No select branch error should be %s, but found %s.".formatted(ppNoSelectBranchError, dbNoSelectBranchError));
+        assertCustomize.assertEquals(dbNoSelectBranchError, ppNoSelectBranchError, "[Failed][ View remaining stock popup] No select branch error should be %s, but found %s.".formatted(ppNoSelectBranchError, dbNoSelectBranchError));
         logger.info("[UI][%s] Check View remaining stock popup - No select branch error.".formatted(language));
 
         // close view remaining stock popup
@@ -2181,7 +2188,7 @@ public class ProductPage extends ProductPageElement {
         // check title
         String dbTitle = commonAction.getText(titleOfViewSoldCountPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][View sold count popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][View sold count popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check View sold count popup - Title.".formatted(language));
 
         // check text in dropdown when select all branches
@@ -2197,7 +2204,7 @@ public class ProductPage extends ProductPageElement {
             dbSelectAllBranches = commonAction.getText(branchDropdownOnViewSoldCountPopup);
         }
         String ppSelectAllBranches = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.branchDropdown.text.allBranch", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectAllBranches, ppSelectAllBranches, "[Failed][ View sold count popup] Dropdown text when select all branches should be %s, but found %s.".formatted(ppSelectAllBranches, dbSelectAllBranches));
+        assertCustomize.assertEquals(dbSelectAllBranches, ppSelectAllBranches, "[Failed][ View sold count popup] Dropdown text when select all branches should be %s, but found %s.".formatted(ppSelectAllBranches, dbSelectAllBranches));
         logger.info("[UI][%s] Check View sold count popup - Check dropdown text when select all branches.".formatted(language));
 
         // open branch dropdown
@@ -2227,13 +2234,13 @@ public class ProductPage extends ProductPageElement {
             dbNoSelectAnyBranch = commonAction.getText(branchDropdownOnViewSoldCountPopup);
         }
         String ppNoSelectAnyBranch = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.branchDropdown.text.noBranch", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoSelectAnyBranch, ppNoSelectAnyBranch, "[Failed][ View sold count popup] Dropdown text when no select any branch should be %s, but found %s.".formatted(ppNoSelectAnyBranch, dbNoSelectAnyBranch));
+        assertCustomize.assertEquals(dbNoSelectAnyBranch, ppNoSelectAnyBranch, "[Failed][ View sold count popup] Dropdown text when no select any branch should be %s, but found %s.".formatted(ppNoSelectAnyBranch, dbNoSelectAnyBranch));
         logger.info("[UI][%s] Check View sold count popup -  Check dropdown text when no select any branch.".formatted(language));
 
         // check All branches checkbox label
         String dbAllBranchesCheckbox = commonAction.getText(allBranchesCheckboxOnViewSoldCountPopup);
         String ppAllBranchesCheckbox = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.branchDropDown.allBranchCheckbox", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAllBranchesCheckbox, ppAllBranchesCheckbox, "[Failed][ View sold count popup] All branches checkbox label should be %s, but found %s.".formatted(ppAllBranchesCheckbox, dbAllBranchesCheckbox));
+        assertCustomize.assertEquals(dbAllBranchesCheckbox, ppAllBranchesCheckbox, "[Failed][ View sold count popup] All branches checkbox label should be %s, but found %s.".formatted(ppAllBranchesCheckbox, dbAllBranchesCheckbox));
         logger.info("[UI][%s] Check View sold count popup - All branches checkbox.".formatted(language));
 
         // close branch dropdown
@@ -2251,7 +2258,7 @@ public class ProductPage extends ProductPageElement {
         // check error when no select any branch
         String dbNoSelectBranchError = commonAction.getText(noBranchErrorMessageOnViewSoldCountPopup);
         String ppNoSelectBranchError = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.noBranchError", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoSelectBranchError, ppNoSelectBranchError, "[Failed][ View sold count popup] No select branch error should be %s, but found %s.".formatted(ppNoSelectBranchError, dbNoSelectBranchError));
+        assertCustomize.assertEquals(dbNoSelectBranchError, ppNoSelectBranchError, "[Failed][ View sold count popup] No select branch error should be %s, but found %s.".formatted(ppNoSelectBranchError, dbNoSelectBranchError));
         logger.info("[UI][%s] Check View sold count popup - No select branch error.".formatted(language));
 
         // close view sold count popup
@@ -2262,7 +2269,7 @@ public class ProductPage extends ProductPageElement {
         // check manage inventory by IMEI/Serial number notice
         String dbIMEINotice = commonAction.getText(manageByIMEINoticeText);
         String ppIMEINotice = getPropertiesValueByDBLang("products.allProducts.createProduct.warehousing.manageInventory.byIMEI.notice", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbIMEINotice, ppIMEINotice, "[Failed][Body] Manage Inventory by IMEI/Serial number notice should be %s, but found %s.".formatted(ppIMEINotice, dbIMEINotice));
+        assertCustomize.assertEquals(dbIMEINotice, ppIMEINotice, "[Failed][Body] Manage Inventory by IMEI/Serial number notice should be %s, but found %s.".formatted(ppIMEINotice, dbIMEINotice));
         logger.info("[UI][%s] Check Body - Manage Inventory by IMEI/Serial number notice.".formatted(language));
     }
 
@@ -2270,44 +2277,44 @@ public class ProductPage extends ProductPageElement {
         // check package information title
         String dbPackageInformation = commonAction.getText(packageInformationLabel);
         String ppPackageInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPackageInformation, ppPackageInformation, "[Failed][Body] Package information title should be %s, but found %s.".formatted(ppPackageInformation, dbPackageInformation));
+        assertCustomize.assertEquals(dbPackageInformation, ppPackageInformation, "[Failed][Body] Package information title should be %s, but found %s.".formatted(ppPackageInformation, dbPackageInformation));
         logger.info("[UI][%s] Check Body - Package information title.".formatted(language));
 
         // check package information tooltips
         commonAction.hoverActions(packageInformationTooltips);
         String dbPackageInformationTooltips = commonAction.getAttribute(packageInformationTooltips, "data-original-title");
         String ppPackageInformationTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.tooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPackageInformationTooltips, ppPackageInformationTooltips, "[Failed][Body] Package information tooltips should be %s, but found %s.".formatted(ppPackageInformationTooltips, dbPackageInformationTooltips));
+        assertCustomize.assertEquals(dbPackageInformationTooltips, ppPackageInformationTooltips, "[Failed][Body] Package information tooltips should be %s, but found %s.".formatted(ppPackageInformationTooltips, dbPackageInformationTooltips));
         logger.info("[UI][%s] Check Body - Package information tooltips.".formatted(language));
 
         // check weight
         String dbWeight = commonAction.getText(weightLabel);
         String ppWeight = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.weight", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWeight, ppWeight, "[Failed][Body] Product weight should be %s, but found %s.".formatted(ppWeight, dbWeight));
+        assertCustomize.assertEquals(dbWeight, ppWeight, "[Failed][Body] Product weight should be %s, but found %s.".formatted(ppWeight, dbWeight));
         logger.info("[UI][%s] Check Body - Product weight.".formatted(language));
 
         // check length
         String dbLength = commonAction.getText(lengthLabel);
         String ppLength = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.length", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbLength, ppLength, "[Failed][Body] Product length should be %s, but found %s.".formatted(ppLength, dbLength));
+        assertCustomize.assertEquals(dbLength, ppLength, "[Failed][Body] Product length should be %s, but found %s.".formatted(ppLength, dbLength));
         logger.info("[UI][%s] Check Body - Product length.".formatted(language));
 
         // check width
         String dbWidth = commonAction.getText(widthLabel);
         String ppWidth = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.width", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWidth, ppWidth, "[Failed][Body] Product width should be %s, but found %s.".formatted(ppWidth, dbWidth));
+        assertCustomize.assertEquals(dbWidth, ppWidth, "[Failed][Body] Product width should be %s, but found %s.".formatted(ppWidth, dbWidth));
         logger.info("[UI][%s] Check Body - Product width.".formatted(language));
 
         // check height
         String dbHeight = commonAction.getText(heightLabel);
         String ppHeight = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.height", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbHeight, ppHeight, "[Failed][Body] Product height should be %s, but found %s.".formatted(ppHeight, dbHeight));
+        assertCustomize.assertEquals(dbHeight, ppHeight, "[Failed][Body] Product height should be %s, but found %s.".formatted(ppHeight, dbHeight));
         logger.info("[UI][%s] Check Body - Product height.".formatted(language));
 
         // check shipping notice
         String dbShippingFeeNote = commonAction.getText(packageNote);
         String ppShippingFeeNote = getPropertiesValueByDBLang("products.allProducts.createProduct.packageInformation.shippingFeeNote", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbShippingFeeNote, ppShippingFeeNote, "[Failed][Body] Shipping fee note should be %s, but found %s.".formatted(ppShippingFeeNote, dbShippingFeeNote));
+        assertCustomize.assertEquals(dbShippingFeeNote, ppShippingFeeNote, "[Failed][Body] Shipping fee note should be %s, but found %s.".formatted(ppShippingFeeNote, dbShippingFeeNote));
         logger.info("[UI][%s] Check Body - Shipping fee note.".formatted(language));
     }
 
@@ -2315,20 +2322,20 @@ public class ProductPage extends ProductPageElement {
         // check priority title
         String dbPriorityTitle = commonAction.getText(priorityLabel);
         String ppPriorityTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.priority.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPriorityTitle, ppPriorityTitle, "[Failed][Body] Priority Title should be %s, but found %s.".formatted(ppPriorityTitle, dbPriorityTitle));
+        assertCustomize.assertEquals(dbPriorityTitle, ppPriorityTitle, "[Failed][Body] Priority Title should be %s, but found %s.".formatted(ppPriorityTitle, dbPriorityTitle));
         logger.info("[UI][%s] Check Body - Priority Title.".formatted(language));
 
         // check priority tooltips
         commonAction.hoverActions(priorityTooltips);
         String dbPriorityTooltips = commonAction.getAttribute(priorityTooltips, "data-original-title");
         String ppPriorityTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.priority.tooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPriorityTooltips, ppPriorityTooltips, "[Failed][Body] Priority tooltips should be %s, but found %s.".formatted(ppPriorityTooltips, dbPriorityTooltips));
+        assertCustomize.assertEquals(dbPriorityTooltips, ppPriorityTooltips, "[Failed][Body] Priority tooltips should be %s, but found %s.".formatted(ppPriorityTooltips, dbPriorityTooltips));
         logger.info("[UI][%s] Check Body - Priority tooltips.".formatted(language));
 
         // check priority text box placeholder
         String dbPriorityTextBoxPlaceholder = commonAction.getAttribute(priorityPlaceholder, "placeholder");
         String ppPriorityTextBoxPlaceholder = getPropertiesValueByDBLang("products.allProducts.createProduct.priority.placeholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPriorityTextBoxPlaceholder, ppPriorityTextBoxPlaceholder, "[Failed][Body] Priority text box placeholder should be %s, but found %s.".formatted(ppPriorityTextBoxPlaceholder, dbPriorityTextBoxPlaceholder));
+        assertCustomize.assertEquals(dbPriorityTextBoxPlaceholder, ppPriorityTextBoxPlaceholder, "[Failed][Body] Priority text box placeholder should be %s, but found %s.".formatted(ppPriorityTextBoxPlaceholder, dbPriorityTextBoxPlaceholder));
         logger.info("[UI][%s] Check Body - Priority text box placeholder.".formatted(language));
     }
 
@@ -2336,60 +2343,60 @@ public class ProductPage extends ProductPageElement {
         // check platform title
         String dbPlatformTitle = commonAction.getText(platformLabel);
         String ppPlatformTitle = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPlatformTitle, ppPlatformTitle, "[Failed][Body] Platform title should be %s, but found %s.".formatted(ppPlatformTitle, dbPlatformTitle));
+        assertCustomize.assertEquals(dbPlatformTitle, ppPlatformTitle, "[Failed][Body] Platform title should be %s, but found %s.".formatted(ppPlatformTitle, dbPlatformTitle));
         logger.info("[UI][%s] Check Body - Platform title.".formatted(language));
 
         // check platform tooltips
         commonAction.hoverActions(platformTooltips);
         String dbPlatformTooltips = commonAction.getAttribute(platformTooltips, "data-original-title");
         String ppPlatformTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.tooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPlatformTooltips, ppPlatformTooltips, "[Failed][Body] Platform tooltips should be %s, but found %s.".formatted(ppPlatformTooltips, dbPlatformTooltips));
+        assertCustomize.assertEquals(dbPlatformTooltips, ppPlatformTooltips, "[Failed][Body] Platform tooltips should be %s, but found %s.".formatted(ppPlatformTooltips, dbPlatformTooltips));
         logger.info("[UI][%s] Check Body - Platform tooltips.".formatted(language));
 
         // check App platform
         String dbApp = commonAction.getText(appLabel);
         String ppApp = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.app", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbApp, ppApp, "[Failed][Body] Platform app should be %s, but found %s.".formatted(ppApp, dbApp));
+        assertCustomize.assertEquals(dbApp, ppApp, "[Failed][Body] Platform app should be %s, but found %s.".formatted(ppApp, dbApp));
         logger.info("[UI][%s] Check Body - Platform app.".formatted(language));
 
         // check Web platform
         String dbWeb = commonAction.getText(webLabel);
         String ppWeb = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.web", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWeb, ppWeb, "[Failed][Body] Platform web should be %s, but found %s.".formatted(ppWeb, dbWeb));
+        assertCustomize.assertEquals(dbWeb, ppWeb, "[Failed][Body] Platform web should be %s, but found %s.".formatted(ppWeb, dbWeb));
         logger.info("[UI][%s] Check Body - Platform web.".formatted(language));
 
         // check POS platform
         String dbPOS = commonAction.getText(inStoreLabel);
         String ppPOS = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.pos", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPOS, ppPOS, "[Failed][Body] Platform POS should be %s, but found %s.".formatted(ppPOS, dbPOS));
+        assertCustomize.assertEquals(dbPOS, ppPOS, "[Failed][Body] Platform POS should be %s, but found %s.".formatted(ppPOS, dbPOS));
         logger.info("[UI][%s] Check Body - Platform POS.".formatted(language));
 
         // check GoSocial platform
         String dbGoSocial = commonAction.getText(goSocialLabel);
         String ppGoSocial = getPropertiesValueByDBLang("products.allProducts.createProduct.platform.gosocial", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoSocial, ppGoSocial, "[Failed][Body] Platform GoSocial should be %s, but found %s.".formatted(ppGoSocial, dbGoSocial));
+        assertCustomize.assertEquals(dbGoSocial, ppGoSocial, "[Failed][Body] Platform GoSocial should be %s, but found %s.".formatted(ppGoSocial, dbGoSocial));
         logger.info("[UI][%s] Check Body - Platform GoSocial.".formatted(language));
     }
 
     void checkUIConfirmDeleteProductPopup() throws Exception {
         String dbTitle = commonAction.getText(titleOfConfirmDeleteProductPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Confirm delete product popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Confirm delete product popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Confirm delete product popup - Title.".formatted(language));
 
         String dbWarningMessage = commonAction.getText(warningMessageOnConfirmDeleteProductPopup);
         String ppWarningMessage = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.warningMessage", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWarningMessage, ppWarningMessage, "[Failed][Confirm delete product popup] Warning message should be %s, but found %s.".formatted(ppWarningMessage, dbWarningMessage));
+        assertCustomize.assertEquals(dbWarningMessage, ppWarningMessage, "[Failed][Confirm delete product popup] Warning message should be %s, but found %s.".formatted(ppWarningMessage, dbWarningMessage));
         logger.info("[UI][%s] Check Confirm delete product popup - Warning message.".formatted(language));
 
         String dbOKBtn = commonAction.getText(okTextOnConfirmDeleteProductPopup);
         String ppOKBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.okBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbOKBtn, ppOKBtn, "[Failed][Confirm delete product popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
+        assertCustomize.assertEquals(dbOKBtn, ppOKBtn, "[Failed][Confirm delete product popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
         logger.info("[UI][%s] Check Confirm delete product popup - OK button.".formatted(language));
 
         String dbCancelBtn = commonAction.getText(cancelTextOnDeleteProductPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.confirmDeleteProductPopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Confirm delete product popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Confirm delete product popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Confirm delete product popup - Cancel button.".formatted(language));
     }
 
@@ -2481,8 +2488,8 @@ public class ProductPage extends ProductPageElement {
         By quantityLocator = By.xpath("//div[contains(@class,'h-fit-content')]//table[contains(@class,'stock_editor_modal__branch-table')]/tbody//td");
 
 
-        commonAction.clickElement(commonAction.getElement(variationLocator));
-        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+        commonAction.click(variationLocator);
+        commonAction.getElement(quantityLocator);
 
         /*
          * Loop through branches
@@ -2518,8 +2525,8 @@ public class ProductPage extends ProductPageElement {
         By imeiLocator = By.xpath(".//div[@class='code']");
 
 
-        commonAction.clickElement(UPDATE_STOCK_LINKTEXT);
-        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+        commonAction.click(loc_lblUpdateStock);
+        commonAction.getElement(quantityLocator);
         commonAction.sleepInMiliSecond(2000); // It takes some time for the IMEI to be rendered
 
         /*
@@ -2556,8 +2563,8 @@ public class ProductPage extends ProductPageElement {
         By quantityLocator = By.xpath("//div[@class='table']//table/tbody//form");
         By imeiLocator = By.xpath(".//div[@class='code']");
 
-        commonAction.clickElement(commonAction.getElement(variationLocator));
-        wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
+        commonAction.click(variationLocator);
+        commonAction.getElement(quantityLocator);
         // Sometimes the dialog has appeared but the IMEI values is not displayed
         commonAction.sleepInMiliSecond(1000);
         for (int i = 0; i < 5; i++) {

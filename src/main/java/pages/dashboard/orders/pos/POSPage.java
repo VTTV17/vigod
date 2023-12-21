@@ -21,7 +21,6 @@ import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
 import utilities.model.dashboard.promotion.BranchDiscountCampaignInfo;
-import utilities.model.dashboard.promotion.DiscountCodeInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -40,7 +39,6 @@ import static utilities.links.Links.STORE_CURRENCY;
 public class POSPage extends POSElement {
 
     final static Logger logger = LogManager.getLogger(POSPage.class);
-    DataGenerator data = new DataGenerator();
 
     WebDriver driver;
     WebDriverWait wait;
@@ -48,10 +46,8 @@ public class POSPage extends POSElement {
     Map<String, BranchDiscountCampaignInfo> discountCampaignInfo;
     WholesaleProductInfo wholesaleProductInfo;
     AssertCustomize assertCustomize;
-    DiscountCodeInfo discountCodeInfo;
     BranchInfo brInfo;
     StoreInfo storeInfo;
-    int countFail = 0;
 
     public POSPage(WebDriver driver) {
         this.driver = driver;
@@ -170,13 +166,13 @@ public class POSPage extends POSElement {
         long variationPrice = Long.parseLong(varPrice.replaceAll("\\D+", ""));
 
         String varName = variationName.isEmpty() ? "" : "[%s]".formatted(variationName);
-        countFail = assertCustomize.assertEquals(countFail, variationPrice, sellingPrice, "[Failed][%s]%s Variation price should be show %s instead of %s".formatted(branchName, varName, sellingPrice, variationPrice));
+        assertCustomize.assertEquals(variationPrice, sellingPrice, "[Failed][%s]%s Variation price should be show %s instead of %s".formatted(branchName, varName, sellingPrice, variationPrice));
         logger.info("[%s]%s Check variation price.".formatted(branchName, varName));
 
         // get variation quantity
         int varStock = Integer.parseInt(commons.getValue(CART_PRODUCT_QUANTITY, varIndex));
         long priceTotal = Long.parseLong(commons.getText(CART_PRICE_TOTAL, varIndex).replaceAll("\\D+", ""));
-        countFail = assertCustomize.assertEquals(countFail, priceTotal, sellingPrice * varStock, "[Failed][%s]%s Variation price total should be show %s instead of %s".formatted(branchName, varName, sellingPrice * varStock, priceTotal));
+        assertCustomize.assertEquals(priceTotal, sellingPrice * varStock, "[Failed][%s]%s Variation price total should be show %s instead of %s".formatted(branchName, varName, sellingPrice * varStock, priceTotal));
         logger.info("[%s]%s Check variation total price.".formatted(branchName, varName));
     }
 
@@ -265,7 +261,6 @@ public class POSPage extends POSElement {
             });
 
             checkSubtotalAndVAT(salePriceMap, productInfo, brName);
-//            inputDiscountCode(1, String.valueOf(1000), brName);
         }
     }
 
@@ -294,7 +289,7 @@ public class POSPage extends POSElement {
         }
 
         // check subtotal
-        countFail = assertCustomize.assertEquals(countFail, subtotal, expectedSubtotal, "[Failed][%s] Subtotal should be show %s instead of %s".formatted(branchName, expectedSubtotal, subtotal));
+        assertCustomize.assertEquals(subtotal, expectedSubtotal, "[Failed][%s] Subtotal should be show %s instead of %s".formatted(branchName, expectedSubtotal, subtotal));
         logger.info("[%s] Check subtotal.".formatted(branchName));
 
         // get VAT
@@ -302,7 +297,7 @@ public class POSPage extends POSElement {
         long expectedVAT = (long) (expectedSubtotal * productInfo.getTaxRate());
 
         // check VAT
-        countFail = assertCustomize.assertEquals(countFail, totalVAT, expectedSubtotal * productInfo.getTaxRate(), "[Failed][%s] VAT should be show %s instead of %s".formatted(branchName, expectedVAT, totalVAT));
+        assertCustomize.assertEquals(totalVAT, expectedSubtotal * productInfo.getTaxRate(), "[Failed][%s] VAT should be show %s instead of %s".formatted(branchName, expectedVAT, totalVAT));
         logger.info("[%s] Check VAT.".formatted(branchName));
 
     }

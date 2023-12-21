@@ -598,12 +598,14 @@ public class UICommonAction {
 
     public void sendKeys(By locator, CharSequence content) {
         try {
+            getElement(locator).clear();
             getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         } catch (InvalidArgumentException | ElementNotInteractableException ignore) {
         } catch (StaleElementReferenceException ex) {
             getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         }
         try {
+
             getElement(locator).sendKeys(content);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             actions.moveToElement(getElement(locator)).click();

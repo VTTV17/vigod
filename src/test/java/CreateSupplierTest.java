@@ -1,6 +1,6 @@
 import org.testng.annotations.*;
 import pages.dashboard.login.LoginPage;
-import pages.dashboard.products.supplier.function.crud.CRUDSupplierPage;
+import pages.dashboard.products.supplier.crud.CRUDSupplierPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;

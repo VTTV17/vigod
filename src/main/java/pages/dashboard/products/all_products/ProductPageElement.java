@@ -26,8 +26,7 @@ public class ProductPageElement {
     String collectionLocator = "//div[text() = '%s']";
     By loc_dlgUpdateSKU = By.cssSelector(".product-multiple-branch-sku_editor_modal");
     By productSKUWithoutVariation = By.cssSelector("#productSKU,[class *=--n2] > div:nth-child(3) .align-items-center > span");
-    @FindBy(xpath = "//div[contains(@class,'gs-witget-warehousing')]//div[contains(@class,'uik-widget-title')]//span[@class='gs-fake-link ']")
-    WebElement UPDATE_STOCK_LINKTEXT;
+    By loc_lblUpdateStock = By.xpath("//div[contains(@class,'gs-witget-warehousing')]//div[contains(@class,'uik-widget-title')]//span[@class='gs-fake-link ']");
     By manageByInventory = By.cssSelector("#manageInventory");
     By priorityTextBox = By.cssSelector("[name = productPriority]");
     By productWeight = By.cssSelector("[for ='productWeight'] +* input");

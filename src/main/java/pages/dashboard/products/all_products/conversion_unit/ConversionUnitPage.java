@@ -28,10 +28,10 @@ public class ConversionUnitPage extends ConversionUnitElement {
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger(ConversionUnitPage.class);
     ProductPage productPage;
-    int countFail;
     String language;
     ConversionUnit unit;
     List<String> variationList;
+    AssertCustomize assertCustomize;
 
     public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation) {
         this.driver = driver;
@@ -39,9 +39,9 @@ public class ConversionUnitPage extends ConversionUnitElement {
         commonAction = new UICommonAction(driver);
         productPage = new ProductPage(driver, loginInformation);
         language = ProductPage.getLanguage();
-        countFail = ProductPage.getCountFail();
         unit = new ConversionUnit(loginInformation);
         variationList = ProductPage.getVariationList();
+        assertCustomize = ProductPage.getAssertCustomize();
     }
 
     public ConversionUnitPage navigateToConversionUnitPage() throws Exception {
@@ -191,19 +191,19 @@ public class ConversionUnitPage extends ConversionUnitElement {
             // check conversion unit for product manage inventory by IMEI/Serial number
             String dbConversionUnitForIMEI = commonAction.getText(productPage.getNotSupportConversionUnitForProductManagedByIMEI());
             String ppConversionUnitForIMEI = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.conversionUnitForIMEI", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnitForIMEI, ppConversionUnitForIMEI, "[Failed][Body]Conversion unit for product manage inventory by IMEI/Serial number should be %s, but found %s.".formatted(ppConversionUnitForIMEI, dbConversionUnitForIMEI));
+            assertCustomize.assertEquals(dbConversionUnitForIMEI, ppConversionUnitForIMEI, "[Failed][Body]Conversion unit for product manage inventory by IMEI/Serial number should be %s, but found %s.".formatted(ppConversionUnitForIMEI, dbConversionUnitForIMEI));
             logger.info("[UI][%s] Check Body - Conversion unit for product manage inventory by IMEI/Serial number.".formatted(language));
         } else {
             // check conversion unit information
             String dbConversionUnitInformation = commonAction.getText(productPage.getNoConversionUnitConfig());
             String ppConversionUnitInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.conversionUnitInformation", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnitInformation, ppConversionUnitInformation, "[Failed][Body] Conversion unit information should be %s, but found %s.".formatted(ppConversionUnitInformation, dbConversionUnitInformation));
+            assertCustomize.assertEquals(dbConversionUnitInformation, ppConversionUnitInformation, "[Failed][Body] Conversion unit information should be %s, but found %s.".formatted(ppConversionUnitInformation, dbConversionUnitInformation));
             logger.info("[UI][%s] Check Body - Conversion unit information.".formatted(language));
 
             // check wholesale product configure button
             String dbConversionUnitConfigBtn = commonAction.getText(configureText);
             String ppConversionUnitConfigBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.conversionUnitConfigureBtn", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbConversionUnitConfigBtn, ppConversionUnitConfigBtn, "[Failed][Body] Conversion unit configure button should be %s, but found %s.".formatted(ppConversionUnitConfigBtn, dbConversionUnitConfigBtn));
+            assertCustomize.assertEquals(dbConversionUnitConfigBtn, ppConversionUnitConfigBtn, "[Failed][Body] Conversion unit configure button should be %s, but found %s.".formatted(ppConversionUnitConfigBtn, dbConversionUnitConfigBtn));
             logger.info("[UI][%s] Check Body - Conversion unit configure button.".formatted(language));
         }
     }
@@ -212,7 +212,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check go back to product detail link text
         String dbGoBackToProductDetailPage = commonAction.getText(goBackToProductDetailLinkText);
         String ppGoBackToProductDetailPage = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.goBackToProductDetailPage", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail page link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
+        assertCustomize.assertEquals(dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail page link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
         logger.info("[UI][%s] Check Header - Go back to product detail page.".formatted(language));
 
         // check flex-UI for variation/without variation
@@ -220,44 +220,44 @@ public class ConversionUnitPage extends ConversionUnitElement {
             // check page title
             String dbPageTitle = commonAction.getText(variationPageTitle);
             String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.pageTitle", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
+            assertCustomize.assertEquals(dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
             logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
             // check select variation button
             String dbSelectVariationBtn = commonAction.getText(variationSelectVariationText);
             String ppSelectVariationBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.variation.selectVariationBtn", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectVariationBtn, ppSelectVariationBtn, "[Failed][Header] Select variation button should be %s, but found %s.".formatted(ppSelectVariationBtn, dbSelectVariationBtn));
+            assertCustomize.assertEquals(dbSelectVariationBtn, ppSelectVariationBtn, "[Failed][Header] Select variation button should be %s, but found %s.".formatted(ppSelectVariationBtn, dbSelectVariationBtn));
             logger.info("[UI][%s] Check Header - Select variation button.".formatted(language));
         } else {
             // check page title
             String dbPageTitle = commonAction.getText(withoutVariationPageTitle);
             String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.pageTitle", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
+            assertCustomize.assertEquals(dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
             logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
             // check select unit button
             String dbSelectUnitBtn = commonAction.getText(withoutVariationSelectUnitText);
             String ppSelectUnitBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.withoutVariation.selectUnitBtn", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectUnitBtn, ppSelectUnitBtn, "[Failed][Header] Select unit button should be %s, but found %s.".formatted(ppSelectUnitBtn, dbSelectUnitBtn));
+            assertCustomize.assertEquals(dbSelectUnitBtn, ppSelectUnitBtn, "[Failed][Header] Select unit button should be %s, but found %s.".formatted(ppSelectUnitBtn, dbSelectUnitBtn));
             logger.info("[UI][%s] Check Header - Select unit button.".formatted(language));
 
             // check cancel button
             String dbCancelBtn = commonAction.getText(withoutVariationCancelText);
             String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.withoutVariation.cancelBtn", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+            assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Header] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
             logger.info("[UI][%s] Check Header - Cancel button.".formatted(language));
         }
 
         // check save button
         String dbSaveBtn = commonAction.getText(saveText);
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.header.saveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
+        assertCustomize.assertEquals(dbSaveBtn, ppSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s] Check Header - Save button.".formatted(language));
 
         // check UI when no config
         String dbNoConfig = commonAction.getText(noConfig);
         String ppNoConfig = getPropertiesValueByDBLang("products.allProducts.conversionUnit.noConfig", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoConfig, ppNoConfig, "[Failed][Body] UI when no config should be %s, but found %s.".formatted(ppNoConfig, dbNoConfig));
+        assertCustomize.assertEquals(dbNoConfig, ppNoConfig, "[Failed][Body] UI when no config should be %s, but found %s.".formatted(ppNoConfig, dbNoConfig));
         logger.info("[UI][%s] Check UI when no config.".formatted(language));
     }
 
@@ -266,13 +266,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
         List<String> dbConfigTableColumn = commonAction.getListElement(withoutVariationSetupConversionUnitTable).stream().map(WebElement::getText).toList();
         List<String> ppConfigTableColumn = List.of(getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.withoutVariation.column.0", language),
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.withoutVariation.column.1", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConfigTableColumn, ppConfigTableColumn, "[Failed][Config table] List column should be %s, but found %s.".formatted(ppConfigTableColumn, dbConfigTableColumn));
+        assertCustomize.assertEquals(dbConfigTableColumn, ppConfigTableColumn, "[Failed][Config table] List column should be %s, but found %s.".formatted(ppConfigTableColumn, dbConfigTableColumn));
         logger.info("[UI][%s] Check Config table - List column.".formatted(language));
 
         // check unit text box placeholder
         String dbInputUnitPlaceholder = commonAction.getAttribute(withoutVariationUnitPlaceholder, "placeholder");
         String ppInputUnitPlaceholder = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.withoutVariation.inputUnitPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbInputUnitPlaceholder, ppInputUnitPlaceholder, "[Failed][Config table] Input unit placeholder should be %s, but found %s.".formatted(ppInputUnitPlaceholder, dbInputUnitPlaceholder));
+        assertCustomize.assertEquals(dbInputUnitPlaceholder, ppInputUnitPlaceholder, "[Failed][Config table] Input unit placeholder should be %s, but found %s.".formatted(ppInputUnitPlaceholder, dbInputUnitPlaceholder));
         logger.info("[UI][%s] Check Config table - Input unit placeholder.".formatted(language));
 
         // input new unit
@@ -282,13 +282,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check search unit no result
         String dbSearchUnitNoResult = commonAction.getText(withoutVariationNoResult);
         String ppSearchUnitNoResult = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.withoutVariation.searchUnitNoResult", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSearchUnitNoResult, ppSearchUnitNoResult, "[Failed][Config table] Search unit no result should be %s, but found %s.".formatted(ppSearchUnitNoResult, dbSearchUnitNoResult));
+        assertCustomize.assertEquals(dbSearchUnitNoResult, ppSearchUnitNoResult, "[Failed][Config table] Search unit no result should be %s, but found %s.".formatted(ppSearchUnitNoResult, dbSearchUnitNoResult));
         logger.info("[UI][%s] Check Config table - Search unit no result.".formatted(language));
 
         // check Add button
         String dbAddBtn = commonAction.getText(withoutVariationAddText);
         String ppAddBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.withoutVariation.addBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddBtn, ppAddBtn, "[Failed][Config table] Add button should be %s, but found %s.".formatted(ppAddBtn, dbAddBtn));
+        assertCustomize.assertEquals(dbAddBtn, ppAddBtn, "[Failed][Config table] Add button should be %s, but found %s.".formatted(ppAddBtn, dbAddBtn));
         logger.info("[UI][%s] Check Config table - Add button.".formatted(language));
 
         // clear unit text box
@@ -307,7 +307,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.aliasTable.withoutVariation.column.8", language),
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.aliasTable.withoutVariation.column.9", language),
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.aliasTable.withoutVariation.column.10", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAliasTableColumn, ppAliasTableColumn, "[Failed][Alias table] List column should be %s, but found %s.".formatted(ppAliasTableColumn, dbAliasTableColumn));
+        assertCustomize.assertEquals(dbAliasTableColumn, ppAliasTableColumn, "[Failed][Alias table] List column should be %s, but found %s.".formatted(ppAliasTableColumn, dbAliasTableColumn));
         logger.info("[UI][%s] Check Alias table - List column.".formatted(language));
     }
 
@@ -315,19 +315,19 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check title
         String dbTitle = commonAction.getText(titleOfSelectVariationPopup);
         String ppTitle = getPropertiesValueByDBLang("products.allProducts.conversionUnit.selectVariationPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbTitle, ppTitle, "[Failed][Select variation popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
+        assertCustomize.assertEquals(dbTitle, ppTitle, "[Failed][Select variation popup] Title should be %s, but found %s.".formatted(ppTitle, dbTitle));
         logger.info("[UI][%s] Check Select variation popup - Title.".formatted(language));
 
         // check OK button
         String dbOKBtn = commonAction.getText(okTextOnSelectVariationPopup);
         String ppOKBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.selectVariationPopup.okBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbOKBtn, ppOKBtn, "[Failed][Select variation popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
+        assertCustomize.assertEquals(dbOKBtn, ppOKBtn, "[Failed][Select variation popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
         logger.info("[UI][%s] Check Select variation popup - OK button.".formatted(language));
 
         // check Cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnSelectVariationPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.selectVariationPopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Select variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Select variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Select variation popup - Cancel button.".formatted(language));
     }
 
@@ -335,19 +335,19 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check delete button
         String dbDeleteBtn = commonAction.getText(deleteTextOnSetupConversionUnitTable, 0);
         String ppDeleteBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.variation.deleteBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeleteBtn, ppDeleteBtn, "[Failed][Config table] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
+        assertCustomize.assertEquals(dbDeleteBtn, ppDeleteBtn, "[Failed][Config table] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
         logger.info("[UI][%s] Check Config table - Delete button.".formatted(language));
 
         // check edit button
         String dbEditBtn = commonAction.getText(editTextOnSetupConversionUnitTable, 0);
         String ppEditBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.variation.editBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbEditBtn, ppEditBtn, "[Failed][Config table] Edit button should be %s, but found %s.".formatted(ppEditBtn, dbEditBtn));
+        assertCustomize.assertEquals(dbEditBtn, ppEditBtn, "[Failed][Config table] Edit button should be %s, but found %s.".formatted(ppEditBtn, dbEditBtn));
         logger.info("[UI][%s] Check Config table - Edit button.".formatted(language));
 
         // check Configure button
         String dbConfigureBtn = commonAction.getText(configureTextOnSetupConversionUnitTable, 0);
         String ppConfigureBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configTable.variation.configureBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConfigureBtn, ppConfigureBtn, "[Failed][Config table] Configure button should be %s, but found %s.".formatted(ppConfigureBtn, dbConfigureBtn));
+        assertCustomize.assertEquals(dbConfigureBtn, ppConfigureBtn, "[Failed][Config table] Configure button should be %s, but found %s.".formatted(ppConfigureBtn, dbConfigureBtn));
         logger.info("[UI][%s] Check Config table - Configure button.".formatted(language));
     }
 
@@ -355,31 +355,31 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check header - Go back to set up conversion unit page link text
         String dbGoBackToSetupConversionUnitPage = commonAction.getText(goBackToSetupConversionUnitLinkText);
         String ppGoBackToSetupConversionUnitPage = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.goBackToSetupConversionUnit", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToSetupConversionUnitPage, ppGoBackToSetupConversionUnitPage, "[Failed][Variation config page][Header] Go back to setup conversion unit page link text should be %s, but found %s.".formatted(ppGoBackToSetupConversionUnitPage, dbGoBackToSetupConversionUnitPage));
+        assertCustomize.assertEquals(dbGoBackToSetupConversionUnitPage, ppGoBackToSetupConversionUnitPage, "[Failed][Variation config page][Header] Go back to setup conversion unit page link text should be %s, but found %s.".formatted(ppGoBackToSetupConversionUnitPage, dbGoBackToSetupConversionUnitPage));
         logger.info("[UI][%s][Variation config page] Check Header - Go back to setup conversion unit page link text.".formatted(language));
 
         // check header - page title
         String dbPageTitle = commonAction.getText(setupVariationConversionUnitPageTitle);
         String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.pageTitle", language);
-        countFail = new AssertCustomize(driver).assertTrue(countFail, dbPageTitle.contains(ppPageTitle), "[Failed][Variation config page][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
+        assertCustomize.assertTrue(dbPageTitle.contains(ppPageTitle), "[Failed][Variation config page][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
         logger.info("[UI][%s][Variation config page] Check Header - Page title.".formatted(language));
 
         // check header - select unit button
         String dbSelectUnitBtn = commonAction.getText(selectUnitTextOnSetupVariationConversionUnit);
         String ppSelectUnitBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.header.selectUnitBtn", language);
-        countFail = new AssertCustomize(driver).assertTrue(countFail, dbSelectUnitBtn.equalsIgnoreCase(ppSelectUnitBtn), "[Failed][Variation config page][Header] Select Unit button should be %s, but found %s.".formatted(ppSelectUnitBtn, dbSelectUnitBtn));
+        assertCustomize.assertTrue(dbSelectUnitBtn.equalsIgnoreCase(ppSelectUnitBtn), "[Failed][Variation config page][Header] Select Unit button should be %s, but found %s.".formatted(ppSelectUnitBtn, dbSelectUnitBtn));
         logger.info("[UI][%s][Variation config page] Check Header - Select Unit button.".formatted(language));
 
         // check header - cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnSetupVariationConversionUnit);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.header.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][Variation config page][Header] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Variation config page][Header] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s][Variation config page] Check Header - Cancel button.".formatted(language));
 
         // check header - save button
         String dbSaveBtn = commonAction.getText(saveTextOnSetupVariationConversionUnit);
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.header.saveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Variation config page][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
+        assertCustomize.assertEquals(dbSaveBtn, ppSaveBtn, "[Failed][Variation config page][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s][Variation config page] Check Header - Save button.".formatted(language));
     }
 
@@ -388,13 +388,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
         List<String> dbConfigTableColumn = commonAction.getListElement(setupVariationConversionUnitTable).stream().map(WebElement::getText).toList();
         List<String> ppConfigTableColumn = List.of(getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.configTable.column.0", language),
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.configTable.column.1", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConfigTableColumn, ppConfigTableColumn, "[Failed][Variation config page][Config table] Config table column should be %s, but found %s.".formatted(ppConfigTableColumn, dbConfigTableColumn));
+        assertCustomize.assertEquals(dbConfigTableColumn, ppConfigTableColumn, "[Failed][Variation config page][Config table] Config table column should be %s, but found %s.".formatted(ppConfigTableColumn, dbConfigTableColumn));
         logger.info("[UI][%s][Variation config page] Check Config table - Config table column.".formatted(language));
 
         // check unit text box placeholder
         String dbInputUnitPlaceholder = commonAction.getAttribute(unitPlaceholderOnSetupVariationConversionUnitTable, "placeholder");
         String ppInputUnitPlaceholder = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.configTable.inputUnitPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbInputUnitPlaceholder, ppInputUnitPlaceholder, "[Failed][Variation config page][Config table] Input unit placeholder should be %s, but found %s.".formatted(ppInputUnitPlaceholder, dbInputUnitPlaceholder));
+        assertCustomize.assertEquals(dbInputUnitPlaceholder, ppInputUnitPlaceholder, "[Failed][Variation config page][Config table] Input unit placeholder should be %s, but found %s.".formatted(ppInputUnitPlaceholder, dbInputUnitPlaceholder));
         logger.info("[UI][%s][Variation config page] Check Config table - Input unit placeholder.".formatted(language));
 
 
@@ -404,13 +404,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
         // check search unit no result
         String dbSearchUnitNoResult = commonAction.getText(noResultTextOnSetupVariationConversionUnitTable);
         String ppSearchUnitNoResult = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.configTable.searchUnitNoResult", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSearchUnitNoResult, ppSearchUnitNoResult, "[Failed][Variation config page][Config table] Search unit no result should be %s, but found %s.".formatted(ppSearchUnitNoResult, dbSearchUnitNoResult));
+        assertCustomize.assertEquals(dbSearchUnitNoResult, ppSearchUnitNoResult, "[Failed][Variation config page][Config table] Search unit no result should be %s, but found %s.".formatted(ppSearchUnitNoResult, dbSearchUnitNoResult));
         logger.info("[UI][%s][Variation config page] Check Config table - Search unit no result.".formatted(language));
 
         // check Add button
         String dbAddBtn = commonAction.getText(addTextOnSetupVariationConversionUnitTable);
         String ppAddBtn = getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.configTable.addBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddBtn, ppAddBtn, "[Failed][Variation config page][Config table] Add button should be %s, but found %s.".formatted(ppAddBtn, dbAddBtn));
+        assertCustomize.assertEquals(dbAddBtn, ppAddBtn, "[Failed][Variation config page][Config table] Add button should be %s, but found %s.".formatted(ppAddBtn, dbAddBtn));
         logger.info("[UI][%s][Variation config page] Check Config table - Add button.".formatted(language));
 
         // clear unit text box
@@ -429,7 +429,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.aliasTable.column.8", language),
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.aliasTable.column.9", language),
                 getPropertiesValueByDBLang("products.allProducts.conversionUnit.configPage.variation.aliasTable.column.10", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAliasTable, ppAliasTable, "[Failed][Variation config page][Alias table] List column should be %s, but found %s.".formatted(ppAliasTable, dbAliasTable));
+        assertCustomize.assertEquals(dbAliasTable, ppAliasTable, "[Failed][Variation config page][Alias table] List column should be %s, but found %s.".formatted(ppAliasTable, dbAliasTable));
         logger.info("[UI][%s][Variation config page] Check Alias table - List column.".formatted(language));
     }
 }

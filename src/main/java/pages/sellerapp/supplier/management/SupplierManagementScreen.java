@@ -3,10 +3,10 @@ package pages.sellerapp.supplier.management;
 import api.dashboard.products.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import pages.sellerapp.login.LoginPage;
-import pages.sellerapp.supplier.update.UpdateSupplierScreen;
 import utilities.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.sellerApp.supplier.SupplierInformation;
@@ -23,7 +23,6 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     WebDriver driver;
     UICommonMobile commonMobile;
     AssertCustomize assertCustomize;
-    private static int countFail = 0;
     private final Logger logger = LogManager.getLogger();
 
     public SupplierManagementScreen(WebDriver driver) {
@@ -57,9 +56,9 @@ public class SupplierManagementScreen extends SupplierManagementElement {
             List<String> supNameList = commonMobile.getListElementText(SUPPLIER_NAME);
             checkResult = (numberOfMatches == supNameList.size()) && IntStream.range(0, supCodeList.size()).allMatch(i -> supNameList.get(i).contains(keywords) || supCodeList.get(i).contains(keywords));
         } else
-            checkResult = (commonMobile.getElements(SUPPLIER_NAME).size() == 0) && (commonMobile.getElements(SUPPLIER_CODE).size() == 0);
+            checkResult = (commonMobile.getElements(SUPPLIER_NAME).isEmpty()) && (commonMobile.getElements(SUPPLIER_CODE).isEmpty());
 
-        countFail = assertCustomize.assertTrue(countFail, checkResult, "[Failed][Supplier management screen] Result does not contains keywords, keywords: %s".formatted(keywords));
+        assertCustomize.assertTrue(checkResult, "[Failed][Supplier management screen] Result does not contains keywords, keywords: %s".formatted(keywords));
     }
 
     public void searchAndVerifySearchResult() {
@@ -94,24 +93,24 @@ public class SupplierManagementScreen extends SupplierManagementElement {
         checkSearchResult(keywords, allSupName, allSupCode);
     }
 
-    public void checkSupplierInformationAtSupplierManagementScreen(SupplierInformation supInfo) throws IOException {
+    public void checkSupplierInformationAtSupplierManagementScreen(SupplierInformation supInfo) {
         commonMobile.inputText(SEARCH_BOX, supInfo.getSupplierCode());
 
         // check supplier name
         String supName = commonMobile.getText(SUPPLIER_NAME).replaceAll(".*?:\\s", "");
-        countFail = assertCustomize.assertEquals(countFail, supName, supInfo.getSupplierName(),"[Failed][Supplier management screen] Supplier name should be %s, but found %s.".formatted(supName, supInfo.getSupplierName()));
+        assertCustomize.assertEquals(supName, supInfo.getSupplierName(),"[Failed][Supplier management screen] Supplier name should be %s, but found %s.".formatted(supName, supInfo.getSupplierName()));
 
         // check supplier code
         String supCode = commonMobile.getText(SUPPLIER_CODE).replaceAll(".*?:\\s", "");
-        countFail = assertCustomize.assertEquals(countFail, supCode, supInfo.getSupplierCode(),"[Failed][Supplier management screen] Supplier code should be %s, but found %s.".formatted(supCode, supInfo.getSupplierCode()));
+        assertCustomize.assertEquals(supCode, supInfo.getSupplierCode(),"[Failed][Supplier management screen] Supplier code should be %s, but found %s.".formatted(supCode, supInfo.getSupplierCode()));
 
         // check supplier email
         String supEmail = commonMobile.getText(SUPPLIER_EMAIL).replaceAll(".*?:\\s", "");
-        countFail = assertCustomize.assertEquals(countFail, supEmail, supInfo.getSupplierEmail(),"[Failed][Supplier management screen] Supplier email should be %s, but found %s.".formatted(supEmail, supInfo.getSupplierEmail()));
+        assertCustomize.assertEquals(supEmail, supInfo.getSupplierEmail(),"[Failed][Supplier management screen] Supplier email should be %s, but found %s.".formatted(supEmail, supInfo.getSupplierEmail()));
 
         // check supplier phone number
         String supPhone = commonMobile.getText(SUPPLIER_PHONE).replaceAll(".*?:\\s", "");
-        countFail = assertCustomize.assertEquals(countFail, supPhone, supInfo.getSupplierPhone(),"[Failed][Supplier management screen] Supplier phone number should be %s, but found %s.".formatted(supPhone, supInfo.getSupplierPhone()));
+        assertCustomize.assertEquals(supPhone, supInfo.getSupplierPhone(),"[Failed][Supplier management screen] Supplier phone number should be %s, but found %s.".formatted(supPhone, supInfo.getSupplierPhone()));
     }
 
     public SupplierManagementScreen deleteSupplier(String supplierCode) {
@@ -132,15 +131,13 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     public void verifySupplierIsDeleted(String supplierCode) {
         commonMobile.inputText(SEARCH_BOX, supplierCode);
 
-        countFail = assertCustomize.assertTrue(countFail, driver.findElements(SUPPLIER_CODE).size() == 0,"[Failed][Supplier management screen] Supplier is deleted but it still shows on supplier management list, supplier code: %s.".formatted(supplierCode));
+        assertCustomize.assertTrue(driver.findElements(SUPPLIER_CODE).isEmpty(),"[Failed][Supplier management screen] Supplier is deleted but it still shows on supplier management list, supplier code: %s.".formatted(supplierCode));
         logger.info("[Supplier management] Check deleted supplier.");
     }
 
     public void completeTest() {
-        int count = countFail + new UpdateSupplierScreen(driver).getCountFail();
-        if (count > 0) {
-            countFail = 0;
-            Assert.fail("[Failed] Fail %d cases".formatted(count));
+        if (assertCustomize.getCountFalse() > 0) {
+            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
         }
     }
 }

@@ -1,6 +1,6 @@
 import org.testng.annotations.*;
 import pages.dashboard.login.LoginPage;
-import pages.dashboard.products.supplier.function.crud.CRUDSupplierPage;
+import pages.dashboard.products.supplier.crud.CRUDSupplierPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;
@@ -19,7 +19,7 @@ public class UpdateSupplierTest extends BaseTest {
 
     /* Language : VIE */
     @Test
-    void UP_SUPPLIER_01_ViewSupplierDetail() throws Exception {
+    void UP_SUPPLIER_01_ViewSupplierDetail() {
         testCaseId = "UP_SUPPLIER_01";
         new CRUDSupplierPage(driver).setLanguage(language).checkSupplierInformation();
     }

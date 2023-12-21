@@ -7,7 +7,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.products.all_products.ProductPage;
 import utilities.UICommonAction;
@@ -30,7 +29,6 @@ public class WholesaleProductPage extends WholesaleProductElement {
     UICommonAction commonAction;
     WebDriver driver;
     WebDriverWait wait;
-    Actions act;
     Logger logger = LogManager.getLogger(WholesaleProductPage.class);
 
     private List<Long> wholesaleProductPrice;
@@ -39,15 +37,14 @@ public class WholesaleProductPage extends WholesaleProductElement {
     ProductPage productPage;
     List<String> variationList;
     Map<String, List<Integer>> productStockQuantity;
-    int countFail;
     String language;
     boolean hasModel;
+    AssertCustomize assertCustomize;
     List<Long> productSellingPrice;
     LoginInformation loginInformation;
 
     public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation) {
         this.driver = driver;
-        act = new Actions(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         this.loginInformation = loginInformation;
         productPage = new ProductPage(driver, loginInformation);
@@ -55,10 +52,10 @@ public class WholesaleProductPage extends WholesaleProductElement {
         productID = ProductPage.getProductID();
         variationList = ProductPage.getVariationList();
         productStockQuantity = ProductPage.getProductStockQuantity();
-        countFail = ProductPage.getCountFail();
         language = ProductPage.getLanguage();
         hasModel = ProductPage.isHasModel();
         productSellingPrice = ProductPage.getProductSellingPrice();
+        assertCustomize = ProductPage.getAssertCustomize();
     }
 
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {
@@ -117,7 +114,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         // wait and input price per item
         commonAction.sendKeys(withoutVariationWholesalePrice, String.valueOf(wholesaleProductPrice.get(0)));
-        logger.info("Input price per item: %s".formatted(wholesaleProductPrice.get(0)));
+        logger.info("Input price per item: %s".formatted(String.format("%,d", wholesaleProductPrice.get(0))));
 
         // open segment dropdown
         commonAction.click(withoutVariationSegmentDropdown);
@@ -206,7 +203,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
             // wait and input price per item
             commonAction.sendKeys(variationWholesalePrice, index, String.valueOf(wholesaleProductPrice.get(varIndex)));
-            logger.info("%s] Input price per item: %s.".formatted(value, wholesaleProductPrice.get(varIndex)));
+            logger.info("[%s] Input price per item: %s.".formatted(value, String.format("%,d", wholesaleProductPrice.get(varIndex))));
 
             // open segment dropdown
             commonAction.click(variationSegmentDropdown, index);
@@ -240,13 +237,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // check wholesale product information
         String dbWholesaleProductInformation = commonAction.getText(productPage.getNoWholesaleProductConfigText());
         String ppWholesaleProductInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.wholesaleProductInformation", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWholesaleProductInformation, ppWholesaleProductInformation, "[Failed][Wholesale config table] Wholesale product information should be %s, but found %s.".formatted(ppWholesaleProductInformation, dbWholesaleProductInformation));
+        assertCustomize.assertEquals(dbWholesaleProductInformation, ppWholesaleProductInformation, "[Failed][Wholesale config table] Wholesale product information should be %s, but found %s.".formatted(ppWholesaleProductInformation, dbWholesaleProductInformation));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale product information.".formatted(language));
 
         // check wholesale product configure button
         String dbWholesaleProductConfigBtn = commonAction.getText(productPage.getConfigureText());
         String ppWholesaleProductConfigBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.wholesaleProductConfigureBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWholesaleProductConfigBtn, ppWholesaleProductConfigBtn, "[Failed][Wholesale config table] Wholesale product configure button should be %s, but found %s.".formatted(ppWholesaleProductConfigBtn, dbWholesaleProductConfigBtn));
+        assertCustomize.assertEquals(dbWholesaleProductConfigBtn, ppWholesaleProductConfigBtn, "[Failed][Wholesale config table] Wholesale product configure button should be %s, but found %s.".formatted(ppWholesaleProductConfigBtn, dbWholesaleProductConfigBtn));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale product configure button.".formatted(language));
     }
 
@@ -267,20 +264,20 @@ public class WholesaleProductPage extends WholesaleProductElement {
             else throw new Exception("Can not navigate to Wholesale product page.");
         }
         String ppGoBackToProductDetailPage = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.goBackToProductDetail", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
+        assertCustomize.assertEquals(dbGoBackToProductDetailPage, ppGoBackToProductDetailPage, "[Failed][Header] Go back to product detail link text should be %s, but found %s.".formatted(ppGoBackToProductDetailPage, dbGoBackToProductDetailPage));
         logger.info("[UI][%s] Check Header - Go back to product detail.".formatted(language));
 
         if (hasModel) {
             // check page title
             String dbPageTitle = commonAction.getText(pageTitle);
             String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.pageTitle", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
+            assertCustomize.assertEquals(dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
             logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
             // check add variation button
             String dbAddVariationBtn = commonAction.getText(addVariationText);
             String ppAddVariationBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.addVariationBtn", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddVariationBtn, ppAddVariationBtn, "[Failed][Wholesale config table] Add variation button should be %s, but found %s.".formatted(ppAddVariationBtn, dbAddVariationBtn));
+            assertCustomize.assertEquals(dbAddVariationBtn, ppAddVariationBtn, "[Failed][Wholesale config table] Add variation button should be %s, but found %s.".formatted(ppAddVariationBtn, dbAddVariationBtn));
             logger.info("[UI][%s] Check Header - Add variation button.".formatted(language));
         } else {
             // check add wholesale pricing button
@@ -289,21 +286,21 @@ public class WholesaleProductPage extends WholesaleProductElement {
                 dbAddWholesalePricingBtn = commonAction.getText(withoutVariationAddWholeSalePricingText);
             }
             String ppAddWholesalePricingBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.withoutVariation.addWholesalePricingBtn", language);
-            countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Header] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
+            assertCustomize.assertEquals(dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Header] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
             logger.info("[UI][%s] Check Header - Add wholesale pricing button.".formatted(language));
         }
 
         // check save button
         String dbSaveBtn = commonAction.getText(saveText);
         String ppSaveBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.saveBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSaveBtn, ppSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
+        assertCustomize.assertEquals(dbSaveBtn, ppSaveBtn, "[Failed][Header] Save button should be %s, but found %s.".formatted(ppSaveBtn, dbSaveBtn));
         logger.info("[UI][%s] Check Header - Save button.".formatted(language));
 
         // check UI when no wholesale config
         String dbNoConfig = commonAction.getText(noConfigText);
         String ppNoConfig = hasModel ? getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.variation", language)
                 : getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.noConfig.withoutVariation", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbNoConfig, ppNoConfig, "[Failed][Wholesale config table] UI when no wholesale config should be %s, but found %s.".formatted(ppNoConfig, dbNoConfig));
+        assertCustomize.assertEquals(dbNoConfig, ppNoConfig, "[Failed][Wholesale config table] UI when no wholesale config should be %s, but found %s.".formatted(ppNoConfig, dbNoConfig));
         logger.info("[UI][%s] Check Wholesale config table - UI when no wholesale config.".formatted(language));
 
 
@@ -313,25 +310,25 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // check popup title
         String dbAddVariationPopupTitle = commonAction.getText(titleOfAddVariationPopup);
         String ppAddVariationPopupTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.title", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddVariationPopupTitle, ppAddVariationPopupTitle, "[Failed][Add variation popup] Title should be %s, but found %s.".formatted(ppAddVariationPopupTitle, dbAddVariationPopupTitle));
+        assertCustomize.assertEquals(dbAddVariationPopupTitle, ppAddVariationPopupTitle, "[Failed][Add variation popup] Title should be %s, but found %s.".formatted(ppAddVariationPopupTitle, dbAddVariationPopupTitle));
         logger.info("[UI][%s] Check Add variation popup - Title.".formatted(language));
 
         // check select all checkbox
         String dbSelectAllCheckbox = commonAction.getText(selectAllLabelOnAddVariationPopup);
         String ppSelectAllCheckbox = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.selectAllCheckbox", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSelectAllCheckbox, ppSelectAllCheckbox, "[Failed][ Add variation popup] Select all checkbox should be %s, but found %s.".formatted(ppSelectAllCheckbox, dbSelectAllCheckbox));
+        assertCustomize.assertEquals(dbSelectAllCheckbox, ppSelectAllCheckbox, "[Failed][ Add variation popup] Select all checkbox should be %s, but found %s.".formatted(ppSelectAllCheckbox, dbSelectAllCheckbox));
         logger.info("[UI][%s] Check Add variation popup - Select all checkbox.".formatted(language));
 
         // check OK button
         String dbOKBtn = commonAction.getText(okTextOnAddVariationPopup);
         String ppOKBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.okBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbOKBtn, ppOKBtn, "[Failed][Add variation popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
+        assertCustomize.assertEquals(dbOKBtn, ppOKBtn, "[Failed][Add variation popup] OK button should be %s, but found %s.".formatted(ppOKBtn, dbOKBtn));
         logger.info("[UI][%s] Check Add variation popup - OK button.".formatted(language));
 
         // check Cancel button
         String dbCancelBtn = commonAction.getText(cancelTextOnAddVariationPopup);
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.variation.addVariationPopup.cancelBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCancelBtn, ppCancelBtn, "[Failed][ Add variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
+        assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][ Add variation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Add variation popup - Cancel button.".formatted(language));
     }
 
@@ -339,7 +336,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // check page title
         String dbPageTitle = commonAction.getText(pageTitle);
         String ppPageTitle = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.pageTitle", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
+        assertCustomize.assertEquals(dbPageTitle, ppPageTitle, "[Failed][Header] Page title should be %s, but found %s.".formatted(ppPageTitle, dbPageTitle));
         logger.info("[UI][%s] Check Header - Page title.".formatted(language));
 
         // check wholesale config table
@@ -349,14 +346,14 @@ public class WholesaleProductPage extends WholesaleProductElement {
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.2", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.3", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.4", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbWholesaleConfigTable, ppWholesaleConfigTable, "[Failed][Wholesale config table] Wholesale config table column should be %s, but found %s.".formatted(ppWholesaleConfigTable, dbWholesaleConfigTable));
+        assertCustomize.assertEquals(dbWholesaleConfigTable, ppWholesaleConfigTable, "[Failed][Wholesale config table] Wholesale config table column should be %s, but found %s.".formatted(ppWholesaleConfigTable, dbWholesaleConfigTable));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale config table.".formatted(language));
 
         // check customer segment tooltips
         commonAction.click(withoutVariationSetupWholesalePriceTable, 4);
         String dbCustomerSegmentTooltips = commonAction.getText(segmentTooltips);
         String ppCustomerSegmentTooltips = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.segmentTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCustomerSegmentTooltips, ppCustomerSegmentTooltips, "[Failed][Wholesale config table] Customer segment tooltips should be %s, but found %s.".formatted(ppCustomerSegmentTooltips, dbCustomerSegmentTooltips));
+        assertCustomize.assertEquals(dbCustomerSegmentTooltips, ppCustomerSegmentTooltips, "[Failed][Wholesale config table] Customer segment tooltips should be %s, but found %s.".formatted(ppCustomerSegmentTooltips, dbCustomerSegmentTooltips));
         logger.info("[UI][%s] Check Wholesale config table - Customer segment tooltips.".formatted(language));
     }
 
@@ -364,13 +361,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // check search box placeholder
         String dbSearchBoxPlaceholder = commonAction.getAttribute(segmentSearchPlaceholder, "placeholder");
         String ppSearchBoxPlaceholder = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.segment.searchBoxPlaceholder", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbSearchBoxPlaceholder, ppSearchBoxPlaceholder, "[Failed][Wholesale config table] Segment search box placeholder should be %s, but found %s.".formatted(ppSearchBoxPlaceholder, dbSearchBoxPlaceholder));
+        assertCustomize.assertEquals(dbSearchBoxPlaceholder, ppSearchBoxPlaceholder, "[Failed][Wholesale config table] Segment search box placeholder should be %s, but found %s.".formatted(ppSearchBoxPlaceholder, dbSearchBoxPlaceholder));
         logger.info("[UI][%s] Check Wholesale config table - Segment search box placeholder.".formatted(language));
 
         // check all customer checkbox
         String dbAllCustomers = commonAction.getText(allCustomerTextInDropdown);
         String ppAllCustomers = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.segment.allCustomers", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAllCustomers, ppAllCustomers, "[Failed][Wholesale config table] Segment All customers checkbox should be %s, but found %s.".formatted(ppAllCustomers, dbAllCustomers));
+        assertCustomize.assertEquals(dbAllCustomers, ppAllCustomers, "[Failed][Wholesale config table] Segment All customers checkbox should be %s, but found %s.".formatted(ppAllCustomers, dbAllCustomers));
         logger.info("[UI][%s] Check Wholesale config table - Segment All customers checkbox.".formatted(language));
     }
 
@@ -378,19 +375,19 @@ public class WholesaleProductPage extends WholesaleProductElement {
         // check Add wholesale pricing button
         String dbAddWholesalePricingBtn = commonAction.getText(variationAddWholesalePricingText, 0);
         String ppAddWholesalePricingBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.addWholesalePricingBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Wholesale config table] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
+        assertCustomize.assertEquals(dbAddWholesalePricingBtn, ppAddWholesalePricingBtn, "[Failed][Wholesale config table] Add wholesale pricing button should be %s, but found %s.".formatted(ppAddWholesalePricingBtn, dbAddWholesalePricingBtn));
         logger.info("[UI][%s] Check Wholesale config table - Add wholesale pricing button.".formatted(language));
 
         // check Edit button
         String dbEditBtn = commonAction.getText(variationEditText, 0);
         String ppEditBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.editBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbEditBtn, ppEditBtn, "[Failed][Wholesale config table] Edit button should be %s, but found %s.".formatted(ppEditBtn, dbEditBtn));
+        assertCustomize.assertEquals(dbEditBtn, ppEditBtn, "[Failed][Wholesale config table] Edit button should be %s, but found %s.".formatted(ppEditBtn, dbEditBtn));
         logger.info("[UI][%s] Check Wholesale config table - Edit button.".formatted(language));
 
         // check Delete button
         String dbDeleteBtn = commonAction.getText(variationDeleteText, 0);
         String ppDeleteBtn = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.header.variation.deleteBtn", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbDeleteBtn, ppDeleteBtn, "[Failed][Wholesale config table] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
+        assertCustomize.assertEquals(dbDeleteBtn, ppDeleteBtn, "[Failed][Wholesale config table] Delete button should be %s, but found %s.".formatted(ppDeleteBtn, dbDeleteBtn));
         logger.info("[UI][%s] Check Wholesale config table - Delete button.".formatted(language));
 
         // check variation config table
@@ -400,14 +397,14 @@ public class WholesaleProductPage extends WholesaleProductElement {
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.2", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.3", language),
                 getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.tableColumn.4", language));
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbConfigTable, ppConfigTable, "[Failed][Wholesale config table] Variation config table column should be %s, but found %s.".formatted(ppConfigTable, dbConfigTable));
+        assertCustomize.assertEquals(dbConfigTable, ppConfigTable, "[Failed][Wholesale config table] Variation config table column should be %s, but found %s.".formatted(ppConfigTable, dbConfigTable));
         logger.info("[UI][%s] Check Wholesale config table - Variation config table.".formatted(language));
 
         // check customer segment tooltips
         commonAction.click(variationSetupWholesalePriceTable, 4);
         String dbCustomerSegmentTooltips = commonAction.getText(segmentTooltips);
         String ppCustomerSegmentTooltips = getPropertiesValueByDBLang("products.allProducts.wholesaleProduct.wholesaleConfig.segmentTooltips", language);
-        countFail = new AssertCustomize(driver).assertEquals(countFail, dbCustomerSegmentTooltips, ppCustomerSegmentTooltips, "[Failed][Wholesale config table] Customer segment tooltips should be %s, but found %s.".formatted(ppCustomerSegmentTooltips, dbCustomerSegmentTooltips));
+        assertCustomize.assertEquals(dbCustomerSegmentTooltips, ppCustomerSegmentTooltips, "[Failed][Wholesale config table] Customer segment tooltips should be %s, but found %s.".formatted(ppCustomerSegmentTooltips, dbCustomerSegmentTooltips));
         logger.info("[UI][%s] Check Wholesale config table - Customer segment tooltips.".formatted(language));
     }
 

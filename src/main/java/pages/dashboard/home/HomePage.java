@@ -41,7 +41,6 @@ public class HomePage {
     SoftAssert soft = new SoftAssert();
 
     Excel excel;
-    int countFailed = 0;
     AssertCustomize assertCustomize;
 
     final static Logger logger = LogManager.getLogger(HomePage.class);
@@ -410,17 +409,17 @@ public class HomePage {
 
     public Integer verifySalePitchPopupDisplay() {
         AssertCustomize assertCustomize = new AssertCustomize(driver);
-        countFailed = assertCustomize.assertTrue(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
-        if (countFailed ==0) {
+        assertCustomize.assertTrue(commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video show");
+        if (assertCustomize.getCountFalse() ==0) {
             logger.info("Sale pitch video is displayed");
         }
-        return countFailed;
+        return assertCustomize.getCountFalse();
     }
 
     public Integer verifySalePitchPopupNotDisplay() throws IOException {
         AssertCustomize assertCustomize = new AssertCustomize(driver);
-        countFailed = assertCustomize.assertFalse(countFailed, commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
-        return countFailed;
+        assertCustomize.assertFalse(commons.isElementDisplay(SALE_PITCH_POPUP), "Check Sale pitch video not show");
+        return assertCustomize.getCountFalse();
     }
 
     public boolean isMenuClicked(WebElement element) {
@@ -458,7 +457,7 @@ public class HomePage {
             WebElement element = commons.getElementByXpath(newXpath);
             isClicked = isMenuClicked(element);
         }
-        countFailed = assertCustomize.assertTrue(countFailed, isClicked, "Check Menu clickable");
+        assertCustomize.assertTrue(isClicked, "Check Menu clickable");
         verifySalePitchPopupNotDisplay();
         if (path.contains("intro") || path.contains("info")) {
             commons.waitForElementInvisible(SPINNER);
@@ -467,11 +466,11 @@ public class HomePage {
         if (pageName.equals("POS") || pageName.equals("Affiliate")) {
             commons.switchToWindow(1);
             commons.sleepInMiliSecond(1000);
-            countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of Page: " + pageName);
+            assertCustomize.assertEquals(commons.getCurrentURL(), DOMAIN + path, "Check URL of Page: " + pageName);
             commons.closeTab();
             commons.switchToWindow(0);
         } else {
-            countFailed = assertCustomize.assertEquals(countFailed, commons.getCurrentURL(), DOMAIN + path, "Check URL of page: " + pageName);
+            assertCustomize.assertEquals(commons.getCurrentURL(), DOMAIN + path, "Check URL of page: " + pageName);
             if (commons.getCurrentURL().contains("404")) {
                 commons.navigateBack();
                 logger.debug("Page show 404");
@@ -500,12 +499,12 @@ public class HomePage {
                 newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
             }
             commons.sleepInMiliSecond(1000);
-            countFailed = assertCustomize.assertFalse(countFailed, isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
+            assertCustomize.assertFalse(isMenuClicked(commons.getElementByXpath(newXpath)), "Check Menu not clickable: " + pageName);
             if (!pageName.equals("Landing Page") || !pageName.equals("Marketing")) {
                 commons.openNewTab();
                 commons.switchToWindow(1);
                 commons.navigateToURL(DOMAIN + path);
-                countFailed = assertCustomize.assertTrue(countFailed, commons.getCurrentURL().contains("/404"), "Check url 404: " + pageName);
+                assertCustomize.assertTrue(commons.getCurrentURL().contains("/404"), "Check url 404: " + pageName);
                 commons.closeTab();
                 commons.switchToWindow(0);
             } else {
@@ -582,11 +581,10 @@ public class HomePage {
     }
 
     public HomePage completeVerifyPermissionByPackage() {
-        logger.info("countFail = %s".formatted(countFailed));
-        if (countFailed > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(countFailed));
+        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+        if (assertCustomize.getCountFalse() > 0) {
+            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
         }
-        countFailed = 0;
         return this;
     }
 

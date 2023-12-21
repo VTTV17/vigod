@@ -2,7 +2,7 @@ import api.dashboard.login.Login;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.dashboard.login.LoginPage;
-import pages.dashboard.products.supplier.function.management.SupplierManagementPage;
+import pages.dashboard.products.supplier.management.SupplierManagementPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 

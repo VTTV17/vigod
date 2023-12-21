@@ -1,5 +1,6 @@
 package pages.sellerapp.supplier.update;
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
@@ -11,7 +12,6 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.data.DataGenerator;
 import utilities.model.sellerApp.supplier.SupplierInformation;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -22,8 +22,8 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
     WebDriver driver;
     AssertCustomize assertCustomize;
     UICommonMobile commonMobile;
+    @Getter
     private SupplierInformation supInfo;
-    private static int countFail = 0;
     private final static Logger logger = LogManager.getLogger();
     public UpdateSupplierScreen(WebDriver driver) {
         this.driver = driver;
@@ -368,11 +368,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         completeUpdateSupplier();
     }
 
-    public SupplierInformation getSupInfo() {
-        return supInfo;
-    }
-
-    public void checkAllSupplierInformation(SupplierInformation supInfo) throws IOException {
+    public void checkAllSupplierInformation(SupplierInformation supInfo) {
         // init supplier information
         this.supInfo = supInfo;
 
@@ -381,90 +377,90 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
 
         // check supplier name
         String supName = commonMobile.moveAndGetElement(SUPPLIER_NAME).getText();
-        countFail = assertCustomize.assertEquals(countFail, supName, supInfo.getSupplierName(),"[Failed][Supplier detail screen] Supplier name should be %s, but found %s.".formatted(supInfo.getSupplierName(), supName));
+        assertCustomize.assertEquals(supName, supInfo.getSupplierName(),"[Failed][Supplier detail screen] Supplier name should be %s, but found %s.".formatted(supInfo.getSupplierName(), supName));
         logger.info("[Supplier detail] Check supplier name.");
 
         // check supplier code
         String supCode = commonMobile.moveAndGetElement(SUPPLIER_CODE).getText();
-        countFail = assertCustomize.assertEquals(countFail, supCode, supInfo.getSupplierCode(),"[Failed][Supplier detail screen] Supplier code should be %s, but found %s.".formatted(supInfo.getSupplierCode(), supCode));
+        assertCustomize.assertEquals(supCode, supInfo.getSupplierCode(),"[Failed][Supplier detail screen] Supplier code should be %s, but found %s.".formatted(supInfo.getSupplierCode(), supCode));
         logger.info("[Supplier detail] Check supplier code.");
 
         // check supplier phone code
         String supPhoneCode = commonMobile.moveAndGetElement(SUPPLIER_PHONE_CODE).getText().replaceAll("[()]", "");
-        countFail = assertCustomize.assertEquals(countFail, supPhoneCode, supInfo.getSupplierPhoneCode(),"[Failed][Supplier detail screen] Supplier phone code should be %s, but found %s.".formatted(supInfo.getSupplierPhoneCode(), supPhoneCode));
+        assertCustomize.assertEquals(supPhoneCode, supInfo.getSupplierPhoneCode(),"[Failed][Supplier detail screen] Supplier phone code should be %s, but found %s.".formatted(supInfo.getSupplierPhoneCode(), supPhoneCode));
         logger.info("[Supplier detail] Check supplier phone code.");
 
         // check supplier phone number
         String supPhoneNumber = commonMobile.moveAndGetElement(SUPPLIER_PHONE).getText();
-        countFail = assertCustomize.assertEquals(countFail, supPhoneNumber, supInfo.getSupplierPhone(),"[Failed][Supplier detail screen] Supplier phone number should be %s, but found %s.".formatted(supInfo.getSupplierPhone(), supPhoneNumber));
+        assertCustomize.assertEquals(supPhoneNumber, supInfo.getSupplierPhone(),"[Failed][Supplier detail screen] Supplier phone number should be %s, but found %s.".formatted(supInfo.getSupplierPhone(), supPhoneNumber));
         logger.info("[Supplier detail] Check supplier phone number.");
 
         // check supplier mail
         String supEmail = commonMobile.moveAndGetElement(SUPPLIER_EMAIL).getText();
-        countFail = assertCustomize.assertEquals(countFail, supEmail, supInfo.getSupplierEmail(),"[Failed][Supplier detail screen] Supplier email should be %s, but found %s.".formatted(supInfo.getSupplierEmail(), supEmail));
+        assertCustomize.assertEquals(supEmail, supInfo.getSupplierEmail(),"[Failed][Supplier detail screen] Supplier email should be %s, but found %s.".formatted(supInfo.getSupplierEmail(), supEmail));
         logger.info("[Supplier detail] Check Supplier email.");
 
         // check country
         String country = commonMobile.moveAndGetElement(SELECTED_COUNTRY).getText();
-        countFail = assertCustomize.assertEquals(countFail, country, supInfo.getCountry(),"[Failed][Supplier detail screen] Country should be %s, but found %s.".formatted(supInfo.getCountry(), country));
+        assertCustomize.assertEquals(country, supInfo.getCountry(),"[Failed][Supplier detail screen] Country should be %s, but found %s.".formatted(supInfo.getCountry(), country));
         logger.info("[Supplier detail] Check Country.");
 
         // check address information
         if (supInfo.isVNSupplier()) {
             // check VN address
             String vnAddress = commonMobile.moveAndGetElement(VN_ADDRESS).getText();
-            countFail = assertCustomize.assertEquals(countFail, vnAddress, supInfo.getVnAddress(),"[Failed][Supplier detail screen] VN address should be %s, but found %s.".formatted(supInfo.getSupplierName(), vnAddress));
+            assertCustomize.assertEquals(vnAddress, supInfo.getVnAddress(),"[Failed][Supplier detail screen] VN address should be %s, but found %s.".formatted(supInfo.getSupplierName(), vnAddress));
             logger.info("[Supplier detail] Check VN address.");
 
             // check VN city
             String vnCity = commonMobile.moveAndGetElement(SELECTED_VN_CITY).getText();
-            countFail = assertCustomize.assertEquals(countFail, vnCity, supInfo.getVnCity(),"[Failed][Supplier detail screen] VN city should be %s, but found %s.".formatted(supInfo.getVnCity(), vnCity));
+            assertCustomize.assertEquals(vnCity, supInfo.getVnCity(),"[Failed][Supplier detail screen] VN city should be %s, but found %s.".formatted(supInfo.getVnCity(), vnCity));
             logger.info("[Supplier detail] Check VN city.");
 
             // check VN district
             String vnDistrict = commonMobile.moveAndGetElement(SELECTED_VN_DISTRICT).getText();
-            countFail = assertCustomize.assertEquals(countFail, vnDistrict, supInfo.getVnDistrict(),"[Failed][Supplier detail screen] VN district should be %s, but found %s.".formatted(supInfo.getVnDistrict(), vnDistrict));
+            assertCustomize.assertEquals(vnDistrict, supInfo.getVnDistrict(),"[Failed][Supplier detail screen] VN district should be %s, but found %s.".formatted(supInfo.getVnDistrict(), vnDistrict));
             logger.info("[Supplier detail] Check VN district.");
 
             // check VN ward
             String vnWard = commonMobile.moveAndGetElement(SELECTED_VN_WARD).getText();
-            countFail = assertCustomize.assertEquals(countFail, vnWard, supInfo.getVnWard(),"[Failed][Supplier detail screen] VN ward should be %s, but found %s.".formatted(supInfo.getVnWard(), vnWard));
+            assertCustomize.assertEquals(vnWard, supInfo.getVnWard(),"[Failed][Supplier detail screen] VN ward should be %s, but found %s.".formatted(supInfo.getVnWard(), vnWard));
             logger.info("[Supplier detail] Check VN ward.");
         } else {
             // check outside VN street address
             String streetAddress = commonMobile.moveAndGetElement(OUTSIDE_VN_STREET_ADDRESS).getText();
-            countFail = assertCustomize.assertEquals(countFail, streetAddress, supInfo.getOutsideVnStreetAddress(),"[Failed][Supplier detail screen] Outside VN street address should be %s, but found %s.".formatted(supInfo.getOutsideVnStreetAddress(), streetAddress));
+            assertCustomize.assertEquals(streetAddress, supInfo.getOutsideVnStreetAddress(),"[Failed][Supplier detail screen] Outside VN street address should be %s, but found %s.".formatted(supInfo.getOutsideVnStreetAddress(), streetAddress));
             logger.info("[Supplier detail] Check outside VN street address.");
 
             // check outside VN address2
             String address2 = commonMobile.moveAndGetElement(OUTSIDE_VN_ADDRESS2).getText();
-            countFail = assertCustomize.assertEquals(countFail, address2, supInfo.getOutsideVnAddress2(),"[Failed][Supplier detail screen] Outside VN address2 should be %s, but found %s.".formatted(supInfo.getOutsideVnAddress2(), address2));
+            assertCustomize.assertEquals(address2, supInfo.getOutsideVnAddress2(),"[Failed][Supplier detail screen] Outside VN address2 should be %s, but found %s.".formatted(supInfo.getOutsideVnAddress2(), address2));
             logger.info("[Supplier detail] Check outside VN address2.");
 
             // check outside VN state
             String state = commonMobile.moveAndGetElement(SELECTED_OUTSIDE_VN_STATE).getText();
-            countFail = assertCustomize.assertEquals(countFail, state, supInfo.getOutsideVnState(),"[Failed][Supplier detail screen] Outside VN state should be %s, but found %s.".formatted(supInfo.getOutsideVnState(), state));
+            assertCustomize.assertEquals(state, supInfo.getOutsideVnState(),"[Failed][Supplier detail screen] Outside VN state should be %s, but found %s.".formatted(supInfo.getOutsideVnState(), state));
             logger.info("[Supplier detail] Check outside VN state.");
 
             // check outside VN city
             String city = commonMobile.moveAndGetElement(OUTSIDE_VN_CITY).getText();
-            countFail = assertCustomize.assertEquals(countFail, city, supInfo.getOutsideVNCity(),"[Failed][Supplier detail screen] Outside VN city should be %s, but found %s.".formatted(supInfo.getOutsideVNCity(), city));
+            assertCustomize.assertEquals(city, supInfo.getOutsideVNCity(),"[Failed][Supplier detail screen] Outside VN city should be %s, but found %s.".formatted(supInfo.getOutsideVNCity(), city));
             logger.info("[Supplier detail] Check outside VN city.");
 
             // check outside VN zipcode
             String zipcode = commonMobile.moveAndGetElement(OUTSIDE_VN_ZIPCODE).getText();
-            countFail = assertCustomize.assertEquals(countFail, zipcode, supInfo.getOutsideVnZipCode(),"[Failed][Supplier detail screen] Outside VN zipcode should be %s, but found %s.".formatted(supInfo.getOutsideVnZipCode(), zipcode));
+            assertCustomize.assertEquals(zipcode, supInfo.getOutsideVnZipCode(),"[Failed][Supplier detail screen] Outside VN zipcode should be %s, but found %s.".formatted(supInfo.getOutsideVnZipCode(), zipcode));
             logger.info("[Supplier detail] Check outside VN zipcode.");
         }
 
         // check responsible staff
         String responsibleStaff = commonMobile.moveAndGetElement(SELECTED_RESPONSIBLE_STAFF).getText();
-        countFail = assertCustomize.assertEquals(countFail, responsibleStaff, supInfo.getResponsibleStaff(),"[Failed][Supplier detail screen] Responsible staff should be %s, but found %s.".formatted(supInfo.getResponsibleStaff(), responsibleStaff));
+        assertCustomize.assertEquals(responsibleStaff, supInfo.getResponsibleStaff(),"[Failed][Supplier detail screen] Responsible staff should be %s, but found %s.".formatted(supInfo.getResponsibleStaff(), responsibleStaff));
         logger.info("[Supplier detail] Check responsible staff.");
 
         // check description
         String description = commonMobile.moveAndGetElement(DESCRIPTION).getText();
-        countFail = assertCustomize.assertEquals(countFail, description, supInfo.getDescription(),"[Failed][Supplier detail screen] should be %s, but found %s.".formatted(supInfo.getDescription(), description));
+        assertCustomize.assertEquals(description, supInfo.getDescription(),"[Failed][Supplier detail screen] should be %s, but found %s.".formatted(supInfo.getDescription(), description));
         logger.info("[Supplier detail] Check description.");
     }
 
@@ -474,11 +470,5 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
 
         // confirm delete supplier
         commonMobile.getElement(CONFIRM_POPUP_OK_BTN, 10).click();
-    }
-
-    public int getCountFail() {
-        int temp = countFail;
-        countFail = 0;
-        return temp;
     }
 }
