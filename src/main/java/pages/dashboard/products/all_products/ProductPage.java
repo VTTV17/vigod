@@ -112,11 +112,11 @@ public class ProductPage extends ProductPageElement {
 
     /* Tien */
     public void clickPrintBarcode() {
-        if (commonAction.isElementVisiblyDisabled(PRINT_BARCODE_BTN.findElement(By.xpath("./parent::*")))) {
-            new HomePage(driver).isMenuClicked(PRINT_BARCODE_BTN);
+        if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnPrintBarcode).findElement(By.xpath("./parent::*")))) {
+            new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnPrintBarcode));
             return;
         }
-        commonAction.clickElement(PRINT_BARCODE_BTN);
+        commonAction.click(loc_btnPrintBarcode);
         logger.info("Clicked on 'Print Barcode' button.");
     }
 
@@ -379,7 +379,7 @@ public class ProductPage extends ProductPageElement {
         // upload product image
         for (String imgFile : imageFile) {
             Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/product_images/%s".formatted(imgFile).replace("/", File.separator)));
-            commonAction.sendKeys(productImage, filePath.toString());
+            commonAction.uploads(productImage, filePath.toString());
             logger.info("Upload images, file path: %s.".formatted(filePath));
         }
     }
@@ -576,7 +576,7 @@ public class ProductPage extends ProductPageElement {
 
         // input listing price
         commonAction.sendKeys(productListingPriceWithoutVariation, String.valueOf(productListingPrice.get(0)));
-        logger.info("Selling price: %s".formatted(productListingPrice.get(0)));
+        logger.info("Listing price: %s".formatted(productListingPrice.get(0)));
 
         // input selling price
         commonAction.sendKeys(productSellingPriceWithoutVariation, String.valueOf(productSellingPrice.get(0)));
@@ -601,7 +601,7 @@ public class ProductPage extends ProductPageElement {
             // open branch dropdown again
             commonAction.click(branchDropdownOnAddIMEIPopup);
 
-            if (commonAction.getListElement(selectAllBranchesCheckboxOnAddIMEIPopup).isEmpty())  {
+            if (commonAction.getListElement(selectAllBranchesCheckboxOnAddIMEIPopup).isEmpty()) {
                 commonAction.click(branchDropdownOnAddIMEIPopup);
             }
         }
@@ -692,7 +692,7 @@ public class ProductPage extends ProductPageElement {
 
     }
 
-    void addNormalStockForEachBranch(List<Integer> branchStock) throws Exception {
+    void addNormalStockForEachBranch(List<Integer> branchStock, int varIndex) throws Exception {
         // wait Update stock popup visible
         commonAction.getElement(loc_dlgUpdateStock);
 
@@ -703,7 +703,7 @@ public class ProductPage extends ProductPageElement {
         else commonAction.click(branchDropdownOnUpdateStockPopup);
 
         // check [UI] update stock popup
-        checkUpdateStockPopup();
+        if (varIndex == 0) checkUpdateStockPopup();
 
         // switch to change stock tab
         commonAction.click(changeTabOnUpdateStockPopup);
@@ -748,7 +748,7 @@ public class ProductPage extends ProductPageElement {
             addIMEIForEachBranch(null, productStockQuantity.get(null), 0);
         } else {
             // add stock for each branch
-            addNormalStockForEachBranch(productStockQuantity.get(null));
+            addNormalStockForEachBranch(productStockQuantity.get(null), 0);
         }
 
     }
@@ -859,7 +859,7 @@ public class ProductPage extends ProductPageElement {
             // input listing price
             long listingPrice = productListingPrice.get(varIndex);
             commonAction.sendKeysActions(listingPriceOnUpdatePricePopup, varIndex, String.valueOf(String.format("%,d", listingPrice)));
-            logger.info("[%s] Listing price: %s.".formatted(variation, String.format("%,d",listingPrice)));
+            logger.info("[%s] Listing price: %s.".formatted(variation, String.format("%,d", listingPrice)));
 
             // input selling price
             long sellingPrice = productSellingPrice.get(varIndex);
@@ -895,7 +895,7 @@ public class ProductPage extends ProductPageElement {
 
             if (manageByIMEI) {
                 addIMEIForEachBranch(variationList.get(varIndex), productStockQuantity.get(variationList.get(varIndex)), varIndex);
-            } else addNormalStockForEachBranch(productStockQuantity.get(variationList.get(varIndex)));
+            } else addNormalStockForEachBranch(productStockQuantity.get(variationList.get(varIndex)), varIndex);
         }
     }
 
@@ -940,7 +940,7 @@ public class ProductPage extends ProductPageElement {
             for (String imgFile : imageFile) {
                 Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"),
                         "/src/main/resources/uploadfile/product_images/%s".formatted(imgFile).replace("/", File.separator)));
-                commonAction.sendKeys(uploadBtnOnUpdateImagePopup, filePath.toString());
+                commonAction.uploads(uploadBtnOnUpdateImagePopup, filePath.toString());
                 logger.info("Upload images, file path: %s.".formatted(filePath));
             }
 
@@ -1036,12 +1036,24 @@ public class ProductPage extends ProductPageElement {
 
     void completeUpdateProduct() {
         // click Save button
-        commonAction.clickActions(saveBtn);
+        commonAction.clickJS(saveBtn);
 
         // wait notification popup visible
         commonAction.getElement(popup);
 
-        // end test if update product failed
+        // if update product failed, try again
+        if (commonAction.getListElement(failPopup).isEmpty()) {
+            // close update product failed popup
+            commonAction.click(closeBtnOnNotificationPopup);
+
+            // click Save button
+            commonAction.clickJS(saveBtn);
+
+            // wait notification popup visible
+            commonAction.getElement(popup);
+        }
+
+        // if that still failed, end test.
         Assert.assertTrue(commonAction.getListElement(failPopup).isEmpty(), "[Failed][Update product] Can not update product.");
 
         // close notification popup
@@ -1135,7 +1147,7 @@ public class ProductPage extends ProductPageElement {
         return this;
     }
 
-    public void changeVariationStatus() {
+    public void changeVariationStatus(int productID) {
         // update variation product name and description
         // get current product information
         productInfo = new ProductInformation(loginInformation).getInfo(productID);

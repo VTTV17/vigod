@@ -598,16 +598,17 @@ public class UICommonAction {
 
     public void sendKeys(By locator, CharSequence content) {
         try {
+            elementToBeClickable(locator);
             getElement(locator).clear();
             getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        } catch (InvalidArgumentException | ElementNotInteractableException ignore) {
+        } catch (InvalidArgumentException | InvalidElementStateException ignore) {
         } catch (StaleElementReferenceException ex) {
+            elementToBeClickable(locator);
             getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         }
         try {
-
             getElement(locator).sendKeys(content);
-        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
+        } catch (StaleElementReferenceException | InvalidElementStateException ex) {
             actions.moveToElement(getElement(locator)).click();
             actions.sendKeys(content);
         }
@@ -615,12 +616,32 @@ public class UICommonAction {
 
     public void sendKeys(By locator, int index, CharSequence content) {
         try {
+            elementToBeClickable(locator, index);
+            getElement(locator, index).clear();
             getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        } catch (InvalidArgumentException | ElementNotInteractableException ignore) {
+        } catch (InvalidArgumentException | InvalidElementStateException ignore) {
         } catch (StaleElementReferenceException ex) {
+            elementToBeClickable(locator, index);
+            getElement(locator, index).clear();
             getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         }
         getElement(locator, index).sendKeys(content);
+    }
+
+    public void uploads(By locator, CharSequence content) {
+        try {
+            getElement(locator).sendKeys(content);
+        } catch (StaleElementReferenceException ex) {
+            getElement(locator).sendKeys(content);
+        }
+    }
+
+    public void uploads(By locator, int index, CharSequence content) {
+        try {
+            getElement(locator, index).sendKeys(content);
+        } catch (StaleElementReferenceException ex) {
+            getElement(locator, index).sendKeys(content);
+        }
     }
 
     public void sendKeysActions(By locator, CharSequence content) {
@@ -742,6 +763,14 @@ public class UICommonAction {
 
     public void invisibilityOfElementLocated(By locator) {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
+
+    public void elementToBeClickable(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    public void elementToBeClickable(By locator, int index) {
+        wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
     }
 
     public void waitURLShouldBeContains(String path) {

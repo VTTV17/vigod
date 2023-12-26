@@ -48,11 +48,8 @@ public class ProductInformation {
     public boolean checkProductInfo(int productID, String manageInventoryType, boolean hasModel, boolean inStock, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         // get product response
         Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productID), loginInfo.getAccessToken());
-        if (res.statusCode() != 200) System.out.println(productID);
-        res.then().statusCode(200);
-
-        // get model type
-        return (res.jsonPath().getBoolean("isHideStock") == isHideStock)
+        return res.statusCode() == 200
+                && (res.jsonPath().getBoolean("isHideStock") == isHideStock)
                 & (res.jsonPath().getBoolean("showOutOfStock") == isDisplayIfOutOfStock)
                 & (((res.jsonPath().getInt("totalItem") - res.jsonPath().getInt("totalSoldItem")) > 0) == inStock)
                 & (res.jsonPath().getBoolean("hasModel") == hasModel)

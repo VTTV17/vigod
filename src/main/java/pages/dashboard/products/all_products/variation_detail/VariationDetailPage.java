@@ -82,7 +82,7 @@ public class VariationDetailPage extends VariationDetailElement {
         logger.info("[%s] Update successfully.".formatted(variation));
     }
 
-    void updateVariationTranslation(String languageCode, String languageName) throws Exception {
+    void updateVariationTranslation(String languageCode, String languageName, int langIndex) throws Exception {
         commonAction.click(btnEditTranslation);
         logger.info("[%s] Open edit translation popup.".formatted(variation));
 
@@ -111,7 +111,7 @@ public class VariationDetailPage extends VariationDetailElement {
         logger.info("[%s] Select language for translation: %s.".formatted(variation, languageName));
 
         // check [UI] Edit translation popup
-        checkUIEditTranslationPopup(uiLanguage);
+        if (langIndex == 0) checkUIEditTranslationPopup(uiLanguage);
 
         // add translation for variation name
         String name = "[Update][%s][%s] Product version name".formatted(languageCode, variation);
@@ -140,10 +140,10 @@ public class VariationDetailPage extends VariationDetailElement {
         List<String> langCodeList = new ArrayList<>(storeInfo.getStoreLanguageList());
         List<String> langNameList = new ArrayList<>(storeInfo.getStoreLanguageName());
         langCodeList.remove(storeInfo.getDefaultLanguage());
-        System.out.println(langCodeList);
-        System.out.println(langNameList);
-        for (String langCode : langCodeList)
-            updateVariationTranslation(langCode, langNameList.get(storeInfo.getStoreLanguageList().indexOf(langCode)));
+
+        for (int langIndex = 0; langIndex < langCodeList.size(); langIndex++) {
+            updateVariationTranslation(langCodeList.get(langIndex), langNameList.get(storeInfo.getStoreLanguageList().indexOf(langCodeList.get(langIndex))), langIndex);
+        }
     }
 
     public void changeVariationStatus(String status) {

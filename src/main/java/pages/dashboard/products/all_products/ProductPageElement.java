@@ -8,11 +8,11 @@ import org.openqa.selenium.support.FindBy;
 import java.util.List;
 
 public class ProductPageElement {
+    By completedPopup = By.cssSelector(".modal-success");
     By selectedLanguage = By.cssSelector(".language-selector .uik-select__valueWrapper");
     String languageLocator = "//*[@class = 'uik-select__label']/span[text()= '%s']";
     By createProductBtn = By.cssSelector(".product-list-page > div > div > div >  button.gs-button__green");
-    @FindBy(xpath = "(//div[contains(@class,'gs-content-header-right-el d-flex')]//button)[4]")
-    WebElement PRINT_BARCODE_BTN;
+    By loc_btnPrintBarcode = By.xpath("(//div[contains(@class,'gs-content-header-right-el d-flex')]//button)[4]");
     /* General product information */
     By productName = By.cssSelector("input#productName");
     By productDescription = By.cssSelector("div.fr-wrapper > div");
@@ -58,7 +58,7 @@ public class ProductPageElement {
     By branchStockWithoutVariation = By.cssSelector(".branch-list-stock__wrapper__row  input");
     By loc_dlgUpdateStock = By.cssSelector(".product-multiple-branch-stock_editor_modal");
     By loc_dlgAddIMEI = By.cssSelector(".managed-inventory-modal");
-    By branchDropdownOnAddIMEIPopup = By.cssSelector(".modal-body button.uik-select__valueRendered");
+    By branchDropdownOnAddIMEIPopup = By.cssSelector(".modal-body .uik-select__valueWrapper");
     By selectAllBranchesCheckboxOnAddIMEIPopup = By.cssSelector(".modal-body .uik-menuDrop__list > button:nth-child(1)  input");
     By textBoxOnAddIMEIPopup = By.cssSelector(".input-code input");
     By saveBtnOnAddIMEIPopup = By.cssSelector(".modal-footer > .gs-button__green");

@@ -16,7 +16,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.io.File;
 
 import static utilities.account.AccountTest.*;
-import static utilities.links.Links.DOMAIN;
 
 public class UpdateProductTest extends BaseTest {
     boolean isDisplayIfOutOfStock = true;
@@ -67,6 +66,7 @@ public class UpdateProductTest extends BaseTest {
         if (productID == 0)
             productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
+        System.out.println(productID);
     }
 
     @BeforeGroups(groups = "[UPDATE] IMEI product - Variation")
@@ -519,7 +519,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G3_10_ChangeVariationStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G3_10";
 
-        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus(productID);
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
@@ -720,7 +720,7 @@ public class UpdateProductTest extends BaseTest {
     void UP_PRODUCT_G4_10_ChangeVariationStatus() throws Exception {
         testCaseId = "UP_PRODUCT_G4_10";
 
-        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus();
+        new ProductPage(driver, loginInformation).setLanguage(language).changeProductStatus("ACTIVE", productID).changeVariationStatus(productID);
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
