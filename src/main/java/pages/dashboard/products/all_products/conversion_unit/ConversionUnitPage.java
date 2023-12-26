@@ -65,7 +65,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             logger.info("Not support conversion unit for product managed by IMEI/Serial at this time.");
         else {
             // click Configure button
-            commonAction.click(productPage.getConfigureConversionUnitBtn());
+            commonAction.clickJS(productPage.getConfigureConversionUnitBtn());
 
             // hide Facebook bubble
             commonAction.removeFbBubble();

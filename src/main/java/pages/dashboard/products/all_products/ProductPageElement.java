@@ -127,13 +127,13 @@ public class ProductPageElement {
     By okBtnOnConfirmPopup = By.cssSelector(".modal-footer .gs-button__green");
     /* UI text element */
     /* Header */
-    By goBackToProductListText = By.cssSelector(".page-toolbar [href='/product/list']");
+    By goBackToProductListText = By.xpath("//a[@href='/product/list' and not(@name)]");
     By pageTitleText = By.cssSelector(".gss-content-header .gs-page-title");
-    By editTranslationText = By.xpath("//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/preceding-sibling::button");
-    By saveText = By.cssSelector(".gss-content-header .gs-button__green");
-    By deactivateText = By.cssSelector(".gss-content-header .gs-button__yellow--outline");
-    By deleteText = By.cssSelector(".gss-content-header .gs-button__red--outline");
-    By cancelText = By.xpath("//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/following-sibling::button[contains(@class, 'gs-button__gray--outline')]");
+    By editTranslationText = By.xpath("//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/preceding-sibling::button/div");
+    By saveText = By.cssSelector(".gss-content-header .gs-button__green > div");
+    By deactivateText = By.cssSelector(".gss-content-header .gs-button__yellow--outline > div");
+    By deleteText = By.cssSelector(".gss-content-header .gs-button__red--outline > div");
+    By cancelText = By.xpath("//div[contains(@class, 'gss-content-header ')]/descendant::button[contains(@class,'btn-save')]/following-sibling::button[contains(@class, 'gs-button__gray--outline')]/div");
     /* Product information */
     By productInformationLabel = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(1) > .gs-widget__header > h3");
     By productNameLabel = By.cssSelector("[for = productName]");
@@ -270,14 +270,11 @@ public class ProductPageElement {
     By seoURLLabel = By.xpath("(//*[@name= 'seoUrl']/parent::div/preceding-sibling::div[1]//span)[1]");
     /* Sale chanel */
     By saleChannelLabel = By.cssSelector("[class $= --n2] > div:nth-child(1) h3");
-    By onlineShopIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[1]");
-    By onlineShopTooltips = By.cssSelector("#tippy-tooltip-6 .tippy-tooltip-content");
-    By gomuaIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[2]");
-    By gomuaTooltips = By.cssSelector("#tippy-tooltip-7 .tippy-tooltip-content");
-    By shopeeIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[3]");
-    By shopeeTooltips = By.cssSelector("#tippy-tooltip-8 .tippy-tooltip-content");
-    By tiktokIcon = By.xpath("(//*[@class = 'gs-component-tooltip'])[4]");
-    By tiktokTooltips = By.cssSelector("#tippy-tooltip-9 .tippy-tooltip-content");
+    By allSaleChannelTooltips = By.cssSelector(".tippy-tooltip-content");
+    By onlineShopIcon = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[1]");
+    By gomuaIcon = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[2]");
+    By shopeeIcon = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[3]");
+    By tiktokIcon = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[4]");
     /* Collections */
     By collectionsLabel = By.cssSelector("[class $= --n2] > div:nth-child(2) h3");
     By searchCollectionPlaceholder = By.cssSelector(".product-form-collection-selector2 input");

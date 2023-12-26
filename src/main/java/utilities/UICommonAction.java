@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -29,7 +30,7 @@ public class UICommonAction {
 
     public UICommonAction(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         actions = new Actions(driver);
     }
 
@@ -655,27 +656,12 @@ public class UICommonAction {
     }
 
     public String getText(By locator) {
-        String content;
-        do {
-            try {
-                content = getElement(locator).getText();
-            } catch (StaleElementReferenceException | TimeoutException ignore) {
-                return getElement(locator).getText();
-            }
-            if (!content.isEmpty()) return content;
-        } while (true);
+        String textContent = getElement(locator).getText();
+        return !textContent.isEmpty() ? textContent : getText(locator);
     }
-
     public String getText(By locator, int index) {
-        String content;
-        do {
-            try {
-                content = getElement(locator, index).getText();
-            } catch (StaleElementReferenceException ignore) {
-                return getElement(locator, index).getText();
-            }
-            if (!content.isEmpty()) return content;
-        } while (true);
+        String textContent = getElement(locator, index).getText();
+        return !textContent.isEmpty() ? textContent : getText(locator, index);
     }
 
     public String getValue(By locator) {
@@ -759,6 +745,10 @@ public class UICommonAction {
 
     public void visibilityOfElementLocated(By locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public void visibilityOfElementLocated(By locator, int index) {
+        wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
     }
 
     public void invisibilityOfElementLocated(By locator) {

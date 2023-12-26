@@ -322,6 +322,9 @@ public class ProductPage extends ProductPageElement {
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productID)));
 
+        // refresh page
+        driver.navigate().refresh();
+
         // clear old conversion unit config
         if (commonAction.isCheckedJS(addConversionUnitCheckbox)) {
             commonAction.clickJS(addConversionUnitCheckbox);
@@ -345,11 +348,30 @@ public class ProductPage extends ProductPageElement {
         // click Save button
         commonAction.clickJS(saveBtn);
 
+        // wait notification popup visible
+        commonAction.getElement(popup);
+
+        // if update product failed, try again
+        if (!commonAction.getListElement(failPopup).isEmpty()) {
+            // close update product failed popup
+            commonAction.click(closeBtnOnNotificationPopup);
+
+            // click Save button
+            commonAction.clickJS(saveBtn);
+
+            // wait notification popup visible
+            commonAction.getElement(popup);
+        }
+
+        // if that still failed, end test.
+        Assert.assertTrue(commonAction.getListElement(failPopup).isEmpty(), "[Failed][Update product] Can not remove old conversion unit/wholesale pricing config.");
+
         // close notification popup
         commonAction.clickJS(closeBtnOnNotificationPopup);
+        logger.info("Close notification popup.");
 
-        // refresh page
-        driver.navigate().refresh();
+        // wait Notification popup invisible
+        commonAction.invisibilityOfElementLocated(popup);
 
         // hide Facebook bubble
         commonAction.removeFbBubble();
@@ -1042,7 +1064,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.getElement(popup);
 
         // if update product failed, try again
-        if (commonAction.getListElement(failPopup).isEmpty()) {
+        if (!commonAction.getListElement(failPopup).isEmpty()) {
             // close update product failed popup
             commonAction.click(closeBtnOnNotificationPopup);
 
@@ -1347,9 +1369,9 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Product name.".formatted(language));
 
         // check product name error
-        commonAction.click(productName);
+        commonAction.clickActions(productName);
         commonAction.getElement(productName).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        commonAction.click(productDescription);
+        commonAction.clickActions(productDescription);
         String dbProductNameError = commonAction.getText(productBlankErrorMessage);
         String ppProductNameError = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.productNameError", language);
         assertCustomize.assertEquals(dbProductNameError, ppProductNameError, "[Failed][Body] Product name error should be %s, but found %s.".formatted(ppProductNameError, dbProductNameError));
@@ -1954,32 +1976,50 @@ public class ProductPage extends ProductPageElement {
 
         // check Online shop tooltips
         commonAction.hoverActions(onlineShopIcon);
-        String dbOnlineShopTooltips = commonAction.getText(onlineShopTooltips);
+        List<String> allSaleChannelTooltips = new ArrayList<>();
+        for (WebElement webElement : commonAction.getListElement(this.allSaleChannelTooltips)) {
+            String text = webElement.getText();
+            allSaleChannelTooltips.add(text);
+        }
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
-        assertCustomize.assertEquals(dbOnlineShopTooltips, ppOnlineShopTooltips, "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, dbOnlineShopTooltips));
+        assertCustomize.assertTrue(allSaleChannelTooltips.contains(ppOnlineShopTooltips), "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, allSaleChannelTooltips));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
         // check Gomua tooltips
         commonAction.hoverActions(gomuaIcon);
-        String dbGomuaTooltips = commonAction.getText(gomuaTooltips);
+        try {
+            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
+        } catch (StaleElementReferenceException ex) {
+            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
+        }
         String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
-        assertCustomize.assertEquals(dbGomuaTooltips, ppGomuaTooltips, "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, dbGomuaTooltips));
+        assertCustomize.assertTrue(allSaleChannelTooltips.contains(ppGomuaTooltips), "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, allSaleChannelTooltips.toString()));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
         commonAction.hoverActions(shopeeIcon);
-        String dbShopeeTooltips = commonAction.getText(shopeeTooltips);
+        try {
+            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
+        } catch (StaleElementReferenceException ex) {
+            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
+        }
         List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedShopeeTooltips", language));
-        assertCustomize.assertTrue(ppShopeeTooltips.contains(dbShopeeTooltips), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips, dbShopeeTooltips));
+        List<String> joinShopeeList = allSaleChannelTooltips.stream().filter(ppShopeeTooltips::contains).toList();
+        assertCustomize.assertFalse(joinShopeeList.isEmpty(), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips.toString(), allSaleChannelTooltips.toString()));
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
         commonAction.hoverActions(tiktokIcon);
-        String dbTiktokTooltips = commonAction.getText(tiktokTooltips);
+        try {
+            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
+        } catch (StaleElementReferenceException ex) {
+            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
+        }
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
-        assertCustomize.assertTrue(ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips, dbTiktokTooltips));
+        List<String> joinTiktokList = allSaleChannelTooltips.stream().filter(ppTiktokTooltips::contains).toList();
+        assertCustomize.assertFalse(joinTiktokList.isEmpty(), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), allSaleChannelTooltips.toString()));
         logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
 
@@ -2184,7 +2224,8 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check View remaining stock popup - No select branch error.".formatted(language));
 
         // close view remaining stock popup
-        commonAction.clickJS(closeBtnOnRemainingPopup);
+        commonAction.click(closeBtnOnRemainingPopup);
+        logger.info("Close remaining popup.");
 
         // wait invisible remaining stock
         commonAction.invisibilityOfElementLocated(popup);
