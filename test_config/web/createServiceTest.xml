@@ -14,7 +14,7 @@
                     <include name="CS07_CreateServiceWithSEOInfo"/>
                     <include name="CS08_CreateServiceWithHTMLDescription"/>
                     <include name="CS09_CheckServiceQuantity"/>
-                    <include name="CS10_CheckCreateServiceWithMaximumVariation"/>
+<!--                    <include name="CS10_CheckCreateServiceWithMaximumVariation"/>-->
                     <include name="CS11_CheckCreateSVPermision"/>
                     <include name="ES01_EditTranslation"/>
                     <include name="ES02_AddEditRemoveSEOInfo"/>

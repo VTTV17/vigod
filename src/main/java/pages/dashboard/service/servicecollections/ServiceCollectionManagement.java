@@ -15,9 +15,6 @@ import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
-import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
-import pages.dashboard.service.CreateServicePage;
-import pages.dashboard.service.ServiceManagementPage;
 import utilities.UICommonAction;
 
 public class ServiceCollectionManagement {
@@ -91,8 +88,8 @@ public class ServiceCollectionManagement {
 		if (!clicked){
 			throw new Exception("Service collection %s not found".formatted(collectionName));
 		}
-		new HomePage(driver).waitTillSpinnerDisappear();
-		commonAction.sleepInMiliSecond(1000);
+		new HomePage(driver).waitTillSpinnerDisappear1();
+//		commonAction.sleepInMiliSecond(1000);
 		logger.info("Go to collection: "+collectionName);
 		return new EditServiceCollection(driver);
 	}
@@ -129,7 +126,7 @@ public class ServiceCollectionManagement {
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}
-	public ServiceCollectionManagement waitToUpdateAutomatedCollection(int second){
+	public ServiceCollectionManagement waitToUpdateCollection(int second){
 		commonAction.sleepInMiliSecond(1000*second);
 		return this;
 	}

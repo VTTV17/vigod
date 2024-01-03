@@ -71,7 +71,7 @@ public class CreateProductCollection extends HomePage {
     }
 
     public CreateProductCollection navigate(String languageDashboard) throws Exception {
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         navigateToPage("Products", "Product Collections");
         HomePage home = new HomePage(driver);
         home.selectLanguage(languageDashboard);
@@ -289,7 +289,7 @@ public class CreateProductCollection extends HomePage {
         clickOnSaveBTN();
         logger.info("Create manual collection without SEO, no priority successfully.");
         clickOnClose();
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         return new ProductCollectionManagement(driver);
     }
 
@@ -303,7 +303,7 @@ public class CreateProductCollection extends HomePage {
         clickOnSaveBTN();
         clickOnClose();
         logger.info("Create manual collection without SEO, has priority successfully.");
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         return new ProductCollectionManagement(driver);
     }
 
@@ -316,7 +316,7 @@ public class CreateProductCollection extends HomePage {
         clickOnSaveBTN();
         logger.info("Create manual collection with SEO info successfully.");
         clickOnClose();
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         return new ProductCollectionManagement(driver);
     }
 
@@ -411,7 +411,7 @@ public class CreateProductCollection extends HomePage {
         clickOnSaveBTN();
         logger.info("Create Automated collection without SEO info successfully.");
         clickOnClose();
-        waitTillSpinnerDisappear();
+        waitTillSpinnerDisappear1();
         return new ProductCollectionManagement(driver);
     }
     /**

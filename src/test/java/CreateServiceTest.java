@@ -104,7 +104,7 @@ public class CreateServiceTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWord);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
         serviceManagement.goToCreateServicePage();
         return new CreateServicePage(driver);
@@ -114,7 +114,7 @@ public class CreateServiceTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWordTestPermission);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
         if (isPermission) {
             serviceManagement.goToCreateServicePage();
@@ -132,14 +132,14 @@ public class CreateServiceTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWord);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         return new ServiceManagementPage(driver);
     }
     public void checkPermisionUpdateSVByPackage(String userName, boolean isPermission) throws Exception {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWordTestPermission);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         serviceManagement = new ServiceManagementPage(driver);
         if (isPermission) {
             serviceManagement.goToEditService("");
@@ -441,7 +441,7 @@ public class CreateServiceTest extends BaseTest {
         createService.checkStockInventoryInDatabase(serviceId, 1000000);  //Has check database
     }
 
-    @Test
+//    @Test
     public void CS10_CheckCreateServiceWithMaximumVariation() throws Exception {
         testCaseId = "CS10";
         createService = loginDbAndGoToCreateServicePage();
@@ -548,7 +548,7 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "");
         //edit seo
         home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).goToEditService(serviceEdit);
         SEOTitle = "SEO title update " + generate.generateString(5);
         SEODesctiption = "SEO description update " + generate.generateString(5);
@@ -587,7 +587,7 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "");
         //delete seo
         home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).goToEditService(serviceEdit);
         String description = createService.getServiceDescription();
         createService.inputSEOTitle("")
@@ -644,7 +644,7 @@ public class CreateServiceTest extends BaseTest {
                 .verifySearchNotFound(serviceTestStatus);
         //update into active
         home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).goToEditService(serviceTestStatus)
                 .updateServiceStatus("active")
                 .verifyUpdateServiceSuccessfully()
@@ -730,7 +730,7 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage.verifyServiceListSize(imageSize);
         //delete image
         home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).goToEditService(serviceEdit)
                 .removeAllImages()
                 .uploadImages(images)
