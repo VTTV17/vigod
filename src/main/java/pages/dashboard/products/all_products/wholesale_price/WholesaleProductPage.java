@@ -145,43 +145,43 @@ public class WholesaleProductPage extends WholesaleProductElement {
     }
 
     /* Variation config */
-    List<String> selectVariation() throws Exception {
+    void selectVariation(String variation) {
+        By locator = By.xpath(variationLocator.formatted(variation));
+        commonAction.clickJS(locator);
+
+        if (!commonAction.isCheckedJS(locator)) selectVariation(variation);
+
+    }
+
+    List<String> addConfigureForVariation() throws Exception {
         List<String> variationSaleList = new ArrayList<>();
         for (int varIndex = 0; varIndex < numOfWholesaleProduct; varIndex++) {
-            // open Add variation popup
-            commonAction.click(variationAddVariationBtn);
-            logger.info("Open select variation popup on wholesale config page.");
+            // get variation
+            String variation = variationList.get(varIndex).replace(" ", "|");
 
-            // wait popup visible
-            try {
-                commonAction.getElement(addVariationPopup);
-                logger.info("Wait select variation popup visible.");
-            } catch (TimeoutException ex) {
-                logger.info(ex);
-                commonAction.click(variationAddVariationBtn);
-                logger.info("Open select variation popup on wholesale config page.");
-                commonAction.getElement(addVariationPopup);
-                logger.info("Wait select variation popup visible again.");
-            }
+            // open Add variation popup
+            commonAction.openPopupJS(variationAddVariationBtn, addVariationPopup);
+            logger.info("Open select variation popup on wholesale config page.");
 
             // check [UI] Add variation popup
             if (varIndex == 0) checkAddVariationPopup();
 
             // select variation
-            commonAction.clickJS(listVariationCheckboxOnAddVariationPopup, varIndex);
+            selectVariation(variation);
+            logger.info("Add new wholesale pricing configure for '%s' variation.".formatted(variation));
 
             // close Add variation popup
-            commonAction.click(okBtnOnAddVariationPopup);
+            commonAction.closePopup(okBtnOnAddVariationPopup);
 
             // add variation to sale list
-            variationSaleList.add("%s,".formatted(variationList.get(varIndex).replace(" ", "|")));
+            variationSaleList.add("%s,".formatted(variation));
         }
         return variationSaleList;
     }
 
     public void addWholesaleProductVariation() throws Exception {
         // get list variation has wholesale pricing config
-        List<String> variationSaleList = selectVariation();
+        List<String> variationSaleList = addConfigureForVariation();
 
         // add config for each variation
         for (int index = 0; index < variationSaleList.size(); index++) {

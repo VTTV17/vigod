@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -19,6 +18,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 public class UICommonAction {
 
@@ -429,7 +430,7 @@ public class UICommonAction {
 
     public void sleepInMiliSecond(long miliSecond) {
         try {
-            Thread.sleep(miliSecond);
+            sleep(miliSecond);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -521,11 +522,19 @@ public class UICommonAction {
     }
 
     public WebElement getElement(By by) {
-        return wait.until(ExpectedConditions.presenceOfElementLocated(by));
+        try {
+            return wait.until(ExpectedConditions.presenceOfElementLocated(by));
+        } catch (StaleElementReferenceException ex) {
+            return wait.until(ExpectedConditions.presenceOfElementLocated(by));
+        }
     }
 
     public WebElement getElement(By by, int index) {
-        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by)).get(index);
+        try {
+            return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by)).get(index);
+        } catch (StaleElementReferenceException ex) {
+            return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by)).get(index);
+        }
     }
 
     /*
@@ -554,11 +563,19 @@ public class UICommonAction {
     }
 
     public void clickJS(By locator) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
+        } catch (StaleElementReferenceException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
+        }
     }
 
     public void clickJS(By locator, int index) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+        } catch (StaleElementReferenceException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+        }
     }
 
     public void clickActions(By locator) {
@@ -600,12 +617,13 @@ public class UICommonAction {
     public void sendKeys(By locator, CharSequence content) {
         try {
             elementToBeClickable(locator);
-            getElement(locator).clear();
-            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+            clear(locator);
+            clearBySendKeys(locator);
         } catch (InvalidArgumentException | InvalidElementStateException ignore) {
         } catch (StaleElementReferenceException ex) {
             elementToBeClickable(locator);
-            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+            clear(locator);
+            clearBySendKeys(locator);
         }
         try {
             getElement(locator).sendKeys(content);
@@ -618,13 +636,13 @@ public class UICommonAction {
     public void sendKeys(By locator, int index, CharSequence content) {
         try {
             elementToBeClickable(locator, index);
-            getElement(locator, index).clear();
-            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+            clear(locator, index);
+            clearBySendKeys(locator, index);
         } catch (InvalidArgumentException | InvalidElementStateException ignore) {
         } catch (StaleElementReferenceException ex) {
             elementToBeClickable(locator, index);
-            getElement(locator, index).clear();
-            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+            clear(locator, index);
+            clearBySendKeys(locator, index);
         }
         getElement(locator, index).sendKeys(content);
     }
@@ -656,11 +674,22 @@ public class UICommonAction {
     }
 
     public String getText(By locator) {
-        String textContent = getElement(locator).getText();
+        String textContent = "";
+        try {
+            textContent = getElement(locator).getText();
+        } catch (StaleElementReferenceException ignore) {
+        }
+
         return !textContent.isEmpty() ? textContent : getText(locator);
     }
+
     public String getText(By locator, int index) {
-        String textContent = getElement(locator, index).getText();
+        String textContent = "";
+        try {
+            textContent = getElement(locator, index).getText();
+        } catch (StaleElementReferenceException ignore) {
+        }
+
         return !textContent.isEmpty() ? textContent : getText(locator, index);
     }
 
@@ -703,7 +732,7 @@ public class UICommonAction {
     public void clear(By locator) {
         try {
             getElement(locator).clear();
-        } catch (TimeoutException | StaleElementReferenceException ex) {
+        } catch (StaleElementReferenceException ex) {
             logger.info(ex);
             getElement(locator).clear();
         }
@@ -712,9 +741,27 @@ public class UICommonAction {
     public void clear(By locator, int index) {
         try {
             getElement(locator, index).clear();
-        } catch (TimeoutException | StaleElementReferenceException ex) {
+        } catch (StaleElementReferenceException ex) {
             logger.info(ex);
             getElement(locator, index).clear();
+        }
+    }
+
+    public void clearBySendKeys(By locator) {
+        try {
+            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        } catch (StaleElementReferenceException ex) {
+            logger.info(ex);
+            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        }
+    }
+
+    public void clearBySendKeys(By locator, int index) {
+        try {
+            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
+        } catch (StaleElementReferenceException ex) {
+            logger.info(ex);
+            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
         }
     }
 
@@ -760,7 +807,11 @@ public class UICommonAction {
     }
 
     public void elementToBeClickable(By locator, int index) {
-        wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
+        }
     }
 
     public void waitURLShouldBeContains(String path) {
@@ -770,5 +821,76 @@ public class UICommonAction {
             return driver.getCurrentUrl().contains(path);
         });
 
+    }
+
+    /* Click and wait popup closed.*/
+    public void closePopup(By locator) {
+        try {
+            clickJS(locator);
+            sleep(200);
+        } catch (StaleElementReferenceException | NoSuchElementException | InterruptedException ignore) {
+        }
+
+        if (!getListElement(locator).isEmpty()) {
+            System.out.println("num: " + driver.findElements(locator).size());
+            closePopup(locator);
+        }
+    }
+
+    /* Click and wait popup opened.*/
+    public void openPopupJS(By locator, By popup) {
+        try {
+            clickJS(locator);
+            System.out.println("OPEN");
+            sleep(500);
+        } catch (StaleElementReferenceException | InterruptedException ignore) {
+        }
+
+        if (getListElement(popup).isEmpty()) openPopupJS(locator, popup);
+    }
+
+    public void openPopupJS(By locator, int index, By popup) {
+        try {
+            clickJS(locator, index);
+            sleep(500);
+        } catch (StaleElementReferenceException | InterruptedException ignore) {
+        }
+
+        if (getListElement(popup).isEmpty()) openPopupJS(locator, index, popup);
+    }
+
+    public void openDropdownJS(By locator, By dropdown) {
+        try {
+            clickJS(locator);
+            sleep(200);
+        } catch (StaleElementReferenceException | InterruptedException ignore) {
+        }
+
+        if (getListElement(dropdown).isEmpty()) openDropdownJS(locator, dropdown);
+    }
+
+    public void openDropdownJS(By locator, int index, By dropdown) {
+        try {
+            clickJS(locator, index);
+            sleep(200);
+        } catch (StaleElementReferenceException | InterruptedException ignore) {
+        }
+
+        if (getListElement(dropdown).isEmpty()) openDropdownJS(locator, index, dropdown);
+    }
+
+    public void closeDropdown(By locator, By dropdown) {
+        try {
+            clickJS(locator);
+            sleep(200);
+        } catch (StaleElementReferenceException | InterruptedException ignore) {
+        }
+
+        if (!getListElement(dropdown).isEmpty()) closeDropdown(locator, dropdown);
+    }
+
+    public void viewTooltips(By locator, By tooltips) {
+        hoverActions(locator);
+        if (getListElement(tooltips).isEmpty()) hoverActions(locator);
     }
 }

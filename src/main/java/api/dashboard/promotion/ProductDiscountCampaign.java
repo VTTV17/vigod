@@ -292,6 +292,7 @@ public class ProductDiscountCampaign {
     }
 
     DiscountCampaignInfo getInfo(int campaignID, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
+        logger.info("CampaignId: %s.".formatted(campaignID));
         // GET discount campaign information by API
         Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL_PATH.formatted(campaignID), loginInfo.getAccessToken())
                 .then()
@@ -319,8 +320,17 @@ public class ProductDiscountCampaign {
         Map<String, List<Integer>> conditionValueMap = new HashMap<>();
         for (int conditionID = 0; conditionID < conditionType.size(); conditionID++) {
             List<Integer> conditionValueList = new ArrayList<>();
-            for (int valueID = 0; valueID < json.getList("discounts[0].conditions[%s].values.id".formatted(conditionID)).size(); valueID++)
-                conditionValueList.add(json.getInt("discounts[0].conditions[%s].values[%s].conditionValue".formatted(conditionID, valueID)));
+            for (int valueID = 0; valueID < json.getList("discounts[0].conditions[%s].values.id".formatted(conditionID)).size(); valueID++) {
+                Integer conditionValue;
+                // ignore payment method condition
+                try {
+                    conditionValue = json.getInt("discounts[0].conditions[%s].values[%s].conditionValue".formatted(conditionID, valueID));
+                } catch (NumberFormatException ex) {
+                    conditionValue = null;
+                }
+                if (conditionValue != null) conditionValueList.add(conditionValue);
+            }
+
             conditionValueMap.put(conditionType.get(conditionID), conditionValueList);
         }
 

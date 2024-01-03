@@ -66,7 +66,7 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("[UI][%s] Check Header - Store Logo".formatted(language));
 
         // check header menu
-        List<String> sfHeaderMenu = commonAction.getListElement(loc_mnuHeaderMenu).stream().map(WebElement::getText).toList();
+        List<String> sfHeaderMenu = IntStream.range(0, commonAction.getListElement(loc_mnuHeaderMenu).size()).mapToObj(index -> commonAction.getText(loc_mnuHeaderMenu, index)).toList();
         List<String> defaultMenu = List.of(getPropertiesValueBySFLang("header.menu.vnStore.0", storeInfo.getDefaultLanguage()), getPropertiesValueBySFLang("header.menu.vnStore.1", storeInfo.getDefaultLanguage()));
         assertCustomize.assertEquals(sfHeaderMenu, defaultMenu, "[Failed][Header] Header menu should be %s, but found %s.".formatted(defaultMenu, sfHeaderMenu));
         logger.info("[UI][%s] Check Header - Menu".formatted(language));
@@ -642,7 +642,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         commonAction.clickJS(By.cssSelector(variationDropdownLocator.formatted(index + 1)));
                         logger.info("Open variation dropdown %s.".formatted(index));
 
-                        commonAction.click(By.xpath(variationValueLocator.formatted(var)));
+                        commonAction.clickJS(By.xpath(variationValueLocator.formatted(var)));
                         logger.info("Select variation: %s.".formatted(var));
 
                         // check variation is selected or not

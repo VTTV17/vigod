@@ -16,7 +16,7 @@ public class WholesaleProductElement {
     /* Variation config */
     By variationAddVariationBtn = By.cssSelector(".wholesale-btn-group-header > .gs-button__gray--outline");
     By addVariationPopup = By.cssSelector(".modal-content");
-    By listVariationCheckboxOnAddVariationPopup = By.cssSelector(".product-list input");
+    String variationLocator = "//*[text() = '%s']//ancestor::label/input";
     By okBtnOnAddVariationPopup = By.cssSelector(".footer-btn .gs-button__green");
     By variationAddWholesalePricingBtn = By.cssSelector(".border-bottom > .wholesale-group-header .gs-fake-link:nth-child(1)");
     By variationValue = By.cssSelector(".border-bottom > .wholesale-group-header > div > div");

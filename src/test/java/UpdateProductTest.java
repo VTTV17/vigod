@@ -66,7 +66,6 @@ public class UpdateProductTest extends BaseTest {
         if (productID == 0)
             productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
-        System.out.println(productID);
     }
 
     @BeforeGroups(groups = "[UPDATE] IMEI product - Variation")
@@ -92,7 +91,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -112,7 +111,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -133,7 +132,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -154,7 +153,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -225,7 +224,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -246,7 +245,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -267,7 +266,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -288,7 +287,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateWithoutVariationProduct(branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -359,7 +358,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -381,7 +380,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -403,7 +402,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -425,7 +424,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -448,7 +447,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -470,7 +469,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -561,7 +560,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -583,7 +582,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -605,7 +604,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -627,7 +626,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -649,7 +648,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
@@ -671,7 +670,7 @@ public class UpdateProductTest extends BaseTest {
         new ProductPage(driver, loginInformation).setLanguage(language).navigateToUpdateProductPage(productID)
                 .setShowOutOfStock(isDisplayIfOutOfStock)
                 .updateVariationProduct(increaseNum, branchStock)
-                .configConversionUnit()
+//                .configConversionUnit()
                 .configWholesaleProduct();
 
         productInfo = new ProductInformation(loginInformation).getInfo(productID);

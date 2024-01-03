@@ -13,7 +13,7 @@ import java.util.List;
 public class SegmentAPI {
 	final static Logger logger = LogManager.getLogger(SegmentAPI.class);
 	
-    String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=100&name.contains=&sort=id,desc";
+    String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=50&name.contains=";
     String DELETE_SEGMENT_PATH = "/beehiveservices/api/segments/delete/%s/%s";
     API api = new API();
 

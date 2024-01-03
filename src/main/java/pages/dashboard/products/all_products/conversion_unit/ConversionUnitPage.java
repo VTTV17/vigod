@@ -81,6 +81,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         if (!ProductPage.isManageByIMEI()) {
             // click Select Unit button
             commonAction.click(withoutVariationSelectUnitBtn);
+            logger.info("Add new conversion unit.");
 
             // check [UI] config table
             checkWithoutVariationConfigTable();
@@ -95,14 +96,23 @@ public class ConversionUnitPage extends ConversionUnitElement {
             String unitName = unitNameList.isEmpty() ? unit.createConversionUnitAndGetName() : unitNameList.get(nextInt(unitNameList.size()));
             commonAction.sendKeys(unitTextBoxOnSetupVariationConversionUnitPage, unitName);
             commonAction.click(By.xpath(unitLocator.formatted(unitName)));
+            logger.info("Select conversion unit: %s.".formatted(unitName));
 
             // input conversion unit quantity
             long quantity = Math.min(Math.max(Collections.max(ProductPage.getProductStockQuantity().get(null)), 1), MAX_PRICE / ProductPage.getProductListingPrice().get(0));
             commonAction.sendKeys(withoutVariationQuantity, String.valueOf(quantity));
+            logger.info("Conversion unit quantity: %s.".formatted(quantity));
 
             // click Save button
             commonAction.click(withoutVariationSaveBtn);
         }
+    }
+
+    void selectVariation(String variation) {
+        By locator = By.xpath(variationLocator.formatted(variation));
+        commonAction.clickJS(locator);
+
+        if (!commonAction.isCheckedJS(locator)) selectVariation(variation);
     }
 
     /* Variation config */
@@ -114,36 +124,29 @@ public class ConversionUnitPage extends ConversionUnitElement {
             // select variation
             for (int varIndex = 0; varIndex < numberOfConversionUnit; varIndex++) {
                 // open Select Variation popup
-                commonAction.click(selectVariationBtn);
+                commonAction.openPopupJS(selectVariationBtn, selectVariationPopup);
                 logger.info("Open select variation popup.");
-
-                // wait Select Variation popup visible
-                commonAction.sleepInMiliSecond(2000);
-                commonAction.getElement(selectVariationPopup);
 
                 // get variation
                 String variation = variationList.get(varIndex);
 
                 // select variation
-                commonAction.clickJS(variationOptions, varIndex);
-                commonAction.sleepInMiliSecond(100);
-
+                selectVariation(variation);
                 logger.info("Select variation: %s.".formatted(variation));
 
                 // check [UI] select variation popup
                 if (varIndex == 0) checkSelectVariationPopup();
 
                 // close Add variation popup
-                commonAction.click(saveBtnOnSelectVariationPopup);
-
-                // wait until select variation popup invisible
-                commonAction.invisibilityOfElementLocated(selectVariationPopup);
+                commonAction.closePopup(saveBtnOnSelectVariationPopup);
+                logger.info("Close Select variation popup.");
 
                 // check [UI] variation config table
                 if (varIndex == 0) checkVariationConfigTable();
 
                 // add conversion unit configuration for variation
                 commonAction.clickJS(variationConfigureBtn, varIndex);
+                logger.info("Navigation to configure conversion unit for variation page.");
 
                 // check [UI] variation config page
                 if (varIndex == 0) checkVariationConfigPageHeader();
@@ -163,10 +166,12 @@ public class ConversionUnitPage extends ConversionUnitElement {
                 // select conversion unit
                 commonAction.sendKeys(withoutVariationUnitTextBox, unitName);
                 commonAction.click(By.xpath(unitLocator.formatted(unitName)));
+                logger.info("[%s] Select conversion unit: %s.".formatted(variation, unitName));
 
                 // input conversion unit quantity
                 long quantity = MAX_PRICE / ProductPage.getProductListingPrice().get(varIndex);
                 commonAction.sendKeys(quantityOnSetupVariationConversionUnitPage, String.valueOf(quantity));
+                logger.info("[%s] Conversion unit quantity: %s.".formatted(variation, quantity));
 
                 // click Save button on variation config
                 commonAction.click(saveBtnOnSetupVariationConversionUnitPage);

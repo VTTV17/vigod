@@ -42,8 +42,9 @@ public class ProductPageElement {
     By deleteBtn = By.cssSelector(".gss-content-header .gs-button__red--outline");
     By okBtnOnConfirmDeletePopup = By.cssSelector(".modal-footer .gs-button__green");
     By popup = By.cssSelector(".modal-content");
+    By loc_dlgNotification = By.cssSelector("[data-sherpherd='tour-guide-alert-modal']");
     By failPopup = By.cssSelector(".modal-danger");
-    By closeBtnOnNotificationPopup = By.cssSelector(".modal-footer > button");
+    By closeBtnOnNotificationPopup = By.cssSelector("[data-testid='closeBtn']");
     By seoTitle = By.cssSelector("input#seoTitle");
     By seoDescription = By.cssSelector("input#seoDescription");
     By seoKeywords = By.cssSelector("input#seoKeywords");
@@ -66,6 +67,7 @@ public class ProductPageElement {
     By addVariationBtn = By.cssSelector("div:nth-child(4) > div.gs-widget__header > span");
     By variationName = By.cssSelector("div.first-item > div > div > input");
     By variationValue = By.cssSelector(".second-item .css-nwjfc > input");
+    String variationLocator = "//div[text()='%s']";
     By selectAllCheckboxOnVariationTable = By.cssSelector(".product-form-variation-selector__table  th:nth-child(1) input");
     By selectActionLinkTextOnVariationTable = By.cssSelector("th .gs-fake-link");
     /**
@@ -100,6 +102,9 @@ public class ProductPageElement {
     By PRINT_BARCODE_MODAL = By.cssSelector(".modal-content.product-list-barcode-printer");
     @FindBy(xpath = "//input[@class='uik-checkbox__checkbox' and @name='enabledListing']/ancestor::div[contains(@class,'uik-widget__wrapper')]/following-sibling::*/div[1]//span")
     WebElement ADD_DEPOSIT_BTN;
+    By loc_dlgEditTranslation = By.cssSelector(".modal.fade.show");
+    By loc_dlgEditTranslation_selectedLanguage = By.cssSelector(".product-translate .text-truncate");
+    String str_dlgEditTranslation_languageInDropdown = "//*[@class = 'uik-select__label']//*[text()='%s']";
     By productNameOnEditTranslationPopup = By.cssSelector("#informationName");
     By productDescriptionOnEditTranslationPopup = By.cssSelector(".modal-body .fr-element");
     By variationNameOnEditTranslationPopup = By.xpath("//*[@class = 'product-translate-modal']/*[@class = 'product-translate__titleBody']/h3/parent::div/following-sibling::div[@class]/div[1]/descendant::input");
@@ -109,6 +114,8 @@ public class ProductPageElement {
     By seoKeywordsOnEditTranslationPopup = By.cssSelector(".modal-body #seoKeywords");
     By seoURLOnEditTranslationPopup = By.cssSelector(".modal-body #seoUrl");
     By saveBtnOnEditTranslationPopup = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_dlgToast = By.cssSelector(".Toastify__toast--success");
+    By loc_dlgEditTranslation_icnClose = By.cssSelector(".modal.fade.show .close");
     By addConversionUnitCheckbox = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
     @Getter
     By addWholesalePricingCheckbox = By.cssSelector(".uik-checkbox__wrapper > [name='enabledListing']");

@@ -270,7 +270,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.clickJS(selectedLanguage);
 
             // select language
-            commonAction.click(By.xpath(languageLocator.formatted(language)));
+            commonAction.clickJS(By.xpath(languageLocator.formatted(language)));
 
             // log
             logger.info("New language: %s.".formatted(language));
@@ -329,49 +329,36 @@ public class ProductPage extends ProductPageElement {
         if (commonAction.isCheckedJS(addConversionUnitCheckbox)) {
             commonAction.clickJS(addConversionUnitCheckbox);
         }
+        logger.info("Remove old conversion unit config.");
 
         // delete old wholesale product config if any
         if (commonAction.isCheckedJS(addWholesalePricingCheckbox)) {
             // uncheck add wholesale pricing checkbox to delete old wholesale config
-            commonAction.clickJS(addWholesalePricingCheckbox);
-
-            // wait confirm popup visible
-            commonAction.getElement(confirmPopup);
+            commonAction.openPopupJS(addWholesalePricingCheckbox, confirmPopup);
 
             // confirm delete old wholesale config
-            commonAction.click(okBtnOnConfirmPopup);
-
-            // wait confirm popup invisible
-            commonAction.invisibilityOfElementLocated(confirmPopup);
+            commonAction.closePopup(okBtnOnConfirmPopup);
         }
+        logger.info("Remove old wholesale pricing config.");
 
-        // click Save button
-        commonAction.clickJS(saveBtn);
-
-        // wait notification popup visible
-        commonAction.getElement(popup);
+        // save changes
+        commonAction.openPopupJS(saveBtn, loc_dlgNotification);
 
         // if update product failed, try again
         if (!commonAction.getListElement(failPopup).isEmpty()) {
             // close update product failed popup
-            commonAction.click(closeBtnOnNotificationPopup);
+            commonAction.closePopup(closeBtnOnNotificationPopup);
 
-            // click Save button
-            commonAction.clickJS(saveBtn);
-
-            // wait notification popup visible
-            commonAction.getElement(popup);
+            // save changes
+            commonAction.openPopupJS(saveBtn, loc_dlgNotification);
         }
 
         // if that still failed, end test.
         Assert.assertTrue(commonAction.getListElement(failPopup).isEmpty(), "[Failed][Update product] Can not remove old conversion unit/wholesale pricing config.");
 
         // close notification popup
-        commonAction.clickJS(closeBtnOnNotificationPopup);
+        commonAction.closePopup(closeBtnOnNotificationPopup);
         logger.info("Close notification popup.");
-
-        // wait Notification popup invisible
-        commonAction.invisibilityOfElementLocated(popup);
 
         // hide Facebook bubble
         commonAction.removeFbBubble();
@@ -402,7 +389,7 @@ public class ProductPage extends ProductPageElement {
         for (String imgFile : imageFile) {
             Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/product_images/%s".formatted(imgFile).replace("/", File.separator)));
             commonAction.uploads(productImage, filePath.toString());
-            logger.info("Upload images, file path: %s.".formatted(filePath));
+            logger.info("[Upload image popup] Upload images, file path: %s.".formatted(filePath));
         }
     }
 
@@ -597,66 +584,45 @@ public class ProductPage extends ProductPageElement {
         else productSellingPrice.add(nextLong(productListingPrice.get(0)));
 
         // input listing price
-        commonAction.sendKeys(productListingPriceWithoutVariation, String.valueOf(productListingPrice.get(0)));
-        logger.info("Listing price: %s".formatted(productListingPrice.get(0)));
+        commonAction.sendKeysActions(productListingPriceWithoutVariation, String.valueOf(productListingPrice.get(0)));
+        logger.info("Listing price: %s".formatted(String.format("%,d", productListingPrice.get(0))));
 
         // input selling price
-        commonAction.sendKeys(productSellingPriceWithoutVariation, String.valueOf(productSellingPrice.get(0)));
-        logger.info("Selling price: %s".formatted(productSellingPrice.get(0)));
+        commonAction.sendKeysActions(productSellingPriceWithoutVariation, String.valueOf(productSellingPrice.get(0)));
+        logger.info("Selling price: %s".formatted(String.format("%,d", productSellingPrice.get(0))));
 
         // input cost price
-        commonAction.sendKeys(productCostPriceWithoutVariation, String.valueOf((long) (Math.random() * productSellingPrice.get(0))));
+        commonAction.sendKeysActions(productCostPriceWithoutVariation, String.valueOf((long) (Math.random() * productSellingPrice.get(0))));
     }
 
     void addIMEIForEachBranch(String variationValue, List<Integer> branchStock, int varIndex) throws Exception {
-        // wait Update stock popup visible
-        commonAction.getElement(loc_dlgAddIMEI);
-
         // select all branches
-        try {
-            // open branch dropdown
-            commonAction.click(branchDropdownOnAddIMEIPopup);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
+        commonAction.openDropdownJS(branchDropdownOnAddIMEIPopup, selectAllBranchesCheckboxOnAddIMEIPopup);
+        logger.info("[Add IMEI popup] Open all branches dropdown.");
 
-            // open branch dropdown again
-            commonAction.click(branchDropdownOnAddIMEIPopup);
-
-            if (commonAction.getListElement(selectAllBranchesCheckboxOnAddIMEIPopup).isEmpty()) {
-                commonAction.click(branchDropdownOnAddIMEIPopup);
-            }
-        }
-
-        if (!commonAction.getElement(selectAllBranchesCheckboxOnAddIMEIPopup).isSelected()) {
+        if (!commonAction.isCheckedJS(selectAllBranchesCheckboxOnAddIMEIPopup))
             commonAction.clickJS(selectAllBranchesCheckboxOnAddIMEIPopup);
-        } else {
-            try {
-                // close branch dropdown
-                commonAction.click(branchDropdownOnAddIMEIPopup);
-            } catch (StaleElementReferenceException ex) {
-                // log error
-                logger.info(ex);
+        else commonAction.closeDropdown(branchDropdownOnAddIMEIPopup, selectAllBranchesCheckboxOnAddIMEIPopup);
+        logger.info("[Add IMEI popup] Select all branches.");
 
-                // close branch dropdown again
-                commonAction.click(branchDropdownOnAddIMEIPopup);
-            }
-        }
         // check [UI] add IMEI popup
         if (varIndex == 0) checkAddIMEIPopup();
 
         // input IMEI/Serial number for each branch
         for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
+            String brName = brInfo.getActiveBranches().get(brIndex);
             int brStockIndex = brInfo.getBranchName().indexOf(brInfo.getActiveBranches().get(brIndex));
             for (int i = 0; i < branchStock.get(brStockIndex); i++) {
                 String imei = "%s%s_IMEI_%s_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", brInfo.getActiveBranches().get(brIndex), epoch, i);
                 commonAction.sendKeys(textBoxOnAddIMEIPopup, brIndex, imei);
                 logger.info("Input IMEI: %s.".formatted(imei));
             }
+            logger.info("%s[%s] Add IMEI, stock: %s.".formatted(variationValue == null ? "" : "[%s]".formatted(variationValue), brName, branchStock));
         }
 
         // save IMEI/Serial number
         commonAction.click(saveBtnOnAddIMEIPopup);
+        logger.info("Close Add IMEI popup.");
     }
 
     public void inputWithoutVariationStock(int... branchStockQuantity) throws Exception {
@@ -670,59 +636,33 @@ public class ProductPage extends ProductPageElement {
         productStockQuantity.put(null, IntStream.range(0, brInfo.getBranchName().size()).mapToObj(i -> (branchStockQuantity.length > i) ? (brInfo.getActiveBranches().contains(brInfo.getBranchName().get(i)) ? branchStockQuantity[i] : 0) : 0).toList());
 
         /* input stock for each branch */
-        // handle StaleElementReferenceException exception
-        try {
-            // open Add IMEI/Serial number popup
-            commonAction.click(branchStockWithoutVariation, 0);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
-
-            // open Add IMEI/Serial number popup again
-            commonAction.click(branchStockWithoutVariation, 0);
-        }
         if (manageByIMEI) {
+            // open add IMEI popup
+            commonAction.openPopupJS(branchStockWithoutVariation, 0, loc_dlgAddIMEI);
+            logger.info("Open Add IMEI popup.");
+
             // add IMEI/Serial number for each branch
             addIMEIForEachBranch(null, productStockQuantity.get(null), 0);
+            logger.info("Complete add stock for IMEI product.");
+
         } else {
-            // handle StaleElementReference exception
-            // clear old stock value
-            // handle StaleElementReference exception
-            IntStream.range(0, brInfo.getActiveBranches().size()).forEach(brIndex -> {
-                try {
-                    // clear old stock value
-                    commonAction.clear(branchStockWithoutVariation, brIndex);
-                } catch (StaleElementReferenceException ex) {
-                    // log error
-                    logger.info(ex);
-
-                    // clear old stock value again
-                    commonAction.clear(branchStockWithoutVariation, brIndex);
-                }
-                try {
-                    // input stock
-                    commonAction.sendKeys(branchStockWithoutVariation, brIndex, String.valueOf(productStockQuantity.get(null).get(brIndex)));
-                } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
-                    // log error
-                    logger.info(ex);
-
-                    // input stock
-                    commonAction.sendKeys(branchStockWithoutVariation, brIndex, String.valueOf(productStockQuantity.get(null).get(brIndex)));
-                }
-            });
+            // update stock for normal product
+            IntStream.range(0, brInfo.getActiveBranches().size()).forEach(brIndex -> commonAction.sendKeys(branchStockWithoutVariation, brIndex, String.valueOf(productStockQuantity.get(null).get(brIndex))));
+            logger.info("Complete update stock for Normal product.");
         }
 
     }
 
     void addNormalStockForEachBranch(List<Integer> branchStock, int varIndex) throws Exception {
-        // wait Update stock popup visible
-        commonAction.getElement(loc_dlgUpdateStock);
+        // select all branches
+        commonAction.openDropdownJS(branchDropdownOnUpdateStockPopup, selectAllBranchesCheckboxOnUpdateStockPopup);
+        logger.info("[Update stock popup] Open all branches dropdown.");
 
         // select all branches
-        commonAction.click(branchDropdownOnUpdateStockPopup);
         if (!commonAction.isCheckedJS(selectAllBranchesCheckboxOnUpdateStockPopup))
             commonAction.clickJS(selectAllBranchesCheckboxOnUpdateStockPopup);
-        else commonAction.click(branchDropdownOnUpdateStockPopup);
+        else commonAction.closeDropdown(branchDropdownOnUpdateStockPopup, selectAllBranchesCheckboxOnUpdateStockPopup);
+        logger.info("[Update stock popup] Select all branches.");
 
         // check [UI] update stock popup
         if (varIndex == 0) checkUpdateStockPopup();
@@ -731,15 +671,19 @@ public class ProductPage extends ProductPageElement {
         commonAction.click(changeTabOnUpdateStockPopup);
 
         // input stock quantity to visible stock input field
-        commonAction.sendKeys(quantityTextBoxOnUpdateStockPopup, String.valueOf(Collections.max(branchStock) + 1));
+        int stock = Collections.max(branchStock) + 1;
+        commonAction.sendKeys(quantityTextBoxOnUpdateStockPopup, String.valueOf(stock));
 
         // input stock for each branch
         for (int brIndex = brInfo.getActiveBranches().size() - 1; brIndex >= 0; brIndex--) {
-            int brStockIndex = brInfo.getBranchName().indexOf(brInfo.getActiveBranches().get(brIndex));
-            commonAction.sendKeys(stockQuantityTextBoxOnUpdateStockPopup, String.valueOf(brStockIndex));
+            String brName = brInfo.getActiveBranches().get(brIndex);
+            int brStockIndex = brInfo.getBranchName().indexOf(brName);
+            commonAction.sendKeys(stockQuantityTextBoxOnUpdateStockPopup, brIndex, String.valueOf(branchStock.get(brStockIndex)));
+            logger.info("%s[%s] Input stock: %s.".formatted(variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, branchStock.get(brStockIndex)));
         }
         // close Update stock popup
-        commonAction.clickActions(updateBtnOnPopup);
+        commonAction.click(updateBtnOnPopup);
+        logger.info("Close Update stock popup.");
     }
 
     void updateWithoutVariationStock(int... branchStockQuantity) throws Exception {
@@ -753,24 +697,22 @@ public class ProductPage extends ProductPageElement {
         productStockQuantity.put(null, IntStream.range(0, brInfo.getBranchName().size()).mapToObj(brIndex -> (branchStockQuantity.length > brIndex) ? (brInfo.getActiveBranches().contains(brInfo.getBranchName().get(brIndex)) ? branchStockQuantity[brIndex] : 0) : 0).toList());
 
         /* input stock for each branch */
-        // handle StaleElementReferenceException exception
-        try {
-            // open Add IMEI/Serial number popup
-            commonAction.clickActions(branchStockWithoutVariation, 0);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
-
-            // open Add IMEI/Serial number popup again
-            commonAction.clickActions(branchStockWithoutVariation, 0);
-        }
-
         if (manageByIMEI) {
+            // open Add IMEI popup
+            commonAction.openDropdownJS(branchStockWithoutVariation, 0, loc_dlgAddIMEI);
+            logger.info("Open Add IMEI popup.");
+
             // add IMEI/Serial number for each branch
             addIMEIForEachBranch(null, productStockQuantity.get(null), 0);
+            logger.info("Complete add stock for IMEI product.");
         } else {
+            // open Update stock popup
+            commonAction.openDropdownJS(branchStockWithoutVariation, 0, loc_dlgUpdateStock);
+            logger.info("Open Update stock popup.");
+
             // add stock for each branch
             addNormalStockForEachBranch(productStockQuantity.get(null), 0);
+            logger.info("Complete update stock for Normal product.");
         }
 
     }
@@ -792,7 +734,10 @@ public class ProductPage extends ProductPageElement {
         logger.info("Variation list: %s".formatted(variationList));
 
         // delete old variation
-        commonAction.getListElement(loc_btnDeleteVariation).forEach(WebElement::click);
+        List<WebElement> deleteVariationIcons = commonAction.getListElement(loc_btnDeleteVariation);
+        IntStream.iterate(deleteVariationIcons.size() - 1, index -> index >= 0, index -> index - 1).forEach(index -> commonAction.clickJS(loc_btnDeleteVariation, index));
+        logger.info("Remove old variation.");
+
         System.out.println(variationMap);
 
         // check [UI] Add variation button
@@ -800,6 +745,7 @@ public class ProductPage extends ProductPageElement {
 
         // click add variation button
         IntStream.range(0, variationMap.keySet().size()).forEachOrdered(varIndex -> commonAction.clickJS(addVariationBtn));
+        logger.info("Add new variation group.");
 
         // input variation name and variation value
         for (int varIndex = 0; varIndex < variationMap.keySet().size(); varIndex++) {
@@ -807,8 +753,10 @@ public class ProductPage extends ProductPageElement {
             logger.info("Input variation name: %s".formatted(varName));
 
             // check [UI] after click Add variation button
-            checkVariationInformation();
-            checkVariationValuePlaceholder();
+            if (varIndex == 0) {
+                checkVariationInformation();
+                checkVariationValuePlaceholder();
+            }
 
             // input variation name
             commonAction.sendKeys(variationName, varIndex, varName);
@@ -865,10 +813,7 @@ public class ProductPage extends ProductPageElement {
         checkListActionsOnVariationTable();
 
         // open Update price popup
-        commonAction.click(actionOnVariationTable, 0);
-
-        // wait Update price popup visible
-        commonAction.getElement(popup);
+        commonAction.openPopupJS(actionOnVariationTable, 0, popup);
 
         // check [UI] product price table
         checkUpdatePricePopup();
@@ -895,7 +840,7 @@ public class ProductPage extends ProductPageElement {
         });
 
         // close Update price popup
-        commonAction.click(updateBtnOnPopup);
+        commonAction.closePopup(updateBtnOnPopup);
     }
 
     void inputVariationStock(int increaseNum, int... branchStockQuantity) throws Exception {
@@ -925,10 +870,7 @@ public class ProductPage extends ProductPageElement {
         // input SKU
         for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
             // open Update SKU popup
-            commonAction.clickJS(skuOnVariationTable, varIndex);
-
-            // wait Update SKU popup visible
-            commonAction.getElement(loc_dlgUpdateSKU);
+            commonAction.openPopupJS(skuOnVariationTable, varIndex, loc_dlgUpdateSKU);
 
             // check [UI] SKU popup
             if (varIndex == 0) checkUpdateSKUPopup();
@@ -937,11 +879,11 @@ public class ProductPage extends ProductPageElement {
             for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
                 String sku = "SKU_%s_%s_%s".formatted(variationList.get(varIndex), brInfo.getActiveBranches().get(brIndex), epoch);
                 commonAction.sendKeys(textBoxOnUpdateSKUPopup, brIndex, sku);
-                logger.info("Input SKU: %s.".formatted(sku));
+                logger.info("[Update SKU popup] Input SKU: %s.".formatted(sku));
             }
 
             // close Update SKU popup
-            commonAction.clickActions(updateBtnOnPopup);
+            commonAction.closePopup(updateBtnOnPopup);
         }
     }
 
@@ -949,11 +891,8 @@ public class ProductPage extends ProductPageElement {
         // upload image for each variation
         for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
             // open Update SKU popup
-            commonAction.clickJS(uploadImageBtnOnVariationTable, varIndex);
+            commonAction.openPopupJS(uploadImageBtnOnVariationTable, varIndex, popup);
             logger.info("Open upload variation image popup.");
-
-            // wait Update SKU popup visible
-            commonAction.getElement(popup);
 
             // check [UI] update image popup
             if (varIndex == 0) checkUpdateVariationImagePopup();
@@ -963,11 +902,11 @@ public class ProductPage extends ProductPageElement {
                 Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"),
                         "/src/main/resources/uploadfile/product_images/%s".formatted(imgFile).replace("/", File.separator)));
                 commonAction.uploads(uploadBtnOnUpdateImagePopup, filePath.toString());
-                logger.info("Upload images, file path: %s.".formatted(filePath));
+                logger.info("[Upload image popup] Upload images, file path: %s.".formatted(filePath));
             }
 
             // close Update image popup
-            commonAction.click(updateBtnOnPopup);
+            commonAction.closePopup(updateBtnOnPopup);
         }
     }
 
@@ -1008,37 +947,25 @@ public class ProductPage extends ProductPageElement {
             // wait page loaded
             commonAction.getElement(uiSEOSetting);
 
-            // click delete button
-            commonAction.clickJS(deleteBtn);
-
-            // wait confirm popup visible
-            commonAction.getElement(popup);
+            // open Confirm delete popup
+            commonAction.openPopupJS(deleteBtn, popup);
 
             // check UI
             checkUIConfirmDeleteProductPopup();
 
-            // click OK to confirm delete product
-            commonAction.click(okBtnOnConfirmDeletePopup);
-
-            // wait delete successfully
-            commonAction.getElement(popup);
-
-            // wait DB update new data
-            commonAction.sleepInMiliSecond(3000);
+            // close confirm delete product popup
+            commonAction.closePopup(okBtnOnConfirmDeletePopup);
         }
     }
 
 
     /* Complete create/update product */
     void completeCreateProduct() {
-        // click Save button
-        commonAction.click(saveBtn);
-
-        // wait notification popup visible
-        commonAction.getElement(popup);
+        // save changes
+        commonAction.openPopupJS(saveBtn, loc_dlgNotification);
 
         // close notification popup
-        commonAction.click(closeBtnOnNotificationPopup);
+        commonAction.closePopup(closeBtnOnNotificationPopup);
 
         // wait product list page is loaded
         commonAction.waitURLShouldBeContains("/product/list");
@@ -1057,29 +984,23 @@ public class ProductPage extends ProductPageElement {
     }
 
     void completeUpdateProduct() {
-        // click Save button
-        commonAction.clickJS(saveBtn);
-
-        // wait notification popup visible
-        commonAction.getElement(popup);
+        // save changes
+        commonAction.openPopupJS(saveBtn, loc_dlgNotification);
 
         // if update product failed, try again
         if (!commonAction.getListElement(failPopup).isEmpty()) {
             // close update product failed popup
-            commonAction.click(closeBtnOnNotificationPopup);
+            commonAction.closePopup(closeBtnOnNotificationPopup);
 
-            // click Save button
-            commonAction.clickJS(saveBtn);
-
-            // wait notification popup visible
-            commonAction.getElement(popup);
+            // save changes again
+            commonAction.openPopupJS(saveBtn, loc_dlgNotification);
         }
 
         // if that still failed, end test.
         Assert.assertTrue(commonAction.getListElement(failPopup).isEmpty(), "[Failed][Update product] Can not update product.");
 
         // close notification popup
-        commonAction.click(closeBtnOnNotificationPopup);
+        commonAction.closePopup(closeBtnOnNotificationPopup);
     }
 
     public void configWholesaleProduct() throws Exception {
@@ -1189,35 +1110,29 @@ public class ProductPage extends ProductPageElement {
     }
 
     /* Edit translation */
-    public void editTranslation(String language, int productID) throws Exception {
-
-        // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
-
-        // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productID)));
-
-        // wait page loaded
-        commonAction.getElement(uiSEOSetting);
-        logger.info("Navigate to product page and edit translation.");
-
+    void addTranslation(String language, String languageName, ProductInfo productInfo, int langIndex) throws Exception {
         // open edit translation popup
         if (storeInfo.getStoreLanguageList().size() > 1) {
             // open edit translation popup
-            try {
-                commonAction.click(editTranslationText);
-                logger.info("Open translation popup.");
-            } catch (TimeoutException ex) {
-                logger.info(ex);
-                commonAction.click(editTranslationText);
-                logger.info("Open translation popup again.");
-            }
+            commonAction.openPopupJS(editTranslationText, loc_dlgEditTranslation);
+            logger.info("Open translation popup.");
 
-            // wait edit translation popup
-            commonAction.getElement(popup);
+            // convert languageCode to languageName
+            if (language.equals("en") && (ProductPage.language.equals("vi") || ProductPage.language.equals("VIE")))
+                languageName = "Tiếng Anh";
+
+            // select language for translation
+            if (!commonAction.getText(loc_dlgEditTranslation_selectedLanguage).equals(languageName)) {
+                // open language dropdown
+                commonAction.openPopupJS(loc_dlgEditTranslation_selectedLanguage, By.cssSelector(".product-translate .uik-select__optionList"));
+
+                // select language
+                commonAction.click(By.xpath(str_dlgEditTranslation_languageInDropdown.formatted(languageName)));
+            }
+            logger.info("Add translation for '%s' language.".formatted(languageName));
 
             // check UI
-            checkEditTranslationPopup();
+            if (langIndex == 0) checkEditTranslationPopup();
 
             // input translate product name
             name = "[%s]%s%s".formatted(language, productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
@@ -1247,29 +1162,61 @@ public class ProductPage extends ProductPageElement {
             // input title
             String title = "[%s] Auto - SEO Title - %s".formatted(language, epoch);
             commonAction.sendKeys(seoTitleOnEditTranslationPopup, title);
+            logger.info("Input translation for SEO title: %s.".formatted(title));
 
             // input description
             String description = "[%s] Auto - SEO Description - %s".formatted(language, epoch);
             commonAction.sendKeys(seoDescriptionOnEditTranslationPopup, description);
+            logger.info("Input translation for SEO description: %s.".formatted(description));
 
             // input keywords
             String keywords = "[%s] Auto - SEO Keyword - %s".formatted(language, epoch);
             commonAction.sendKeys(seoKeywordsOnEditTranslationPopup, keywords);
+            logger.info("Input translation for SEO keywords: %s.".formatted(keywords));
 
             // input url
             String url = "%s%s".formatted(language, epoch);
             commonAction.sendKeys(seoURLOnEditTranslationPopup, url);
+            logger.info("Input translation for SEO url: %s.".formatted(url));
+
+            // save changes
+            commonAction.openPopupJS(saveBtnOnEditTranslationPopup, loc_dlgToast);
+            logger.info("Save translation");
 
             // close edit translation popup
-            commonAction.click(saveBtnOnEditTranslationPopup);
+            commonAction.closePopup(loc_dlgEditTranslation_icnClose);
+            logger.info("Close edit translation popup.");
         }
     }
 
     public void editTranslation(int productID) throws Exception {
+        // navigate to product detail page by URL
+        driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productID)));
+        logger.info("Navigate to product detail page, productId: %s.".formatted(productID));
+
+        // get online store language
+        List<String> langCodeList = new ArrayList<>(storeInfo.getStoreLanguageList());
+        List<String> langNameList = new ArrayList<>(storeInfo.getStoreLanguageName());
+        langCodeList.remove(storeInfo.getDefaultLanguage());
+        logger.info("List languages are not translated: %s.".formatted(langCodeList.toString()));
+
+        // get product information
+        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+
         // add translation
-        List<String> langList = new ArrayList<>(storeInfo.getStoreLanguageList());
-        langList.remove(storeInfo.getDefaultLanguage());
-        for (String language : langList) editTranslation(language, productID);
+        for (int langIndex = 0; langIndex < langCodeList.size(); langIndex++) {
+            String langCode = langCodeList.get(langIndex);
+            String langName = langNameList.get(storeInfo.getStoreLanguageList().indexOf(langCode));
+            addTranslation(langCode, langName, productInfo, langIndex);
+        }
+
+        // save edit translation
+        commonAction.openPopupJS(saveBtn, loc_dlgNotification);
+        logger.info("Complete translation.");
+
+        // close Notification popup
+        commonAction.closePopup(closeBtnOnNotificationPopup);
+        logger.info("Close Notification popup.");
     }
 
     public void uncheckWebPlatform() {
@@ -1387,16 +1334,8 @@ public class ProductPage extends ProductPageElement {
     void checkUIImages() throws Exception {
         // remove old product image
         List<WebElement> removeImageIcons = commonAction.getListElement(removeProductImageBtn);
-        if (!removeImageIcons.isEmpty()) {
-            for (int iconIndex = removeImageIcons.size() - 1; iconIndex >= 0; iconIndex--) {
-                try {
-                    commonAction.clickJS(removeProductImageBtn, iconIndex);
-                } catch (StaleElementReferenceException ex) {
-                    logger.info(ex);
-                    commonAction.clickJS(removeProductImageBtn, iconIndex);
-                }
-            }
-        }
+        if (!removeImageIcons.isEmpty())
+            IntStream.iterate(removeImageIcons.size() - 1, iconIndex -> iconIndex >= 0, iconIndex -> iconIndex - 1).forEach(iconIndex -> commonAction.clickJS(removeProductImageBtn, iconIndex));
 
         // check images title
         String dbImages = commonAction.getText(imagesLabel);
@@ -1967,6 +1906,16 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - SEO URL link.".formatted(language));
     }
 
+    private List<String> getAllSaleChannelTooltips() {
+        try {
+            List<WebElement> tooltips = commonAction.getListElement(this.allSaleChannelTooltips);
+            return IntStream.range(0, tooltips.size()).mapToObj(tooltipIndex -> commonAction.getText(this.allSaleChannelTooltips, tooltipIndex)).toList();
+        } catch (IndexOutOfBoundsException | StaleElementReferenceException ex) {
+            logger.info(ex);
+            return getAllSaleChannelTooltips();
+        }
+    }
+
     void checkUISaleChanel() throws Exception {
         // check Sale chanel title
         String dbSaleChanel = commonAction.getText(saleChannelLabel);
@@ -1975,50 +1924,30 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Sale chanel title.".formatted(language));
 
         // check Online shop tooltips
-        commonAction.hoverActions(onlineShopIcon);
-        List<String> allSaleChannelTooltips = new ArrayList<>();
-        for (WebElement webElement : commonAction.getListElement(this.allSaleChannelTooltips)) {
-            String text = webElement.getText();
-            allSaleChannelTooltips.add(text);
-        }
+        commonAction.viewTooltips(onlineShopIcon, allSaleChannelTooltips);
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
-        assertCustomize.assertTrue(allSaleChannelTooltips.contains(ppOnlineShopTooltips), "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, allSaleChannelTooltips));
+        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppOnlineShopTooltips), "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, allSaleChannelTooltips));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
         // check Gomua tooltips
-        commonAction.hoverActions(gomuaIcon);
-        try {
-            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
-        } catch (StaleElementReferenceException ex) {
-            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
-        }
+        commonAction.viewTooltips(gomuaIcon, allSaleChannelTooltips);
         String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
-        assertCustomize.assertTrue(allSaleChannelTooltips.contains(ppGomuaTooltips), "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, allSaleChannelTooltips.toString()));
+        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppGomuaTooltips), "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, allSaleChannelTooltips.toString()));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
-        commonAction.hoverActions(shopeeIcon);
-        try {
-            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
-        } catch (StaleElementReferenceException ex) {
-            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
-        }
+        commonAction.viewTooltips(shopeeIcon, allSaleChannelTooltips);
         List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedShopeeTooltips", language));
-        List<String> joinShopeeList = allSaleChannelTooltips.stream().filter(ppShopeeTooltips::contains).toList();
+        List<String> joinShopeeList = getAllSaleChannelTooltips().stream().filter(ppShopeeTooltips::contains).toList();
         assertCustomize.assertFalse(joinShopeeList.isEmpty(), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips.toString(), allSaleChannelTooltips.toString()));
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
-        commonAction.hoverActions(tiktokIcon);
-        try {
-            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
-        } catch (StaleElementReferenceException ex) {
-            allSaleChannelTooltips = commonAction.getListElement(this.allSaleChannelTooltips).stream().map(WebElement::getText).toList();
-        }
+        commonAction.viewTooltips(tiktokIcon, allSaleChannelTooltips);
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
-        List<String> joinTiktokList = allSaleChannelTooltips.stream().filter(ppTiktokTooltips::contains).toList();
+        List<String> joinTiktokList = getAllSaleChannelTooltips().stream().filter(ppTiktokTooltips::contains).toList();
         assertCustomize.assertFalse(joinTiktokList.isEmpty(), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), allSaleChannelTooltips.toString()));
         logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
@@ -2179,10 +2108,7 @@ public class ProductPage extends ProductPageElement {
 
     void checkViewRemainingStockPopup() throws Exception {
         // open view remaining stock popup
-        commonAction.clickJS(remainingStockValue);
-
-        //wait view remaining stock popup visible
-        commonAction.getElement(popup);
+        commonAction.openPopupJS(remainingStockValue, popup);
 
         // check title
         String dbTitle = commonAction.getText(titleOfRemainingStockPopup);
@@ -2224,19 +2150,13 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check View remaining stock popup - No select branch error.".formatted(language));
 
         // close view remaining stock popup
-        commonAction.click(closeBtnOnRemainingPopup);
+        commonAction.closePopup(closeBtnOnRemainingPopup);
         logger.info("Close remaining popup.");
-
-        // wait invisible remaining stock
-        commonAction.invisibilityOfElementLocated(popup);
     }
 
     void checkViewSoldCountPopup() throws Exception {
         // open view sold count popup
-        commonAction.clickJS(soldCountValue);
-
-        //wait view sold count popup visible
-        commonAction.getElement(popup);
+        commonAction.openPopupJS(soldCountValue, popup);
 
         // check title
         String dbTitle = commonAction.getText(titleOfViewSoldCountPopup);
@@ -2245,47 +2165,20 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check View sold count popup - Title.".formatted(language));
 
         // check text in dropdown when select all branches
-        String dbSelectAllBranches;
-        try {
-            // get text
-            dbSelectAllBranches = commonAction.getText(branchDropdownOnViewSoldCountPopup);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
+        String dbSelectAllBranches = commonAction.getText(branchDropdownOnViewSoldCountPopup);
 
-            // get text again
-            dbSelectAllBranches = commonAction.getText(branchDropdownOnViewSoldCountPopup);
-        }
         String ppSelectAllBranches = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.branchDropdown.text.allBranch", language);
         assertCustomize.assertEquals(dbSelectAllBranches, ppSelectAllBranches, "[Failed][ View sold count popup] Dropdown text when select all branches should be %s, but found %s.".formatted(ppSelectAllBranches, dbSelectAllBranches));
         logger.info("[UI][%s] Check View sold count popup - Check dropdown text when select all branches.".formatted(language));
 
         // open branch dropdown
-        try {
-            commonAction.click(branchDropdownOnViewSoldCountPopup);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
-
-            // open branch dropdown again
-            commonAction.click(branchDropdownOnViewSoldCountPopup);
-        }
+        commonAction.openDropdownJS(branchDropdownOnViewSoldCountPopup, allBranchesCheckboxOnViewSoldCountPopup);
 
         // click on All branch check to unselect all branches
         commonAction.clickJS(allBranchesCheckboxOnViewSoldCountPopup);
 
         // check text in dropdown when no select any branch
-        String dbNoSelectAnyBranch;
-        try {
-            // get text
-            dbNoSelectAnyBranch = commonAction.getText(branchDropdownOnViewSoldCountPopup);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
-
-            // get text again
-            dbNoSelectAnyBranch = commonAction.getText(branchDropdownOnViewSoldCountPopup);
-        }
+        String dbNoSelectAnyBranch = commonAction.getText(branchDropdownOnViewSoldCountPopup);
         String ppNoSelectAnyBranch = getPropertiesValueByDBLang("products.allProducts.updateProduct.warehousing.stockQuantity.viewSoldCountPopup.branchDropdown.text.noBranch", language);
         assertCustomize.assertEquals(dbNoSelectAnyBranch, ppNoSelectAnyBranch, "[Failed][ View sold count popup] Dropdown text when no select any branch should be %s, but found %s.".formatted(ppNoSelectAnyBranch, dbNoSelectAnyBranch));
         logger.info("[UI][%s] Check View sold count popup -  Check dropdown text when no select any branch.".formatted(language));
@@ -2297,16 +2190,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check View sold count popup - All branches checkbox.".formatted(language));
 
         // close branch dropdown
-        try {
-            commonAction.click(branchDropdownOnViewSoldCountPopup);
-        } catch (StaleElementReferenceException ex) {
-            // log error
-            logger.info(ex);
-
-            // close branch dropdown again
-            commonAction.click(branchDropdownOnViewSoldCountPopup);
-        }
-
+        commonAction.closeDropdown(branchDropdownOnViewSoldCountPopup, allBranchesCheckboxOnViewSoldCountPopup);
 
         // check error when no select any branch
         String dbNoSelectBranchError = commonAction.getText(noBranchErrorMessageOnViewSoldCountPopup);
@@ -2315,7 +2199,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check View sold count popup - No select branch error.".formatted(language));
 
         // close view sold count popup
-        commonAction.clickJS(closeBtnOnViewSoldCountPopup);
+        commonAction.closePopup(closeBtnOnViewSoldCountPopup);
     }
 
     void checkManageInventoryByIMEINotice() throws Exception {

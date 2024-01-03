@@ -13,8 +13,8 @@ class ConversionUnitElement {
     /* Variation config */
     By selectVariationBtn = By.cssSelector(".gs-button__green--outline");
     By variationSaveBtn = By.cssSelector(".gs-button__green");
-    By selectVariationPopup = By.cssSelector(".modal-content");
-    By variationOptions = By.cssSelector("input[name = variationUnit]");
+    By selectVariationPopup = By.cssSelector(".modalSelectVariation");
+    String variationLocator = "//div[* = '%s'][@class = 'variation-name']/div/input";
     By saveBtnOnSelectVariationPopup = By.cssSelector(".modal-footer > .gs-button__green");
     By variationConfigureBtn = By.cssSelector(".conversion-configure > .gs-button__blue--outline");
     By selectUnitBtnOnSetupVariationConversionUnitPage = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
