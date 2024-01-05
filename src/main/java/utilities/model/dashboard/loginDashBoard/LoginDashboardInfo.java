@@ -2,6 +2,8 @@ package utilities.model.dashboard.loginDashBoard;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class LoginDashboardInfo {
     private String accessToken;
@@ -9,4 +11,7 @@ public class LoginDashboardInfo {
     private int storeID;
     private String storeName;
     private int sellerID;
+    private String staffToken;
+    List<String> userRole;
+    List<Integer> assignedBranches;
 }

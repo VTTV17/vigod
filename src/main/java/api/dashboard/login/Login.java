@@ -1,18 +1,23 @@
 package api.dashboard.login;
 
+import com.google.common.collect.Iterables;
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.baseURI;
-import static org.hamcrest.Matchers.notNullValue;
 import static utilities.links.Links.URI;
 
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
+    String switchStaffPath = "/api/authenticate/store/%s/switch-staff";
+    String storeStaff = "/storeservice/api/store-staffs/user/%s";
     API api = new API();
     private static LoginInformation loginInfo = new LoginInformation();
 
@@ -26,7 +31,6 @@ public class Login {
         Response loginResponse = api.login(API_LOGIN_PATH, body);
 
         loginResponse.then().statusCode(200);
-        loginResponse.then().body("store.id", notNullValue());
 
         return loginResponse;
     }
@@ -70,22 +74,81 @@ public class Login {
 
         if (loginInformation.getEmail() != null)
             res = getLoginResponse(loginInformation.getEmail(), loginInformation.getPassword()); //if account is email
-        else res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
+        else
+            res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
+
+        // get jsonPath
+        JsonPath jPath = res.jsonPath();
 
         // set accessToken
-        info.setAccessToken(res.jsonPath().getString("accessToken"));
+        info.setAccessToken(jPath.getString("accessToken"));
 
         // set refreshToken
-        info.setRefreshToken(res.jsonPath().getString("refreshToken"));
+        info.setRefreshToken(jPath.getString("refreshToken"));
 
         // set sellerID
-        info.setSellerID(res.jsonPath().getInt("id"));
+        info.setSellerID(jPath.getInt("id"));
+
+        try {
+            // set storeID
+            info.setStoreID(jPath.getInt("store.id"));
+
+            // set storeName
+            info.setStoreName(jPath.getString("store.name"));
+        } catch (NullPointerException ignore) {
+        }
+
+        // set user role
+        info.setUserRole(jPath.getList("authorities"));
+
+        // return login dashboard info
+        return info;
+    }
+
+    public LoginDashboardInfo getStaffInfo(LoginInformation loginInformation) {
+        // get staff information
+        LoginDashboardInfo info = getInfo(loginInformation);
+
+        // get staff store list
+        List<Integer> getListStoreId = api.get(storeStaff.formatted(info.getSellerID()), info.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .jsonPath()
+                .getList("id");
+
+        // get jPath
+        JsonPath jPath = api.post(switchStaffPath.formatted(Iterables.getLast(getListStoreId)), info.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .jsonPath();
+
+        // init modal
+        info = new LoginDashboardInfo();
+
+        // set accessToken
+        info.setAccessToken(jPath.getString("accessToken"));
+
+        // set refreshToken
+        info.setRefreshToken(jPath.getString("refreshToken"));
+
+        // set sellerID
+        info.setSellerID(jPath.getInt("id"));
 
         // set storeID
-        info.setStoreID(res.jsonPath().getInt("store.id"));
+        info.setStoreID(jPath.getInt("store.id"));
 
         // set storeName
-        info.setStoreName(res.jsonPath().getString("store.name"));
+        info.setStoreName(jPath.getString("store.name"));
+
+        // set staff token
+        info.setStaffToken(jPath.getString("staffPermissionsToken"));
+
+        // set staff branches
+        info.setAssignedBranches(jPath.getList("branchIds"));
 
         // return login dashboard info
         return info;

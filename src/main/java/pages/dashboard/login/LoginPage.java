@@ -13,7 +13,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
-
 import pages.dashboard.home.HomePage;
 import pages.thirdparty.Facebook;
 import utilities.PropertiesUtil;
@@ -38,17 +37,17 @@ public class LoginPage {
 
     SoftAssert soft = new SoftAssert();
 
-    public LoginPage (WebDriver driver) {
+    public LoginPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy (css = ".login-widget")
+    @FindBy(css = ".login-widget")
     WebElement SIGNIN_SCREEN_TXT;
 
-    @FindBy (css = ".forgot-page-wrapper")
+    @FindBy(css = ".forgot-page-wrapper")
     WebElement SIGNIN_FORGOTPASSWORD_TXT;
 
     @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
@@ -60,58 +59,58 @@ public class LoginPage {
     @FindBy(css = ".login-widget__changeLanguage:nth-of-type(2)")
     WebElement VIETNAMESE_LANGUAGE;
 
-    @FindBy (css = ".phone-code div.uik-select__valueRenderedWrapper")
+    @FindBy(css = ".phone-code div.uik-select__valueRenderedWrapper")
     WebElement COUNTRY_DROPDOWN;
 
     @FindBy(css = "input[name='username']")
     WebElement USERNAME;
 
-    @FindBy (css = "input[name='password']")
+    @FindBy(css = "input[name='password']")
     WebElement PASSWORD;
 
-    @FindBy (css = "button.gs-button")
+    @FindBy(css = "button.gs-button")
     WebElement LOGIN_BTN;
 
-    @FindBy (css = "#username + .invalid-feedback")
+    @FindBy(css = "#username + .invalid-feedback")
     WebElement USER_ERROR;
 
-    @FindBy (css = "#password + .invalid-feedback")
+    @FindBy(css = "#password + .invalid-feedback")
     WebElement PASSWORD_ERROR;
 
-    @FindBy (css = "div.alert__wrapper")
+    @FindBy(css = "div.alert__wrapper")
     WebElement INVALID_USER_ERROR;
 
-    @FindBy (css = ".login-widget__btnSubmitFaceBook")
+    @FindBy(css = ".login-widget__btnSubmitFaceBook")
     WebElement FACEBOOK_BTN;
 
     @FindBy(css = "#email")
     WebElement FACEBOOK_USERNAME;
 
-    @FindBy (css = "#pass")
+    @FindBy(css = "#pass")
     WebElement FACEBOOK_PASSWORD;
 
-    @FindBy (css = "input[name='login']")
+    @FindBy(css = "input[name='login']")
     WebElement FACEBOOK_LOGIN_BTN;
 
-    @FindBy (css = "span.login-widget__tab:nth-child(2)")
+    @FindBy(css = "span.login-widget__tab:nth-child(2)")
     WebElement STAFF_TAB;
 
-    @FindBy (css = "div.modal-content")
+    @FindBy(css = "div.modal-content")
     WebElement WARNING_POPUP;
 
-    @FindBy (css = ".login-widget__forgotPassword")
+    @FindBy(css = ".login-widget__forgotPassword")
     WebElement FORGOT_PASSWORD;
 
-    @FindBy (css = ".login-widget__btnSubmit")
+    @FindBy(css = ".login-widget__btnSubmit")
     WebElement CONTINUE_BTN;
 
-    @FindBy (css = "input[name='key']")
+    @FindBy(css = "input[name='key']")
     WebElement VERIFICATION_CODE;
 
-    @FindBy (css = ".alert__wrapper")
+    @FindBy(css = ".alert__wrapper")
     WebElement WRONG_CODE_ERROR;
 
-    @FindBy (css = ".btn-resend")
+    @FindBy(css = ".btn-resend")
     WebElement RESEND_OTP;
 
     public LoginPage navigate() {
@@ -124,7 +123,7 @@ public class LoginPage {
         commonAction.clickElement(COUNTRY_DROPDOWN);
         driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
         String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
-        logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0],selectedOption[1]));
+        logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0], selectedOption[1]));
         this.country = selectedOption[0];
         this.countryCode = selectedOption[1];
         return this;
@@ -206,7 +205,7 @@ public class LoginPage {
         clickFacebookBtn();
 
         for (String windowHandle : commonAction.getAllWindowHandles()) {
-            if(!originalWindow.contentEquals(windowHandle)) {
+            if (!originalWindow.contentEquals(windowHandle)) {
                 commonAction.switchToWindow(windowHandle);
                 break;
             }
@@ -226,6 +225,7 @@ public class LoginPage {
 
     /**
      * Selects the display language on the login page.
+     *
      * @param language the desired language to be displayed, either "ENG" or "VIE"
      * @throws Exception if an exception occurs during the execution of this method
      */
@@ -251,14 +251,14 @@ public class LoginPage {
 
     public LoginPage verifyPasswordError(String errMessage) {
         String text = commonAction.getText(PASSWORD_ERROR);
-        soft.assertEquals(text,errMessage, "[Login/Forgot Password][Password] Message does not match.");
+        soft.assertEquals(text, errMessage, "[Login/Forgot Password][Password] Message does not match.");
         logger.info("verifyPasswordError completed");
         return this;
     }
 
     public LoginPage verifyEmailOrPasswordIncorrectError(String errMessage) {
         String text = commonAction.getText(INVALID_USER_ERROR);
-        soft.assertEquals(text,errMessage, "[Login][Invalid Email/Password] Message does not match.");
+        soft.assertEquals(text, errMessage, "[Login][Invalid Email/Password] Message does not match.");
         logger.info("verifyEmailOrPasswordIncorrectError completed");
         return this;
     }
@@ -279,9 +279,11 @@ public class LoginPage {
         driver.get(DOMAIN);
 
         // init login information model
-        Login login = new Login();
-        LoginInformation logInfo = login.setLoginInformation(username, password).getLoginInformation();
-        LoginDashboardInfo loginInfo = login.getInfo(logInfo);
+        LoginInformation logInfo = new LoginInformation();
+        logInfo.setEmail(username);
+        logInfo.setPassword(password);
+        LoginDashboardInfo loginInfo = new Login().getInfo(logInfo);
+        if (!loginInfo.getUserRole().contains("ROLE_STORE")) loginInfo = new Login().getStaffInfo(logInfo);
 
         // login by js - local storage
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));
@@ -290,6 +292,8 @@ public class LoginPage {
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getSellerID()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getSellerID()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
+        if (loginInfo.getStaffToken() != null)
+            ((JavascriptExecutor) driver).executeScript("localStorage.setItem('staffPermissionToken', '\"%s\"')".formatted(loginInfo.getStaffToken()));
 
         logger.info("Set local storage successfully");
 
@@ -299,7 +303,7 @@ public class LoginPage {
     public void verifyVerificationCodeError(String signupLanguage) throws Exception {
         String text = commonAction.getText(WRONG_CODE_ERROR);
         String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
-        soft.assertEquals(text,retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
+        soft.assertEquals(text, retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
         logger.info("verifyVerificationCodeError completed");
     }
 
