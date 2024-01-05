@@ -371,7 +371,6 @@ public class ProductPage extends ProductPageElement {
 
     void inputProductName(String name) {
         // input product name
-        commonAction.clear(productName);
         commonAction.sendKeys(productName, name);
         logger.info("Input product name: %s.".formatted(name));
     }
@@ -379,7 +378,6 @@ public class ProductPage extends ProductPageElement {
     void inputProductDescription() {
         // input product description
         description = "[%s] product descriptions".formatted(storeInfo.getDefaultLanguage());
-        commonAction.clear(productDescription);
         commonAction.sendKeys(productDescription, description);
         logger.info("Input product description: %s.".formatted(description));
     }
@@ -495,29 +493,26 @@ public class ProductPage extends ProductPageElement {
     void setPriority(int priority) {
         // set product priority (1-100)
         commonAction.sendKeys(priorityTextBox, String.valueOf(priority));
+        logger.info("Input priority: %s.".formatted(priority));
     }
 
     void setProductDimension() {
         String dimension = (hasDimension) ? "10" : "0";
         // input product weight
-        commonAction.click(productWeight);
-        commonAction.sendKeys(productHeight, dimension);
-        logger.info("Input weight: %s".formatted(dimension));
+        commonAction.sendKeys(productWeight, dimension);
+        logger.info("Input weight: %s.".formatted(dimension));
 
         // input product length
-        commonAction.click(productLength);
         commonAction.sendKeys(productLength, dimension);
-        logger.info("Input length: %s".formatted(dimension));
+        logger.info("Input length: %s.".formatted(dimension));
 
         // input product width
-        commonAction.click(productWidth);
         commonAction.sendKeys(productWidth, dimension);
-        logger.info("Input width: %s".formatted(dimension));
+        logger.info("Input width: %s.".formatted(dimension));
 
         // input product height
-        commonAction.click(productHeight);
         commonAction.sendKeys(productHeight, dimension);
-        logger.info("Input height: %s".formatted(dimension));
+        logger.info("Input height: %s.".formatted(dimension));
 
     }
 
@@ -555,7 +550,7 @@ public class ProductPage extends ProductPageElement {
 
         // SEO URL
         String url = "%s%s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        commonAction.sendKeys(seoURL, "%s%s".formatted(storeInfo.getDefaultLanguage(), url));
+        commonAction.sendKeys(seoURL, url);
     }
 
     void productInfo(String name, boolean isIMEIProduct) throws Exception {
@@ -584,15 +579,18 @@ public class ProductPage extends ProductPageElement {
         else productSellingPrice.add(nextLong(productListingPrice.get(0)));
 
         // input listing price
-        commonAction.sendKeysActions(productListingPriceWithoutVariation, String.valueOf(productListingPrice.get(0)));
+        commonAction.sendKeys(productListingPriceWithoutVariation, String.valueOf(productListingPrice.get(0)));
         logger.info("Listing price: %s".formatted(String.format("%,d", productListingPrice.get(0))));
 
         // input selling price
-        commonAction.sendKeysActions(productSellingPriceWithoutVariation, String.valueOf(productSellingPrice.get(0)));
+        commonAction.sendKeys(productSellingPriceWithoutVariation, String.valueOf(productSellingPrice.get(0)));
         logger.info("Selling price: %s".formatted(String.format("%,d", productSellingPrice.get(0))));
 
         // input cost price
-        commonAction.sendKeysActions(productCostPriceWithoutVariation, String.valueOf((long) (Math.random() * productSellingPrice.get(0))));
+        long costPrice = nextLong(productSellingPrice.get(0));
+        commonAction.sendKeys(productCostPriceWithoutVariation, String.valueOf(costPrice));
+        logger.info("Cost price: %s.".formatted(String.format("%,d", costPrice)));
+
     }
 
     void addIMEIForEachBranch(String variationValue, List<Integer> branchStock, int varIndex) throws Exception {
@@ -617,7 +615,7 @@ public class ProductPage extends ProductPageElement {
                 commonAction.sendKeys(textBoxOnAddIMEIPopup, brIndex, imei);
                 logger.info("Input IMEI: %s.".formatted(imei));
             }
-            logger.info("%s[%s] Add IMEI, stock: %s.".formatted(variationValue == null ? "" : "[%s]".formatted(variationValue), brName, branchStock));
+            logger.info("%s[%s] Add IMEI, stock: %s.".formatted(variationValue == null ? "" : "[%s]".formatted(variationValue), brName, branchStock.get(brStockIndex)));
         }
 
         // save IMEI/Serial number
@@ -807,7 +805,7 @@ public class ProductPage extends ProductPageElement {
         checkBulkActionsOnVariationTable();
 
         // open list action dropdown
-        commonAction.click(selectActionLinkTextOnVariationTable);
+        commonAction.clickJS(selectActionLinkTextOnVariationTable);
 
         // check [UI] check list actions
         checkListActionsOnVariationTable();
@@ -825,17 +823,17 @@ public class ProductPage extends ProductPageElement {
 
             // input listing price
             long listingPrice = productListingPrice.get(varIndex);
-            commonAction.sendKeysActions(listingPriceOnUpdatePricePopup, varIndex, String.valueOf(String.format("%,d", listingPrice)));
+            commonAction.sendKeys(listingPriceOnUpdatePricePopup, varIndex, String.valueOf(String.format("%,d", listingPrice)));
             logger.info("[%s] Listing price: %s.".formatted(variation, String.format("%,d", listingPrice)));
 
             // input selling price
             long sellingPrice = productSellingPrice.get(varIndex);
-            commonAction.sendKeysActions(sellingPriceOnUpdatePricePopup, varIndex, String.valueOf(sellingPrice));
+            commonAction.sendKeys(sellingPriceOnUpdatePricePopup, varIndex, String.valueOf(sellingPrice));
             logger.info("[%s] Selling price: %s.".formatted(variation, String.format("%,d", sellingPrice)));
 
             // input costPrice
             long costPrice = nextLong(sellingPrice);
-            commonAction.sendKeysActions(costPriceOnUpdatePricePopup, varIndex, String.valueOf(costPrice));
+            commonAction.sendKeys(costPriceOnUpdatePricePopup, varIndex, String.valueOf(costPrice));
             logger.info("[%s] Cost price: %s.".formatted(variation, String.format("%,d", costPrice)));
         });
 

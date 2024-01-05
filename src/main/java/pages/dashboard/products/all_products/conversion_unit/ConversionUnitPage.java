@@ -297,7 +297,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         logger.info("[UI][%s] Check Config table - Add button.".formatted(language));
 
         // clear unit text box
-        commonAction.clear(withoutVariationUnitTextBox);
+        commonAction.clearDefault(withoutVariationUnitTextBox);
 
         // check alias table
         List<String> dbAliasTableColumn = commonAction.getListElement(withoutVariationAliasTable).stream().map(WebElement::getText).toList();
@@ -419,7 +419,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         logger.info("[UI][%s][Variation config page] Check Config table - Add button.".formatted(language));
 
         // clear unit text box
-        commonAction.clear(unitTextBoxOnSetupVariationConversionUnitPage);
+        commonAction.clearDefault(unitTextBoxOnSetupVariationConversionUnitPage);
 
         // check alias table
         List<String> dbAliasTable = commonAction.getListElement(variationAliasTable).stream().map(WebElement::getText).toList();

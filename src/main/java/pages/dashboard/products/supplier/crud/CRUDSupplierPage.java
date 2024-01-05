@@ -206,7 +206,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
     void inputNonVNZipcode(String zipcode) {
         // input zipcode for non-VN country
-        commonAction.sendKeysActions(loc_txtNonVnZipcode, zipcode);
+        commonAction.sendKeys(loc_txtNonVnZipcode, zipcode);
         logger.info("Input zipcode: %s".formatted(zipcode));
     }
 
@@ -221,7 +221,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     }
 
     void inputDescription(String description) {
-        commonAction.sendKeysActions(loc_txtDescription, description);
+        commonAction.sendKeys(loc_txtDescription, description);
         logger.info("Input description: %s".formatted(description));
     }
 
@@ -585,7 +585,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new PurchaseOrders(loginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
 
         // input valid purchaseId and search
-        commonAction.sendKeysActions(loc_txtSearchPurchaseOrder, "%s\n".formatted(purchaseId));
+        commonAction.sendKeys(loc_txtSearchPurchaseOrder, "%s\n".formatted(purchaseId));
 
         // wait result
         commonAction.sleepInMiliSecond(1000);

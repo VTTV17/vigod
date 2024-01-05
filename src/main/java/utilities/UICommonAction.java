@@ -588,21 +588,17 @@ public class UICommonAction {
         actions.click().build().perform();
     }
 
-    public void doubleClickActions(By locator) {
-        hoverActions(locator);
-        actions.doubleClick().build().perform();
-    }
-
-    public void doubleClickActions(By locator, int index) {
-        hoverActions(locator, index);
-        actions.doubleClick().build().perform();
-    }
-
     public void hoverActions(By locator) {
         try {
             actions.moveToElement(getElement(locator)).build().perform();
-        } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
+            sleep(500);
+        } catch (StaleElementReferenceException | InterruptedException | ElementClickInterceptedException ex) {
             actions.moveToElement(getElement(locator)).build().perform();
+            try {
+                sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -615,36 +611,26 @@ public class UICommonAction {
     }
 
     public void sendKeys(By locator, CharSequence content) {
-        try {
-            elementToBeClickable(locator);
-            clear(locator);
-            clearBySendKeys(locator);
-        } catch (InvalidArgumentException | InvalidElementStateException ignore) {
-        } catch (StaleElementReferenceException ex) {
-            elementToBeClickable(locator);
-            clear(locator);
-            clearBySendKeys(locator);
-        }
+        visibilityOfElementLocated(locator);
+        clear(locator);
         try {
             getElement(locator).sendKeys(content);
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
-            actions.moveToElement(getElement(locator)).click();
-            actions.sendKeys(content);
+            getElement(locator).sendKeys(content);
         }
+        actions.keyDown(Keys.TAB).keyUp(Keys.TAB).build().perform();
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
+        visibilityOfElementLocated(locator, index);
+        clear(locator, index);
+
         try {
-            elementToBeClickable(locator, index);
-            clear(locator, index);
-            clearBySendKeys(locator, index);
-        } catch (InvalidArgumentException | InvalidElementStateException ignore) {
+            getElement(locator, index).sendKeys(content);
         } catch (StaleElementReferenceException ex) {
-            elementToBeClickable(locator, index);
-            clear(locator, index);
-            clearBySendKeys(locator, index);
+            getElement(locator, index).sendKeys(content);
         }
-        getElement(locator, index).sendKeys(content);
+        actions.keyDown(Keys.TAB).keyUp(Keys.TAB).build().perform();
     }
 
     public void uploads(By locator, CharSequence content) {
@@ -661,16 +647,6 @@ public class UICommonAction {
         } catch (StaleElementReferenceException ex) {
             getElement(locator, index).sendKeys(content);
         }
-    }
-
-    public void sendKeysActions(By locator, CharSequence content) {
-        doubleClickActions(locator);
-        actions.sendKeys(content).build().perform();
-    }
-
-    public void sendKeysActions(By locator, int index, CharSequence content) {
-        doubleClickActions(locator, index);
-        actions.sendKeys(content).build().perform();
     }
 
     public String getText(By locator) {
@@ -729,7 +705,7 @@ public class UICommonAction {
         el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
     }
 
-    public void clear(By locator) {
+    public void clearDefault(By locator) {
         try {
             getElement(locator).clear();
         } catch (StaleElementReferenceException ex) {
@@ -738,31 +714,28 @@ public class UICommonAction {
         }
     }
 
-    public void clear(By locator, int index) {
-        try {
-            getElement(locator, index).clear();
-        } catch (StaleElementReferenceException ex) {
-            logger.info(ex);
-            getElement(locator, index).clear();
-        }
+    void clear(By locator) {
+        hoverActions(locator);
+        clickActions(locator);
+        actions.keyDown(Keys.CONTROL)
+                .sendKeys("A")
+                .keyDown(Keys.DELETE)
+                .keyUp(Keys.CONTROL)
+                .keyUp(Keys.DELETE)
+                .build()
+                .perform();
     }
 
-    public void clearBySendKeys(By locator) {
-        try {
-            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        } catch (StaleElementReferenceException ex) {
-            logger.info(ex);
-            getElement(locator).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        }
-    }
-
-    public void clearBySendKeys(By locator, int index) {
-        try {
-            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        } catch (StaleElementReferenceException ex) {
-            logger.info(ex);
-            getElement(locator, index).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        }
+    void clear(By locator, int index) {
+        hoverActions(locator, index);
+        clickActions(locator, index);
+        actions.keyDown(Keys.CONTROL)
+                .sendKeys("A")
+                .keyUp(Keys.CONTROL)
+                .keyDown(Keys.DELETE)
+                .keyUp(Keys.DELETE)
+                .build()
+                .perform();
     }
 
     public boolean isCheckedJS(By locator) {
@@ -827,8 +800,8 @@ public class UICommonAction {
     public void closePopup(By locator) {
         try {
             clickJS(locator);
-            sleep(200);
-        } catch (StaleElementReferenceException | NoSuchElementException | InterruptedException ignore) {
+            sleepInMiliSecond(200);
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
 
         if (!getListElement(locator).isEmpty()) {
@@ -842,8 +815,8 @@ public class UICommonAction {
         try {
             clickJS(locator);
             System.out.println("OPEN");
-            sleep(500);
-        } catch (StaleElementReferenceException | InterruptedException ignore) {
+            sleepInMiliSecond(500);
+        } catch (StaleElementReferenceException ignore) {
         }
 
         if (getListElement(popup).isEmpty()) openPopupJS(locator, popup);
@@ -852,8 +825,8 @@ public class UICommonAction {
     public void openPopupJS(By locator, int index, By popup) {
         try {
             clickJS(locator, index);
-            sleep(500);
-        } catch (StaleElementReferenceException | InterruptedException ignore) {
+            sleepInMiliSecond(500);
+        } catch (StaleElementReferenceException ignore) {
         }
 
         if (getListElement(popup).isEmpty()) openPopupJS(locator, index, popup);
@@ -862,8 +835,8 @@ public class UICommonAction {
     public void openDropdownJS(By locator, By dropdown) {
         try {
             clickJS(locator);
-            sleep(200);
-        } catch (StaleElementReferenceException | InterruptedException ignore) {
+            sleepInMiliSecond(200);
+        } catch (StaleElementReferenceException ignore) {
         }
 
         if (getListElement(dropdown).isEmpty()) openDropdownJS(locator, dropdown);
@@ -872,8 +845,8 @@ public class UICommonAction {
     public void openDropdownJS(By locator, int index, By dropdown) {
         try {
             clickJS(locator, index);
-            sleep(200);
-        } catch (StaleElementReferenceException | InterruptedException ignore) {
+            sleepInMiliSecond(200);
+        } catch (StaleElementReferenceException ignore) {
         }
 
         if (getListElement(dropdown).isEmpty()) openDropdownJS(locator, index, dropdown);
@@ -882,8 +855,8 @@ public class UICommonAction {
     public void closeDropdown(By locator, By dropdown) {
         try {
             clickJS(locator);
-            sleep(200);
-        } catch (StaleElementReferenceException | InterruptedException ignore) {
+            sleepInMiliSecond(200);
+        } catch (StaleElementReferenceException ignore) {
         }
 
         if (!getListElement(dropdown).isEmpty()) closeDropdown(locator, dropdown);

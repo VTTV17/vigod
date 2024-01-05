@@ -812,7 +812,7 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public void inputReviewDescription(String reviewDescription) {
-        commonAction.sendKeysActions(loc_lblReviewDescription, reviewDescription);
+        commonAction.sendKeys(loc_lblReviewDescription, reviewDescription);
         logger.info("Input review description: " + reviewDescription);
     }
 

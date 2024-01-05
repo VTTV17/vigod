@@ -120,7 +120,7 @@ public class VariationDetailPage extends VariationDetailElement {
 
         // add translation for variation description
         String description = "[Update][%s][%s] Product description".formatted(languageCode, variation);
-        commonAction.sendKeysActions(loc_dlgEditTranslation_variationDescription, description);
+        commonAction.sendKeys(loc_dlgEditTranslation_variationDescription, description);
         logger.info("[%s] Edit translation for product description: %s.".formatted(variation, description));
 
         commonAction.click(loc_dlgEditTranslation_btnSave);

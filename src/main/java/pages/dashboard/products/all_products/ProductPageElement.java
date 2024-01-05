@@ -82,9 +82,9 @@ public class ProductPageElement {
     By textBoxOnUpdateSKUPopup = By.cssSelector(".justify-content-center input");
     By uploadImageBtnOnVariationTable = By.cssSelector("td > img");
     By uploadBtnOnUpdateImagePopup = By.cssSelector(".modal-content [type = file]");
-    By listingPriceOnUpdatePricePopup = By.cssSelector(".wrapper [name *= 'orgPrice']");
-    By sellingPriceOnUpdatePricePopup = By.cssSelector(".wrapper [name *= 'discountPrice']");
-    By costPriceOnUpdatePricePopup = By.cssSelector(".wrapper [name *= 'costPrice']");
+    By listingPriceOnUpdatePricePopup = By.xpath("//*[contains(@class, 'product-variation-price-editor-modal__table')]//*[contains(@name, 'orgPrice')]//parent::div//parent::div//preceding-sibling::input");
+    By sellingPriceOnUpdatePricePopup = By.xpath("//*[contains(@class, 'product-variation-price-editor-modal__table')]//*[contains(@name, 'discountPrice')]//parent::div//parent::div//preceding-sibling::input");
+    By costPriceOnUpdatePricePopup = By.xpath("//*[contains(@class, 'product-variation-price-editor-modal__table')]//*[contains(@name, 'costPrice')]//parent::div//parent::div//preceding-sibling::input");
     By updateBtnOnPopup = By.cssSelector(".modal-footer .gs-button__green");
     By cancelBtnOnPopup = By.cssSelector(".modal-footer .gs-button__gray--outline");
     By branchDropdownOnUpdateStockPopup = By.cssSelector(".gs-dropdown-multiple-select__drop-header .uik-select__valueWrapper");
