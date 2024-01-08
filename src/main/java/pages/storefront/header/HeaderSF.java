@@ -224,6 +224,7 @@ public class HeaderSF extends GeneralSF {
         logger.info("Click on menu: " + menuItemByText);
         productCollectionSFUI = new ProductCollectionSFElement(driver);
         int i=0;
+        commons.sleepInMiliSecond(1000);
         while (i<5){
             if(productCollectionSFUI.PRODUCT_NAMES.size() == 0){
                 commons.sleepInMiliSecond(1000);

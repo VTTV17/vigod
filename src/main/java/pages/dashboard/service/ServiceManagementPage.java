@@ -119,7 +119,6 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		}
 		logger.info("Go to service detail: "+serviceName);
 		new HomePage(driver).waitTillSpinnerDisappear1();
-//		commons.sleepInMiliSecond(2000);
 		return new CreateServicePage(driver);
 	}
 	public ServiceManagementPage verifyServiceNotDisplayInList(String serviceName){

@@ -53,7 +53,7 @@ public class ServiceDetailTest extends BaseTest{
     public void setUp() throws Exception {
         String appPackage = "com.mediastep.shop0037";
         String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
-        launchApp(appPackage,appActivity);
+        driver=launchApp(appPackage,appActivity);
         generator = new DataGenerator();
         PropertiesUtil.setEnvironment("STAG");
         PropertiesUtil.setSFLanguage("VIE");

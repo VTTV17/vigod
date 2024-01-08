@@ -11,6 +11,7 @@ import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.productcollection.createeditproductcollection.CreateProductCollection;
 import pages.dashboard.products.productcollection.createeditproductcollection.EditProductCollection;
+import pages.dashboard.service.servicecollections.ServiceCollectionManagement;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
@@ -182,5 +183,9 @@ public class ProductCollectionManagement extends HomePage {
         Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CONTENT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.content"));
         Assert.assertEquals(commonAction.getText(collectionManagementUI.OK_BTN_ON_MODAL), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.OKBtn"));
         Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CANCEL_BTN), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.cancelBtn"));
+    }
+    public ProductCollectionManagement waitToUpdateCollection(int second){
+        commonAction.sleepInMiliSecond(1000*second);
+        return this;
     }
 }

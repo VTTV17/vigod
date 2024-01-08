@@ -7,6 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
+import pages.dashboard.service.servicecollections.ServiceCollectionManagement;
 import utilities.UICommonAction;
 import utilities.data.DataGenerator;
 

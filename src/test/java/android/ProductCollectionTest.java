@@ -328,6 +328,7 @@ public class ProductCollectionTest extends BaseTest{
                 .selectProductsWithKeyword(productList)
                 .tapSaveIcon()
                 .verifyUpdateSuccessfullyMessage()
+                .waitToUpdateCollection(3)
                 .refreshPage()
                 .verifyQuantityNewest(productList.length);
         //set up data to check buyer app (the next testcase)
@@ -482,7 +483,7 @@ public class ProductCollectionTest extends BaseTest{
         testCaseId = "MPC20";
         driver = launchApp(sellerAppPackage,selelrAppActivity);
         String collectionName = "Collection price greater keyword"+ generator.randomNumberGeneratedFromEpochTime(10);
-        condition = Constant.PRODUCT_PRICE+"-"+Constant.GREATER_THAN+"-30000";
+        condition = Constant.PRODUCT_PRICE+"-"+Constant.GREATER_THAN+"-300000";
         createAutomationCollectionAndVerify(collectionName,Constant.ALL_CONDITION,condition);
         //set up data to check buyer app (the next testcase)
         callCreateMenuItemParentAPI(collectionName);
@@ -575,7 +576,7 @@ public class ProductCollectionTest extends BaseTest{
         checkPermissionByPackageWhenTapCollectionBtn(userName_goWeb,true);
         checkPermissionByPackageWhenTapCollectionBtn(userName_goApp,true);
         checkPermissionByPackageWhenTapCollectionBtn(userName_goPOS,true);
-        checkPermissionByPackageWhenTapCollectionBtn(userName_goSocial,false);
+        checkPermissionByPackageWhenTapCollectionBtn(userName_goSocial,true);
         checkPermissionByPackageWhenTapCollectionBtn(userName_GoLead,false);
     }
 
