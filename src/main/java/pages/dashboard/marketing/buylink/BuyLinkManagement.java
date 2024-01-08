@@ -44,13 +44,13 @@ public class BuyLinkManagement extends HomePage{
     WebElement CREATE_BUYLINK_BTN;	
 	@FindBy(css = ".gs-page-title")
 	WebElement BUY_LINK_MANAGEMENT_TITLE;
-	@FindBy(xpath = "//section[@class='gs-table-header-item'][2]/span" )
+	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][2]/span" )
 	WebElement URL_LBL;
-	@FindBy(xpath = "//section[@class='gs-table-header-item'][3]/span" )
+	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][3]/span" )
 	WebElement COUPON_LBL;
-	@FindBy(xpath = "//section[@class='gs-table-header-item'][4]/span" )
+	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][4]/span" )
 	WebElement CREATE_DATE_LBL;
-	@FindBy(xpath = "//section[@class='gs-table-header-item'][5]/span" )
+	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][5]/span" )
 	WebElement ACTIONS_LBL;
 	@FindBy(css = ".buylink-content-body .empty span")
 	WebElement NO_BUY_LINK_YET;
@@ -60,7 +60,7 @@ public class BuyLinkManagement extends HomePage{
 	WebElement EDIT_LINK_ICO;
 	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[3]")
 	WebElement DELETE_LINK_ICO;
-	@FindBy(css = ".text-truncate")
+	@FindBy(xpath = "//div[@class='gs-table-body-item text-truncate']")
 	List<WebElement> URL_LIST;
 	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[1]")
 	WebElement COPY_LINK_TOOLTIP;

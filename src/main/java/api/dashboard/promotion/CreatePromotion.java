@@ -667,7 +667,7 @@ public class CreatePromotion {
                             "conditionValue": "%s"
                         }
                     ]
-                },""".formatted(minimumRequirementLabel, (minimumRequirementType == 1) ? (nextInt(minStock) + 1) : (nextLong(minStock * minPurchaseAmount) + 1));
+                },""".formatted(minimumRequirementLabel, (minimumRequirementType == 1) ? (nextInt(minStock) + 1) : (nextLong(minPurchaseAmount) + 1));
         body.append(minimumRequirement);
 
         // init applicable branch
@@ -688,7 +688,37 @@ public class CreatePromotion {
                     "values": [ %s ]
                 },""".formatted(applicableBranchLabel, applicableConditionValue);
         body.append(applicableBranch);
-
+        //Payment method condition, hard ALL
+        String paymentMethodAll = """
+                {
+                                                     "conditionOption": "PAYMENT_METHOD",
+                                                     "conditionType": "PAYMENT_METHOD",
+                                                     "values": [
+                                                         {
+                                                             "conditionValue": "VISA"
+                                                         },
+                                                         {
+                                                             "conditionValue": "COD"
+                                                         },
+                                                         {
+                                                             "conditionValue": "ATM"
+                                                         },
+                                                         {
+                                                             "conditionValue": "DEBT"
+                                                         },
+                                                         {
+                                                             "conditionValue": "MOMO"
+                                                         },
+                                                         {
+                                                             "conditionValue": "PAYPAL"
+                                                         },
+                                                         {
+                                                             "conditionValue": "BANK_TRANSFER"
+                                                         }
+                                                     ]
+                                                 },
+                """;
+        body.append(paymentMethodAll);
         // init platform
         String platform = """
                 {

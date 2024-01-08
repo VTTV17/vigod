@@ -734,7 +734,8 @@ public class CreateServiceTest extends BaseTest {
         new ServiceManagementPage(driver).goToEditService(serviceEdit)
                 .removeAllImages()
                 .uploadImages(images)
-                .clickSaveBtn();
+                .clickSaveBtn()
+                .verifyUpdateServiceSuccessfully();
         loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(SF_URL);
         headerSF = new HeaderSF(driver);
