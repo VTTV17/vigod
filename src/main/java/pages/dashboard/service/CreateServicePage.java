@@ -87,6 +87,7 @@ public class CreateServicePage extends HomePage{
         return this;
     }
     public CreateServicePage inputCollections(int quantity ){
+        commons.sleepInMiliSecond(1000);
         for (int i=0;i<quantity;i++) {
             commons.clickElement(createServiceUI.COLLECTION_FORM);
             logger.info("Click on collection form");
@@ -152,6 +153,7 @@ public class CreateServicePage extends HomePage{
         return this;
     }
     public CreateServicePage clickSaveBtn (){
+        commons.sleepInMiliSecond(5000);
         commons.clickElement(createServiceUI.SAVE_BTN);;
         logger.info("Click on Save button");
         return this;
@@ -466,10 +468,11 @@ public class CreateServicePage extends HomePage{
         int size = createServiceUI.REMOVE_IMAGE_LIST.size();
         for (int i=0;i<size;i++){
             commons.clickElement(createServiceUI.REMOVE_IMAGE_LIST.get(0));
+            logger.info("Remove image: "+i);
             commons.sleepInMiliSecond(100);
         }
         Assert.assertEquals(commons.getText(createServiceUI.ERROR_MESSAGE_IMAGES),PropertiesUtil.getPropertiesValueByDBLang("services.create.imagesFieldEmptyError"));
-        logger.info("Remove alll images");
+        logger.info("Removed alll images");
         return this;
     }
     public CreateServicePage removeAllCollection(){

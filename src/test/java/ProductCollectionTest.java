@@ -144,7 +144,7 @@ public class ProductCollectionTest extends BaseTest {
         return editProductCollection.navigateEditCollection(collectionName, languageDashboard);
     }
 
-    public void navigateSFAndGoToCollectionPage(String collectionName) throws Exception {
+    public void navigateSFAndGoToCollectionPage(String collectionName) {
         pages.storefront.login.LoginPage loginSF = new pages.storefront.login.LoginPage(driver);
         loginSF.navigate(domainSF);
         HeaderSF headerSF = new HeaderSF(driver);
@@ -195,7 +195,8 @@ public class ProductCollectionTest extends BaseTest {
 
         loginAndNavigateToCreateProductCollection()
                 .createProductAutomationCollectionWithoutSEO(collectionName, conditionType, conditions)
-                .verifyCollectionInfoAfterCreated(collectionName, productType, automatedMode, String.valueOf(countItemExpected));
+                .verifyCollectionInfoAfterCreated(collectionName, productType, automatedMode, String.valueOf(countItemExpected))
+                .waitToUpdateCollection(2);
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);
@@ -226,7 +227,8 @@ public class ProductCollectionTest extends BaseTest {
         }
         System.out.println("Product: " + productExpectedList);
         productCollectionManagement = new ProductCollectionManagement(driver);
-        productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, productType, automatedMode, String.valueOf(countItemExpected));
+        productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, productType, automatedMode, String.valueOf(countItemExpected))
+                .waitToUpdateCollection(2);
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);
@@ -374,7 +376,7 @@ public class ProductCollectionTest extends BaseTest {
 
     @Test(priority = 9)
     public void PC_09_BH_4792_CreateAutomationProductCollectionWithPriceGreaterThanNumber() throws Exception {
-        condition = Constant.PRODUCT_PRICE+"-"+Constant.GREATER_THAN+"-30000";
+        condition = Constant.PRODUCT_PRICE+"-"+Constant.GREATER_THAN+"-300000";
         collectionName = generate.generateString(5) + " - " + condition;
         createAutomationCollectionAndVerify(collectionName, Constant.ALL_CONDITION, condition);
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -431,7 +433,7 @@ public class ProductCollectionTest extends BaseTest {
     @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber",priority = 14)
     public void PC_14_BH_7671_UpdatePriorityNumberForProductInCollection() throws Exception {
         loginAndNavigateToEditCollection(collectNameEditPriority)
-                .editProductPriorityInCollection();
+                .editProductPriorityInCollection().waitToUpdateCollection(2);
         navigateToSFAndVerifyCollectionPage(collectNameEditPriority, true);
 //        callDeleteMenuItemAndCollectionAPI(collectNameEditPriority);
     }

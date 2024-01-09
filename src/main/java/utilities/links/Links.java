@@ -4,13 +4,12 @@ import utilities.PropertiesUtil;
 
 public class Links {
     public static String LOGIN_PAGE_TITLE = PropertiesUtil.getEnvironmentData("loginPageTitle");
-    public static String LOGIN_PAGE_TITLE1 =PropertiesUtil.getEnvironmentData("loginPageTitleShopTien");
     public static String SIGNUP_PAGE_TITLE = PropertiesUtil.getEnvironmentData("signupPageTitle");
 
     public static String SETTING_PAGE_TITLE = "Admin Staging - Settings";
     public static String DOMAIN = PropertiesUtil.getEnvironmentData("dashboarUrl");
     public static String SETTING_PATH = "/setting";
-    public static String DOMAIN1 = PropertiesUtil.getEnvironmentData("sfShopTien");
+    public static String SF_URL_TIEN = PropertiesUtil.getEnvironmentData("sfShopTien");
     public static String SF_ShopVi = PropertiesUtil.getEnvironmentData("sfShopVi");
 
     public static String SF_COFFEE = PropertiesUtil.getEnvironmentData("sfShopCoffee");

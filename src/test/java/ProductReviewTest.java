@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static utilities.account.AccountTest.*;
+import static utilities.links.Links.SF_URL_TIEN;
 
 public class ProductReviewTest extends BaseTest {
 
@@ -72,7 +73,7 @@ public class ProductReviewTest extends BaseTest {
 	 * Logs into SF and change user language
 	 */
 	public void loginSF() {
-		sfLoginPage.navigate().performLogin(buyerCountry, buyerUsername, buyerPassword);
+		sfLoginPage.navigate(SF_URL_TIEN).performLogin(buyerCountry, buyerUsername, buyerPassword);
 		sfHeader.waitTillLoaderDisappear();
 		sfHeader.clickUserInfoIcon().changeLanguage(language);
 	}	
@@ -267,7 +268,7 @@ public class ProductReviewTest extends BaseTest {
 		instantiatePageObjects();
 	}
 
-//	@Test
+	@Test
 	public void PR_00_PermissionToUseProductReviews() throws Exception {
 		
         Map<String, String> permission = new HashMap<String, String>();
@@ -286,7 +287,7 @@ public class ProductReviewTest extends BaseTest {
         }
 	}    
 	
-//	@Test
+	@Test
 	public void PR_01_CheckTranslation() throws Exception {
 		
 		/* Log into dashboard */
@@ -404,7 +405,7 @@ public class ProductReviewTest extends BaseTest {
 		Assert.assertNotEquals(sfReviews, sfReviews1);
 	}	
 
-//	@Test
+	@Test
 	public void PR_06_OnlyOneReviewEachOrder() throws Exception {
 		
 		String randomProduct = randomProduct();
@@ -473,7 +474,7 @@ public class ProductReviewTest extends BaseTest {
 		verifyReviewAppearOnSF(dbReviews, sfReviews);
 	}	
 	
-//	@Test
+	@Test
 	public void PR_08_SearchReviews() throws Exception {
 		
         String randomSearchProduct = randomSearchProduct();
@@ -501,7 +502,7 @@ public class ProductReviewTest extends BaseTest {
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm.toUpperCase());
 	}	
 	
-//	@Test
+	@Test
 	public void PR_09_SortReviews() throws Exception {
 		
 		/* Log into dashboard */

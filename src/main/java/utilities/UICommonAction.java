@@ -161,10 +161,11 @@ public class UICommonAction {
         String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "uploadfile" + File.separator + folder + File.separator;
         String fullName = "";
         for (String fileName : fileNames) {
-            fullName = fullName + filePath + fileName + "\n";
+            fullName =fullName+ filePath + fileName + "\n";
         }
-        logger.info("File path: " + fullName);
+        sleepInMiliSecond(2000);
         element.sendKeys(fullName.trim());
+        logger.info("File path: " + fullName);
     }
 
     public void checkTheCheckBoxOrRadio(WebElement element) {
@@ -549,7 +550,7 @@ public class UICommonAction {
     public void click(By locator) {
         try {
             getElement(locator).click();
-        } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
+        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
         }
     }

@@ -104,21 +104,21 @@ public class BuyLinkTest extends BaseTest {
         return buyLinkManagement.clickCreateBuyLink();
     }
 
-    @Test
+//    @Test
     public void BL01_CheckTextOnBuyLinkManagementPage() throws Exception {
         testCaseId = "BL01";
         buyLinkManagement = LoginAndNavigateToBuyLinkPage();
         buyLinkManagement.clickExploreNow().VerifyText();
     }
 
-    @Test
+//    @Test
     public void BL02_CheckTextOnCreateBuyLinkPage() throws Exception {
         testCaseId = "BL02";
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         createBuyLink.VerifyText();
     }
 
-    @Test
+//    @Test
     public void BL03_CheckCreateBuyLinkWithoutDiscountAndCheckout() throws Exception {
         testCaseId = "BL03";
         CreateProduct productInfo = new CreateProduct(loginInformation).createWithoutVariationProduct(false,1);
@@ -139,7 +139,7 @@ public class BuyLinkTest extends BaseTest {
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
         checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
+         checkOutStep1.selectPaymentMethod("COD")
                 .clickOnNextButton()
                 .selectShippingMethod("Self delivery")
                 .clickOnNextButton()

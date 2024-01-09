@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import pages.dashboard.marketing.buylink.CreateBuyLink;
+import pages.dashboard.service.servicecollections.ServiceCollectionManagement;
 import pages.sellerapp.general.SellerGeneral;
 import utilities.PropertiesUtil;
 import utilities.UICommonMobile;
@@ -101,6 +102,10 @@ public class SellerProductCollection {
         common.sleepInMiliSecond(1000);
         common.swipeByCoordinatesInPercent(0.5,0.25,0.5,0.5);
         common.sleepInMiliSecond(1000);
+        return this;
+    }
+    public SellerProductCollection waitToUpdateCollection(int second){
+        common.sleepInMiliSecond(1000*second);
         return this;
     }
     public SellerCreateCollection selectNewestCollection(){

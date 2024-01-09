@@ -56,9 +56,11 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     /*------------------Edit---------------*/
     public List<String> getListServiceName(){
         List<String> serviceNameList = new ArrayList<>();
+        commonAction.sleepInMiliSecond(100);
         while (SERVICE_NAME_LIST.size()>0){
             serviceNameList.add(commonAction.getText(SERVICE_NAME_LIST.get(0)));
             commonAction.clickElement(DELETE_BTN_LIST.get(0));
+            commonAction.sleepInMiliSecond(100);
         }
         return serviceNameList;
     }

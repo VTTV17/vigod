@@ -119,7 +119,7 @@ public class ServiceCollectionTest extends BaseTest{
         loginSF.navigate(domainSF);
         HeaderSF headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage(languageSF);
-        headerSF. clickOnMenuItemByText(collectionName).waitTillLoaderDisappear();
+        headerSF.clickOnMenuItemByText(collectionName).waitTillLoaderDisappear();
         return new ProductCollectionSF(driver);
     }
     public void callLoginAPI() {

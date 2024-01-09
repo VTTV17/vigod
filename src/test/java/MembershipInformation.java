@@ -1,3 +1,5 @@
+import static utilities.links.Links.SF_URL_TIEN;
+
 import java.io.IOException;
 
 import org.testng.Assert;
@@ -80,7 +82,7 @@ public class MembershipInformation extends BaseTest {
 	 * Logs into Storefront and changes user language.
 	 */
 	public void loginSF() {
-		loginSF.navigate().performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
+		loginSF.navigate(SF_URL_TIEN).performLogin(BUYER_COUNTRY, BUYER_MAIL, BUYER_PASSWORD);
 		headerPage.waitTillLoaderDisappear();
 		headerPage.clickUserInfoIcon().changeLanguage(language);
 	}	

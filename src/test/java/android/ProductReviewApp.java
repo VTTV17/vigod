@@ -1,4 +1,6 @@
 package android;
+import static utilities.links.Links.SF_URL_TIEN;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -127,7 +129,7 @@ public class ProductReviewApp extends BaseTest {
 	 */
 	public void loginSF() {
 		sfLoginPage = new pages.storefront.login.LoginPage(driverWeb);
-		sfLoginPage.navigate().performLogin(BUYER_COUNTRY, BUYER_USERNAME, BUYER_PASSWORD);
+		sfLoginPage.navigate(SF_URL_TIEN).performLogin(BUYER_COUNTRY, BUYER_USERNAME, BUYER_PASSWORD);
 		sfHeader = new HeaderSF(driverWeb);
 		sfHeader.waitTillLoaderDisappear();
 		sfHeader.clickUserInfoIcon().changeLanguage(language);
