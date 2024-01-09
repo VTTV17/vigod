@@ -123,7 +123,7 @@ public class SignupPage extends GeneralSF {
     WebElement WRONG_CODE_ERROR;
 
     public SignupPage navigate() {
-        driver.get(DOMAIN1);
+        driver.get(SF_URL_TIEN); //Temporary
         return this;
     }
 

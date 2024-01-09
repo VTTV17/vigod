@@ -550,7 +550,7 @@ public class UICommonAction {
     public void click(By locator) {
         try {
             getElement(locator).click();
-        } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
+        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
         }
     }

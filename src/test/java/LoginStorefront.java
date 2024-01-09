@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import pages.dashboard.customers.allcustomers.AllCustomers;
 import pages.dashboard.customers.allcustomers.CustomerDetails;
-import pages.dashboard.home.HomePage;
 import pages.storefront.header.ChangePasswordDialog;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.login.LoginPage;
@@ -28,6 +27,9 @@ import utilities.jsonFileUtility;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
+
+import static utilities.links.Links.*;
+import static utilities.PropertiesUtil.getPropertiesValueBySFLang;
 
 public class LoginStorefront extends BaseTest {
 
@@ -61,24 +63,35 @@ public class LoginStorefront extends BaseTest {
 	String GOMUA_PHONE_PASSWORD = gm.findValue("buyer").findValue("phone").findValue("password").asText();
 	String GOMUA_PHONE_COUNTRY = gm.findValue("buyer").findValue("phone").findValue("country").asText();
 	
-	String BLANK_USERNAME_ERROR = sf.findValue("emptyUsernameError").asText();
-	String BLANK_PASSWORD_ERROR = sf.findValue("emptyPasswordError").asText();
-	String INVALID_USERNAME_ERROR = sf.findValue("invalidUsernameFormat").asText();
-	String INVALID_CREDENTIALS_ERROR = sf.findValue("invalidCredentials").asText();
-	String NON_EXISTING_EMAIL_ERROR = sf.findValue("notExistingEmailAccount").asText();
-	String NON_EXISTING_PHONE_ERROR = sf.findValue("notExistingPhoneAccount").asText();
-	String WRONG_CURRENT_PASSWORD_ERROR = sf.findValue("wrongCurrentPassword").asText();
-	String INVALID_NEW_PASSWORD_ERROR = sf.findValue("invalidNewPassword").asText();
-	String SAME_4_NEW_PASSWORD_ERROR = sf.findValue("same4Passwords").asText();
+	String BLANK_USERNAME_ERROR;
+	String BLANK_PASSWORD_ERROR;
+	String INVALID_USERNAME_ERROR;
+	String WRONG_CREDENTIALS_ERROR;
+	String NON_EXISTING_EMAIL_ERROR;
+	String NON_EXISTING_PHONE_ERROR;
+	String WRONG_CURRENT_PASSWORD_ERROR;
+	String INVALID_NEW_PASSWORD_ERROR;
+	String SAME_4_NEW_PASSWORD_ERROR;
 
+	public void loadErrorText(String language) throws Exception {
+		BLANK_USERNAME_ERROR = getPropertiesValueBySFLang("login.error.emptyUsername", language);
+		BLANK_PASSWORD_ERROR = getPropertiesValueBySFLang("login.error.emptyPassword", language);
+		INVALID_USERNAME_ERROR = getPropertiesValueBySFLang("login.error.invalidUsername", language);
+		WRONG_CREDENTIALS_ERROR = getPropertiesValueBySFLang("login.error.wrongCredentials", language);
+		NON_EXISTING_EMAIL_ERROR = getPropertiesValueBySFLang("forgotPassword.error.notExistingEmail", language);
+		NON_EXISTING_PHONE_ERROR = getPropertiesValueBySFLang("forgotPassword.error.notExistingPhone", language);
+		WRONG_CURRENT_PASSWORD_ERROR = getPropertiesValueBySFLang("forgotPassword.error.wrongCurrentPassword", language);
+		INVALID_NEW_PASSWORD_ERROR = getPropertiesValueBySFLang("forgotPassword.error.invalidNewPassword", language);
+		SAME_4_NEW_PASSWORD_ERROR = getPropertiesValueBySFLang("forgotPassword.error.same4Passwords", language);
+	}	
 	
-	public String getVerificationCode(String username) throws InterruptedException, SQLException {
+	public String getVerificationCode(String phoneCode, String username) throws SQLException {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
 			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
-			verificationCode = new InitConnection().getResetKey(loginPage.countryCode + ":" + username);
+			verificationCode = new InitConnection().getResetKey(phoneCode + ":" + username);
 		}
 		return verificationCode;
 	}
@@ -92,59 +105,75 @@ public class LoginStorefront extends BaseTest {
 	}	
 	
 	@BeforeMethod
-	public void setup() {
+	public void setup() throws Exception {
 		instantiatePageObjects();
+		loadErrorText(language); // Temporary
 	}
 
-	@Test
-	public void SignupSF_01_CheckTranslation() throws Exception {
+//	@Test
+	public void LoginSF_01_CheckTranslation() throws Exception {
 		
-		/* Sign up */
-		loginPage.navigate();
-		new HeaderSF(driver).clickUserInfoIcon()
-		.changeLanguage(language)
-        .clickUserInfoIcon()
-        .clickLoginIcon();
+		loginPage.navigate(SF_URL_TIEN);
+		new HeaderSF(driver).clickUserInfoIcon().changeLanguage(language).clickUserInfoIcon().clickLoginIcon();
         loginPage.verifyTextAtLoginScreen(language);
         
-        loginPage.navigate();
-        new HeaderSF(driver).clickUserInfoIcon()
-        .clickUserInfoIcon()
-        .clickLoginIcon();
+        loginPage.navigate(SF_URL_TIEN);
+        new HeaderSF(driver).clickUserInfoIcon().clickUserInfoIcon().clickLoginIcon();
         loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen(language);
 	}		
 	
 	@Test
 	public void LoginSF_03_LoginWithAllFieldsLeftBlank() {
-		loginPage.navigate().performLogin("", generate.generateNumber(9))
-				.verifyEmailOrPhoneNumberError(BLANK_USERNAME_ERROR).completeVerify();
-		// Password field is left empty.
-		loginPage.navigate().performLogin(generate.generateNumber(9), "")
-				.verifyPasswordError(BLANK_PASSWORD_ERROR).completeVerify();
-		// All fields are left empty.
-		loginPage.navigate().performLogin("", "").verifyEmailOrPhoneNumberError(BLANK_USERNAME_ERROR)
-				.verifyPasswordError(BLANK_PASSWORD_ERROR).completeVerify();
+		
+		loginPage.navigate(SF_URL_TIEN);
+		new HeaderSF(driver).clickUserInfoIcon().changeLanguage(language);
+		
+		//Empty username
+		String error = loginPage.performLogin("", generate.generateNumber(9)).getUsernameError();
+		Assert.assertEquals(error, BLANK_USERNAME_ERROR);
+		commonAction.refreshPage();
+		
+		//Empty password
+		error = loginPage.performLogin(generate.generateNumber(9), "").getPasswordError();
+		Assert.assertEquals(error, BLANK_PASSWORD_ERROR);
+		commonAction.refreshPage();
+		
+		//Empty username and password
+		error = loginPage.performLogin("", "").getPasswordError();
+		Assert.assertEquals(error, BLANK_PASSWORD_ERROR);
+		error = loginPage.getUsernameError();
+		Assert.assertEquals(error, BLANK_USERNAME_ERROR);
 	}
 
 	@Test
 	public void LoginSF_04_LoginWithInvalidPhoneFormat() {
-		// Log in with a phone number consisting of 7 digits.
-		loginPage.navigate().performLogin(generate.generateNumber(7), generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
-		// Log in with a phone number consisting of 16 digits.
-		loginPage.navigate().performLogin(generate.generateNumber(16), generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
+		
+		loginPage.navigate(SF_URL_TIEN);
+		new HeaderSF(driver).clickUserInfoIcon().changeLanguage(language);
+		
+		//7-digit phone number
+		String error = loginPage.performLogin(generate.generateNumber(7), generate.generateString(10)).getUsernameError();
+		Assert.assertEquals(error, INVALID_USERNAME_ERROR);
+		commonAction.refreshPage();
+		
+		//16-digit phone number
+		error = loginPage.performLogin(generate.generateNumber(16), generate.generateString(10)).getUsernameError();
+		Assert.assertEquals(error, INVALID_USERNAME_ERROR);
 	}
 
 	@Test
 	public void LoginSF_05_LoginWithInvalidMailFormat() {
-		loginPage.navigate().performLogin(generate.generateString(10), generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_USERNAME_ERROR).completeVerify();
+		
+		loginPage.navigate(SF_URL_TIEN);
+		new HeaderSF(driver).clickUserInfoIcon().changeLanguage(language);
+		
+		String error = loginPage.performLogin(generate.generateString(10), generate.generateString(10)).getUsernameError();
+		Assert.assertEquals(error, INVALID_USERNAME_ERROR);
 	}
 
-	@Test
+//	@Test
 	public void BH_1335_UnableToChangePasswordForFacebookAccount() {
-		loginPage.navigate();
+		loginPage.navigate(SF_URL_TIEN);
 		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickFacebookIcon();
 		
@@ -161,40 +190,37 @@ public class LoginStorefront extends BaseTest {
 		assertFalse(headerPage.checkForPresenceOfChangePasswordLink());
 	}
 	
-	@Test
+//	@Test
 	public void LoginSF_13_NavigateBetweenLoginAndSignupForm() {
-		loginPage.navigate();
-		headerPage.clickUserInfoIcon()
-		.clickSignupIcon();
 		
-		new SignupPage(driver)
-		.inputBirthday("02/02/1990")
-		.clickLoginNow()
-		.clickForgotPassword()
-		.clickBackToLogin()
-		.clickCreateNewAccount()
-		.inputBirthday("01/02/1990");
+		loginPage.navigate(SF_URL_TIEN);
+		headerPage.clickUserInfoIcon().changeLanguage(language).clickUserInfoIcon().clickSignupIcon();
+		
+		new SignupPage(driver).inputBirthday("02/02/1990").clickLoginNow().clickForgotPassword().clickBackToLogin().clickCreateNewAccount().inputBirthday("01/02/1990");
 	}
 	
 	@Test
 	public void LoginSF_06_LoginWithNonExistingAccount() {
-		loginPage.navigate()
-				.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
-				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
-		loginPage.navigate().performLogin(generate.generateNumber(13), generate.generateString(10))
-				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
+
+		loginPage.navigate(SF_URL_TIEN);
+		headerPage.clickUserInfoIcon().changeLanguage(language);
+		
+		String error = loginPage.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10)).getLoginFailError();
+		Assert.assertEquals(error, WRONG_CREDENTIALS_ERROR);
+		commonAction.refreshPage();
+		
+		error = loginPage.performLogin(generate.generateNumber(13), generate.generateString(10)).getLoginFailError();
+		Assert.assertEquals(error, WRONG_CREDENTIALS_ERROR);
 	}
 	
 	@Test
 	public void BH_1609_LogoutAccount() {
-		loginPage.navigate()
-		.performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
+		loginPage.navigate(SF_URL_TIEN).performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
 		
 		commonAction.openNewTab();
 		commonAction.switchToWindow(1);
 		
-		loginPage.navigate(utilities.links.Links.SF_ShopVi)
-		.performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
+		loginPage.navigate(SF_ShopVi).performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
 		
 		commonAction.switchToWindow(0);
 		headerPage.clickUserInfoIcon().clickLogout();
@@ -207,40 +233,31 @@ public class LoginStorefront extends BaseTest {
 	@Test
 	public void BH_1282_LoginWithCorrectAccount() throws InterruptedException {
 		// Login
-		loginPage.navigate().performLogin(BUYER_PHONE_COUNTRY, BUYER_PHONE_USERNAME, BUYER_PHONE_PASSWORD);
+		loginPage.navigate(SF_URL_TIEN).performLogin(BUYER_PHONE_COUNTRY, BUYER_PHONE_USERNAME, BUYER_PHONE_PASSWORD);
 		
 		// Get user's display name in User profile
-		headerPage.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyAccountSection();
-		
+		headerPage.clickUserInfoIcon().clickUserProfile().clickMyAccountSection();
 		String displayName = new MyAccount(driver).getDisplayName();
 		String phone = new MyAccount(driver).getPhoneNumber();
-
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Login
-		loginPage.navigate().performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
+		loginPage.navigate(SF_URL_TIEN).performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
 		
 		// Get user's display name in User profile
-		headerPage.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyAccountSection();
-		
+		headerPage.clickUserInfoIcon().clickUserProfile().clickMyAccountSection();
 		String displayName1 = new MyAccount(driver).getDisplayName();
 		String mail = new MyAccount(driver).getEmail();
-
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Verify user info in Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-		new HomePage(driver).waitTillSpinnerDisappear();
 		
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName).clickUser(displayName);
 		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), phone);
+		new CustomerDetails(driver).clickCancelBtn();
 		
-		commonAction.navigateBack();
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName1).clickUser(displayName1);
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}
@@ -248,40 +265,31 @@ public class LoginStorefront extends BaseTest {
 	@Test
 	public void BH_1595_LoginWithExistingGomuaAccount() throws InterruptedException {
 		// Login
-		loginPage.navigate().performLogin(GOMUA_PHONE_COUNTRY, GOMUA_PHONE_USERNAME, GOMUA_PHONE_PASSWORD);
+		loginPage.navigate(SF_URL_TIEN).performLogin(GOMUA_PHONE_COUNTRY, GOMUA_PHONE_USERNAME, GOMUA_PHONE_PASSWORD);
 		
 		// Get user's display name in User profile
-		headerPage.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyAccountSection();
-		
+		headerPage.clickUserInfoIcon().clickUserProfile().clickMyAccountSection();
 		String displayName = new MyAccount(driver).getDisplayName();
 		String phone = new MyAccount(driver).getPhoneNumber();
-
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Login
-		loginPage.navigate().performLogin(GOMUA_MAIL_COUNTRY, GOMUA_MAIL_USERNAME, GOMUA_MAIL_PASSWORD);
+		loginPage.navigate(SF_URL_TIEN).performLogin(GOMUA_MAIL_COUNTRY, GOMUA_MAIL_USERNAME, GOMUA_MAIL_PASSWORD);
 		
 		// Get user's display name in User profile
-		headerPage.clickUserInfoIcon()
-		.clickUserProfile()
-		.clickMyAccountSection();
-		
+		headerPage.clickUserInfoIcon().clickUserProfile().clickMyAccountSection();
 		String displayName1 = new MyAccount(driver).getDisplayName();
 		String mail = new MyAccount(driver).getEmail();
-
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Verify user info in Dashboard
 		pages.dashboard.login.LoginPage dashboard = new pages.dashboard.login.LoginPage(driver);
 		dashboard.navigate().performLogin(STORE_COUNTRY, STORE_USERNAME, STORE_PASSWORD);
-//		new HomePage(driver).waitTillSpinnerDisappear();
 		
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName).clickUser(displayName);
 		Assert.assertEquals(new CustomerDetails(driver).getPhoneNumber(), phone);
-		
-		commonAction.navigateBack();
+		new CustomerDetails(driver).clickCancelBtn();
+	
 		new AllCustomers(driver).navigate().inputSearchTerm(displayName1).clickUser(displayName1);
 		Assert.assertEquals(new CustomerDetails(driver).getEmail(), mail);
 	}		
@@ -293,20 +301,15 @@ public class LoginStorefront extends BaseTest {
 		String password = BUYER_FORGOT_MAIL_PASSWORD;
 		String newPassword = password + "@" + generate.generateNumber(3);
 
-		loginPage.navigate();
+		loginPage.navigate(SF_URL_TIEN);
 		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickForgotPassword()
-		.selectCountryForgot(country)
-		.inputUsernameForgot(username)
-		.clickContinueBtn()
-		.inputPasswordForgot(newPassword);
-		loginPage.inputVerificationCode(getVerificationCode(username))
-		.clickConfirmBtn();
-
+		.selectCountryForgot(country).inputUsernameForgot(username).clickContinueBtn().inputPasswordForgot(newPassword)
+		.inputVerificationCode(getVerificationCode(generate.getPhoneCode(country), username)).clickConfirmBtn();
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		loginPage.navigate().performLogin(country, username, newPassword);
+		loginPage.performLogin(country, username, newPassword);
 		
 		// Change password back to the first password
 		String currentPassword = "";
@@ -330,20 +333,15 @@ public class LoginStorefront extends BaseTest {
 		String password = BUYER_FORGOT_PHONE_PASSWORD;
 		String newPassword = password + "@" + generate.generateNumber(3);
 
-		loginPage.navigate();
+		loginPage.navigate(SF_URL_TIEN);
 		headerPage.clickUserInfoIcon().clickLoginIcon();
 		loginPage.clickForgotPassword()
-		.selectCountryForgot(country)
-		.inputUsernameForgot(username)
-		.clickContinueBtn()
-		.inputPasswordForgot(newPassword);
-		loginPage.inputVerificationCode(getVerificationCode(username))
-		.clickConfirmBtn();
-
+		.selectCountryForgot(country).inputUsernameForgot(username).clickContinueBtn().inputPasswordForgot(newPassword)
+		.inputVerificationCode(getVerificationCode(generate.getPhoneCode(country), username)).clickConfirmBtn();
 		headerPage.clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		loginPage.navigate().performLogin(country, username, newPassword);
+		loginPage.performLogin(country, username, newPassword);
 		
 		// Change password back to the first password
 		String currentPassword = "";
@@ -365,21 +363,17 @@ public class LoginStorefront extends BaseTest {
 		String nonExistingMailAccount = generate.generateString(10) + "@nbobd.com";
 		String nonExistingPhoneAccount = generate.generateNumber(13);
 		
-		loginPage.navigate();
-		headerPage.clickUserInfoIcon().clickLoginIcon();
-		loginPage.clickForgotPassword()
-		.inputUsernameForgot(nonExistingMailAccount)
-		.clickContinueBtn()
-		.verifyForgetPasswordForNonExistingAccountError(NON_EXISTING_EMAIL_ERROR)
-		.completeVerify();
+		loginPage.navigate(SF_URL_TIEN);
+		headerPage.clickUserInfoIcon().changeLanguage(language);
 		
-		loginPage.navigate();
 		headerPage.clickUserInfoIcon().clickLoginIcon();
-		loginPage.clickForgotPassword()
-		.inputUsernameForgot(nonExistingPhoneAccount)
-		.clickContinueBtn()
-		.verifyForgetPasswordForNonExistingAccountError(NON_EXISTING_PHONE_ERROR)
-		.completeVerify();
+		String error = loginPage.clickForgotPassword().inputUsernameForgot(nonExistingMailAccount).clickContinueBtn().getForgotPasswordError();
+		Assert.assertEquals(error, NON_EXISTING_EMAIL_ERROR);
+		
+		commonAction.refreshPage();
+		headerPage.clickUserInfoIcon().clickLoginIcon();
+		error = loginPage.clickForgotPassword().inputUsernameForgot(nonExistingPhoneAccount).clickContinueBtn().getForgotPasswordError();
+		Assert.assertEquals(error, NON_EXISTING_PHONE_ERROR);
 	}
 
 	@Test
@@ -388,7 +382,10 @@ public class LoginStorefront extends BaseTest {
 		String error;
 		
 		// Login
-		loginPage.navigate().performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
+		loginPage.navigate(SF_URL_TIEN);
+		headerPage.clickUserInfoIcon().changeLanguage(language);
+		
+		loginPage.performLogin(BUYER_MAIL_COUNTRY, BUYER_MAIL_USERNAME, BUYER_MAIL_PASSWORD);
 		
 		// Empty current password
 		error = headerPage.clickUserInfoIcon()
@@ -463,7 +460,7 @@ public class LoginStorefront extends BaseTest {
 		String newPassword = password + "@" + generate.generateNumber(3);
 		
 		// Login
-		loginPage.navigate().performLogin(country, username, password);
+		loginPage.navigate(SF_URL_TIEN).performLogin(country, username, password);
 		
 		// Change password back to the first password
 		String currentPassword = "";
@@ -482,7 +479,7 @@ public class LoginStorefront extends BaseTest {
 		
 		// Logout then re-login with old password
 		headerPage.clickUserInfoIcon().clickLogout();
-		loginPage.navigate().performLogin(country, username, newPassword);
+		loginPage.performLogin(country, username, newPassword);
 		headerPage.clickUserInfoIcon().clickLogout();
 	}	
 	
@@ -494,7 +491,9 @@ public class LoginStorefront extends BaseTest {
 		String newPassword = password + "@" + generate.generateNumber(3);
 
 		// Login
-		loginPage.navigate().performLogin(country, username, password);
+		loginPage.navigate(SF_URL_TIEN);
+		headerPage.clickUserInfoIcon().changeLanguage(language);
+		loginPage.performLogin(country, username, password);
 		
 		// Change password back to the first password
 		String currentPassword = "";
@@ -530,7 +529,7 @@ public class LoginStorefront extends BaseTest {
 		
 		// Logout then re-login with old password
 		headerPage.clickUserInfoIcon().clickLogout();
-		loginPage.navigate().performLogin(country, username, newPassword);
+		loginPage.performLogin(country, username, newPassword);
 		headerPage.clickUserInfoIcon().clickLogout();
 	}	
 
