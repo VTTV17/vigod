@@ -2384,7 +2384,7 @@ public class ProductPage extends ProductPageElement {
 
     public void navigateToProductDetailById(int productId) {
         commonAction.navigateToURL(DOMAIN + updateProductPath.formatted(productId));
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
         commonAction.getElement(uiSEOSetting);
     }
 

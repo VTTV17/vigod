@@ -37,6 +37,8 @@ import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.driver.InitWebdriver;
 
+import static utilities.links.Links.*;
+
 public class SignupStorefront extends BaseTest {
 	
 	final static Logger logger = LogManager.getLogger(SignupStorefront.class);
@@ -207,7 +209,7 @@ public class SignupStorefront extends BaseTest {
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 	}
 
 	@Test
@@ -239,7 +241,7 @@ public class SignupStorefront extends BaseTest {
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 	}
 
 	@Test
@@ -290,7 +292,7 @@ public class SignupStorefront extends BaseTest {
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 
 		// Verify user info in SF
 		new HeaderSF(driver)
@@ -369,7 +371,7 @@ public class SignupStorefront extends BaseTest {
 //		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 		
 		// Re-login with new password
-//		new LoginPage(driver).navigate().performLogin(country, username, password);
+//		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 		
 		// Verify user info in SF
 		new HeaderSF(driver)
@@ -401,7 +403,7 @@ public class SignupStorefront extends BaseTest {
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 
 		// Verify user info in SF
 		new HeaderSF(driver)
@@ -471,7 +473,7 @@ public class SignupStorefront extends BaseTest {
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 		
 		// Logout
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
@@ -504,7 +506,7 @@ public class SignupStorefront extends BaseTest {
 		new HeaderSF(driver).clickUserInfoIcon().clickLogout();
 
 		// Re-login with new password
-		new LoginPage(driver).navigate().performLogin(country, username, password);
+		new LoginPage(driver).navigate(SF_URL_TIEN).performLogin(country, username, password);
 
 		// Get user info in SF
 		new HeaderSF(driver)

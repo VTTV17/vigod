@@ -2,6 +2,7 @@ package pages.dashboard.customers.allcustomers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -57,6 +58,8 @@ public class CustomerDetails extends HomePage {
     WebElement CITY_INPUT;
     @FindBy (id = "zipCode")
     WebElement ZIPCODE_INPUT;
+    
+    By loc_btnCancel = By.cssSelector(".btn-cancel");
     
     public String getEmail() {
     	String value = commonAction.getElementAttribute(wait.until(ExpectedConditions.visibilityOf(EMAIL)), "value");
@@ -189,4 +192,9 @@ public class CustomerDetails extends HomePage {
         verifyZipCode(zipCode);
         return this;
     }
+    
+    public void clickCancelBtn(){
+    	commonAction.click(loc_btnCancel);
+        logger.info("Clicked on Cancel button");
+    }    
 }

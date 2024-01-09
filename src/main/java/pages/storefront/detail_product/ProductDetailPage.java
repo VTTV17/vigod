@@ -786,7 +786,11 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public List<List<String>> getAllReviews() {
-        commonAction.sleepInMiliSecond(1000);
+		// Wait until Review tab is present in a period of 10s
+		for(int i=0; i<10; i++) {
+			if (isReviewTabDisplayed()) break;
+			commonAction.sleepInMiliSecond(1000);
+		}
         List<List<String>> table = new ArrayList<>();
         List<WebElement> reviews = commonAction.getListElement(loc_tblReview);
         for (WebElement eachReview : reviews) {
