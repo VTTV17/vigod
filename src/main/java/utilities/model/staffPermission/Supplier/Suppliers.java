@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 
 public class Suppliers {
-    private Debt debt;
-    private PurchaseOrder purchaseOrder;
-    private Supplier supplier;
+    private Debt debt = new Debt();
+    private PurchaseOrder purchaseOrder = new PurchaseOrder();
+    private Supplier supplier = new Supplier();
 }

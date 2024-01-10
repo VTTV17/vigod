@@ -4,13 +4,13 @@ import lombok.Data;
 
 @Data
 public class Setting {
-    private Account account;
-    private StoreInformation storeInformation;
-    private BranchManagement branchManagement;
-    private ShippingAndPayment shippingAndPayment;
-    private Permission permission;
-    private StoreLanguage storeLanguage;
-    private StaffManagement staffManagement;
-    private TAX tAX;
-    private BankAccount bankAccount;
+    private Account account = new Account();
+    private StoreInformation storeInformation = new StoreInformation();
+    private BranchManagement branchManagement = new BranchManagement();
+    private ShippingAndPayment shippingAndPayment = new ShippingAndPayment();
+    private Permission permission = new Permission();
+    private StoreLanguage storeLanguage = new StoreLanguage();
+    private StaffManagement staffManagement = new StaffManagement();
+    private TAX tAX = new TAX();
+    private BankAccount bankAccount = new BankAccount();
 }

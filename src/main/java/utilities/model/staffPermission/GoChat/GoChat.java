@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class GoChat{
-	private Zalo zalo;
-	private SMSCampaign sMSCampaign;
-	private Facebook facebook;
+	private Zalo zalo = new Zalo();
+	private SMSCampaign sMSCampaign = new SMSCampaign();
+	private Facebook facebook = new Facebook();
 }
