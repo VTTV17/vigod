@@ -12,6 +12,8 @@ import utilities.model.staffPermission.CreatePermission;
 public class PermissionAPI {
 	String CREATE_GROUP_PERMISSION_PATH = "/storeservice/api/authorized-group-permissions/store/%s";
 	String EDIT_GROUP_PERMISSION_PATH = CREATE_GROUP_PERMISSION_PATH + "/group/%s";
+	String GRANT_GROUP_PERMISSION_TO_STAFF_PATH = "/storeservice/api/store_staffs/add-staff-to-permission-group/%s";
+	String REMOVE_GROUP_PERMISSION_FROM_STAFF_PATH = "/storeservice/api/store_staffs/remove-staff-from-permission-group/%s/%s";
 	API api = new API();
 	LoginDashboardInfo loginInfo;
 
@@ -367,11 +369,10 @@ public class PermissionAPI {
 				Integer.parseInt(model.getSetting_branchManagement(), 2), Integer.parseInt(model.getSetting_tax(), 2),
 				Integer.parseInt(model.getSetting_storeLanguage(), 2));
 
-		Response createGroupPermissionResponse = api
-				.post(CREATE_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body);
-		createGroupPermissionResponse.then().statusCode(201);
+		Response response = api.post(CREATE_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body);
+		response.then().statusCode(201);
 
-		return createGroupPermissionResponse.jsonPath();
+		return response.jsonPath();
 	}
 
 	public int createGroupPermissionAndGetID(String name, String description, CreatePermission model) {
@@ -727,36 +728,63 @@ public class PermissionAPI {
 				Integer.parseInt(model.getSetting_branchManagement(), 2), Integer.parseInt(model.getSetting_tax(), 2),
 				Integer.parseInt(model.getSetting_storeLanguage(), 2));
 
-		Response editGroupPermissionResponse = api
-				.put(EDIT_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID(), id), loginInfo.getAccessToken(), body);
-		editGroupPermissionResponse.then().statusCode(200);
+		Response response = api.put(EDIT_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID(), id), loginInfo.getAccessToken(), body);
+		response.then().statusCode(200);
 
-		return editGroupPermissionResponse.jsonPath();
+		return response.jsonPath();
 	}
 
 	public int editGroupPermissionAndGetID(int groupID, String name, String description, CreatePermission model) {
 		return editGroupPermission(groupID, name, description, model).getInt("id");
 	}	
+
+	
+	public void deleteGroupPermission(int groupID) {
+		Response response = api.delete(EDIT_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID(), groupID), loginInfo.getAccessToken());
+		response.then().statusCode(204);
+	}		
+	
+	public void grantGroupPermissionToStaff(int staffID, int groupID) {
+        String body = """
+                {
+        		"staffIds": "%s"
+                }""".formatted(staffID);
+        Response response = api.post(GRANT_GROUP_PERMISSION_TO_STAFF_PATH.formatted(groupID), loginInfo.getAccessToken(), body);
+        response.then().statusCode(200);
+	}	
+	
+	public void removeGroupPermissionFromStaff(int staffID, int groupID) {
+		Response response = api.delete(REMOVE_GROUP_PERMISSION_FROM_STAFF_PATH.formatted(groupID, staffID), loginInfo.getAccessToken());
+		response.then().statusCode(200);
+	}	
 	
 	public static void main(String[] args) {
-		LoginInformation loginInformation = new Login()
-				.setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
-
+		PropertiesUtil.setEnvironment("STAG");
+		
+		LoginInformation ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
+		LoginInformation staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
+		
+		LoginDashboardInfo staffLoginInfo = new Login().getStaffInfo(staffCredentials);
+		
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
 		model.setPromotion_discountCode("1101000000");
 		model.setGoWallet_none("010");
 		model.setGoChat_smsCampaign("0111111");
 		model.setReservation_posService("111111111111111");
+		model.setCashbook_none("111111111111");
 
-		PropertiesUtil.setEnvironment("STAG");
-//		int id = new PermissionAPI(loginInformation).createGroupPermissionAndGetID("Tien's Permission 3",
-//				" Description Tien's Permission 3", model);
-//		System.out.println(id);
+		int groupPermissionId = new PermissionAPI(ownerCredentials).createGroupPermissionAndGetID("Create Tien's Permission", "Create Description Tien's Permission", model);
 		
-		int id = new PermissionAPI(loginInformation).editGroupPermissionAndGetID(1981, "Tien's Permission Edit 1",
-				"Description Tien's Permission Edit 1", model);
-		System.out.println(id);
+		new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Tien's Permission", "Description Tien's Permission", model);
+		
+		int staffId = new StaffManagement(ownerCredentials).getStaffId(staffLoginInfo.getSellerID());
+		
+		new PermissionAPI(ownerCredentials).grantGroupPermissionToStaff(staffId, groupPermissionId);
+		
+		new PermissionAPI(ownerCredentials).removeGroupPermissionFromStaff(staffId, groupPermissionId);
+		
+		new PermissionAPI(ownerCredentials).deleteGroupPermission(groupPermissionId);
 	}
 
 }
