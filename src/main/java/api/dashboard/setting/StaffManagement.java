@@ -32,4 +32,8 @@ public class StaffManagement {
     public List<String> getAllStaffPermissionCode() {
         return getAllStaffJsonPath().getList("permissionCode");}
 
+    public int getStaffId(int userId) {
+    	return  getAllStaffJsonPath().get("find { it.userId == %s }.id".formatted(userId));
+    }
+    
 }
