@@ -1,17 +1,10 @@
 package pages.dashboard.marketing.pushnotification;
 
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
@@ -21,41 +14,30 @@ public class PushNotificationManagement {
 	final static Logger logger = LogManager.getLogger(PushNotificationManagement.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commonAction;
-
-	SoftAssert soft = new SoftAssert();
 
 	public PushNotificationManagement(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-    @FindBy(css = ".notification-intro .gs-button__green")
-    WebElement EXPLORE_NOW_BTN;	
-	
-    @FindBy(css = ".notification-header button.gs-button__green")
-    WebElement CREATE_CAMPAIGN_BTN;
-    By CREATECAMPAIGN_BUTTON_LOCATOR = By.cssSelector(".notification-header button.gs-button__green"); //Temporary
-
+    By loc_btnExploreNow = By.cssSelector(".notification-intro .gs-button__green");
+    By loc_btnCreateCampaign = By.cssSelector(".notification-header button.gs-button__green"); //Temporary
     
     public PushNotificationManagement clickExploreNow() {
-    	commonAction.clickElement(EXPLORE_NOW_BTN);
+    	commonAction.click(loc_btnExploreNow);
     	logger.info("Clicked on 'Explore Now' button.");
     	
     	//Sometimes the element is not present even after the loading icon has disappeared. The code below fixes this intermittent issue
     	for (int i=0; i<30; i++) {
-    		if (commonAction.getElements(CREATECAMPAIGN_BUTTON_LOCATOR).size() >0) break;
+    		if (commonAction.getElements(loc_btnCreateCampaign).size() >0) break;
     		commonAction.sleepInMiliSecond(500);
     	}
-    	
     	return this;
     }        
     
     public PushNotificationManagement clickCreateCampaign() {
-    	commonAction.clickElement(CREATE_CAMPAIGN_BTN);
+    	commonAction.click(loc_btnCreateCampaign);
     	logger.info("Clicked on 'Create Campaign' button.");
     	return this;
     }    	
