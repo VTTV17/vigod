@@ -110,7 +110,7 @@ public class CreateLoyaltyProgram {
 		uploadImages(avatar);
 		clickAddSegment();
 	
-		new AddCollectionDialog(driver)
+		new AddSegmentDialog(driver)
 		.inputSearchTerm(customerSegment)
 		.selectCustomerSegment(customerSegment)
 		.clickOKBtn();
