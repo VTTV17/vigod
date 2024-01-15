@@ -34,7 +34,7 @@
     "staff" : {
       "mail" : {
         "username" : "etrelwitdi@mailnesia.com",
-        "password" : "uBMolFhj!1"
+        "password" : "fortesting!1"
       }
     },
     "emptyError" : "Mục này không được để trống",
@@ -79,7 +79,7 @@
     "emptyUsernameError" : "Hãy nhập số điện thoại hoặc email",
     "emptyPasswordError" : "Hãy nhập mật khẩu",
     "invalidUsernameFormat" : "Số điện thoại hoặc email không đúng",
-    "invalidCredentials" : "Sai số điện thoại / email hoặc mật khẩu",
+    "wrongCredentials" : "Sai số điện thoại / email hoặc mật khẩu",
     "notExistingEmailAccount" : "Email không tồn tại",
     "notExistingPhoneAccount" : "Số điện thoại không tồn tại",
     "wrongCurrentPassword" : "Mật khẩu hiện tại không đúng",

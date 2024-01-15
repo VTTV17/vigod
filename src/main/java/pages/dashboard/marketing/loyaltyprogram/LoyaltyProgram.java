@@ -1,18 +1,10 @@
 package pages.dashboard.marketing.loyaltyprogram;
 
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
@@ -23,26 +15,14 @@ public class LoyaltyProgram {
 	final static Logger logger = LogManager.getLogger(LoyaltyProgram.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commonAction;
-
-	SoftAssert soft = new SoftAssert();
 
 	public LoyaltyProgram(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = ".loyalty .btn-save div")
-	WebElement CREATE_MEMBERSHIP_BTN;
-	
-	@FindBy(css = ".confirm-modal .gs-button__green")
-	WebElement DELETE_OK_BTN;
-	
-	@FindBy(css = ".confirm-modal .gs-button__gray--outline")
-	WebElement DELETE_CANCEL_BTN;
+	By loc_btnCreateMembership = By.cssSelector(".loyalty .btn-save div");
 	
 	public LoyaltyProgram navigate() {
 		new HomePage(driver).navigateToPage("Marketing", "Loyalty Program");
@@ -50,26 +30,26 @@ public class LoyaltyProgram {
 	}
 
 	public CreateLoyaltyProgram clickCreateMembershipBtn() {
-		commonAction.clickElement(CREATE_MEMBERSHIP_BTN);
+		commonAction.click(loc_btnCreateMembership);
 		logger.info("Clicked on 'Create Membership Level' button.");
 		return new CreateLoyaltyProgram(driver);
 	}
 	
 	public LoyaltyProgram deleteMembership(String membership) {
 		String xpath = "//div[@class='gs-table-body-item name']/span[text()='%s']/parent::div/following-sibling::div//*[@class='icon-delete']".formatted(membership);
-		commonAction.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
+		commonAction.click(By.xpath(xpath));
 		logger.info("Click on 'Delete' icon to delete membership '%s'.".formatted(membership));
 		return this;
 	}
 
 	public LoyaltyProgram clickOKBtn() {
-		commonAction.clickElement(DELETE_OK_BTN);
+		new ConfirmationDialog(driver).clickGreenBtn();
 		logger.info("Clicked on 'OK' button to confirm membership deletion.");
 		return this;
 	}
 	
 	public LoyaltyProgram clickCancelBtn() {
-		commonAction.clickElement(DELETE_CANCEL_BTN);
+		new ConfirmationDialog(driver).clickGrayBtn();
 		logger.info("Clicked on 'Cancel' button to abort membership deletion.");
 		return this;
 	}

@@ -1,17 +1,17 @@
 package pages.storefront.login;
 
-import api.dashboard.setting.StoreInformation;
-import api.storefront.login.LoginSF;
+import static utilities.links.Links.SF_DOMAIN;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
+
+import api.dashboard.setting.StoreInformation;
+import api.storefront.login.LoginSF;
 import pages.storefront.GeneralSF;
 import pages.storefront.header.HeaderSF;
 import pages.storefront.signup.SignupPage;
@@ -19,23 +19,15 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.time.Duration;
-
-import static utilities.links.Links.*;
-
 public class LoginPage {
 	
 	final static Logger logger = LogManager.getLogger(LoginPage.class);
 	
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
-    
-    SoftAssert soft = new SoftAssert();
     
     public LoginPage (WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
     }
 
@@ -209,10 +201,6 @@ public class LoginPage {
     	logger.info("Error retrieved: " + text);
     	return text;
     }      
-
-    public void completeVerify() {
-        soft.assertAll();
-    }
 
     public void clickLoginBtnJS() {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commonAction.getElement(loc_btnLogin));
