@@ -4,130 +4,94 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
+
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
-import java.time.Duration;
 
 public class CustomerDetails extends HomePage {
 	
 	final static Logger logger = LogManager.getLogger(CustomerDetails.class);
 
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
-    
-    SoftAssert soft = new SoftAssert();
     
     public CustomerDetails (WebDriver driver) {
         super(driver);
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        PageFactory.initElements(driver, this);
     }
 
-    @FindBy (id = "email")
-    WebElement EMAIL;
-    
-    @FindBy (id = "phone")
-    WebElement PHONE;
-    @FindBy (css = ".row.phone-email .phone-code")
-    WebElement COUNTRY_CODE;
-    @FindBy(css = ".birthday-date input")
-    WebElement BIRTHDAY;    
-    @FindBy(id = "country")
-    WebElement COUNTRY_DROPDOWN;
-    @FindBy (id = "address")
-    WebElement ADDRESS_INPUT;
-    @FindBy (id = "province")
-    WebElement CITY_PROVINCE_DROPDOWN;
-    @FindBy (id = "district")
-    WebElement DISTRICT_DROPDOWN;
-    @FindBy (id = "ward")
-    WebElement WARD_DROPDOWN;
-    @FindBy (id = "address2")
-    WebElement ADDRESS2_INPUT;
-    @FindBy (id = "city")
-    WebElement CITY_INPUT;
-    @FindBy (id = "zipCode")
-    WebElement ZIPCODE_INPUT;
-    
+    By loc_txtEmail = By.id("email");
+    By loc_txtPhone = By.id("phone");
+    By loc_txtPhoneCode = By.cssSelector(".row.phone-email .phone-code");
+    By loc_txtBirthday = By.cssSelector(".birthday-date input");
+    By loc_ddlCountry = By.id("country");
+    By loc_txtAddress = By.id("address");
+    By loc_ddlProvince = By.id("province");
+    By loc_ddlDistrict = By.id("district");
+    By loc_ddlWard = By.id("ward");
+    By loc_txtAddress2 = By.id("address2");
+    By loc_txtCity = By.id("city");
+    By loc_txtZipcode = By.id("zipCode");
     By loc_btnCancel = By.cssSelector(".btn-cancel");
     
     public String getEmail() {
-    	String value = commonAction.getElementAttribute(wait.until(ExpectedConditions.visibilityOf(EMAIL)), "value");
+    	String value = commonAction.getValue(loc_txtEmail);
     	logger.info("Retrieved Email: " + value);
         return value;
     }
     
     public String getPhoneNumber() {
-    	logger.info("Getting Phone Code...");
-        String countryCode = commonAction.getText(wait.until(ExpectedConditions.visibilityOf(COUNTRY_CODE)));
-        String phoneNumber = commonAction.getElementAttribute(PHONE, "value");
+        String countryCode = commonAction.getText(loc_txtPhoneCode);
+        String phoneNumber = commonAction.getValue(loc_txtPhone);
         String value = countryCode + ":" + phoneNumber;
     	logger.info("Retrieved Phone Number: " + value);
     	return value;
     }
     
-//    public void verifyLoginWithDeletedStaffAccount(String content) {
-//        wait.until(ExpectedConditions.visibilityOf(WARNING_POPUP));
-//        Assert.assertTrue(WARNING_POPUP.getText().contains(content),
-//                "[Login][Deleted Staff Account] No warning popup has been shown");
-//    }
-
-    public void completeVerify() {
-        soft.assertAll();
-    }
-    
     public String getBirthday(){
-    	String birthday = commonAction.getElementAttribute(BIRTHDAY,"value");
+    	String birthday = commonAction.getValue(loc_txtBirthday);
     	logger.info("Retrieved birthday: " + birthday);
     	return birthday;
     }	    
     
     public String getCountry(){
     	logger.info("Getting country...");
-        return commonAction.getDropDownSelectedValue(COUNTRY_DROPDOWN);
+        return commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlCountry));
     }
     public String getAddress(){
-        String address = commonAction.getElementAttribute(ADDRESS_INPUT,"value");
+        String address = commonAction.getValue(loc_txtAddress);
         logger.info("Get address: "+address);
         return address;
     }
     public String getCityProvince(){
-        String city = commonAction.getDropDownSelectedValue(CITY_PROVINCE_DROPDOWN);
+        String city = commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlProvince));
         logger.info("Get city/province: "+city);
         return city;
     }
     public String getDistrict(){
-        String district = commonAction.getDropDownSelectedValue(DISTRICT_DROPDOWN);
+        String district = commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlDistrict));
         logger.info("Get district: "+district);
         return district;
     }
     public String getWard(){
-        String ward = commonAction.getDropDownSelectedValue(WARD_DROPDOWN);
+        String ward = commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlWard));
         logger.info("Get ward: "+ward);
         return ward;
     }
     public String getAddress2(){
-        String address2 = commonAction.getElementAttribute(ADDRESS2_INPUT,"value");
+        String address2 = commonAction.getValue(loc_txtAddress2);
         logger.info("Get address 2: "+address2);
         return address2;
     }
     public String getInputtedCity(){
-        String city = commonAction.getElementAttribute(CITY_INPUT,"value");
+        String city = commonAction.getValue(loc_txtCity);
         logger.info("Get inputted city: "+city);
         return city;
     }
     public String getZipCode(){
-        String zipCode = commonAction.getElementAttribute(ZIPCODE_INPUT,"value");
+        String zipCode = commonAction.getValue(loc_txtZipcode);
         logger.info("Get zip code: "+zipCode);
         return zipCode;
     }
