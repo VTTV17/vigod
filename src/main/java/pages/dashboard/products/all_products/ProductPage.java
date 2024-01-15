@@ -459,6 +459,9 @@ public class ProductPage extends ProductPageElement {
             logger.info("Input SKU: %s.".formatted(sku));
         }
 
+        // click around
+        commonAction.click(titleOfUpdateSKUPopup);
+
         // close Update SKU popup
         commonAction.click(updateBtnOnPopup);
     }
@@ -837,6 +840,10 @@ public class ProductPage extends ProductPageElement {
             logger.info("[%s] Cost price: %s.".formatted(variation, String.format("%,d", costPrice)));
         });
 
+
+        // click around
+        commonAction.click(titleOfUpdatePricePopup);
+
         // close Update price popup
         commonAction.closePopup(updateBtnOnPopup);
     }
@@ -879,6 +886,9 @@ public class ProductPage extends ProductPageElement {
                 commonAction.sendKeys(textBoxOnUpdateSKUPopup, brIndex, sku);
                 logger.info("[Update SKU popup] Input SKU: %s.".formatted(sku));
             }
+
+            // click around
+            commonAction.click(titleOfUpdateSKUPopup);
 
             // close Update SKU popup
             commonAction.closePopup(updateBtnOnPopup);
@@ -1314,9 +1324,9 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Product name.".formatted(language));
 
         // check product name error
-        commonAction.clickActions(productName);
+        commonAction.click(productName);
         commonAction.getElement(productName).sendKeys(Keys.CONTROL + "a", Keys.DELETE);
-        commonAction.clickActions(productDescription);
+        commonAction.click(productDescription);
         String dbProductNameError = commonAction.getText(productBlankErrorMessage);
         String ppProductNameError = getPropertiesValueByDBLang("products.allProducts.createProduct.productInfo.productNameError", language);
         assertCustomize.assertEquals(dbProductNameError, ppProductNameError, "[Failed][Body] Product name error should be %s, but found %s.".formatted(ppProductNameError, dbProductNameError));

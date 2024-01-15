@@ -226,7 +226,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     }
 
     void completeCRUSupplier() {
-        commonAction.clickActions(loc_btnHeaderSave);
+        commonAction.click(loc_btnHeaderSave);
         logger.info("Complete create supplier");
     }
 

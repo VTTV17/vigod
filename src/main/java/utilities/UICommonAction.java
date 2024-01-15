@@ -161,7 +161,7 @@ public class UICommonAction {
         String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "uploadfile" + File.separator + folder + File.separator;
         String fullName = "";
         for (String fileName : fileNames) {
-            fullName =fullName+ filePath + fileName + "\n";
+            fullName = fullName + filePath + fileName + "\n";
         }
         sleepInMiliSecond(2000);
         element.sendKeys(fullName.trim());
@@ -549,17 +549,19 @@ public class UICommonAction {
 
     public void click(By locator) {
         try {
-            getElement(locator).click();
+            elementToBeClickable(locator).click();
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
-            wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+            hoverActions(locator);
+            clickActions(locator);
         }
     }
 
     public void click(By locator, int index) {
         try {
-            getElement(locator, index).click();
+            elementToBeClickable(locator, index).click();
         } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
-            getElement(locator, index).click();
+            hoverActions(locator, index);
+            clickActions(locator, index);
         }
     }
 
@@ -579,12 +581,12 @@ public class UICommonAction {
         }
     }
 
-    public void clickActions(By locator) {
+    private void clickActions(By locator) {
         hoverActions(locator);
         actions.click().build().perform();
     }
 
-    public void clickActions(By locator, int index) {
+    private void clickActions(By locator, int index) {
         hoverActions(locator, index);
         actions.click().build().perform();
     }
@@ -612,14 +614,14 @@ public class UICommonAction {
     }
 
     public void sendKeys(By locator, CharSequence content) {
-        visibilityOfElementLocated(locator);
+
         clear(locator);
         try {
-            getElement(locator).sendKeys(content);
+            actions.sendKeys(content).build().perform();
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
-            getElement(locator).sendKeys(content);
+            actions.sendKeys(content).build().perform();
         }
-        actions.keyDown(Keys.TAB).keyUp(Keys.TAB).build().perform();
+//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
@@ -627,11 +629,11 @@ public class UICommonAction {
         clear(locator, index);
 
         try {
-            getElement(locator, index).sendKeys(content);
+            actions.sendKeys(content).build().perform();
         } catch (StaleElementReferenceException ex) {
-            getElement(locator, index).sendKeys(content);
+            actions.sendKeys(content).build().perform();
         }
-        actions.keyDown(Keys.TAB).keyUp(Keys.TAB).build().perform();
+//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void uploads(By locator, CharSequence content) {
@@ -706,37 +708,28 @@ public class UICommonAction {
         el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
     }
 
-    public void clearDefault(By locator) {
+    void clear(By locator) {
         try {
-            getElement(locator).clear();
-        } catch (StaleElementReferenceException ex) {
-            logger.info(ex);
-            getElement(locator).clear();
+            getElement(locator).sendKeys(Keys.BACK_SPACE);
+        } catch (ElementNotInteractableException ex) {
+            visibilityOfElementLocated(locator);
+            getElement(locator).sendKeys(Keys.BACK_SPACE);
+        }
+        if (!getElement(locator).getText().isEmpty() || getValue(locator) != null && !getValue(locator).isEmpty()) {
+            clear(locator);
         }
     }
 
-    void clear(By locator) {
-        hoverActions(locator);
-        clickActions(locator);
-        actions.keyDown(Keys.CONTROL)
-                .sendKeys("A")
-                .keyDown(Keys.DELETE)
-                .keyUp(Keys.CONTROL)
-                .keyUp(Keys.DELETE)
-                .build()
-                .perform();
-    }
-
     void clear(By locator, int index) {
-        hoverActions(locator, index);
-        clickActions(locator, index);
-        actions.keyDown(Keys.CONTROL)
-                .sendKeys("A")
-                .keyUp(Keys.CONTROL)
-                .keyDown(Keys.DELETE)
-                .keyUp(Keys.DELETE)
-                .build()
-                .perform();
+        try {
+            getElement(locator, index).sendKeys(Keys.BACK_SPACE);
+        } catch (ElementNotInteractableException ex) {
+            visibilityOfElementLocated(locator, index);
+            getElement(locator, index).sendKeys(Keys.BACK_SPACE);
+        }
+        if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
+            clear(locator, index);
+        }
     }
 
     public boolean isCheckedJS(By locator) {
@@ -776,15 +769,19 @@ public class UICommonAction {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
     }
 
-    public void elementToBeClickable(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator));
+    public WebElement elementToBeClickable(By locator) {
+        try {
+            return wait.until(ExpectedConditions.elementToBeClickable(locator));
+        } catch (StaleElementReferenceException ex) {
+            return wait.until(ExpectedConditions.elementToBeClickable(locator));
+        }
     }
 
-    public void elementToBeClickable(By locator, int index) {
+    public WebElement elementToBeClickable(By locator, int index) {
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
+            return wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
         } catch (StaleElementReferenceException ex) {
-            wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
+            return wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index)));
         }
     }
 
@@ -806,7 +803,6 @@ public class UICommonAction {
         }
 
         if (!getListElement(locator).isEmpty()) {
-            System.out.println("num: " + driver.findElements(locator).size());
             closePopup(locator);
         }
     }
@@ -815,7 +811,6 @@ public class UICommonAction {
     public void openPopupJS(By locator, By popup) {
         try {
             clickJS(locator);
-            System.out.println("OPEN");
             sleepInMiliSecond(500);
         } catch (StaleElementReferenceException ignore) {
         }

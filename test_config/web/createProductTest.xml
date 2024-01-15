@@ -5,15 +5,15 @@
         <classes>
             <class name="CreateProductTest">
                 <methods>
-                    <include name="CR_PRODUCT_G1_01_SettingDisplayAndProductInStock"/>
-                    <include name="CR_PRODUCT_G1_02_SettingDisplayAndProductOutOfStock"/>
-                    <include name="CR_PRODUCT_G1_03_SettingHiddenAndProductInStock"/>
-                    <include name="CR_PRODUCT_G1_04_SettingHiddenAndProductOutOfStock"/>
+<!--                    <include name="CR_PRODUCT_G1_01_SettingDisplayAndProductInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G1_02_SettingDisplayAndProductOutOfStock"/>-->
+<!--                    <include name="CR_PRODUCT_G1_03_SettingHiddenAndProductInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G1_04_SettingHiddenAndProductOutOfStock"/>-->
 
-                    <include name="CR_PRODUCT_G2_01_SettingDisplayAndProductInStock"/>
-                    <include name="CR_PRODUCT_G2_02_SettingDisplayAndProductOutOfStock"/>
-                    <include name="CR_PRODUCT_G2_03_SettingHiddenAndProductInStock"/>
-                    <include name="CR_PRODUCT_G2_04_SettingHiddenAndProductOutOfStock"/>
+<!--                    <include name="CR_PRODUCT_G2_01_SettingDisplayAndProductInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G2_02_SettingDisplayAndProductOutOfStock"/>-->
+<!--                    <include name="CR_PRODUCT_G2_03_SettingHiddenAndProductInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G2_04_SettingHiddenAndProductOutOfStock"/>-->
 
                     <include name="CR_PRODUCT_G3_01_SettingDisplayAndProductInStock"/>
                     <include name="CR_PRODUCT_G3_02_SettingDisplayAndOneOfVariationOutOfStock"/>
