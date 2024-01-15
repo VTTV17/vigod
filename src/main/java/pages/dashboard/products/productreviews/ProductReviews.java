@@ -1,6 +1,5 @@
 package pages.dashboard.products.productreviews;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +9,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
 import pages.dashboard.home.HomePage;
@@ -23,39 +21,23 @@ import utilities.UICommonAction;
 public class ProductReviews {
 	WebDriver driver;
 	UICommonAction commons;
-	WebDriverWait wait;
 	HomePage homePage;
 
 	final static Logger logger = LogManager.getLogger(ProductReviews.class);
 
 	public ProductReviews(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commons = new UICommonAction(driver);
 		homePage = new HomePage(driver);
-		PageFactory.initElements(driver, this);
 	}
 	
-	@FindBy(css = ".gs-page-title")
-	WebElement PAGE_TITLE;
-	
-	@FindBy(css = ".gss-content-header .uik-checkbox__label.green")
-	WebElement ENABLE_PRODUCT_REVIEW_TOGGLE;
-
-	@FindBy(css = ".tippy-tooltip-content")
-	WebElement TOOLTIP;	
-	
-	@FindBy(css = ".d-desktop-flex .gs-search-box__wrapper input")
-	WebElement SEARCH_BOX;
-	
-	@FindBy(css = ".n-filter-container .uik-select__wrapper")
-	WebElement FILTER_BTN;
-	
-	@FindBy(css = ".product-review-list-widget .d-mobile-none .gs-table-header")
-	WebElement TABLEHEADER;		
-	
-	@FindBy(css = ".d-desktop-block .gs-table-body .shortest-row")
-	List<WebElement> TABLE_ROWS;
+	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+	By loc_btnEnableReviewToggle = By.cssSelector(".gss-content-header .uik-checkbox__label.green");
+	By loc_tltEnableReviewToggle = By.cssSelector(".tippy-tooltip-content");
+	By loc_txtSearchProduct = By.cssSelector(".d-desktop-flex .gs-search-box__wrapper input");
+	By loc_btnFilter = By.cssSelector(".n-filter-container .uik-select__wrapper");
+	By loc_lblTableHeader = By.cssSelector(".product-review-list-widget .d-mobile-none .gs-table-header");
+	By loc_tmpRecords = By.cssSelector(".d-desktop-block .gs-table-body .shortest-row");
 
 	public ProductReviews navigate() {
 		new HomePage(driver).navigateToPage("Products", "Product Reviews");
@@ -67,7 +49,7 @@ public class ProductReviews {
 	 * @return
 	 */
 	public boolean isProductReviewsEnabled() {
-		return ENABLE_PRODUCT_REVIEW_TOGGLE.findElement(By.xpath("./preceding-sibling::input")).isSelected();
+		return commons.getElement(loc_btnEnableReviewToggle).findElement(By.xpath("./preceding-sibling::input")).isSelected();
 	}	
 	
 	/**
@@ -80,7 +62,7 @@ public class ProductReviews {
 			return this;
 		}
 		homePage.hideFacebookBubble();
-		commons.clickElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
+		commons.click(loc_btnEnableReviewToggle);
 		logger.info("Enabled Product Reviews.");
 		homePage.getToastMessage();
 		return this;
@@ -96,14 +78,14 @@ public class ProductReviews {
 			return this;
 		}
 		homePage.hideFacebookBubble();
-		commons.clickElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
+		commons.click(loc_btnEnableReviewToggle);
 		logger.info("Disabled Product Reviews.");
 		homePage.getToastMessage();
 		return this;
 	}
 	
 	public ProductReviews inputSearchTerm(String searchTerm) {
-		commons.inputText(SEARCH_BOX, searchTerm);
+		commons.sendKeys(loc_txtSearchProduct, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		homePage.waitTillSpinnerDisappear();
 		return this;
@@ -111,9 +93,9 @@ public class ProductReviews {
 
 	public ProductReviews selectSortCondition(String condition) {
 		homePage.hideFacebookBubble();
-		commons.clickElement(FILTER_BTN);
+		commons.click(loc_btnFilter);
 		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(condition);
-		commons.clickElement(FILTER_BTN.findElement(By.xpath(xpath)));
+		commons.click(By.xpath(xpath));
 		logger.info("Selected filter condition: %s.".formatted(condition));
 		homePage.waitTillSpinnerDisappear1();
 		return this;
@@ -128,7 +110,7 @@ public class ProductReviews {
 	 */
 	public List<List<String>> getReviewTable() {
 		List<List<String>> table = new ArrayList<>();
-		for (WebElement row : TABLE_ROWS) {
+		for (WebElement row : commons.getElements(loc_tmpRecords)) {
 			List<String> rowData = new ArrayList<>();
 			rowData.add(row.findElement(By.xpath("./div[contains(@class,'product-name')]")).getText());
 			rowData.add(row.findElement(By.xpath("./div[contains(@class,'product-rating')]")).getText());
@@ -158,13 +140,13 @@ public class ProductReviews {
 	
 	public ProductDetailPage clickNavigationIcon(int reviewIndex) {
 		homePage.hideFacebookBubble();
-		commons.clickElement(TABLE_ROWS.get(reviewIndex).findElement(By.xpath(".//*[contains(@class,'first-button')]")));
+		commons.clickElement(commons.getElement(loc_tmpRecords, reviewIndex).findElement(By.xpath(".//*[contains(@class,'first-button')]")));
 		logger.info("Clicked on %s-indexed review to navigate to product detail on SF.".formatted(reviewIndex));
 		return new ProductDetailPage(driver);
 	}	
 	
 	public WebElement approveToggleBtn(int reviewIndex) {
-		return TABLE_ROWS.get(reviewIndex).findElement(By.xpath(".//*[contains(@class,'lastest-button')]"));
+		return commons.getElement(loc_tmpRecords, reviewIndex).findElement(By.xpath(".//*[contains(@class,'lastest-button')]"));
 	}		
 	
 	/**
@@ -214,36 +196,36 @@ public class ProductReviews {
     public void verifyTextAtReviewManagementScreen() throws Exception {
     	homePage.hideFacebookBubble();
     	
-    	String text = commons.getText(PAGE_TITLE).split("\n")[0];
+    	String text = commons.getText(loc_lblPageTitle).split("\n")[0];
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management"), text);
     	
-    	text = commons.getText(ENABLE_PRODUCT_REVIEW_TOGGLE.findElement(By.xpath("./ancestor::div[@class=' gs-content-header-right-el']")));
+    	text = commons.getText(new ByChained(loc_btnEnableReviewToggle, By.xpath("./ancestor::div[@class=' gs-content-header-right-el']")));
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management.toggle.enable.product.review"), text);
     	
-    	text = commons.getElementAttribute(SEARCH_BOX, "placeholder");
+    	text = commons.getAttribute(loc_txtSearchProduct, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.searchBox"));
     	
-    	text = commons.getText(TABLEHEADER);
+    	text = commons.getText(loc_lblTableHeader);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.table.header"));
 
     	if (isProductReviewsEnabled()) {
-    		commons.clickElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
+    		commons.click(loc_btnEnableReviewToggle);
     		text = homePage.getToastMessage();
         	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review"));
     	}
-    	commons.hoverOverElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
+    	commons.hoverActions(loc_btnEnableReviewToggle);
     	commons.sleepInMiliSecond(500);
-    	text = commons.getText(TOOLTIP);
+    	text = commons.getText(loc_tltEnableReviewToggle);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.disable.store.review"));
     	
     	if (!isProductReviewsEnabled()) {
-    		commons.clickElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
+    		commons.click(loc_btnEnableReviewToggle);
     		text = homePage.getToastMessage();
         	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review"));
     	}
-    	commons.hoverOverElement(ENABLE_PRODUCT_REVIEW_TOGGLE);
+    	commons.hoverActions(loc_btnEnableReviewToggle);
     	commons.sleepInMiliSecond(500);
-    	text = commons.getText(TOOLTIP);
+    	text = commons.getText(loc_tltEnableReviewToggle);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("product.review.management.enable.store.review"));
     	
     	logger.info("verifyTextAtCashbookManagementScreen completed");

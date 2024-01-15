@@ -1,6 +1,5 @@
 package pages.dashboard.cashbook;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,12 +11,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
+import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.home.HomePage;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
@@ -27,7 +24,6 @@ public class Cashbook {
 	final static Logger logger = LogManager.getLogger(Cashbook.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commonAction;
 
 	public static final int OPENINGBALANCE_IDX = 0;
@@ -58,100 +54,48 @@ public class Cashbook {
 	
 	public Cashbook(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
 		translateOthers();
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = ".gs-page-title")
-	WebElement PAGE_TITLE;
-	
-	@FindBy(css = ".cashbook-summary .number")
-	List<WebElement> CASHBOOKSUMMARY;
+	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+	By loc_lblCashbookSummary = By.cssSelector(".cashbook-summary .number");
+	By loc_tltCashbookSummary = By.cssSelector(".tippy-tooltip-content");
+	By loc_tblCashbookRecord = By.xpath("//div[contains(@class,'cashbook-list')]//table/tbody/tr");
+	By loc_tblTableTitle = By.xpath("//div[contains(@class,'cashbook-list')]//table/thead/tr");
+	By loc_txtSearchRecord = By.cssSelector(".uik-input__input");
+	By loc_btnCreateReceipt = By.cssSelector(".gs-content-header-right-el .gs-button__green:nth-of-type(1)");
+	By loc_btnCreatePayment = By.cssSelector(".gs-content-header-right-el .gs-button__green:nth-of-type(2)");
+	By loc_dtpPrincipleTimeRange = By.cssSelector(".date-ranger-picker");
+	By loc_btnResetDatePicker = By.cssSelector(".daterangepicker .btn-default");
+	By loc_btnFilter = By.cssSelector(".btn-filter-action");
+	By loc_frmFilterContainer = By.cssSelector(".mega-filter-container .dropdown-menu-right");
+	By loc_frmFilterCondition = By.xpath("//div[contains(@class,'gs-mega-filter-row-select')]");
+	By loc_btnFilterDone = By.cssSelector(".gs-button__green.gs-button--small");
+	By loc_lblCreateReceiptModalDialog = By.cssSelector(".modal-title");
+	By loc_ddlSenderGroup = By.xpath("(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[1]");
+	By loc_ddlSource = By.xpath("(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[2]");
+	By loc_ddlBranch = By.xpath("(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[3]");
+	By loc_ddlPaymentMethod = By.xpath("(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[4]");
+	By loc_ddlSenderName = By.cssSelector("[class*=gs-dropdown-search]");
+	By loc_txtSearchSenderName = By.cssSelector(".search-box input");
+	By loc_txtAmount = By.id("amount");
+	By loc_txtNote = By.id("note");
+	By loc_chkAccounting = By.name("accounting");
 
-	@FindBy(css = ".tippy-tooltip-content")
-	WebElement TOOLTIP;	
+	String conditionFilterDropdownXpath = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']";
 	
-	@FindBy(xpath = "//div[contains(@class,'cashbook-list')]//table/tbody/tr")
-	List<WebElement> CASHBOOK_RECORDS;
-
-	@FindBy(xpath = "//div[contains(@class,'cashbook-list')]//table/thead/tr")
-	WebElement TABLEHEADER;		
-	
-	@FindBy(css = ".uik-input__input")
-	WebElement CASHBOOK_SEARCH_BOX;		
-	
-	@FindBy(css = ".gs-content-header-right-el .gs-button__green:nth-of-type(1)")
-	WebElement CREATE_RECEIPT_BTN;
-	
-	@FindBy(css = ".gs-content-header-right-el .gs-button__green:nth-of-type(2)")
-	WebElement CREATE_PAYMENT_BTN;
-	
-	@FindBy(css = ".date-ranger-picker")
-	WebElement DATE_RANGER_PICKER;
-	
-	@FindBy(css = ".daterangepicker .btn-default")
-	WebElement DATE_RANGER_PICKER_RESET_BTN;
-	
-	@FindBy(css = ".btn-filter-action")
-	WebElement FILTER_BTN;
-	
-	@FindBy(css = ".mega-filter-container .dropdown-menu-right")
-	WebElement FILTER_CONTAINER;
-	
-	@FindBy(xpath = "//div[contains(@class,'gs-mega-filter-row-select')]")
-	List<WebElement> FILTER_CONDITION;
-	
-	@FindBy(css = ".gs-button__green.gs-button--small")
-	WebElement FILTER_DONE_BTN;
-	
-	@FindBy(css = ".modal-title")
-	WebElement CREATE_RECEIPT_PAYMENT_MODAL_TITLE;
-
-	@FindBy(xpath = "(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[1]")
-	WebElement SENDERGROUP_DROPDOWN;
-
-	@FindBy(xpath = "(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[2]")
-	WebElement REVENUE_SOURCE_DROPDOWN;
-
-	@FindBy(xpath = "(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[3]")
-	WebElement BRANCH_DROPDOWN;
-
-	@FindBy(xpath = "(//div[contains(@class,'cashbook-receipt-payment-modal')]//form//div[contains(@class,'uik-select__wrapper')])[4]")
-	WebElement PAYMENT_METHOD_DROPDOWN;
-
-	@FindBy(css = "[class*=gs-dropdown-search]")
-	WebElement SENDER_NAME_DROPDOWN;
-	
-	@FindBy(css = ".search-box input")
-	WebElement SEARCH_BOX;
-
-	By AMOUNT = By.id("amount");
-
-	@FindBy(id = "note")
-	WebElement NOTE;
-
-	@FindBy(name = "accounting")
-	WebElement ACCOUNTING_CHECKBOX;
-
-	@FindBy(css = ".footer.modal-footer .gs-button__white")
-	WebElement CANCEL_BTN;
-
-	@FindBy(css = ".footer.modal-footer .gs-button__green")
-	WebElement SAVE_BTN;
-
 	public Cashbook navigate() {
 		new HomePage(driver).navigateToPage("Cashbook");
 		commonAction.sleepInMiliSecond(5000);
-		new HomePage(driver).hideFacebookBubble();
+		commonAction.removeFbBubble();
 		return this;
 	}
 
 	public List<Long> getCashbookSummary() {
 		List<Long> summary = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
-			String rawAmount = commonAction.getText(CASHBOOKSUMMARY.get(i));
+			String rawAmount = commonAction.getText(loc_lblCashbookSummary, i);
 			Matcher m = Pattern.compile("\\d+").matcher(rawAmount);
 			ArrayList<String> sub = new ArrayList<String>();
 			while (m.find()) {
@@ -165,7 +109,7 @@ public class Cashbook {
 	public List<String> getSpecificRecord(int index) {
 		//Wait until records are present
 		for (int i=0; i<6; i++) {
-			if (!CASHBOOK_RECORDS.isEmpty()) break;
+			if (!commonAction.getElements(loc_tblCashbookRecord).isEmpty()) break;
 			commonAction.sleepInMiliSecond(500);
 		}
 		
@@ -176,14 +120,14 @@ public class Cashbook {
 		 */
 		try {
 			List<String> rowData = new ArrayList<>();
-			for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {
+			for (WebElement column : commonAction.getElement(loc_tblCashbookRecord, index).findElements(By.xpath("./td"))) {
 				rowData.add(column.getText());
 			}
 			return rowData;
 		} catch (StaleElementReferenceException ex) {
 			logger.debug("StaleElementReferenceException caught in getSpecificRecord(). Retrying...");
 			List<String> rowData = new ArrayList<>();
-			for (WebElement column : CASHBOOK_RECORDS.get(index).findElements(By.xpath("./td"))) {
+			for (WebElement column : commonAction.getElement(loc_tblCashbookRecord, index).findElements(By.xpath("./td"))) {
 				rowData.add(column.getText());
 			}
 			return rowData;
@@ -192,65 +136,53 @@ public class Cashbook {
 
 	public List<List<String>> getRecords() {
 		List<List<String>> table = new ArrayList<>();
-		for (int i=0; i<CASHBOOK_RECORDS.size(); i++) {
+		for (int i=0; i<commonAction.getElements(loc_tblCashbookRecord).size(); i++) {
 			table.add(getSpecificRecord(i));
 		}
 		return table;
 	}
 
 	public Cashbook clickCreateReceiptBtn() {
-		commonAction.clickElement(CREATE_RECEIPT_BTN);
+		commonAction.click(loc_btnCreateReceipt);
 		commonAction.sleepInMiliSecond(1000);
 		logger.info("Clicked on Create Receipt button.");
 		return this;
 	}
 
 	public Cashbook clickCreatePaymentBtn() {
-		commonAction.clickElement(CREATE_PAYMENT_BTN);
+		commonAction.click(loc_btnCreatePayment);
 		commonAction.sleepInMiliSecond(1000);
 		logger.info("Clicked on Create Payment button.");
 		return this;
 	}	
 
 	public Cashbook inputCashbookSearchTerm(String searchTerm) {
-		commonAction.inputText(CASHBOOK_SEARCH_BOX, searchTerm);
+		commonAction.sendKeys(loc_txtSearchRecord, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		commonAction.sleepInMiliSecond(1000);
 		return this;
 	}	
 	
 	public Cashbook selectGroup(String group) {
-		commonAction.clickElement(SENDERGROUP_DROPDOWN);
+		commonAction.click(loc_ddlSenderGroup);
 		By groupLocator = By.xpath("//div[contains(@class,'uik-select__label') and text()='%s']".formatted(group));
-		commonAction.clickElement(commonAction.getElement(groupLocator));
+		commonAction.click(groupLocator);
 		logger.info("Selected Sender/Recipient Group: %s.".formatted(group));
 		return this;
 	}
 
-	public Cashbook selectName(String name) {
-		commonAction.clickElement(SENDER_NAME_DROPDOWN);
-		commonAction.inputText(SEARCH_BOX, name);
-		new HomePage(driver).waitTillSpinnerDisappear1();
+	public Cashbook selectName(String name, boolean inputSearchTerm) {
+		commonAction.click(loc_ddlSenderName);
+		// Open dropdown if necessary
+	    if (inputSearchTerm) {
+			commonAction.sendKeys(loc_txtSearchSenderName, name);
+			new HomePage(driver).waitTillSpinnerDisappear1();
+	    }
 		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
-		WebElement sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
-		
+		commonAction.visibilityOfElementLocated(customerLocator);
 		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
-		
 		//The element will go stale after the delay, so we fetch the element again
-		sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
-		commonAction.clickElement(sender);
-		
-		logger.info("Selected Sender Name: %s.".formatted(name));
-		return this;
-	}
-	
-	public Cashbook selectOthersName(String name) {
-		commonAction.clickElement(SENDER_NAME_DROPDOWN);
-		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
-		WebElement sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
-		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, wrong name is selected
-		sender = wait.until(ExpectedConditions.visibilityOfElementLocated(customerLocator));
-		commonAction.clickElement(sender);
+		commonAction.click(customerLocator);
 		logger.info("Selected Sender Name: %s.".formatted(name));
 		return this;
 	}
@@ -260,25 +192,25 @@ public class Cashbook {
 	 * @return An array of strings representing the dropdown values
 	 */
 	public String[] getSourceDropdownValues() {
-		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
-		String text = commonAction.getText(driver.findElement(By.cssSelector(".uik-select__optionListWrapper")));
+		commonAction.click(loc_ddlSource);
+		String text = commonAction.getText(By.cssSelector(".uik-select__optionListWrapper"));
 		String[] values = text.split("\n");
-		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
+		commonAction.click(loc_ddlSource);
 		return values;
 	}
 
 	public Cashbook selectRevenueExpense(String revenueExpense) {
-		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN);
-		String xpath = ".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(revenueExpense);
-		commonAction.clickElement(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath(xpath)));
+		commonAction.click(loc_ddlSource);
+		By locator = By.xpath("//div[contains(@class,'uik-select__label') and text()='%s']".formatted(revenueExpense));
+		commonAction.click(locator);
 		logger.info("Selected Revenue Source/Expense Type: %s.".formatted(revenueExpense));
 		return this;
 	}
 
 	public Cashbook selectBranch(String branch) {
-		commonAction.clickElement(BRANCH_DROPDOWN);
-		String xpath = ".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(branch);
-		commonAction.clickElement(BRANCH_DROPDOWN.findElement(By.xpath(xpath)));
+		commonAction.click(loc_ddlBranch);
+		By locator = By.xpath("//div[contains(@class,'uik-select__label') and text()='%s']".formatted(branch));
+		commonAction.click(locator);
 		logger.info("Selected Branch: %s.".formatted(branch));
 		return this;
 	}
@@ -288,32 +220,29 @@ public class Cashbook {
 	 * @return An array of strings representing the dropdown values
 	 */
 	public String[] getPaymentMethodDropdownValues() {
-		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN);
-		String text = commonAction.getText(driver.findElement(By.cssSelector(".uik-select__optionListWrapper")));
+		commonAction.click(loc_ddlPaymentMethod);
+		String text = commonAction.getText(By.cssSelector(".uik-select__optionListWrapper"));
 		String[] values = text.split("\n");
-		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN);
+		commonAction.click(loc_ddlPaymentMethod);
 		return values;
 	}	
 	
 	public Cashbook selectPaymentMethod(String paymentMethod) {
-		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN);
-		String xpath = ".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(paymentMethod);
-		commonAction.clickElement(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath(xpath)));
+		commonAction.click(loc_ddlPaymentMethod);
+		By locator = By.xpath(".//div[contains(@class,'uik-select__label') and text()='%s']".formatted(paymentMethod));
+		commonAction.click(locator);
 		logger.info("Selected Payment Method: %s.".formatted(paymentMethod));
 		return this;
 	}
 
 	public Cashbook inputAmount(String amount) {
-		WebElement el = driver.findElement(AMOUNT).findElement(By.xpath("./parent::*/parent::*/preceding-sibling::input"));
-		el.clear();
-		el = driver.findElement(AMOUNT).findElement(By.xpath("./parent::*/parent::*/preceding-sibling::input"));
-		el.sendKeys(amount);
+		commonAction.sendKeys(new ByChained(loc_txtAmount, By.xpath("./parent::*/parent::*/preceding-sibling::input")), amount);
 		logger.info("Input amount: %s.".formatted(amount));
 		return this;
 	}
 
 	public Cashbook inputNote(String note) {
-		commonAction.inputText(NOTE, note);
+		commonAction.sendKeys(loc_txtNote, note);
 		logger.info("Input note: %s.".formatted(note));
 		return this;
 	}
@@ -322,26 +251,27 @@ public class Cashbook {
 	 * @param isChecked If true => check the box, if false => un-check the box
 	 */
 	public Cashbook checkAccountingCheckbox(boolean isChecked) {
+		By selector = new ByChained(loc_chkAccounting, By.xpath("./parent::*"));
 		if (isChecked) {
 			if (isAccountingChecked()) return this;
-			commonAction.clickElement(ACCOUNTING_CHECKBOX.findElement(By.xpath("./parent::*")));
+			commonAction.click(selector);
 			logger.info("Checked Account checkbox");
 		} else {
 			if (!isAccountingChecked()) return this;
-			commonAction.clickElement(ACCOUNTING_CHECKBOX.findElement(By.xpath("./parent::*")));
+			commonAction.click(selector);
 			logger.info("Un-checked Account checkbox");
 		}
 		return this;
 	}
 	
 	public Cashbook clickSaveBtn() {
-		commonAction.clickElement(SAVE_BTN);
+		new ConfirmationDialog(driver).clickGreenBtn();
 		logger.info("Clicked on Save button.");
 		return this;
 	}
 
 	public Cashbook clickCancelBtn() {
-		commonAction.clickElement(CANCEL_BTN);
+		new ConfirmationDialog(driver).clickGrayBtn();
 		logger.info("Clicked on Cancel button.");
 		return this;
 	}
@@ -353,9 +283,9 @@ public class Cashbook {
 		selectBranch(branch);
 		selectPaymentMethod(payment);
 		if (senderGroup.contentEquals(otherENG) || senderGroup.contentEquals(otherVIE)) {
-			selectOthersName(senderName);
+			selectName(senderName, false);
 		} else {
-			selectName(senderName);
+			selectName(senderName, true);
 		}
 		inputAmount(amount);
 		inputNote(note);
@@ -379,142 +309,140 @@ public class Cashbook {
 	}
 
 	public Cashbook clickRecord(String recordID) {
-		By record = By.xpath("//td[text()='%s']".formatted(recordID));
-		commonAction.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(record)));
+		commonAction.click(By.xpath("//td[text()='%s']".formatted(recordID)));
 		logger.info("Clicked on cashbook record '%s'.".formatted(recordID));
 		return this;
 	}
 
 	public String getGroup() {
 		logger.info("Getting Group value from Transaction Id Popup");
-		return commonAction.getText(SENDERGROUP_DROPDOWN);
+		return commonAction.getText(loc_ddlSenderGroup);
 	}
 
 	public String getName() {
-		String text = commonAction.getElementAttribute(
-				SENDER_NAME_DROPDOWN.findElement(By.xpath(".//div[@class='form-group']/input")), "value");
+		String text = commonAction.getAttribute(new ByChained(loc_ddlSenderName, By.xpath(".//div[@class='form-group']/input")), "value");
 		logger.info("Retrieved name from Transaction Id Popup: " + text);
 		return text;
 	}
 
 	public String getSourceOrExpense() {
 		logger.info("Getting Source/Expense value from Transaction Id Popup");
-		return commonAction.getText(REVENUE_SOURCE_DROPDOWN);
+		return commonAction.getText(loc_ddlSource);
 	}
 
 	public String getBranch() {
 		logger.info("Getting Branch value from Transaction Id Popup");
-		return commonAction.getText(BRANCH_DROPDOWN);
+		return commonAction.getText(loc_ddlBranch);
 	}
 
 	public String getPaymentMethod() {
 		logger.info("Getting Payment method value from Transaction Id Popup");
-		return commonAction.getText(PAYMENT_METHOD_DROPDOWN);
+		return commonAction.getText(loc_ddlPaymentMethod);
 	}
 
 	public String getAmount() {
-		String text = commonAction.getElementAttribute(driver.findElement(AMOUNT), "value");
+		String text = commonAction.getAttribute(loc_txtAmount, "value");
 		logger.info("Retrieved Amount from Transaction Id Popup: " + text);
 		return text;
 	}
 
 	public String getNote() {
-		String text = commonAction.getElementAttribute(NOTE, "value");
+		String text = commonAction.getAttribute(loc_txtNote, "value");
 		logger.info("Retrieved Note from Transaction Id Popup: " + text);
 		return text;
 	}
 
 	public boolean isAccountingChecked() {
-		boolean text = ACCOUNTING_CHECKBOX.isSelected();
+		boolean text = commonAction.getElement(loc_chkAccounting).isSelected();
 		logger.info("Is accounting checked: " + text);
 		return text;
 	}
 
     public void verifyTextAtCashbookManagementScreen() throws Exception {
-    	new HomePage(driver).hideFacebookBubble();
-    	String text = commonAction.getText(PAGE_TITLE).split("\n")[0];
+    	commonAction.removeFbBubble();
+    	String text = commonAction.getText(loc_lblPageTitle).split("\n")[0];
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.title"), text);
-    	text = commonAction.getText(CREATE_RECEIPT_BTN);
+    	text = commonAction.getText(loc_btnCreateReceipt);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.createReceiptBtn"));
-    	text = commonAction.getText(CREATE_PAYMENT_BTN);
+    	text = commonAction.getText(loc_btnCreatePayment);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.createPaymentBtn"));
-    	text = commonAction.getText(FILTER_BTN);
+    	text = commonAction.getText(loc_btnFilter);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.filterBtn"));
     	
-    	text = commonAction.getText(CASHBOOKSUMMARY.get(0).findElement(By.xpath("./parent::*/preceding-sibling::*")));
+    	text = commonAction.getText(commonAction.getElement(loc_lblCashbookSummary, 0).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.openingBalance"));
-    	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(0).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
+    	commonAction.hoverOverElement(commonAction.getElement(loc_lblCashbookSummary, 0).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
-    	text = commonAction.getText(TOOLTIP);
+    	text = commonAction.getText(loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.openingBalance"));
     	
-    	text = commonAction.getText(CASHBOOKSUMMARY.get(1).findElement(By.xpath("./parent::*/preceding-sibling::*")));
+    	text = commonAction.getText(commonAction.getElement(loc_lblCashbookSummary, 1).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalRevenue"));
-    	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(1).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
+    	commonAction.hoverOverElement(commonAction.getElement(loc_lblCashbookSummary, 1).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
-    	text = commonAction.getText(TOOLTIP);
+    	text = commonAction.getText(loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalRevenue"));
     	
-    	text = commonAction.getText(CASHBOOKSUMMARY.get(2).findElement(By.xpath("./parent::*/preceding-sibling::*")));
+    	text = commonAction.getText(commonAction.getElement(loc_lblCashbookSummary, 2).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.totalExpenditure"));
-    	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(2).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
+    	commonAction.hoverOverElement(commonAction.getElement(loc_lblCashbookSummary, 2).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
-    	text = commonAction.getText(TOOLTIP);
+    	text = commonAction.getText(loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.totalExpenditure"));
     	    	
-    	text = commonAction.getText(CASHBOOKSUMMARY.get(3).findElement(By.xpath("./parent::*/preceding-sibling::*")));
+    	text = commonAction.getText(commonAction.getElement(loc_lblCashbookSummary, 3).findElement(By.xpath("./parent::*/preceding-sibling::*")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.endingBalance"));
-    	commonAction.hoverOverElement(CASHBOOKSUMMARY.get(3).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
+    	commonAction.hoverOverElement(commonAction.getElement(loc_lblCashbookSummary, 3).findElement(By.xpath("./parent::*/preceding-sibling::*/div[contains(@class,'help__wrapper')]")));
     	commonAction.sleepInMiliSecond(500);
-    	text = commonAction.getText(TOOLTIP);
+    	text = commonAction.getText(loc_tltCashbookSummary);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tooltip.endingBalance"));
     	
-    	text = commonAction.getElementAttribute(CASHBOOK_SEARCH_BOX, "placeholder");
+    	text = commonAction.getAttribute(loc_txtSearchRecord, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.searchBox"));
     	
-    	text = commonAction.getText(TABLEHEADER);
+    	text = commonAction.getText(loc_tblTableTitle);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.management.tableHeader"));
     	
     	logger.info("verifyTextAtCashbookManagementScreen completed");
     }  	
 	
     public void verifyTextAtCreateReceiptScreen() throws Exception {
-    	String text = commonAction.getText(CREATE_RECEIPT_PAYMENT_MODAL_TITLE);
+    	String text = commonAction.getText(loc_lblCreateReceiptModalDialog);
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.title"), text);
     	
-    	text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSenderGroup, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.groupLbl"));
     	
-    	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSenderName, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl"));
-    	text = commonAction.getElementAttribute(SENDER_NAME_DROPDOWN.findElement(By.xpath(".//input[contains(@id,'gs-dropdown-search')]")), "placeholder");
+    	text = commonAction.getAttribute(new ByChained(loc_ddlSenderName, By.xpath(".//input[contains(@id,'gs-dropdown-search')]")), "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl.customer.placeHolder"));
     	
-    	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSource, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl"));
-    	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath(".//div[@class='uik-select__valueWrapper']")));
+    	text = commonAction.getText(new ByChained(loc_ddlSource, By.xpath(".//div[@class='uik-select__valueWrapper']")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl.placeHolder"));
     	
-    	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlBranch, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
-    	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
+    	text = commonAction.getText(new ByChained(loc_txtAmount, By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
-    	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlPaymentMethod, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
-    	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
+    	text = commonAction.getText(new ByChained(loc_txtNote, By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
-    	text = commonAction.getElementAttribute(NOTE, "placeholder");
+    	text = commonAction.getAttribute(loc_txtNote, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl.placeHolder"));
     	
-    	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
+    	text = commonAction.getText(new ByChained(loc_chkAccounting, By.xpath("./following-sibling::div")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
-    	text = commonAction.getText(CANCEL_BTN);
+    	text = new ConfirmationDialog(driver).getGrayBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
-    	text = commonAction.getText(SAVE_BTN);
+    	text = new ConfirmationDialog(driver).getGreenBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
@@ -525,74 +453,74 @@ public class Cashbook {
     	 * Remember to add code to verify pop-up title.
     	 */
     	
-    	String text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	String text = commonAction.getText(new ByChained(loc_ddlSenderGroup, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.groupLbl"));
     	
-    	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSenderName, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl"));
     	
-    	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSource, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.sourceLbl"));
     	
-    	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlBranch, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
-    	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
+    	text = commonAction.getText(new ByChained(loc_txtAmount, By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
-    	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlPaymentMethod, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
-    	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
+    	text = commonAction.getText(new ByChained(loc_txtNote, By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
     	
-    	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
+    	text = commonAction.getText(new ByChained(loc_chkAccounting, By.xpath("./following-sibling::div")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
-    	text = commonAction.getText(CANCEL_BTN);
+    	text = new ConfirmationDialog(driver).getGrayBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
-    	text = commonAction.getText(SAVE_BTN);
+    	text = new ConfirmationDialog(driver).getGreenBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtReceiptTransactionIDScreen completed");
     }  	
     
     public void verifyTextAtCreatePaymentScreen() throws Exception {
-    	String text = commonAction.getText(CREATE_RECEIPT_PAYMENT_MODAL_TITLE);
+    	String text = commonAction.getText(loc_lblCreateReceiptModalDialog);
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.title"));
-    	text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSenderGroup, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.groupLbl"));
     	
-    	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSenderName, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.nameLbl"));
-    	text = commonAction.getElementAttribute(SENDER_NAME_DROPDOWN.findElement(By.xpath(".//input[contains(@id,'gs-dropdown-search')]")), "placeholder");
+    	text = commonAction.getAttribute(new ByChained(loc_ddlSenderName, By.xpath(".//input[contains(@id,'gs-dropdown-search')]")), "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.nameLbl.customer.placeHolder"));
     	
-    	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSource, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl"));
-    	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath(".//div[@class='uik-select__valueWrapper']")));
+    	text = commonAction.getText(new ByChained(loc_ddlSource, By.xpath(".//div[@class='uik-select__valueWrapper']")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl.placeHolder"));
     	
-    	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlBranch, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
-    	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
+    	text = commonAction.getText(new ByChained(loc_txtAmount, By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
-    	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlPaymentMethod, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
-    	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
+    	text = commonAction.getText(new ByChained(loc_txtNote, By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
-    	text = commonAction.getElementAttribute(NOTE, "placeholder");
+    	text = commonAction.getAttribute(loc_txtNote, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl.placeHolder"));
     	
-    	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
+    	text = commonAction.getText(new ByChained(loc_chkAccounting, By.xpath("./following-sibling::div")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
-    	text = commonAction.getText(CANCEL_BTN);
+    	text = new ConfirmationDialog(driver).getGrayBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
-    	text = commonAction.getText(SAVE_BTN);
+    	text = new ConfirmationDialog(driver).getGreenBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
@@ -603,118 +531,102 @@ public class Cashbook {
     	 * Remember to add code to verify pop-up title.
     	 */
     	
-    	String text = commonAction.getText(SENDERGROUP_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	String text = commonAction.getText(new ByChained(loc_ddlSenderGroup, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.groupLbl"));
     	
-    	text = commonAction.getText(SENDER_NAME_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSenderName, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.nameLbl"));
-    	text = commonAction.getText(REVENUE_SOURCE_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlSource, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.sourceLbl"));
     	
-    	text = commonAction.getText(BRANCH_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlBranch, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.branchLbl"));
     	
-    	text = commonAction.getText(driver.findElement(AMOUNT).findElement(By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
+    	text = commonAction.getText(new ByChained(loc_txtAmount, By.xpath("./ancestor::div/preceding-sibling::span[contains(@class,'label')]")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.amountLbl"));
     	
-    	text = commonAction.getText(PAYMENT_METHOD_DROPDOWN.findElement(By.xpath("./preceding-sibling::span")));
+    	text = commonAction.getText(new ByChained(loc_ddlPaymentMethod, By.xpath("./preceding-sibling::span")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethodLbl"));
     	
-    	text = commonAction.getText(NOTE.findElement(By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
+    	text = commonAction.getText(new ByChained(loc_txtNote, By.xpath("./ancestor::div/preceding-sibling::span[@class='label']")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.noteLbl"));
     	
-    	text = commonAction.getText(ACCOUNTING_CHECKBOX.findElement(By.xpath("./following-sibling::div")));
+    	text = commonAction.getText(new ByChained(loc_chkAccounting, By.xpath("./following-sibling::div")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.accountingLbl"));
     	
-    	text = commonAction.getText(CANCEL_BTN);
+    	text = new ConfirmationDialog(driver).getGrayBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.cancelBtn"));
-    	text = commonAction.getText(SAVE_BTN);
+    	text = new ConfirmationDialog(driver).getGreenBtnText();
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("common.saveBtn"));
     	
     	logger.info("verifyTextAtCreateReceiptScreen completed");
     }  	
 	
 	public Cashbook clickResetDateRangerPicker() {
-		commonAction.clickElement(DATE_RANGER_PICKER);
-		commonAction.clickElement(DATE_RANGER_PICKER_RESET_BTN);
+		commonAction.click(loc_dtpPrincipleTimeRange);
+		commonAction.click(loc_btnResetDatePicker);
 		logger.info("Clicked on Reset Time ranger picker button.");
 		commonAction.sleepInMiliSecond(1000);
 		return this;
 	}    
 	
 	public Cashbook clickFilterBtn() {
-		commonAction.clickElement(FILTER_BTN);
+		commonAction.click(loc_btnFilter);
 		logger.info("Clicked on Filter button.");
 		return this;
 	}    
 
 	public Cashbook selectFilteredBranch(String branch) {
-		commonAction.clickElement(FILTER_CONDITION.get(0));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(branch);
-		commonAction.clickElement(FILTER_CONDITION.get(0).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition,0);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(branch)));
 		logger.info("Selected filtered branch: %s.".formatted(branch));
 		return this;
 	}	
 	
 	public Cashbook selectFilteredAccounting(String yesOrNo) {
-		commonAction.clickElement(FILTER_CONDITION.get(1));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(yesOrNo);
-		commonAction.clickElement(FILTER_CONDITION.get(1).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition, 1);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(yesOrNo)));
 		logger.info("Selected filtered Accounting: %s.".formatted(yesOrNo));
 		return this;
 	}	
 	
 	public Cashbook selectFilteredTransaction(String transaction) {
-		commonAction.clickElement(FILTER_CONDITION.get(2));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(transaction);
-		commonAction.clickElement(FILTER_CONDITION.get(2).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition, 2);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(transaction)));
 		logger.info("Selected filtered Transaction: %s.".formatted(transaction));
 		return this;
 	}	
 	
 	public Cashbook selectFilteredExpenseType(String expenseType) {
-		commonAction.clickElement(FILTER_CONDITION.get(3));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(expenseType);
-		commonAction.clickElement(FILTER_CONDITION.get(3).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition, 3);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(expenseType)));
 		logger.info("Selected filtered Expense type: %s.".formatted(expenseType));
 		return this;
 	}	
 	
 	public Cashbook selectFilteredRevenueType(String revenueType) {
-		commonAction.clickElement(FILTER_CONDITION.get(4));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(revenueType);
-		commonAction.clickElement(FILTER_CONDITION.get(4).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition,4);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(revenueType)));
 		logger.info("Selected filtered Revenue type: %s.".formatted(revenueType));
 		return this;
 	}	
 	
 	public Cashbook selectFilteredCreatedBy(String createdBy) {
-		commonAction.clickElement(FILTER_CONDITION.get(5));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(createdBy);
-		commonAction.clickElement(FILTER_CONDITION.get(5).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition,5);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(createdBy)));
 		logger.info("Selected filtered Created by: %s.".formatted(createdBy));
 		return this;
 	}	
 	
 	public Cashbook selectFilteredGroup(String group) {
-		commonAction.clickElement(FILTER_CONDITION.get(6));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(group);
-		commonAction.clickElement(FILTER_CONDITION.get(6).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition, 6);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(group)));
 		logger.info("Selected filtered Sender/Recipient group: %s.".formatted(group));
 		return this;
 	}	
 	
-	public Cashbook selectFilteredName1(String name) {
-		commonAction.clickElement(FILTER_CONDITION.get(7));
-		String xpath = ".//div[@class='option-item ' and text()='%s']".formatted(name);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
-		commonAction.clickElement(FILTER_CONDITION.get(7).findElement(By.xpath(xpath)));
-		logger.info("Selected filtered Sender/Recipient name: %s.".formatted(name));
-		return this;
-	}	
-	
 	public Cashbook selectFilteredName(String name) {
-		commonAction.clickElement(FILTER_CONDITION.get(7));
+		commonAction.click(loc_frmFilterCondition, 7);
 		
 		By optionLocator = By.xpath("//div[@class='option-item ']");
 		By targetedOption = By.xpath(".//div[@class='option-item ' and text()='%s']".formatted(name));
@@ -737,7 +649,7 @@ public class Cashbook {
 			currentSize = driver.findElements(optionLocator).size();
 			
 			if (!driver.findElements(targetedOption).isEmpty()) {
-				commonAction.clickElement(FILTER_CONDITION.get(7).findElement(targetedOption));
+				commonAction.click(targetedOption);
 				break;
 			}
 		}
@@ -747,22 +659,21 @@ public class Cashbook {
 	}	
 	
 	public Cashbook selectFilteredPaymentMethod(String method) {
-		commonAction.clickElement(FILTER_CONDITION.get(8));
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(method);
-		commonAction.clickElement(FILTER_CONDITION.get(8).findElement(By.xpath(xpath)));
+		commonAction.click(loc_frmFilterCondition, 8);
+		commonAction.click(By.xpath(conditionFilterDropdownXpath.formatted(method)));
 		logger.info("Selected filtered payment method: %s.".formatted(method));
 		return this;
 	}	
 	
 	
 	public Cashbook clickFilterDoneBtn() {
-		commonAction.clickElement(FILTER_DONE_BTN);
+		commonAction.click(loc_btnFilterDone);
 		logger.info("Clicked on Filter Done button.");
 		return this;
 	}    
 
     public void verifyTextAtFilterContainer() throws Exception {
-    	String text = commonAction.getText(FILTER_DONE_BTN.findElement(By.xpath("./ancestor::div[contains(@class,'dropdown-menu-right')]")));
+    	String text = commonAction.getText(new ByChained(loc_btnFilterDone, By.xpath("./ancestor::div[contains(@class,'dropdown-menu-right')]")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.filterContainer"));
     	logger.info("verifyTextAtFilterContainer completed");
     }  		

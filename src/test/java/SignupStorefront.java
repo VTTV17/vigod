@@ -451,7 +451,6 @@ public class SignupStorefront extends BaseTest {
 		
 		// Signup
 		signupPage.fillOutSignupForm(country, username, password, displayName, birthday);
-		country = signupPage.country;
 		
 		// Get verification code
 		String code = getVerificationCode(username);
@@ -493,7 +492,6 @@ public class SignupStorefront extends BaseTest {
 		.fillOutSignupForm(country, username, password, displayName, birthday)
 		.inputVerificationCode(getVerificationCode(username))
 		.clickConfirmBtn();
-		countryCode = signupPage.countryCode;
 		if (username.matches("\\d+")) { // Check if this is a phone account
 			if (mailProvided) { // Decide whether to provide an email account or not
 				signupPage.inputEmail(mail).clickCompleteBtn();

@@ -41,6 +41,8 @@ public class AccountTest {
     public static String ADMIN_COUNTRY_TIEN = PropertiesUtil.getEnvironmentData("adminCountryShopTien");
     public static String ADMIN_USERNAME_TIEN = PropertiesUtil.getEnvironmentData("adminUsernameShopTien");
     public static String ADMIN_PASSWORD_TIEN = PropertiesUtil.getEnvironmentData("adminPasswordShopTien");
+    public static String ADMIN_FACEBOOK_USERNAME = PropertiesUtil.getEnvironmentData("adminFacebookUsername");
+    public static String ADMIN_FACEBOOK_PASSWORD = PropertiesUtil.getEnvironmentData("adminFacebookPassword");
     public static String ADMIN_USERNAME_GOWEB = PropertiesUtil.getEnvironmentData("adminGoWebUserName");
     public static String ADMIN_USERNAME_GOAPP = PropertiesUtil.getEnvironmentData("adminGoAppUserName");
     public static String ADMIN_USERNAME_GOPOS = PropertiesUtil.getEnvironmentData("adminGoPOSUserName");
@@ -52,6 +54,9 @@ public class AccountTest {
     public static String SF_USERNAME_VI_4 = PropertiesUtil.getEnvironmentData("buyer4");
     public static String SF_USERNAME_PHONE_VI_1 = PropertiesUtil.getEnvironmentData("buyerPhone1");
     public static String SF_USERNAME_VI_5 = PropertiesUtil.getEnvironmentData("buyer5");
+    public static String GOMUA_USERNAME_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyer");
+    public static String GOMUA_PASSWORD_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyerPassword");
+    public static String GOMUA_USERNAME_PHONE = PropertiesUtil.getEnvironmentData("gomuaBuyerPhone");
 
     //ATM Credentials
     public static String ATM_BANK = "NCB";

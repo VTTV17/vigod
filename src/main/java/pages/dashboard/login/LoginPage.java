@@ -1,28 +1,24 @@
 package pages.dashboard.login;
 
-import api.dashboard.login.Login;
+import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.LOGIN_PATH;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
+
+
+import api.dashboard.login.Login;
 import pages.dashboard.home.HomePage;
 import pages.thirdparty.Facebook;
 import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-
-import java.time.Duration;
-
-import static utilities.links.Links.*;
 
 public class LoginPage {
 
@@ -35,150 +31,99 @@ public class LoginPage {
     WebDriverWait wait;
     UICommonAction commonAction;
 
-    SoftAssert soft = new SoftAssert();
-
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = ".login-widget")
-    WebElement SIGNIN_SCREEN_TXT;
+    By loc_lblLoginScreen = By.cssSelector(".login-widget");
+    By loc_lblForgotPasswordScreen = By.cssSelector(".forgot-page-wrapper");
+    
+    By loc_lblSelectedLanguage = By.xpath("//span[contains(@class,'changeLanguage-selected')]");
+    By loc_lnkEnglish = By.cssSelector(".login-widget__changeLanguage-english");
+    By loc_lnkVietnamese = By.cssSelector(".login-widget__changeLanguage:nth-of-type(2)");
 
-    @FindBy(css = ".forgot-page-wrapper")
-    WebElement SIGNIN_FORGOTPASSWORD_TXT;
+    By loc_ddlCountry = By.cssSelector(".phone-code div.uik-select__valueRenderedWrapper");
 
-    @FindBy(xpath = "//span[contains(@class,'changeLanguage-selected')]")
-    WebElement LANGUAGE;
+    By loc_txtUsername = By.cssSelector("input[name='username']"); 
+    By loc_txtPassword = By.cssSelector("input[name='password']"); 
+    By loc_btnLogin = By.cssSelector("button.gs-button"); 
+    By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
+    By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
+    By loc_lblLoginFailError = By.cssSelector("div.alert__wrapper");
+    By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook"); 
+    By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
+    
+    By loc_dlgWarning = By.cssSelector("div.modal-content");
 
-    @FindBy(css = ".login-widget__changeLanguage-english")
-    WebElement ENGLISH_LANGUAGE;
-
-    @FindBy(css = ".login-widget__changeLanguage:nth-of-type(2)")
-    WebElement VIETNAMESE_LANGUAGE;
-
-    @FindBy(css = ".phone-code div.uik-select__valueRenderedWrapper")
-    WebElement COUNTRY_DROPDOWN;
-
-    @FindBy(css = "input[name='username']")
-    WebElement USERNAME;
-
-    @FindBy(css = "input[name='password']")
-    WebElement PASSWORD;
-
-    @FindBy(css = "button.gs-button")
-    WebElement LOGIN_BTN;
-
-    @FindBy(css = "#username + .invalid-feedback")
-    WebElement USER_ERROR;
-
-    @FindBy(css = "#password + .invalid-feedback")
-    WebElement PASSWORD_ERROR;
-
-    @FindBy(css = "div.alert__wrapper")
-    WebElement INVALID_USER_ERROR;
-
-    @FindBy(css = ".login-widget__btnSubmitFaceBook")
-    WebElement FACEBOOK_BTN;
-
-    @FindBy(css = "#email")
-    WebElement FACEBOOK_USERNAME;
-
-    @FindBy(css = "#pass")
-    WebElement FACEBOOK_PASSWORD;
-
-    @FindBy(css = "input[name='login']")
-    WebElement FACEBOOK_LOGIN_BTN;
-
-    @FindBy(css = "span.login-widget__tab:nth-child(2)")
-    WebElement STAFF_TAB;
-
-    @FindBy(css = "div.modal-content")
-    WebElement WARNING_POPUP;
-
-    @FindBy(css = ".login-widget__forgotPassword")
-    WebElement FORGOT_PASSWORD;
-
-    @FindBy(css = ".login-widget__btnSubmit")
-    WebElement CONTINUE_BTN;
-
-    @FindBy(css = "input[name='key']")
-    WebElement VERIFICATION_CODE;
-
-    @FindBy(css = ".alert__wrapper")
-    WebElement WRONG_CODE_ERROR;
-
-    @FindBy(css = ".btn-resend")
-    WebElement RESEND_OTP;
+    By loc_lnkForgotPassword = By.cssSelector(".login-widget__forgotPassword");
+    By loc_btnContinue = By.cssSelector(".login-widget__btnSubmit"); 
+    By loc_txtVerificationCode = By.cssSelector("input[name='key']"); 
+    By loc_lblWrongCodeError = By.cssSelector(".alert__wrapper");
+    By loc_lnkResendOTP = By.cssSelector(".btn-resend");
 
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
-        new WebDriverWait(driver, Duration.ofSeconds(60)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
         return this;
     }
 
     public LoginPage selectCountry(String country) {
-        commonAction.clickElement(COUNTRY_DROPDOWN);
-        driver.findElement(By.xpath("//*[@class='uik-select__optionList']//div[@class='phone-option']/div[text()=\"%s\"]".formatted(country))).click();
-        String[] selectedOption = COUNTRY_DROPDOWN.getText().split("\n");
-        logger.info("Selected country '%s'. Its according code is '%s'.".formatted(selectedOption[0], selectedOption[1]));
-        this.country = selectedOption[0];
-        this.countryCode = selectedOption[1];
+    	commonAction.click(loc_ddlCountry);
+    	commonAction.click(By.xpath("//div[@class='phone-option']/div[text()='%s']".formatted(country)));
+    	logger.info("Selected country: " + country);
         return this;
     }
 
     public LoginPage switchToStaffTab() {
-        commonAction.clickElement(STAFF_TAB);
+        commonAction.click(loc_tabStaff);
         logger.info("Switched to Staff Tab.");
         return this;
     }
 
     public LoginPage clickFacebookBtn() {
-        commonAction.clickElement(FACEBOOK_BTN);
+        commonAction.click(loc_btnFacebookLogin);
         logger.info("Clicked on Facebook linktext.");
         return this;
     }
 
     public LoginPage inputEmailOrPhoneNumber(String username) {
-        commonAction.inputText(USERNAME, username);
+        commonAction.sendKeys(loc_txtUsername, username);
         logger.info("Input '" + username + "' into Username field.");
         return this;
     }
 
     public LoginPage inputPassword(String password) {
-        commonAction.inputText(PASSWORD, password);
+        commonAction.sendKeys(loc_txtPassword, password);
         logger.info("Input '" + password + "' into Password field.");
         return this;
     }
 
     public LoginPage clickLoginBtn() {
-        commonAction.clickElement(LOGIN_BTN);
+        commonAction.click(loc_btnLogin);
         logger.info("Clicked on Login button.");
         return this;
     }
 
     public LoginPage clickForgotPassword() {
-        commonAction.clickElement(FORGOT_PASSWORD);
+        commonAction.click(loc_lnkForgotPassword);
         logger.info("Clicked on Forgot Password linktext.");
         return this;
     }
 
     public LoginPage clickResendOTP() {
-        commonAction.clickElement(RESEND_OTP);
+        commonAction.click(loc_lnkResendOTP);
         logger.info("Clicked on Resend linktext.");
         return this;
     }
 
     public LoginPage clickContinueOrConfirmBtn() {
-        commonAction.clickElement(CONTINUE_BTN);
+        commonAction.click(loc_btnContinue);
         logger.info("Clicked on Continue/Confirm button.");
         return this;
     }
 
     public LoginPage inputVerificationCode(String verificationCode) {
-        commonAction.inputText(VERIFICATION_CODE, verificationCode);
+        commonAction.sendKeys(loc_txtVerificationCode, verificationCode);
         logger.info("Input '" + verificationCode + "' into Verification Code field.");
         return this;
     }
@@ -192,9 +137,7 @@ public class LoginPage {
 
     public LoginPage performLogin(String country, String username, String password) {
         selectCountry(country);
-        inputEmailOrPhoneNumber(username);
-        inputPassword(password);
-        clickLoginBtn();
+        performLogin(username, password);
         new HomePage(driver).waitTillSpinnerDisappear1();
         return this;
     }
@@ -218,7 +161,7 @@ public class LoginPage {
     }
 
     public String getSelectedLanguage() {
-        String selectedLanguage = commonAction.getText(LANGUAGE);
+        String selectedLanguage = commonAction.getText(loc_lblSelectedLanguage);
         logger.info("Retrieved selected language.");
         return selectedLanguage;
     }
@@ -232,45 +175,37 @@ public class LoginPage {
     public LoginPage selectDisplayLanguage(String language) throws Exception {
         commonAction.sleepInMiliSecond(1000);
         if (language.contentEquals("ENG")) {
-            commonAction.clickElement(ENGLISH_LANGUAGE);
+            commonAction.click(loc_lnkEnglish);
         } else if (language.contentEquals("VIE")) {
-            commonAction.clickElement(VIETNAMESE_LANGUAGE);
+            commonAction.click(loc_lnkVietnamese);
         } else {
             throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
         }
         logger.info("Selected display language '%s'.".formatted(language));
         return this;
     }
-
-    public LoginPage verifyEmailOrPhoneNumberError(String errMessage) {
-        String text = commonAction.getText(USER_ERROR);
-        soft.assertEquals(text, errMessage, "[Login][Email or Phone Number] Message does not match.");
-        logger.info("verifyEmailOrPhoneNumberError completed");
-        return this;
+    
+    public String getLoginFailError() {
+    	String text = commonAction.getText(loc_lblLoginFailError);
+    	logger.info("Error retrieved: " + text);
+    	return text;
     }
+    
+    public String getUsernameError() {
+    	String text = commonAction.getText(loc_lblUsernameError);
+    	logger.info("Error retrieved: " + text);
+    	return text;
+    }      
 
-    public LoginPage verifyPasswordError(String errMessage) {
-        String text = commonAction.getText(PASSWORD_ERROR);
-        soft.assertEquals(text, errMessage, "[Login/Forgot Password][Password] Message does not match.");
-        logger.info("verifyPasswordError completed");
-        return this;
-    }
-
-    public LoginPage verifyEmailOrPasswordIncorrectError(String errMessage) {
-        String text = commonAction.getText(INVALID_USER_ERROR);
-        soft.assertEquals(text, errMessage, "[Login][Invalid Email/Password] Message does not match.");
-        logger.info("verifyEmailOrPasswordIncorrectError completed");
-        return this;
-    }
+    public String getPasswordError() {
+    	String text = commonAction.getText(loc_lblPasswordError);
+    	logger.info("Error retrieved: " + text);
+    	return text;
+    }      
 
     public void verifyLoginWithDeletedStaffAccount(String content) {
-        wait.until(ExpectedConditions.visibilityOf(WARNING_POPUP));
-        Assert.assertTrue(WARNING_POPUP.getText().contains(content),
+        Assert.assertTrue(commonAction.getText(loc_dlgWarning).contains(content),
                 "[Login][Deleted Staff Account] No warning popup has been shown");
-    }
-
-    public void completeVerify() {
-        soft.assertAll();
     }
 
     /* get dashboard information */
@@ -301,20 +236,20 @@ public class LoginPage {
     }
 
     public void verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(WRONG_CODE_ERROR);
+        String text = commonAction.getText(loc_lblWrongCodeError);
         String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
-        soft.assertEquals(text, retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
+        Assert.assertEquals(text, retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
         logger.info("verifyVerificationCodeError completed");
     }
 
     public void verifyTextAtLoginScreen() throws Exception {
-        String text = commonAction.getText(SIGNIN_SCREEN_TXT);
+        String text = commonAction.getText(loc_lblLoginScreen);
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.screen.text"));
         logger.info("verifyTextAtLoginScreen completed");
     }
 
     public void verifyTextAtForgotPasswordScreen() throws Exception {
-        String text = commonAction.getText(SIGNIN_FORGOTPASSWORD_TXT);
+        String text = commonAction.getText(loc_lblForgotPasswordScreen);
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text"));
         logger.info("verifyTextAtForgotPasswordScreen completed");
     }

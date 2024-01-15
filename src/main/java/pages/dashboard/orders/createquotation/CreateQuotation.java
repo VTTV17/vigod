@@ -1,7 +1,6 @@
 package pages.dashboard.orders.createquotation;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +11,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
@@ -31,62 +26,28 @@ public class CreateQuotation {
 	final static Logger logger = LogManager.getLogger(CreateQuotation.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commonAction;
 	HomePage homePage;
 
 	public CreateQuotation(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
 		homePage = new HomePage(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = ".gs-page-title")
-	WebElement PAGE_TITLE;	
-	
-	@FindBy(css = ".quotation-in-store-purchase-cart-product-list__table-header")
-	WebElement TABLE_HEADER;
-	
-	@FindBy(css = ".quotation-instore-purchase .uik-btn__base")
-	WebElement SEARCH_PRODUCT_BY;
-	
-	@FindBy(css = "#dropdownSuggestionProduct input.uik-input__input")
-	WebElement PRODUCT_SEARCH_BOX;
-	
-	@FindBy(css = ".search-list__result .product-item-row")
-	List<WebElement> PRODUCT_SEARCH_RESULTS;
-	
-	@FindBy(css = ".order-in-store-purchase-customer input.uik-input__input")
-	WebElement CUSTOMER_SEARCH_BOX;
-	
-	@FindBy(css = ".search-result .mobile-customer-profile-row__info")
-	List<WebElement> CUSTOMER_SEARCH_RESULTS;
-	
-	@FindBy(css = ".information .name")
-	List<WebElement> SELECTED_CUSTOMER_NAME;
-	
-	@FindBy(css = ".information .phone")
-	List<WebElement> SELECTED_CUSTOMER_PHONE;
-	
-	@FindBy(css = ".quotation-in-store-purchase-complete .align-items-center")
-	List<WebElement> MONEY_SUMMARY;
-
-	@FindBy(css = ".quotation-in-store-purchase-complete button.gs-button__green")
-	WebElement EXPORT_QUO_BTN;
-
-	@FindBy(css = ".quotation-in-store-purchase-cart-product-list__stock-input")
-	WebElement QUANTITY_BOX;
-
-	@FindBy(xpath = "//i[@class='gs-action-button  ']")
-	WebElement DELETE_ITEM_ICON;
-
-	@FindBy(css = "div.modal-footer button.gs-button.gs-button__green.gs-button--undefined")
-	WebElement OK_BTN;
-
-	@FindBy(css = "div.modal-footer button.gs-button.gs-button__gray--outline.gs-button--undefined")
-	WebElement CANCEL_BTN;	
+	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+	By loc_lblTableHeader = By.cssSelector(".quotation-in-store-purchase-cart-product-list__table-header");
+	By loc_ddlSearchBy = By.cssSelector(".quotation-instore-purchase .uik-btn__base");
+	By loc_txtSearchProduct = By.cssSelector("#dropdownSuggestionProduct input.uik-input__input");
+	By loc_tmpProductSearchResult = By.cssSelector(".search-list__result .product-item-row");
+	By loc_txtSearchCustomer = By.cssSelector(".order-in-store-purchase-customer input.uik-input__input");
+	By loc_tmpCustomerSearchResult = By.cssSelector(".search-result .mobile-customer-profile-row__info");
+	By loc_lblSelectedCustomerName = By.cssSelector(".information .name");
+	By loc_lblSelectedCustomerPhone = By.cssSelector(".information .phone");
+	By loc_lblMoneyAmount = By.cssSelector(".quotation-in-store-purchase-complete .align-items-center");
+	By loc_btnCreate = By.cssSelector(".quotation-in-store-purchase-complete button.gs-button__green");
+	By loc_txtQuantity = By.cssSelector(".quotation-in-store-purchase-cart-product-list__stock-input");
+	By loc_btnRemoveProduct = By.xpath("//i[starts-with(@class,'gs-action-button')]");
 
 	String PRODUCT_NAME_IN_RESULT = ".//*[contains(@class,'product-item-row__product-name') %s]";
 	String VARIATION_IN_RESULT = ".//*[contains(@class,'product-item-row__variation-name') %s]";
@@ -99,9 +60,21 @@ public class CreateQuotation {
 		homePage.hideFacebookBubble();
 		return this;
 	}	
+
+	public WebElement getSubTotalElement() {
+		return commonAction.getElement(loc_lblMoneyAmount, 0);
+	}	
+	
+	public WebElement getVATElement() {
+		return commonAction.getElement(loc_lblMoneyAmount, 1);
+	}	
+	
+	public WebElement getTotalElement() {
+		return commonAction.getElement(loc_lblMoneyAmount, 2);
+	}	
 	
 	public CreateQuotation inputProductSearchTerm(String searchTerm) {
-		commonAction.inputText(PRODUCT_SEARCH_BOX, searchTerm);
+		commonAction.sendKeys(loc_txtSearchProduct, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		return this;
 	}
@@ -112,9 +85,9 @@ public class CreateQuotation {
 	 * @return
 	 */
 	public CreateQuotation selectSearchCondition(String searchBy) {
-		commonAction.clickElement(SEARCH_PRODUCT_BY);
-		By conditionXpath = By.xpath("./following-sibling::*//div[@class='uik-select__label' and text()='%s']".formatted(searchBy));
-		commonAction.clickElement(SEARCH_PRODUCT_BY.findElement(conditionXpath));
+		commonAction.click(loc_ddlSearchBy);
+		By conditionXpath = By.xpath("//div[@class='uik-select__label' and text()='%s']".formatted(searchBy));
+		commonAction.click(conditionXpath);
 		logger.info("Selected search condition: " + searchBy);
 		return this;
 	}
@@ -124,10 +97,10 @@ public class CreateQuotation {
 	 * @return
 	 */
 	public CreateQuotation emptyProductSearchBox() {
-		commonAction.inputText(PRODUCT_SEARCH_BOX, "<>?@#$%^");
+		commonAction.sendKeys(loc_txtSearchProduct, "<>?@#$%^");
 		
 		for (int i=0; i<6; i++) {
-			if (PRODUCT_SEARCH_RESULTS.size() == 0) break; 
+			if (commonAction.getElements(loc_tmpProductSearchResult).size() == 0) break; 
 			commonAction.sleepInMiliSecond(500);
 		}
 		
@@ -142,13 +115,13 @@ public class CreateQuotation {
 	public List<List<String>> getSearchResults() {
 		//Wait till there are results on search results box
 		for (int i=0; i<10; i++) {
-			if (PRODUCT_SEARCH_RESULTS.size() >0) break; 
+			if (commonAction.getElements(loc_tmpProductSearchResult).size() >0) break; 
 			commonAction.sleepInMiliSecond(500);
 		}
 		
 		//Get data result data
 		List<List<String>> table = new ArrayList<>();
-		for (WebElement row : PRODUCT_SEARCH_RESULTS) {
+		for (WebElement row : commonAction.getElements(loc_tmpProductSearchResult)) {
 			List<String> rowData = new ArrayList<>();
 			
 			WebElement nameElement = row.findElement(By.xpath(PRODUCT_NAME_IN_RESULT.formatted("")));
@@ -215,7 +188,7 @@ public class CreateQuotation {
 				
 				if (!extractedConvUnit.contentEquals(convUnit)) continue;
 			}
-			commonAction.clickElement(PRODUCT_SEARCH_RESULTS.get(i));
+			commonAction.click(loc_tmpProductSearchResult, i);
 			
 			/**
 			 * Code to check if the product is selected goes here
@@ -228,22 +201,22 @@ public class CreateQuotation {
 	}
 
 	public CreateQuotation selectProduct(String name) {
-		By productXpath = By.xpath(PRODUCT_NAME_IN_RESULT.formatted("and text()='%s'".formatted(name)));
-		commonAction.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(productXpath)));
+		By productXpath = By.xpath(PRODUCT_NAME_IN_RESULT.formatted("and text()=\"%s\"".formatted(name)));
+		commonAction.click(productXpath);
 		logger.info("Selected product: " + name);
 		return this;
 	}
 	
 	public CreateQuotation inputCustomerSearchTerm(String searchTerm) {
 		homePage.hideFacebookBubble();
-		commonAction.inputText(CUSTOMER_SEARCH_BOX, searchTerm);
+		commonAction.sendKeys(loc_txtSearchCustomer, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Customer Search box.");
 		return this;
 	}	
 
 	public CreateQuotation selectCustomer(String name) {
 		By customerXpath = By.xpath("//div[@class='full-name' and text()='%s']".formatted(name));
-		commonAction.clickElement(wait.until(ExpectedConditions.presenceOfElementLocated(customerXpath)));
+		commonAction.click(customerXpath);
 		logger.info("Selected customer: " + name);
 		return this;
 	}	
@@ -255,10 +228,10 @@ public class CreateQuotation {
 	public List<String> getSelectedCustomerData() {
 		List<String> customerData = new ArrayList<>();
 		
-		String name = SELECTED_CUSTOMER_NAME.isEmpty() ? "" : SELECTED_CUSTOMER_NAME.get(0).getText();
+		String name = commonAction.getElements(loc_lblSelectedCustomerName).size() >0 ? "" : commonAction.getText(loc_lblSelectedCustomerName, 0);
 		customerData.add(name); //Get name
 		
-		String phone = SELECTED_CUSTOMER_PHONE.isEmpty() ? "" : SELECTED_CUSTOMER_PHONE.get(0).getText();
+		String phone = commonAction.getElements(loc_lblSelectedCustomerPhone).size() >0 ? "" : commonAction.getText(loc_lblSelectedCustomerPhone, 0);
 		customerData.add(phone); // Get phone number
 		
 		return customerData;
@@ -266,21 +239,21 @@ public class CreateQuotation {
 	
 	public CreateQuotation clickExportQuotationBtn() {
 		homePage.hideFacebookBubble();
-		commonAction.clickElement(EXPORT_QUO_BTN);
+		commonAction.click(loc_btnCreate);
 		logger.info("Clicked on 'Export Quotation' button.");
 		commonAction.sleepInMiliSecond(5000);
 		return this;
 	}
 
 	public CreateQuotation inputQuantity(String number) {
-		commonAction.inputText(QUANTITY_BOX,number);
+		commonAction.sendKeys(loc_txtQuantity,number);
 		logger.info("Inputted "+number+" into quantity box.");
 		return this;
 	}
 
 	public CreateQuotation removeItemFromListQuotation() {
 		homePage.hideFacebookBubble();
-		commonAction.clickElement(DELETE_ITEM_ICON);
+		commonAction.click(loc_btnRemoveProduct);
 		logger.info("Clicked on Delete icon on list product quotation.");
 		return this;
 	}
@@ -291,22 +264,18 @@ public class CreateQuotation {
 	}	
 
 	public String getSubTotal() {
-		logger.info("Getting subtotal...");
-		String text = commonAction.getText(MONEY_SUMMARY.get(0).findElement(By.tagName("b")));
-		
-		return text;
+		logger.info("Getting Subtotal...");
+		return commonAction.getText(getSubTotalElement().findElement(By.tagName("b")));
 	}	
 	
 	public String getVAT() {
 		logger.info("Getting VAT...");
-		String text = commonAction.getText(MONEY_SUMMARY.get(1).findElement(By.tagName("span")));
-		return text;
+		return commonAction.getText(getVATElement().findElement(By.tagName("span")));
 	}	
 	
 	public String getTotal() {
 		logger.info("Getting Total...");
-		String text = commonAction.getText(MONEY_SUMMARY.get(2).findElement(By.tagName("span")));
-		return text;
+		return commonAction.getText(getTotalElement().findElement(By.tagName("span")));
 	}	
 
 	public List<List<String>> readQuotationFile() {
@@ -420,31 +389,31 @@ public class CreateQuotation {
 
     public void verifyTextAtCreateQuotationScreen() throws Exception {
     	
-    	String text = commonAction.getText(PAGE_TITLE).split("\n")[0];
+    	String text = commonAction.getText(loc_lblPageTitle).split("\n")[0];
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.title"), text);
   
-    	text = commonAction.getText(SEARCH_PRODUCT_BY);
+    	text = commonAction.getText(loc_ddlSearchBy);
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchProductByName"), text);
     	
-    	text = commonAction.getElementAttribute(PRODUCT_SEARCH_BOX, "placeholder");
+    	text = commonAction.getAttribute(loc_txtSearchProduct, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchProductByName.placeHolder"));
     	
-    	text = commonAction.getText(TABLE_HEADER);
+    	text = commonAction.getText(loc_lblTableHeader);
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.table.header"), text);
     
-    	text = commonAction.getElementAttribute(CUSTOMER_SEARCH_BOX, "placeholder");
+    	text = commonAction.getAttribute(loc_txtSearchCustomer, "placeholder");
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("quotation.create.searchCustomer.placeHolder"));
     	
-    	text = commonAction.getText(MONEY_SUMMARY.get(0).findElement(By.tagName("p")));
+    	text = commonAction.getText(getSubTotalElement().findElement(By.tagName("p")));
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.subTotal"), text);
     	
-    	text = commonAction.getText(MONEY_SUMMARY.get(1).findElement(By.tagName("p")));
+    	text = commonAction.getText(getVATElement().findElement(By.tagName("p")));
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.vat"), text);
     	
-    	text = commonAction.getText(MONEY_SUMMARY.get(2).findElement(By.tagName("b")));
+    	text = commonAction.getText(getTotalElement().findElement(By.tagName("b")));
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.total"), text);
     	
-    	text = commonAction.getText(EXPORT_QUO_BTN);
+    	text = commonAction.getText(loc_btnCreate);
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("quotation.create.exportBtn"), text);
 
     	logger.info("verifyTextAtCreateQuotationScreen completed");
