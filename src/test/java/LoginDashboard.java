@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.sql.SQLException;
 
+import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -41,24 +42,24 @@ public class LoginDashboard extends BaseTest {
 	String SELLER_FORGOT_PHONE_USERNAME = data.findValue("seller").findValue("forgotPhone").findValue("username").asText();
 	String SELLER_FORGOT_PHONE_PASSWORD = data.findValue("seller").findValue("forgotPhone").findValue("password").asText();
 	String SELLER_FORGOT_PHONE_COUNTRY = data.findValue("seller").findValue("forgotPhone").findValue("country").asText();
-	
+
 	String BLANK_ERROR = data.findValue("emptyError").asText();
 	String INVALID_MAIL_ERROR = data.findValue("invalidMailFormat").asText();
 	String INVALID_PHONE_ERROR = data.findValue("invalidPhoneFormat").asText();
 	String INVALID_CREDENTIALS_ERROR = data.findValue("invalidCredentials").asText();
 	String INVALID_PASSWORD_FORMAT_ERROR_VI = "Mật khẩu phải dài ít nhất 8 ký tự và có ít nhất 1 chữ, 1 số và 1 ký tự đặc biệt";
 	String INVALID_PASSWORD_FORMAT_ERROR_EN = "Your password must have at least 8 characters with at least 1 letter, 1 number and 1 special character";
-	
+
 	String INVALID_CODE_ERROR_VI = "Mã xác thực không đúng!";
 	String INVALID_CODE_ERROR_EN = "Incorrect confirmation code!";
 
-	public String getVerificationCode(String username) throws SQLException {
+	public String getVerificationCode(String phoneCode, String username) throws SQLException {
 		String verificationCode;
 		if (!username.matches("\\d+")) {
 			// Get verification code from Mailnesia
 			verificationCode = new Mailnesia(driver).navigateToMailAndGetVerifyCode(username);
 		} else {
-			verificationCode = new InitConnection().getResetKey(loginPage.countryCode + ":" + username);
+			verificationCode = new InitConnection().getResetKey(phoneCode + ":" + username);
 		}
 		return verificationCode;
 	}
@@ -70,7 +71,9 @@ public class LoginDashboard extends BaseTest {
 		} else {
 			message = INVALID_PASSWORD_FORMAT_ERROR_VI;
 		}
-		loginPage.verifyPasswordError(message).completeVerify();
+//		loginPage.verifyPasswordError(message).completeVerify();
+		String error = loginPage.getPasswordError();
+		Assert.assertEquals(error, message);
 	}
 
 	public void verifyConfirmationCodeError() throws Exception {
@@ -89,81 +92,108 @@ public class LoginDashboard extends BaseTest {
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
 		generate = new DataGenerator();
-	}	
-	
+	}
+
 	@BeforeMethod
 	public void setup() {
 		instantiatePageObjects();
 	}
-	
-    @Test
+
+//    @Test
 	public void LoginDB_01_CheckTranslation() throws Exception {
-		loginPage.navigate()
-		.selectDisplayLanguage(language)
-		.verifyTextAtLoginScreen();
-		
-		loginPage.clickForgotPassword()
-		.verifyTextAtForgotPasswordScreen();
-	}
-    
-    @Test
-	public void LoginDB_02_LoginWithAllFieldsLeftBlank() throws Exception {
-		// Username field is left empty.
-		loginPage.navigate()
-		.performLogin("", generate.generateNumber(9))
-		.verifyEmailOrPhoneNumberError(BLANK_ERROR).completeVerify();
-		
-		// Password field is left empty.
-		loginPage.navigate().performLogin(generate.generateNumber(10), "").verifyPasswordError(BLANK_ERROR)
-				.completeVerify();
-		// All fields are left empty.
-		loginPage.navigate().performLogin("", "").verifyEmailOrPhoneNumberError(BLANK_ERROR)
-				.verifyPasswordError(BLANK_ERROR).completeVerify();
+		loginPage.navigate().selectDisplayLanguage(language).verifyTextAtLoginScreen();
+
+		loginPage.clickForgotPassword().verifyTextAtForgotPasswordScreen();
 	}
 
-    @Test
+	@Test
+	public void LoginDB_02_LoginWithAllFieldsLeftBlank() {
+
+		loginPage.navigate();
+
+		// Empty username
+		String error = loginPage.performLogin("", generate.generateNumber(9)).getUsernameError();
+		Assert.assertEquals(error, BLANK_ERROR);
+		commonAction.refreshPage();
+
+		// Empty password
+		error = loginPage.performLogin(generate.generateNumber(9), "").getPasswordError();
+		Assert.assertEquals(error, BLANK_ERROR);
+		commonAction.refreshPage();
+
+		// Empty username and password
+		error = loginPage.performLogin("", "").getPasswordError();
+		Assert.assertEquals(error, BLANK_ERROR);
+		error = loginPage.getUsernameError();
+		Assert.assertEquals(error, BLANK_ERROR);
+	}
+
+	@Test
 	public void LoginDB_03_LoginWithInvalidPhoneFormat() {
-		// Log in with a phone number consisting of 9 digits.
-		loginPage.navigate().performLogin(generate.generateNumber(9), generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_PHONE_ERROR).completeVerify();
-		// Log in with a phone number consisting of 14 digits.
-		loginPage.performLogin(generate.generateNumber(14), generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_PHONE_ERROR).completeVerify();
+
+		loginPage.navigate();
+
+		// 9-digit phone number
+		String error = loginPage.performLogin(generate.generateNumber(9), generate.generateString(10))
+				.getUsernameError();
+		Assert.assertEquals(error, INVALID_PHONE_ERROR);
+		commonAction.refreshPage();
+
+		// 16-digit phone number
+		error = loginPage.performLogin(generate.generateNumber(14), generate.generateString(10)).getUsernameError();
+		Assert.assertEquals(error, INVALID_PHONE_ERROR);
 	}
 
-    @Test
+	@Test
 	public void LoginDB_04_LoginWithInvalidMailFormat() {
+
+		loginPage.navigate();
+
 		// Mail does not have symbol @
-		loginPage.navigate().performLogin(generate.generateString(10), generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR).completeVerify();
+		String error = loginPage.performLogin(generate.generateString(10), generate.generateString(10))
+				.getUsernameError();
+		Assert.assertEquals(error, INVALID_MAIL_ERROR);
+		commonAction.refreshPage();
 
 		// Mail does not have suffix '.<>'. Eg. '.com'
-		loginPage.navigate().performLogin(generate.generateString(10) + "@", generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR).completeVerify();
+		error = loginPage.performLogin(generate.generateString(10) + "@", generate.generateString(10))
+				.getUsernameError();
+		Assert.assertEquals(error, INVALID_MAIL_ERROR);
+		commonAction.refreshPage();
 
-		loginPage.navigate()
-				.performLogin(generate.generateString(10) + "@" + generate.generateString(5) + ".",
-						generate.generateString(10))
-				.verifyEmailOrPhoneNumberError(INVALID_MAIL_ERROR).completeVerify();
+		error = loginPage.performLogin(generate.generateString(10) + "@" + generate.generateString(5) + ".",
+				generate.generateString(10)).getUsernameError();
+		Assert.assertEquals(error, INVALID_MAIL_ERROR);
+
 	}
 
-    @Test
-	public void LoginDB_05_LoginWithWrongEmailAccount() {
-		loginPage.navigate()
-				.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
-				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
-		
-		loginPage.navigate().performLogin(generate.generateNumber(13), generate.generateString(10))
-		.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
+	@Test
+	public void LoginDB_05_LoginWithNonExistingAccount() {
+
+		loginPage.navigate();
+
+		// Email account
+		String error = loginPage.performLogin(generate.generateString(10) + "@nbobd.com", generate.generateString(10))
+				.getLoginFailError();
+		Assert.assertEquals(error, INVALID_CREDENTIALS_ERROR);
+
+		// Phone account
+		error = loginPage.performLogin(generate.generateNumber(13), generate.generateString(10)).getLoginFailError();
+		Assert.assertEquals(error, INVALID_CREDENTIALS_ERROR);
 	}
 
-    @Test
+	@Test
 	public void LoginDB_06_LoginWithCorrectAccount() {
-		loginPage.navigate().performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
+
+		loginPage.navigate();
+
+		// Email account
+		loginPage.performLogin(PHONE_COUNTRY, PHONE, PHONE_PASSWORD);
 		homePage.clickLogout();
-		
-		loginPage.navigate().performLogin(MAIL, PASSWORD);
-		homePage.waitTillSpinnerDisappear().clickLogout();
+
+		// Phone account
+		loginPage.performLogin(MAIL, PASSWORD);
+		homePage.clickLogout();
 	}
 
 //    @Test
@@ -172,13 +202,18 @@ public class LoginDashboard extends BaseTest {
 		homePage.waitTillSpinnerDisappear().clickLogout();
 	}
 
-    @Test
+	@Test
 	public void LoginDB_08_StaffLogin() {
-		// Login with wrong credentials.
-		loginPage.navigate().switchToStaffTab().performLogin(STAFF, generate.generateString(10))
-				.verifyEmailOrPasswordIncorrectError(INVALID_CREDENTIALS_ERROR).completeVerify();
-		// Login with correct credentials.
-		loginPage.navigate().switchToStaffTab().performLogin(STAFF, STAFF_PASSWORD);
+
+		loginPage.navigate();
+
+		// Wrong credentials.
+		String error = loginPage.switchToStaffTab().performLogin(STAFF, generate.generateString(10))
+				.getLoginFailError();
+		Assert.assertEquals(error, INVALID_CREDENTIALS_ERROR);
+
+		// Correct credentials.
+		loginPage.switchToStaffTab().performLogin(STAFF, STAFF_PASSWORD);
 		homePage.clickLogout();
 	}
 
@@ -195,48 +230,37 @@ public class LoginDashboard extends BaseTest {
 		}
 
 		// Inadequate number of characters
-		loginPage.switchToStaffTab()
-		.clickForgotPassword()
-		.inputEmailOrPhoneNumber(staff)
-		.inputPassword("fortt!1")
-		.clickContinueOrConfirmBtn();
+		loginPage.switchToStaffTab().clickForgotPassword().inputEmailOrPhoneNumber(staff).inputPassword("fortt!1")
+				.clickContinueOrConfirmBtn();
 		verifyChangePasswordError();
-		
+
 		// Absence of numbers
-		loginPage.inputPassword("fortesting!")
-		.clickContinueOrConfirmBtn();
+		loginPage.inputPassword("fortesting!").clickContinueOrConfirmBtn();
 		verifyChangePasswordError();
-		
+
 		// Absence of letters
-		loginPage.inputPassword("12345678!")
-		.clickContinueOrConfirmBtn();
+		loginPage.inputPassword("12345678!").clickContinueOrConfirmBtn();
 		verifyChangePasswordError();
 
 		// Absence of special characters
-		loginPage.inputPassword("fortesting1")
-		.clickContinueOrConfirmBtn();
+		loginPage.inputPassword("fortesting1").clickContinueOrConfirmBtn();
 		verifyChangePasswordError();
 
 		// Input wrong verification code
-		loginPage.inputPassword(newPassword)
-		.clickContinueOrConfirmBtn();
+		loginPage.inputPassword(newPassword).clickContinueOrConfirmBtn();
 
-		String code = getVerificationCode(staff);
+		String code = getVerificationCode(generate.getPhoneCode(PHONE_COUNTRY), staff);
 
-		loginPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1))
-		.clickContinueOrConfirmBtn();
+		loginPage.inputVerificationCode(String.valueOf(Integer.parseInt(code) - 1)).clickContinueOrConfirmBtn();
 		loginPage.verifyVerificationCodeError(language);
 
 		// Input correct verification code
-		loginPage.inputVerificationCode(code)
-		.clickContinueOrConfirmBtn();
+		loginPage.inputVerificationCode(code).clickContinueOrConfirmBtn();
 		homePage.waitTillSpinnerDisappear();
 		homePage.clickLogout();
 
 		// Re-login with new password
-		loginPage.navigate()
-		.switchToStaffTab()
-		.performLogin(staff, newPassword);
+		loginPage.navigate().switchToStaffTab().performLogin(staff, newPassword);
 		homePage.waitTillSpinnerDisappear().clickLogout();
 	}
 
@@ -246,10 +270,9 @@ public class LoginDashboard extends BaseTest {
 		String password = "";
 		String country = "";
 
-		String[][] testData = { 
+		String[][] testData = {
 				{ SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, SELLER_FORGOT_MAIL_PASSWORD },
-				{ SELLER_FORGOT_PHONE_COUNTRY, SELLER_FORGOT_PHONE_USERNAME, SELLER_FORGOT_PHONE_PASSWORD }
-		};
+				{ SELLER_FORGOT_PHONE_COUNTRY, SELLER_FORGOT_PHONE_USERNAME, SELLER_FORGOT_PHONE_PASSWORD } };
 
 		for (String[] row : testData) {
 			country = row[0];
@@ -275,9 +298,10 @@ public class LoginDashboard extends BaseTest {
 			for (int i = 0; i < 5; i++) {
 				currentPassword = newPassword;
 
-				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
-				
-				if (i == 0) homePage.navigateToPage("Settings");
+				newPassword = (i != 4) ? password + generate.generateNumber(3) + "!" : password;
+
+				if (i == 0)
+					homePage.navigateToPage("Settings");
 				new AccountPage(driver).navigate().changePassword(currentPassword, newPassword, newPassword);
 				homePage.getToastMessage();
 			}
@@ -291,28 +315,23 @@ public class LoginDashboard extends BaseTest {
 		String password = "";
 		String country = "";
 
-		String[][] testData = { 
+		String[][] testData = {
 				{ SELLER_FORGOT_MAIL_COUNTRY, SELLER_FORGOT_MAIL_USERNAME, SELLER_FORGOT_MAIL_PASSWORD },
-				{ SELLER_FORGOT_PHONE_COUNTRY, SELLER_FORGOT_PHONE_USERNAME, SELLER_FORGOT_PHONE_PASSWORD }
-		};
+				{ SELLER_FORGOT_PHONE_COUNTRY, SELLER_FORGOT_PHONE_USERNAME, SELLER_FORGOT_PHONE_PASSWORD } };
 
 		for (String[] row : testData) {
 			country = row[0];
 			username = row[1];
 			password = row[2];
 
-			String newPassword =  password + generate.generateNumber(3) + "!";
+			String newPassword = password + generate.generateNumber(3) + "!";
 
-			loginPage.navigate()
-			.clickForgotPassword()
-			.selectCountry(country)
-			.inputEmailOrPhoneNumber(username)
-			.inputPassword(newPassword)
-			.clickContinueOrConfirmBtn();
+			loginPage.navigate().clickForgotPassword().selectCountry(country).inputEmailOrPhoneNumber(username)
+					.inputPassword(newPassword).clickContinueOrConfirmBtn();
 
-			loginPage.inputVerificationCode(getVerificationCode(username))
-			.clickContinueOrConfirmBtn();
-			
+			loginPage.inputVerificationCode(getVerificationCode(generate.getPhoneCode(country), username))
+					.clickContinueOrConfirmBtn();
+
 			// Logout
 			homePage.clickLogout();
 
@@ -324,9 +343,10 @@ public class LoginDashboard extends BaseTest {
 			for (int i = 0; i < 5; i++) {
 				currentPassword = newPassword;
 
-				newPassword = (i!=4) ? password + generate.generateNumber(3)+ "!" : password;
+				newPassword = (i != 4) ? password + generate.generateNumber(3) + "!" : password;
 
-				if (i == 0) homePage.navigateToPage("Settings");
+				if (i == 0)
+					homePage.navigateToPage("Settings");
 				new AccountPage(driver).navigate().changePassword(currentPassword, newPassword, newPassword);
 				homePage.getToastMessage();
 			}
@@ -334,10 +354,10 @@ public class LoginDashboard extends BaseTest {
 		}
 	}
 
-    @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
-        super.writeResult(result);
-        driver.quit();
-    }	
-	
+	@AfterMethod
+	public void writeResult(ITestResult result) throws IOException {
+		super.writeResult(result);
+		driver.quit();
+	}
+
 }

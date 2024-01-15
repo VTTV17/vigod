@@ -1,127 +1,103 @@
 package pages.dashboard.marketing.loyaltyprogram;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.asserts.SoftAssert;
 
 import utilities.UICommonAction;
-
-import java.time.Duration;
-import java.util.Arrays;
 
 public class CreateLoyaltyProgram {
 
 	final static Logger logger = LogManager.getLogger(CreateLoyaltyProgram.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commonAction;
-
-	SoftAssert soft = new SoftAssert();
 
 	public CreateLoyaltyProgram(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "name")
-	WebElement TIER_NAME;
+	By loc_txtMembershipName = By.id("name");
+	By loc_lnkAddSegment = By.cssSelector(".segment-add .gs-fake-link");
+	By loc_btnUploadImage = By.cssSelector(".image-upload input");
+	By loc_txtDescription = By.cssSelector("div.fr-wrapper > div");
+	By loc_chkBenefit = By.cssSelector(".benefit .custom-check-box");
+	By loc_txtPercentAmount = By.id("discountPercent");
+	By loc_txtMaxDiscountAmount = By.id("discountMaxAmount");
+	By loc_btnSave = By.cssSelector(".group-btn .btn-save");
+	By loc_btnCancel = By.cssSelector(".group-btn .gs-button__gray--outline");
+	By loc_btnClose = By.cssSelector("[data-sherpherd='tour-guide-alert-button-close']");
 
-	@FindBy(css = ".segment-add .gs-fake-link")
-	WebElement ADD_SEGMENT_LNKTXT;
-
-	@FindBy(css = ".image-upload input")
-	WebElement UPLOAD_BTN;
-
-	@FindBy(css = "div.fr-wrapper > div")
-	WebElement DESCRIPTION;
-
-	@FindBy(css = ".benefit .custom-check-box")
-	WebElement BENEFIT_CHECKBOX;
-
-	@FindBy(id = "discountPercent")
-	WebElement MEMBERSHIP_DISCOUNT;
-	
-	@FindBy(id = "discountMaxAmount")
-	WebElement MAXIMUM_DISCOUNT;
-
-	@FindBy(css = ".group-btn .btn-save")
-	WebElement SAVE_BTN;
-	
-	@FindBy(css = ".group-btn .gs-button__gray--outline")
-	WebElement CANCEL_BTN;
-	
-	@FindBy(css = "[data-sherpherd=\"tour-guide-alert-button-close\"]")
-	WebElement CLOSE_BTN;
-	
 	public CreateLoyaltyProgram inputTierName(String tierName) {
-		commonAction.inputText(TIER_NAME, tierName);
+		commonAction.sendKeys(loc_txtMembershipName, tierName);
 		logger.info("Input '" + tierName + "' into Tier Name field.");
 		return this;
 	}
 
 	public CreateLoyaltyProgram clickAddSegment() {
-		commonAction.clickElement(ADD_SEGMENT_LNKTXT);
+		commonAction.click(loc_lnkAddSegment);
 		logger.info("Clicked on 'Add Segment'");
 		return this;
 	}
 
-	public CreateLoyaltyProgram uploadImages(String... fileNames) {
-		commonAction.uploadMultipleFile(UPLOAD_BTN, "membership_images", fileNames);
-		logger.info("Upload multiple file: " + Arrays.toString(fileNames));
+	public CreateLoyaltyProgram uploadImages(String imgFile) {
+        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/membership_images/%s".formatted(imgFile).replace("/", File.separator)));
+		commonAction.uploads(loc_btnUploadImage, filePath.toString());
+		logger.info("Upload file: " + imgFile);
 		return this;
 	}
 
 	public CreateLoyaltyProgram inputDescription(String membershipDescription) {
-		commonAction.inputText(DESCRIPTION, membershipDescription);
+		commonAction.sendKeys(loc_txtDescription, membershipDescription);
 		logger.info("Input '" + membershipDescription + "' into Description field.");
 		return this;
 	}
 
 	public CreateLoyaltyProgram checkBenefitCheckBox(boolean checked) {
+		WebElement benefitCheckBox = commonAction.getElement(loc_chkBenefit);
 		if (checked) {
-			commonAction.checkTheCheckBoxOrRadio(BENEFIT_CHECKBOX);
+			commonAction.checkTheCheckBoxOrRadio(benefitCheckBox);
 			logger.info("Checked 'Membership Level Benefits' checkbox.");
 		} else {
-			commonAction.uncheckTheCheckboxOrRadio(BENEFIT_CHECKBOX);
+			commonAction.uncheckTheCheckboxOrRadio(benefitCheckBox);
 			logger.info("Un-checked 'Membership Level Benefits' checkbox.");
 		}
 		return this;
 	}
 
 	public CreateLoyaltyProgram inputMembershipDiscount(String membershipDiscount) {
-		commonAction.inputText(MEMBERSHIP_DISCOUNT, membershipDiscount);
+		commonAction.sendKeys(loc_txtPercentAmount, membershipDiscount);
 		logger.info("Input '" + membershipDiscount + "' into Membership Discount field.");
 		return this;
 	}
 
 	public CreateLoyaltyProgram inputMaximumDiscount(String maximumDiscount) {
-		commonAction.inputText(MAXIMUM_DISCOUNT, maximumDiscount);
+		commonAction.sendKeys(loc_txtMaxDiscountAmount, maximumDiscount);
 		logger.info("Input '" + maximumDiscount + "' into Maximum Discount field.");
 		return this;
 	}
 
 	public CreateLoyaltyProgram clickSaveBtn() {
-		commonAction.clickElement(SAVE_BTN);
+		commonAction.click(loc_btnSave);
 		logger.info("Clicked on 'Save' button");
 		return this;
 	}
 	
 	public CreateLoyaltyProgram clickCancelBtn() {
-		commonAction.clickElement(CANCEL_BTN);
+		commonAction.click(loc_btnCancel);
 		logger.info("Clicked on 'Cancel' button");
 		return this;
 	}
 	
 	public CreateLoyaltyProgram clickCloseBtn() {
-		commonAction.clickElement(CLOSE_BTN);
+		commonAction.click(loc_btnClose);
 		logger.info("Clicked on 'Close' button");
 		return this;
 	}
