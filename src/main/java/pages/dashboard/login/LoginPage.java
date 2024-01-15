@@ -8,9 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
 
 import api.dashboard.login.Login;
 import pages.dashboard.home.HomePage;
@@ -24,11 +22,7 @@ public class LoginPage {
 
     final static Logger logger = LogManager.getLogger(LoginPage.class);
 
-    public String country;
-    public String countryCode;
-
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
 
     public LoginPage(WebDriver driver) {

@@ -1,18 +1,11 @@
 package pages.dashboard.customers.allcustomers;
 
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.confirmationdialog.ConfirmationDialog;
 import pages.dashboard.customers.allcustomers.create_customer.CreateCustomerPopup;
@@ -24,54 +17,25 @@ public class AllCustomers extends HomePage{
 	final static Logger logger = LogManager.getLogger(AllCustomers.class);
 
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commonAction;
-
-	SoftAssert soft = new SoftAssert();
 
 	public AllCustomers(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[2]")
-	WebElement EXPORT_BTN;
-
-	@FindBy(xpath = "(//div[contains(@class,'uik-menuDrop__list')]//button)[1]")
-	WebElement EXPORT_CUSTOMER_BTN;	
-	
-	@FindBy(xpath = "(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[3]")
-	WebElement IMPORT_CUSTOMER_BTN;	
-
-    @FindBy(xpath = "(//div[contains(@class,'customer-list')]//div[contains(@class,'buttons-row')]//button)[last()]")
-    WebElement PRINT_BARCODE_BTN;	
-	
-	@FindBy(css = ".customer-list__filter-container .gs-search-box__wrapper .uik-input__input")
-	WebElement SEARCH_BOX;
-
-	@FindBy(id = "phone")
-	WebElement PHONE;
-
-    @FindBy (css = "div.modal-content")
-    WebElement WARNING_POPUP;
-
-	@FindBy(css = ".btn-filter-action")
-	WebElement FILTER_BTN;
-
-	@FindBy(xpath = "(//div[contains(@class,'filter-title')])[1]/following-sibling::div")
-	WebElement BRANCH_FIELD;
-
-	@FindBy (css = ".gs-content-header-right-el > .gs-button__green")
-	WebElement CREATE_NEW_CUSTOMER_BTN;
-
-	@FindBy(css = ".dropdown-menu-right .gs-button__green")
-	WebElement DONE_BTN;
-
-	By IMPORT_CUSTOMER_MODAL = By.cssSelector(".customer-list-import-modal");	
-	By PRINT_BARCODE_MODAL = By.cssSelector(".customer-list-barcode-printer");
+	By loc_btnExport = By.xpath("(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[2]");
+	By loc_btnExportCustomer = By.xpath("(//div[contains(@class,'uik-menuDrop__list')]//button)[1]");
+	By loc_btnImportCustomer = By.xpath("(//div[contains(@class,'customer-list')]//button[contains(@class,'gs-button__green')])[3]");
+	By loc_btnPrintBarcode = By.xpath("(//div[contains(@class,'customer-list')]//div[contains(@class,'buttons-row')]//button)[last()]");
+	By loc_txtSearchCustomer = By.cssSelector(".customer-list__filter-container .gs-search-box__wrapper .uik-input__input");
+	By loc_btnFilter = By.cssSelector(".btn-filter-action");
+	By loc_ddlFilterBranch = By.xpath("(//div[contains(@class,'filter-title')])[1]/following-sibling::div");
+	By loc_btnCreateCustomer = By.cssSelector(".gs-content-header-right-el > .gs-button__green");
+	By loc_btnDoneFilter = By.cssSelector(".dropdown-menu-right .gs-button__green");
+	By loc_dlgImportCustomer = By.cssSelector(".customer-list-import-modal");	
+	By loc_dlgPrintBarcode = By.cssSelector(".customer-list-barcode-printer");
 	
 	public AllCustomers navigate() {
 		new HomePage(driver).navigateToPage("Customers");
@@ -80,72 +44,72 @@ public class AllCustomers extends HomePage{
 	}
 
 	public AllCustomers clickExport() {
-		commonAction.clickElement(EXPORT_BTN);
+		commonAction.click(loc_btnExport);
 		logger.info("Clicked on 'Export' button.");
 		return this;
 	}
 
 	public AllCustomers clickExportCustomer() {
-		if (commonAction.isElementVisiblyDisabled(EXPORT_CUSTOMER_BTN.findElement(By.xpath("./parent::*")))) {
-			new HomePage(driver).isMenuClicked(EXPORT_CUSTOMER_BTN);
+		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnExportCustomer).findElement(By.xpath("./parent::*")))) {
+			new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnExportCustomer));
 			return this;
 		}
-		commonAction.clickElement(EXPORT_CUSTOMER_BTN);
+		commonAction.click(loc_btnExportCustomer);
 		logger.info("Clicked on 'Export Customer' button.");
 		return this;
 	}	
 	
 	public AllCustomers clickImportCustomer() {
-		if (commonAction.isElementVisiblyDisabled(IMPORT_CUSTOMER_BTN.findElement(By.xpath("./parent::*")))) {
-			new HomePage(driver).isMenuClicked(IMPORT_CUSTOMER_BTN);
+		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnImportCustomer).findElement(By.xpath("./parent::*")))) {
+			new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnImportCustomer));
 			return this;
 		}
-		commonAction.clickElement(IMPORT_CUSTOMER_BTN);
+		commonAction.click(loc_btnImportCustomer);
 		logger.info("Clicked on 'Import Customer' button.");
 		return this;
 	}	
 
     public AllCustomers clickPrintBarcode() {
-    	if (commonAction.isElementVisiblyDisabled(PRINT_BARCODE_BTN.findElement(By.xpath("./parent::*")))) {
-    		new HomePage(driver).isMenuClicked(PRINT_BARCODE_BTN);
+    	if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnPrintBarcode).findElement(By.xpath("./parent::*")))) {
+    		new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnPrintBarcode));
     		return this;
     	}
-    	commonAction.clickElement(PRINT_BARCODE_BTN);
+    	commonAction.click(loc_btnPrintBarcode);
     	logger.info("Clicked on 'Print Barcode' button.");
     	return this;
     }	
 	
     public boolean isImportCustomerDialogDisplayed() {
     	commonAction.sleepInMiliSecond(1000);
-    	return !commonAction.isElementNotDisplay(driver.findElements(IMPORT_CUSTOMER_MODAL));
+    	return !commonAction.isElementNotDisplay(driver.findElements(loc_dlgImportCustomer));
     }   	
 
     public boolean isPrintBarcodeDialogDisplayed() {
     	commonAction.sleepInMiliSecond(1000);
-    	return !commonAction.isElementNotDisplay(driver.findElements(PRINT_BARCODE_MODAL));
+    	return !commonAction.isElementNotDisplay(driver.findElements(loc_dlgPrintBarcode));
     }       
     
 	public AllCustomers inputSearchTerm(String searchTerm) {
-		commonAction.inputText(SEARCH_BOX, searchTerm);
+		commonAction.sendKeys(loc_txtSearchCustomer, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
 	}
 
 	public AllCustomers clickFilterIcon() {
-		commonAction.clickElement(FILTER_BTN);
+		commonAction.click(loc_btnFilter);
 		logger.info("Clicked on Filter icon.");
 		return this;
 	}
 
 	public AllCustomers clickFilterDoneBtn() {
-		commonAction.clickElement(DONE_BTN);
+		commonAction.click(loc_btnDoneFilter);
 		logger.info("Clicked on Filter Done button.");
 		return this;
 	}
 
 	public AllCustomers clickBranchList() {
-		commonAction.clickElement(BRANCH_FIELD);
+		commonAction.click(loc_ddlFilterBranch);
 		logger.info("Clicked on Branch list.");
 		return this;
 	}
@@ -154,7 +118,7 @@ public class AllCustomers extends HomePage{
 		new HomePage(driver).hideFacebookBubble();
 		clickFilterIcon();
 		clickBranchList();
-		commonAction.clickElement(BRANCH_FIELD.findElement(By.xpath("//div[@class='uik-select__label' and text()='%s']".formatted(branch))));
+		commonAction.click(new ByChained(loc_ddlFilterBranch, By.xpath("//div[@class='uik-select__label' and text()='%s']".formatted(branch))));
 		logger.info("Selected branch: " + branch);
 		clickFilterDoneBtn();
 		new HomePage(driver).waitTillSpinnerDisappear();
@@ -163,23 +127,20 @@ public class AllCustomers extends HomePage{
 
 	public AllCustomers clickUser(String user) {
 		new HomePage(driver).hideFacebookBubble();
-		String xpath = "//div[@class='text-truncate' and text()='%s']".formatted(user);
-		commonAction.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
+		commonAction.click(By.xpath("//div[@class='text-truncate' and text()='%s']".formatted(user)));
 		logger.info("Clicked on user: " + user);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
 	}
 
 	public String getPhoneNumber(String user) {
-		String xpath = "//div[@class='full-name' and text()='%s']/ancestor::*/following-sibling::td[2]".formatted(user);
-		String value = commonAction.getText(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath))));
+		String value = commonAction.getText(By.xpath("//div[@class='full-name' and text()='%s']/ancestor::*/following-sibling::td[2]".formatted(user)));
 		logger.info("Retrieved phone number: " + value);
 		return value;
 	}
 
 	public CreateCustomerPopup clickCreateNewCustomerBtn() {
-		// wait and click Create New Customer button
-		wait.until(ExpectedConditions.elementToBeClickable(CREATE_NEW_CUSTOMER_BTN)).click();
+		commonAction.click(loc_btnCreateCustomer);
 		return new CreateCustomerPopup(driver);
 	}
 
