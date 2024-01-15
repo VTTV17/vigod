@@ -4,11 +4,11 @@ import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
-import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductRawData;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -31,6 +31,13 @@ public class ProductInformation {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
         branchInfo = new BranchManagement(loginInformation).getInfo();
+    }
+
+    @Data
+    public class WholesaleProductRawData {
+        private String barcode;
+        private List<Integer> stock;
+        private List<Long> price;
     }
 
     /**

@@ -5,6 +5,7 @@ import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -12,7 +13,6 @@ import utilities.data.DataGenerator;
 import utilities.model.api.promotion.productDiscountCode.ProductDiscountCodeConditions;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.promotion.DiscountCodeInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -48,6 +48,25 @@ public class ProductDiscountCode {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
         brInfo = new BranchManagement(loginInformation).getInfo();
+    }
+
+    @Data
+    public class DiscountCodeInfo {
+        private String couponCode;
+        private String couponType;
+        private Long couponValue;
+        private Boolean couponLimitedUsage;
+        private Integer couponTotal;
+        private Integer couponUsed;
+        private Boolean couponLimitToOne;
+        private String freeShippingProviders;
+        private Boolean enabledRewards;
+        private String rewardsDescription;
+        private boolean noneRequired;
+        private Integer minQuantity;
+        private Long minTotal;
+        private List<String> platform;
+        private Map<String, List<String>> discountCodeStatus;
     }
 
     public void endEarlyDiscount(int discountId) {

@@ -4,13 +4,13 @@ import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -45,6 +45,13 @@ public class FlashSale {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
         brInfo = new BranchManagement(loginInformation).getInfo();
+    }
+
+    @Data
+    public class FlashSaleInfo {
+        private List<Long> flashSalePrice;
+        private List<Integer> flashSaleStock;
+        private Map<String, List<String>> flashSaleStatus;
     }
 
     public void endEarlyFlashSale() {

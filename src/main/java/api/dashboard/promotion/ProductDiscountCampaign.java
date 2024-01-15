@@ -5,6 +5,7 @@ import api.dashboard.login.Login;
 import api.dashboard.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -12,8 +13,6 @@ import utilities.data.DataGenerator;
 import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.promotion.BranchDiscountCampaignInfo;
-import utilities.model.dashboard.promotion.DiscountCampaignInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -39,14 +38,29 @@ public class ProductDiscountCampaign {
     String DELETE_DISCOUNT_CAMPAIGN_PATH = "/orderservices2/api/gs-discount-campaigns/";
     API api = new API();
     Logger logger = LogManager.getLogger(ProductDiscountCampaign.class);
-    private int discountCampaignMinQuantity;
-    private List<Long> discountCampaignPrice;
-    private Map<String, List<String>> discountCampaignStatus;
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
     ProductDiscountCampaignConditions conditions;
     ProductInfo productInfo;
+
+    @Data
+    public class DiscountCampaignInfo {
+        private String couponType;
+        private Long couponValue;
+        private Integer discountCampaignMinQuantity;
+        private String status;
+        private List<String> appliesBranch;
+        private List<Long> discountCampaignPrice;
+        private Map<String, List<String>> discountCampaignStatus;
+    }
+
+    @Data
+    public class BranchDiscountCampaignInfo {
+        private List<Integer> listOfMinimumRequirements;
+        private List<String> listOfCouponTypes;
+        private List<Long> listOfCouponValues;
+    }
 
     public ProductDiscountCampaign(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -385,89 +399,6 @@ public class ProductDiscountCampaign {
         }
 
         return info;
-    }
-
-    void getDiscountCampaignInformation(int campaignID, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
-        Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL_PATH.formatted(campaignID), loginInfo.getAccessToken());
-        discountCampaignDetail.then().statusCode(200);
-
-        // get jsonPath
-        JsonPath discountCampaignDetailJson = discountCampaignDetail.jsonPath();
-
-        /* Get discount campaign information */
-        // get couponType
-        String couponType = discountCampaignDetailJson.getString("discounts[0].couponType");
-
-        // get coupon value
-        long couponValue = Pattern.compile("couponValue.{4}(\\d+)")
-                .matcher(discountCampaignDetail.asPrettyString())
-                .results()
-                .map(matchResult -> Long.valueOf(matchResult.group(1)))
-                .toList().get(0);
-
-        // get discount status
-        String status = discountCampaignDetailJson.getString("discounts[0].status");
-
-        // get condition type
-        List<String> conditionType = Pattern.compile("conditionType.{4}(\\w+)")
-                .matcher(discountCampaignDetail.asPrettyString())
-                .results()
-                .map(matchResult -> String.valueOf(matchResult.group(1)))
-                .toList();
-
-        // get condition options
-        List<String> conditionOption = Pattern.compile("conditionOption.{4}(\\w+)")
-                .matcher(discountCampaignDetail.asPrettyString())
-                .results()
-                .map(matchResult -> String.valueOf(matchResult.group(1)))
-                .toList();
-
-        // get condition value map <condition type, condition value list>
-        Map<String, List<Integer>> conditionValueMap = new HashMap<>();
-        for (int conditionID = 0; conditionID < conditionType.size(); conditionID++) {
-            List<Integer> conditionValueList = new ArrayList<>();
-            for (int valueID = 0; valueID < discountCampaignDetailJson.getList("discounts[0].conditions[%s].values.id".formatted(conditionID)).size(); valueID++)
-                conditionValueList.add(discountCampaignDetailJson.getInt("discounts[0].conditions[%s].values[%s].conditionValue".formatted(conditionID, valueID)));
-            conditionValueMap.put(conditionType.get(conditionID), conditionValueList);
-        }
-
-        /* Update discount campaign status, price, stock */
-        // update min requirements quantity of items
-        discountCampaignMinQuantity = conditionValueMap.get("MINIMUM_REQUIREMENTS").get(0);
-
-        // update discount campaign price
-        discountCampaignPrice.replaceAll(price -> couponType.equals("FIXED_AMOUNT")
-                ? ((price > couponValue) ? (price - couponValue) : 0)
-                : ((price * (100 - couponValue)) / 100));
-
-        // update discount campaign status
-        List<String> appliesToBranch = conditionOption.contains("APPLIES_TO_BRANCH_SPECIFIC_BRANCH")
-                ? conditionValueMap.get("APPLIES_TO_BRANCH")
-                .stream()
-                .map(brID -> brInfo.getBranchName().get(brInfo.getBranchID().indexOf(brID)))
-                .toList()
-                : brInfo.getBranchName();
-
-        boolean appliesToProduct = conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS")
-                ? conditionValueMap.get("APPLIES_TO").contains(productInfo.getProductID())
-                : (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") || conditionValueMap.get("APPLIES_TO")
-                .stream()
-                .anyMatch(collectionId -> productInfo.getCollectionIdList().contains(collectionId)));
-
-        boolean appliesToCustomer = !conditionOption.contains("CUSTOMER_SEGMENT_SPECIFIC_SEGMENT")
-                || ((listSegmentOfCustomer != null) && !listSegmentOfCustomer.isEmpty() && conditionValueMap.get("CUSTOMER_SEGMENT")
-                .stream()
-                .anyMatch(listSegmentOfCustomer::contains));
-
-        if (appliesToProduct && appliesToCustomer) {
-            for (String brName : brInfo.getBranchName()) {
-                List<String> branchStatus = new ArrayList<>(discountCampaignStatus.get(brName));
-                IntStream.range(0, productInfo.getVariationModelList().size())
-                        .filter(varIndex -> appliesToBranch.contains(brName))
-                        .forEach(varIndex -> branchStatus.set(varIndex, status));
-                discountCampaignStatus.put(brName, branchStatus);
-            }
-        }
     }
 
     public Map<String, BranchDiscountCampaignInfo> getAllDiscountCampaignInfo(ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {

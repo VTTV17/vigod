@@ -2,28 +2,24 @@ package api.dashboard.promotion;
 
 import api.dashboard.customers.Customers;
 import api.dashboard.login.Login;
-import api.dashboard.products.APIProductCollection;
 import api.dashboard.products.CreateProduct;
 import api.dashboard.products.ProductCollection;
 import api.dashboard.setting.BranchManagement;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.promotion.DiscountCampaignInfo;
-import utilities.model.dashboard.promotion.FlashSaleInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
