@@ -92,7 +92,6 @@ public class Customers {
                 }
                 """.formatted(segmentName, customerTag);
         Response createSegment = api.post(CREATE_SEGMENT_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), body);
-        createSegment.prettyPrint();
         createSegment.then().statusCode(200);
         segmentID = createSegment.jsonPath().getInt("id");
     }

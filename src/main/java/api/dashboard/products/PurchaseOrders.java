@@ -21,11 +21,11 @@ public class PurchaseOrders {
 
     JsonPath createPurchaseOrderJsonPath() {
         SupplierAPI sup = new SupplierAPI(loginInformation);
-        int supplierId = sup.getListSupplierID("").size() == 0 ? sup.createSupplierAndGetSupplierID() : sup.getListSupplierID("").get(0);
+        int supplierId = sup.getListSupplierID("").isEmpty() ? sup.createSupplierAndGetSupplierID() : sup.getListSupplierID("").get(0);
         int branchId = new BranchManagement(loginInformation).getInfo() // get branch info
                 .getBranchID() // get list branch ID
                 .get(0); // get first branch in list
-        int itemId = new CreateProduct(loginInformation).createWithoutVariationProductAndGetProductID(false);
+        int itemId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 1).getProductID();
         String inventoryManageType = new ProductInformation(loginInformation).getInfo(itemId).isManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
         String body = """
                 {
