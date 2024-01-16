@@ -36,49 +36,49 @@ public class MyAddress extends HeaderSF {
 
     public String getCountry() {
 		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
-		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, myAddressUI.COUNTRY);
+		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, myAddressUI.loc_ddlCountry);
 		if (selectedOption == null) throw new NoSuchElementException("No options are selected");
 		String value = selectedOption.getText();
     	logger.info("Retrieved Country: " + value);
         return value;
     }
     public String getAddress(){
-        String address = commonAction.getElementAttribute(myAddressUI.ADDRESS_INPUT,"value");
+        String address = commonAction.getAttribute(myAddressUI.loc_txtAddress,"value");
         logger.info("Get address: %s".formatted(address));
         return address;
     }
     public String getCity(){
-        String city = commonAction.getDropDownSelectedValue(myAddressUI.CITY_DROPDOWN);
+        String city = commonAction.getDropDownSelectedValue(myAddressUI.loc_lblCityVN,0);
         logger.info("Get City: %s".formatted(city));
         return city;
     }
     public String getDistrict(){
-        String district = commonAction.getDropDownSelectedValue(myAddressUI.DISTRICT_DROPDOWN);
+        String district = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlDistrict,0);
         logger.info("Get district: %s".formatted(district));
         return district;
     }
     public String getWard(){
-        String ward = commonAction.getDropDownSelectedValue(myAddressUI.WARD_DROPDOWN);
+        String ward = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlWard,0);
         logger.info("Get district: %s".formatted(ward));
         return ward;
     }
     public String getAddress2(){
-        String address2 = commonAction.getElementAttribute(myAddressUI.ADDRESS2_INPUT,"value");
+        String address2 = commonAction.getAttribute(myAddressUI.loc_txtAddress2,"value");
         logger.info("Get address 2: %s".formatted(address2));
         return address2;
     }
     public String getState(){
-        String state = commonAction.getDropDownSelectedValue(myAddressUI.STATE_DROPDOWN);
+        String state = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlState,0);
         logger.info("Get state: %s".formatted(state));
         return state;
     }
     public String getInputtedCity(){
-        String city = commonAction.getElementAttribute(myAddressUI.CITY_INPUT,"value");
+        String city = commonAction.getAttribute(myAddressUI.loc_txtCity,"value");
         logger.info("Get inputted city: %s".formatted(city));
         return city;
     }
     public String getZipCode(){
-        String zipCode = commonAction.getElementAttribute(myAddressUI.ZIPCODE_INPUT,"value");
+        String zipCode = commonAction.getAttribute(myAddressUI.loc_txtZipCode,"value");
         logger.info("Get zip code: %s".formatted(zipCode));
         return zipCode;
     }
@@ -128,55 +128,55 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public MyAddress selectCountry(String country){
-        commonAction.selectByVisibleText(myAddressUI.COUNTRY,country);
+        commonAction.selectByVisibleText(myAddressUI.loc_ddlCountry,country);
         logger.info("Input country: %s".formatted(country));
         return this;
     }
     public MyAddress inputAddress(String address){
-        commonAction.inputText(myAddressUI.ADDRESS_INPUT,address);
+        commonAction.sendKeys(myAddressUI.loc_txtAddress,address);
         logger.info("Input address: %s".formatted(address));
         return this;
     }
     public MyAddress inputAddress2(String address2){
-        commonAction.inputText(myAddressUI.ADDRESS2_INPUT,address2);
+        commonAction.sendKeys(myAddressUI.loc_txtAddress2,address2);
         logger.info("Input address 2: %s".formatted(address2));
         return this;
     }
     public MyAddress inputCity(String city){
-        commonAction.inputText(myAddressUI.CITY_INPUT,city);
+        commonAction.sendKeys(myAddressUI.loc_txtCity,city);
         logger.info("Input address: %s".formatted(city));
         return this;
     }
     public MyAddress selectCityProvince(String city){
-        commonAction.selectByVisibleText(myAddressUI.CITY_DROPDOWN,city);
+        commonAction.selectByVisibleText(myAddressUI.loc_ddlCity,city);
         logger.info("Select city: %s".formatted(city));
         return this;
     }
     public MyAddress selectDistrict(String district){
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(myAddressUI.DISTRICT_DROPDOWN,district);
+        commonAction.selectByVisibleText(myAddressUI.loc_ddlDistrict,district);
         logger.info("Select district: %s".formatted(district));
         return this;
     }
     public MyAddress selectWard(String ward){
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(myAddressUI.WARD_DROPDOWN,ward);
+        commonAction.selectByVisibleText(myAddressUI.loc_ddlWard,ward);
         logger.info("Select ward: %s".formatted(ward));
         return this;
     }
     public MyAddress selectState(String state){
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(myAddressUI.STATE_DROPDOWN,state);
+        commonAction.selectByVisibleText(myAddressUI.loc_ddlState,state);
         logger.info("Select ward: %s".formatted(state));
         return this;
     }
     public MyAddress inputZipCode(String zipCode){
-        commonAction.inputText(myAddressUI.ZIPCODE_INPUT,zipCode);
+        commonAction.sendKeys(myAddressUI.loc_txtZipCode,zipCode);
         logger.info("Input address: %s".formatted(zipCode));
         return this;
     }
     public MyAddress clickOnSave(){
-        commonAction.clickElement(myAddressUI.SAVE_BTN);
+        commonAction.click(myAddressUI.loc_btnSave);
         logger.info("Click on Save button.");
         waitTillLoaderDisappear();
         commonAction.sleepInMiliSecond(3000);
@@ -235,26 +235,26 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public MyAddress verifyText() throws Exception {
-        Assert.assertEquals(commonAction.getText(myAddressUI.MY_ADDRESS_TITLE), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.pageTitle"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.MY_ADDRESS_TITLE), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.pageTitle"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblMyAddress), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.pageTitle"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblMyAddress), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.pageTitle"));
         selectCountry("Vietnam");
-        Assert.assertEquals(commonAction.getText(myAddressUI.COUNTRY_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.country"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.ADDRESS_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.address"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.CITY_VN_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cityVN"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.DISTRICT_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.district"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.WARD_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.ward"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblCountry), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.country"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblAddress), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.address"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblCityVN), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cityVN"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblDistrict), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.district"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblWard), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.ward"));
         selectCountry("Tonga");
-        Assert.assertEquals(commonAction.getText(myAddressUI.ADDRESS_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.streetAddress"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.ADDRESS2_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.address2"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.STATE_CODE_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.stateRegionProvince"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.CITY_NONVN_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cityNonVN"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.ZIP_CODE_LBL), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.zipCode"));
-        Assert.assertEquals(commonAction.getElementAttribute(myAddressUI.ADDRESS_INPUT,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.addressHint"));
-        Assert.assertEquals(commonAction.getElementAttribute(myAddressUI.ADDRESS2_INPUT,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.address2Hint"));
-        Assert.assertEquals(commonAction.getElementAttribute(myAddressUI.CITY_INPUT,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cityNonVNHint"));
-        Assert.assertEquals(commonAction.getElementAttribute(myAddressUI.ZIPCODE_INPUT,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.zipCodeHint"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.SAVE_BTN), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.saveBtn"));
-        Assert.assertEquals(commonAction.getText(myAddressUI.CANCEL_BTN), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblAddress), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.streetAddress"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblAddress2), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.address2"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblState), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.stateRegionProvince"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblCityNonVN), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cityNonVN"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_lblZipCode), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.zipCode"));
+        Assert.assertEquals(commonAction.getAttribute(myAddressUI.loc_txtAddress,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.addressHint"));
+        Assert.assertEquals(commonAction.getAttribute(myAddressUI.loc_txtAddress2,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.address2Hint"));
+        Assert.assertEquals(commonAction.getAttribute(myAddressUI.loc_txtCity,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cityNonVNHint"));
+        Assert.assertEquals(commonAction.getAttribute(myAddressUI.loc_txtZipCode,"placeholder"),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.zipCodeHint"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_btnSave), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.saveBtn"));
+        Assert.assertEquals(commonAction.getText(myAddressUI.loc_btnCancel), PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAddress.cancelBtn"));
         return this;
     }
 }

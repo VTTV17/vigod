@@ -47,10 +47,10 @@ public class EditServiceCollection extends CreateServiceCollection{
         return clickOnClose();
     }
     public ServiceCollectionManagement editServiceListInManualCollection(String[] newServiceList, boolean hasDeleteProduct, boolean hasInputPriority){
-        int serviceSize = DELETE_BTN_LIST.size();
+        int serviceSize = commonAction.getElements(loc_lst_btnDelete).size();
         if(hasDeleteProduct) {
             for(int i=0; i< serviceSize;i++){
-                commonAction.clickElement(DELETE_BTN_LIST.get(0));
+                commonAction.click(loc_lst_btnDelete,0);
                 commonAction.sleepInMiliSecond(500);
             }
         }
@@ -67,14 +67,14 @@ public class EditServiceCollection extends CreateServiceCollection{
     }
     public Map<String, Integer> getProductPriorityMapBefore() {
         Map<String, Integer> productPriorityMap = new HashMap<>();
-        int productListSize = SERVICE_NAME_LIST.size();
+        int productListSize = commonAction.getElements(loc_lst_lblServiceName).size();
         for (int i = 0; i < productListSize; i++) {
-            String priority = commonAction.getElementAttribute(PRIORITIES_INPUT.get(i),"value");
+            String priority = commonAction.getAttribute(loc_lst_txtPriorities,i,"value");
             if (priority.equals("")) {
-                productPriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(), productListSize);
+                productPriorityMap.put(commonAction.getText(loc_lst_lblServiceName,i).toLowerCase(), productListSize);
 
             } else {
-                productPriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(),Integer.parseInt(priority));
+                productPriorityMap.put(commonAction.getText(loc_lst_lblServiceName,i).toLowerCase(),Integer.parseInt(priority));
 
             }
         }
@@ -82,11 +82,11 @@ public class EditServiceCollection extends CreateServiceCollection{
     }
     public String[] getCollectionConditionBefore(){
         List<String> conditionList = new ArrayList<>();
-        int conditionSize = CONDITION_VALUE_INPUT.size();
+        int conditionSize = commonAction.getElements(loc_lst_txtConditionValue).size();
         for (int i=0; i<conditionSize;i++){
-            String condition = commonAction.getDropDownSelectedValue(CONDITION_DROPDOWN.get(i));
-            String operate = commonAction.getDropDownSelectedValue(OPERATOR_DROPDOWN.get(i));
-            String value = commonAction.getElementAttribute(CONDITION_VALUE_INPUT.get(i),"value");
+            String condition = commonAction.getDropDownSelectedValue(loc_ddlCondition,i);
+            String operate = commonAction.getDropDownSelectedValue(loc_ddlOperator,i);
+            String value = commonAction.getAttribute(loc_lst_txtConditionValue,i,"value");
             String aCondition = condition+"-"+operate+"-"+value;
             conditionList.add(aCondition);
         }
@@ -111,37 +111,37 @@ public class EditServiceCollection extends CreateServiceCollection{
         return allConditionArr;
     }
     public EditServiceCollection clickEditTranslationBtn(){
-        commonAction.clickElement(EDIT_TRANSLATION_BTN);
+        commonAction.click(loc_btnEditTranslation);
         logger.info("Click Edit translation button.");
         return this;
     }
     public EditServiceCollection inputNameTranslation(String name){
-        commonAction.inputText(NAME_TRANSLATION,name);
+        commonAction.sendKeys(loc_dlgTranslate_txtName,name);
         logger.info("Input name in edit translation popup: "+name);
         return this;
     }
     public EditServiceCollection inputSEOTitleTranslation(String SEOTitle){
-        commonAction.inputText(SEO_TITLE_TRANSLATE,SEOTitle);
+        commonAction.sendKeys(loc_dlgTranslate_txtSEOTitle,SEOTitle);
         logger.info("Input SEO title to translation popup: "+SEOTitle);
         return this;
     }
     public EditServiceCollection inputSEODescriptionTranslation(String SEODescription){
-        commonAction.inputText(SEO_DESCRIPTION_TRANSLATE,SEODescription);
+        commonAction.sendKeys(loc_dlgTranslate_txtSEODescription,SEODescription);
         logger.info("Input SEO description to translation popup: "+SEODescription);
         return this;
     }
     public EditServiceCollection inputSEOKeywordTranslation(String SEOKeyword){
-        commonAction.inputText(SEO_KEYWORDS_TRANSLATE,SEOKeyword);
+        commonAction.sendKeys(loc_dlgTranslate_txtSEOKeyword,SEOKeyword);
         logger.info("Input SEO keyword to translation popup: "+SEOKeyword);
         return this;
     }
     public EditServiceCollection inputSEOUrlTranslation(String SEOUrl){
-        commonAction.inputText(SEO_URL_TRANSLATE,SEOUrl);
+        commonAction.sendKeys(loc_dlgTranslate_txtSEOUrl,SEOUrl);
         logger.info("Input SEO url to translation popup: "+SEOUrl);
         return this;
     }
     public EditServiceCollection clickSaveTranslation(){
-        commonAction.clickElement(SAVE_TRANSLATE_BTN);
+        commonAction.click(loc_dlgTranslate_btnSave);
         logger.info("Click on Save translation button.");
         return this;
     }
