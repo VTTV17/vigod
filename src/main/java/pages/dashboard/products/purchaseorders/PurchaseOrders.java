@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -17,22 +18,18 @@ import utilities.UICommonAction;
 public class PurchaseOrders {
 	WebDriver driver;
 	UICommonAction commons;
-	WebDriverWait wait;
 
 	final static Logger logger = LogManager.getLogger(PurchaseOrders.class);
 
 	public PurchaseOrders(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commons = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = ".purchase-order-list-page .d-desktop-flex .uik-input__input")
-	WebElement SEARCH_BOX;
+	By loc_txtSearch = By.cssSelector(".purchase-order-list-page .d-desktop-flex .uik-input__input");
 
 	public PurchaseOrders inputSearchTerm(String searchTerm) {
-		commons.inputText(SEARCH_BOX, searchTerm);
+		commons.sendKeys(loc_txtSearch, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
