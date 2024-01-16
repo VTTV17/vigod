@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -37,48 +38,64 @@ public class BuyLinkManagement extends HomePage{
 
 		PageFactory.initElements(driver, this);
 	}
+	By loc_btnExploreNow = By.cssSelector(".buylink-intro .gs-button__green");
+	By loc_btnCreateBuyLink = By.cssSelector(".buylink-header button div");
+	By loc_lblBuyLinkManagementTitle = By.cssSelector(".gs-page-title");
+	By loc_lblUrlCol = By.xpath("//section[contains(@class,'gs-table-header-item')][2]/span");
+	By loc_lblCouponCol = By.xpath("//section[contains(@class,'gs-table-header-item')][3]/span");
+	By loc_lblCreateDateCol = By.xpath("//section[contains(@class,'gs-table-header-item')][4]/span");
+	By loc_lblActionCol = By.xpath("//section[contains(@class,'gs-table-header-item')][5]/span");
+	By loc_btnCopyLink = By.xpath("(//i[contains(@class,'gs-action-button')])[1]");
+	By loc_btnEditLink = By.xpath("(//i[contains(@class,'gs-action-button')])[2]");
+	By loc_btnDelete = By.xpath("(//i[contains(@class,'gs-action-button')])[3]");
+	By loc_lst_lblUrl = By.xpath("//div[@class='gs-table-body-item text-truncate']");
+	By loc_tltCopyLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[1]");
+	By loc_tltEditLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]");
+	By loc_tltDeleteLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]");
+	By loc_dlgConfirmation_btnDelete = By.xpath("//div[@class='modal-footer']/button[2]");
 
-    @FindBy(css = ".buylink-intro .gs-button__green")
-    WebElement EXPLORE_NOW_BTN;
-    @FindBy(css = ".buylink-header button div")
-    WebElement CREATE_BUYLINK_BTN;	
-	@FindBy(css = ".gs-page-title")
-	WebElement BUY_LINK_MANAGEMENT_TITLE;
-	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][2]/span" )
-	WebElement URL_LBL;
-	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][3]/span" )
-	WebElement COUPON_LBL;
-	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][4]/span" )
-	WebElement CREATE_DATE_LBL;
-	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][5]/span" )
-	WebElement ACTIONS_LBL;
-	@FindBy(css = ".buylink-content-body .empty span")
-	WebElement NO_BUY_LINK_YET;
-	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[1]")
-	WebElement COPY_LINK_ICO;
-	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[2]")
-	WebElement EDIT_LINK_ICO;
-	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[3]")
-	WebElement DELETE_LINK_ICO;
-	@FindBy(xpath = "//div[@class='gs-table-body-item text-truncate']")
-	List<WebElement> URL_LIST;
-	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[1]")
-	WebElement COPY_LINK_TOOLTIP;
-	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]")
-	WebElement EDIT_LINK_TOOLTIP;
-	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]")
-	WebElement DELETE_LINK_TOOLTIP;
-	@FindBy(xpath = "//div[@class='modal-footer']/button[2]")
-	WebElement DELETE_BTN_ON_MODAL;
+
+//    @FindBy(css = ".buylink-intro .gs-button__green")
+//    WebElement EXPLORE_NOW_BTN;
+//    @FindBy(css = ".buylink-header button div")
+//    WebElement CREATE_BUYLINK_BTN;
+//	@FindBy(css = ".gs-page-title")
+//	WebElement BUY_LINK_MANAGEMENT_TITLE;
+//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][2]/span" )
+//	WebElement URL_LBL;
+//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][3]/span" )
+//	WebElement COUPON_LBL;
+//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][3]/span" )
+//	WebElement CREATE_DATE_LBL;
+//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][5]/span" )
+//	WebElement ACTIONS_LBL;
+//	@FindBy(css = ".buylink-content-body .empty span")
+//	WebElement NO_BUY_LINK_YET;
+//	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[1]")
+//	WebElement COPY_LINK_ICO;
+//	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[2]")
+//	WebElement EDIT_LINK_ICO;
+//	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[3]")
+//	WebElement DELETE_LINK_ICO;
+//	@FindBy(xpath = "//div[@class='gs-table-body-item text-truncate']")
+//	List<WebElement> URL_LIST;
+//	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[1]")
+//	WebElement COPY_LINK_TOOLTIP;
+//	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]")
+//	WebElement EDIT_LINK_TOOLTIP;
+//	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]")
+//	WebElement DELETE_LINK_TOOLTIP;
+//	@FindBy(xpath = "//div[@class='modal-footer']/button[2]")
+//	WebElement DELETE_BTN_ON_MODAL;
 
 	public BuyLinkManagement clickExploreNow() {
-    	commonAction.clickElement(EXPLORE_NOW_BTN);
+    	commonAction.click(loc_btnExploreNow);
     	logger.info("Clicked on 'Explore Now' button.");
     	return this;
     }    
     
     public CreateBuyLink clickCreateBuyLink() {
-    	commonAction.clickElement(CREATE_BUYLINK_BTN);
+    	commonAction.click(loc_btnCreateBuyLink);
     	logger.info("Clicked on 'Create Buy Link' button.");
     	return new CreateBuyLink(driver);
     }    	
@@ -99,26 +116,26 @@ public class BuyLinkManagement extends HomePage{
 
     /*-------------------------------------*/
 	public BuyLinkManagement VerifyText() throws Exception {
-		Assert.assertEquals(commonAction.getText(BUY_LINK_MANAGEMENT_TITLE), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.pagetitle"));
-		Assert.assertEquals(commonAction.getText(CREATE_BUYLINK_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.createBuyLinkBtn"));
-		Assert.assertEquals(commonAction.getText(URL_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.urlCol"));
-		Assert.assertEquals(commonAction.getText(COUPON_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.couponCol"));
-		Assert.assertEquals(commonAction.getText(CREATE_DATE_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.createDate"));
-		Assert.assertEquals(commonAction.getText(ACTIONS_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.actions"));
+		Assert.assertEquals(commonAction.getText(loc_lblBuyLinkManagementTitle), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.pagetitle"));
+		Assert.assertEquals(commonAction.getText(loc_btnCreateBuyLink), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.createBuyLinkBtn"));
+		Assert.assertEquals(commonAction.getText(loc_lblUrlCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.urlCol"));
+		Assert.assertEquals(commonAction.getText(loc_lblCouponCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.couponCol"));
+		Assert.assertEquals(commonAction.getText(loc_lblCreateDateCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.createDate"));
+		Assert.assertEquals(commonAction.getText(loc_lblActionCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.actions"));
 		commonAction.sleepInMiliSecond(500);
-		Assert.assertEquals(commonAction.getElementAttribute(COPY_LINK_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.copyLinkTooltip"));
-		Assert.assertEquals(commonAction.getElementAttribute(EDIT_LINK_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.editLinkTooltip"));
-		Assert.assertEquals(commonAction.getElementAttribute(DELETE_LINK_TOOLTIP,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.deleteLinkTooltip"));
+		Assert.assertEquals(commonAction.getAttribute(loc_tltCopyLink,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.copyLinkTooltip"));
+		Assert.assertEquals(commonAction.getAttribute(loc_tltEditLink,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.editLinkTooltip"));
+		Assert.assertEquals(commonAction.getAttribute(loc_tltDeleteLink,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.table.deleteLinkTooltip"));
 		return this;
 	}
 	public BuyLinkManagement clickOnCopyLink(){
-		commonAction.clickElement(COPY_LINK_ICO);
+		commonAction.click(loc_btnCopyLink);
 		logger.info("Click on Copy link of the newest link (on the top)");
 		return this;
 	}
 	public String getNewestBuyLinkURL(){
 		commonAction.sleepInMiliSecond(1500);
-		String URL = commonAction.getText(URL_LIST.get(0));
+		String URL = commonAction.getText(loc_lst_lblUrl,0);
 		return URL;
 	}
 	public BuyLinkManagement verifyCreateBuyLinkSuccessfulMessage() throws Exception {
@@ -127,7 +144,7 @@ public class BuyLinkManagement extends HomePage{
 		return this;
 	}
 	public BuyLinkManagement verifyCopiedLink(String expectedLink) throws IOException, UnsupportedFlavorException {
-		String copiedLink = commonAction.getCopiedText(COPY_LINK_ICO);
+		String copiedLink = commonAction.getCopiedText(loc_btnCopyLink);
 		Assert.assertEquals(copiedLink,expectedLink);
 		logger.info("Verify copied link");
 		return this;
@@ -138,7 +155,7 @@ public class BuyLinkManagement extends HomePage{
 		return this;
 	}
 	public CreateBuyLink clickEditNewestBuyLink(){
-		commonAction.clickElement(EDIT_LINK_ICO);
+		commonAction.click(loc_btnEditLink);
 		logger.info("Click on edit newest buy link");
 		return new CreateBuyLink(driver);
 	}
@@ -148,12 +165,12 @@ public class BuyLinkManagement extends HomePage{
 		return this;
 	}
 	public BuyLinkManagement clickDeleteNewestBuyLink(){
-		commonAction.clickElement(DELETE_LINK_ICO);
+		commonAction.click(loc_btnDelete);
 		logger.info("Click on delete newest buy link.");
 		return this;
 	}
 	public BuyLinkManagement clickDeleteBtnOnModal(){
-		commonAction.clickElement(DELETE_BTN_ON_MODAL);
+		commonAction.click(loc_dlgConfirmation_btnDelete);
 		logger.info("Click on delete button on Delete Confirmation modal.");
 		return this;
 	}

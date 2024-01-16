@@ -51,11 +51,11 @@ public class EditProductCollection extends CreateProductCollection {
     }
     public ProductCollectionManagement editProductListInManualCollection(String[] newProductList, boolean hasDeleteProduct, boolean hasInputPriority){
         waitTillSpinnerDisappear();
-        int productSize = createCollectionUI.DELETE_BTN_LIST.size();
+        int productSize = common.getElements(createCollectionUI.loc_lst_btnDelete).size();
         System.out.println("productSize: "+productSize);
         if(hasDeleteProduct) {
            for(int i=0; i< productSize;i++){
-               common.clickElement(createCollectionUI.DELETE_BTN_1);
+               common.click(createCollectionUI.loc_lst_btnDelete,0);
                System.out.println("Deleted: "+i);
                common.sleepInMiliSecond(500);
            }
@@ -73,11 +73,11 @@ public class EditProductCollection extends CreateProductCollection {
     }
     public String[] getCollectionConditionBefore(){
         List<String> conditionList = new ArrayList<>();
-        int conditionSize = createCollectionUI.CONDITION_VALUE_INPUT.size();
+        int conditionSize = common.getElements(createCollectionUI.loc_lst_txtConditionValue).size();
         for (int i=0; i<conditionSize;i++){
-            String condition = common.getDropDownSelectedValue(createCollectionUI.CONDITION_DROPDOWN.get(i));
-            String operate = common.getDropDownSelectedValue(createCollectionUI.OPERATOR_DROPDOWN.get(i));
-            String value = common.getElementAttribute(createCollectionUI.CONDITION_VALUE_INPUT.get(i),"value");
+            String condition = common.getDropDownSelectedValue(createCollectionUI.loc_lst_ddlCondition,i);
+            String operate = common.getDropDownSelectedValue(createCollectionUI.loc_lst_ddlOperator,i);
+            String value = common.getAttribute(createCollectionUI.loc_lst_txtConditionValue,i,"value");
             String aCondition = condition+"-"+operate+"-"+value;
             conditionList.add(aCondition);
         }

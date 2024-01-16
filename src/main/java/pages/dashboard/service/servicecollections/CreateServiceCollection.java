@@ -49,7 +49,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     }
 
     public CreateServiceCollection inputCollectionName(String name) {
-        commonAction.inputText(COLLECTION_NAME, name);
+        commonAction.sendKeys(loc_txtCollectionName, name);
         logger.info("Input '" + name + "' into Collection Name field.");
         return this;
     }
@@ -57,9 +57,9 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     public List<String> getListServiceName(){
         List<String> serviceNameList = new ArrayList<>();
         commonAction.sleepInMiliSecond(100);
-        while (SERVICE_NAME_LIST.size()>0){
-            serviceNameList.add(commonAction.getText(SERVICE_NAME_LIST.get(0)));
-            commonAction.clickElement(DELETE_BTN_LIST.get(0));
+        while (commonAction.getElements(loc_lst_lblServiceName).size()>0){
+            serviceNameList.add(commonAction.getText(loc_lst_lblServiceName,0));
+            commonAction.click(loc_lst_btnDelete,0);
             commonAction.sleepInMiliSecond(100);
         }
         return serviceNameList;
@@ -84,15 +84,15 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         return serviceCollectionManagement.clickCreateServiceCollection();
     }
     public CreateServiceCollection uploadImages(String...fileNames){
-        commonAction.uploadMultipleFile(IMAGE_INPUT,"service_collection",fileNames);
+        commonAction.uploadMultipleFile(commonAction.getElement(loc_txtUploadImage),"service_collection",fileNames);
         logger.info("Upload multiple file: "+ Arrays.toString(fileNames));
         return this;
     }
     public CreateServiceCollection selectCollectionType(String collectionType) throws Exception {
         if (collectionType.equalsIgnoreCase(Constant.MANUAL_OPTION)) {
-            commonAction.checkTheCheckBoxOrRadio(MANUAL_RADIO_VALUE, MANUAL_RADIO_ACTION);
+            commonAction.checkTheCheckBoxOrRadio(loc_chbManualValue, loc_chbManualAction);
         } else if (collectionType.equalsIgnoreCase(Constant.AUTOMATED_OPTION)) {
-            commonAction.checkTheCheckBoxOrRadio(AUTOMATED_RADIO_VALUE, AUTOMATED_RADIO_ACTION);
+            commonAction.checkTheCheckBoxOrRadio(loc_chbAutomatedValue, loc_chbAutomedAction);
         } else {
             throw new Exception("Input value does not match any of the accepted values: Manual/Automated");
         }
@@ -100,23 +100,23 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         return this;
     }
     public CreateServiceCollection clickOnSelectService() {
-        commonAction.clickElement(SELECT_SERVICE_BTN);
+        commonAction.click(loc_btnSelectService);
         logger.info("Click on Select product button.");
         return this;
     }
 
     public CreateServiceCollection inputSearchKeyword(String keyword) {
-        commonAction.inputText(SEARCH_FOR_PRODUCT_INPUT, keyword);
+        commonAction.sendKeys(loc_dlgSelectService_txtSearchForService, keyword);
         logger.info("Search with keyword: " + keyword);
         return this;
     }
     public CreateServiceCollection selectAllProductInCurrentPage() {
-        commonAction.checkTheCheckBoxOrRadio(SELECT_ALL_CBX_VALUE, SELECT_ALL_CBX_ACTION);
+        commonAction.checkTheCheckBoxOrRadio(loc_dlgSelectService_cbxSelectAllValue, loc_dlgSelectService_cbxSelectAllAction);
         logger.info("Select all producr in current page");
         return this;
     }
     public CreateServiceCollection clickOnOKBTN() {
-        commonAction.clickElement(OK_BTN);
+        commonAction.click(loc_dlgSelectService_btnOK);
         logger.info("Click on OK button");
         return this;
     }
@@ -133,35 +133,35 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
             new CreateServiceCollection(driver).selectAllProductInCurrentPage();
         }
         clickOnOKBTN();
-        serviceSelectedNumber = SERVICE_NAME_LIST.size();
+        serviceSelectedNumber = commonAction.getElements(loc_lst_lblServiceName).size();
         logger.info("Select product: " + Arrays.toString(keywords));
         return this;
     }
     public CreateServiceCollection clickOnSaveBTN() {
-        commonAction.clickElement(SAVE_BTN);
+        commonAction.click(loc_btnSave);
         logger.info("Click on Save button");
         return this;
     }
     public CreateServiceCollection inputSEOTitle(String SEOTitle) {
-        commonAction.inputText(SEO_TITLE, SEOTitle);
+        commonAction.sendKeys(loc_txtSEOTitle, SEOTitle);
         logger.info("Input SEO title: " + SEOTitle);
         return this;
     }
 
     public CreateServiceCollection inputSEODescription(String SEODes) {
-        commonAction.inputText(SEO_DESCRIPTION, SEODes);
+        commonAction.sendKeys(loc_txtSEODescription, SEODes);
         logger.info("Input SEO description: " + SEODes);
         return this;
     }
 
     public CreateServiceCollection inputSEOKeywords(String SEOKeywords) {
-        commonAction.inputText(SEO_KEYWORD, SEOKeywords);
+        commonAction.sendKeys(loc_txtSEOKeyword, SEOKeywords);
         logger.info("Input SEO keywords: " + SEOKeywords);
         return this;
     }
 
     public CreateServiceCollection inputSEOUrl(String SEOUrl) {
-        commonAction.inputText(SEO_URL, SEOUrl);
+        commonAction.sendKeys(loc_txtSEOUrl, SEOUrl);
         logger.info("Input SEO url: " + SEOUrl);
         return this;
     }
@@ -183,7 +183,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     public Map<String, Integer> inputPriority(boolean priorityForAll, boolean canDuplicatePriority) {
         Map<String, Integer> servicePriorityMap = new HashMap<>();
         commonAction.sleepInMiliSecond(1000);
-        int serviceListSize = SERVICE_NAME_LIST.size();
+        int serviceListSize = commonAction.getElements(loc_lst_lblServiceName).size();
         List<Integer> priorityList;
         if (priorityForAll) {
             if (canDuplicatePriority) {
@@ -203,12 +203,12 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         for (int i = 0; i < serviceListSize; i++) {
             if (i < priorityList.size()) {
                 commonAction.sleepInMiliSecond(1000);
-                commonAction.inputText(PRIORITIES_INPUT.get(i), String.valueOf(priorityList.get(i)));
-                servicePriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(), priorityList.get(i));
+                commonAction.sendKeys(loc_lst_txtPriorities,i, String.valueOf(priorityList.get(i)));
+                servicePriorityMap.put(commonAction.getText(commonAction.getElements(loc_lst_lblServiceName).get(i)).toLowerCase(), priorityList.get(i));
             } else {
                 commonAction.sleepInMiliSecond(1000);
-                commonAction.clearText(PRIORITIES_INPUT.get(i));
-                servicePriorityMap.put(commonAction.getText(SERVICE_NAME_LIST.get(i)).toLowerCase(), serviceListSize+1);
+                commonAction.clearText(commonAction.getElements(loc_lst_txtPriorities).get(i));
+                servicePriorityMap.put(commonAction.getText(commonAction.getElements(loc_lst_lblServiceName).get(i)).toLowerCase(), serviceListSize+1);
             }
         }
         logger.info("Input product priority: " + servicePriorityMap);
@@ -216,9 +216,9 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     }
     public CreateServiceCollection selectConditionType(String conditionType) throws Exception {
         if (conditionType.equalsIgnoreCase(Constant.ALL_CONDITION)) {
-            commonAction.checkTheCheckBoxOrRadio(ALL_CONDITION_RADIO_VALUE, ALL_CONDITION_RADIO_ACTION);
+            commonAction.checkTheCheckBoxOrRadio(loc_chbAllConditionValue, loc_chbAllConditionAction);
         } else if (conditionType.equalsIgnoreCase(Constant.ANY_CONDITION)) {
-            commonAction.checkTheCheckBoxOrRadio(ANY_CONDITION_RADIO_VALUE, ANY_CONDITION_RADIO_ACTION);
+            commonAction.checkTheCheckBoxOrRadio(loc_chbAnyConditionValue, loc_chbAnyConditionAction);
         } else {
             throw new Exception("Input value does not match any of the accepted values: all conditions/any condition");
         }
@@ -227,32 +227,32 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     public CreateServiceCollection selectCondition(boolean hasAvailable, String[]conditions) {
         for (int i = 0; i < conditions.length; i++) {
             String[] conditionContent = conditions[i].split("-");
-            String conditionValueInputed = commonAction.getText(CONDITION_VALUE_INPUT.get(i));
+            String conditionValueInputed = commonAction.getText(loc_lst_txtConditionValue,i);
             if (hasAvailable && !conditionValueInputed.equals("")){
-                commonAction.clickElement(ADD_MORE_CONDITION_BTN);
+                commonAction.click(loc_btnAddMoreCondition);
                 continue;
             }
             for (int j = 0; j < 5; j++) {
                 try {
-                    commonAction.selectByVisibleText(new CreateEditServiceCollectionElement(driver).OPERATOR_DROPDOWN.get(i), conditionContent[1].trim());
+                    commonAction.selectByVisibleText(commonAction.getElements(loc_ddlOperator).get(i), conditionContent[1].trim());
                     break;
                 } catch (StaleElementReferenceException ex) {
                     logger.debug("StaleElementReferenceException caught when selecting operator \n" + ex);
                 }
             }
 
-            commonAction.inputText(CONDITION_VALUE_INPUT.get(i), conditionContent[2].trim());
+            commonAction.sendKeys(loc_lst_txtConditionValue,i, conditionContent[2].trim());
             if (i < conditions.length - 1) {
-                commonAction.clickElement(ADD_MORE_CONDITION_BTN);
+                commonAction.click(loc_btnAddMoreCondition);
             }
             logger.info("Input condition: %s".formatted(conditions[i]));
         }
-        commonAction.clickElement(AUTOMATED_RADIO_ACTION);//click outside
+        commonAction.click(loc_chbAutomedAction);//click outside
         return this;
     }
     public ServiceCollectionManagement clickOnClose() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        commonAction.clickElement(wait.until(ExpectedConditions.visibilityOf(CLOSE_BTN)));
+        commonAction.clickElement(wait.until(ExpectedConditions.visibilityOf(commonAction.getElement(loc_dlgNotification_btnClose))));
         logger.info("Click on Close button");
 //        commonAction.sleepInMiliSecond(5000);
         return new ServiceCollectionManagement(driver);
@@ -365,36 +365,36 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         return productExpectedList;
     }
     public CreateServiceCollection verifyText() throws Exception {
-        Assert.assertEquals(commonAction.getText(PAGE_TITLE), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.pageTitle"));
-        Assert.assertEquals(commonAction.getText(GENERAL_INFORMATION_LBL),PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.generalInfomationLbl"));
-        Assert.assertEquals(commonAction.getText(COLLECTION_NAME_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionNameLbl"));
-        Assert.assertEquals(commonAction.getText(IMAGES_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.imagesLbl"));
-        Assert.assertEquals(commonAction.getText(DRAG_AND_DROP_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.dragAndDropLbl"));
-        Assert.assertEquals(commonAction.getText(COLLECTION_TYPE_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionTypeLbl"));
-        Assert.assertEquals(commonAction.getText(MANUAL_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.manual"));
-        Assert.assertEquals(commonAction.getText(MANUAL_DESCRIPTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manualDescription"));
-        Assert.assertEquals(commonAction.getText(AUTOMATED_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.automated"));
-        Assert.assertEquals(commonAction.getText(AUTOMATED_DESCRIPTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automatedDescription"));
-        Assert.assertEquals(commonAction.getText(SERVICE_LIST_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.serviceListLbl"));
-        Assert.assertEquals(commonAction.getText(NO_SERVICES_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.noServicesMessage"));
-        Assert.assertEquals(commonAction.getText(SELECT_SERVICE_BTN), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.selectServiceBtn"));
+        Assert.assertEquals(commonAction.getText(loc_lblPageTitle), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.pageTitle"));
+        Assert.assertEquals(commonAction.getText(loc_lblGeneralInfomation),PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.generalInfomationLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblCollectionName), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionNameLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblImages), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.imagesLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblDragAndDrop), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.dragAndDropLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblCollectionType), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionTypeLbl"));
+        Assert.assertEquals(commonAction.getText(loc_chbManualAction), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.manual"));
+        Assert.assertEquals(commonAction.getText(loc_lblManualDescription), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manualDescription"));
+        Assert.assertEquals(commonAction.getText(loc_chbAutomedAction), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.collectionType.automated"));
+        Assert.assertEquals(commonAction.getText(loc_lblAutomatedDescription), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automatedDescription"));
+        Assert.assertEquals(commonAction.getText(loc_lblServiceList), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.serviceListLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblNoService), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.noServicesMessage"));
+        Assert.assertEquals(commonAction.getText(loc_btnSelectService), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.manual.selectServiceBtn"));
         selectCollectionType(Constant.AUTOMATED_OPTION);
-        Assert.assertEquals(commonAction.getText(CONDITIONS_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.conditionsLbl"));
-        Assert.assertEquals(commonAction.getText(ADD_MORE_CONDITION_BTN), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.addMoreConditionBtn"));
-        Assert.assertEquals(commonAction.getText(SERVICE_MUST_MATCH_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.serviceMustMatchLbl"));
-        Assert.assertEquals(commonAction.getText(ALL_CONDITION_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.allCondition"));
-        Assert.assertEquals(commonAction.getText(ANY_CONDITION_RADIO_ACTION), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.anyCondition"));
+        Assert.assertEquals(commonAction.getText(loc_lblConditions), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.conditionsLbl"));
+        Assert.assertEquals(commonAction.getText(loc_btnAddMoreCondition), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.addMoreConditionBtn"));
+        Assert.assertEquals(commonAction.getText(loc_lblServiceMustBeMatch), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.serviceMustMatchLbl"));
+        Assert.assertEquals(commonAction.getText(loc_chbAllConditionAction), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.allCondition"));
+        Assert.assertEquals(commonAction.getText(loc_chbAnyConditionAction), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.automated.anyCondition"));
         //SEO
-        Assert.assertEquals(commonAction.getText(SEO_SETTINGS_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOSettingLbl"));
-        Assert.assertEquals(commonAction.getText(LIVE_PREVIEW_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.livePreviewLbl"));
-        Assert.assertEquals(commonAction.getElementAttribute(LIVE_PREVIEW_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.livePriviewToolTip"));
-        Assert.assertEquals(commonAction.getText(SEO_TITLE_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOTitleLbl"));
-        Assert.assertEquals(commonAction.getElementAttribute(SEO_TITLE_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOTitleTooltip"));
-        Assert.assertEquals(commonAction.getText(SEO_DESCRIPTION_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEODescriptionLbl"));
-        Assert.assertEquals(commonAction.getElementAttribute(SEO_DESCRIPTION_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEODescriptionToolTip"));
-        Assert.assertEquals(commonAction.getText(SEO_KEYWORDS_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOKeywordsLbl"));
-        Assert.assertEquals(commonAction.getElementAttribute(SEO_KEYWORD_TOOLTIP,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOKeywordToolTip"));
-        Assert.assertEquals(commonAction.getText(URL_LINK_LBL), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.URLLinkLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblSEOSetting), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOSettingLbl"));
+        Assert.assertEquals(commonAction.getText(loc_lblLivePreview), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.livePreviewLbl"));
+        Assert.assertEquals(commonAction.getAttribute(loc_tltLivePreview,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.livePriviewToolTip"));
+        Assert.assertEquals(commonAction.getText(loc_lblSEOTitle), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOTitleLbl"));
+        Assert.assertEquals(commonAction.getAttribute(loc_tltSEOTitle,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOTitleTooltip"));
+        Assert.assertEquals(commonAction.getText(loc_lblSEODescription), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEODescriptionLbl"));
+        Assert.assertEquals(commonAction.getAttribute(loc_tltSEODescription,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEODescriptionToolTip"));
+        Assert.assertEquals(commonAction.getText(loc_lblSEOKeyword), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOKeywordsLbl"));
+        Assert.assertEquals(commonAction.getAttribute(loc_tltSEOKeyword,"data-original-title"), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.SEOKeywordToolTip"));
+        Assert.assertEquals(commonAction.getText(loc_lblUrlLink), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.URLLinkLbl"));
         return this;
     }
 }
