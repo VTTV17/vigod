@@ -157,7 +157,6 @@ public class ServiceCollectionManagement {
 	}
 	public ServiceCollectionManagement navigate(){
 		HomePage home = new HomePage(driver);
-		home.waitTillSpinnerDisappear();
 		home.navigateToPage("Services", "Service Collections");
 		return this;
 	}

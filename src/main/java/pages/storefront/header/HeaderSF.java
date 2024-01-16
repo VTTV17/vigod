@@ -110,8 +110,9 @@ public class HeaderSF extends GeneralSF {
     }
 
     public HeaderSF verifySearchSuggestion(String fullName, String price) {
-//        new GeneralSF(driver).waitDotLoadingDisappear();
-        String searchSuggestionItem1_Title = commons.getText(SEARCH_SUGGESTION_RESULT_TITLE.get(0));
+        new GeneralSF(driver).waitDotLoadingDisappear();
+
+        String searchSuggestionItem1_Title = commons.getText(SEARCH_SUGGESTION_RESULT_TITLE,0);
         Assert.assertEquals(searchSuggestionItem1_Title, fullName);
         logger.info("Verify name: %s display on search suggestion".formatted(fullName));
         String searchSuggestionItem1_Price = commons.getText(SEARCH_SUGGESTION_RESULT_PRICE.get(0));

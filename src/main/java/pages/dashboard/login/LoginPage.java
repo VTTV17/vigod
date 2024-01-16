@@ -125,6 +125,7 @@ public class LoginPage {
     public LoginPage performLogin(String username, String password) {
         inputEmailOrPhoneNumber(username);
         inputPassword(password);
+        commonAction.sleepInMiliSecond(2000);
         clickLoginBtn();
         return this;
     }

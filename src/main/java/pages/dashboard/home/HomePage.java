@@ -280,13 +280,13 @@ public class HomePage extends HomePageElement {
      * @return HomePage Object
      */
     public HomePage waitTillSpinnerDisappear1() {
-        commons.waitForElementInvisible(commons.getElement(loc_imgSpinner), 30);
+        commons.invisibilityOfElementLocated(loc_imgSpinner);
         logger.info("Spinner1 has finished loading");
         return this;
     }
 
     public HomePage waitTillLoadingDotsDisappear() {
-        commons.waitForElementInvisible(commons.getElement(loc_imgLoadingDots), 30);
+        commons.invisibilityOfElementLocated(loc_imgLoadingDots);
         logger.info("Loading dots have disappeared");
         return this;
     }

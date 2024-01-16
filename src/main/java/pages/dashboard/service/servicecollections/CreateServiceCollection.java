@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.ScriptKey;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -240,7 +241,6 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
                     logger.debug("StaleElementReferenceException caught when selecting operator \n" + ex);
                 }
             }
-
             commonAction.sendKeys(loc_lst_txtConditionValue,i, conditionContent[2].trim());
             if (i < conditions.length - 1) {
                 commonAction.click(loc_btnAddMoreCondition);
