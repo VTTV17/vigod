@@ -681,7 +681,6 @@ public class UICommonAction {
         }
         return textContent != null ? textContent : getText(locator, index);
     }
-
     public String getValue(By locator) {
         try {
             return getAttribute(locator, "value");

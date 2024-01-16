@@ -82,7 +82,7 @@ public class ServiceCollectionTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
     @AfterClass
     public void callAPIDeleteData(){
@@ -440,10 +440,12 @@ public class ServiceCollectionTest extends BaseTest{
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.ENDS_WITH+"-"+randomText};
         editAutomationCollectionAndVerify(serviceCollectionNameEdit, ANY_CONDITION,condition);
     }
-    @Test(dependsOnMethods = "SC11_CreateAutomatedServiceCollection_TitleEqualKeyword",priority = 13)
+//    @Test(dependsOnMethods = "SC11_CreateAutomatedServiceCollection_TitleEqualKeyword",priority = 13)
+    @Test
     public void SC13_EditTranslation() throws Exception {
         testCaseId = "SC13";
         languageSF="ENG";
+        serviceCollectionNameEdit = "collection service seo";
         String randomText = generate.generateString(10);
         String collectionNameTranslate = "Update collection " + randomText;
         ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
