@@ -440,12 +440,10 @@ public class ServiceCollectionTest extends BaseTest{
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.ENDS_WITH+"-"+randomText};
         editAutomationCollectionAndVerify(serviceCollectionNameEdit, ANY_CONDITION,condition);
     }
-//    @Test(dependsOnMethods = "SC11_CreateAutomatedServiceCollection_TitleEqualKeyword",priority = 13)
-    @Test
+    @Test(dependsOnMethods = "SC11_CreateAutomatedServiceCollection_TitleEqualKeyword",priority = 13)
     public void SC13_EditTranslation() throws Exception {
         testCaseId = "SC13";
         languageSF="ENG";
-        serviceCollectionNameEdit = "collection service seo";
         String randomText = generate.generateString(10);
         String collectionNameTranslate = "Update collection " + randomText;
         ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
@@ -492,7 +490,7 @@ public class ServiceCollectionTest extends BaseTest{
     }
     @Test(priority = 17)
     public void SC17_VerifyAutomatedCollectionWhenHasNewServiceMeetsCondition() throws Exception {
-//        testCaseId = "SC17";
+        testCaseId = "SC17";
         String randomText =  generate.generateString(10);
         String serviceName = "Service contain keyword "+ randomText;
         String serviceCollectionName = "Collection service contains " + randomText;
@@ -519,14 +517,13 @@ public class ServiceCollectionTest extends BaseTest{
     }
     @Test(priority = 18)
     public void SC18_VerifyAutomatedCollectionWhenServiceBelongCollectionDoesNotMeetCondition() throws Exception {
-//        testCaseId = "SC18";
+        testCaseId = "SC18";
         String randomText =  generate.generateString(10);
         String serviceName = "Service contain keyword "+ randomText;
         String serviceCollectionName = "Collection service contains " + randomText;
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.CONTAINS+"-"+randomText};
         ServiceInfo serviceInfo = callAPICreateService(serviceName);
         serviceList = new String[]{serviceName.toLowerCase()};
-
         ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
         serviceCollectionsInfo.setCollectionName(serviceCollectionName);
         serviceCollectionsInfo.setCollectionType(Constant.AUTOMATED_OPTION);

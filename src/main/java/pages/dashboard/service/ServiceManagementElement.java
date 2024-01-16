@@ -1,5 +1,6 @@
 package pages.dashboard.service;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -13,10 +14,7 @@ public class ServiceManagementElement {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-    @FindBy(css = ".service-list-page .gss-content-header button")
-    WebElement CREATE_SERVICE_BTN;
-    @FindBy(css = ".first-button")
-    List<WebElement> LIST_EDIT_BTN;
-    @FindBy(css = ".product-table__name b")
-    List<WebElement> LIST_SERVICE_NAME;
+    By loc_btnCreateService = By.cssSelector(".service-list-page .gss-content-header button");
+    By loc_lst_btnEdit = By.cssSelector(".first-button");
+    By loc_lst_lblServiceName = By.cssSelector(".product-table__name b");
 }
