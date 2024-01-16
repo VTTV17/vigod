@@ -653,23 +653,20 @@ public class UICommonAction {
     }
 
     public String getText(By locator) {
-        String textContent = "";
+        String textContent = null;
         try {
-            textContent = getElement(locator).getText();
+            textContent = getAttribute(locator, "innerText");
         } catch (StaleElementReferenceException ignore) {
         }
-
-        return !textContent.isEmpty() ? textContent : getText(locator);
+        return textContent != null ? textContent : getText(locator);
     }
-
     public String getText(By locator, int index) {
-        String textContent = "";
+        String textContent = null;
         try {
-            textContent = getElement(locator, index).getText();
+            textContent = getAttribute(locator, index, "innerText");
         } catch (StaleElementReferenceException ignore) {
         }
-
-        return !textContent.isEmpty() ? textContent : getText(locator, index);
+        return textContent != null ? textContent : getText(locator, index);
     }
 
     public String getValue(By locator) {
