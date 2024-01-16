@@ -118,7 +118,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			throw new Exception("Service not found: "+serviceName);
 		}
 		logger.info("Go to service detail: "+serviceName);
-		new HomePage(driver).waitTillSpinnerDisappear1();
+//		new HomePage(driver).waitTillSpinnerDisappear1();
 		return new CreateServicePage(driver);
 	}
 	public ServiceManagementPage verifyServiceNotDisplayInList(String serviceName){

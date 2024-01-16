@@ -82,7 +82,7 @@ public class ServiceCollectionTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
     @AfterClass
     public void callAPIDeleteData(){
@@ -281,8 +281,7 @@ public class ServiceCollectionTest extends BaseTest{
 //        serviceCollectionNameEdit="Collection has no service mhbNdmzpni";
         loginAndNavigateToEditServiceCollection(serviceCollectionNameEdit)
                 .editServiceListInManualCollection(serviceList,false,false)
-                .waitToUpdateCollection(3)
-                .refreshPage()
+                .refreshPageUtilCollectUpdate(String.valueOf(serviceList.length))
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit,SERVICE_TYPE,MANUALLY_MODE,String.valueOf(serviceList.length));
         navigateToSFAndVerifyCollectionPage(serviceCollectionNameEdit,false);
@@ -343,8 +342,7 @@ public class ServiceCollectionTest extends BaseTest{
 //        serviceCollectionNameEdit="Collection service has priority TItXtDWIrL";
         loginAndNavigateToEditServiceCollection(serviceCollectionNameEdit)
                 .editServicePriorityInCollection()
-                .waitToUpdateCollection(3)
-                .refreshPage()
+                .refreshPageUtilCollectUpdate(String.valueOf(serviceList.length))
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit, Constant.SERVICE_TYPE, MANUALLY_MODE, String.valueOf(serviceList.length));
         navigateToSFAndVerifyCollectionPage(serviceCollectionNameEdit,true);
@@ -510,15 +508,14 @@ public class ServiceCollectionTest extends BaseTest{
         callCreateMenuItemParentAPI(serviceCollectionsInfo.getCollectionName());
         serviceList = new String[]{serviceName.toLowerCase()};
         new ServiceCollectionManagement(driver)
-                .waitToUpdateCollection(2)
-                .refreshPage()
+                .refreshPageUtilCollectUpdate("1")
                 .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "1");
         //Check on SF
         navigateSFAndGoToCollectionPage(serviceCollectionsInfo.getCollectionName());
         productCollectionSF = new ProductCollectionSF(driver);
         productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(), Arrays.stream(serviceList).toList());
     }
-//    @Test(priority = 18)
+    @Test(priority = 18)
     public void SC18_VerifyAutomatedCollectionWhenServiceBelongCollectionDoesNotMeetCondition() throws Exception {
 //        testCaseId = "SC18";
         String randomText =  generate.generateString(10);
@@ -544,8 +541,7 @@ public class ServiceCollectionTest extends BaseTest{
         //Create menu item
         callCreateMenuItemParentAPI(serviceCollectionsInfo.getCollectionName());
         new ServiceCollectionManagement(driver)
-                .waitToUpdateCollection(3)
-                .refreshPage()
+                .refreshPageUtilCollectUpdate("0")
                 .verifyCollectionInfoAfterCreated(serviceCollectionsInfo.getCollectionName(), Constant.SERVICE_TYPE, Constant.AUTOMATED_MODE, "0");
         //Check on SF
         navigateSFAndGoToCollectionPage(serviceCollectionsInfo.getCollectionName());

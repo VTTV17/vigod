@@ -730,7 +730,9 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage.verifyServiceListSize(imageSize);
         //delete image
         home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.navigateToPageByURL()
+//                .waitTillSpinnerDisappear1()
+                .navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver).goToEditService(serviceEdit)
                 .removeAllImages()
                 .uploadImages(images)

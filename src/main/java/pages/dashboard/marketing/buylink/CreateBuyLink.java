@@ -35,57 +35,73 @@ public class CreateBuyLink extends HomePage {
         commonAction = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
     }
+    By loc_lblPopupTitle = By.cssSelector(".modal-title");
+    By loc_txtSearch = By.cssSelector(".buy-link-created-modal__search-wrapper input");
+    By loc_lst_lblSearchSuggestion = By.cssSelector(".product-item-row");
+    By loc_lst_lblProductNameSuggestion = By.cssSelector(".product-item-row__product-summary >h6");
+    By loc_lblNoSelectedProduct = By.cssSelector(".buy-link-created-modal__selected-product >div");
+    By loc_lblProductNameCol = By.xpath("//div[@class='buy-link-created-modal__selected-product']//th[1]");
+    By loc_lblQuantityCol = By.xpath("//div[@class='buy-link-created-modal__selected-product']//th[2]");
+    By loc_lblUnitCol = By.xpath("//div[@class='buy-link-created-modal__selected-product']//th[3]");
+    By loc_lblSelectedProductNumber = By.cssSelector(".customer-list-barcode-printer__selected");
+    By loc_btnNext = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_btnCancel = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By loc_btnFinish = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_btnBack = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By loc_lst_lblCouponName = By.cssSelector(".buy-link-created-modal__coupon-row h6");
+    By loc_lst_btnDeleteProduct = By.cssSelector(".buy-link-created-modal__selected-product .gs-action-button");
+    By loc_dlgProductSelection = By.cssSelector(".buy-link-created-modal");
 
-    @FindBy(css = ".modal-title")
-    WebElement POPUP_TITLE;
-    @FindBy(css = ".buy-link-created-modal__search-wrapper input")
-    WebElement SEARCH_INPUT;
-    @FindBy(css = ".product-item-row")
-    WebElement SEARCH_SUGGESTION;
-    @FindBy(css = ".product-item-row__product-summary >h6")
-    List<WebElement> PRODUCT_NAME_SUGGESTION;
-    @FindBy(css = ".buy-link-created-modal__selected-product >div")
-    WebElement NO_SELECTED_PRODUCT_LBL;
-    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[1]")
-    WebElement PRODUCT_NAME_COL;
-    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[2]")
-    WebElement QUANTITY_COL;
-    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[3]")
-    WebElement UNIT_COL;
-    @FindBy(css = ".customer-list-barcode-printer__selected")
-    WebElement SELECTED_PRODUCT_NUMBER;
-    @FindBy(css = ".modal-footer .gs-button__green")
-    WebElement NEXT_BTN;
-    @FindBy(css = ".modal-footer .gs-button__gray--outline")
-    WebElement CANCEL_BTN;
-    @FindBy(css = ".modal-footer .gs-button__green")
-    WebElement FINISH_BTN;
-    @FindBy(css = ".modal-footer .gs-button__gray--outline")
-    WebElement BACK_BTN;
-    @FindBy(css = ".buy-link-created-modal__coupon-row h6")
-    List<WebElement> COUPON_NAME_LIST;
-    @FindBy(css = ".buy-link-created-modal__selected-product .gs-action-button")
-    List<WebElement> DELETE_PRODUCT_ICONS;
-    By PRODUCT_SELECTION_MODAL = By.cssSelector(".buy-link-created-modal");
+//    @FindBy(css = ".modal-title")
+//    WebElement POPUP_TITLE;
+//    @FindBy(css = ".buy-link-created-modal__search-wrapper input")
+//    WebElement SEARCH_INPUT;
+//    @FindBy(css = ".product-item-row")
+//    WebElement SEARCH_SUGGESTION;
+//    @FindBy(css = ".product-item-row__product-summary >h6")
+//    List<WebElement> PRODUCT_NAME_SUGGESTION;
+//    @FindBy(css = ".buy-link-created-modal__selected-product >div")
+//    WebElement NO_SELECTED_PRODUCT_LBL;
+//    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[1]")
+//    WebElement PRODUCT_NAME_COL;
+//    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[2]")
+//    WebElement QUANTITY_COL;
+//    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[3]")
+//    WebElement UNIT_COL;
+//    @FindBy(css = ".customer-list-barcode-printer__selected")
+//    WebElement SELECTED_PRODUCT_NUMBER;
+//    @FindBy(css = ".modal-footer .gs-button__green")
+//    WebElement NEXT_BTN;
+//    @FindBy(css = ".modal-footer .gs-button__gray--outline")
+//    WebElement CANCEL_BTN;
+//    @FindBy(css = ".modal-footer .gs-button__green")
+//    WebElement FINISH_BTN;
+//    @FindBy(css = ".modal-footer .gs-button__gray--outline")
+//    WebElement BACK_BTN;
+//    @FindBy(css = ".buy-link-created-modal__coupon-row h6")
+//    List<WebElement> COUPON_NAME_LIST;
+//    @FindBy(css = ".buy-link-created-modal__selected-product .gs-action-button")
+//    List<WebElement> DELETE_PRODUCT_ICONS;
+//    By PRODUCT_SELECTION_MODAL = By.cssSelector(".buy-link-created-modal");
 
     public boolean isProductSelectionDialogDisplayed() {
         commonAction.sleepInMiliSecond(1000);
-        return !commonAction.isElementNotDisplay(driver.findElements(PRODUCT_SELECTION_MODAL));
+        return !commonAction.isElementNotDisplay(driver.findElements(loc_dlgProductSelection));
     }
 
     public CreateBuyLink inputToSearchProduct(String keyword) {
-        commonAction.inputText(SEARCH_INPUT, keyword);
+        commonAction.sendKeys(loc_txtSearch, keyword);
         return this;
     }
 
     public CreateBuyLink searchAndSelectProduct(String... productNames) throws Exception {
         for (String productName : productNames) {
-            commonAction.inputText(SEARCH_INPUT, productName);
+            commonAction.sendKeys(loc_txtSearch, productName);
             commonAction.sleepInMiliSecond(1000);
             waitTillLoadingDotsDisappear();
             commonAction.sleepInMiliSecond(2000);
-            if (commonAction.getText(PRODUCT_NAME_SUGGESTION.get(0)).equalsIgnoreCase(productName)) {
-                commonAction.clickElement(PRODUCT_NAME_SUGGESTION.get(0));
+            if (commonAction.getText(loc_lst_lblProductNameSuggestion,0).equalsIgnoreCase(productName)) {
+                commonAction.click(loc_lst_lblProductNameSuggestion,0);
             } else {
                 throw new Exception(productName + ": Product Not Found");
             }
@@ -94,9 +110,10 @@ public class CreateBuyLink extends HomePage {
     }
 
     public CreateBuyLink searchAndSelectPromotion(String promotionName) throws Exception {
-        commonAction.inputText(SEARCH_INPUT, promotionName);
+        commonAction.sendKeys(loc_txtSearch, promotionName);
         boolean isSelected = false;
-        for (WebElement el : COUPON_NAME_LIST) {
+        List<WebElement> couponNameElements = commonAction.getElements(loc_lst_lblCouponName);
+        for (WebElement el : couponNameElements) {
             if (commonAction.getText(el).equalsIgnoreCase(promotionName)) {
                 commonAction.clickElement(el);
                 isSelected = true;
@@ -109,45 +126,45 @@ public class CreateBuyLink extends HomePage {
     }
 
     public CreateBuyLink clickOnNextBtn() {
-        commonAction.clickElement(NEXT_BTN);
+        commonAction.click(loc_btnNext);
         logger.info("Click on Next button");
         return this;
     }
 
     public BuyLinkManagement clickOnFinishBTN() {
-        commonAction.clickElement(FINISH_BTN);
+        commonAction.click(loc_btnFinish);
         logger.info("Click on Finish button");
         return new BuyLinkManagement(driver);
     }
 
     public CreateBuyLink VerifyText() throws Exception {
-        Assert.assertEquals(commonAction.getText(POPUP_TITLE), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.popupTitle"));
-        Assert.assertEquals(commonAction.getElementAttribute(SEARCH_INPUT, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.searchHint"));
-        commonAction.clickElement(SEARCH_INPUT);
-        Assert.assertEquals(commonAction.getText(SEARCH_SUGGESTION), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.searchSuggestion"));
-        Assert.assertEquals(commonAction.getText(NO_SELECTED_PRODUCT_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.noSelectedProduct"));
-        Assert.assertEquals(commonAction.getText(CANCEL_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.cancelBtn"));
-        Assert.assertEquals(commonAction.getText(NEXT_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.nextBtn"));
+        Assert.assertEquals(commonAction.getText(loc_lblPopupTitle), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.popupTitle"));
+        Assert.assertEquals(commonAction.getAttribute(loc_txtSearch, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.searchHint"));
+        commonAction.click(loc_txtSearch);
+        Assert.assertEquals(commonAction.getText(loc_lst_lblSearchSuggestion), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.searchSuggestion"));
+        Assert.assertEquals(commonAction.getText(loc_lblNoSelectedProduct), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.noSelectedProduct"));
+        Assert.assertEquals(commonAction.getText(loc_btnCancel), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(loc_btnNext), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.nextBtn"));
         inputToSearchProduct("a");
         waitTillLoadingDotsDisappear();
         commonAction.sleepInMiliSecond(1000);
-        commonAction.clickElement(PRODUCT_NAME_SUGGESTION.get(0));
-        Assert.assertEquals(commonAction.getText(PRODUCT_NAME_COL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.productTable.productNameCol"));
-        Assert.assertEquals(commonAction.getText(QUANTITY_COL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.productTable.quantityCol"));
-        Assert.assertEquals(commonAction.getText(UNIT_COL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.productTable.unitCol"));
-        Assert.assertEquals(commonAction.getText(SELECTED_PRODUCT_NUMBER), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectedNumber").formatted("1"));
+        commonAction.click(loc_lst_lblProductNameSuggestion,0);
+        Assert.assertEquals(commonAction.getText(loc_lblProductNameCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.productTable.productNameCol"));
+        Assert.assertEquals(commonAction.getText(loc_lblQuantityCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.productTable.quantityCol"));
+        Assert.assertEquals(commonAction.getText(loc_lblUnitCol), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.productTable.unitCol"));
+        Assert.assertEquals(commonAction.getText(loc_lblSelectedProductNumber), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectedNumber").formatted("1"));
         clickOnNextBtn();
-        Assert.assertEquals(commonAction.getText(POPUP_TITLE), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.popupTitle"));
-        Assert.assertEquals(commonAction.getElementAttribute(SEARCH_INPUT, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.searchHint"));
-//        Assert.assertEquals(commonAction.getText(NO_SELECTED_PRODUCT_LBL), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.noSelectedCoupon"));
-        Assert.assertEquals(commonAction.getText(BACK_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.backBtn"));
-        Assert.assertEquals(commonAction.getText(FINISH_BTN), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.finishBtn"));
+        Assert.assertEquals(commonAction.getText(loc_lblPopupTitle), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.popupTitle"));
+        Assert.assertEquals(commonAction.getAttribute(loc_txtSearch, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.searchHint"));
+        Assert.assertEquals(commonAction.getText(loc_btnBack), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.backBtn"));
+        Assert.assertEquals(commonAction.getText(loc_btnFinish), PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.create.selectCoupon.finishBtn"));
         return this;
     }
 
     public CreateBuyLink deleteAllSelectedProduct() {
         commonAction.sleepInMiliSecond(1000);
-        for (WebElement el : DELETE_PRODUCT_ICONS) {
+        List<WebElement> deleteProductElements = commonAction.getElements(loc_lst_btnDeleteProduct);
+        for (WebElement el : deleteProductElements) {
             commonAction.clickElement(el);
         }
         logger.info("Delete all selected product.");

@@ -35,12 +35,12 @@ public class UserProfileInfo extends HeaderSF {
     }
 
     public UserProfileInfo clickMyAccountSection() {
-        commonAction.clickElement(userProfileUI.MYACCOUNT_SECTION);
+        commonAction.click(userProfileUI.loc_btnMyAccount);
         logger.info("Clicked on My Account section.");
         return this;
     }
     public MyAddress clickMyAddressSection() {
-        commonAction.clickElement(userProfileUI.MYADDRESS_SECTION);
+        commonAction.click(userProfileUI.loc_btnMyAddress);
         logger.info("Clicked on My Address section.");
         waitTillLoaderDisappear();
         commonAction.sleepInMiliSecond(2000);
@@ -48,33 +48,33 @@ public class UserProfileInfo extends HeaderSF {
     }
     
     public MyOrders clickMyOrdersSection() {
-    	commonAction.clickElement(userProfileUI.MYORDERS_SECTION);
+    	commonAction.click(userProfileUI.loc_btnMyOrders);
     	logger.info("Clicked on My Orders section.");
     	waitTillLoaderDisappear();
     	return new MyOrders(driver);
     }
     
     public MembershipInfo clickMembershipInfoSection() {
-    	commonAction.clickElement(userProfileUI.MEMBERSHIP_SECTION);
+    	commonAction.click(userProfileUI.loc_btnMembership);
     	logger.info("Clicked on Membership Infomation section.");
     	return new MembershipInfo(driver);
 	}
     
     public UserProfileInfo verifyDisplayName(String expectedName){
         waitTillLoaderDisappear();
-        Assert.assertEquals(commonAction.getText(userProfileUI.DISPLAY_NAME),expectedName);
+        Assert.assertEquals(commonAction.getText(userProfileUI.loc_lblDisplayName),expectedName);
         return this;
     }
     public UserProfileInfo verifyMembershipLevel(String expectedMembership){
-        Assert.assertEquals(commonAction.getText(userProfileUI.MEMBERSHIP_LEVEL),expectedMembership);
+        Assert.assertEquals(commonAction.getText(userProfileUI.loc_btnMembership),expectedMembership);
         return this;
     }
     public UserProfileInfo verifyBarcode(String expectedBarcode){
-        Assert.assertEquals(commonAction.getText(userProfileUI.BARCODE_NUMBER),expectedBarcode);
+        Assert.assertEquals(commonAction.getText(userProfileUI.loc_lblBarcode),expectedBarcode);
         return this;
     }
     public UserProfileInfo verifyAvatarDisplay(){
-        Assert.assertTrue(commonAction.isElementDisplay(userProfileUI.AVATAR));
+        Assert.assertTrue(commonAction.isElementDisplay(userProfileUI.loc_imgAvatar));
         return this;
     }
 }

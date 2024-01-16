@@ -126,8 +126,14 @@ public class ServiceCollectionManagement {
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}
-	public ServiceCollectionManagement waitToUpdateCollection(int second){
-		commonAction.sleepInMiliSecond(1000*second);
+	public ServiceCollectionManagement refreshPageUtilCollectUpdate(String expectItemNumber){
+		for (int i=0;i<10;i++){
+			refreshPage();
+			String itemNumber = commonAction.getText(ITEMS.get(0));
+			if(itemNumber.equals(String.valueOf(expectItemNumber))){
+				break;
+			}
+		}
 		return this;
 	}
 	public ServiceCollectionManagement verifyCollectionInfoAfterCreated(String collectionName, String type, String mode, String items) {

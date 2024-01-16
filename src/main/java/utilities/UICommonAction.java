@@ -113,8 +113,7 @@ public class UICommonAction {
             element.sendKeys(text);
         }
     }
-
-    public String getText(WebElement element) {
+        public String getText(WebElement element) {
         String text;
         try {
             text = wait.until(ExpectedConditions.visibilityOf(element)).getText();
@@ -308,6 +307,10 @@ public class UICommonAction {
         Select select = new Select(element);
         return select.getOptions();
     }
+    public List<WebElement> getAllOptionInDropDown(By locator, int index) {
+        Select select = new Select(getElements(locator).get(index));
+        return select.getOptions();
+    }
 
     /**
      * Waits till the element <b>appears once then disappears</b> in the specific duration
@@ -333,7 +336,12 @@ public class UICommonAction {
             return true;
         } else return !elements.get(0).isDisplayed();
     }
-
+    public boolean isElementNotDisplay(By locator) {
+        List<WebElement> elements = getElements(locator);
+        if (elements.isEmpty()) {
+            return true;
+        } else return !elements.get(0).isDisplayed();
+    }
     public String getElementAttribute(WebElement element, String attributeName) {
         String value;
         try {
@@ -396,7 +404,6 @@ public class UICommonAction {
             throw new NoSuchElementException("No options are selected");
         return selectedOption.getText();
     }
-
     public String selectByIndex(WebElement element, int index) {
         waitTillSelectDropdownHasData(element);
         wait.until(ExpectedConditions.elementToBeClickable(element));
@@ -479,6 +486,12 @@ public class UICommonAction {
         Select select = new Select(element);
         return getText(select.getFirstSelectedOption());
     }
+    public String getDropDownSelectedValue(By locator, int index) {
+        WebElement element = getElements(locator).get(index);
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        Select select = new Select(element);
+        return getText(select.getFirstSelectedOption());
+    }
 
     public void scrollBottomPage() {
         JavascriptExecutor executor = (JavascriptExecutor) driver;
@@ -511,8 +524,8 @@ public class UICommonAction {
         actionObj.doubleClick(el).build().perform();
     }
 
-    public String getCopiedText(WebElement buttonToCopyEl) throws IOException, UnsupportedFlavorException {
-        clickElement(buttonToCopyEl);
+    public String getCopiedText(By buttonToCopyLocator) throws IOException, UnsupportedFlavorException {
+        click(buttonToCopyLocator);
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Clipboard clipboard = toolkit.getSystemClipboard();
         return (String) clipboard.getData(DataFlavor.stringFlavor);
@@ -858,5 +871,35 @@ public class UICommonAction {
     public void viewTooltips(By locator, By tooltips) {
         hoverActions(locator);
         if (getListElement(tooltips).isEmpty()) hoverActions(locator);
+    }
+    public void checkTheCheckBoxOrRadio(By locator) {
+        if (!getElement(locator).isSelected()) {
+            clickActions(locator);
+        }
+    }
+
+    public void checkTheCheckBoxOrRadio(By locValue, By locAction) {
+        if (!getElement(locValue).isSelected()) {
+            click(locAction);
+        }
+    }
+
+    public void uncheckTheCheckboxOrRadio(By locator) {
+        if (getElement(locator).isSelected()) {
+            click(locator);
+        }
+    }
+
+    public void uncheckTheCheckboxOrRadio(By locValue, By locAction) {
+        if (getElement(locValue).isSelected()) {
+            click(locAction);
+        }
+    }
+    public void selectByVisibleText(By locator, String visibleText) {
+        WebElement element = getElement(locator);
+        waitTillSelectDropdownHasData(element);
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        Select select = new Select(element);
+        select.selectByVisibleText(visibleText);
     }
 }
