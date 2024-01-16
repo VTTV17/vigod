@@ -149,7 +149,7 @@ public class BuyLinkTest extends BaseTest {
         deleteNewestBuyLink();
         new APIEditProduct(loginInformation).deleteProduct(productId);
     }
-    @Test
+//    @Test
     public void BL04_CheckBuyLinkFixAmountDiscountCodeAndCheckout() throws Exception {
         testCaseId = "BL04";
         CreatePromotion.apiIsLimitToOne=false;

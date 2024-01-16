@@ -626,29 +626,26 @@ public class UICommonAction {
         }
     }
 
-    public void sendKeys(By locator, CharSequence content) {
-
+    public void sendKeys(By locator, String content) {
         clear(locator);
+        click(locator);
         try {
-            actions.sendKeys(content).build().perform();
+            getElement(locator).sendKeys(content);
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
-            actions.sendKeys(content).build().perform();
+            getElement(locator).sendKeys(content);
         }
-//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
         visibilityOfElementLocated(locator, index);
         clear(locator, index);
-
+        click(locator,index);
         try {
-            actions.sendKeys(content).build().perform();
+            getElement(locator, index).sendKeys(content);
         } catch (StaleElementReferenceException ex) {
-            actions.sendKeys(content).build().perform();
+            getElement(locator, index).sendKeys(content);
         }
-//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
-
     public void uploads(By locator, CharSequence content) {
         try {
             getElement(locator).sendKeys(content);
