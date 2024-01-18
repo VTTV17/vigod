@@ -722,27 +722,31 @@ public class UICommonAction {
     }
 
     void focusOnEndOfTextBox(By locator) {
-        ((JavascriptExecutor) driver).executeScript("""
-                function focusOnEndOfTextBox(el) {
-                    var type = el.getAttribute('type')
-                    el.setAttribute('type', 'text')
-                    el.selectionStart = el.selectionEnd = el.value.length;
-                    el.setAttribute('type', type)
-                }
-                                
-                focusOnEndOfTextBox(arguments[0]);""", getElement(locator));
+        try {
+            ((JavascriptExecutor) driver).executeScript("""
+                    function focusOnEndOfTextBox(el) {
+                        var type = el.getAttribute('type')
+                        el.setAttribute('type', 'text')
+                        el.selectionStart = el.selectionEnd = el.value.length;
+                        el.setAttribute('type', type)
+                    }
+                                    
+                    focusOnEndOfTextBox(arguments[0]);""", getElement(locator));
+        } catch (JavascriptException ignore) {}
     }
 
     void focusOnEndOfTextBox(By locator, int index) {
-        ((JavascriptExecutor) driver).executeScript("""
-                function focusOnEndOfTextBox(el) {
-                    var type = el.getAttribute('type')
-                    el.setAttribute('type', 'text')
-                    el.selectionStart = el.selectionEnd = el.value.length;
-                    el.setAttribute('type', type)
-                }
-                                
-                focusOnEndOfTextBox(arguments[0]);""", getElement(locator, index));
+        try {
+            ((JavascriptExecutor) driver).executeScript("""
+                    function focusOnEndOfTextBox(el) {
+                        var type = el.getAttribute('type')
+                        el.setAttribute('type', 'text')
+                        el.selectionStart = el.selectionEnd = el.value.length;
+                        el.setAttribute('type', type)
+                    }
+                                    
+                    focusOnEndOfTextBox(arguments[0]);""", getElement(locator, index));
+        } catch (JavascriptException ignore) {}
     }
 
     public void clear(By locator) {
@@ -795,15 +799,27 @@ public class UICommonAction {
     }
 
     public void visibilityOfElementLocated(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        }
     }
 
     public void visibilityOfElementLocated(By locator, int index) {
-        wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
+        try {
+            wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
+        }
     }
 
     public void invisibilityOfElementLocated(By locator) {
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        try {
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        }
     }
 
     public WebElement elementToBeClickable(By locator) {
