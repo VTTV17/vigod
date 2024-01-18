@@ -627,26 +627,26 @@ public class UICommonAction {
     }
 
     public void sendKeys(By locator, CharSequence content) {
-
+        visibilityOfElementLocated(locator);
+        focusOnEndOfTextBox(locator);
         clear(locator);
         try {
-            actions.sendKeys(content).build().perform();
+            getElement(locator).sendKeys(content);
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
-            actions.sendKeys(content).build().perform();
+            getElement(locator).sendKeys(content);
         }
-//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
         visibilityOfElementLocated(locator, index);
+        focusOnEndOfTextBox(locator, index);
         clear(locator, index);
 
         try {
-            actions.sendKeys(content).build().perform();
+            getElement(locator, index).sendKeys(content);
         } catch (StaleElementReferenceException ex) {
-            actions.sendKeys(content).build().perform();
+            getElement(locator, index).sendKeys(content);
         }
-//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void uploads(By locator, CharSequence content) {
@@ -718,7 +718,31 @@ public class UICommonAction {
         el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
     }
 
-    void clear(By locator) {
+    void focusOnEndOfTextBox(By locator) {
+        ((JavascriptExecutor) driver).executeScript("""
+                function focusOnEndOfTextBox(el) {
+                    var type = el.getAttribute('type')
+                    el.setAttribute('type', 'text')
+                    el.selectionStart = el.selectionEnd = el.value.length;
+                    el.setAttribute('type', type)
+                }
+                                
+                focusOnEndOfTextBox(arguments[0]);""", getElement(locator));
+    }
+
+    void focusOnEndOfTextBox(By locator, int index) {
+        ((JavascriptExecutor) driver).executeScript("""
+                function focusOnEndOfTextBox(el) {
+                    var type = el.getAttribute('type')
+                    el.setAttribute('type', 'text')
+                    el.selectionStart = el.selectionEnd = el.value.length;
+                    el.setAttribute('type', type)
+                }
+                                
+                focusOnEndOfTextBox(arguments[0]);""", getElement(locator, index));
+    }
+
+    public void clear(By locator) {
         try {
             getElement(locator).sendKeys(Keys.BACK_SPACE);
         } catch (ElementNotInteractableException ex) {
