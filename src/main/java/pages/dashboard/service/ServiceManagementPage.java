@@ -1,6 +1,7 @@
 package pages.dashboard.service;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +31,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
     }
 
     public ServiceManagementPage goToCreateServicePage(){
-        commons.clickElement(CREATE_SERVICE_BTN);
+        commons.click(loc_btnCreateService);
         new HomePage(driver).waitTillSpinnerDisappear1();
         return this;
     }
@@ -96,18 +97,19 @@ public class ServiceManagementPage extends ServiceManagementElement {
 	public CreateServicePage clickOnEditNewestService() throws Exception {
 		HomePage homePage = new HomePage(driver);
 		homePage.waitTillSpinnerDisappear1();
-		commons.clickElement(LIST_EDIT_BTN.get(0));
+		commons.click(loc_lst_btnEdit,0);
 		logger.info("Click on edit newest service.");
 		return new CreateServicePage(driver);
 	}
 	public CreateServicePage goToEditService(String serviceName) throws Exception {
 		if (serviceName.equalsIgnoreCase("")){
-			commons.clickElement(LIST_SERVICE_NAME.get(0));
+			commons.click(loc_lst_lblServiceName,0);
 			logger.info("Go to edit newest service.");
 			return new CreateServicePage(driver);
 		}
 		boolean clicked = false;
-		for (WebElement el: LIST_SERVICE_NAME) {
+		List<WebElement> serviceNameElements = commons.getElements(loc_lst_lblServiceName);
+		for (WebElement el: serviceNameElements) {
 			if (commons.getText(el).equalsIgnoreCase(serviceName)){
 				commons.clickElement(el);
 				clicked = true;
@@ -123,7 +125,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 	}
 	public ServiceManagementPage verifyServiceNotDisplayInList(String serviceName){
 		boolean isShow = false;
-		for (WebElement el: LIST_SERVICE_NAME) {
+		for (WebElement el:  commons.getElements(loc_lst_lblServiceName)) {
 			if (commons.getText(el).equalsIgnoreCase(serviceName)){
 				isShow = true;
 				break;

@@ -82,7 +82,7 @@ public class ServiceCollectionTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
     @AfterClass
     public void callAPIDeleteData(){
@@ -490,7 +490,7 @@ public class ServiceCollectionTest extends BaseTest{
     }
     @Test(priority = 17)
     public void SC17_VerifyAutomatedCollectionWhenHasNewServiceMeetsCondition() throws Exception {
-//        testCaseId = "SC17";
+        testCaseId = "SC17";
         String randomText =  generate.generateString(10);
         String serviceName = "Service contain keyword "+ randomText;
         String serviceCollectionName = "Collection service contains " + randomText;
@@ -517,14 +517,13 @@ public class ServiceCollectionTest extends BaseTest{
     }
     @Test(priority = 18)
     public void SC18_VerifyAutomatedCollectionWhenServiceBelongCollectionDoesNotMeetCondition() throws Exception {
-//        testCaseId = "SC18";
+        testCaseId = "SC18";
         String randomText =  generate.generateString(10);
         String serviceName = "Service contain keyword "+ randomText;
         String serviceCollectionName = "Collection service contains " + randomText;
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.CONTAINS+"-"+randomText};
         ServiceInfo serviceInfo = callAPICreateService(serviceName);
         serviceList = new String[]{serviceName.toLowerCase()};
-
         ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
         serviceCollectionsInfo.setCollectionName(serviceCollectionName);
         serviceCollectionsInfo.setCollectionType(Constant.AUTOMATED_OPTION);

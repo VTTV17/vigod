@@ -630,23 +630,26 @@ public class UICommonAction {
         visibilityOfElementLocated(locator);
         focusOnEndOfTextBox(locator);
         clear(locator);
+        click(locator);
         try {
             getElement(locator).sendKeys(content);
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
             getElement(locator).sendKeys(content);
         }
+//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
         visibilityOfElementLocated(locator, index);
         focusOnEndOfTextBox(locator, index);
         clear(locator, index);
-
+        click(locator,index);
         try {
             getElement(locator, index).sendKeys(content);
         } catch (StaleElementReferenceException ex) {
             getElement(locator, index).sendKeys(content);
         }
+//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void uploads(By locator, CharSequence content) {
