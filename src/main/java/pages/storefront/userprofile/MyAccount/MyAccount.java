@@ -326,7 +326,7 @@ public class MyAccount extends HeaderSF {
         String phoneInvalid = "01"+dataGenerator.generateNumber(5);
         addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
         Assert.assertEquals(commonAction.getText(myAccountUI.loc_lblAddOtherPhoneError),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherPhone.invalidPhoneError"));
-        commonAction.click(myAccountUI.loc_dlgOtherEmail_btnCancel);
+        commonAction.click(myAccountUI.loc_dlgOtherPhone_btnCancel);
         phoneInvalid = "01"+dataGenerator.generateNumber(14);
         addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
         Assert.assertEquals(commonAction.getText(myAccountUI.loc_lblAddOtherPhoneError),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.addOtherPhone.invalidPhoneError"));
@@ -363,6 +363,7 @@ public class MyAccount extends HeaderSF {
         String phoneInvalid = "01"+dataGenerator.generateNumber(5);
         addOtherPhones("Other Phone Invalid","+84",phoneInvalid);
         commonAction.sendKeys(myAccountUI.loc_dlgOtherPhone_txtPhoneNumber,"");
+        commonAction.click(myAccountUI.loc_dlgOtherPhone_btnSave); //click outside
         Assert.assertEquals(commonAction.getText(myAccountUI.loc_lblAddOtherPhoneError),PropertiesUtil.getPropertiesValueBySFLang("userProfile.myAccount.emptyError"));
         commonAction.click(myAccountUI.loc_dlgOtherPhone_btnCancel);
         logger.info("Check error when save other phone with blank field.");
@@ -387,7 +388,7 @@ public class MyAccount extends HeaderSF {
         commonAction.sleepInMiliSecond(1000);
         List<WebElement>otherEmailElements = commonAction.getElements(myAccountUI.loc_lst_lblOtherEmail);
         for (int i=0;i<otherEmailElements.size();i++){
-            otherPhoneMap.put(commonAction.getText(otherEmailElements.get(i)),commonAction.getText(myAccountUI.loc_dlgOtherEmail_lblName,i));
+            otherPhoneMap.put(commonAction.getText(otherEmailElements.get(i)),commonAction.getText(myAccountUI.loc_lst_lblOtherEmailName,i));
         }
         logger.info("Get other email map: "+otherPhoneMap);
         return otherPhoneMap;
@@ -404,14 +405,15 @@ public class MyAccount extends HeaderSF {
         commonAction.sleepInMiliSecond(2000);
         List<WebElement> otherPhoneElements = commonAction.getElements(myAccountUI.loc_lst_lblOtherPhoneNumber);
         for(int i=0; i<otherPhoneElements.size();i++){
-            commonAction.clickElement(otherPhoneElements.get(i));
-            commonAction.sleepInMiliSecond(1000);
+            commonAction.click(myAccountUI.loc_lst_lblOtherPhoneNumber,i);
+            commonAction.sleepInMiliSecond(500);
             String phoneNameEdit = "Updated"+i;
-            commonAction.sendKeys(myAccountUI.loc_dlgOtherPhone_txtName, phoneNameEdit);
+            commonAction.inputText(myAccountUI.loc_dlgOtherPhone_txtName, phoneNameEdit);
             String phoneCodeEdit = phoneCodeList[dataGenerator.generatNumberInBound(0,phoneCodeList.length)];
             String phoneEdit =  "01" + dataGenerator.generateNumber(8);
             commonAction.selectByVisibleText(commonAction.getElement(myAccountUI.loc_dlgOtherPhone_ddlPhoneCode),phoneCodeEdit);
-            commonAction.sendKeys(myAccountUI.loc_dlgOtherPhone_txtPhoneNumber, phoneEdit);
+            commonAction.inputText(myAccountUI.loc_dlgOtherPhone_txtPhoneNumber, phoneEdit);
+            commonAction.sleepInMiliSecond(500);
             commonAction.click(myAccountUI.loc_dlgOtherPhone_btnSave); //click outside
             commonAction.click(myAccountUI.loc_dlgOtherPhone_btnSave); //click save
             otherPhoneMap.put(phoneCodeEdit+phoneEdit,phoneNameEdit);
@@ -422,13 +424,14 @@ public class MyAccount extends HeaderSF {
     public Map<String,String> editOtherEmail(){
         Map<String,String> otherEmailMap = new HashMap<>();
         DataGenerator dataGenerator = new DataGenerator();
-        List<WebElement> otherPhoneElements = commonAction.getElements(myAccountUI.loc_lst_lblOtherPhoneNumber);
-        for(int i=0; i<otherPhoneElements.size();i++){
-            commonAction.clickElement(otherPhoneElements.get(i));
-            commonAction.sleepInMiliSecond(1000);
+        List<WebElement> otherEmailElements = commonAction.getElements(myAccountUI.loc_lst_lblOtherEmail);
+        for(int i=0; i<otherEmailElements.size();i++){
+            commonAction.click(myAccountUI.loc_lst_lblOtherEmail,i);
+            commonAction.sleepInMiliSecond(500);
             String otherEmail = dataGenerator.generateString(5) + "@mailnesia.com";
             commonAction.sendKeys(myAccountUI.loc_dlgOtherEmail_txtEmailName, "Update email"+i);
             commonAction.sendKeys(myAccountUI.loc_dlgOtherEmail_txtEmail, otherEmail);
+            commonAction.sleepInMiliSecond(500);
             commonAction.click(myAccountUI.loc_dlgOtherEmail_btnSave);
             otherEmailMap.put(otherEmail,"Update email"+i);
         }

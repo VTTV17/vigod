@@ -41,19 +41,19 @@ public class Transfer {
 	
     public Transfer navigate() {
     	new HomePage(driver).navigateToPage("Products", "Transfer");
-    	commons.visibilityOfElementLocated(loc_btnCreateTransfer);
+    	commons.waitVisibilityOfElementLocated(loc_btnCreateTransfer);
         return this;
     }	
     
     public Transfer waitTillPageStable() {
-    	commons.visibilityOfElementLocated(loc_btnCreateTransfer);
+    	commons.waitVisibilityOfElementLocated(loc_btnCreateTransfer);
     	new HomePage(driver).waitTillLoadingDotsDisappear().waitTillSpinnerDisappear1();
     	return this;
     }	
 
 	public Transfer clickAddTransferBtn() {
 		commons.click(loc_btnCreateTransfer);
-		commons.visibilityOfElementLocated(loc_txtNote);
+		commons.waitVisibilityOfElementLocated(loc_txtNote);
 		logger.info("Clicked on 'Add Transfer' button.");
 		commons.sleepInMiliSecond(1000);
 		return this;
@@ -71,7 +71,7 @@ public class Transfer {
 		logger.info("Input '" + searchTerm + "' into Product Search box.");
 		commons.sleepInMiliSecond(500); //There's a delay of 500ms before search operation commences
 		By searchLoadingIcon = By.xpath("//div[contains(@class,'search-result')]/div[contains(@class,'loading')]");
-		commons.invisibilityOfElementLocated(searchLoadingIcon);
+		commons.waitInvisibilityOfElementLocated(searchLoadingIcon);
 		return this;
 	}
 

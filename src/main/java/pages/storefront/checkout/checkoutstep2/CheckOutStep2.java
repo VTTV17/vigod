@@ -30,7 +30,7 @@ public class CheckOutStep2 extends GeneralSF {
         PageFactory.initElements(driver, this);
     }
     public CheckOutStep3 clickOnNextButton(){
-        commonAction.clickElement(checkOutStep2UI.NEXT_BUTTON);
+        commonAction.click(checkOutStep2UI.loc_btnNext);
         logger.info("Click on Next button.");
         waitTillLoaderDisappear();
         return new CheckOutStep3(driver);
@@ -43,26 +43,26 @@ public class CheckOutStep2 extends GeneralSF {
      */
     public CheckOutStep2 selectShippingMethod(String shippingOtion) throws Exception {
         switch (shippingOtion){
-            case "Self delivery" -> commonAction.selectByVisibleText(checkOutStep2UI.SELECT_SHIPPING_METHOD, PropertiesUtil.getPropertiesValueBySFLang("checkoutStep2.shopSelfDeliveryOption"));
-            case "GHN" -> commonAction.selectByVisibleText(checkOutStep2UI.SELECT_SHIPPING_METHOD, PropertiesUtil.getPropertiesValueBySFLang("checkoutStep2.giaoHangNhanhOption"));
-            case "GHTK" -> commonAction.selectByVisibleText(checkOutStep2UI.SELECT_SHIPPING_METHOD, PropertiesUtil.getPropertiesValueBySFLang("checkoutStep2.giaoHangTietKiemOption"));
+            case "Self delivery" -> commonAction.selectByVisibleText(checkOutStep2UI.loc_ddlShippingMethod, PropertiesUtil.getPropertiesValueBySFLang("checkoutStep2.shopSelfDeliveryOption"));
+            case "GHN" -> commonAction.selectByVisibleText(checkOutStep2UI.loc_ddlShippingMethod, PropertiesUtil.getPropertiesValueBySFLang("checkoutStep2.giaoHangNhanhOption"));
+            case "GHTK" -> commonAction.selectByVisibleText(checkOutStep2UI.loc_ddlShippingMethod, PropertiesUtil.getPropertiesValueBySFLang("checkoutStep2.giaoHangTietKiemOption"));
             default -> throw new Exception("Check shipping method.");
         }
         logger.info("Select shipping method: "+shippingOtion);
         return this;
     }
     public CheckOutStep2 clickOnArrowIcon(){
-        commonAction.clickElement(checkOutStep2UI.ARROW_ICON_NEXT_TO_TOTAL_AMOUNT);
+        commonAction.click(checkOutStep2UI.loc_icnArrowShowSummaryPrice);
         logger.info("Click on Arrow icon to show/hide total summary.");
         return this;
     }
     public CheckOutStep2 verifyDicountAmount(String expected){
-        Assert.assertEquals(String.join("",commonAction.getText(checkOutStep2UI.DISCOUNT_AMOUNT).split(",|-\s")),expected);
+        Assert.assertEquals(String.join("",commonAction.getText(checkOutStep2UI.loc_blkSummaryPrice_lblDiscountAmount).split(",|-\s")),expected);
         logger.info("Verify discount amount.");
         return this;
     }
     public String getShippingFeeAfterDiscount(){
-        String shippingFee = commonAction.getText(checkOutStep2UI.SHIPPING_FEE);
+        String shippingFee = commonAction.getText(checkOutStep2UI.loc_lblShippingFee);
         String shippingFeeAfterDiscount = shippingFee.split("đ\s")[1];
         logger.info("Get Shipping fee after discount: "+shippingFeeAfterDiscount);
         return shippingFeeAfterDiscount;
@@ -74,7 +74,7 @@ public class CheckOutStep2 extends GeneralSF {
     }
     public CheckOutStep2 verifyProductName(String...productNamesExpected){
         for (int i=0;i<productNamesExpected.length;i++) {
-            Assert.assertEquals(commonAction.getText(checkOutStep2UI.PRODUCT_NAMES.get(i)).toLowerCase().trim(),productNamesExpected[i].toLowerCase().trim());
+            Assert.assertEquals(commonAction.getText(checkOutStep2UI.loc_lst_lblProductName,i).toLowerCase().trim(),productNamesExpected[i].toLowerCase().trim());
         }
         logger.info("Verify product name list.");
         return this;

@@ -13,7 +13,7 @@ public class MyAddressElement {
         PageFactory.initElements(driver, this);
     }
     By loc_ddlCountry = By.id("countryCode");
-    By loc_txtAddress = By.id("countryCode");
+    By loc_txtAddress = By.id("address");
     By loc_ddlCity = By.id("locationCode");
     By loc_ddlDistrict = By.id("districtCode");
     By loc_ddlWard = By.id("wardCode");

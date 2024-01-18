@@ -540,7 +540,7 @@ public class CreateProductCollection extends HomePage {
         Assert.assertEquals(common.getText(createCollectionUI.loc_lblSEOSetting),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.seoSettingsTitle"));
         Assert.assertEquals(common.getText(createCollectionUI.loc_lblLivePreview),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.livePreviewLbl"));
         Assert.assertEquals(common.getAttribute(createCollectionUI.loc_tltLivePreview,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.livePreviewTooltipTxt"));
-        Assert.assertEquals(common.getText(createCollectionUI.loc_txtSEOTitle),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.seoTitleLbl"));
+        Assert.assertEquals(common.getText(createCollectionUI.loc_lblSEOTitle),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.seoTitleLbl"));
         Assert.assertEquals(common.getAttribute(createCollectionUI.loc_tltSEOTitle,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.seoTitleTooltipTxt"));
         Assert.assertEquals(common.getText(createCollectionUI.loc_lblSEODescription),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.seoDescriptionLbl"));
         Assert.assertEquals(common.getAttribute(createCollectionUI.loc_tltSEODescription,"data-original-title"),PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.seoDescriptionTooltipTxt"));

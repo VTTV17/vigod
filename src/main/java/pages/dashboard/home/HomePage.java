@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -270,7 +269,8 @@ public class HomePage extends HomePageElement {
      * @return HomePage Object
      */
     public HomePage waitTillSpinnerDisappear() {
-        commons.waitTillElementDisappear(commons.getElement(loc_imgSpinner), 20);
+        commons.waitVisibilityOfElementLocated(loc_imgSpinner);
+        commons.waitInvisibilityOfElementLocated(loc_imgSpinner);
         logger.info("Spinner has finished loading");
         return this;
     }
@@ -280,13 +280,13 @@ public class HomePage extends HomePageElement {
      * @return HomePage Object
      */
     public HomePage waitTillSpinnerDisappear1() {
-        commons.invisibilityOfElementLocated(loc_imgSpinner);
+        commons.waitInvisibilityOfElementLocated(loc_imgSpinner);
         logger.info("Spinner1 has finished loading");
         return this;
     }
 
     public HomePage waitTillLoadingDotsDisappear() {
-        commons.invisibilityOfElementLocated(loc_imgLoadingDots);
+        commons.waitInvisibilityOfElementLocated(loc_imgLoadingDots);
         logger.info("Loading dots have disappeared");
         return this;
     }

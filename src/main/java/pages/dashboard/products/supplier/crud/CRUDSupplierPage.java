@@ -638,7 +638,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         commonAction.click(loc_dlgConfirmDeleteSupplier_btnDelete);
 
         // wait confirm popup invisible
-        commonAction.invisibilityOfElementLocated(loc_dlgConfirmDeleteSupplier);
+        commonAction.waitInvisibilityOfElementLocated(loc_dlgConfirmDeleteSupplier);
 
         // wait page loaded
         commonAction.sleepInMiliSecond(3000);

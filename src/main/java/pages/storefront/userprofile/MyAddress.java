@@ -36,7 +36,7 @@ public class MyAddress extends HeaderSF {
 
     public String getCountry() {
 		String js = "var e=arguments[0], i=e.selectedIndex; return i < 0 ? null : e.options[i];";
-		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, myAddressUI.loc_ddlCountry);
+		WebElement selectedOption = (WebElement) ((JavascriptExecutor) driver).executeScript(js, commonAction.getElement(myAddressUI.loc_ddlCountry));
 		if (selectedOption == null) throw new NoSuchElementException("No options are selected");
 		String value = selectedOption.getText();
     	logger.info("Retrieved Country: " + value);
@@ -48,17 +48,17 @@ public class MyAddress extends HeaderSF {
         return address;
     }
     public String getCity(){
-        String city = commonAction.getDropDownSelectedValue(myAddressUI.loc_lblCityVN,0);
+        String city = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlCity);
         logger.info("Get City: %s".formatted(city));
         return city;
     }
     public String getDistrict(){
-        String district = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlDistrict,0);
+        String district = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlDistrict);
         logger.info("Get district: %s".formatted(district));
         return district;
     }
     public String getWard(){
-        String ward = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlWard,0);
+        String ward = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlWard);
         logger.info("Get district: %s".formatted(ward));
         return ward;
     }
@@ -68,7 +68,7 @@ public class MyAddress extends HeaderSF {
         return address2;
     }
     public String getState(){
-        String state = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlState,0);
+        String state = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlState);
         logger.info("Get state: %s".formatted(state));
         return state;
     }
@@ -133,17 +133,17 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public MyAddress inputAddress(String address){
-        commonAction.sendKeys(myAddressUI.loc_txtAddress,address);
+        commonAction.inputText(myAddressUI.loc_txtAddress,address);
         logger.info("Input address: %s".formatted(address));
         return this;
     }
     public MyAddress inputAddress2(String address2){
-        commonAction.sendKeys(myAddressUI.loc_txtAddress2,address2);
+        commonAction.inputText(myAddressUI.loc_txtAddress2,address2);
         logger.info("Input address 2: %s".formatted(address2));
         return this;
     }
     public MyAddress inputCity(String city){
-        commonAction.sendKeys(myAddressUI.loc_txtCity,city);
+        commonAction.inputText(myAddressUI.loc_txtCity,city);
         logger.info("Input address: %s".formatted(city));
         return this;
     }
@@ -171,7 +171,7 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public MyAddress inputZipCode(String zipCode){
-        commonAction.sendKeys(myAddressUI.loc_txtZipCode,zipCode);
+        commonAction.inputText(myAddressUI.loc_txtZipCode,zipCode);
         logger.info("Input address: %s".formatted(zipCode));
         return this;
     }
