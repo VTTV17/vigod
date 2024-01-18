@@ -113,7 +113,8 @@ public class UICommonAction {
             element.sendKeys(text);
         }
     }
-        public String getText(WebElement element) {
+
+    public String getText(WebElement element) {
         String text;
         try {
             text = wait.until(ExpectedConditions.visibilityOf(element)).getText();
@@ -307,6 +308,7 @@ public class UICommonAction {
         Select select = new Select(element);
         return select.getOptions();
     }
+
     public List<WebElement> getAllOptionInDropDown(By locator, int index) {
         Select select = new Select(getElements(locator).get(index));
         return select.getOptions();
@@ -336,12 +338,14 @@ public class UICommonAction {
             return true;
         } else return !elements.get(0).isDisplayed();
     }
+
     public boolean isElementNotDisplay(By locator) {
         List<WebElement> elements = getElements(locator);
         if (elements.isEmpty()) {
             return true;
         } else return !elements.get(0).isDisplayed();
     }
+
     public String getElementAttribute(WebElement element, String attributeName) {
         String value;
         try {
@@ -404,6 +408,7 @@ public class UICommonAction {
             throw new NoSuchElementException("No options are selected");
         return selectedOption.getText();
     }
+
     public String selectByIndex(WebElement element, int index) {
         waitTillSelectDropdownHasData(element);
         wait.until(ExpectedConditions.elementToBeClickable(element));
@@ -486,6 +491,7 @@ public class UICommonAction {
         Select select = new Select(element);
         return getText(select.getFirstSelectedOption());
     }
+
     public String getDropDownSelectedValue(By locator, int index) {
         WebElement element = getElements(locator).get(index);
         wait.until(ExpectedConditions.elementToBeClickable(element));
@@ -643,7 +649,7 @@ public class UICommonAction {
         visibilityOfElementLocated(locator, index);
         focusOnEndOfTextBox(locator, index);
         clear(locator, index);
-        click(locator,index);
+        click(locator, index);
         try {
             getElement(locator, index).sendKeys(content);
         } catch (StaleElementReferenceException ex) {
@@ -676,6 +682,7 @@ public class UICommonAction {
         }
         return textContent != null ? textContent : getText(locator);
     }
+
     public String getText(By locator, int index) {
         String textContent = null;
         try {
@@ -732,7 +739,8 @@ public class UICommonAction {
                     }
                                     
                     focusOnEndOfTextBox(arguments[0]);""", getElement(locator));
-        } catch (JavascriptException ignore) {}
+        } catch (JavascriptException ignore) {
+        }
     }
 
     void focusOnEndOfTextBox(By locator, int index) {
@@ -746,13 +754,14 @@ public class UICommonAction {
                     }
                                     
                     focusOnEndOfTextBox(arguments[0]);""", getElement(locator, index));
-        } catch (JavascriptException ignore) {}
+        } catch (JavascriptException ignore) {
+        }
     }
 
     public void clear(By locator) {
         try {
             getElement(locator).sendKeys(Keys.BACK_SPACE);
-        } catch (ElementNotInteractableException ex) {
+        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             visibilityOfElementLocated(locator);
             getElement(locator).sendKeys(Keys.BACK_SPACE);
         }
@@ -764,7 +773,7 @@ public class UICommonAction {
     void clear(By locator, int index) {
         try {
             getElement(locator, index).sendKeys(Keys.BACK_SPACE);
-        } catch (ElementNotInteractableException ex) {
+        } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             visibilityOfElementLocated(locator, index);
             getElement(locator, index).sendKeys(Keys.BACK_SPACE);
         }
@@ -915,6 +924,7 @@ public class UICommonAction {
         hoverActions(locator);
         if (getListElement(tooltips).isEmpty()) hoverActions(locator);
     }
+
     public void checkTheCheckBoxOrRadio(By locator) {
         if (!getElement(locator).isSelected()) {
             clickActions(locator);
@@ -938,6 +948,7 @@ public class UICommonAction {
             click(locAction);
         }
     }
+
     public void selectByVisibleText(By locator, String visibleText) {
         WebElement element = getElement(locator);
         waitTillSelectDropdownHasData(element);
