@@ -330,11 +330,11 @@ public class ProductDetailPage extends ProductDetailElement {
                 commonAction.clickJS(loc_chkBuyInBulk);
                 // wait page loaded
                 try {
-                    commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                     logger.info("Wait page loaded after apply discount campaign.");
                 } catch (TimeoutException ex) {
                     logger.info(ex);
-                    commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                     logger.info("Wait page loaded after apply discount campaign again.");
                 }
             } else {
@@ -345,11 +345,11 @@ public class ProductDetailPage extends ProductDetailElement {
                 commonAction.clickJS(loc_chkBuyInBulk);
                 // wait page loaded
                 try {
-                    commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                     logger.info("Wait page loaded after apply discount campaign.");
                 } catch (TimeoutException ex) {
                     logger.info(ex);
-                    commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                     logger.info("Wait page loaded after apply discount campaign again.");
                 }
             }
@@ -541,11 +541,11 @@ public class ProductDetailPage extends ProductDetailElement {
 
                 // wait spinner loading if any
                 try {
-                    commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                     logger.info("Wait page loaded after apply wholesale product discount.");
                 } catch (TimeoutException ex) {
                     logger.info(ex);
-                    commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                    commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                     logger.info("Wait page loaded after apply wholesale product discount again.");
                 }
 
@@ -651,11 +651,11 @@ public class ProductDetailPage extends ProductDetailElement {
 
                     // wait page loaded
                     try {
-                        commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                        commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                         logger.info("Wait page loaded after select variation.");
                     } catch (TimeoutException ex) {
                         logger.info(ex);
-                        commonAction.invisibilityOfElementLocated(loc_spnLoading);
+                        commonAction.waitInvisibilityOfElementLocated(loc_spnLoading);
                         logger.info("Wait page loaded after select variation again.");
                     }
                 }

@@ -63,18 +63,22 @@ public class UserProfileInfo extends HeaderSF {
     public UserProfileInfo verifyDisplayName(String expectedName){
         waitTillLoaderDisappear();
         Assert.assertEquals(commonAction.getText(userProfileUI.loc_lblDisplayName),expectedName);
+        logger.info("Verify display name show.");
         return this;
     }
     public UserProfileInfo verifyMembershipLevel(String expectedMembership){
-        Assert.assertEquals(commonAction.getText(userProfileUI.loc_btnMembership),expectedMembership);
+        Assert.assertEquals(commonAction.getText(userProfileUI.loc_lblMembershipLevel),expectedMembership);
+        logger.info("Verify membership show.");
         return this;
     }
     public UserProfileInfo verifyBarcode(String expectedBarcode){
-        Assert.assertEquals(commonAction.getText(userProfileUI.loc_lblBarcode),expectedBarcode);
+        Assert.assertEquals(commonAction.getElement(userProfileUI.loc_lblBarcode).getText(),expectedBarcode);
+        logger.info("Verify barcode show.");
         return this;
     }
     public UserProfileInfo verifyAvatarDisplay(){
         Assert.assertTrue(commonAction.isElementDisplay(userProfileUI.loc_imgAvatar));
+        logger.info("Verify avatar show.");
         return this;
     }
 }

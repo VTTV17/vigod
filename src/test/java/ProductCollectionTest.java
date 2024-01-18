@@ -89,7 +89,7 @@ public class ProductCollectionTest extends BaseTest {
         passwordCheckPermission = ADMIN_CREATE_NEW_SHOP_PASSWORD;
         generate = new DataGenerator();
         languageDashboard = language;
-        languageSF = language;
+        languageSF = "VIE";
         automatedMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.automatedModeTxt");
         manuallyMode = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
         productType = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
@@ -510,17 +510,5 @@ public class ProductCollectionTest extends BaseTest {
     public void PC_20_VerifyText() throws Exception {
         loginAndNavigateToCreateProductCollection()
                 .verifyTextOfPage();
-    }
-//    @Test(dependsOnMethods = "PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber",priority = 14)
-//    @Test
-    public void PC_21_VerifyCollectionAfterImportProductToAvailableCollection_HasPriority(){
-        collectionIdHasPriority =33218;
-        Excel excel = new Excel();
-        excel.writeCellValue(0,2,16,String.valueOf(collectionIdHasPriority),FOLDER_UPLOAD_FILE,FOLDER_IMPORT_PRODUCT, FILE_IMPORT_PRODUCT);
-        loginDashboard = new LoginPage(driver);
-        loginDashboard.navigate().performLogin(userNameDb, passwordDb);
-        new HomePage(driver).navigateToPage("Products");
-        new ProductPage(driver,loginInformation).importProduct(FILE_IMPORT_PRODUCT);
-
     }
 }

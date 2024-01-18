@@ -61,7 +61,7 @@ public class MyAccountElement {
     By loc_lblAddOtherPhoneError = By.cssSelector(".add-new-phone-error");
     By loc_lblAddOtherEmailError = By.cssSelector(".add-new-email-error");
     By loc_lst_lblPhoneName = By.cssSelector(".phone-name");
-    By loc_lst_lblEmailName = By.cssSelector(".email-name");
+    By loc_lst_lblOtherEmailName = By.cssSelector(".email-name");
     By loc_lst_btnDeleteOtherPhone = By.cssSelector(".other-phone-item-wrapper .remove-icon-item");
     By loc_lst_btnDeleteOtherEmail = By.cssSelector(".other-email-item-wrapper .remove-icon-item");
 

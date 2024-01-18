@@ -3,6 +3,7 @@ package pages.dashboard.products.productcollection.productcollectionmanagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -16,6 +17,7 @@ import utilities.PropertiesUtil;
 import utilities.UICommonAction;
 
 import java.time.Duration;
+import java.util.List;
 
 public class ProductCollectionManagement extends HomePage {
     final static Logger logger = LogManager.getLogger(ProductCollectionManagement.class);
@@ -41,35 +43,35 @@ public class ProductCollectionManagement extends HomePage {
     }
 
     public CreateProductCollection clickOnCreateCollection() {
-        commonAction.clickElement(collectionManagementUI.CREATE_PRODUCT_COLLECTION_BTN);
+        commonAction.click(collectionManagementUI.loc_btnCreateProductCollection);
         waitTillSpinnerDisappear1();
         logger.info("Click on Create Product Collection button.");
         return new CreateProductCollection(driver);
     }
 
     public ProductCollectionManagement verifyCollectionName(String expected, int index) {
-        String actual = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(index));
+        String actual = commonAction.getText(collectionManagementUI.loc_lst_lblCollectionName,index);
         Assert.assertEquals(actual, expected);
         logger.info("Verify collection name after created");
         return this;
     }
 
     public ProductCollectionManagement verifyType(String expected, int index) {
-        String actual = commonAction.getText(collectionManagementUI.TYPES.get(index));
+        String actual = commonAction.getText(collectionManagementUI.loc_lst_lblTypes,index);
         Assert.assertEquals(actual, expected);
         logger.info("Verify type after collection created");
         return this;
     }
 
     public ProductCollectionManagement verifyMode(String expected, int index) {
-        String actual = commonAction.getText(collectionManagementUI.MODES.get(index));
+        String actual = commonAction.getText(collectionManagementUI.loc_lst_lblModes,index);
         Assert.assertEquals(actual, expected);
         logger.info("Verify mode after collection created");
         return this;
     }
 
     public ProductCollectionManagement verifyItem(String expected, int index) {
-        String actual = commonAction.getText(collectionManagementUI.ITEMS.get(index));
+        String actual = commonAction.getText(collectionManagementUI.loc_lst_lblItems,index);
         Assert.assertEquals(actual, expected);
         logger.info("Verify items after collection created");
         return this;
@@ -78,7 +80,6 @@ public class ProductCollectionManagement extends HomePage {
     public ProductCollectionManagement verifyCollectionInfoAfterCreated(String collectionName, String type, String mode, String items) {
         commonAction.refreshPage();
         waitTillSpinnerDisappear1();
-//        commonAction.sleepInMiliSecond(1000);
         verifyCollectionName(collectionName, 0);
         verifyType(type, 0);
         verifyMode(mode, 0);
@@ -92,8 +93,9 @@ public class ProductCollectionManagement extends HomePage {
         commonAction.refreshPage();
         waitTillSpinnerDisappear1();
         boolean isSelected = false;
-        for (int i = 0; i < collectionManagementUI.COLLECTION_NAMES.size(); i++) {
-            String collectionNameInList = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(i));
+        List<WebElement> collectionNameElement = commonAction.getElements(collectionManagementUI.loc_lst_lblCollectionName);
+        for (int i = 0; i < collectionNameElement.size(); i++) {
+            String collectionNameInList = commonAction.getText(collectionManagementUI.loc_lst_lblCollectionName,i);
             if (collectionNameInList.equalsIgnoreCase(collectionName)) {
                 verifyType(type, i);
                 verifyMode(mode, i);
@@ -112,10 +114,11 @@ public class ProductCollectionManagement extends HomePage {
     public EditProductCollection goToEditProductCollection(String collectionName) throws Exception {
         commonAction.sleepInMiliSecond(1000);
         boolean isSelected = false;
-        for (int i = 0; i < collectionManagementUI.COLLECTION_NAMES.size(); i++) {
-            String collectionNameInList = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(i));
+        List<WebElement> collectionNameElement = commonAction.getElements(collectionManagementUI.loc_lst_lblCollectionName);
+        for (int i = 0; i < collectionNameElement.size(); i++) {
+            String collectionNameInList = commonAction.getText(collectionManagementUI.loc_lst_lblCollectionName,i);
             if (collectionNameInList.equalsIgnoreCase(collectionName)) {
-                commonAction.clickElement(collectionManagementUI.EDIT_BTN.get(i));
+                commonAction.click(collectionManagementUI.loc_lst_btnEdit,i);
                 isSelected = true;
                 break;
             }
@@ -128,14 +131,15 @@ public class ProductCollectionManagement extends HomePage {
     }
 
     public String getTheFirstCollectionName() {
-        String name = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(0));
+        String name = commonAction.getText(collectionManagementUI.loc_lst_lblCollectionName,0);
         logger.info("Get the first collection name in list: " + name);
         return name;
     }
 
     public void verifyCollectNameNotDisplayInList(String collectionName) {
-        for (int i = 0; i < collectionManagementUI.COLLECTION_NAMES.size(); i++) {
-            String collectionNameInList = commonAction.getText(collectionManagementUI.COLLECTION_NAMES.get(i));
+        List<WebElement> collectionNameElement = commonAction.getElements(collectionManagementUI.loc_lst_lblCollectionName);
+        for (int i = 0; i < collectionNameElement.size(); i++) {
+            String collectionNameInList = commonAction.getText(collectionManagementUI.loc_lst_lblCollectionName,i);
             if (collectionNameInList.equalsIgnoreCase(collectionName)) {
                 Assert.assertTrue(false, collectionName + ": still display in position " + i);
             }
@@ -145,10 +149,10 @@ public class ProductCollectionManagement extends HomePage {
     }
 
     public void deleteTheFirstCollection() {
-        commonAction.clickElement(collectionManagementUI.DELETE_BTN.get(0));
-        commonAction.clickElement(collectionManagementUI.OK_BTN_ON_MODAL);
+        commonAction.click(collectionManagementUI.loc_lst_btnDelete,0);
+        commonAction.click(collectionManagementUI.loc_dlgConfirmation_btnOK);
         commonAction.sleepInMiliSecond(1000);
-        commonAction.clickElement(collectionManagementUI.OK_BTN_ON_MODAL);
+        commonAction.click(collectionManagementUI.loc_dlgConfirmation_btnOK);
         waitTillSpinnerDisappear();
         logger.info("Delete the first collection");
     }
@@ -169,20 +173,20 @@ public class ProductCollectionManagement extends HomePage {
     /*-------------------------------------*/      
     
     public void verifyTextOfPage() throws Exception {
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.PAGE_TITLE_AND_TOTAL_NUMBER).split("\n")[0], PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.pageTitle"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.CREATE_PRODUCT_COLLECTION_BTN), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.createProductCollectionBtn"));
-        Assert.assertEquals(commonAction.getElementAttribute(collectionManagementUI.SEARCH_COLLECTION_INPUT, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.searchHintTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.THUMBNAIL_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.thumbnailColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.COLLECTION_NAME_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.collectionNameColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.TYPE_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.typeColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODE_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.modeColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.ITEMS_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.itemsColTxt"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.ACTIONS_COL_TXT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.actionsColTxt"));
-        commonAction.clickElement(collectionManagementUI.DELETE_BTN.get(0));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_TITLE), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.title"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CONTENT), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.content"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.OK_BTN_ON_MODAL), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.OKBtn"));
-        Assert.assertEquals(commonAction.getText(collectionManagementUI.MODAL_CANCEL_BTN), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.cancelBtn"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_ttlPageTitleAndTotalNumber).split("\n")[0], PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.pageTitle"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_btnCreateProductCollection), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.createProductCollectionBtn"));
+        Assert.assertEquals(commonAction.getAttribute(collectionManagementUI.loc_txtSearch, "placeholder"), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.searchHintTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_lblThumbnailCol), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.thumbnailColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_lblCollectionName), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.collectionNameColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_lblTypeCol), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.typeColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_lblModeCol), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.modeColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_lblItemsCol), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.itemsColTxt"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_lblActionsCol), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.actionsColTxt"));
+        commonAction.click(collectionManagementUI.loc_lst_btnDelete,0);
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_dlgConfirmation_lblTitle), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.title"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_dlgConfirmation_lblMessage), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.content"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_dlgConfirmation_btnOK), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.OKBtn"));
+        Assert.assertEquals(commonAction.getText(collectionManagementUI.loc_dlgConfirmation_btnCancel), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.deleteModal.cancelBtn"));
     }
     public ProductCollectionManagement waitToUpdateCollection(int second){
         commonAction.sleepInMiliSecond(1000*second);

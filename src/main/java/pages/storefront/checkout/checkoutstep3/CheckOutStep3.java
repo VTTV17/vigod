@@ -28,23 +28,23 @@ public class CheckOutStep3 extends GeneralSF {
         PageFactory.initElements(driver, this);
     }
     public OrderComplete clickOnNextButton(){
-        commonAction.clickElement(checkOutStep3UI.NEXT_BUTTON);
+        commonAction.click(checkOutStep3UI.loc_btnNext);
         logger.info("Click on Next button.");
         waitTillLoaderDisappear();
         return new OrderComplete(driver);
     }
     public CheckOutStep3 clickOnArrowIcon(){
-        commonAction.clickElement(checkOutStep3UI.ARROW_ICON_NEXT_TO_TOTAL_AMOUNT);
+        commonAction.click(checkOutStep3UI.loc_icnArrowShowSummaryPrice);
         logger.info("Click on Arrow icon to show/hide total summary.");
         return this;
     }
     public CheckOutStep3 verifyDicountAmount(String expected){
-        Assert.assertEquals(String.join("",commonAction.getText(checkOutStep3UI.DISCOUNT_AMOUNT).split(",|-\s")),expected);
+        Assert.assertEquals(String.join("",commonAction.getText(checkOutStep3UI.loc_blkSummaryPrice_lblDiscountAmount).split(",|-\s")),expected);
         logger.info("Verify discount amount.");
         return this;
     }
     public String getShippingFeeAfterDiscount(){
-        String shippingFee = commonAction.getText(checkOutStep3UI.SHIPPING_FEE);
+        String shippingFee = commonAction.getText(checkOutStep3UI.loc_lblShippingFee);
         logger.info("Get Shipping fee after discount: "+shippingFee);
         return shippingFee;
     }
@@ -55,7 +55,7 @@ public class CheckOutStep3 extends GeneralSF {
     }
     public CheckOutStep3 verifyProductName(String...productNamesExpected){
         for (int i=0;i<productNamesExpected.length;i++) {
-            Assert.assertEquals(commonAction.getText(checkOutStep3UI.PRODUCT_NAMES.get(i)).toLowerCase().trim(),productNamesExpected[i].toLowerCase().trim());
+            Assert.assertEquals(commonAction.getText(checkOutStep3UI.loc_lst_lblProductName,i).toLowerCase().trim(),productNamesExpected[i].toLowerCase().trim());
         }
         logger.info("Verify product name list.");
         return this;

@@ -104,21 +104,21 @@ public class BuyLinkTest extends BaseTest {
         return buyLinkManagement.clickCreateBuyLink();
     }
 
-//    @Test
+    @Test
     public void BL01_CheckTextOnBuyLinkManagementPage() throws Exception {
         testCaseId = "BL01";
         buyLinkManagement = LoginAndNavigateToBuyLinkPage();
         buyLinkManagement.clickExploreNow().VerifyText();
     }
 
-//    @Test
+    @Test
     public void BL02_CheckTextOnCreateBuyLinkPage() throws Exception {
         testCaseId = "BL02";
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         createBuyLink.VerifyText();
     }
 
-//    @Test
+    @Test
     public void BL03_CheckCreateBuyLinkWithoutDiscountAndCheckout() throws Exception {
         testCaseId = "BL03";
         CreateProduct productInfo = new CreateProduct(loginInformation).createWithoutVariationProduct(false,1);
@@ -149,7 +149,7 @@ public class BuyLinkTest extends BaseTest {
         deleteNewestBuyLink();
         new APIEditProduct(loginInformation).deleteProduct(productId);
     }
-//    @Test
+    @Test
     public void BL04_CheckBuyLinkFixAmountDiscountCodeAndCheckout() throws Exception {
         testCaseId = "BL04";
         CreatePromotion.apiIsLimitToOne=false;

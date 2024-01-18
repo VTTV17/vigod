@@ -1,9 +1,15 @@
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.dashboard.home.HomePage;
 import pages.dashboard.login.LoginPage;
 import pages.dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import utilities.PropertiesUtil;
+import utilities.driver.InitWebdriver;
+
+import java.io.IOException;
 
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_PASSWORD;
 import static utilities.account.AccountTest.ADMIN_SHOP_VI_USERNAME;
@@ -20,6 +26,15 @@ public class ProductCollectionManagementTest extends BaseTest{
         languageDashboard = PropertiesUtil.getLanguageFromConfig("Dashboard");
         userNameDb = ADMIN_SHOP_VI_USERNAME;
         passwordDb = ADMIN_SHOP_VI_PASSWORD;
+    }
+    @BeforeMethod
+    public void setUp(){
+        driver = new InitWebdriver().getDriver(browser, "false");
+    }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        super.writeResult(result);
+        if (driver != null) driver.quit();
     }
     @Test
     public void verifyText() throws Exception {
