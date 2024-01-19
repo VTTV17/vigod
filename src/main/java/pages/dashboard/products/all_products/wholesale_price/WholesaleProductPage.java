@@ -63,14 +63,14 @@ public class WholesaleProductPage extends WholesaleProductElement {
         driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(productID)));
 
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
-        if (!commonAction.isCheckedJS(productPage.getAddWholesalePricingCheckbox()))
-            commonAction.clickJS(productPage.getAddWholesalePricingCheckbox());
+        if (!commonAction.isCheckedJS(productPage.getLoc_chkAddWholesalePricing()))
+            commonAction.clickJS(productPage.getLoc_chkAddWholesalePricing());
 
         // [UI] check UI after check on Add Wholesale Pricing checkbox
         checkWholesaleProductConfig();
 
         // click Configure button
-        commonAction.click(productPage.getConfigureWholesalePricingBtn());
+        commonAction.click(productPage.getLoc_btnConfigureWholesalePricing());
 
 
         // wait wholesale product page loaded
@@ -235,13 +235,13 @@ public class WholesaleProductPage extends WholesaleProductElement {
     /* check UI function */
     void checkWholesaleProductConfig() throws Exception {
         // check wholesale product information
-        String dbWholesaleProductInformation = commonAction.getText(productPage.getNoWholesaleProductConfigText());
+        String dbWholesaleProductInformation = commonAction.getText(productPage.getLoc_cntNoWholesalePricingConfig());
         String ppWholesaleProductInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.wholesaleProductInformation", language);
         assertCustomize.assertEquals(dbWholesaleProductInformation, ppWholesaleProductInformation, "[Failed][Wholesale config table] Wholesale product information should be %s, but found %s.".formatted(ppWholesaleProductInformation, dbWholesaleProductInformation));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale product information.".formatted(language));
 
         // check wholesale product configure button
-        String dbWholesaleProductConfigBtn = commonAction.getText(productPage.getConfigureText());
+        String dbWholesaleProductConfigBtn = commonAction.getText(productPage.getLoc_lblConfigure());
         String ppWholesaleProductConfigBtn = getPropertiesValueByDBLang("products.allProducts.createProduct.wholesaleProduct.wholesaleProductConfigureBtn", language);
         assertCustomize.assertEquals(dbWholesaleProductConfigBtn, ppWholesaleProductConfigBtn, "[Failed][Wholesale config table] Wholesale product configure button should be %s, but found %s.".formatted(ppWholesaleProductConfigBtn, dbWholesaleProductConfigBtn));
         logger.info("[UI][%s] Check Wholesale config table - Wholesale product configure button.".formatted(language));

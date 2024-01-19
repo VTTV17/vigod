@@ -50,13 +50,13 @@ public class ConversionUnitPage extends ConversionUnitElement {
         logger.info("Navigate to product detail page by URL, productId: %s".formatted(ProductPage.getProductID()));
 
         // If product has conversion unit, remove that to add new configuration
-        if (commonAction.isCheckedJS(productPage.getAddConversionUnitCheckBox())) {
+        if (commonAction.isCheckedJS(productPage.getLoc_chkAddConversionUnit())) {
             // uncheck to clear old configuration
-            commonAction.clickJS(productPage.getAddConversionUnitCheckBox());
+            commonAction.clickJS(productPage.getLoc_chkAddConversionUnit());
         }
 
         // Check "Add Conversion Unit" checkbox to add new configuration
-        commonAction.clickJS(productPage.getAddConversionUnitCheckBox());
+        commonAction.clickJS(productPage.getLoc_chkAddConversionUnit());
 
         // check [UI] after check on Add Conversion Unit checkbox
         checkConversionUnitConfig();
@@ -65,7 +65,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             logger.info("Not support conversion unit for product managed by IMEI/Serial at this time.");
         else {
             // click Configure button
-            commonAction.clickJS(productPage.getConfigureConversionUnitBtn());
+            commonAction.clickJS(productPage.getLoc_btnConfigureAddConversionUnit());
 
             // hide Facebook bubble
             commonAction.removeFbBubble();
@@ -200,7 +200,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             logger.info("[UI][%s] Check Body - Conversion unit for product manage inventory by IMEI/Serial number.".formatted(language));
         } else {
             // check conversion unit information
-            String dbConversionUnitInformation = commonAction.getText(productPage.getNoConversionUnitConfig());
+            String dbConversionUnitInformation = commonAction.getText(productPage.getLoc_cntNoConversionUnitConfig());
             String ppConversionUnitInformation = getPropertiesValueByDBLang("products.allProducts.createProduct.conversionUnit.conversionUnitInformation", language);
             assertCustomize.assertEquals(dbConversionUnitInformation, ppConversionUnitInformation, "[Failed][Body] Conversion unit information should be %s, but found %s.".formatted(ppConversionUnitInformation, dbConversionUnitInformation));
             logger.info("[UI][%s] Check Body - Conversion unit information.".formatted(language));
