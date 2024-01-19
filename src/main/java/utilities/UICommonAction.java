@@ -1,6 +1,5 @@
 package utilities;
 
-import com.beust.jcommander.JCommander;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
+import static org.apache.commons.lang.StringUtils.trim;
 
 public class UICommonAction {
 
@@ -67,6 +67,7 @@ public class UICommonAction {
             element.get(index).sendKeys(text);
         }
     }
+
     public void inputText(By locator, String content) {
         waitVisibilityOfElementLocated(locator);
         getElement(locator).clear();
@@ -77,10 +78,11 @@ public class UICommonAction {
             getElement(locator).sendKeys(content);
         }
     }
-    public void inputText(By locator,int index, String content) {
-        waitVisibilityOfElementLocated(locator,index);
+
+    public void inputText(By locator, int index, String content) {
+        waitVisibilityOfElementLocated(locator, index);
         getElements(locator).get(index).clear();
-        doubleClick(locator,index);
+        doubleClick(locator, index);
         try {
             getElements(locator).get(index).sendKeys(content);
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
@@ -518,12 +520,14 @@ public class UICommonAction {
         Select select = new Select(element);
         return getText(select.getFirstSelectedOption());
     }
+
     public String getDropDownSelectedValue(By locator) {
         WebElement element = getElement(locator);
         wait.until(ExpectedConditions.elementToBeClickable(element));
         Select select = new Select(element);
         return getText(select.getFirstSelectedOption());
     }
+
     public void scrollBottomPage() {
         JavascriptExecutor executor = (JavascriptExecutor) driver;
         executor.executeScript("window.scrollBy(0,document.body.scrollHeight)");
@@ -549,18 +553,22 @@ public class UICommonAction {
         logger.debug("Retrieved page title: " + title);
         return title;
     }
+
     public void doubleClickElement(WebElement el) {
         Actions actionObj = new Actions(driver);
         actionObj.doubleClick(el).build().perform();
     }
+
     public void doubleClick(By locator) {
         Actions actionObj = new Actions(driver);
         actionObj.doubleClick(getElement(locator)).build().perform();
     }
-    public void doubleClick(By locator,int index) {
+
+    public void doubleClick(By locator, int index) {
         Actions actionObj = new Actions(driver);
         actionObj.doubleClick(getElements(locator).get(index)).build().perform();
     }
+
     public String getCopiedText(By buttonToCopyLocator) throws IOException, UnsupportedFlavorException {
         click(buttonToCopyLocator);
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -665,7 +673,6 @@ public class UICommonAction {
 
     public void sendKeys(By locator, CharSequence content) {
         visibilityOfElementLocated(locator);
-        focusOnEndOfTextBox(locator);
         clear(locator);
         click(locator);
         try {
@@ -673,11 +680,10 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
             getElement(locator).sendKeys(content);
         }
-//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
+
     public void sendKeys(By locator, int index, CharSequence content) {
         waitVisibilityOfElementLocated(locator, index);
-        focusOnEndOfTextBox(locator, index);
         clear(locator, index);
         click(locator, index);
         try {
@@ -685,7 +691,6 @@ public class UICommonAction {
         } catch (StaleElementReferenceException ex) {
             getElement(locator, index).sendKeys(content);
         }
-//        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
 
     public void uploads(By locator, CharSequence content) {
@@ -710,7 +715,7 @@ public class UICommonAction {
             textContent = getAttribute(locator, "innerText");
         } catch (StaleElementReferenceException ignore) {
         }
-        return textContent != null ? textContent : getText(locator);
+        return textContent != null ? trim(textContent) : getText(locator);
     }
 
     public String getText(By locator, int index) {
@@ -719,7 +724,7 @@ public class UICommonAction {
             textContent = getAttribute(locator, index, "innerText");
         } catch (StaleElementReferenceException ignore) {
         }
-        return textContent != null ? textContent : getText(locator, index);
+        return textContent != null ? trim(textContent) : getText(locator, index);
     }
 
     public String getValue(By locator) {
@@ -758,42 +763,12 @@ public class UICommonAction {
         el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
     }
 
-    void focusOnEndOfTextBox(By locator) {
-        try {
-            ((JavascriptExecutor) driver).executeScript("""
-                    function focusOnEndOfTextBox(el) {
-                        var type = el.getAttribute('type')
-                        el.setAttribute('type', 'text')
-                        el.selectionStart = el.selectionEnd = el.value.length;
-                        el.setAttribute('type', type)
-                    }
-                                    
-                    focusOnEndOfTextBox(arguments[0]);""", getElement(locator));
-        } catch (JavascriptException ignore) {
-        }
-    }
-
-    void focusOnEndOfTextBox(By locator, int index) {
-        try {
-            ((JavascriptExecutor) driver).executeScript("""
-                    function focusOnEndOfTextBox(el) {
-                        var type = el.getAttribute('type')
-                        el.setAttribute('type', 'text')
-                        el.selectionStart = el.selectionEnd = el.value.length;
-                        el.setAttribute('type', type)
-                    }
-                                    
-                    focusOnEndOfTextBox(arguments[0]);""", getElement(locator, index));
-        } catch (JavascriptException ignore) {
-        }
-    }
-
     public void clear(By locator) {
         try {
-            getElement(locator).sendKeys(Keys.BACK_SPACE);
+            getElement(locator).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             waitVisibilityOfElementLocated(locator);
-            getElement(locator).sendKeys(Keys.BACK_SPACE);
+            getElement(locator).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
         }
         if (!getElement(locator).getText().isEmpty() || getValue(locator) != null && !getValue(locator).isEmpty()) {
             clear(locator);
@@ -802,10 +777,10 @@ public class UICommonAction {
 
     void clear(By locator, int index) {
         try {
-            getElement(locator, index).sendKeys(Keys.BACK_SPACE);
+            getElement(locator, index).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             waitVisibilityOfElementLocated(locator, index);
-            getElement(locator, index).sendKeys(Keys.BACK_SPACE);
+            getElement(locator, index).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
         }
         if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
             clear(locator, index);
@@ -836,6 +811,7 @@ public class UICommonAction {
     public String getLangKey() {
         return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
     }
+
     public void visibilityOfElementLocated(By locator) {
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
@@ -859,6 +835,7 @@ public class UICommonAction {
             wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
         }
     }
+
     public void waitVisibilityOfElementLocated(By locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
