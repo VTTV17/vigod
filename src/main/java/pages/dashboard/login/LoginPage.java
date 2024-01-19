@@ -210,7 +210,10 @@ public class LoginPage {
 
         // init login information model
         LoginInformation logInfo = new LoginInformation();
-        logInfo.setEmail(username);
+        if (username.matches("\\d+")) {
+            logInfo.setPhoneNumber(username);
+            logInfo.setPhoneCode("+84");
+        } else logInfo.setEmail(username);
         logInfo.setPassword(password);
         LoginDashboardInfo loginInfo = new Login().getInfo(logInfo);
         if (!loginInfo.getUserRole().contains("ROLE_STORE")) loginInfo = new Login().getStaffInfo(logInfo);
