@@ -27,7 +27,7 @@ public class OrderAnalytics {
     public OrderAnalytics clickRefresh() {
     	commonAction.click(loc_lnkRefresh);
     	logger.info("Clicked on 'Refresh' link text.");
-    	commonAction.visibilityOfElementLocated(loc_spnRefreshSpinner);
+    	commonAction.waitVisibilityOfElementLocated(loc_spnRefreshSpinner);
     	return this;
     }
 

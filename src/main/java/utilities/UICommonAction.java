@@ -1,5 +1,6 @@
 package utilities;
 
+import com.beust.jcommander.JCommander;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -66,7 +67,26 @@ public class UICommonAction {
             element.get(index).sendKeys(text);
         }
     }
-
+    public void inputText(By locator, String content) {
+        waitVisibilityOfElementLocated(locator);
+        getElement(locator).clear();
+        doubleClick(locator);
+        try {
+            getElement(locator).sendKeys(content);
+        } catch (StaleElementReferenceException | InvalidElementStateException ex) {
+            getElement(locator).sendKeys(content);
+        }
+    }
+    public void inputText(By locator,int index, String content) {
+        waitVisibilityOfElementLocated(locator,index);
+        getElements(locator).get(index).clear();
+        doubleClick(locator,index);
+        try {
+            getElements(locator).get(index).sendKeys(content);
+        } catch (StaleElementReferenceException | InvalidElementStateException ex) {
+            getElements(locator).get(index).sendKeys(content);
+        }
+    }
 
     public String getText(List<WebElement> element, int index) {
         String text;
@@ -498,7 +518,12 @@ public class UICommonAction {
         Select select = new Select(element);
         return getText(select.getFirstSelectedOption());
     }
-
+    public String getDropDownSelectedValue(By locator) {
+        WebElement element = getElement(locator);
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        Select select = new Select(element);
+        return getText(select.getFirstSelectedOption());
+    }
     public void scrollBottomPage() {
         JavascriptExecutor executor = (JavascriptExecutor) driver;
         executor.executeScript("window.scrollBy(0,document.body.scrollHeight)");
@@ -524,12 +549,18 @@ public class UICommonAction {
         logger.debug("Retrieved page title: " + title);
         return title;
     }
-
     public void doubleClickElement(WebElement el) {
         Actions actionObj = new Actions(driver);
         actionObj.doubleClick(el).build().perform();
     }
-
+    public void doubleClick(By locator) {
+        Actions actionObj = new Actions(driver);
+        actionObj.doubleClick(getElement(locator)).build().perform();
+    }
+    public void doubleClick(By locator,int index) {
+        Actions actionObj = new Actions(driver);
+        actionObj.doubleClick(getElements(locator).get(index)).build().perform();
+    }
     public String getCopiedText(By buttonToCopyLocator) throws IOException, UnsupportedFlavorException {
         click(buttonToCopyLocator);
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -644,9 +675,8 @@ public class UICommonAction {
         }
 //        actions.keyDown(Keys.ENTER).keyUp(Keys.ENTER).build().perform();
     }
-
     public void sendKeys(By locator, int index, CharSequence content) {
-        visibilityOfElementLocated(locator, index);
+        waitVisibilityOfElementLocated(locator, index);
         focusOnEndOfTextBox(locator, index);
         clear(locator, index);
         click(locator, index);
@@ -762,7 +792,7 @@ public class UICommonAction {
         try {
             getElement(locator).sendKeys(Keys.BACK_SPACE);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
-            visibilityOfElementLocated(locator);
+            waitVisibilityOfElementLocated(locator);
             getElement(locator).sendKeys(Keys.BACK_SPACE);
         }
         if (!getElement(locator).getText().isEmpty() || getValue(locator) != null && !getValue(locator).isEmpty()) {
@@ -774,7 +804,7 @@ public class UICommonAction {
         try {
             getElement(locator, index).sendKeys(Keys.BACK_SPACE);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
-            visibilityOfElementLocated(locator, index);
+            waitVisibilityOfElementLocated(locator, index);
             getElement(locator, index).sendKeys(Keys.BACK_SPACE);
         }
         if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
@@ -806,7 +836,6 @@ public class UICommonAction {
     public String getLangKey() {
         return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
     }
-
     public void visibilityOfElementLocated(By locator) {
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
@@ -829,6 +858,17 @@ public class UICommonAction {
         } catch (StaleElementReferenceException ex) {
             wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
         }
+    }
+    public void waitVisibilityOfElementLocated(By locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public void waitVisibilityOfElementLocated(By locator, int index) {
+        wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
+    }
+
+    public void waitInvisibilityOfElementLocated(By locator) {
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
     }
 
     public WebElement elementToBeClickable(By locator) {

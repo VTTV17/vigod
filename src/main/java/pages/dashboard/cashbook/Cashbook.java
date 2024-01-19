@@ -179,7 +179,7 @@ public class Cashbook {
 			new HomePage(driver).waitTillSpinnerDisappear1();
 	    }
 		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
-		commonAction.visibilityOfElementLocated(customerLocator);
+		commonAction.waitVisibilityOfElementLocated(customerLocator);
 		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
 		//The element will go stale after the delay, so we fetch the element again
 		commonAction.click(customerLocator);

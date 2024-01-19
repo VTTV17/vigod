@@ -388,7 +388,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new pages.dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
-        allCustomers.waitTillSpinnerDisappear().selectLanguage(languageDb).waitTillSpinnerDisappear();
+        allCustomers.waitTillSpinnerDisappear().selectLanguage(languageDb).waitTillSpinnerDisappear1();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
                 .clickLogout();
