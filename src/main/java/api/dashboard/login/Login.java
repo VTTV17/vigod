@@ -98,17 +98,14 @@ public class Login {
         } catch (NullPointerException ignore) {
         }
 
-        // set user role
-        info.setUserRole(jPath.getList("authorities"));
+        // if login by staff => login and get staff information
+        if (!jPath.getList("authorities").contains("ROLE_STORE")) info = new Login().getStaffInfo(info);
 
         // return login dashboard info
         return info;
     }
 
-    public LoginDashboardInfo getStaffInfo(LoginInformation loginInformation) {
-        // get staff information
-        LoginDashboardInfo info = getInfo(loginInformation);
-
+    private LoginDashboardInfo getStaffInfo(LoginDashboardInfo info) {
         // get staff store list
         List<Integer> getListStoreId = api.get(storeStaff.formatted(info.getSellerID()), info.getAccessToken())
                 .then()

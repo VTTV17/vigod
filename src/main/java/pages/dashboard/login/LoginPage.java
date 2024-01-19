@@ -216,7 +216,6 @@ public class LoginPage {
         } else logInfo.setEmail(username);
         logInfo.setPassword(password);
         LoginDashboardInfo loginInfo = new Login().getInfo(logInfo);
-        if (!loginInfo.getUserRole().contains("ROLE_STORE")) loginInfo = new Login().getStaffInfo(logInfo);
 
         // login by js - local storage
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));

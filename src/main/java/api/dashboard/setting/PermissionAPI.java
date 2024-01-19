@@ -133,7 +133,7 @@ public class PermissionAPI {
         LoginInformation ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
         LoginInformation staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 
-        LoginDashboardInfo staffLoginInfo = new Login().getStaffInfo(staffCredentials);
+        LoginDashboardInfo staffLoginInfo = new Login().getInfo(staffCredentials);
 
         CreatePermission model = new CreatePermission();
         model.setHome_none("11");
