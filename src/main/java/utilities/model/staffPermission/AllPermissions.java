@@ -58,7 +58,11 @@ public class AllPermissions {
     }
 
     String getBinaryPermissionString(String payloadJson, String path) {
-        return toBinaryString(JsonPath.from(payloadJson).getInt(path));
+        try {
+            return toBinaryString(JsonPath.from(payloadJson).getInt(path));
+        } catch (NullPointerException ex) {
+            return toBinaryString(0);
+        }
     }
 
     void setGoWallet(String payloadJson) {
