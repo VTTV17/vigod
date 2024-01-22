@@ -26,25 +26,23 @@ public class CollectionSFPage {
         commons = new UICommonAction(driver);
         PageFactory.initElements(driver,this);
     }
-    @FindBy(xpath = "(//div[@class='product-infomation']//p)[1]")
-    WebElement NEWEST_SERVICE_NAME;
-    @FindBy(xpath = "(//span[contains(@class,'price')])[1]")
-    WebElement NEWEST_SERVICE_SELLING_PRICE;
-    @FindBy(xpath = "(//span[contains(@class,'old-price')])[1]")
-    WebElement NEWEST_SERVICE_LISTING_PRICE;
+    By loc_lblNewestServiceName = By.xpath("(//div[@class='product-infomation']//p)[1]");
+    By loc_lblNewestServiceSellingPrice = By.xpath("(//span[contains(@class,'price')])[1]");
+    By loc_lblNewestServiceListingPrice = By.xpath("(//span[contains(@class,'old-price')])[1]");
+
     String PRICES_DYNAMIC="//h3[@class='product-name' and text()='%serviceName%']/following-sibling::div";
     public void verifyNewServiceDisplayInList(String serviceName, String sellingPrice, String listingPrice){
-        Assert.assertEquals(commons.getText(NEWEST_SERVICE_NAME),serviceName);
+        Assert.assertEquals(commons.getText(loc_lblNewestServiceName),serviceName);
         logger.info("Service name show correct");
-        String sellingPriceActual = String.join("",commons.getText(NEWEST_SERVICE_SELLING_PRICE).split(","));
+        String sellingPriceActual = String.join("",commons.getText(loc_lblNewestServiceSellingPrice).split(","));
         Assert.assertEquals(sellingPriceActual.subSequence(0,sellingPriceActual.length()-1),sellingPrice);
         logger.info("Selling price show correct");
-        String listingPriceActual = String.join("",commons.getText(NEWEST_SERVICE_LISTING_PRICE).split(","));
+        String listingPriceActual = String.join("",commons.getText(loc_lblNewestServiceListingPrice).split(","));
         Assert.assertEquals(listingPriceActual.subSequence(0,listingPriceActual.length()-1),listingPrice);
         logger.info("Listing Price show correct");
     }
     public void verifyListingServiceDisplayInList(String serviceName){
-        Assert.assertEquals(commons.getText(NEWEST_SERVICE_NAME),serviceName);
+        Assert.assertEquals(commons.getText(loc_lblNewestServiceName),serviceName);
         logger.info("Service name show correct");
         String newXpath = PRICES_DYNAMIC.replace("%serviceName%",serviceName);
         List<WebElement> pricElements= driver.findElements(By.xpath(newXpath));

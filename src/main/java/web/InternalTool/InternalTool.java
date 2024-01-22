@@ -30,31 +30,25 @@ public class InternalTool {
         commons = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
     }
-
-    @FindBy(xpath = "//div[contains(@class,'ant-spin-spinning')]")
-    WebElement LOADING;
-    @FindBy(xpath = "//input[@placeholder='Contract ID']")
-    WebElement CONTACT_ID_INPUT;
-    @FindBy(xpath = "//span[text()='Approve']/parent::button")
-    WebElement APPROVE_BTN_ON_POPUP;
-    @FindBy(xpath = "//span[text()='Successful!']")
-    WebElement SUCCESSFUL_MESSAGE;
-    @FindBy(css = "#email")
-    WebElement USERNAME_INPUT;
-    @FindBy(css = "#password")
-    WebElement PASSWORD_INPUT;
-    @FindBy(xpath = "//button[@type='submit']")
-    WebElement LOGIN_BTN;
     String PAGE_LINKS = "//li[text()='%s']//following-sibling::li[1]//a[text()='%s']";
     String APPROVE_BTN_BY_ORDERID = "//tbody//td[text()='%s']//parent::tr//td[count(//th[text()='Approved']//preceding-sibling::*)+1]/span";
     String APPROVE_BTN_BY_SHOPNAME = "(//tbody//td[text()='%s']//parent::tr//td[count(//th[text()='Approved']//preceding-sibling::*)+1]/span)[1]";
+
+    By loc_icnLoading = By.xpath("//div[contains(@class,'ant-spin-spinning')]");
+    By loc_txtContactID = By.xpath("//input[@placeholder='Contract ID']");
+    By loc_dlgConfirmation_btnApprove = By.xpath("//span[text()='Approve']/parent::button");
+    By loc_lblSuccessfullMessage = By.xpath("//span[text()='Successful!']");
+    By loc_txtUserName = By.cssSelector("#email");
+    By loc_txtPassword = By.cssSelector("#email");
+    By loc_btnLogin = By.xpath("//button[@type='submit']");
 
     /**
      * @param packageType Input value: GoSell, VipDeal, Call center, Go F&B, Branch Purchase,Shopee Purchase, Language Purchase,Affiliate Purchase,Reports
      * @param menuItems Input value: Packages, Orders list
      */
     public InternalTool navigateToPage(String packageType,String...menuItems) {
-        commons.waitTillElementDisappear(LOADING,20);
+        commons.waitVisibilityOfElementLocated(loc_icnLoading);
+        commons.waitInvisibilityOfElementLocated(loc_icnLoading);
         for (String menuItem:menuItems) {
             String NEW_XPATH_ORDER_LIST = PAGE_LINKS.formatted(packageType,menuItem);
             commons.clickElement(driver.findElement(By.xpath(NEW_XPATH_ORDER_LIST)));
@@ -64,12 +58,13 @@ public class InternalTool {
     }
 
     public InternalTool approveOrder(String orderId) {
-        commons.waitTillElementDisappear(LOADING, 30);
+        commons.waitVisibilityOfElementLocated(loc_icnLoading);
+        commons.waitInvisibilityOfElementLocated(loc_icnLoading);
         String NEW_XPATH_APPROVE_BTN = APPROVE_BTN_BY_ORDERID.formatted(orderId);
         commons.clickElement(driver.findElement(By.xpath(NEW_XPATH_APPROVE_BTN)));
-        commons.inputText(CONTACT_ID_INPUT, "aaaa");
-        commons.clickElement(APPROVE_BTN_ON_POPUP);
-        commons.waitForElementVisible(SUCCESSFUL_MESSAGE);
+        commons.inputText(loc_txtContactID, "aaaa");
+        commons.click(loc_dlgConfirmation_btnApprove);
+        commons.waitVisibilityOfElementLocated(loc_lblSuccessfullMessage);
         logger.info("Approved order");
         return this;
     }
@@ -93,8 +88,9 @@ public class InternalTool {
      * @return one of these values: Undefined/Approved/Cancelled/Pending Approval
      */
     public String getOrderApprovalStatus(String orderId) {
-    	commons.waitForElementInvisible(LOADING, 30);
-		String statusIcon = commons.getText(driver.findElement(By.xpath(APPROVE_BTN_BY_ORDERID.formatted(orderId))));
+        commons.waitVisibilityOfElementLocated(loc_icnLoading);
+        commons.waitInvisibilityOfElementLocated(loc_icnLoading);
+        String statusIcon = commons.getText(driver.findElement(By.xpath(APPROVE_BTN_BY_ORDERID.formatted(orderId))));
 		String statusMessage = processApprovalStatus(statusIcon);
         logger.info("Approval status of order '%s': '%s'".formatted(orderId, statusMessage));
         return statusMessage;
@@ -106,7 +102,8 @@ public class InternalTool {
      * @return one of these values: Undefined/Approved/Cancelled/Pending Approval
      */
     public String getOrderApprovalStatusByShopName(String shopName) {
-    	commons.waitForElementInvisible(LOADING, 30);
+        commons.waitVisibilityOfElementLocated(loc_icnLoading);
+        commons.waitInvisibilityOfElementLocated(loc_icnLoading);
     	String statusIcon = commons.getText(driver.findElement(By.xpath(APPROVE_BTN_BY_SHOPNAME.formatted(shopName))));
     	String statusMessage = processApprovalStatus(statusIcon);
     	logger.info("Approval status of order registered by shop '%s': '%s'".formatted(shopName, statusMessage));
@@ -114,9 +111,9 @@ public class InternalTool {
     }    
     
     public InternalTool login() {
-        commons.inputText(USERNAME_INPUT,USERNAME_INTERNALTOOL);
-        commons.inputText(PASSWORD_INPUT,PASSWORD_INTERNALTOOL);
-        commons.clickElement(LOGIN_BTN);
+        commons.inputText(loc_txtUserName,USERNAME_INTERNALTOOL);
+        commons.inputText(loc_txtPassword,PASSWORD_INTERNALTOOL);
+        commons.click(loc_btnLogin);
         return this;
     }
     public InternalTool openNewTabAndNavigateToInternalTool(){

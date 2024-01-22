@@ -86,7 +86,6 @@ public class PropertiesUtil {
 
     public static String getEnvironmentData(String propertyName)  {
         String value = "";
-
         switch (environment) {
             case "PROD" -> {
                 try {
