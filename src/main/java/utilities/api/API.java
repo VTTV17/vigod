@@ -32,7 +32,6 @@ public class API {
 
     public Response login(String path, String body) {
         return given()
-                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .body(body)

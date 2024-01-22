@@ -21,6 +21,7 @@ import java.util.List;
 
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.StringUtils.trim;
+import static org.bouncycastle.oer.its.ieee1609dot2.basetypes.Duration.seconds;
 
 public class UICommonAction {
 
@@ -33,6 +34,12 @@ public class UICommonAction {
     public UICommonAction(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        actions = new Actions(driver);
+    }
+
+    public UICommonAction(WebDriver driver, int waitingTime) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(waitingTime));
         actions = new Actions(driver);
     }
 
