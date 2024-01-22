@@ -41,28 +41,6 @@ public class ServiceCollectionManagement {
 	By loc_lst_icnDelete = By.cssSelector(".actions .lastest-button");
 	By loc_dlgConfirmation_btnOK = By.cssSelector(".modal-footer .gs-button__green");
 
-
-//	@FindBy(css = ".collection-list-page button")
-//	WebElement CREATE_SERVICE_COLLECTION_BTN;
-//	@FindBy(css = ".collection-name")
-//	List<WebElement> LIST_SERVICE_COLLECTION_NAME;
-//	@FindBy(css = ".d-desktop-block .first-button")
-//	List<WebElement> EDIT_ICON_LIST;
-//	@FindBy(css = ".collection-name b")
-//	List<WebElement> COLLECTION_NAMES;
-//	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]")
-//	List<WebElement> TYPES;
-//	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][2]")
-//	List<WebElement> MODES;
-//	@FindBy(xpath = "//div[contains(@class,'products')]")
-//	List<WebElement> ITEMS;
-//	@FindBy(xpath = "//span[contains(@class,'gs-search-box')]//input")
-//	WebElement SEARCH_INPUT;
-//	@FindBy(css = ".actions .lastest-button")
-//	List<WebElement> DELETE_BTN;
-//	@FindBy(css = ".modal-footer .gs-button__green")
-//	WebElement OK_BTN_ON_MODAL;
-
 	public CreateServiceCollection clickCreateServiceCollection() {
 		commonAction.click(loc_btnCreateServiceCollection);
 		logger.info("Clicked on 'Create Service Collection' button.");
@@ -70,8 +48,8 @@ public class ServiceCollectionManagement {
 		return new CreateServiceCollection(driver);
 	}
 
-    /*Verify permission for certain feature*/
-    public void verifyPermissionToManageServiceCollection(String permission) {
+	/*Verify permission for certain feature*/
+	public void verifyPermissionToManageServiceCollection(String permission) {
 		if (permission.contentEquals("A")) {
 			clickCreateServiceCollection();
 			new CreateServiceCollection(driver).inputCollectionName("Test Permission");
@@ -82,8 +60,8 @@ public class ServiceCollectionManagement {
 		} else {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
-    }
-    /*-------------------------------------*/
+	}
+	/*-------------------------------------*/
 	public EditServiceCollection goToEditServiceCollection(String collectionName) throws Exception {
 		boolean clicked = false;
 		for (int i=0;i< commonAction.getElements(loc_lst_lblServiceCollectionName).size();i++) {
