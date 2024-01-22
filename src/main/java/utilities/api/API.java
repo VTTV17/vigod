@@ -2,24 +2,18 @@ package utilities.api;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import lombok.Setter;
 
 import static io.restassured.RestAssured.given;
 
 public class API {
+    @Setter
+    public static String staffPermissionToken = "";
     public Response get(String path, String token) {
         return given()
                 .auth()
                 .oauth2(token)
-                .contentType(ContentType.JSON)
-                .when()
-                .get(path);
-    }
-
-    public Response get(String path, String accessToken, String staffToken) {
-        return given()
-                .auth()
-                .oauth2(accessToken)
-                .header("Staffpermissions-Token", staffToken)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .get(path);
@@ -29,6 +23,7 @@ public class API {
         return given()
                 .auth()
                 .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .body(body)
@@ -37,6 +32,7 @@ public class API {
 
     public Response login(String path, String body) {
         return given()
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .body(body)
@@ -47,6 +43,7 @@ public class API {
         return given()
                 .auth()
                 .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .body(body.length > 0 ? body[0] : "")
@@ -57,6 +54,7 @@ public class API {
         return given()
                 .auth()
                 .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .body(body)
@@ -67,6 +65,7 @@ public class API {
         return given()
                 .auth()
                 .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .delete(path);
@@ -76,6 +75,7 @@ public class API {
         return given()
                 .auth()
                 .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .when()
                 .put(path);
@@ -84,6 +84,7 @@ public class API {
         return given()
                 .auth()
                 .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
                 .body(body)
                 .when()

@@ -101,6 +101,9 @@ public class Login {
         // if login by staff => login and get staff information
         if (!jPath.getList("authorities").contains("ROLE_STORE")) info = new Login().getStaffInfo(info);
 
+        // set staffToken
+        API.setStaffPermissionToken(info.getStaffPermissionToken() != null ? info.getStaffPermissionToken() : "");
+
         // return login dashboard info
         return info;
     }
@@ -142,7 +145,7 @@ public class Login {
         info.setStoreName(jPath.getString("store.name"));
 
         // set staff token
-        info.setStaffToken(jPath.getString("staffPermissionsToken"));
+        info.setStaffPermissionToken(jPath.getString("staffPermissionsToken"));
 
         // set staff branches
         info.setAssignedBranches(jPath.getList("branchIds"));

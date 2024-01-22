@@ -11,7 +11,7 @@ public class LoginDashboardInfo {
     private int storeID;
     private String storeName;
     private int sellerID;
-    private String staffToken;
+    private String staffPermissionToken;
     List<String> userRole;
     List<Integer> assignedBranches;
 }
