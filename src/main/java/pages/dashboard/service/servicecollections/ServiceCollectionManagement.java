@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -33,30 +34,40 @@ public class ServiceCollectionManagement {
 		commonAction = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
 	}
+	By loc_btnCreateServiceCollection = By.cssSelector(".collection-list-page button");
+	By loc_lst_lblServiceCollectionName = By.cssSelector(".collection-name b");
+	By loc_lst_icnEdit = By.cssSelector(".d-desktop-block .first-button");
+	By loc_lst_lblType = By.xpath("//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]");
+	By loc_lst_lblMode = By.xpath("//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][2]");
+	By loc_lst_lblItems = By.xpath("//div[contains(@class,'products')]");
+	By loc_txtSearch = By.xpath("//span[contains(@class,'gs-search-box')]//input");
+	By loc_lst_icnDelete = By.cssSelector(".actions .lastest-button");
+	By loc_dlgConfirmation_btnOK = By.cssSelector(".modal-footer .gs-button__green");
 
-	@FindBy(css = ".collection-list-page button")
-	WebElement CREATE_SERVICE_COLLECTION_BTN;
-	@FindBy(css = ".collection-name")
-	List<WebElement> LIST_SERVICE_COLLECTION_NAME;
-	@FindBy(css = ".d-desktop-block .first-button")
-	List<WebElement> EDIT_ICON_LIST;
-	@FindBy(css = ".collection-name b")
-	List<WebElement> COLLECTION_NAMES;
-	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]")
-	List<WebElement> TYPES;
-	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][2]")
-	List<WebElement> MODES;
-	@FindBy(xpath = "//div[contains(@class,'products')]")
-	List<WebElement> ITEMS;
-	@FindBy(xpath = "//span[contains(@class,'gs-search-box')]//input")
-	WebElement SEARCH_INPUT;
-	@FindBy(css = ".actions .lastest-button")
-	List<WebElement> DELETE_BTN;
-	@FindBy(css = ".modal-footer .gs-button__green")
-	WebElement OK_BTN_ON_MODAL;
+
+//	@FindBy(css = ".collection-list-page button")
+//	WebElement CREATE_SERVICE_COLLECTION_BTN;
+//	@FindBy(css = ".collection-name")
+//	List<WebElement> LIST_SERVICE_COLLECTION_NAME;
+//	@FindBy(css = ".d-desktop-block .first-button")
+//	List<WebElement> EDIT_ICON_LIST;
+//	@FindBy(css = ".collection-name b")
+//	List<WebElement> COLLECTION_NAMES;
+//	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]")
+//	List<WebElement> TYPES;
+//	@FindBy(xpath = "//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][2]")
+//	List<WebElement> MODES;
+//	@FindBy(xpath = "//div[contains(@class,'products')]")
+//	List<WebElement> ITEMS;
+//	@FindBy(xpath = "//span[contains(@class,'gs-search-box')]//input")
+//	WebElement SEARCH_INPUT;
+//	@FindBy(css = ".actions .lastest-button")
+//	List<WebElement> DELETE_BTN;
+//	@FindBy(css = ".modal-footer .gs-button__green")
+//	WebElement OK_BTN_ON_MODAL;
 
 	public CreateServiceCollection clickCreateServiceCollection() {
-		commonAction.clickElement(CREATE_SERVICE_COLLECTION_BTN);
+		commonAction.click(loc_btnCreateServiceCollection);
 		logger.info("Clicked on 'Create Service Collection' button.");
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return new CreateServiceCollection(driver);
@@ -78,9 +89,9 @@ public class ServiceCollectionManagement {
     /*-------------------------------------*/
 	public EditServiceCollection goToEditServiceCollection(String collectionName) throws Exception {
 		boolean clicked = false;
-		for (int i=0;i< LIST_SERVICE_COLLECTION_NAME.size();i++) {
-			if (commonAction.getText(LIST_SERVICE_COLLECTION_NAME.get(i)).equalsIgnoreCase(collectionName)){
-				commonAction.clickElement(EDIT_ICON_LIST.get(i));
+		for (int i=0;i< commonAction.getElements(loc_lst_lblServiceCollectionName).size();i++) {
+			if (commonAction.getText(loc_lst_lblServiceCollectionName,i).equalsIgnoreCase(collectionName)){
+				commonAction.click(loc_lst_icnEdit,i);
 				clicked = true;
 				break;
 			}
@@ -94,28 +105,28 @@ public class ServiceCollectionManagement {
 		return new EditServiceCollection(driver);
 	}
 	public ServiceCollectionManagement verifyCollectionName(String expected, int index) {
-		String actual = commonAction.getText(COLLECTION_NAMES.get(index));
+		String actual = commonAction.getText(loc_lst_lblServiceCollectionName,index);
 		Assert.assertEquals(actual, expected);
 		logger.info("Verify collection name after created");
 		return this;
 	}
 
 	public ServiceCollectionManagement verifyType(String expected, int index) {
-		String actual = commonAction.getText(TYPES.get(index));
+		String actual = commonAction.getText(loc_lst_lblType,index);
 		Assert.assertEquals(actual, expected);
 		logger.info("Verify type after collection created");
 		return this;
 	}
 
 	public ServiceCollectionManagement verifyMode(String expected, int index) {
-		String actual = commonAction.getText(MODES.get(index));
+		String actual = commonAction.getText(loc_lst_lblMode,index);
 		Assert.assertEquals(actual, expected);
 		logger.info("Verify mode after collection created");
 		return this;
 	}
 
 	public ServiceCollectionManagement verifyItem(String expected, int index) {
-		String actual = commonAction.getText(ITEMS.get(index));
+		String actual = commonAction.getText(loc_lst_lblItems,index);
 		Assert.assertEquals(actual, expected);
 		logger.info("Verify items after collection created");
 		return this;
@@ -129,7 +140,7 @@ public class ServiceCollectionManagement {
 	public ServiceCollectionManagement refreshPageUtilCollectUpdate(String expectItemNumber){
 		for (int i=0;i<10;i++){
 			refreshPage();
-			String itemNumber = commonAction.getText(ITEMS.get(0));
+			String itemNumber = commonAction.getText(loc_lst_lblItems,0);
 			if(itemNumber.equals(String.valueOf(expectItemNumber))){
 				break;
 			}
@@ -145,13 +156,13 @@ public class ServiceCollectionManagement {
 		return this;
 	}
 	public ServiceCollectionManagement searchCollection(String collectionName){
-		commonAction.inputText(SEARCH_INPUT,collectionName);
+		commonAction.inputText(loc_txtSearch,collectionName);
 		logger.info("Input to search collection: "+collectionName);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		return this;
 	}
 	public String getTheFirstCollectionName() {
-		String name = commonAction.getText(COLLECTION_NAMES.get(0));
+		String name = commonAction.getText(loc_lst_lblServiceCollectionName,0);
 		logger.info("Get the first collection name in list: " + name);
 		return name;
 	}
@@ -161,16 +172,16 @@ public class ServiceCollectionManagement {
 		return this;
 	}
 	public void deleteTheFirstCollection() {
-		commonAction.clickElement(DELETE_BTN.get(0));
-		commonAction.clickElement(OK_BTN_ON_MODAL);
+		commonAction.click(loc_lst_icnDelete,0);
+		commonAction.click(loc_dlgConfirmation_btnOK);
 		commonAction.sleepInMiliSecond(1000);
-		commonAction.clickElement(OK_BTN_ON_MODAL);
+		commonAction.click(loc_dlgConfirmation_btnOK);
 		new HomePage(driver).waitTillSpinnerDisappear();
 		logger.info("Delete the first collection");
 	}
 	public void verifyCollectNameNotDisplayInList(String collectionName) {
-		for (int i = 0; i < COLLECTION_NAMES.size(); i++) {
-			String collectionNameInList = commonAction.getText(COLLECTION_NAMES.get(i));
+		for (int i = 0; i < commonAction.getElements(loc_lst_lblServiceCollectionName).size(); i++) {
+			String collectionNameInList = commonAction.getText(loc_lst_lblServiceCollectionName,i);
 			if (collectionNameInList.equalsIgnoreCase(collectionName)) {
 				Assert.assertTrue(false, collectionName + ": still display in position " + i);
 			}

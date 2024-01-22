@@ -51,39 +51,6 @@ public class CreateBuyLink extends HomePage {
     By loc_lst_lblCouponName = By.cssSelector(".buy-link-created-modal__coupon-row h6");
     By loc_lst_btnDeleteProduct = By.cssSelector(".buy-link-created-modal__selected-product .gs-action-button");
     By loc_dlgProductSelection = By.cssSelector(".buy-link-created-modal");
-
-//    @FindBy(css = ".modal-title")
-//    WebElement POPUP_TITLE;
-//    @FindBy(css = ".buy-link-created-modal__search-wrapper input")
-//    WebElement SEARCH_INPUT;
-//    @FindBy(css = ".product-item-row")
-//    WebElement SEARCH_SUGGESTION;
-//    @FindBy(css = ".product-item-row__product-summary >h6")
-//    List<WebElement> PRODUCT_NAME_SUGGESTION;
-//    @FindBy(css = ".buy-link-created-modal__selected-product >div")
-//    WebElement NO_SELECTED_PRODUCT_LBL;
-//    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[1]")
-//    WebElement PRODUCT_NAME_COL;
-//    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[2]")
-//    WebElement QUANTITY_COL;
-//    @FindBy(xpath = "//div[@class='buy-link-created-modal__selected-product']//th[3]")
-//    WebElement UNIT_COL;
-//    @FindBy(css = ".customer-list-barcode-printer__selected")
-//    WebElement SELECTED_PRODUCT_NUMBER;
-//    @FindBy(css = ".modal-footer .gs-button__green")
-//    WebElement NEXT_BTN;
-//    @FindBy(css = ".modal-footer .gs-button__gray--outline")
-//    WebElement CANCEL_BTN;
-//    @FindBy(css = ".modal-footer .gs-button__green")
-//    WebElement FINISH_BTN;
-//    @FindBy(css = ".modal-footer .gs-button__gray--outline")
-//    WebElement BACK_BTN;
-//    @FindBy(css = ".buy-link-created-modal__coupon-row h6")
-//    List<WebElement> COUPON_NAME_LIST;
-//    @FindBy(css = ".buy-link-created-modal__selected-product .gs-action-button")
-//    List<WebElement> DELETE_PRODUCT_ICONS;
-//    By PRODUCT_SELECTION_MODAL = By.cssSelector(".buy-link-created-modal");
-
     public boolean isProductSelectionDialogDisplayed() {
         commonAction.sleepInMiliSecond(1000);
         return !commonAction.isElementNotDisplay(driver.findElements(loc_dlgProductSelection));

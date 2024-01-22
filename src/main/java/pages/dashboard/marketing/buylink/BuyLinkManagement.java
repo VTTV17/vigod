@@ -53,41 +53,6 @@ public class BuyLinkManagement extends HomePage{
 	By loc_tltEditLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]");
 	By loc_tltDeleteLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]");
 	By loc_dlgConfirmation_btnDelete = By.xpath("//div[@class='modal-footer']/button[2]");
-
-
-//    @FindBy(css = ".buylink-intro .gs-button__green")
-//    WebElement EXPLORE_NOW_BTN;
-//    @FindBy(css = ".buylink-header button div")
-//    WebElement CREATE_BUYLINK_BTN;
-//	@FindBy(css = ".gs-page-title")
-//	WebElement BUY_LINK_MANAGEMENT_TITLE;
-//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][2]/span" )
-//	WebElement URL_LBL;
-//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][3]/span" )
-//	WebElement COUPON_LBL;
-//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][3]/span" )
-//	WebElement CREATE_DATE_LBL;
-//	@FindBy(xpath = "//section[contains(@class,'gs-table-header-item')][5]/span" )
-//	WebElement ACTIONS_LBL;
-//	@FindBy(css = ".buylink-content-body .empty span")
-//	WebElement NO_BUY_LINK_YET;
-//	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[1]")
-//	WebElement COPY_LINK_ICO;
-//	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[2]")
-//	WebElement EDIT_LINK_ICO;
-//	@FindBy(xpath = "(//i[contains(@class,'gs-action-button')])[3]")
-//	WebElement DELETE_LINK_ICO;
-//	@FindBy(xpath = "//div[@class='gs-table-body-item text-truncate']")
-//	List<WebElement> URL_LIST;
-//	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[1]")
-//	WebElement COPY_LINK_TOOLTIP;
-//	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]")
-//	WebElement EDIT_LINK_TOOLTIP;
-//	@FindBy(xpath = "(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]")
-//	WebElement DELETE_LINK_TOOLTIP;
-//	@FindBy(xpath = "//div[@class='modal-footer']/button[2]")
-//	WebElement DELETE_BTN_ON_MODAL;
-
 	public BuyLinkManagement clickExploreNow() {
     	commonAction.click(loc_btnExploreNow);
     	logger.info("Clicked on 'Explore Now' button.");

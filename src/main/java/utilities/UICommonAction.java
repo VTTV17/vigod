@@ -672,7 +672,7 @@ public class UICommonAction {
     }
 
     public void sendKeys(By locator, CharSequence content) {
-        visibilityOfElementLocated(locator);
+        waitVisibilityOfElementLocated(locator);
         clear(locator);
         click(locator);
         try {
@@ -811,31 +811,6 @@ public class UICommonAction {
     public String getLangKey() {
         return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
     }
-
-    public void visibilityOfElementLocated(By locator) {
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        } catch (StaleElementReferenceException ex) {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        }
-    }
-
-    public void visibilityOfElementLocated(By locator, int index) {
-        try {
-            wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
-        } catch (StaleElementReferenceException ex) {
-            wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
-        }
-    }
-
-    public void invisibilityOfElementLocated(By locator) {
-        try {
-            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
-        } catch (StaleElementReferenceException ex) {
-            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
-        }
-    }
-
     public void waitVisibilityOfElementLocated(By locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
