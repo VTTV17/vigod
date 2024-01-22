@@ -1,18 +1,9 @@
 package pages.dashboard.settings.plans;
 
-import static utilities.links.Links.LOGIN_PAGE_TITLE;
-
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import pages.dashboard.home.HomePage;
 import pages.internaltool.InternalTool;
@@ -24,61 +15,41 @@ import utilities.enums.PaymentMethod;
 
 public class PlansPage extends HomePage {
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction commons;
 
 	public PlansPage(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commons = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "//button[contains(@class,'btn-pay')]")
-	WebElement PAY_BTN;
-	@FindBy(xpath = "//div[contains(@class,'loading-wrapper')]")
-	WebElement LOADING;
-	@FindBy(xpath = "//table[@class='d-tablet-none d-desktop-exclude-tablet-block']//tr[1]//td[@class='value']")
-	WebElement ORDER_ID;
-
-	@FindBy(css = ".btn-group button:nth-of-type(1)")
-	WebElement ONLINE_PAYMENT_BTN;
-	@FindBy(css = ".btn-group button:nth-of-type(2)")
-	WebElement BANK_TRANSFER_BTN;
-
-	@FindBy(css = ".wizard-layout__content a[href='/logout']")
-	WebElement LOGOUT_BTN;
-
-	@FindBy(css = "img[src*='atm']")
-	WebElement ATM_RADIO_BTN;
-
-	@FindBy(css = "img[src*='visa']")
-	WebElement VISA_RADIO_BTN;
-
-	@FindBy(css = "img[src*='paypal']")
-	WebElement PAYPAL_RADIO_BTN;
-
-	@FindBy(css = ".setting-plans-step3__overlay")
-	WebElement OVERLAY_ELEMENT;
-
+	By loc_btnPay = By.xpath("//button[contains(@class,'btn-pay')]");
+	By loc_icnLoading = By.xpath("//div[contains(@class,'loading-wrapper')]");
+	By loc_lblOrderId = By.xpath("//table[@class='d-tablet-none d-desktop-exclude-tablet-block']//tr[1]//td[@class='value']");
+	By loc_btnOnlinePayment = By.cssSelector(".btn-group button:nth-of-type(1)");
+	By loc_btnBankTransfer = By.cssSelector(".btn-group button:nth-of-type(2)");
+	By loc_btnLogout = By.cssSelector(".wizard-layout__content a[href='/logout']");
+	By loc_rdoATM = By.cssSelector("img[src*='atm']");
+	By loc_rdoVISA = By.cssSelector("img[src*='visa']");
+	By loc_rdoPAYPAL = By.cssSelector("img[src*='paypal']");
+	By loc_tmpOverlayElement = By.cssSelector(".setting-plans-step3__overlay");
+	
 	String PLAN_PRICE_12M = "//tr[contains(@class,'plan-price')]//td[count(//div[text()='%planName%']//ancestor::th/preceding-sibling::*)+1]//button[not(contains(@class,'price-btn--disable'))]";
 	final static Logger logger = LogManager.getLogger(PlansPage.class);
 
 	public PlansPage selectPlan(String planName) {
-		commons.waitForElementInvisible(LOADING, 20);
+		commons.waitInvisibilityOfElementLocated(loc_icnLoading);
 		String newXpath = PLAN_PRICE_12M.replace("%planName%", planName);
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-		commons.clickElement(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath))));
+		commons.click(By.xpath(newXpath));
 		logger.info("Select plan: " + planName);
 		commons.sleepInMiliSecond(1000);
 		return this;
 	}
 
 	public PlansPage selectPayment() {
-		commons.clickElement(BANK_TRANSFER_BTN);
+		commons.click(loc_btnBankTransfer);
 		logger.info("Click bank transfer");
-		commons.clickElement(PAY_BTN);
+		commons.click(loc_btnPay);
 		logger.info("Click Pay button");
 		return this;
 	}
@@ -91,26 +62,26 @@ public class PlansPage extends HomePage {
 	public PaymentMethod selectPaymentMethod(PaymentMethod method) {
 		switch (method) {
 		case BANKTRANSFER:
-			commons.clickElement(BANK_TRANSFER_BTN);
+			commons.click(loc_btnBankTransfer);
 			break;
 		case ATM:
-			commons.clickElement(ONLINE_PAYMENT_BTN);
-			commons.checkTheCheckBoxOrRadio(ATM_RADIO_BTN);
+			commons.click(loc_btnOnlinePayment);
+			commons.checkTheCheckBoxOrRadio(loc_rdoATM);
 			break;
 		case VISA:
-			commons.clickElement(ONLINE_PAYMENT_BTN);
-			commons.checkTheCheckBoxOrRadio(VISA_RADIO_BTN);
+			commons.click(loc_btnOnlinePayment);
+			commons.checkTheCheckBoxOrRadio(loc_rdoVISA);
 			break;
 		case PAYPAL:
-			commons.clickElement(ONLINE_PAYMENT_BTN);
-			commons.checkTheCheckBoxOrRadio(PAYPAL_RADIO_BTN);
+			commons.click(loc_btnOnlinePayment);
+			commons.checkTheCheckBoxOrRadio(loc_rdoPAYPAL);
 			break;
 		default:
 			logger.error("Unsupported payment method: " + method);
 			return method;
 		}
 		
-		commons.clickElement(PAY_BTN);
+		commons.click(loc_btnPay);
 		commons.sleepInMiliSecond(1000);
 		logger.info("Payment method selected: " + method);
 		return method;
@@ -176,13 +147,13 @@ public class PlansPage extends HomePage {
 	public String getOrderId() {
 		commons.sleepInMiliSecond(1000);
 		logger.info("Getting orderID...");
-		return commons.getText(ORDER_ID);
+		return commons.getText(loc_lblOrderId);
 	}
 	
 	public PlansPage clickOnLogOut() {
 		commons.sleepInMiliSecond(1000);
-		commons.clickElement(LOGOUT_BTN);
-		new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
+		commons.click(loc_btnLogout);
+//		new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.titleIs(LOGIN_PAGE_TITLE));
 		logger.info("Clicked on Logout link");
 		return this;
 	}
@@ -191,7 +162,7 @@ public class PlansPage extends HomePage {
 	 * Clicks on the element that obscures the screen
 	 */
 	public PlansPage clickOverlayElement() {
-		commons.clickElement(OVERLAY_ELEMENT);
+		commons.click(loc_tmpOverlayElement);
 		logger.info("Clicked on overlay element");
 		return this;
 	}

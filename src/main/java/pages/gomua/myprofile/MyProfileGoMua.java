@@ -1,12 +1,8 @@
 package pages.gomua.myprofile;
 
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import utilities.UICommonAction;
@@ -14,26 +10,23 @@ import utilities.UICommonAction;
 public class MyProfileGoMua {
 	final static Logger logger = LogManager.getLogger(MyProfileGoMua.class);
 	WebDriver driver;
-	WebDriverWait wait;
 	UICommonAction common;
 	MyProfileGoMuaElement myProfileUI;
 
 	public MyProfileGoMua(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		common = new UICommonAction(driver);
-		myProfileUI = new MyProfileGoMuaElement(driver);
-		PageFactory.initElements(driver, this);
+		myProfileUI = new MyProfileGoMuaElement();
 	}
 
 	public MyProfileGoMua clickOnEditProfile() {
-		common.clickElement(myProfileUI.EDIT_PROFILE_LINK);
+		common.click(myProfileUI.loc_lnkEditProfile);
 		logger.info("Click on Edit profile");
 		return this;
 	}
 
 	public String getDisplayName() {
-		String displayname = common.getText(myProfileUI.PROFILE_DISPLAY_NAME);
+		String displayname = common.getText(myProfileUI.loc_lblDisplayName);
 		logger.info("Get display name: %s".formatted(displayname));
 		return displayname;
 	}
@@ -46,10 +39,10 @@ public class MyProfileGoMua {
 	 */	
 	public String getEmail() {
 		String email;
-		if (myProfileUI.PROFILE_EMAIL.size() <1) { // The element won't be present in some cases
+		if (common.getElements(myProfileUI.loc_lblEmail).size() <1) { // The element won't be present in some cases
 			email = "";
 		} else {
-			email = common.getText(myProfileUI.PROFILE_EMAIL.get(0));
+			email = common.getText(myProfileUI.loc_lblEmail, 0);
 		}
 		logger.info("Retrieved email: %s".formatted(email));
 		return email;
@@ -63,10 +56,10 @@ public class MyProfileGoMua {
 	 */	
 	public String getPhoneNumber() {
 		String phoneNumber;
-		if (myProfileUI.PROFILE_PHONE_NUMBER.size() <1) { // The element won't be present in some cases
+		if (common.getElements(myProfileUI.loc_btnPhone).size() <1) { // The element won't be present in some cases
 			phoneNumber = "";
 		} else {
-			phoneNumber = common.getText(myProfileUI.PROFILE_PHONE_NUMBER.get(0));
+			phoneNumber = common.getText(myProfileUI.loc_btnPhone, 0);
 		}
 		logger.info("Get phone number: %s".formatted(phoneNumber));
 		return phoneNumber;
@@ -80,10 +73,10 @@ public class MyProfileGoMua {
 	 */	
 	public String getGender() {
 		String gender;
-		if (myProfileUI.PROFILE_GENDER.size() <1) { // The element won't be present in some cases
+		if (common.getElements(myProfileUI.loc_lblGender).size() <1) { // The element won't be present in some cases
 			gender = "";
 		} else {
-			gender = common.getText(myProfileUI.PROFILE_GENDER.get(0));
+			gender = common.getText(myProfileUI.loc_lblGender, 0);
 		}
 		logger.info("Get gender: %s".formatted(gender));
 		return gender;
@@ -97,10 +90,10 @@ public class MyProfileGoMua {
 	 */	
 	public String getBirthday() {
 		String birthday;
-		if (myProfileUI.PROFILE_BIRTHDAY.size() <1) { // The element won't be present in some cases
+		if (common.getElements(myProfileUI.loc_lblBirthday).size() <1) { // The element won't be present in some cases
 			birthday = "";
 		} else {
-			birthday = common.getText(myProfileUI.PROFILE_BIRTHDAY.get(0));
+			birthday = common.getText(myProfileUI.loc_lblBirthday, 0);
 		}
 		logger.info("Retrieved birthday: %s".formatted(birthday));
 		return birthday;

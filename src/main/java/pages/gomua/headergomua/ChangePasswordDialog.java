@@ -2,10 +2,8 @@ package pages.gomua.headergomua;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import utilities.UICommonAction;
 
@@ -19,79 +17,35 @@ public class ChangePasswordDialog {
 	public ChangePasswordDialog(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "pwd")
-	WebElement CURRENT_PASSWORD;
+	By loc_txtCurrentPassword = By.id("pwd");
+	By loc_btnNewPassword = By.id("new-pwd");
+	By loc_btnDone = By.cssSelector("[beetranslate='beecow.getemail.button.done']");
+	By loc_btnClose = By.cssSelector("#change-pass .fa-times");
 
-	@FindBy(id = "new-pwd")
-	WebElement NEW_PASSWORD;
-
-	@FindBy(css = "[beetranslate='beecow.getemail.button.done']")
-	WebElement DONE_BTN;
-
-	@FindBy(css = "#change-pass .fa-times")
-	WebElement CLOSE_BTN;
-
-	@FindBy (id = "change-pwd-fail")
-	WebElement CURRENT_PASSWORD_ERROR;
-	
-    @FindBy (id = "change-pwd-repassword-error")
-    WebElement NEW_PASSWORD_ERROR;
-	
 	public ChangePasswordDialog inputCurrentPassword(String currentPassword) {
-		commonAction.inputText(CURRENT_PASSWORD, currentPassword);
+		commonAction.inputText(loc_txtCurrentPassword, currentPassword);
 		logger.info("Input '" + currentPassword + "' into Current Password field.");
 		return this;
 	}
 
 	public ChangePasswordDialog inputNewPassword(String newPassword) {
-		commonAction.inputText(NEW_PASSWORD, newPassword);
+		commonAction.inputText(loc_btnNewPassword, newPassword);
 		logger.info("Input '" + newPassword + "' into New Password field.");
 		return this;
 	}
 
 	public ChangePasswordDialog clickDoneBtn() {
-		commonAction.clickElement(DONE_BTN);
+		commonAction.click(loc_btnDone);
 		logger.info("Clicked on 'Done' button");
 //		new LoginPage(driver).waitTillLoaderDisappear();
 		return this;
 	}
 
 	public ChangePasswordDialog clickCloseBtn() {
-		commonAction.clickElement(CLOSE_BTN);
+		commonAction.click(loc_btnClose);
 		logger.info("Clicked on 'Close' button");
 		return this;
 	}
-
-	
-	/**
-	 * <p>
-	 * Get error message for Current Password field when users input invalid data for the field.
-	 * <p>
-	 * For example, when users leave the field empty, an error will appear
-	 * <p>
-	 * @return an error saying what is wrong
-	 */	
-//	public String getErrorForCurrentPasswordField() {
-//		String error = commonAction.getText(CURRENT_PASSWORD_ERROR);
-//		logger.info("Finished getting error message for 'Current Password' field");
-//		return error;
-//	}
-
-	/**
-	 * <p>
-	 * Get error message for New Password field when users input invalid data for the field.
-	 * <p>
-	 * For example, when user's input to the field does not contain special characters, an error will appear
-	 * <p>
-	 * @return an error saying what is wrong
-	 */
-//	public String getErrorForNewPasswordField() {
-//		String error = commonAction.getText(NEW_PASSWORD_ERROR);
-//		logger.info("Finished getting error message for 'New Password' field");
-//		return error;
-//	}
-	
 }

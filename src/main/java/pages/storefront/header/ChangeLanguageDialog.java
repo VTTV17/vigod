@@ -2,10 +2,8 @@ package pages.storefront.header;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import utilities.UICommonAction;
 
@@ -19,20 +17,12 @@ public class ChangeLanguageDialog {
 	public ChangeLanguageDialog(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(css = "[rv-on-click=\"methods.changeLang | args 'en'\"]")
-	WebElement ENGLISH_LANGUAGE;
-	
-	@FindBy(css = "[rv-on-click=\"methods.changeLang | args 'vi'\"]")
-	WebElement VIETNAMESE_LANGUAGE;
-
-	@FindBy(css = "#modalChangeLanguage .btn-primary")
-	WebElement SAVE_BTN;
-
-	@FindBy(css = "#modalChangeLanguage .btn-secondary")
-	WebElement CLOSE_BTN;
+	By loc_lblEnglish = By.cssSelector("[rv-on-click=\"methods.changeLang | args 'en'\"]");
+	By loc_lblVietnamese = By.cssSelector("[rv-on-click=\"methods.changeLang | args 'vi'\"]");
+	By loc_btnSave = By.cssSelector("#modalChangeLanguage .btn-primary");
+	By loc_btnClose = By.cssSelector("#modalChangeLanguage .btn-secondary");
 
 	/**
 	 * <p>
@@ -45,9 +35,9 @@ public class ChangeLanguageDialog {
 	 */	
 	public ChangeLanguageDialog selectLanguage(String language) throws Exception {
 		if (language.contentEquals("ENG")) {
-			commonAction.clickElement(ENGLISH_LANGUAGE);
+			commonAction.click(loc_lblEnglish);
 		} else if (language.contentEquals("VIE")) {
-			commonAction.clickElement(VIETNAMESE_LANGUAGE);
+			commonAction.click(loc_lblVietnamese);
 		} else {
 			throw new Exception("Input value does not match any of the accepted values: English/Vietnamese");
 		}
@@ -56,13 +46,13 @@ public class ChangeLanguageDialog {
 	}
 
 	public ChangeLanguageDialog clickSaveBtn() {
-		commonAction.clickElement(SAVE_BTN);
+		commonAction.click(loc_btnSave);
 		logger.info("Clicked on 'Save' button");
 		return this;
 	}
 
 	public ChangeLanguageDialog clickCloseBtn() {
-		commonAction.clickElement(CLOSE_BTN);
+		commonAction.click(loc_btnClose);
 		logger.info("Clicked on 'Close' button");
 		return this;
 	}
