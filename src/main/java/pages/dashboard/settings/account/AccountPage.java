@@ -1,6 +1,5 @@
 package pages.dashboard.settings.account;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,11 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import pages.dashboard.home.HomePage;
 import utilities.UICommonAction;
@@ -23,64 +18,26 @@ public class AccountPage {
 	final static Logger logger = LogManager.getLogger(AccountPage.class);
 	
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
-    
-    SoftAssert soft = new SoftAssert();
     
     public AccountPage (WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        PageFactory.initElements(driver, this);
     }
 
-    @FindBy(css = "li:nth-child(1) > a.nav-link")
-    WebElement ACCOUNT_TAB;
-    
-    @FindBy(css = ".see-plan button")
-    WebElement SEEPLAN_BTN;
-    
-    @FindBy(css = ".current__plan_information .gs-button__green")
-    WebElement RENEW_BTN;
-    
-    @FindBy(css = ".current__plan_information .setting__account")
-    List<WebElement> CURRENT_PLAN_INFO;
-    
-    @FindBy (id = "firstName")
-    WebElement FIRST_NAME;
-    
-    @FindBy (id = "lastName")
-    WebElement LAST_NAME;
-    
-    @FindBy (id = "email")
-    WebElement EMAIL;
-    
-    @FindBy (id = "phoneNumber")
-    WebElement PHONE;
-    
-    @FindBy (css = ".account__information .setting_btn_save")
-    WebElement ACCOUNT_INFO_SAVE_BTN;    
-    
-    @FindBy (id = "currentPassword")
-    WebElement CURRENT_PASSWORD;
-    
-    @FindBy (id = "newPassword")
-    WebElement NEW_PASSWORD;
-    
-    @FindBy (id = "confirmPassword")
-    WebElement CONFIRM_PASSWORD;
-
-    
-    @FindBy (css = ".reset-password__information .setting_btn_save")
-    WebElement RESET_PASSWORD_SAVE_BTN;
-
-    @FindBy (css = "div.alert__wrapper")
-    WebElement INVALID_USER_ERROR;	
-    
-
-    @FindBy (css = "input[name='key']")
-    WebElement VERIFICATION_CODE;    
+    By loc_tabAccount = By.cssSelector("li:nth-child(1) > a.nav-link");
+    By loc_btnSeePlan = By.cssSelector(".see-plan button");
+    By loc_btnRenew = By.cssSelector(".current__plan_information .gs-button__green");
+    By loc_blkPlanInfo = By.cssSelector(".current__plan_information .setting__account");
+    By loc_txtFirstName = By.id("firstName");
+    By loc_txtLastName = By.id("lastName");
+    By loc_txtEmail = By.id("email");
+    By loc_txtPhone = By.id("phoneNumber");
+    By loc_btnSaveAccountInfo = By.cssSelector(".account__information .setting_btn_save");
+    By loc_txtCurrentPassword = By.id("currentPassword");
+    By loc_txtNewPassword = By.id("newPassword");
+    By loc_txtConfirmPassword = By.id("confirmPassword");
+    By loc_btnSaveResetPassword = By.cssSelector(".reset-password__information .setting_btn_save");
     
     public AccountPage navigate() {
     	clickAccountTab();
@@ -90,13 +47,13 @@ public class AccountPage {
     }
 
     public AccountPage clickAccountTab() {
-    	commonAction.clickElement(ACCOUNT_TAB);
+    	commonAction.click(loc_tabAccount);
     	logger.info("Clicked on Account tab.");
         return this;
     }
     
     public AccountPage clickRenew() {
-    	commonAction.clickElement(SEEPLAN_BTN);
+    	commonAction.click(loc_btnSeePlan);
     	logger.info("Clicked on 'See Plans' button.");
     	new HomePage(driver).waitTillSpinnerDisappear();
     	return this;
@@ -104,7 +61,7 @@ public class AccountPage {
 
     public List<List<String>> getPlanInfo() {
     	List<List<String>> table = new ArrayList<>();
-    	for (WebElement row:CURRENT_PLAN_INFO) {
+    	for (WebElement row: commonAction.getListElement(loc_blkPlanInfo)) {
     		List<String> rowOfData = new ArrayList<>();
     		for (WebElement el:row.findElements(By.xpath(".//*[contains(@class,'account__line2')]"))) {
     			rowOfData.add(el.getText());
@@ -124,7 +81,7 @@ public class AccountPage {
     }    
     
     public AccountPage clickSeePlans() {
-    	commonAction.clickElement(SEEPLAN_BTN);
+    	commonAction.click(loc_btnSeePlan);
     	logger.info("Clicked on 'See Plans' button.");
     	new HomePage(driver).waitTillSpinnerDisappear();
     	return this;
@@ -132,60 +89,60 @@ public class AccountPage {
 
     /* ***************** Account Info ***************** */
     public AccountPage inputFirstName(String firstName) {
-    	commonAction.inputText(FIRST_NAME, firstName);
+    	commonAction.sendKeys(loc_txtFirstName, firstName);
     	logger.info("Input '" + firstName + "' into First Name field.");
         return this;
     }
     
     public AccountPage inputLastName(String lastName) {
-    	commonAction.inputText(LAST_NAME, lastName);
+    	commonAction.sendKeys(loc_txtLastName, lastName);
     	logger.info("Input '" + lastName + "' into Last Name field.");
     	return this;
     }
     
     public AccountPage inputEmail(String email) {
-    	if (commonAction.isElementVisiblyDisabled(EMAIL)) {
-    		Assert.assertFalse(new HomePage(driver).isMenuClicked(EMAIL));
+    	if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_txtEmail))) {
+    		Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_txtEmail)));
     		return this;
     	}
-    	commonAction.inputText(EMAIL, email);
+    	commonAction.sendKeys(loc_txtEmail, email);
     	logger.info("Input '" + email + "' into Email field.");
     	return this;
     }
     
     public AccountPage inputPhone(String phone) {
-    	commonAction.inputText(PHONE, phone);
+    	commonAction.sendKeys(loc_txtPhone, phone);
     	logger.info("Input '" + phone + "' into Phone field.");
     	return this;
     }
 
     public AccountPage clickAccountInfoSaveBtn() {
-    	commonAction.clickElement(ACCOUNT_INFO_SAVE_BTN);
+    	commonAction.click(loc_btnSaveAccountInfo);
     	logger.info("Clicked on Account Info Save button.");
         return this;
     }       
     
     /* ***************** Reset Password ***************** */
     public AccountPage inputCurrentPassword(String password) {
-    	commonAction.inputText(CURRENT_PASSWORD, password);
+    	commonAction.sendKeys(loc_txtCurrentPassword, password);
     	logger.info("Input '" + password + "' into Current Password field.");
         return this;
     }
     
     public AccountPage inputNewPassword(String password) {
-    	commonAction.inputText(NEW_PASSWORD, password);
+    	commonAction.sendKeys(loc_txtNewPassword, password);
     	logger.info("Input '" + password + "' into New Password field.");
     	return this;
     }
     
     public AccountPage inputConfirmPassword(String password) {
-    	commonAction.inputText(CONFIRM_PASSWORD, password);
+    	commonAction.sendKeys(loc_txtConfirmPassword, password);
     	logger.info("Input '" + password + "' into Confirm Password field.");
     	return this;
     }
 
     public AccountPage clickResetPasswordSaveBtn() {
-    	commonAction.clickElement(RESET_PASSWORD_SAVE_BTN);
+    	commonAction.click(loc_btnSaveResetPassword);
     	logger.info("Clicked on Reset Password Save button.");
         return this;
     }    
@@ -196,12 +153,7 @@ public class AccountPage {
     	inputConfirmPassword(confirmPassword);
     	clickResetPasswordSaveBtn();
     	return this;
-    }
-    /* ***************** */    
-    
-    public void completeVerify() {
-        soft.assertAll();
-    }    
+    } 
     
     /*Verify permission for certain feature*/
     public void verifyPermissionToUseAccountTab(String permission) {

@@ -1,22 +1,11 @@
 package pages.gomua.logingomua;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.By;
 
 public class LoginGoMuaElement {
-    WebDriver driver;
-    public LoginGoMuaElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
-    @FindBy(id = "usr")
-    WebElement USERNAME_INPUT;
-    @FindBy(xpath = "//section[@class='signin-box']//input[@type='password'and @id='pwd']")
-    WebElement PASSWORD_INPUT;
-    @FindBy(xpath = "//button[@beetranslate='beecow.login.login']")
-    WebElement LOGIN_BTN;
-    @FindBy(css = "[beetranslate='beecow.login.forgotpwd']")
-    WebElement FORGOT_PASSWORD_LINKTEXT;
+
+	By loc_txtUsername = By.id("usr");
+	By loc_txtPassword = By.xpath("//section[@class='signin-box']//input[@type='password'and @id='pwd']");
+	By loc_btnLogin = By.xpath("//button[@beetranslate='beecow.login.login']");
+	By loc_lnkForgotPassword = By.cssSelector("[beetranslate='beecow.login.forgotpwd']");
 }

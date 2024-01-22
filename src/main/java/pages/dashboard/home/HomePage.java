@@ -214,28 +214,21 @@ public class HomePage extends HomePageElement {
     }
 
     public void navigateToPage(String pageName) {
-//        commons.waitForElementInvisible(commons.getElement(loc_imgSpinner), 60);
-//        waitTillLoadingDotsDisappear();
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
             newXpath = "(" + MENU_ITEM.replace("%pageNavigate%", pageNavigate) + ")[2]";
         }
+        boolean isMenuAlreadyOpened = commons.getAttribute(By.xpath(newXpath), "class").contains("active");
+
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXpath)));
-        boolean isMenuAlreadyOpened = element.getAttribute("class").contains("active");
-        try {
-            isMenuAlreadyOpened = element.getAttribute("class").contains("active");
-        } catch (StaleElementReferenceException ex) {
-            logger.debug("StaleElementReferenceException caught when getting element's attribute. Retrying...");
-            isMenuAlreadyOpened = element.getAttribute("class").contains("active");
-        }
         if (isMenuComponentVisiblyDisabled(element)) {
             Assert.assertFalse(isMenuClicked(element), "Element is disabled but still clickable");
         } else {
             if (!isMenuAlreadyOpened) {
-                commons.clickElement(element);
+                commons.click(By.xpath(newXpath));
                 logger.info("Click on %s item on menu".formatted(pageName));
-                commons.waitForElementInvisible(commons.getElement(loc_imgSpinner), 60);
+                commons.invisibilityOfElementLocated(loc_imgSpinner);
                 if (pageName.equals("Marketing")) {
                     if (new LandingPage(driver).isPermissionModalDisplay()) {
                         new LandingPage(driver).closeModal();
@@ -335,15 +328,8 @@ public class HomePage extends HomePageElement {
     }
 
     public String getDashboardLanguage() {
-        String language = "";
-        // Sometimes it takes longer for the API to fill the element with text
-        for (int i = 0; i < 5; i++) {
-            language = commons.getText(loc_btnLanguage).trim();
-            if (language.length() > 0) break;
-            commons.sleepInMiliSecond(500);
-        }
-        return language;
-    }
+        return commons.getText(loc_btnLanguage);
+    }	
 
     public boolean checkPresenceOfUpgradeNowPopUp() {
         boolean flag = (commons.getElements(loc_dlgUpgradeNow_lblMessage).size() > 0);
@@ -441,7 +427,7 @@ public class HomePage extends HomePageElement {
 
     public boolean isStatisticsDisplayed() {
     	waitTillSpinnerDisappear1();
-        return !commons.isElementNotDisplay(driver.findElements(loc_stnStatistics));
+        return commons.getElements(loc_stnStatistics).size() >0;
     }
 
     public HomePage checkPageHasPermission(String pageName, String path) throws IOException {
@@ -605,7 +591,7 @@ public class HomePage extends HomePageElement {
     public void clickCreateProduct() {
         commons.click(loc_btnCreateProduct);
         logger.info("Clicked on 'Create Products' button");
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        waitTillSpinnerDisappear1();
     }
 
     public void clickImportFromShopee() {
@@ -619,28 +605,28 @@ public class HomePage extends HomePageElement {
     public void clickImportFromLazada() {
         commons.click(loc_btnImportFromLazada);
         logger.info("Clicked on 'Import From Lazada' button");
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        waitTillSpinnerDisappear1();
     }
 
     public void clickChangeDesign() {
         commons.click(loc_lblCustomizeAppearance);
         commons.click(loc_btnChangeDesign);
         logger.info("Clicked on 'Change Design' button");
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        waitTillSpinnerDisappear1();
     }
 
     public void clickDomain() {
         commons.click(loc_lblAddYourDomain);
         commons.click(loc_btnAddDomain);
         logger.info("Clicked on 'Add Domain' button");
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        waitTillSpinnerDisappear1();
     }
 
     public void clickBankInformation() {
         commons.click(loc_lblAddBankAccount);
         commons.click(loc_btnBankInformation);
         logger.info("Clicked on 'Bank Information' button");
-        new HomePage(driver).waitTillSpinnerDisappear1();
+        waitTillSpinnerDisappear1();
         commons.sleepInMiliSecond(2000);
     }
 

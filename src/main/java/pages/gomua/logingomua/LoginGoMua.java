@@ -3,39 +3,33 @@ package pages.gomua.logingomua;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.UICommonAction;
 
-import java.time.Duration;
+import utilities.UICommonAction;
 
 public class LoginGoMua {
     final static Logger logger = LogManager.getLogger(LoginGoMua.class);
 
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction common;
     LoginGoMuaElement loginUI;
 
     public LoginGoMua (WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         common = new UICommonAction(driver);
-        loginUI = new LoginGoMuaElement(driver);
-        PageFactory.initElements(driver, this);
+        loginUI = new LoginGoMuaElement();
     }
     public LoginGoMua inputUsername(String userName){
-        common.inputText(loginUI.USERNAME_INPUT,userName);
+        common.inputText(loginUI.loc_txtUsername,userName);
         logger.info("Input username: %s".formatted(userName));
         return this;
     }
     public LoginGoMua inputPassWord(String password){
-        common.inputText(loginUI.PASSWORD_INPUT,password);
+        common.inputText(loginUI.loc_txtPassword,password);
         logger.info("Input password: %s".formatted(password));
         return this;
     }
     public LoginGoMua clickOnLoginButton(){
-        common.clickElement(loginUI.LOGIN_BTN);
+        common.click(loginUI.loc_btnLogin);
         logger.info("Click on Login button on popup");
         return this;
     }
@@ -48,7 +42,7 @@ public class LoginGoMua {
     }
     
     public LoginGoMua clickForgotPassword(){
-        common.clickElement(loginUI.FORGOT_PASSWORD_LINKTEXT);
+        common.click(loginUI.loc_lnkForgotPassword);
         logger.info("Click on 'Forgot Password' link text.");
         return this;
     }
