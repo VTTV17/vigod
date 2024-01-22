@@ -29,7 +29,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.io.IOException;
 import java.util.List;
 
-import static utilities.account.AccountTest.ADMIN_CREATE_NEW_SHOP_PASSWORD;
+import static utilities.account.AccountTest.*;
 import static utilities.file.FileNameAndPath.*;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -70,8 +70,8 @@ public class CreateServiceTest extends BaseTest {
     LoginInformation loginInformation;
     @BeforeClass
     public void beforeClass() throws Exception {
-        userName = AccountTest.ADMIN_SHOP_VI_USERNAME;
-        passWord = AccountTest.ADMIN_SHOP_VI_PASSWORD;
+        userName = ADMIN_SHOP_VI_USERNAME;
+        passWord = ADMIN_SHOP_VI_PASSWORD;
         languageDB = language;
         languageSF = language;
         sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceCollection.allServicesPageTitle");

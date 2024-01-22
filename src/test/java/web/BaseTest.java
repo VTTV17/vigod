@@ -24,14 +24,13 @@ public class BaseTest {
 
     @BeforeSuite
     @Parameters({"browser", "headless", "environment", "language"})
-    void getConfig(@Optional("chrome") String browser,
+    public void getConfig(@Optional("chrome") String browser,
                    @Optional("false") String headless,
                    @Optional("STAG") String environment,
                    @Optional("VIE") String language) {
         this.browser = browser;
         this.headless = headless;
         this.language = language;
-
         // set environment, language for Properties
         PropertiesUtil.setEnvironment(environment);
         PropertiesUtil.setDBLanguage(language);
@@ -40,7 +39,7 @@ public class BaseTest {
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-//        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
+        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
         new Screenshot().takeScreenshot(driver);
     }
 
