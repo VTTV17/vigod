@@ -1,6 +1,6 @@
 package utilities.account;
 
-import utilities.PropertiesUtil;
+import utilities.utils.PropertiesUtil;
 
 public class AccountTest {
     public final static String ADMIN_ACCOUNT_THANG = PropertiesUtil.getEnvironmentData("adminShopThangAccount");

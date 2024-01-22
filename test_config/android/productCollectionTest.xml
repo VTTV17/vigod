@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="Android - ProductCollectionTest">
         <classes>
-            <class name="android.ProductCollectionTest">
+            <class name="app.android.GoSeller.ProductCollectionTest">
                 <methods>
                     <include name="MPC01_VerifyTextByLanguage"/>
                     <include name="MPC02_CreateManualCollectionWithNoProduct"/>

@@ -15,6 +15,16 @@ public class API {
                 .get(path);
     }
 
+    public Response get(String path, String accessToken, String staffToken) {
+        return given()
+                .auth()
+                .oauth2(accessToken)
+                .header("Staffpermissions-Token", staffToken)
+                .contentType(ContentType.JSON)
+                .when()
+                .get(path);
+    }
+
     public Response search(String path, String token, String body) {
         return given()
                 .auth()

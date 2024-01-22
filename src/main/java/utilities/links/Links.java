@@ -1,6 +1,6 @@
 package utilities.links;
 
-import utilities.PropertiesUtil;
+import utilities.utils.PropertiesUtil;
 
 public class Links {
     public static String LOGIN_PAGE_TITLE = PropertiesUtil.getEnvironmentData("loginPageTitle");

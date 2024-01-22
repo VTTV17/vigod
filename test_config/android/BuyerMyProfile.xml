@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="BuyerMyProfileTest">
         <classes>
-            <class name="android.MyProfileTest">
+            <class name="app.android.Buyer.MyProfileTest">
                 <methods>
                     <include name="MUP01_CheckTextOfMyProfilePage"/>
                     <include name="MUP02_ViewAccountInformation"/>

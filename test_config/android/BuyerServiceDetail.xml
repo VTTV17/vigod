@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="ServiceDetailTest">
         <classes>
-            <class name="android.ServiceDetailTest">
+            <class name="app.android.Buyer.ServiceDetailTest">
                 <methods>
                     <include name="SD01_CheckNormalService"/>
                     <include name="SD02_CheckListingService"/>

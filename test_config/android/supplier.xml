@@ -3,7 +3,7 @@
 <suite name="Default Suite">
   <test thread-count="5" name="GoSELL-Automation">
     <classes>
-      <class name="android.SupplierTest">
+      <class name="app.android.GoSeller.SupplierTest">
         <methods>
           <include name="SUP01_ScenarioForVNSupplier" />
           <include name="SUP02_ScenarioForNonVNSupplier" />
@@ -11,7 +11,7 @@
           <include name="SUP04_ScenarioForDeletedSupplierAtSupplierDetail" />
           <include name="SUP05_SearchSupplierAndCheckResult"/>
         </methods>
-      </class> <!-- android.SupplierTest -->
+      </class> <!-- app.android.GoSeller.SupplierTest -->
     </classes>
   </test> <!-- GoSELL-Automation -->
 </suite> <!-- Default Suite -->

@@ -3,7 +3,7 @@ package utilities.data;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import utilities.jsonFileUtility;
+import utilities.utils.jsonFileUtility;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
