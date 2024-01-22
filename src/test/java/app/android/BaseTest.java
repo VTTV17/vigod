@@ -52,7 +52,7 @@ public class BaseTest {
     }
 
     @AfterSuite
-    void tearDown() {
+    public void tearDown() {
 //        if (driver != null) driver.quit();
     }
 }
