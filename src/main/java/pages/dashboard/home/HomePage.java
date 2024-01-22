@@ -228,7 +228,7 @@ public class HomePage extends HomePageElement {
             if (!isMenuAlreadyOpened) {
                 commons.click(By.xpath(newXpath));
                 logger.info("Click on %s item on menu".formatted(pageName));
-                commons.invisibilityOfElementLocated(loc_imgSpinner);
+                commons.waitInvisibilityOfElementLocated(loc_imgSpinner);
                 if (pageName.equals("Marketing")) {
                     if (new LandingPage(driver).isPermissionModalDisplay()) {
                         new LandingPage(driver).closeModal();
