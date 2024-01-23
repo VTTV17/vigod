@@ -17,10 +17,10 @@ public class CheckPermission {
     public boolean checkAccessRestricted(By locator) {
         commonAction.click(locator);
         try {
-            commonAction.waitURLShouldBeContains("/restricted");
+        	commonAction.getElement(By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']"));
             return true;
         } catch (TimeoutException ex) {
-            return !commonAction.getListElement(By.cssSelector(".access-restricted")).isEmpty();
+        	return false;
         }
     }
 
