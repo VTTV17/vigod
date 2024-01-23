@@ -63,4 +63,33 @@ public class CheckPermission {
             return false;
         }
     }
+
+    /**
+     * Use: check input has value or not.
+     * @param url: use url to navigate to page
+     * @param locator: input element
+     * @return true if show data / false if show no data
+     */
+    public boolean checkValueShow(String url, By locator){
+        commonAction.navigateToURL(url);
+        String value = commonAction.getValue(locator);
+        return !value.isEmpty();
+    }
+
+    /**
+     * Use: check input has value or not.
+     * @param locatorClick: use click to navigate to page
+     * @param locatorInput: check value of this element
+     * @return true if show data / false if show no data
+     */
+    public boolean checkValueShow(By locatorClick, By locatorInput){
+        commonAction.click(locatorClick);
+        String value = commonAction.getValue(locatorInput);
+        return !value.isEmpty();
+    }
+    public boolean checkValueShow(By locatorClick,int index, By locatorInput){
+        commonAction.click(locatorClick,index);
+        String value = commonAction.getValue(locatorInput);
+        return !value.isEmpty();
+    }
 }
