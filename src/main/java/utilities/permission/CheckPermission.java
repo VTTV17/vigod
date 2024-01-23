@@ -34,7 +34,7 @@ public class CheckPermission {
         }
     }
 
-    public boolean CheckAccessedSuccessfully(By locator, By destinationLocator) {
+    public boolean checkAccessedSuccessfully(By locator, By destinationLocator) {
         commonAction.click(locator);
         try {
             commonAction.getElement(destinationLocator);
@@ -44,7 +44,7 @@ public class CheckPermission {
         }
     }
 
-    public boolean CheckAccessedSuccessfully(By locator, String url) {
+    public boolean checkAccessedSuccessfully(By locator, String url) {
         commonAction.click(locator);
         try {
             commonAction.waitURLShouldBeContains(url);
@@ -54,7 +54,7 @@ public class CheckPermission {
         }
     }
 
-    public boolean CheckAccessedSuccessfully(String url, String destinationURL) {
+    public boolean checkAccessedSuccessfully(String url, String destinationURL) {
         driver.get(url);
         try {
             commonAction.waitURLShouldBeContains(destinationURL);
