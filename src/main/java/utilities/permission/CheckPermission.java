@@ -14,14 +14,20 @@ public class CheckPermission {
         commonAction = new UICommonAction(driver, 5);
     }
 
+    By loc_lblNoPermissionNotice = By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']");
+    
+    public boolean isAccessRestrictedPresent() {
+    	try {
+    		commonAction.getElement(loc_lblNoPermissionNotice);
+    		return true;
+    	} catch (TimeoutException ex) {
+    		return false;
+    	}
+    }
+    
     public boolean checkAccessRestricted(By locator) {
         commonAction.click(locator);
-        try {
-        	commonAction.getElement(By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']"));
-            return true;
-        } catch (TimeoutException ex) {
-        	return false;
-        }
+        return isAccessRestrictedPresent();
     }
 
     public boolean checkAccessRestricted(String url) {
