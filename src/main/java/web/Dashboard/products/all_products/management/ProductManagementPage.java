@@ -11,9 +11,14 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.apache.commons.lang.math.JVMRandom.nextLong;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 
 public class ProductManagementPage extends ProductManagementElement {
@@ -33,6 +38,71 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction = new UICommonAction(driver);
         productPage = new ProductPage(driver, loginInformation);
         assertCustomize = new AssertCustomize(driver);
+    }
+
+    void navigateToProductList() {
+        if (!driver.getCurrentUrl().contains("/product/list"))
+            driver.get("%s/product/list".formatted(DOMAIN));
+    }
+
+    void openBulkActionsDropdown() {
+        if (!commonAction.isCheckedJS(loc_chkSelectAll)) {
+            commonAction.clickJS(loc_chkSelectAll);
+        }
+        commonAction.clickJS(loc_lnkSelectAction);
+    }
+
+    void exportAllProducts() {
+        commonAction.clickJS(loc_btnExport);
+        commonAction.clickJS(loc_ddlExportActions, 0);
+        commonAction.clickJS(loc_dlgExportProductListingFile_btnExport);
+    }
+
+    void importProduct() {
+        // open list import actions
+        commonAction.clickJS(loc_btnImport);
+
+        // open import product popup
+        commonAction.openPopupJS(loc_ddlImportActions, 0, loc_dlgImport);
+
+        // upload file
+        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "src/main/resources/uploadfile/import_product/import_product.xlsx".replace("/", File.separator)));
+        commonAction.uploads(loc_dlgImport_btnDragAndDrop, filePath.toString());
+
+        // complete import product
+        commonAction.closePopup(loc_dlgImport_btnImport);
+    }
+
+    void applyAll(long price, int typeIndex) {
+        commonAction.sendKeys(loc_dlgUpdatePrice_txtApplyAll, String.valueOf(price));
+        commonAction.openDropdownJS(loc_dlgUpdatePrice_ddvSelectedPriceType, loc_dlgUpdatePrice_ddlPriceType);
+        commonAction.clickJS(loc_dlgUpdatePrice_ddlPriceType, typeIndex);
+        commonAction.click(loc_dlgUpdatePrice_btnApplyAll);
+    }
+
+    void bulkActionsUpdatePrice(long listingPrice, long sellingPrice, long costPrice) {
+        // bulk actions
+        openBulkActionsDropdown();
+
+        // open update price popup
+        commonAction.openPopupJS(loc_ddlListActions, 8, loc_dlgUpdatePrice);
+
+        // input listing price
+        applyAll(listingPrice, 0);
+
+        // input selling price
+        applyAll(sellingPrice, 1);
+
+        // input cost price
+        if (permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
+            applyAll(costPrice, 2);
+        } else {
+            // view cost price
+            assertCustomize.assertTrue(commonAction.getValue(loc_dlgUpdatePrice_txtCostPrice, 0).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
+        }
+
+        // complete update price
+        commonAction.closePopup(loc_dlgUpdatePrice_btnUpdate);
     }
 
     // check permission
@@ -74,24 +144,6 @@ public class ProductManagementPage extends ProductManagementElement {
         productPage.checkProductManagementPermission(permissions, createdProductId, notCreatedProductId, manualCollectionIds);
     }
 
-    void navigateToProductList() {
-        if (!driver.getCurrentUrl().contains("/product/list"))
-            driver.get("%s/product/list".formatted(DOMAIN));
-    }
-
-    void openBulkActionsDropdown() {
-        if (!commonAction.isCheckedJS(loc_chkSelectAll)) {
-            commonAction.clickJS(loc_chkSelectAll);
-        }
-        commonAction.clickJS(loc_lnkSelectAction);
-    }
-
-    void exportAllProducts() {
-        commonAction.clickJS(loc_btnExport);
-        commonAction.clickJS(loc_ddlExportActions, 0);
-        commonAction.clickJS(loc_dlgExportProductListingFile_btnExport);
-    }
-
     /**
      * @param createdProductId    product is created by staff.
      * @param notCreatedProductId product is created by owner or other staff.
@@ -121,10 +173,10 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // bulk actions
         openBulkActionsDropdown();
-        if (!permissions.getProduct().getProductManagement().isActivateProduct())
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Restricted popup does not shown.");
-        else {
+        if (permissions.getProduct().getProductManagement().isActivateProduct()) {
             assertCustomize.assertTrue(!checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Can not bulk actions update product status to ACTIVE.");
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Restricted popup does not shown.");
         }
         logger.info("Check permission: Activate product.");
     }
@@ -171,12 +223,14 @@ public class ProductManagementPage extends ProductManagementElement {
         // navigate to product list
         navigateToProductList();
 
-        if (!permissions.getProduct().getProductManagement().isEditPrice()) {
-            openBulkActionsDropdown();
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 8), "Restricted popup does not shown.");
+        // bulk action
+        openBulkActionsDropdown();
+        if (permissions.getProduct().getProductManagement().isEditPrice()) {
+            // update price
+            bulkActionsUpdatePrice(MAX_PRICE, MAX_PRICE, nextLong(1000));
+            logger.info("Check permission: View cost price.");
         } else {
-            // check view cost price permission
-            checkViewCostPrice();
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 8), "Restricted popup does not shown.");
         }
         logger.info("Check permission: Edit price.");
     }
@@ -188,6 +242,9 @@ public class ProductManagementPage extends ProductManagementElement {
         if (!permissions.getProduct().getProductManagement().isExportProducts()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup does not shown.");
         } else {
+            // export all products
+            exportAllProducts();
+
             // check download export all products
             checkDownloadExportedProducts();
         }
@@ -198,12 +255,15 @@ public class ProductManagementPage extends ProductManagementElement {
         // navigate to product list
         navigateToProductList();
 
-        if (!permissions.getProduct().getProductManagement().isImportProducts()) {
-            commonAction.clickJS(loc_btnImport);
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 0), "Restricted popup does not shown.");
-        } else {
+        if (permissions.getProduct().getProductManagement().isImportProducts()) {
+            // import product
+            importProduct();
+
             // check update wholesale price
             checkUpdateWholesalePrice();
+        } else {
+            commonAction.clickJS(loc_btnImport);
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 0), "Restricted popup does not shown.");
         }
         logger.info("Check permission: Import product.");
     }
@@ -214,15 +274,14 @@ public class ProductManagementPage extends ProductManagementElement {
 
         if (!permissions.getProduct().getProductManagement().isPrintBarcode()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPrintBarcode), "Restricted popup does not shown.");
+        } else {
+            commonAction.openPopupJS(loc_btnPrintBarcode, loc_dlgPrintBarcode);
+            commonAction.closePopup(loc_dlgPrintBarcode_btnCancel);
         }
         logger.info("Check permission: Print barcode.");
     }
 
     void checkDownloadExportedProducts() {
-        // navigate to product list
-        navigateToProductList();
-
-        exportAllProducts();
         driver.get("%s/product/export-history".formatted(DOMAIN));
         if (!permissions.getProduct().getProductManagement().isDownloadExportProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportFile), "Restricted popup does not shown.");
@@ -234,26 +293,19 @@ public class ProductManagementPage extends ProductManagementElement {
         // navigate to product list
         navigateToProductList();
 
-        if (!permissions.getProduct().getProductManagement().isUpdateWholesalePrice()) {
-            commonAction.clickJS(loc_btnImport);
+        // open list actions
+        commonAction.clickJS(loc_btnImport);
+
+        if (permissions.getProduct().getProductManagement().isUpdateWholesalePrice()) {
+            // open import wholesale pricing popup
+            commonAction.openPopupJS(loc_ddlImportActions, 1, loc_dlgImport);
+
+            // close popup
+            commonAction.closePopup(loc_dlgImport_btnCancel);
+        } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 1), "Restricted popup does not shown.");
         }
         logger.info("Check permission: Update wholesale price.");
-    }
-
-    void checkViewCostPrice() {
-        // navigate to product list
-        navigateToProductList();
-
-        if (!permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
-            commonAction.clickJS(loc_chkSelectAll);
-            commonAction.clickJS(loc_lnkSelectAction);
-            commonAction.clickJS(loc_ddlListActions, 8);
-            assertCustomize.assertTrue(commonAction.getValue(loc_dlgUpdatePrice_txtCostPrice, 0).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
-            commonAction.closePopup(loc_dlgUpdatePrice_btnClose);
-
-        }
-        logger.info("Check permission: View cost price.");
     }
 
     void checkAddVariation() {
@@ -266,7 +318,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // add variation value
             commonAction.getElement(productPage.getLoc_txtVariationValue(), 0).sendKeys("abc");
-            commonAction.sleepInMiliSecond(500);
+//            commonAction.sleepInMiliSecond(500);
             commonAction.clickJS(productPage.getLoc_lblVariations());
 
             // check delete variation
