@@ -295,6 +295,7 @@ public class APIAllProducts {
     public class ProductListInfo {
         private List<Integer> productIds;
         private List<Integer> variationNumber;
+        private List<String> productNames;
     }
 
     public ProductListInfo getListProduct() {
@@ -302,7 +303,8 @@ public class APIAllProducts {
         // get page 0 data
         Response allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), 0), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
         List<Integer> variationNumber = new ArrayList<>(allProducts.jsonPath().getList("variationNumber"));
-        List<Integer> allProductsId = new ArrayList<>(allProducts.jsonPath().getList("id"));
+        List<Integer> allProductIds = new ArrayList<>(allProducts.jsonPath().getList("id"));
+        List<String> allProductNames = new ArrayList<>(allProducts.jsonPath().getList("name"));
 
         // get total products
         int totalOfProducts = Integer.parseInt(allProducts.getHeader("X-Total-Count"));
@@ -314,11 +316,23 @@ public class APIAllProducts {
         for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex++) {
             allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
             variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
-            allProductsId.addAll(allProducts.jsonPath().getList("id"));
+            allProductIds.addAll(allProducts.jsonPath().getList("id"));
+            allProductNames.addAll(allProducts.jsonPath().getList("name"));
         }
-        info.setProductIds(allProductsId);
+        info.setProductIds(allProductIds);
         info.setVariationNumber(variationNumber);
+        info.setProductNames(allProductNames);
         return info;
+    }
+
+    public int searchProductIdByName(String name) {
+        ProductListInfo info = getListProduct();
+        for (int index = 0; index < info.getProductNames().size(); index ++) {
+            if (info.getProductNames().get(index).equals(name)) {
+                return info.getProductIds().get(index);
+            }
+        }
+        return 0;
     }
 
     List<Integer> getListProductId(boolean hasModel) {

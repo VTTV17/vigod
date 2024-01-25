@@ -1,14 +1,15 @@
-package web.Dashboard.products.all_products;
+package web.Dashboard.products.all_products.crud;
 
 import lombok.Getter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import web.Dashboard.products.all_products.management.ProductManagementElement;
 
 public class ProductPageElement {
     By loc_ddvSelectedLanguage = By.cssSelector(".language-selector .uik-select__valueWrapper");
     String loc_ddvLanguageValue = "//*[@class = 'uik-select__label']/span[text()= '%s']";
-    By loc_btnCreateProduct = By.cssSelector(".product-list-page > div > div > div >  button.gs-button__green");
+    By loc_btnCreateProduct = new ProductManagementElement().getLoc_btnCreateProduct();
     By loc_btnPrintBarcode = By.xpath("(//div[contains(@class,'gs-content-header-right-el d-flex')]//button)[4]");
     /* General product information */
     By loc_txtProductName = By.cssSelector("input#productName");
@@ -25,6 +26,7 @@ public class ProductPageElement {
     By loc_txtWithoutVariationSKU = By.cssSelector("#productSKU,[class *=--n2] > div:nth-child(3) .align-items-center > span");
     By loc_lblUpdateStock = By.xpath("//div[contains(@class,'gs-witget-warehousing')]//div[contains(@class,'uik-widget-title')]//span[@class='gs-fake-link ']");
     By loc_ddlManageInventory = By.cssSelector("#manageInventory");
+    By loc_chkManageStockByLotDate = By.xpath("//*[@id='lotAvailable']//parent::div//preceding-sibling::label/input");
     By loc_txtPriority = By.cssSelector("[name = productPriority]");
     By loc_txtWeight = By.cssSelector("[for ='productWeight'] +* input");
     By loc_txtLength = By.cssSelector("[for ='productLength'] +* input");
@@ -61,8 +63,11 @@ public class ProductPageElement {
     By loc_dlgAddIMEI_txtAddIMEI = By.cssSelector(".input-code input");
     By loc_dlgAddIMEI_btnSave = By.cssSelector(".modal-footer > .gs-button__green");
     /* Variation product */
+    @Getter
     By loc_btnAddVariation = By.cssSelector("div:nth-child(4) > div.gs-widget__header > span");
+    @Getter
     By loc_txtVariationName = By.cssSelector("div.first-item > div > div > input");
+    @Getter
     By loc_txtVariationValue = By.cssSelector(".second-item .css-nwjfc > input");
     By loc_tblVariation_chkSelectAll = By.cssSelector(".product-form-variation-selector__table  th:nth-child(1) input");
     By loc_tblVariation_lnkSelectAction = By.cssSelector("th .gs-fake-link");
@@ -89,9 +94,8 @@ public class ProductPageElement {
     By loc_dlgUpdateStock_txtStockValue = By.cssSelector(".modal-body  .quantity-input-field > input");
     By loc_dlgUpdateStock_txtBranchStock = By.cssSelector(".input-stock  > input");
     /* Product list page */
-    By loc_txtSearchBoxOnProductListPage = By.cssSelector(".d-mobile-none .uik-input__input");
-    By loc_lblProductIdOnProductListPage = By.cssSelector("tbody > tr > td:nth-child(1) > span > b");
     /* Tien */
+    @Getter
     By loc_btnDeleteVariation = By.xpath("//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/following-sibling::*/button");
     By loc_icnDeleteDeposit = By.xpath( "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/parent::*/following-sibling::*/button");
     By loc_dlgPrintProductBarcode = By.cssSelector(".modal-content.product-list-barcode-printer");
@@ -150,6 +154,7 @@ public class ProductPageElement {
     By loc_lblVAT = By.cssSelector("label:not([for]).gs-frm-control__title");
     By loc_lblShowAsListingProduct = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(3) .uik-checkbox__label");
     /* Variation */
+    @Getter
     By loc_lblVariations = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__header > h3");
     By loc_lblAddVariation = By.xpath("(//*[contains(@class, 'gs-widget__header')]/ span)[1]");
     By loc_cntVariation = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) .gs-widget__content > p");
@@ -181,6 +186,8 @@ public class ProductPageElement {
     By loc_ttlUpdatePrice = By.cssSelector(".modal-title");
     By loc_dlgUpdatePrice_ddvSelectedPriceType = By.cssSelector(".modal-body .uik-select__valueWrapper");
     By loc_dlgUpdatePrice_ddlPriceType = By.cssSelector(".uik-select__optionList");
+    By loc_txtListingPrice_0 = By.xpath("//*[@name = '0-orgPrice']/parent::div/parent::div/preceding-sibling::input");
+    By loc_txtCostPrice_0 = By.xpath("//*[@name = '0-costPrice']/parent::div/parent::div/preceding-sibling::input");
     /**
      * <p>0: Listing price</p>
      * <p>1: Selling price</p>

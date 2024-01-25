@@ -10,7 +10,7 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 import web.BaseTest;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.products.all_products.ProductPage;
+import web.Dashboard.products.all_products.crud.ProductPage;
 import web.StoreFront.detail_product.ProductDetailPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;

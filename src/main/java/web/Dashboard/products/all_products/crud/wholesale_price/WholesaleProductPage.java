@@ -1,4 +1,4 @@
-package web.Dashboard.products.all_products.wholesale_price;
+package web.Dashboard.products.all_products.crud.wholesale_price;
 
 import api.Seller.customers.SegmentAPI;
 import org.apache.logging.log4j.LogManager;
@@ -8,7 +8,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import web.Dashboard.products.all_products.ProductPage;
+import web.Dashboard.products.all_products.crud.ProductPage;
 import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.sellerApp.login.LoginInformation;

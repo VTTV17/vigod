@@ -17,11 +17,13 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.StringUtils.trim;
-import static org.bouncycastle.oer.its.ieee1609dot2.basetypes.Duration.seconds;
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 public class UICommonAction {
 
@@ -100,11 +102,11 @@ public class UICommonAction {
     public String getText(List<WebElement> element, int index) {
         String text;
         try {
-            text = wait.until(ExpectedConditions.visibilityOf(element.get(index))).getText();
+            text = wait.until(visibilityOf(element.get(index))).getText();
         } catch (StaleElementReferenceException ex) {
             logger.debug("StaleElementReferenceException caught in getText");
             element = refreshElement(element.get(index));
-            text = wait.until(ExpectedConditions.visibilityOf(element.get(index))).getText();
+            text = wait.until(visibilityOf(element.get(index))).getText();
         }
         logger.info("Text get: " + text);
         return text;
@@ -146,12 +148,12 @@ public class UICommonAction {
     public String getText(WebElement element) {
         String text;
         try {
-            text = wait.until(ExpectedConditions.visibilityOf(element)).getText();
+            text = wait.until(visibilityOf(element)).getText();
         } catch (StaleElementReferenceException ex) {
             logger.debug("StaleElementReferenceException caught in getText");
             List<WebElement> listOfElements = refreshElement(element);
             if (listOfElements.size() == 1) element = listOfElements.get(0);
-            text = wait.until(ExpectedConditions.visibilityOf(element)).getText();
+            text = wait.until(visibilityOf(element)).getText();
         }
         logger.info("Text get: " + text);
         return text;
@@ -167,21 +169,21 @@ public class UICommonAction {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         List<WebElement> newElement;
         if (elementInfo.contains("-> link text:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.linkText(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.linkText(extractedLocator)));
         } else if (elementInfo.contains("-> name:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.name(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.name(extractedLocator)));
         } else if (elementInfo.contains("-> id:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.id(extractedLocator)));
         } else if (elementInfo.contains("-> xpath:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.xpath(extractedLocator)));
         } else if (elementInfo.contains("-> class name:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.className(extractedLocator)));
         } else if (elementInfo.contains("-> css selector:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.cssSelector(extractedLocator)));
         } else if (elementInfo.contains("-> partial link text:")) {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.partialLinkText(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.partialLinkText(extractedLocator)));
         } else {
-            newElement = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName(extractedLocator)));
+            newElement = wait.until(presenceOfAllElementsLocatedBy(By.tagName(extractedLocator)));
         }
         return newElement;
     }
@@ -280,25 +282,25 @@ public class UICommonAction {
 
     public void waitForElementInvisible(WebElement element) {
         try {
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
             // Some elements sometimes disappear and appear again after milliseconds.
             sleepInMiliSecond(200);
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
             logger.info("Element invisible");
         } catch (StaleElementReferenceException ex) {
             logger.debug("Catch StaleElementReferenceException caught in waitForElementInvisible");
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
             sleepInMiliSecond(200);
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
         }
     }
 
     public void waitForElementVisible(WebElement element) {
         try {
-            wait.until(ExpectedConditions.visibilityOf(element));
+            wait.until(visibilityOf(element));
         } catch (StaleElementReferenceException ex) {
             logger.debug("Catch StaleElementReferenceException caught in waitForElementVisible");
-            wait.until(ExpectedConditions.visibilityOf(element));
+            wait.until(visibilityOf(element));
         }
     }
 
@@ -311,25 +313,25 @@ public class UICommonAction {
     public void waitForElementInvisible(WebElement element, int timeout) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
         try {
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
             // Some elements sometimes disappear and appear again after milliseconds.
             sleepInMiliSecond(200);
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
         } catch (StaleElementReferenceException ex) {
             logger.debug("Catch StaleElementReferenceException caught in waitForElementInvisible");
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
             sleepInMiliSecond(200);
-            wait.until(ExpectedConditions.invisibilityOf(element));
+            wait.until(invisibilityOf(element));
         }
     }
 
     public void waitForElementVisible(WebElement element, int timeout) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
         try {
-            wait.until(ExpectedConditions.visibilityOf(element));
+            wait.until(visibilityOf(element));
         } catch (StaleElementReferenceException ex) {
             logger.debug("Catch StaleElementReferenceException caught in waitForElementVisible");
-            wait.until(ExpectedConditions.visibilityOf(element));
+            wait.until(visibilityOf(element));
         }
     }
 
@@ -589,17 +591,17 @@ public class UICommonAction {
 
     public WebElement getElement(By by) {
         try {
-            return wait.until(ExpectedConditions.presenceOfElementLocated(by));
+            return wait.until(presenceOfElementLocated(by));
         } catch (StaleElementReferenceException ex) {
-            return wait.until(ExpectedConditions.presenceOfElementLocated(by));
+            return wait.until(presenceOfElementLocated(by));
         }
     }
 
     public WebElement getElement(By by, int index) {
         try {
-            return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by)).get(index);
+            return wait.until(presenceOfAllElementsLocatedBy(by)).get(index);
         } catch (StaleElementReferenceException ex) {
-            return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by)).get(index);
+            return wait.until(presenceOfAllElementsLocatedBy(by)).get(index);
         }
     }
 
@@ -609,7 +611,7 @@ public class UICommonAction {
     public List<WebElement> getListElement(By locator) {
         return driver.findElements(locator).isEmpty()
                 ? driver.findElements(locator)
-                : wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+                : wait.until(presenceOfAllElementsLocatedBy(locator));
     }
 
     public void click(By locator) {
@@ -770,12 +772,14 @@ public class UICommonAction {
         el.sendKeys(Keys.SPACE, Keys.BACK_SPACE);
     }
 
+    static CharSequence[] clearChars = IntStream.range(0, 100).mapToObj(index -> List.of(Keys.DELETE, Keys.BACK_SPACE)).flatMap(Collection::stream).toArray(CharSequence[]::new);
+
     public void clear(By locator) {
         try {
-            getElement(locator).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
+            getElement(locator).sendKeys(clearChars);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             waitVisibilityOfElementLocated(locator);
-            getElement(locator).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
+            getElement(locator).sendKeys(clearChars);
         }
         if (!getElement(locator).getText().isEmpty() || getValue(locator) != null && !getValue(locator).isEmpty()) {
             clear(locator);
@@ -784,10 +788,10 @@ public class UICommonAction {
 
     void clear(By locator, int index) {
         try {
-            getElement(locator, index).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
+            getElement(locator, index).sendKeys(clearChars);
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             waitVisibilityOfElementLocated(locator, index);
-            getElement(locator, index).sendKeys(Keys.DELETE, Keys.BACK_SPACE);
+            getElement(locator, index).sendKeys(clearChars);
         }
         if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
             clear(locator, index);
@@ -810,24 +814,41 @@ public class UICommonAction {
         }
     }
 
+    public void removeElement(By locator) {
+        if (!getListElement(locator).isEmpty())
+            ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
+    }
+
     public void removeFbBubble() {
-        if (!getListElement(By.cssSelector("#fb-root")).isEmpty())
-            ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(By.cssSelector("#fb-root")));
+        removeElement(By.cssSelector("#fb-root"));
     }
 
     public String getLangKey() {
         return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
     }
+
     public void waitVisibilityOfElementLocated(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        try {
+            wait.until(visibilityOfElementLocated(locator));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(visibilityOfElementLocated(locator));
+        }
     }
 
     public void waitVisibilityOfElementLocated(By locator, int index) {
-        wait.until(ExpectedConditions.visibilityOf(getElement(locator, index)));
+        try {
+            wait.until(visibilityOf(getElement(locator, index)));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(visibilityOf(getElement(locator, index)));
+        }
     }
 
     public void waitInvisibilityOfElementLocated(By locator) {
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        try {
+            wait.until(invisibilityOfElementLocated(locator));
+        } catch (StaleElementReferenceException ex) {
+            wait.until(invisibilityOfElementLocated(locator));
+        }
     }
 
     public WebElement elementToBeClickable(By locator) {
@@ -859,11 +880,12 @@ public class UICommonAction {
     public void closePopup(By locator) {
         try {
             clickJS(locator);
-            sleepInMiliSecond(200);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
 
-        if (!getListElement(locator).isEmpty()) {
+        try {
+            getWait().until(numberOfElementsToBeLessThan(locator, 1));
+        } catch (TimeoutException ex) {
             closePopup(locator);
         }
     }
@@ -872,56 +894,72 @@ public class UICommonAction {
     public void openPopupJS(By locator, By popup) {
         try {
             clickJS(locator);
-            sleepInMiliSecond(500);
-        } catch (StaleElementReferenceException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
 
-        if (getListElement(popup).isEmpty()) openPopupJS(locator, popup);
+        try {
+            getWait().until(numberOfElementsToBeMoreThan(popup, 0));
+        } catch (TimeoutException ex) {
+            openPopupJS(locator, popup);
+        }
     }
 
     public void openPopupJS(By locator, int index, By popup) {
         try {
             clickJS(locator, index);
-            sleepInMiliSecond(500);
-        } catch (StaleElementReferenceException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-
-        if (getListElement(popup).isEmpty()) openPopupJS(locator, index, popup);
+        try {
+            getWait().until(numberOfElementsToBeMoreThan(popup, 0));
+        } catch (TimeoutException ex) {
+            openPopupJS(locator, index, popup);
+        }
     }
 
     public void openDropdownJS(By locator, By dropdown) {
         try {
             clickJS(locator);
-            sleepInMiliSecond(200);
-        } catch (StaleElementReferenceException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
+        }
+        try {
+            getWait().until(numberOfElementsToBeMoreThan(dropdown, 0));
+        } catch (TimeoutException ex) {
+            openDropdownJS(locator, dropdown);
         }
 
-        if (getListElement(dropdown).isEmpty()) openDropdownJS(locator, dropdown);
     }
 
     public void openDropdownJS(By locator, int index, By dropdown) {
         try {
             clickJS(locator, index);
-            sleepInMiliSecond(200);
-        } catch (StaleElementReferenceException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-
-        if (getListElement(dropdown).isEmpty()) openDropdownJS(locator, index, dropdown);
+        try {
+            getWait().until(numberOfElementsToBeMoreThan(dropdown, 0));
+        } catch (TimeoutException ex) {
+            openDropdownJS(locator, index, dropdown);
+        }
     }
 
     public void closeDropdown(By locator, By dropdown) {
         try {
             clickJS(locator);
-            sleepInMiliSecond(200);
-        } catch (StaleElementReferenceException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-
-        if (!getListElement(dropdown).isEmpty()) closeDropdown(locator, dropdown);
+        try {
+            getWait().until(numberOfElementsToBeLessThan(dropdown, 1));
+        } catch (TimeoutException ex) {
+            closeDropdown(locator, dropdown);
+        }
     }
 
     public void viewTooltips(By locator, By tooltips) {
         hoverActions(locator);
-        if (getListElement(tooltips).isEmpty()) hoverActions(locator);
+        try {
+            getWait().until(numberOfElementsToBeLessThan(tooltips, 1));
+        } catch (TimeoutException ex) {
+            viewTooltips(locator, tooltips);
+        }
     }
 
     public void checkTheCheckBoxOrRadio(By locator) {
@@ -954,5 +992,9 @@ public class UICommonAction {
         wait.until(ExpectedConditions.elementToBeClickable(element));
         Select select = new Select(element);
         select.selectByVisibleText(visibleText);
+    }
+
+    WebDriverWait getWait() {
+        return new WebDriverWait(driver, Duration.ofMillis(500));
     }
 }

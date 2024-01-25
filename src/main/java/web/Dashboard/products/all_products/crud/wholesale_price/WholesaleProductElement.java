@@ -1,4 +1,4 @@
-package web.Dashboard.products.all_products.wholesale_price;
+package web.Dashboard.products.all_products.crud.wholesale_price;
 
 import org.openqa.selenium.By;
 

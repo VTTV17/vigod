@@ -21,7 +21,7 @@ import api.Seller.setting.StoreInformation;
 import web.BaseTest;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.products.all_products.ProductPage;
+import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.inventory.Inventory;
 import web.Dashboard.products.inventory.InventoryHistory;
 import web.Dashboard.products.transfer.Transfer;

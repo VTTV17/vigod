@@ -1,5 +1,6 @@
-package web.Dashboard.products.all_products;
+package web.Dashboard.products.all_products.crud;
 
+import api.Seller.products.APIAllProducts;
 import api.Seller.products.ProductCollection;
 import api.Seller.products.ProductInformation;
 import api.Seller.setting.BranchManagement;
@@ -12,18 +13,20 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
-import web.Dashboard.confirmationdialog.ConfirmationDialog;
-import web.Dashboard.home.HomePage;
-import web.Dashboard.products.all_products.conversion_unit.ConversionUnitPage;
-import web.Dashboard.products.all_products.variation_detail.VariationDetailPage;
-import web.Dashboard.products.all_products.wholesale_price.WholesaleProductPage;
-import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.home.HomePage;
+import web.Dashboard.products.all_products.crud.conversion_unit.ConversionUnitPage;
+import web.Dashboard.products.all_products.crud.variation_detail.VariationDetailPage;
+import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -36,9 +39,9 @@ import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
+import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 
 public class ProductPage extends ProductPageElement {
     WebDriver driver;
@@ -399,13 +402,16 @@ public class ProductPage extends ProductPageElement {
 
         // get VAT name
         List<String> vatList = new VAT(loginInformation).getInfo().getTaxName();
-        String vatName = vatList.get(nextInt(vatList.size()));
+        if (vatList.size() > 1) {
+            if ((productInfo != null)) vatList.remove(productInfo.getTaxName());
+            String vatName = vatList.get(nextInt(vatList.size()));
 
-        // select VAT
-        commonAction.click(vatName.equals("tax.value.include") ? loc_ddvNoVAT : By.xpath(loc_ddvOthersVAT.formatted(vatName)));
+            // select VAT
+            commonAction.click(vatName.equals("tax.value.include") ? loc_ddvNoVAT : By.xpath(loc_ddvOthersVAT.formatted(vatName)));
 
-        // log
-        logger.info("Select VAT: %s.".formatted(vatName));
+            // log
+            logger.info("Select VAT: %s.".formatted(vatName));
+        }
     }
 
     void selectCollection() {
@@ -979,17 +985,8 @@ public class ProductPage extends ProductPageElement {
         // close notification popup
         commonAction.closePopup(loc_dlgNotification_btnClose);
 
-        // wait product list page is loaded
-        commonAction.waitURLShouldBeContains("/product/list");
-
-        // search product by name
-        commonAction.sendKeys(loc_txtSearchBoxOnProductListPage, name);
-
-        // wait api return result
-        commonAction.sleepInMiliSecond(1000);
-
         // wait api return list product
-        productID = Integer.parseInt(commonAction.getText(loc_lblProductIdOnProductListPage));
+        productID = new APIAllProducts(loginInformation).searchProductIdByName(name);
 
         // log
         logger.info("Product id: %s".formatted(productID));
@@ -2579,5 +2576,219 @@ public class ProductPage extends ProductPageElement {
     public void waitImportingTextDisapear() {
         commonAction.waitForElementInvisible(IMPORTING_LBL, 15);
         logger.info("Importing text have disappeared");
+    }
+
+    // check permission
+    // ticket: https://mediastep.atlassian.net/browse/BH-13814
+    AllPermissions permissions;
+    CheckPermission checkPermission;
+
+    public void checkProductManagementPermission(AllPermissions permissions, int createdProductId, int notCreatedProductId, List<Integer> manualCollectionIds) {
+        // get staff permission
+        this.permissions = permissions;
+
+        // init commons check no permission
+        checkPermission = new CheckPermission(driver);
+
+        // check view product detail
+        checkViewProductDetail(createdProductId, manualCollectionIds);
+    }
+
+    void checkViewProductDetail(int productId, List<Integer> manualCollectionIds) {
+        // get product information
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+
+        // check view product detail permission
+        if (permissions.getProduct().getProductManagement().isViewProductDetail()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/product/edit/%s".formatted(DOMAIN, productId), "/product/edit/"), "[Failed] Product detail page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+
+            // check edit product and related permission
+            checkEditProduct(manualCollectionIds);
+
+            // check view cost price
+            checkViewCostPrice();
+        } else
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/product/edit/%s".formatted(DOMAIN, productId)), "[Failed] Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+        logger.info("Check permission: View product detail.");
+    }
+
+    public void checkViewCollectionList(List<Integer> manualCollectionIds, AllPermissions permissions) {
+        // check collection permission
+        if (permissions.getProduct().getCollection().isViewCollectionList() && !manualCollectionIds.isEmpty()) {
+            assertCustomize.assertTrue(!commonAction.getListElement(loc_cntNoCollection).isEmpty(), "[Failed] Can not found any product collection.");
+        }
+        logger.info("Check permission: View collection list.");
+    }
+
+    void checkEditProduct(List<Integer> manualCollectionIds) {
+        if (permissions.getProduct().getProductManagement().isEditProduct()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnSave, loc_dlgNotification), "[Failed] Can not update product.");
+
+            // close Notification
+            commonAction.closePopup(loc_dlgNotification_btnClose);
+
+            // check delete product
+            checkDeleteProduct();
+
+            // check add variation
+            checkAddVariation();
+
+            // check remove variation
+            checkDeleteVariation();
+
+            // check activate
+            checkActiveProduct();
+
+            // check deactivate
+            checkDeactivateProduct();
+
+            // check update wholesale price
+            checkUpdateWholesalePrice();
+
+            // check edit tax
+            checkEditTax();
+
+            // check update stock permission
+            checkUpdateStock();
+
+            // check view collection list
+            checkViewCollectionList(manualCollectionIds, permissions);
+
+            // check edit price
+            checkEditPrice();
+
+            // check enable product lot
+            checkEnableProductLot();
+
+            // check edit SEO
+            checkUpdateSEOData();
+
+            // check update translation
+            checkUpdateTranslation();
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave), "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+        }
+        logger.info("Check permission: Edit product.");
+    }
+
+    void checkUpdateStock() {
+        if (!permissions.getProduct().getInventory().isUpdateStock()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productInfo.isHasModel() ? loc_tblVariation_txtStock : loc_txtWithoutVariationBranchStock, 0), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Update stock.");
+    }
+
+    void checkEditPrice() {
+        if (!permissions.getProduct().getProductManagement().isEditPrice()) {
+            if (productInfo.isHasModel()) {
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_txtListingPrice_0), "Restricted popup does not shown.");
+            } else {
+                commonAction.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(MAX_PRICE));
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave), "Restricted popup does not shown.");
+            }
+        }
+        logger.info("Check permission: Edit price.");
+    }
+
+    void checkEnableProductLot() {
+        if (!permissions.getProduct().getLotDate().isEnableProductLot()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkManageStockByLotDate), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Enable product.");
+    }
+
+    void checkDeleteProduct() {
+        if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnDelete, loc_dlgConfirm), "Confirm delete product popup does not shown.");
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDelete), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Delete product.");
+    }
+
+    void checkAddVariation() {
+        if (!permissions.getProduct().getProductManagement().isAddVariation()) {
+            // add new variation group
+            if (!commonAction.getListElement(loc_btnAddVariation).isEmpty()) {
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddVariation), "Restricted popup does not shown.");
+            }
+
+            // add variation value
+            if (!commonAction.getListElement(loc_txtVariationValue).isEmpty()) {
+                commonAction.getElement(loc_txtVariationValue, 0).sendKeys(epoch);
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lblVariations), "Restricted popup does not shown.");
+            }
+        }
+        logger.info("Check permission: Add variation.");
+    }
+
+    void checkDeleteVariation() {
+        if (!permissions.getProduct().getProductManagement().isDeleteVariation()) {
+            if (!commonAction.getListElement(loc_btnDeleteVariation).isEmpty()) {
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeleteVariation), "Restricted popup does not shown.");
+            }
+        }
+        logger.info("Check permission: Delete variation.");
+    }
+
+    void checkActiveProduct() {
+        if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("INACTIVE")) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
+            if (productInfo.isHasModel()) {
+                new VariationDetailPage(driver, productInfo.getVariationModelList().get(0), productInfo, loginInformation).checkActiveVariation(permissions, checkPermission);
+            }
+        }
+        logger.info("Check permission: Activate product.");
+    }
+
+    void checkDeactivateProduct() {
+        if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("ACTIVE")) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
+            if (productInfo.isHasModel()) {
+                new VariationDetailPage(driver, productInfo.getVariationModelList().get(0), productInfo, loginInformation).checkDeactivateVariation(permissions, checkPermission);
+            }
+        }
+
+        logger.info("Check permission: Deactivate product.");
+    }
+
+    void checkUpdateWholesalePrice() {
+        if (!permissions.getProduct().getProductManagement().isUpdateWholesalePrice()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkAddWholesalePricing), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Update wholesale price.");
+    }
+
+    void checkEditTax() {
+        if (!permissions.getProduct().getProductManagement().isEditTax() && permissions.getSetting().getTAX().isViewTAXList()) {
+            selectVAT();
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Edit Tax.");
+    }
+
+    void checkViewCostPrice() {
+        if (permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
+            assertCustomize.assertTrue((productInfo.isHasModel() ? commonAction.getValue(loc_txtCostPrice_0) : commonAction.getValue(loc_txtWithoutVariationCostPrice)).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
+        }
+        logger.info("Check permission: View cost price.");
+    }
+
+    void checkUpdateSEOData() {
+        if (!permissions.getProduct().getProductManagement().isEditSEOData()) {
+            inputSEO();
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Update SEO data.");
+    }
+
+    void checkUpdateTranslation() {
+        if (!permissions.getProduct().getProductManagement().isEditTranslation()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lblEditTranslation), "Restricted popup does not shown.");
+            if (productInfo.isHasModel()) {
+                new VariationDetailPage(driver, productInfo.getVariationModelList().get(0), productInfo, loginInformation).checkEditTranslation(permissions, checkPermission);
+            }
+        }
+        logger.info("Check permission: Update translation.");
     }
 }

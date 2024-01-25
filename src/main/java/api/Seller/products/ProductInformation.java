@@ -263,6 +263,9 @@ public class ProductInformation {
                 int taxId = resJson.getInt("taxId");
                 String taxRate = resJson.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
                 prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
+
+                String taxName = resJson.getString("taxName");
+                prdInfo.setTaxName(taxName);
             } catch (NullPointerException ignore) {}
 
             Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());

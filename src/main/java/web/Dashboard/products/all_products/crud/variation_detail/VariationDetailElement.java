@@ -1,4 +1,4 @@
-package web.Dashboard.products.all_products.variation_detail;
+package web.Dashboard.products.all_products.crud.variation_detail;
 
 import org.openqa.selenium.By;
 
@@ -7,7 +7,7 @@ public class VariationDetailElement {
     By loc_chkReuse = By.cssSelector(".des-header > div > label > input");
     By loc_rtfDescription = By.cssSelector(".fr-element");
     By loc_btnSave = By.cssSelector(".gss-content-header .gs-button__green");
-    By btnEditTranslation = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
+    By loc_btnEditTranslation = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
     By loc_btnDeactivate = By.cssSelector(".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline");
     By loc_dlgEditTranslation = By.cssSelector(".modal-content");
     By loc_dlgEditTranslation_selectedLanguage = By.cssSelector(".uik-select__valueRenderedWrapper .text-truncate");
@@ -18,7 +18,6 @@ public class VariationDetailElement {
     By loc_dlgEditTranslation_btnClose = By.cssSelector(".modal-header > button");
     /* UI */
     By loc_lblVariationStatus = By.cssSelector(".toolbar__product-status");
-    By loc_btnEditTranslation = By.cssSelector(".gss-content-header span > .gs-button__gray--outline");
     By loc_lblSave = By.cssSelector(".gss-content-header .gs-button__green");
     By loc_lblCancel = By.cssSelector(".gss-content-header .gs-button__green ~.gs-button__gray--outline");
     By loc_lblDeactivate = By.cssSelector(".gss-content-header .gs-button__yellow--outline, .gs-button__cyan--outline");

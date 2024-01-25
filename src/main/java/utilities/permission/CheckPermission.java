@@ -13,9 +13,24 @@ public class CheckPermission {
         this.driver = driver;
         commonAction = new UICommonAction(driver, 5);
     }
+    By loc_dlgRestricted = By.cssSelector(".access-restricted");
+    By loc_dlgRestricted_btnOK = By.cssSelector(".modal.fade.show .gs-button__deep-blue");
 
     public boolean checkAccessRestricted(By locator) {
-        commonAction.click(locator);
+        commonAction.clickJS(locator);
+        try {
+            commonAction.waitURLShouldBeContains("/restricted");
+            return true;
+        } catch (TimeoutException ex) {
+            if (!commonAction.getListElement(loc_dlgRestricted).isEmpty()) {
+                commonAction.closePopup(loc_dlgRestricted_btnOK);
+                return true;
+            } else return false;
+        }
+    }
+
+    public boolean checkAccessRestricted(By locator, int index) {
+        commonAction.clickJS(locator, index);
         try {
             commonAction.waitURLShouldBeContains("/restricted");
             return true;
@@ -35,7 +50,17 @@ public class CheckPermission {
     }
 
     public boolean checkAccessedSuccessfully(By locator, By destinationLocator) {
-        commonAction.click(locator);
+        commonAction.clickJS(locator);
+        try {
+            commonAction.getElement(destinationLocator);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
+    }
+
+    public boolean checkAccessedSuccessfully(By locator, int index, By destinationLocator) {
+        commonAction.clickJS(locator);
         try {
             commonAction.getElement(destinationLocator);
             return true;
@@ -45,6 +70,16 @@ public class CheckPermission {
     }
 
     public boolean checkAccessedSuccessfully(By locator, String url) {
+        commonAction.click(locator);
+        try {
+            commonAction.waitURLShouldBeContains(url);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
+    }
+
+    public boolean checkAccessedSuccessfully(By locator, int index, String url) {
         commonAction.click(locator);
         try {
             commonAction.waitURLShouldBeContains(url);

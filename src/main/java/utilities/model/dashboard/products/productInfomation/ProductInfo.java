@@ -12,6 +12,7 @@ public class ProductInfo {
     private Map<String, List<String>> variationListMap;
     private List<Long> productListingPrice;
     private List<Long> productSellingPrice;
+    private List<Long> productCostPrice;
     private boolean hasModel;
     private boolean manageInventoryByIMEI;
     private List<String> variationModelList;
@@ -35,4 +36,5 @@ public class ProductInfo {
     private List<Integer> collectionIdList;
     private Map<Integer, Map<String, String>> collectionNameMap;
     private double taxRate;
+    private String taxName;
 }

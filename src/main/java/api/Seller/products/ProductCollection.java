@@ -61,27 +61,30 @@ public class ProductCollection {
     }
 
     public List<String> getListOfManualProductCollectionsName() {
-        JsonPath jsonPath = api.get(getListOfProductCollectionsPath.formatted(loginInfo.getStoreID(), 0),
-                        loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response()
-                .jsonPath();
-        List<String> listOfCollectionsName = new ArrayList<>(jsonPath.getList("lstCollection.findAll{it.collectionType == 'MANUAL'}.name"));
-        int totalPage = jsonPath.getInt("totalPage");
-        if (totalPage > 1) {
-            for (int pageIndex = 1; pageIndex < totalPage; pageIndex++) {
-                JsonPath jPath = api.get(getListOfProductCollectionsPath.formatted(loginInfo.getStoreID(), pageIndex),
-                                loginInfo.getAccessToken())
-                        .then()
-                        .statusCode(200)
-                        .extract()
-                        .response()
-                        .jsonPath();
-                listOfCollectionsName.addAll(jPath.getList("lstCollection.findAll{it.collectionType == 'MANUAL'}.name"));
+        List<String> listOfCollectionName = new ArrayList<>();
+        try {
+            JsonPath jsonPath = api.get(getListOfProductCollectionsPath.formatted(loginInfo.getStoreID(), 0),
+                            loginInfo.getAccessToken())
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .response()
+                    .jsonPath();
+            listOfCollectionName = new ArrayList<>(jsonPath.getList("lstCollection.findAll{it.collectionType == 'MANUAL'}.name"));
+            int totalPage = jsonPath.getInt("totalPage");
+            if (totalPage > 1) {
+                for (int pageIndex = 1; pageIndex < totalPage; pageIndex++) {
+                    JsonPath jPath = api.get(getListOfProductCollectionsPath.formatted(loginInfo.getStoreID(), pageIndex),
+                                    loginInfo.getAccessToken())
+                            .then()
+                            .statusCode(200)
+                            .extract()
+                            .response()
+                            .jsonPath();
+                    listOfCollectionName.addAll(jPath.getList("lstCollection.findAll{it.collectionType == 'MANUAL'}.name"));
+                }
             }
-        }
-        return listOfCollectionsName;
+        } catch (AssertionError ignore) {}
+        return listOfCollectionName;
     }
 }

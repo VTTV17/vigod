@@ -16,7 +16,7 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.buylink.BuyLinkManagement;
 import web.Dashboard.marketing.buylink.CreateBuyLink;
-import web.Dashboard.products.all_products.ProductPage;
+import web.Dashboard.products.all_products.crud.ProductPage;
 import web.StoreFront.GeneralSF;
 import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
 import web.StoreFront.header.HeaderSF;

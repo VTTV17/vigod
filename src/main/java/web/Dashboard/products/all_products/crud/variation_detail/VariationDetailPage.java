@@ -1,4 +1,4 @@
-package web.Dashboard.products.all_products.variation_detail;
+package web.Dashboard.products.all_products.crud.variation_detail;
 
 import api.Seller.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
@@ -7,7 +7,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import web.Dashboard.products.all_products.ProductPage;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import web.Dashboard.products.all_products.crud.ProductPage;
 import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
@@ -42,7 +44,7 @@ public class VariationDetailPage extends VariationDetailElement {
         commonAction = new UICommonAction(driver);
         this.loginInformation = loginInformation;
         this.productInfo = productInfo;
-        storeInfo= new StoreInformation(loginInformation).getInfo();
+        storeInfo = new StoreInformation(loginInformation).getInfo();
         uiLanguage = ProductPage.getLanguage();
         this.driver = driver;
         variation = productInfo.getVariationListMap()
@@ -83,14 +85,14 @@ public class VariationDetailPage extends VariationDetailElement {
     }
 
     void updateVariationTranslation(String languageCode, String languageName, int langIndex) throws Exception {
-        commonAction.click(btnEditTranslation);
+        commonAction.click(loc_btnEditTranslation);
         logger.info("[%s] Open edit translation popup.".formatted(variation));
 
         try {
             commonAction.getElement(loc_dlgEditTranslation);
             logger.info("[%s] Wait edit translation popup presented.".formatted(variation));
         } catch (TimeoutException ex) {
-            commonAction.click(btnEditTranslation);
+            commonAction.click(loc_btnEditTranslation);
             logger.info("[%s] Open edit translation popup again.".formatted(variation));
             commonAction.getElement(loc_dlgEditTranslation);
             logger.info("[%s] Wait edit translation popup visible again.".formatted(variation));
@@ -328,5 +330,30 @@ public class VariationDetailPage extends VariationDetailElement {
         String ppCancelBtn = getPropertiesValueByDBLang("products.allProducts.updateProduct.variationDetail.editTranslationPopup.cancelBtn", language);
         assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Edit translation popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Edit translation popup - Cancel button.".formatted(language));
+    }
+
+    // permission
+    public void checkActiveVariation(AllPermissions permissions, CheckPermission checkPermission) {
+        navigateToVariationDetailPage();
+        if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getVariationStatus().get(0).equals("INACTIVE")) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Activate product.");
+    }
+
+    public void checkDeactivateVariation(AllPermissions permissions, CheckPermission checkPermission) {
+        navigateToVariationDetailPage();
+        if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getVariationStatus().get(0).equals("ACTIVE")) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Deactivate product.");
+    }
+
+    public void checkEditTranslation(AllPermissions permissions, CheckPermission checkPermission) {
+        navigateToVariationDetailPage();
+        if (!permissions.getProduct().getProductManagement().isEditTranslation()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnEditTranslation), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Update product translation.");
     }
 }

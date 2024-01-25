@@ -12,7 +12,7 @@ import org.testng.asserts.SoftAssert;
 import web.Dashboard.marketing.landingpage.LandingPage;
 import web.Dashboard.onlineshop.Domains;
 import web.Dashboard.onlineshop.Themes;
-import web.Dashboard.products.all_products.ProductPage;
+import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.saleschannels.shopee.Shopee;
 import web.Dashboard.settings.bankaccountinformation.BankAccountInformation;
 import utilities.utils.PropertiesUtil;
