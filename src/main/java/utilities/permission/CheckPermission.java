@@ -42,15 +42,6 @@ public class CheckPermission {
         commonAction.clickJS(locator, index);
         return isAccessRestrictedPresent();
     }
-    public boolean checkAccessRestricted(By locator, int index) {
-        commonAction.click(locator,index);
-        try {
-            commonAction.getElement(By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']"));
-            return true;
-        } catch (TimeoutException ex) {
-            return false;
-        }
-    }
     public boolean checkAccessRestricted(String url) {
         driver.get(url);
         try {
