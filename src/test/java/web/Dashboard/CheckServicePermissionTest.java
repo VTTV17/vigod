@@ -54,7 +54,7 @@ public class CheckServicePermissionTest extends BaseTest {
         staffPass = STAFF_SHOP_VI_PASSWORD;
         staffCredentials = new Login().setLoginInformation("+84",staffUserName,staffPass).getLoginInformation();
         staffLoginInfo = new Login().getInfo(staffCredentials);
-        new CheckPermission(driver).waitUntilUpdatPermission(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
+        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
         createdServiceId = new CreateServiceAPI(staffCredentials).createService(new ServiceInfo()).getServiceId();
     }
     @Test

@@ -130,7 +130,7 @@ public class CheckPermission {
         String value = commonAction.getValue(locatorInput);
         return !value.isEmpty();
     }
-    public void waitUntilUpdatPermission(String staffPermissionTokenOld, LoginInformation  staffCredentials){
+    public void waitUntilPermissionUpdated(String staffPermissionTokenOld, LoginInformation  staffCredentials){
         String newToken;
         int i=0;
         do {
