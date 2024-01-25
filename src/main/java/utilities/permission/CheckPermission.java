@@ -16,27 +16,28 @@ public class CheckPermission {
     By loc_dlgRestricted = By.cssSelector(".access-restricted");
     By loc_dlgRestricted_btnOK = By.cssSelector(".modal.fade.show .gs-button__deep-blue");
 
-    public boolean checkAccessRestricted(By locator) {
-        commonAction.clickJS(locator);
-        try {
-            commonAction.waitURLShouldBeContains("/restricted");
-            return true;
-        } catch (TimeoutException ex) {
-            if (!commonAction.getListElement(loc_dlgRestricted).isEmpty()) {
+    By loc_lblNoPermissionNotice = By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']");
+
+    public boolean isAccessRestrictedPresent() {
+    	try {
+    		commonAction.getElement(loc_lblNoPermissionNotice);
+            if (commonAction.getAttribute(loc_lblNoPermissionNotice, "class").contains("access-restricted")) {
                 commonAction.closePopup(loc_dlgRestricted_btnOK);
-                return true;
-            } else return false;
-        }
+            }
+    		return true;
+    	} catch (TimeoutException ex) {
+    		return false;
+    	}
+    }
+
+    public boolean checkAccessRestricted(By locator) {
+        commonAction.click(locator);
+        return isAccessRestrictedPresent();
     }
 
     public boolean checkAccessRestricted(By locator, int index) {
         commonAction.clickJS(locator, index);
-        try {
-            commonAction.waitURLShouldBeContains("/restricted");
-            return true;
-        } catch (TimeoutException ex) {
-            return !commonAction.getListElement(By.cssSelector(".access-restricted")).isEmpty();
-        }
+        return isAccessRestrictedPresent();
     }
 
     public boolean checkAccessRestricted(String url) {
@@ -97,5 +98,34 @@ public class CheckPermission {
         } catch (TimeoutException ex) {
             return false;
         }
+    }
+
+    /**
+     * Use: check input has value or not.
+     * @param url: use url to navigate to page
+     * @param locator: input element
+     * @return true if show data / false if show no data
+     */
+    public boolean checkValueShow(String url, By locator){
+        commonAction.navigateToURL(url);
+        String value = commonAction.getValue(locator);
+        return !value.isEmpty();
+    }
+
+    /**
+     * Use: check input has value or not.
+     * @param locatorClick: use click to navigate to page
+     * @param locatorInput: check value of this element
+     * @return true if show data / false if show no data
+     */
+    public boolean checkValueShow(By locatorClick, By locatorInput){
+        commonAction.click(locatorClick);
+        String value = commonAction.getValue(locatorInput);
+        return !value.isEmpty();
+    }
+    public boolean checkValueShow(By locatorClick,int index, By locatorInput){
+        commonAction.click(locatorClick,index);
+        String value = commonAction.getValue(locatorInput);
+        return !value.isEmpty();
     }
 }
