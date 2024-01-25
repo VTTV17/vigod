@@ -57,6 +57,9 @@ public class AccountTest {
     public static String GOMUA_USERNAME_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyer");
     public static String GOMUA_PASSWORD_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyerPassword");
     public static String GOMUA_USERNAME_PHONE = PropertiesUtil.getEnvironmentData("gomuaBuyerPhone");
+    public static String STAFF_SHOP_VI_USERNAME = PropertiesUtil.getEnvironmentData("staffShopViUserName");
+    public static String STAFF_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("staffShopViPass");
+
 
     //ATM Credentials
     public static String ATM_BANK = "NCB";

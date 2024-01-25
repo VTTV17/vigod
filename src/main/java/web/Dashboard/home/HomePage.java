@@ -55,94 +55,6 @@ public class HomePage extends HomePageElement {
         homeUI = new HomePageElement(driver);
         PageFactory.initElements(driver, this);
     }
-
-//    @FindBy(css = ".header-right__ele-right a[href='/logout']")
-//    WebElement LOGOUT_BTN;
-//
-//    @FindBy(css = ".loading .lds-dual-ring-grey")
-//    WebElement SPINNER;
-//
-//    @FindBy(css = ".loading-screen")
-//    WebElement LOADING_DOTS;
-//
-//    @FindBy(css = "a[name $=settings]")
-//    WebElement SETTINGS_MENU;
-//
-//    @FindBy(css = "a[name='component.navigation.products'] > span > span")
-//    WebElement PRODUCTS_MENU;
-//
-//    @FindBy(css = "a[name='component.navigation.promotion'] > span > span")
-//    WebElement PROMOTION_MENU;
-//
-//    @FindBy(css = "a[name='component.navigation.promotion.flashsale'] > span > span")
-//    WebElement PROMOTION_FLASH_SALE_MENU;
-//
-//    @FindBy(css = "a[name='component.navigation.promotion.discount'] > span > span")
-//    WebElement PROMOTION_DISCOUNT_MENU;
-//
-//    @FindBy(css = ".alert-modal .modal-content .gs-button__green")
-//    WebElement UPGRADENOW_BTN;
-//
-//    @FindBy(css = ".modal-success.modal-header img")
-//    List<WebElement> CLOSE_UPGRADENOW_BTN;
-//
-//    @FindBy(css = "button[aria-label='skip-product-tour']")
-//    List<WebElement> SKIP_INTRODUCTION_BTN;
-//
-//    @FindBy(css = ".modal-content")
-//    List<WebElement> UPGRADENOW_MESSAGE;
-//
-//    @FindBy(css = "div.language-selector > button")
-//    WebElement LANGUAGE;
-//
-//    @FindBy(css = "button.uik-select__option")
-//    List<WebElement> LANGUAGE_LIST;
-//    @FindBy(css = ".gs-sale-pitch_content")
-//    WebElement SALE_PITCH_POPUP;
-//
-//    @FindBy(css = ".Toastify__toast-body")
-//    WebElement TOAST_MESSAGE;
-//
-//    @FindBy(css = ".Toastify__close-button")
-//    WebElement TOAST_MESSAGE_CLOSE_BTN;
-//
-//    @FindBy(id = "fb-root")
-//    WebElement FACEBOOK_BUBBLE;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-//    WebElement CREATE_PRODUCT_BTN;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[2]")
-//    WebElement IMPORT_FROM_SHOPEE_BTN;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-AddProduct.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[3]")
-//    WebElement IMPORT_FROM_LAZADA_BTN;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]")
-//    WebElement CUSTOMIZE_APPEARANCE_ICON;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeTheme.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-//    WebElement CHANGE_DESIGN_BTN;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]")
-//    WebElement ADD_YOUR_DOMAIN_ICON;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-CustomizeURL.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-//    WebElement ADD_DOMAIN_BTN;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-AddBank.svg')]")
-//    WebElement ADD_BANK_ACCOUNT_ICON;
-//
-//    @FindBy(xpath = "//img[contains(@src,'/icon-AddBank.svg')]/ancestor::div[contains(@class,'shortcut-card')]//button[1]")
-//    WebElement BANK_INFORMATION_BTN;
-//
-//    String MENU_ITEM = "//a[@name='%pageNavigate%']";
-//
-//    By STATISTICS = By.cssSelector(".statistic");
-//
-//    @FindBy(xpath = ".what-to-do-next")
-//    WebElement WHAT_TO_DO_NEXT;
-
     public Map<String, String> pageMap() {
         Map<String, String> map = new HashMap<>();
         map.put("Home", "component.navigation.home");
@@ -214,6 +126,7 @@ public class HomePage extends HomePageElement {
     }
 
     public void navigateToPage(String pageName) {
+        commons.sleepInMiliSecond(1000);
         String pageNavigate = pageMap().get(pageName);
         String newXpath = MENU_ITEM.replace("%pageNavigate%", pageNavigate);
         if (pageName.equals("Shopee Products")) {
