@@ -11,9 +11,8 @@ public class CheckPermission {
 
     public CheckPermission(WebDriver driver) {
         this.driver = driver;
-        commonAction = new UICommonAction(driver, 5);
+        commonAction = new UICommonAction(driver);
     }
-    By loc_dlgRestricted = By.cssSelector(".access-restricted");
     By loc_dlgRestricted_btnOK = By.cssSelector(".modal.fade.show .gs-button__deep-blue");
 
     By loc_lblNoPermissionNotice = By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']");
@@ -31,7 +30,7 @@ public class CheckPermission {
     }
 
     public boolean checkAccessRestricted(By locator) {
-        commonAction.click(locator);
+        commonAction.clickJS(locator);
         return isAccessRestrictedPresent();
     }
 

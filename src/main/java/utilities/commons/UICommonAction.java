@@ -39,13 +39,6 @@ public class UICommonAction {
         actions = new Actions(driver);
     }
 
-    public UICommonAction(WebDriver driver, int waitingTime) {
-        this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(waitingTime));
-        actions = new Actions(driver);
-    }
-
-
     public void clickElement(List<WebElement> element, int index) {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(element.get(index))).click();
