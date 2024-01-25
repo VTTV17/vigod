@@ -2,11 +2,7 @@ package web.Dashboard.service;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 public class ServiceManagementElement {
     WebDriver driver;
@@ -15,6 +11,9 @@ public class ServiceManagementElement {
         PageFactory.initElements(driver, this);
     }
     By loc_btnCreateService = By.cssSelector(".service-list-page .gss-content-header button");
-    By loc_lst_btnEdit = By.cssSelector(".first-button");
+    By loc_lst_icnEdit = By.cssSelector(".first-button");
     By loc_lst_lblServiceName = By.cssSelector(".product-table__name b");
+    By loc_lst_icnDelete = By.cssSelector(".lastest-button");
+    By loc_dlgNotification_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
+
 }

@@ -1,9 +1,13 @@
 package utilities.permission;
 
+import api.Seller.login.Login;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.home.HomePage;
 
 public class CheckPermission {
     WebDriver driver;
@@ -38,7 +42,15 @@ public class CheckPermission {
         commonAction.clickJS(locator, index);
         return isAccessRestrictedPresent();
     }
-
+    public boolean checkAccessRestricted(By locator, int index) {
+        commonAction.click(locator,index);
+        try {
+            commonAction.getElement(By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']"));
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
+    }
     public boolean checkAccessRestricted(String url) {
         driver.get(url);
         try {
@@ -126,5 +138,15 @@ public class CheckPermission {
         commonAction.click(locatorClick,index);
         String value = commonAction.getValue(locatorInput);
         return !value.isEmpty();
+    }
+    public void waitUntilUpdatPermission(String staffPermissionTokenOld, LoginInformation  staffCredentials){
+        String newToken;
+        int i=0;
+        do {
+            LoginDashboardInfo info = new Login().getInfo(staffCredentials);
+            newToken = info.getStaffPermissionToken();
+            System.out.println("Wait to update staff permission...");
+            i++;
+        }while (newToken.equals(staffPermissionTokenOld)&&i<20);
     }
 }

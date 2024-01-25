@@ -131,4 +131,49 @@ public class ServiceInfoAPI {
         Collections.reverse(productSorted);
         return productSorted;
     }
+    public List<Integer> getServiceIdList(){
+        String path = SERVICE_LISH_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",String.valueOf("")).replaceAll("%sort%","");
+        Response response = api.get(path,loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        return response.jsonPath().getList("id");
+    }
+
+    /**
+     *
+     * @return serviceID has status = ACTIVE or throw exception if no service active
+     */
+    public int getActiveServiceId(){
+        String path = SERVICE_LISH_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",String.valueOf("")).replaceAll("%sort%","");
+        Response response = api.get(path,loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        List<Integer> serviceIDList = response.jsonPath().getList("id");
+        List<String> serviceStatusList = response.jsonPath().getList("bhStatus");
+        for (String serviceStatus:serviceStatusList) {
+            if(serviceStatus.equals("ACTIVE")){
+                return serviceIDList.get(serviceStatusList.indexOf(serviceStatus));
+            }
+        }
+        try {
+            throw new Exception("Not found Active service.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public int getInactiveServiceId(){
+        String path = SERVICE_LISH_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",String.valueOf("")).replaceAll("%sort%","");
+        Response response = api.get(path,loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        List<Integer> serviceIDList = response.jsonPath().getList("id");
+        List<String> serviceStatusList = response.jsonPath().getList("bhStatus");
+        for (String serviceStatus:serviceStatusList) {
+            if(serviceStatus.equals("INACTIVE")){
+                return serviceIDList.get(serviceStatusList.indexOf(serviceStatus));
+            }
+        }
+        try {
+            throw new Exception("Not found Inactive service.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
