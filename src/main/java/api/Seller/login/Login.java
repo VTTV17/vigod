@@ -1,5 +1,6 @@
 package api.Seller.login;
 
+import api.Seller.setting.StoreInformation;
 import com.google.common.collect.Iterables;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
@@ -86,8 +87,11 @@ public class Login {
         // set refreshToken
         info.setRefreshToken(jPath.getString("refreshToken"));
 
-        // set sellerID
-        info.setSellerID(jPath.getInt("id"));
+        // set userId
+        info.setUserId(jPath.getInt("id"));
+
+        // set ownerId
+        info.setOwnerId(jPath.getInt("id"));
 
         try {
             // set storeID
@@ -110,7 +114,7 @@ public class Login {
 
     private LoginDashboardInfo getStaffInfo(LoginDashboardInfo info) {
         // get staff store list
-        List<Integer> getListStoreId = api.get(storeStaff.formatted(info.getSellerID()), info.getAccessToken())
+        List<Integer> getListStoreId = api.get(storeStaff.formatted(info.getUserId()), info.getAccessToken())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -136,7 +140,7 @@ public class Login {
         info.setRefreshToken(jPath.getString("refreshToken"));
 
         // set sellerID
-        info.setSellerID(jPath.getInt("id"));
+        info.setUserId(jPath.getInt("id"));
 
         // set storeID
         info.setStoreID(jPath.getInt("store.id"));
@@ -149,6 +153,16 @@ public class Login {
 
         // set staff branches
         info.setAssignedBranches(jPath.getList("branchIds"));
+
+        // get ownerId
+        int ownerId = api.get("/storeservice/api/stores/%s".formatted(Iterables.getLast(getListStoreId)), info.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .jsonPath()
+                .getInt("ownerId");
+        info.setOwnerId(ownerId);
 
         // return login dashboard info
         return info;

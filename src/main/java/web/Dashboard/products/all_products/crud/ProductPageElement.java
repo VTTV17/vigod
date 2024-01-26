@@ -129,6 +129,7 @@ public class ProductPageElement {
     By loc_cntNoConversionUnitConfig = By.cssSelector(".gs-widget__content .bg-light-white p");
     By loc_dlgConfirm = By.cssSelector(".modal-content");
     By loc_dlgConfirm_btnOK = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_dlgConfirm_btnCancel = By.cssSelector(".modal-footer .gs-button__gray--outline");
     /* UI text element */
     /* Header */
     By loc_lnkGoBackToProductList = By.xpath("//a[@href='/product/list' and not(@name)]");

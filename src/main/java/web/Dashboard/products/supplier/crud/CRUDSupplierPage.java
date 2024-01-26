@@ -932,7 +932,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         logger.info("[UI][%s] Check Other information - Responsible staff.".formatted(language));
 
         // check responsible staff default option
-        int sellerId = new Login().getInfo(loginInformation).getSellerID();
+        int sellerId = new Login().getInfo(loginInformation).getUserId();
         String dbResponsibleStaffDefaultOption = commonAction.getText(By.cssSelector(loc_lblDefaultResponsibleStaff.formatted(sellerId)));
         String ppResponsibleStaffDefaultOption = getPropertiesValueByDBLang("products.supplier.addSupplier.otherInformation.responsibleStaffDefaultOption", language);
         assertCustomize.assertEquals(dbResponsibleStaffDefaultOption, ppResponsibleStaffDefaultOption, "[Failed][Other information] Responsible staff default option should be %s, but found %s.".formatted(ppResponsibleStaffDefaultOption, dbResponsibleStaffDefaultOption));

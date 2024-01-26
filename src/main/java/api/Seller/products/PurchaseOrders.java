@@ -54,7 +54,7 @@ public class PurchaseOrders {
                             "inventoryManageType": "%s"
                         }
                     ]
-                }""".formatted(supplierId, loginInfo.getStoreID(), new Login().getInfo(loginInformation).getSellerID(), branchId, itemId, inventoryManageType);
+                }""".formatted(supplierId, loginInfo.getStoreID(), new Login().getInfo(loginInformation).getUserId(), branchId, itemId, inventoryManageType);
 
         Response createPurchaseOrder = api.post(CREATE_PURCHASE_ORDER_PATH, loginInfo.getAccessToken(), body);
         createPurchaseOrder.then().statusCode(201);

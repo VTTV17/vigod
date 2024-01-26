@@ -55,7 +55,6 @@ public class LoginPage {
     By loc_txtVerificationCode = By.cssSelector("input[name='key']"); 
     By loc_lblWrongCodeError = By.cssSelector(".alert__wrapper");
     By loc_lnkResendOTP = By.cssSelector(".btn-resend");
-    By loc_dlgRenew = By.cssSelector(".renewing-plan-modal");
 
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
@@ -222,8 +221,8 @@ public class LoginPage {
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('refreshToken', '%s')".formatted(loginInfo.getRefreshToken()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeId', %s)".formatted(loginInfo.getStoreID()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getSellerID()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getSellerID()));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getUserId()));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getOwnerId()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
         if (loginInfo.getStaffPermissionToken() != null)
             ((JavascriptExecutor) driver).executeScript("localStorage.setItem('staffPermissionToken', '\"%s\"')".formatted(loginInfo.getStaffPermissionToken()));
@@ -231,7 +230,6 @@ public class LoginPage {
         logger.info("Set local storage successfully");
 
         driver.navigate().refresh();
-        commonAction.removeElement(loc_dlgRenew);
     }
 
     public void verifyVerificationCodeError(String signupLanguage) throws Exception {

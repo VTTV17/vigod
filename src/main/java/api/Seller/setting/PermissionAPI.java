@@ -118,7 +118,7 @@ public class PermissionAPI {
 
     /**
      * Modifies an existing permission group and retrieves its updated ID.
-     * @param id The ID of the permission group to modify.
+     * @param groupID The ID of the permission group to modify.
      * @param name The updated name of the permission group.
      * @param description The updated description of the group.
      * @param model An instance of the `CreatePermission` model containing updated permission assignments.
@@ -193,7 +193,7 @@ public class PermissionAPI {
      * @return The ID of the newly created permission group.
      */
     public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, CreatePermission model) {
-        int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getSellerID());
+        int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
         //Remove all permission groups from the staff
         removeAllGroupPermissionsFromStaff(staffId);
         String randomNumbers = new DataGenerator().randomNumberGeneratedFromEpochTime(5);

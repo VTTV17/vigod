@@ -63,7 +63,7 @@ public class CheckServicePermissionTest extends BaseTest {
         staffLoginInfo = new Login().getInfo(staffCredentials);
 
         //Get staff id
-        int staffId = new StaffManagement(ownerCredentials).getStaffId(staffLoginInfo.getSellerID());
+        int staffId = new StaffManagement(ownerCredentials).getStaffId(staffLoginInfo.getUserId());
 
         //Remove all permission groups from the staff
         new PermissionAPI(ownerCredentials).removeAllGroupPermissionsFromStaff(staffId);

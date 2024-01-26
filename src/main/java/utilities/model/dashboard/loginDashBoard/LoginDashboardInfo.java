@@ -10,8 +10,9 @@ public class LoginDashboardInfo {
     private String refreshToken;
     private int storeID;
     private String storeName;
-    private int sellerID;
+    private int userId;
     private String staffPermissionToken;
-    List<String> userRole;
-    List<Integer> assignedBranches;
+    private List<String> userRole;
+    private List<Integer> assignedBranches;
+    private int ownerId;
 }

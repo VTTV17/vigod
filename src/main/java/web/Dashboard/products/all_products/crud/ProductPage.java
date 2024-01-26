@@ -2700,6 +2700,7 @@ public class ProductPage extends ProductPageElement {
     void checkDeleteProduct() {
         if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnDelete, loc_dlgConfirm), "Confirm delete product popup does not shown.");
+            commonAction.closePopup(loc_dlgConfirm_btnCancel);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDelete), "Restricted popup does not shown.");
         }
