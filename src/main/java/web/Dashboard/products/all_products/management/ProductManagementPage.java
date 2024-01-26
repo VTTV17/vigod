@@ -318,7 +318,6 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // add variation value
             commonAction.getElement(productPage.getLoc_txtVariationValue(), 0).sendKeys("abc");
-//            commonAction.sleepInMiliSecond(500);
             commonAction.clickJS(productPage.getLoc_lblVariations());
 
             // check delete variation
