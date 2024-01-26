@@ -12,7 +12,6 @@ public class CreateServiceElement {
     WebDriver driver;
     public CreateServiceElement(WebDriver driver) {
         this.driver = driver;
-        PageFactory.initElements(driver, this);
     }
     By loc_btnSave = By.xpath("(//button[contains(@class,'btn-save')])[1]");
     By loc_btnCancel= By.xpath("(//div[contains(@class,'action-btn--group')])[1]//button[2]");

@@ -14,6 +14,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -170,7 +171,7 @@ public class PermissionAPI {
     	Response response = api.get(GET_GROUP_PERMISSIONS_OF_STAFF_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
     	response.then().statusCode(200);
     	String permissionGroups = response.jsonPath().getString("find { it.id == %s }.permissionGroupIds".formatted(staffID));
-    	return permissionGroups == null? new ArrayList<Integer>() : Arrays.asList(permissionGroups.split(",")).stream().map(Integer::valueOf).collect(Collectors.toList());
+    	return permissionGroups == null ? new ArrayList<>() : Arrays.stream(permissionGroups.split(",")).map(Integer::valueOf).toList();
     }    
     
     /**
@@ -182,6 +183,36 @@ public class PermissionAPI {
     		removeGroupPermissionFromStaff(staffID, id);
     	}
     }    
+
+    /**
+     * Creates a new permission group with specified permissions, assigns it to the specified staff member,
+     * and removes any existing permission groups from the staff member.
+     * @param ownerCredentials The login credentials of the owner performing the action.
+     * @param staffCredentials The login credentials of the staff member to receive the new permission group.
+     * @param model The CreatePermission model defining the specific permissions to include in the group.
+     * @return The ID of the newly created permission group.
+     */
+    public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, CreatePermission model) {
+        int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getSellerID());
+        //Remove all permission groups from the staff
+        removeAllGroupPermissionsFromStaff(staffId);
+        String randomNumbers = new DataGenerator().randomNumberGeneratedFromEpochTime(5);
+        int groupPermissionId = createGroupPermissionAndGetID("Permission " + randomNumbers, "Description " + randomNumbers, model);
+        //Grant the permission to the staff
+        grantGroupPermissionToStaff(staffId, groupPermissionId);
+        return groupPermissionId;
+    } 
+    
+    /**
+     * Creates a new permission group with full permissions, assigns it to the specified staff member,
+     * and removes any existing permission groups from the staff member.
+     * @param ownerCredentials The login credentials of the owner performing the action.
+     * @param staffCredentials The login credentials of the staff member to receive the new permission group.
+     * @return The ID of the newly created permission group.
+     */
+    public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials) {
+    	return createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, CreatePermission.getFullPermissionModel());
+    }    
     
     public static void main(String[] args) {
         PropertiesUtil.setEnvironment("STAG");
@@ -189,30 +220,18 @@ public class PermissionAPI {
         //Set login info of seller and staff
         LoginInformation ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
         LoginInformation staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
-
-        //Get info of staff
-        LoginDashboardInfo staffLoginInfo = new Login().getInfo(staffCredentials);
-        
-        //Get staff id
-        int staffId = new StaffManagement(ownerCredentials).getStaffId(staffLoginInfo.getSellerID());
-        
-        //Remove all permission groups from the staff
-        new PermissionAPI(ownerCredentials).removeAllGroupPermissionsFromStaff(staffId);
         
         //Set permission model
         CreatePermission model = new CreatePermission();
         model.setHome_none("01");
         model.setProduct_productManagement("010");
         model.setCashbook_none("111111111111");
-
-        //Create a permisison
-        int groupPermissionId = new PermissionAPI(ownerCredentials).createGroupPermissionAndGetID("Create Tien's Permission", "Create Description Tien's Permission", model);
+        
+//        int groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, model);
+        int groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 
         //Edit the permission
-        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Tien's Permission", "Description Tien's Permission", model);
-
-        //Grant the permission to the staff
-        new PermissionAPI(ownerCredentials).grantGroupPermissionToStaff(staffId, groupPermissionId);
+//        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Tien's Permission", "Description Tien's Permission", model);
         
         //Get info of the staff after being granted the permission
         LoginDashboardInfo staffLoginInfo1 = new Login().getInfo(staffCredentials);
@@ -220,9 +239,6 @@ public class PermissionAPI {
         //See if the staff has permissions to perform some actions
         System.out.println("Is staff able to change language: " + new AllPermissions(staffLoginInfo1.getStaffPermissionToken()).getHome().isChangLanguage());
         System.out.println("Is staff able to see notifications: " + new AllPermissions(staffLoginInfo1.getStaffPermissionToken()).getHome().isNotification());
-        
-        //Remove the permission group from the staff
-        new PermissionAPI(ownerCredentials).removeGroupPermissionFromStaff(staffId, groupPermissionId);
 
         //Delete the permission group
         new PermissionAPI(ownerCredentials).deleteGroupPermission(groupPermissionId);

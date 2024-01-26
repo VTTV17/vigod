@@ -1,5 +1,6 @@
 package web.Dashboard.service;
 
+import api.Seller.services.CreateServiceAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -7,6 +8,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import utilities.api.API;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.services.ServiceInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.home.HomePage;
 import utilities.constant.Constant;
 import utilities.utils.PropertiesUtil;
@@ -515,5 +520,10 @@ public class CreateServicePage extends HomePage{
         clickSaveBtn();
         verifyUpdateServiceSuccessfully();
         return this;
+    }
+    public ServiceInfo callAPICreateService (LoginInformation loginInformation){
+        ServiceInfo serviceInfo = new ServiceInfo();
+        new CreateServiceAPI(loginInformation).createService(serviceInfo);
+        return serviceInfo;
     }
 }
