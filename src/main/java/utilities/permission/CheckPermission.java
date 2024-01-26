@@ -4,10 +4,13 @@ import api.Seller.login.Login;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.home.HomePage;
+
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 public class CheckPermission {
     WebDriver driver;
@@ -19,16 +22,17 @@ public class CheckPermission {
     }
     By loc_dlgRestricted_btnOK = By.cssSelector(".modal.fade.show .gs-button__deep-blue");
 
-    By loc_lblNoPermissionNotice = By.xpath("//*[@class='access-restricted modal-header' or @class='no-permission-wrapper']");
+    By loc_lblNoPermissionNotice = By.xpath("//*[@class='no-permission-wrapper__content' or @class='access-restricted modal-header']");
 
     public boolean isAccessRestrictedPresent() {
     	try {
     		commonAction.getElement(loc_lblNoPermissionNotice);
             if (commonAction.getAttribute(loc_lblNoPermissionNotice, "class").contains("access-restricted")) {
-                commonAction.closePopup(loc_dlgRestricted_btnOK);
+                commonAction.closePopup(loc_dlgRestricted_btnOK, loc_lblNoPermissionNotice);
             }
     		return true;
     	} catch (TimeoutException ex) {
+            System.out.println(ex);
     		return false;
     	}
     }

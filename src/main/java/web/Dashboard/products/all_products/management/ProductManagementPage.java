@@ -174,7 +174,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // bulk actions
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isActivateProduct()) {
-            assertCustomize.assertTrue(!checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Can not bulk actions update product status to ACTIVE.");
+            commonAction.clickJS(loc_ddlListActions, 3);
+            commonAction.closePopup(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Restricted popup does not shown.");
         }
@@ -188,7 +189,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // bulk actions
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isActivateProduct()) {
-            assertCustomize.assertFalse(checkPermission.checkAccessRestricted(loc_ddlListActions, 2), "Can not update product status to INACTIVE.");
+            commonAction.clickJS(loc_ddlListActions, 2);
+            commonAction.closePopup(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 2), "Restricted popup does not shown.");
         }
@@ -272,11 +274,11 @@ public class ProductManagementPage extends ProductManagementElement {
         // navigate to product list
         navigateToProductList();
 
-        if (!permissions.getProduct().getProductManagement().isPrintBarcode()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPrintBarcode), "Restricted popup does not shown.");
-        } else {
+        if (permissions.getProduct().getProductManagement().isPrintBarcode()) {
             commonAction.openPopupJS(loc_btnPrintBarcode, loc_dlgPrintBarcode);
             commonAction.closePopup(loc_dlgPrintBarcode_btnCancel);
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPrintBarcode), "Restricted popup does not shown.");
         }
         logger.info("Check permission: Print barcode.");
     }

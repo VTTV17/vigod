@@ -877,7 +877,20 @@ public class UICommonAction {
         }
 
         try {
-            getWait().until(numberOfElementsToBeLessThan(locator, 1));
+            getWait(500).until(numberOfElementsToBeLessThan(locator, 1));
+        } catch (TimeoutException ex) {
+            closePopup(locator);
+        }
+    }
+
+    public void closePopup(By locator, By popup) {
+        try {
+            clickJS(locator);
+        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
+        }
+
+        try {
+            getWait(500).until(numberOfElementsToBeLessThan(popup, 1));
         } catch (TimeoutException ex) {
             closePopup(locator);
         }
@@ -891,7 +904,7 @@ public class UICommonAction {
         }
 
         try {
-            getWait().until(numberOfElementsToBeMoreThan(popup, 0));
+            getWait(500).until(numberOfElementsToBeMoreThan(popup, 0));
         } catch (TimeoutException ex) {
             openPopupJS(locator, popup);
         }
@@ -903,7 +916,7 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
         try {
-            getWait().until(numberOfElementsToBeMoreThan(popup, 0));
+            getWait(500).until(numberOfElementsToBeMoreThan(popup, 0));
         } catch (TimeoutException ex) {
             openPopupJS(locator, index, popup);
         }
@@ -915,7 +928,7 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
         try {
-            getWait().until(numberOfElementsToBeMoreThan(dropdown, 0));
+            getWait(500).until(numberOfElementsToBeMoreThan(dropdown, 0));
         } catch (TimeoutException ex) {
             openDropdownJS(locator, dropdown);
         }
@@ -928,7 +941,7 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
         try {
-            getWait().until(numberOfElementsToBeMoreThan(dropdown, 0));
+            getWait(500).until(numberOfElementsToBeMoreThan(dropdown, 0));
         } catch (TimeoutException ex) {
             openDropdownJS(locator, index, dropdown);
         }
@@ -940,7 +953,7 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
         try {
-            getWait().until(numberOfElementsToBeLessThan(dropdown, 1));
+            getWait(500).until(numberOfElementsToBeLessThan(dropdown, 1));
         } catch (TimeoutException ex) {
             closeDropdown(locator, dropdown);
         }
@@ -949,7 +962,7 @@ public class UICommonAction {
     public void viewTooltips(By locator, By tooltips) {
         hoverActions(locator);
         try {
-            getWait().until(numberOfElementsToBeLessThan(tooltips, 1));
+            getWait(500).until(numberOfElementsToBeLessThan(tooltips, 1));
         } catch (TimeoutException ex) {
             viewTooltips(locator, tooltips);
         }
@@ -987,7 +1000,7 @@ public class UICommonAction {
         select.selectByVisibleText(visibleText);
     }
 
-    WebDriverWait getWait() {
-        return new WebDriverWait(driver, Duration.ofMillis(500));
+    public WebDriverWait getWait(int miliSeconds) {
+        return new WebDriverWait(driver, Duration.ofMillis(miliSeconds));
     }
 }

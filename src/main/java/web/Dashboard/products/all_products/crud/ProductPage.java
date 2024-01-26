@@ -2717,6 +2717,7 @@ public class ProductPage extends ProductPageElement {
             // add variation value
             if (!commonAction.getListElement(loc_txtVariationValue).isEmpty()) {
                 commonAction.getElement(loc_txtVariationValue, 0).sendKeys(epoch);
+                commonAction.getElement(loc_txtVariationValue, 0).sendKeys(Keys.ENTER);
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lblVariations), "Restricted popup does not shown.");
             }
         }

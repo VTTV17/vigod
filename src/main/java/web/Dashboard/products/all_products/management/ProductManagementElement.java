@@ -51,4 +51,5 @@ public class ProductManagementElement {
     By loc_dlgUpdatePrice_txtCostPrice = By.xpath("//*[contains(@name,'costPrice')]//parent::div//parent::div//preceding-sibling::input");
     By loc_dlgUpdatePrice_btnUpdate = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgUpdatePrice_btnClose = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By loc_dlgConfirm_icnClose = By.cssSelector(".modal.fade.show .close");
 }
