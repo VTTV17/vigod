@@ -278,11 +278,11 @@ public class ProductPageElement {
     By loc_lblSEOUrl = By.xpath("(//*[@name= 'seoUrl']/parent::div/preceding-sibling::div[1]//span)[1]");
     /* Sale chanel */
     By loc_lblSaleChannel = By.cssSelector("[class $= --n2] > div:nth-child(1) h3");
-    By loc_tltSaleChannel = By.cssSelector(".tippy-tooltip-content");
-    By loc_icnOnlineShop = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[1]");
-    By loc_icnGoMua = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[2]");
-    By loc_icnShopee = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[3]");
-    By loc_icnTiktok = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[4]");
+    String loc_tltSaleChannel = "//*[@id='%s']//div[@class='tippy-tooltip-content']";
+    By loc_icnOnlineShop = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[1]/parent::span/parent::div");
+    By loc_icnGoMua = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[2]/parent::span/parent::div");
+    By loc_icnShopee = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[3]/parent::span/parent::div");
+    By loc_icnTiktok = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[4]/parent::span/parent::div");
     /* Collections */
     By loc_lblCollection = By.cssSelector("[class $= --n2] > div:nth-child(2) h3");
     By loc_plhSearchCollection = By.cssSelector(".product-form-collection-selector2 input");

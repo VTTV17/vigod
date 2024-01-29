@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.pagefactory.ByChained;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
@@ -1914,13 +1915,15 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - SEO URL link.".formatted(language));
     }
 
-    private List<String> getAllSaleChannelTooltips() {
+    private String getSaleChannelTooltips(By locator) {
+        String ariaDescribedBy = commonAction.getAttribute(locator, "aria-describedby");
+        By tltLocator = By.xpath(loc_tltSaleChannel.formatted(ariaDescribedBy));
+        commonAction.hoverActions(locator);
         try {
-            List<WebElement> tooltips = commonAction.getListElement(this.loc_tltSaleChannel);
-            return IntStream.range(0, tooltips.size()).mapToObj(tooltipIndex -> commonAction.getText(this.loc_tltSaleChannel, tooltipIndex)).toList();
-        } catch (IndexOutOfBoundsException | StaleElementReferenceException ex) {
+            return commonAction.getText(tltLocator);
+        } catch (StaleElementReferenceException ex) {
             logger.info(ex);
-            return getAllSaleChannelTooltips();
+            return commonAction.getText(tltLocator);
         }
     }
 
@@ -1932,31 +1935,29 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Sale chanel title.".formatted(language));
 
         // check Online shop tooltips
-        commonAction.viewTooltips(loc_icnOnlineShop, loc_tltSaleChannel);
+        String dbOnlineShopTooltips = getSaleChannelTooltips(loc_icnOnlineShop);
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
-        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppOnlineShopTooltips), "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, getAllSaleChannelTooltips()));
+        assertCustomize.assertEquals(dbOnlineShopTooltips, ppOnlineShopTooltips, "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, dbOnlineShopTooltips));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
-        // check Gomua tooltips
-        commonAction.viewTooltips(loc_icnGoMua, loc_tltSaleChannel);
-        String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
-        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppGomuaTooltips), "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, getAllSaleChannelTooltips()));
+        // check GoMua tooltips
+        String dbGoMuaTooltips = getSaleChannelTooltips(loc_icnGoMua);
+        String ppGoMuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
+        assertCustomize.assertEquals(dbGoMuaTooltips, ppGoMuaTooltips, "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGoMuaTooltips, dbGoMuaTooltips));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
-        commonAction.viewTooltips(loc_icnShopee, loc_tltSaleChannel);
+        String dbShopeeTooltips = getSaleChannelTooltips(loc_icnShopee);
         List<String> ppShopeeTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.shopeeTooltips.IMEI", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedShopeeTooltips", language));
-        List<String> joinShopeeList = getAllSaleChannelTooltips().stream().filter(ppShopeeTooltips::contains).toList();
-        assertCustomize.assertFalse(joinShopeeList.isEmpty(), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips.toString(), getAllSaleChannelTooltips()));
+        assertCustomize.assertTrue(ppShopeeTooltips.contains(dbShopeeTooltips), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips.toString(), dbShopeeTooltips));
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
-        commonAction.viewTooltips(loc_icnTiktok, loc_tltSaleChannel);
+        String dbTiktokTooltips = getSaleChannelTooltips(loc_icnTiktok);
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
-        List<String> joinTiktokList = getAllSaleChannelTooltips().stream().filter(ppTiktokTooltips::contains).toList();
-        assertCustomize.assertFalse(joinTiktokList.isEmpty(), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), getAllSaleChannelTooltips()));
+        assertCustomize.assertFalse(ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), dbTiktokTooltips));
         logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
 
@@ -2583,7 +2584,7 @@ public class ProductPage extends ProductPageElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
 
-    public void checkProductManagementPermission(AllPermissions permissions, int createdProductId, int notCreatedProductId, List<Integer> manualCollectionIds) {
+    public void checkProductManagementPermission(AllPermissions permissions, int productId, List<Integer> manualCollectionIds) {
         // get staff permission
         this.permissions = permissions;
 
@@ -2591,7 +2592,7 @@ public class ProductPage extends ProductPageElement {
         checkPermission = new CheckPermission(driver);
 
         // check view product detail
-        checkViewProductDetail(createdProductId, manualCollectionIds);
+        checkViewProductDetail(productId, manualCollectionIds);
     }
 
     void checkViewProductDetail(int productId, List<Integer> manualCollectionIds) {

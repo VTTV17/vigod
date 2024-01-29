@@ -815,7 +815,12 @@ public class UICommonAction {
     }
 
     public String getLangKey() {
-        return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
+        try {
+            return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
+        } catch (NullPointerException ex) {
+            driver.navigate().refresh();
+            return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
+        }
     }
 
     public void waitVisibilityOfElementLocated(By locator) {
@@ -954,15 +959,6 @@ public class UICommonAction {
             getWait(500).until(numberOfElementsToBeLessThan(dropdown, 1));
         } catch (TimeoutException ex) {
             closeDropdown(locator, dropdown);
-        }
-    }
-
-    public void viewTooltips(By locator, By tooltips) {
-        hoverActions(locator);
-        try {
-            getWait(500).until(numberOfElementsToBeLessThan(tooltips, 1));
-        } catch (TimeoutException ex) {
-            viewTooltips(locator, tooltips);
         }
     }
 

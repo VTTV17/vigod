@@ -147,7 +147,7 @@ public class ProductManagementPage extends ProductManagementElement {
         checkCreateProduct(manualCollectionIds);
 
         // check view product detail
-        productPage.checkProductManagementPermission(permissions, createdProductId, notCreatedProductId, manualCollectionIds);
+        productPage.checkProductManagementPermission(permissions, createdProductId, manualCollectionIds);
     }
 
     /**

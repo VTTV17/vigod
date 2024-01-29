@@ -1,4 +1,4 @@
-package web.Dashboard.products.inventory;
+package web.Dashboard.products.inventory.history;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,21 +13,20 @@ import org.openqa.selenium.WebElement;
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
 
-public class InventoryHistory {
+public class InventoryHistoryPage extends InventoryHistoryElement {
 	WebDriver driver;
 	UICommonAction commons;
 
-	final static Logger logger = LogManager.getLogger(InventoryHistory.class);
+	final static Logger logger = LogManager.getLogger(InventoryHistoryPage.class);
 
-	public InventoryHistory(WebDriver driver) {
+	public InventoryHistoryPage(WebDriver driver) {
 		this.driver = driver;
 		commons = new UICommonAction(driver);
 	}
 
-	By loc_txtSearchRecord = By.cssSelector(".uik-input__input");	
-	By loc_tmpRecords = By.xpath("//div[contains(@class,'inventory_history')]//table/tbody/tr");
+
 	
-	public InventoryHistory inputSearchTerm(String searchTerm) {
+	public InventoryHistoryPage inputSearchTerm(String searchTerm) {
 		commons.sendKeys(loc_txtSearchRecord, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		commons.sleepInMiliSecond(1000); //It takes some time for the search operation to commence after the search term is input
