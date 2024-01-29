@@ -118,6 +118,12 @@ public class ProductManagementPage extends ProductManagementElement {
         checkViewProductList(createdProductId, notCreatedProductId);
 
         if (permissions.getProduct().getProductManagement().isViewProductList() || permissions.getProduct().getProductManagement().isViewCreatedProductList()) {
+            // check clear stock
+            checkClearStock();
+
+            // check delete product
+            checkDeleteProduct();
+
             // check activate product
             checkActivateProduct();
 
@@ -163,8 +169,8 @@ public class ProductManagementPage extends ProductManagementElement {
         } else {
             assertCustomize.assertTrue(dbProductList.isEmpty(), "[Failed] All products must be hidden, but found: %s.".formatted(dbProductList.toString()));
         }
-        logger.info("Check permission: View product list.");
-        logger.info("Check permission: View created product list.");
+        logger.info("Check permission: Product >> Product management >> View product list.");
+        logger.info("Check permission: Product >> Product management >> View created product list.");
     }
 
     void checkActivateProduct() {
@@ -179,7 +185,7 @@ public class ProductManagementPage extends ProductManagementElement {
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Activate product.");
+        logger.info("Check permission: Product >> Product management >> Activate product.");
     }
 
     void checkDeactivateProduct() {
@@ -194,7 +200,7 @@ public class ProductManagementPage extends ProductManagementElement {
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 2), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Deactivate product.");
+        logger.info("Check permission: Product >> Product management >> Deactivate product.");
     }
 
     void checkCreateProduct(List<Integer> manualCollectionIds) throws Exception {
@@ -217,7 +223,7 @@ public class ProductManagementPage extends ProductManagementElement {
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateProduct), "[Failed] Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
         }
-        logger.info("Check permission: Create product.");
+        logger.info("Check permission: Product >> Product management >> Create product.");
     }
 
 
@@ -230,11 +236,11 @@ public class ProductManagementPage extends ProductManagementElement {
         if (permissions.getProduct().getProductManagement().isEditPrice()) {
             // update price
             bulkActionsUpdatePrice(MAX_PRICE, MAX_PRICE, nextLong(1000));
-            logger.info("Check permission: View cost price.");
+            logger.info("Check permission: Product >> Product management >> View cost price.");
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 8), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Edit price.");
+        logger.info("Check permission: Product >> Product management >> Edit price.");
     }
 
     void checkExportProduct() {
@@ -250,7 +256,7 @@ public class ProductManagementPage extends ProductManagementElement {
             // check download export all products
             checkDownloadExportedProducts();
         }
-        logger.info("Check permission: Export product.");
+        logger.info("Check permission: Product >> Product management >> Export product.");
     }
 
     void checkImportProduct() {
@@ -267,7 +273,7 @@ public class ProductManagementPage extends ProductManagementElement {
             commonAction.clickJS(loc_btnImport);
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 0), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Import product.");
+        logger.info("Check permission: Product >> Product management >> Import product.");
     }
 
     void checkPrintBarcode() {
@@ -280,7 +286,7 @@ public class ProductManagementPage extends ProductManagementElement {
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPrintBarcode), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Print barcode.");
+        logger.info("Check permission: Product >> Product management >> Print barcode.");
     }
 
     void checkDownloadExportedProducts() {
@@ -288,7 +294,7 @@ public class ProductManagementPage extends ProductManagementElement {
         if (!permissions.getProduct().getProductManagement().isDownloadExportProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportFile), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Download exported product.");
+        logger.info("Check permission: Product >> Product management >> Download exported product.");
     }
 
     void checkUpdateWholesalePrice() {
@@ -307,7 +313,38 @@ public class ProductManagementPage extends ProductManagementElement {
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 1), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Update wholesale price.");
+        logger.info("Check permission: Product >> Product management >> Update wholesale price.");
+    }
+
+    void checkClearStock() {
+        logger.info("Check permission: Product >> Inventory >> Clear stock.");
+
+        // navigate to product list
+        navigateToProductList();
+
+        // bulk actions
+        openBulkActionsDropdown();
+        if (permissions.getProduct().getInventory().isClearStock()) {
+            commonAction.clickJS(loc_ddlListActions, 0);
+            commonAction.closePopup(loc_dlgConfirm_icnClose);
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 0), "Restricted popup does not shown.");
+        }
+    }
+
+    void checkDeleteProduct() {
+        // navigate to product list
+        navigateToProductList();
+
+        // bulk actions
+        openBulkActionsDropdown();
+        if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
+            commonAction.clickJS(loc_ddlListActions, 1);
+            commonAction.closePopup(loc_dlgConfirm_icnClose);
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 1), "Restricted popup does not shown.");
+        }
+        logger.info("Check permission: Product >> Product management >> Delete product.");
     }
 
     void checkAddVariation() {
@@ -325,13 +362,13 @@ public class ProductManagementPage extends ProductManagementElement {
             // check delete variation
             checkDeleteVariation();
         }
-        logger.info("Check permission: Add variation.");
+        logger.info("Check permission: Product >> Product management >> Add variation.");
     }
 
     void checkDeleteVariation() {
         if (!permissions.getProduct().getProductManagement().isDeleteVariation()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productPage.getLoc_btnDeleteVariation()), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Delete variation.");
+        logger.info("Check permission: Product >> Product management >> Delete variation.");
     }
 }

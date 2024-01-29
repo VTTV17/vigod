@@ -712,21 +712,19 @@ public class UICommonAction {
     }
 
     public String getText(By locator) {
-        String textContent = null;
         try {
-            textContent = getAttribute(locator, "innerText");
-        } catch (StaleElementReferenceException ignore) {
+            return trim(getAttribute(locator, "innerText"));
+        } catch (StaleElementReferenceException ex) {
+            return trim(getAttribute(locator, "innerText"));
         }
-        return textContent != null ? trim(textContent) : getText(locator);
     }
 
     public String getText(By locator, int index) {
-        String textContent = null;
         try {
-            textContent = getAttribute(locator, index, "innerText");
-        } catch (StaleElementReferenceException ignore) {
+            return trim(getAttribute(locator, index, "innerText"));
+        } catch (StaleElementReferenceException ex) {
+            return trim(getAttribute(locator, index, "innerText"));
         }
-        return textContent != null ? trim(textContent) : getText(locator, index);
     }
 
     public String getValue(By locator) {

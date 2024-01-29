@@ -5,11 +5,11 @@
         <classes>
             <class name="web.Dashboard.UpdateProductTest">
                 <methods>
-<!--                    <include name="UP_PRODUCT_G1_01_SettingDisplayAndProductInStock"/>-->
+                    <include name="UP_PRODUCT_G1_01_SettingDisplayAndProductInStock"/>
 <!--                    <include name="UP_PRODUCT_G1_02_SettingDisplayAndProductOutOfStock"/>-->
 <!--                    <include name="UP_PRODUCT_G1_03_SettingHiddenAndProductInStock"/>-->
 <!--                    <include name="UP_PRODUCT_G1_04_SettingHiddenAndProductOutOfStock"/>-->
-                    <include name="UP_PRODUCT_G1_05_EditTranslation" />
+<!--                    <include name="UP_PRODUCT_G1_05_EditTranslation" />-->
 <!--                    <include name="UP_PRODUCT_G1_06_ChangeProductStatus" />-->
 <!--                    <include name="UP_PRODUCT_G1_07_UncheckWebPlatform" />-->
 <!--                    <include name="UP_PRODUCT_G1_08_DeleteProduct" />-->

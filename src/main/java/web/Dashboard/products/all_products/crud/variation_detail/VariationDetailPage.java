@@ -338,7 +338,7 @@ public class VariationDetailPage extends VariationDetailElement {
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getVariationStatus().get(0).equals("INACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Activate product.");
+        logger.info("Check permission: Product >> Product management >> Activate product.");
     }
 
     public void checkDeactivateVariation(AllPermissions permissions, CheckPermission checkPermission) {
@@ -346,7 +346,7 @@ public class VariationDetailPage extends VariationDetailElement {
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getVariationStatus().get(0).equals("ACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Deactivate product.");
+        logger.info("Check permission: Product >> Product management >> Deactivate product.");
     }
 
     public void checkEditTranslation(AllPermissions permissions, CheckPermission checkPermission) {
@@ -354,6 +354,6 @@ public class VariationDetailPage extends VariationDetailElement {
         if (!permissions.getProduct().getProductManagement().isEditTranslation()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnEditTranslation), "Restricted popup does not shown.");
         }
-        logger.info("Check permission: Update product translation.");
+        logger.info("Check permission: Product >> Product management >> Update product translation.");
     }
 }
