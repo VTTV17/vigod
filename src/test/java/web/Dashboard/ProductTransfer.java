@@ -22,8 +22,8 @@ import web.BaseTest;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
-import web.Dashboard.products.inventory.Inventory;
-import web.Dashboard.products.inventory.InventoryHistory;
+import web.Dashboard.products.inventory.InventoryPage;
+import web.Dashboard.products.inventory.history.InventoryHistoryPage;
 import web.Dashboard.products.transfer.Transfer;
 import utilities.commons.UICommonAction;
 import utilities.account.AccountTest;
@@ -39,8 +39,8 @@ public class ProductTransfer extends BaseTest {
 	HomePage homePage;
 	Transfer transferPage;
 	ProductPage productPage;
-	Inventory inventoryPage;
-	InventoryHistory inventoryHistoryPage;
+	InventoryPage inventoryPage;
+	InventoryHistoryPage inventoryHistoryPage;
 	
 	String username;
 	String password;
@@ -71,8 +71,8 @@ public class ProductTransfer extends BaseTest {
 		homePage = new HomePage(driver);
 		transferPage = new Transfer(driver);
 		productPage = new ProductPage(driver, loginInformation);
-		inventoryPage = new Inventory(driver);
-		inventoryHistoryPage = new InventoryHistory(driver);
+		inventoryPage = new InventoryPage(driver);
+		inventoryHistoryPage = new InventoryHistoryPage(driver);
 		commonAction = new UICommonAction(driver);
 		generate = new DataGenerator();
 	}

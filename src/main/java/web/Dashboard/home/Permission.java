@@ -37,7 +37,7 @@ import web.Dashboard.orders.createquotation.CreateQuotation;
 import web.Dashboard.orders.orderlist.OrderList;
 import web.Dashboard.orders.returnorders.ReturnOrders;
 import web.Dashboard.products.all_products.crud.ProductPage;
-import web.Dashboard.products.inventory.Inventory;
+import web.Dashboard.products.inventory.InventoryPage;
 import web.Dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import web.Dashboard.products.productreviews.ProductReviews;
 import web.Dashboard.products.purchaseorders.PurchaseOrders;
@@ -183,7 +183,7 @@ public class Permission {
 						case "Inventory" -> {
 							switch (function) {
 								case "Inventory History" -> {
-									new Inventory(driver).verifyPermissionToSeeInventoryHistory(permission.get(menuComponent),
+									new InventoryPage(driver).verifyPermissionToSeeInventoryHistory(permission.get(menuComponent),
 											url.get(menuComponent));
 								}
 							}
