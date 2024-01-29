@@ -33,11 +33,11 @@ public class ConversionUnitPage extends ConversionUnitElement {
     List<String> variationList;
     AssertCustomize assertCustomize;
 
-    public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation) {
+    public ConversionUnitPage(WebDriver driver, LoginInformation loginInformation, ProductPage productPage) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        productPage = new ProductPage(driver, loginInformation);
+        this.productPage = productPage;
         language = ProductPage.getLanguage();
         unit = new ConversionUnit(loginInformation);
         variationList = ProductPage.getVariationList();

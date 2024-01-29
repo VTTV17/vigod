@@ -43,11 +43,11 @@ public class WholesaleProductPage extends WholesaleProductElement {
     List<Long> productSellingPrice;
     LoginInformation loginInformation;
 
-    public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation) {
+    public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation, ProductPage productPage) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         this.loginInformation = loginInformation;
-        productPage = new ProductPage(driver, loginInformation);
+        this.productPage = productPage;
         commonAction = productPage.getCommonAction();
         productID = ProductPage.getProductID();
         variationList = ProductPage.getVariationList();

@@ -77,14 +77,14 @@ public class ProductPage extends ProductPageElement {
         storeInfo = new StoreInformation(loginInformation).getInfo();
 
         // always reset count false when init ProductPage model.
-        AssertCustomize.setResetCountFalse(true);
+        AssertCustomize.setKeepCountFalse(false);
 
         // init assert customize function
         assertCustomize = new AssertCustomize(driver);
 
         // turn off count false flag to keep number of failure
         // combine with another test on product detail page
-        AssertCustomize.setResetCountFalse(false);
+        AssertCustomize.setKeepCountFalse(true);
     }
 
     String name;
@@ -1013,21 +1013,21 @@ public class ProductPage extends ProductPageElement {
     }
 
     public void configWholesaleProduct() throws Exception {
-        if (hasModel) new WholesaleProductPage(driver, loginInformation)
+        if (hasModel) new WholesaleProductPage(driver, loginInformation, this)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductVariation();
-        else new WholesaleProductPage(driver, loginInformation)
+        else new WholesaleProductPage(driver, loginInformation, this)
                 .navigateToWholesaleProductPage()
                 .getWholesaleProductInfo()
                 .addWholesaleProductWithoutVariation();
     }
 
     public ProductPage configConversionUnit() throws Exception {
-        if (hasModel) new ConversionUnitPage(driver, loginInformation)
+        if (hasModel) new ConversionUnitPage(driver, loginInformation, this)
                 .navigateToConversionUnitPage()
                 .addConversionUnitVariation();
-        else new ConversionUnitPage(driver, loginInformation)
+        else new ConversionUnitPage(driver, loginInformation, this)
                 .navigateToConversionUnitPage()
                 .addConversionUnitWithoutVariation();
         return this;
@@ -1934,13 +1934,13 @@ public class ProductPage extends ProductPageElement {
         // check Online shop tooltips
         commonAction.viewTooltips(loc_icnOnlineShop, loc_tltSaleChannel);
         String ppOnlineShopTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.onlineShopTooltips", language);
-        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppOnlineShopTooltips), "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, loc_tltSaleChannel));
+        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppOnlineShopTooltips), "[Failed][Body] Online shop tooltips should be %s, but found %s.".formatted(ppOnlineShopTooltips, getAllSaleChannelTooltips()));
         logger.info("[UI][%s] Check Body - Online shop tooltips.".formatted(language));
 
         // check Gomua tooltips
         commonAction.viewTooltips(loc_icnGoMua, loc_tltSaleChannel);
         String ppGomuaTooltips = getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.gomuaTooltips", language);
-        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppGomuaTooltips), "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, loc_tltSaleChannel.toString()));
+        assertCustomize.assertTrue(getAllSaleChannelTooltips().contains(ppGomuaTooltips), "[Failed][Body] Gomua tooltips should be %s, but found %s.".formatted(ppGomuaTooltips, getAllSaleChannelTooltips()));
         logger.info("[UI][%s] Check Body - Gomua tooltips.".formatted(language));
 
         // check Shopee tooltips
@@ -1949,14 +1949,14 @@ public class ProductPage extends ProductPageElement {
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedShopeeTooltips", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedShopeeTooltips", language));
         List<String> joinShopeeList = getAllSaleChannelTooltips().stream().filter(ppShopeeTooltips::contains).toList();
-        assertCustomize.assertFalse(joinShopeeList.isEmpty(), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips.toString(), loc_tltSaleChannel.toString()));
+        assertCustomize.assertFalse(joinShopeeList.isEmpty(), "[Failed][Body] Shopee tooltips should be %s, but found %s.".formatted(ppShopeeTooltips.toString(), getAllSaleChannelTooltips()));
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
         commonAction.viewTooltips(loc_icnTiktok, loc_tltSaleChannel);
         List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
         List<String> joinTiktokList = getAllSaleChannelTooltips().stream().filter(ppTiktokTooltips::contains).toList();
-        assertCustomize.assertFalse(joinTiktokList.isEmpty(), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), loc_tltSaleChannel.toString()));
+        assertCustomize.assertFalse(joinTiktokList.isEmpty(), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), getAllSaleChannelTooltips()));
         logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
 

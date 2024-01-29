@@ -14,17 +14,23 @@ public class AssertCustomize {
     WebDriver driver;
     @Getter
     @Setter
-    static int countFalse = 0;
+    static int countFalse;
 
     @Setter
-    static boolean resetCountFalse = true;
+    @Getter
+    private static boolean keepCountFalse;
 
     public AssertCustomize(WebDriver driver) {
         this.driver = driver;
+        System.out.println("current fail: " + countFalse);
+        System.out.println("reset: " + !keepCountFalse);
 
         // reset count false
-        if (resetCountFalse) setCountFalse(0);
-        else setResetCountFalse(true);
+        if (keepCountFalse) {
+            setKeepCountFalse(false);
+        } else {
+            setCountFalse(0);
+        }
     }
 
     Logger logger = LogManager.getLogger(AssertCustomize.class);
