@@ -9,6 +9,7 @@ import utilities.commons.UICommonAction;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import utilities.utils.FileUtils;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
 import java.io.File;
@@ -53,9 +54,16 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void exportAllProducts() {
+        navigateToProductList();
         commonAction.clickJS(loc_btnExport);
         commonAction.clickJS(loc_ddlExportActions, 0);
         commonAction.clickJS(loc_dlgExportProductListingFile_btnExport);
+    }
+
+    void exportWholesaleProducts() {
+        navigateToProductList();
+        commonAction.clickJS(loc_btnExport);
+        commonAction.clickJS(loc_ddlExportActions, 1);
     }
 
     void importProduct() {
@@ -250,9 +258,6 @@ public class ProductManagementPage extends ProductManagementElement {
         if (!permissions.getProduct().getProductManagement().isExportProducts()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup does not shown.");
         } else {
-            // export all products
-            exportAllProducts();
-
             // check download export all products
             checkDownloadExportedProducts();
         }
@@ -289,10 +294,35 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Check permission: Product >> Product management >> Print barcode.");
     }
 
+    void navigateToDownloadHistory() {
+        if (!driver.getCurrentUrl().contains("/export-history"))
+            driver.get("%s/product/export-history".formatted(DOMAIN));
+    }
+
     void checkDownloadExportedProducts() {
-        driver.get("%s/product/export-history".formatted(DOMAIN));
+        FileUtils fileUtils = new FileUtils();
         if (!permissions.getProduct().getProductManagement().isDownloadExportProduct()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportFile), "Restricted popup does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportFile, 0), "Restricted popup does not shown.");
+        } else {
+            // delete old wholesale price exported file
+            fileUtils.deleteFileInDownloadFolder("wholesale-price-export");
+
+            // delete old exported product
+            fileUtils.deleteFileInDownloadFolder("EXPORT_PRODUCT");
+
+            // export product list
+            exportAllProducts();
+
+            // download new exported product
+            navigateToDownloadHistory();
+            commonAction.click(loc_icnDownloadExportFile, 0);
+            commonAction.sleepInMiliSecond(1000, "Waiting for download.");
+            assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("EXPORT_PRODUCT"), "No exported product file is downloaded.");
+
+            // export wholesale product
+            exportWholesaleProducts();
+            commonAction.sleepInMiliSecond(1000, "Waiting for download.");
+            assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("wholesale-price-export"), "No exported wholesale product file is downloaded.");
         }
         logger.info("Check permission: Product >> Product management >> Download exported product.");
     }

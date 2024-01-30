@@ -77,15 +77,8 @@ public class ProductPage extends ProductPageElement {
         // get store information
         storeInfo = new StoreInformation(loginInformation).getInfo();
 
-        // always reset count false when init ProductPage model.
-        AssertCustomize.setKeepCountFalse(false);
-
         // init assert customize function
         assertCustomize = new AssertCustomize(driver);
-
-        // turn off count false flag to keep number of failure
-        // combine with another test on product detail page
-        AssertCustomize.setKeepCountFalse(true);
     }
 
     String name;
@@ -2596,11 +2589,11 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkViewProductDetail(int productId, List<Integer> manualCollectionIds) {
-        // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
-
         // check view product detail permission
         if (permissions.getProduct().getProductManagement().isViewProductDetail()) {
+            // get product information
+            productInfo = new ProductInformation(loginInformation).getInfo(productId);
+
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/product/edit/%s".formatted(DOMAIN, productId), "/product/edit/"), "[Failed] Product detail page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
 
             // check edit product and related permission
