@@ -2,11 +2,7 @@ package web.Dashboard.service.servicecollections;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 public class CreateEditServiceCollectionElement {
     WebDriver driver;
@@ -21,7 +17,10 @@ public class CreateEditServiceCollectionElement {
     By loc_lblDrapAndDropPhoto = By.xpath("//input[@type='file']/following-sibling::div[2]");
     By loc_btnSave = By.xpath("(//button[contains(@class,'btn-save')])[1]");
     By loc_btnCancel = By.xpath("(//div[contains(@class,'action-btn--group')])[1]//button[2]");
+    By loc_btnDelete = By.xpath("//div[contains(@class,'page-toolbar')]//button[contains(@class,'red')]");
     By loc_dlgNotification_btnClose = By.cssSelector(".modal-footer button");
+    By loc_dlgNotification_lblMessage = By.cssSelector(".modal-body");
+    By loc_dlgConfirmation_btnOK = By.cssSelector("[data-testid='confirmBtn']");
     By loc_chbManualValue = By.id("radio-collectionType-MANUAL");
     By loc_chbManualAction = By.xpath("//input[@id='radio-collectionType-MANUAL']/following-sibling::label");
     By loc_chbAutomatedValue = By.id("radio-collectionType-AUTOMATED");
