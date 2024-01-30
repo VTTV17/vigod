@@ -465,13 +465,13 @@ public class UICommonAction {
         return driver.findElements(By.xpath(xpath));
     }
 
-    public void sleepInMiliSecond(long miliSecond) {
+    public void sleepInMiliSecond(long miliSecond, String... note) {
         try {
             sleep(miliSecond);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        logger.info("Sleep: " + miliSecond);
+        logger.info("Sleep: " + miliSecond + "%s".formatted((note.length != 0) ? (", %s".formatted(note[0])) : ""));
     }
 
     public Boolean isElementDisplay(WebElement element) {
