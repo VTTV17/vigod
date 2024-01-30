@@ -30,6 +30,7 @@ public class PermissionAPI {
     API api = new API();
     LoginDashboardInfo loginInfo;
 
+
     @Data
     static
     class PermissionModel {
@@ -135,6 +136,11 @@ public class PermissionAPI {
     public void deleteGroupPermission(int groupID) {
         Response response = api.delete(EDIT_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID(), groupID), loginInfo.getAccessToken());
         response.then().statusCode(204);
+    }
+    public void deleteGroupPermission(List<Integer>groupIds){
+        for (int groupId:groupIds) {
+            deleteGroupPermission(groupId);
+        }
     }
 
     /**

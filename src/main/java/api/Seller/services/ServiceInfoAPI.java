@@ -1,6 +1,7 @@
 package api.Seller.services;
 
 import api.Seller.login.Login;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -160,7 +161,7 @@ public class ServiceInfoAPI {
         }
     }
     public int getInactiveServiceId(){
-        String path = SERVICE_LISH_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%",String.valueOf("")).replaceAll("%sort%","");
+        String path = SERVICE_LISH_PATH.replaceAll("%storeID%",String.valueOf(loginInfo.getStoreID())).replaceAll("%collectionId%","").replaceAll("%sort%","");
         Response response = api.get(path,loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<Integer> serviceIDList = response.jsonPath().getList("id");
@@ -170,10 +171,20 @@ public class ServiceInfoAPI {
                 return serviceIDList.get(serviceStatusList.indexOf(serviceStatus));
             }
         }
+        //edit service to deactive
+        EditServiceAPI editServiceAPI = new EditServiceAPI(loginInformation);
+        editServiceAPI.setActiveStatus(false);
         try {
-            throw new Exception("Not found Inactive service.");
-        } catch (Exception e) {
+            int serviceId = getActiveServiceId();
+            editServiceAPI.updateService(serviceId);
+            return serviceId;
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+//        try {
+//            throw new Exception("Not found Inactive service.");
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
