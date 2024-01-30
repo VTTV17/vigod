@@ -1,6 +1,5 @@
 package api.Seller.login;
 
-import api.Seller.setting.StoreInformation;
 import com.google.common.collect.Iterables;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
