@@ -32,7 +32,6 @@ public class CheckPermission {
             }
     		return true;
     	} catch (TimeoutException ex) {
-            System.out.println(ex);
     		return false;
     	}
     }
