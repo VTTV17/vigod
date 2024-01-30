@@ -22,15 +22,6 @@ public class AssertCustomize {
 
     public AssertCustomize(WebDriver driver) {
         this.driver = driver;
-        System.out.println("current fail: " + countFalse);
-        System.out.println("reset: " + !keepCountFalse);
-
-        // reset count false
-        if (keepCountFalse) {
-            setKeepCountFalse(false);
-        } else {
-            setCountFalse(0);
-        }
     }
 
     Logger logger = LogManager.getLogger(AssertCustomize.class);
