@@ -3,6 +3,7 @@ package web;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.excel.Excel;
@@ -25,7 +26,7 @@ public class BaseTest {
     @BeforeSuite
     @Parameters({"browser", "headless", "environment", "language"})
     public void getConfig(@Optional("chrome") String browser,
-                   @Optional("false") String headless,
+                   @Optional("true") String headless,
                    @Optional("STAG") String environment,
                    @Optional("VIE") String language) {
         this.browser = browser;
@@ -41,6 +42,9 @@ public class BaseTest {
     public void writeResult(ITestResult result) throws IOException {
         if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
         new Screenshot().takeScreenshot(driver);
+
+        // reset count false
+        AssertCustomize.setCountFalse(0);
     }
 
     public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
@@ -57,6 +61,6 @@ public class BaseTest {
 
     @AfterSuite
     void tearDown() {
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
 }
