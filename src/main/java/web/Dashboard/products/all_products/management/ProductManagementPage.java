@@ -124,6 +124,7 @@ public class ProductManagementPage extends ProductManagementElement {
     // check permission
     // ticket: https://mediastep.atlassian.net/browse/BH-13814
     public void checkProductManagementPermission(AllPermissions permissions, int createdProductId, int notCreatedProductId, List<Integer> manualCollectionIds) throws Exception {
+        APIAllProducts allProducts = new APIAllProducts(loginInformation);
         // get staff permission
         this.permissions = permissions;
 
@@ -131,7 +132,7 @@ public class ProductManagementPage extends ProductManagementElement {
         checkPermission = new CheckPermission(driver);
 
         // check view product list
-        checkViewProductList(createdProductId, notCreatedProductId);
+        checkViewProductList(allProducts, createdProductId, notCreatedProductId);
 
         if (permissions.getProduct().getProductManagement().isViewProductList() || permissions.getProduct().getProductManagement().isViewCreatedProductList()) {
             // check clear stock
@@ -163,19 +164,20 @@ public class ProductManagementPage extends ProductManagementElement {
         checkCreateProduct(manualCollectionIds);
 
         // check view product detail
-        productPage.checkProductManagementPermission(permissions, createdProductId, manualCollectionIds);
+        if (!allProducts.getListProduct().getProductIds().isEmpty())
+            productPage.checkProductManagementPermission(permissions, createdProductId, manualCollectionIds);
     }
 
     /**
      * @param createdProductId    product is created by staff.
      * @param notCreatedProductId product is created by owner or other staff.
      */
-    void checkViewProductList(int createdProductId, int notCreatedProductId) {
+    void checkViewProductList(APIAllProducts allProducts, int createdProductId, int notCreatedProductId) {
         // navigate to product list
         navigateToProductList();
 
         // GET the product list from API.
-        List<Integer> dbProductList = new APIAllProducts(loginInformation).getListProduct().getProductIds();
+        List<Integer> dbProductList = allProducts.getListProduct().getProductIds();
         if (permissions.getProduct().getProductManagement().isViewProductList()) {
             List<Integer> checkData = List.of(createdProductId, notCreatedProductId);
             assertCustomize.assertTrue(new HashSet<>(dbProductList).containsAll(checkData), "[Failed] List product must be contains: %s, but found list product: %s.".formatted(checkData.toString(), dbProductList.toString()));

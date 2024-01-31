@@ -2385,9 +2385,8 @@ public class ProductPage extends ProductPageElement {
     }
 
     public void navigateToProductDetailById(int productId) {
-        commonAction.navigateToURL(DOMAIN + updateProductPath.formatted(productId));
-        new HomePage(driver).waitTillSpinnerDisappear1();
-        commonAction.getElement(loc_lblSEOSetting);
+        if (!driver.getCurrentUrl().contains(updateProductPath.formatted(productId)))
+            commonAction.navigateToURL(DOMAIN + updateProductPath.formatted(productId));
     }
 
     public Map<String, Integer> getStock() {
@@ -2588,13 +2587,18 @@ public class ProductPage extends ProductPageElement {
         checkViewProductDetail(productId, manualCollectionIds);
     }
 
+    int productId;
     void checkViewProductDetail(int productId, List<Integer> manualCollectionIds) {
         // check view product detail permission
         if (permissions.getProduct().getProductManagement().isViewProductDetail()) {
             // get product information
             productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/product/edit/%s".formatted(DOMAIN, productId), "/product/edit/"), "[Failed] Product detail page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+            // get productId
+            this.productId = productId;
+
+            // navigate to product detail page
+            navigateToProductDetailById(productId);
 
             // check edit product and related permission
             checkEditProduct(manualCollectionIds);
@@ -2666,6 +2670,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkUpdateStock() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getInventory().isUpdateStock()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productInfo.isHasModel() ? loc_tblVariation_txtStock : loc_txtWithoutVariationBranchStock, 0), "Restricted popup does not shown.");
         }
@@ -2673,6 +2681,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkEditPrice() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isEditPrice()) {
             if (productInfo.isHasModel()) {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_txtListingPrice_0), "Restricted popup does not shown.");
@@ -2685,6 +2697,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkEnableProductLot() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getLotDate().isEnableProductLot()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkManageStockByLotDate), "Restricted popup does not shown.");
         }
@@ -2692,6 +2708,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkDeleteProduct() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnDelete, loc_dlgConfirm), "Confirm delete product popup does not shown.");
             commonAction.closePopup(loc_dlgConfirm_btnCancel);
@@ -2702,6 +2722,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkAddVariation() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isAddVariation()) {
             // add new variation group
             if (!commonAction.getListElement(loc_btnAddVariation).isEmpty()) {
@@ -2719,6 +2743,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkDeleteVariation() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isDeleteVariation()) {
             if (!commonAction.getListElement(loc_btnDeleteVariation).isEmpty()) {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeleteVariation), "Restricted popup does not shown.");
@@ -2728,6 +2756,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkActiveProduct() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("INACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
             if (productInfo.isHasModel()) {
@@ -2738,6 +2770,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkDeactivateProduct() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("ACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
             if (productInfo.isHasModel()) {
@@ -2749,6 +2785,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkUpdateWholesalePrice() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isUpdateWholesalePrice()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkAddWholesalePricing), "Restricted popup does not shown.");
         }
@@ -2756,6 +2796,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkEditTax() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isEditTax() && permissions.getSetting().getTAX().isViewTAXList()) {
             selectVAT();
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave), "Restricted popup does not shown.");
@@ -2764,6 +2808,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkViewCostPrice() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
             assertCustomize.assertTrue((productInfo.isHasModel() ? commonAction.getValue(loc_txtCostPrice_0) : commonAction.getValue(loc_txtWithoutVariationCostPrice)).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
         }
@@ -2771,6 +2819,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkUpdateSEOData() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isEditSEOData()) {
             inputSEO();
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave), "Restricted popup does not shown.");
@@ -2779,6 +2831,10 @@ public class ProductPage extends ProductPageElement {
     }
 
     void checkUpdateTranslation() {
+        // navigate to product detail page
+        navigateToProductDetailById(productId);
+
+        // check permission
         if (!permissions.getProduct().getProductManagement().isEditTranslation()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lblEditTranslation), "Restricted popup does not shown.");
             if (productInfo.isHasModel()) {
