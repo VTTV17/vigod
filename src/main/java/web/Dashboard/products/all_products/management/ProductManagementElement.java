@@ -7,6 +7,11 @@ public class ProductManagementElement {
     @Getter
     By loc_btnCreateProduct = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[1]");
     By loc_btnExport = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[2]");
+    /**
+     * 0: Export all products
+     * 1: Export wholesale products
+     * 2: Export history
+     */
     By loc_ddlExportActions = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[2]/following-sibling::div/button");
     By loc_dlgExportProductListingFile_btnExport = By.cssSelector(".modal-footer .gs-button__green");
     By loc_btnImport = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[3]");

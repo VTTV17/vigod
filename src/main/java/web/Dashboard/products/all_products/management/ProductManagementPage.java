@@ -66,6 +66,14 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.clickJS(loc_ddlExportActions, 1);
     }
 
+    void navigateToDownloadHistory() {
+        if (!driver.getCurrentUrl().contains("/product/export-history")) {
+            navigateToProductList();
+            commonAction.clickJS(loc_btnExport);
+            commonAction.clickJS(loc_ddlExportActions, 2);
+        }
+    }
+
     void importProduct() {
         // open list import actions
         commonAction.clickJS(loc_btnImport);
@@ -294,16 +302,13 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Check permission: Product >> Product management >> Print barcode.");
     }
 
-    void navigateToDownloadHistory() {
-        if (!driver.getCurrentUrl().contains("/export-history"))
-            driver.get("%s/product/export-history".formatted(DOMAIN));
-    }
-
     void checkDownloadExportedProducts() {
-        FileUtils fileUtils = new FileUtils();
         if (!permissions.getProduct().getProductManagement().isDownloadExportProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportFile, 0), "Restricted popup does not shown.");
         } else {
+            // init file utils
+            FileUtils fileUtils = new FileUtils();
+
             // delete old wholesale price exported file
             fileUtils.deleteFileInDownloadFolder("wholesale-price-export");
 
@@ -315,7 +320,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // download new exported product
             navigateToDownloadHistory();
-            commonAction.click(loc_icnDownloadExportFile, 0);
+            commonAction.clickJS(loc_icnDownloadExportFile, 0);
             commonAction.sleepInMiliSecond(1000, "Waiting for download.");
             assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("EXPORT_PRODUCT"), "No exported product file is downloaded.");
 
