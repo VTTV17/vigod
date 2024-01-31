@@ -24,7 +24,7 @@ import web.Dashboard.login.LoginPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.inventory.InventoryPage;
 import web.Dashboard.products.inventory.history.InventoryHistoryPage;
-import web.Dashboard.products.transfer.Transfer;
+import web.Dashboard.products.transfer.TransferPage;
 import utilities.commons.UICommonAction;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
@@ -37,7 +37,7 @@ public class ProductTransfer extends BaseTest {
 
 	LoginPage loginPage;
 	HomePage homePage;
-	Transfer transferPage;
+	TransferPage transferPage;
 	ProductPage productPage;
 	InventoryPage inventoryPage;
 	InventoryHistoryPage inventoryHistoryPage;
@@ -69,7 +69,7 @@ public class ProductTransfer extends BaseTest {
 		driver = new InitWebdriver().getDriver(browser, headless);
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
-		transferPage = new Transfer(driver);
+		transferPage = new TransferPage(driver);
 		productPage = new ProductPage(driver, loginInformation);
 		inventoryPage = new InventoryPage(driver);
 		inventoryHistoryPage = new InventoryHistoryPage(driver);

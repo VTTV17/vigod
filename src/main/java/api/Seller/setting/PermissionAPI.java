@@ -1,25 +1,22 @@
 package api.Seller.setting;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import api.Seller.login.Login;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
-import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import utilities.utils.PropertiesUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class PermissionAPI {
     String CREATE_GROUP_PERMISSION_PATH = "/storeservice/api/authorized-group-permissions/store/%s";
@@ -202,8 +199,7 @@ public class PermissionAPI {
         int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
         //Remove all permission groups from the staff
         removeAllGroupPermissionsFromStaff(staffId);
-        String randomNumbers = new DataGenerator().randomNumberGeneratedFromEpochTime(5);
-        int groupPermissionId = createGroupPermissionAndGetID("Permission " + randomNumbers, "Description " + randomNumbers, model);
+        int groupPermissionId = createGroupPermissionAndGetID("Permission %s".formatted(System.currentTimeMillis()), "Description %s".formatted(System.currentTimeMillis()), model);
         //Grant the permission to the staff
         grantGroupPermissionToStaff(staffId, groupPermissionId);
         return groupPermissionId;

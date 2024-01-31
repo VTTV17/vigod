@@ -76,7 +76,7 @@ public class CheckPermission {
     }
 
     public boolean checkAccessedSuccessfully(By locator, String url) {
-        commonAction.click(locator);
+        commonAction.clickJS(locator);
         try {
             commonAction.waitURLShouldBeContains(url);
             return true;

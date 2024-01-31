@@ -3,6 +3,7 @@ package web.Dashboard.products.all_products.management;
 import api.Seller.products.APIAllProducts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
@@ -237,6 +238,7 @@ public class ProductManagementPage extends ProductManagementElement {
             checkAddVariation();
 
             // create product
+            driver.navigate().refresh();
             productPage.createWithoutVariationProduct(false, 1);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateProduct), "[Failed] Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
@@ -394,7 +396,8 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // add variation value
             commonAction.getElement(productPage.getLoc_txtVariationValue(), 0).sendKeys("abc");
-            commonAction.clickJS(productPage.getLoc_lblVariations());
+            commonAction.sleepInMiliSecond(500, "Wait suggest list variation value.");
+            commonAction.getElement(productPage.getLoc_txtVariationValue(), 0).sendKeys(Keys.ENTER);
 
             // check delete variation
             checkDeleteVariation();
