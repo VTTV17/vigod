@@ -139,8 +139,20 @@ public class CheckPermission {
         do {
             LoginDashboardInfo info = new Login().getInfo(staffCredentials);
             newToken = info.getStaffPermissionToken();
+            System.out.println("info: "+info);
+            System.out.println("newToken: "+newToken);
+
+
             System.out.println("Wait to update staff permission...");
             i++;
-        }while (newToken.equals(staffPermissionTokenOld)&&i<20);
+        }while (newToken.equals(staffPermissionTokenOld) && i<20);
+        if(newToken.equals(staffPermissionTokenOld))
+            try {
+                throw new Exception("Staff permission token is not updated.");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
     }
+
 }

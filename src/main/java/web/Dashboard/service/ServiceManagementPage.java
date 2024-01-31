@@ -155,20 +155,22 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		logger.info("Verify service not show after deteled");
 		return this;
 	}
-	public void navigateToServiceManagementUrl(){
+	public ServiceManagementPage navigateToServiceManagementUrl(){
 		commons.navigateToURL(Links.DOMAIN+"/service/list");
+		commons.sleepInMiliSecond(200);
 		logger.info("Navigate to service list.");
+		return this;
 	}
-	public void checkPermissionViewListService(int createdServiceId, int noCreatedServiceId){
+	public void checkPermissionViewListService(int staffCreatedServiceId, int ownerCreatedServiceId){
 		navigateToServiceManagementUrl();
 		List<Integer> allServiceIdList = new ServiceInfoAPI(loginInformation).getServiceIdList();
 		if (allPermissions.getService().getServiceManagement().isViewListService()) {
-			List<Integer> checkData = List.of(createdServiceId, noCreatedServiceId);
+			List<Integer> checkData = List.of(staffCreatedServiceId, ownerCreatedServiceId);
 			assertCustomize.assertTrue(new HashSet<>(allServiceIdList).containsAll(checkData), "[Failed] List service must be contains: %s, but found list service: %s.".formatted(checkData.toString(), allServiceIdList.toString()));
 		} else
 			if (allPermissions.getService().getServiceManagement().isViewListCreatedService()) {
-				assertCustomize.assertTrue(new HashSet<>(allServiceIdList).contains(createdServiceId), "[Failed] List service must be contains: %s".formatted(createdServiceId));
-				assertCustomize.assertFalse(new HashSet<>(allServiceIdList).contains(noCreatedServiceId), "[Failed] List service must not be contains: %s".formatted(noCreatedServiceId));
+				assertCustomize.assertTrue(new HashSet<>(allServiceIdList).contains(staffCreatedServiceId), "[Failed] List service must be contains: %s".formatted(staffCreatedServiceId));
+				assertCustomize.assertFalse(new HashSet<>(allServiceIdList).contains(ownerCreatedServiceId), "[Failed] List service must not be contains: %s".formatted(ownerCreatedServiceId));
 			}
 			else {
 				assertCustomize.assertTrue(allServiceIdList.isEmpty(), "[Failed] All products must be hidden, but found: %s.".formatted(allServiceIdList.toString()));
@@ -180,45 +182,46 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		boolean hasPermissionViewServiceList = allPermissions.getService().getServiceManagement().isViewListService();
 		boolean hasPermissionViewCreatedServiceList = allPermissions.getService().getServiceManagement().isViewListCreatedService();
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
+		commons.sleepInMiliSecond(5000);
 		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()){
 			// if has permission view list then click to edit button, else navigate to url
 			if(hasPermissionViewServiceList||hasPermissionViewCreatedServiceList)
 				assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(loc_lst_icnEdit,0,createServiceUI.loc_txtServiceName),"[Failed] Service name not show.");
 			else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(viewDetailServiceUrl,createServiceUI.loc_txtServiceName),"[Failed] Service name not show.");
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(viewDetailServiceUrl,"/404"),"[Failed] Service name not show. in case no permission view list");
 		}else {
 			// if has permission view list then click to edit button, else navigate to url
 			if(hasPermissionViewServiceList||hasPermissionViewCreatedServiceList)
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEdit,0),"[Failed] Restricted page or modal not show.");
 			else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(viewDetailServiceUrl),"[Failed] Restricted page or modal not show when click edit button.");
 		}
-		logger.info("Verify permission View service detail.");
+		logger.info("Verified permission View service detail.");
 	}
 	public void checkPermissionCreateService() {
 		navigateToServiceManagementUrl();
 		if (allPermissions.getService().getServiceManagement().isCreateService()){
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnCreateService, "/service/create"), "[Failed] Service page not show.");
-		checkPermissionViewCollection();
-	}
+			checkPermissionViewCollection();
+		}
 		else
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateService), "[Failed] Restricted page or modal not show when click create service.");
-	logger.info("Verify permission Create service.");
+		logger.info("Verified permission Create service.");
 	}
 	public void checkPermissionViewCollection(){
 		commons.click(createServiceUI.loc_frmCollection);
-		commons.sleepInMiliSecond(5000);
 		boolean isSuggestionListShow = commons.getListElement(createServiceUI.loc_lstCollectionSuggestion).isEmpty();
 		if (allPermissions.getService().getServiceCollection().isViewCollectionList())
 			assertCustomize.assertTrue(!isSuggestionListShow,"[Failed] Collection list not show.");
-//			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(createServiceUI.loc_frmCollection,createServiceUI.loc_lstCollectionSuggestion),"[Failed] Collection list not show.");
 		else assertCustomize.assertTrue(isSuggestionListShow,"[Failed] Collection should be hidden, but it show now.");
-	logger.info("Check permission View collection list");
+	logger.info("Verified permission View collection list");
 	}
 	public void checkPermissionEditService(int serviceId) {
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
 		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()){
 			commons.navigateToURL(viewDetailServiceUrl);
+			commons.sleepInMiliSecond(200);
 			if(allPermissions.getService().getServiceManagement().isEditService()){
+				checkPermissionViewCollection();
 				commons.click(createServiceUI.loc_btnSave);
 				try {
 					String createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.update.successfullyMessage");
@@ -229,12 +232,11 @@ public class ServiceManagementPage extends ServiceManagementElement {
 					throw new RuntimeException(e);
 				}
 			}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnSave),"[Failed] Restricted page or modal not show when click save button.");
-			checkPermissionViewCollection();
 		}
-		logger.info("Check permission Edit service");
+		logger.info("Verified permission Edit service");
 	}
-	public void checkPermissionActiveService(int serviceId){
-		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
+	public void checkPermissionActiveService(int inactiveServiceId){
+		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+inactiveServiceId;
 		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()) {
 			commons.navigateToURL(viewDetailServiceUrl);
 			if(allPermissions.getService().getServiceManagement().isActivateService()){
@@ -249,9 +251,10 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			}else
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnActiveDeactive),"[Failed] Restricted page or modal not show when click Active button.");
 		}
+		logger.info("Verified permission Active service");
 	}
 	public void checkPermissionDeactivateService(){
-		int serviceId = new ServiceInfoAPI(loginInformation).getInactiveServiceId();
+		int serviceId = new ServiceInfoAPI(loginInformation).getActiveServiceId();
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
 		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()) {
 			commons.navigateToURL(viewDetailServiceUrl);
@@ -267,12 +270,13 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			}else
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnActiveDeactive),"[Failed] Restricted page or modal not show when click Deactivate button.");
 		}
+		logger.info("Verified permission Deactive service");
 	}
 	public void checkPermissionDeleteService(int serviceId){
 		boolean hasPermissionViewServiceList = allPermissions.getService().getServiceManagement().isViewListService();
 		boolean hasPermissionViewCreatedServiceList = allPermissions.getService().getServiceManagement().isViewListCreatedService();
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
-		if(allPermissions.getService().getServiceManagement().isViewListService()){
+		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()){
 			commons.navigateToURL(viewDetailServiceUrl);
 			if(allPermissions.getService().getServiceManagement().isDeleteService()) {
 				commons.click(createServiceUI.loc_btnDeleteService);
@@ -288,8 +292,8 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		}
 		if(hasPermissionViewServiceList||hasPermissionViewCreatedServiceList){
 			navigateToServiceManagementUrl();
+			commons.click(loc_lst_icnDelete,0);
 			if(allPermissions.getService().getServiceManagement().isDeleteService()){
-				commons.click(loc_lst_icnDelete,0);
 				commons.click(loc_dlgNotification_btnOK);
 				try {
 					assertCustomize.assertEquals(commons.getText(createServiceUI.loc_dlgNotification_lblMessage),
@@ -299,20 +303,28 @@ public class ServiceManagementPage extends ServiceManagementElement {
 					throw new RuntimeException(e);
 				}
 			}else {
-				commons.click(loc_lst_icnDelete,0);
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_dlgNotification_btnOK),
 						"[Failed] Restricted page or modal not show when click OK button on Confirmation delete popup.");
 			}
 		}
+		logger.info("Verified permission Delete service");
 	}
-	public void checkPermissionServiceManagement(AllPermissions allPermissions, int createdServiceId, int noCreatedServiceId){
+	public ServiceManagementPage checkPermissionServiceManagement(AllPermissions allPermissions, int staffCreatedServiceId, int ownerCreatedServiceId){
 		this.allPermissions = allPermissions;
-		checkPermissionViewListService(createdServiceId,noCreatedServiceId);
-		checkPermissionViewServiceDetail(createdServiceId);
+		checkPermissionViewListService(staffCreatedServiceId,ownerCreatedServiceId);
+		checkPermissionViewServiceDetail(staffCreatedServiceId);
 		checkPermissionCreateService();
-		checkPermissionEditService(createdServiceId);
-		checkPermissionActiveService(createdServiceId);
+		checkPermissionEditService(staffCreatedServiceId);
+		checkPermissionActiveService(staffCreatedServiceId);
 		checkPermissionDeactivateService();
-		checkPermissionDeleteService(createdServiceId);
+		checkPermissionDeleteService(staffCreatedServiceId);
+		return this;
+	}
+	public ServiceManagementPage completeVerifyStaffPermissionServiceManagement() {
+		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+		if (assertCustomize.getCountFalse() > 0) {
+			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+		}
+		return this;
 	}
 }

@@ -250,5 +250,10 @@ public class LoginPage {
         Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("login.forgotPassword.text"));
         logger.info("verifyTextAtForgotPasswordScreen completed");
     }
+    public LoginPage staffLogin(String userName, String pass){
+        navigate().switchToStaffTab().performLogin(userName, pass);
+        logger.info("Staff login to dashboard successfully!");
+        return this;
+    }
 
 }
