@@ -2,8 +2,8 @@ package api.Seller.promotion;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
+import api.Seller.products.APIProductCollection;
 import api.Seller.products.CreateProduct;
-import api.Seller.products.ProductCollection;
 import api.Seller.setting.BranchManagement;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
@@ -628,7 +628,7 @@ public class CreatePromotion {
                 {
                     "conditionValue": %s
                 }
-                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection() : new CreateProduct(loginInformation).getProductID());
+                """.formatted(appliesToType == 1 ? new APIProductCollection(loginInformation).createCollection() : new CreateProduct(loginInformation).getProductID());
         String appliesToCondition = """
                 {
                     "conditionOption": "%s",

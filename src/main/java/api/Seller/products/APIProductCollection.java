@@ -1,14 +1,16 @@
 package api.Seller.products;
 
 import api.Seller.login.Login;
+import api.Seller.setting.StoreInformation;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -21,27 +23,25 @@ public class APIProductCollection {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    public static String DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH = "itemservice/api/collections/delete/%s/%s";
-    public static String DASHBOARD_PRODUCT_COLLECTION_LIST_PATH = "itemservice/api/collections/list/%s?page=%s&size=100&itemType=BUSINESS_PRODUCT&search=";
-    String DASHBOARD_PRODUCT_LIST_IN_COLLECTIONS_PATH = "/itemservice/api/collections/detail/%s/%s";
+    public String DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH = "itemservice/api/collections/delete/%s/%s";
+    public String DASHBOARD_PRODUCT_COLLECTION_LIST_PATH = "itemservice/api/collections/list/%s?page=%s&size=100&itemType=BUSINESS_PRODUCT&search=";
     @Data
     static
     public class CollectionInfo {
-        List<Integer> collectionIds;
-        List<String> collectionNames;
-        List<String> collectionTypes;
+        List<Integer> collectionIds = new ArrayList<>();
+        List<String> collectionNames = new ArrayList<>();
+        List<String> collectionTypes = new ArrayList<>();
     }
     CollectionInfo getCollectionInfo() {
         CollectionInfo info = new CollectionInfo();
 
-        Response res = api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), 0),loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+        Response res = api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), 0),loginInfo.getAccessToken());
+
+        // if staff do not have permission, end.
+        if (res.getStatusCode() == 403) return info;
 
         // get number of pages
-        int numberOfPages = res.jsonPath().getInt("totalPage");
+        int numberOfPages = res.then().statusCode(200).extract().jsonPath().getInt("totalPage");
 
         List<Integer> collectionIds = new ArrayList<>(res.jsonPath().getList("lstCollection.id"));
         List<String> collectionNames = new ArrayList<>(res.jsonPath().getList("lstCollection.name"));
@@ -63,9 +63,6 @@ public class APIProductCollection {
         info.setCollectionTypes(collectionTypes);
 
         return info;
-
-
-
     }
     public int getNewestCollectionID(){
        return getCollectionInfo().getCollectionIds().get(0);
@@ -73,13 +70,6 @@ public class APIProductCollection {
     public void deleteCollection(String collectionID){
         api.delete(DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionID),loginInfo.getAccessToken());
     }
-
-    public List<Integer> getListProductIDInCollections(int collectionID) {
-        Response collectionDetail = api.get(DASHBOARD_PRODUCT_LIST_IN_COLLECTIONS_PATH.formatted(loginInfo.getStoreID(), collectionID),  loginInfo.getAccessToken());
-        collectionDetail.then().statusCode(200);
-        return collectionDetail.jsonPath().getList("lstProduct.id");
-    }
-
     public CollectionInfo getManualCollection() {
         CollectionInfo info = getCollectionInfo();
         List<Integer> collectionIds = new ArrayList<>();
@@ -94,6 +84,45 @@ public class APIProductCollection {
         newInfo.setCollectionNames(collectionNames);
 
         return newInfo;
+    }
+
+    String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/%s";
+    public int createCollection(ProductInfo... productInfo) {
+        String productName = productInfo.length > 0 ? productInfo[0].getDefaultProductNameMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage()) : "auto";
+        String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+        String body = """
+                {
+                    "name": "%s",
+                    "collectionType": "AUTOMATED",
+                    "lstImage": [],
+                    "lstCondition": [
+                        {
+                            "conditionField": "PRODUCT_NAME",
+                            "operand": "CONTAINS",
+                            "values": [
+                                {
+                                    "value": "%s"
+                                }
+                            ]
+                        }
+                    ],
+                    "conditionType": "ALL",
+                    "lstProduct": [],
+                    "itemType": "BUSINESS_PRODUCT",
+                    "bcStoreId": "%s"
+                }""".formatted(collectionName, productName, loginInfo.getStoreID());
+        return api.post(CREATE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .jsonPath()
+                .getInt("id");
+    }
+
+    String DELETE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/delete/%s/%s";
+    public void deleteCollection(int collectionId){
+        api.delete(DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionId),loginInfo.getAccessToken());
     }
 
 }

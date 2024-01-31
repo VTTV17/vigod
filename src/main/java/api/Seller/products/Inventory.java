@@ -26,16 +26,12 @@ public class Inventory {
 
     @Data
     public static class InventoryInfo {
-        private List<Integer> ids;
-        private List<Integer> productIds;
+        private List<Integer> ids = new ArrayList<>();
+        private List<Integer> productIds = new ArrayList<>();
     }
 
     Response getInventoryResponse(String branchCondition, int page) {
-        return api.get(getInventoryPath.formatted(info.getStoreID(), page, branchCondition), info.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+        return api.get(getInventoryPath.formatted(info.getStoreID(), page, branchCondition), info.getAccessToken());
     }
 
     public InventoryInfo getInventoryInformation() {
@@ -45,37 +41,38 @@ public class Inventory {
         InventoryInfo info = new InventoryInfo();
 
         // get data page 0
-        try {
-            Response res = getInventoryResponse(branchCondition, 0);
-            JsonPath jPath = res.jsonPath();
-            List<Integer> ids = new ArrayList<>(jPath.getList("id"));
-            List<Integer> productIds = new ArrayList<>(jPath.getList("productId"));
+        Response res = getInventoryResponse(branchCondition, 0);
 
-            // get total products
-            int totalOfProducts = Integer.parseInt(res.getHeader("X-Total-Count"));
+        // if staff does not have permission, end.
+        if (res.getStatusCode() == 403) return info;
 
-            // get number of pages
-            int numberOfPages = totalOfProducts / 50;
+        // else get all inventory information
+        List<Integer> ids = new ArrayList<>();
+        List<Integer> productIds = new ArrayList<>();
 
-            // get all inventory
-            if (numberOfPages > 1) {
-                for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex++) {
-                    jPath = getInventoryResponse(branchCondition, pageIndex).jsonPath();
-                    ids.addAll(jPath.getList("id"));
-                    productIds.addAll(jPath.getList("productId"));
-                }
-            }
+        // get total products
+        int totalOfProducts = Integer.parseInt(res.getHeader("X-Total-Count"));
 
+        // get number of pages
+        int numberOfPages = totalOfProducts / 50;
 
-            // set inventory id
-            info.setIds(ids);
-
-            // set inventory product id
-            info.setProductIds(productIds);
-        } catch (AssertionError ex) {
-            info.setIds(List.of());
-            info.setProductIds(List.of());
+        // get all inventory
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+            JsonPath jPath = getInventoryResponse(branchCondition, pageIndex)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .jsonPath();
+            ids.addAll(jPath.getList("id"));
+            productIds.addAll(jPath.getList("productId"));
         }
+
+        // set inventory id
+        info.setIds(ids);
+
+        // set inventory product id
+        info.setProductIds(productIds);
+
         return info;
     }
 }

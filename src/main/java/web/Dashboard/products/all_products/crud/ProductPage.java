@@ -1,7 +1,7 @@
 package web.Dashboard.products.all_products.crud;
 
 import api.Seller.products.APIAllProducts;
-import api.Seller.products.ProductCollection;
+import api.Seller.products.APIProductCollection;
 import api.Seller.products.ProductInformation;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.pagefactory.ByChained;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
@@ -410,7 +409,7 @@ public class ProductPage extends ProductPageElement {
 
     void selectCollection() {
         // click on collection search box
-        List<String> collectionsNameList = new ProductCollection(loginInformation).getListOfManualProductCollectionsName();
+        List<String> collectionsNameList = new APIProductCollection(loginInformation).getManualCollection().getCollectionNames();
         if (collectionsNameList.isEmpty()) logger.info("Store has not created any collections yet.");
         else {
             // remove all collections
@@ -1967,7 +1966,7 @@ public class ProductPage extends ProductPageElement {
         assertCustomize.assertEquals(dbCollectionsSearchBoxPlaceholder, ppCollectionsSearchBoxPlaceholder, "[Failed][Body] Collections search box placeholder should be %s, but found %s.".formatted(ppCollectionsSearchBoxPlaceholder, dbCollectionsSearchBoxPlaceholder));
         logger.info("[UI][%s] Check Body - Collections search box placeholder.".formatted(language));
 
-        if (new ProductCollection(loginInformation).getListOfManualProductCollectionsName().isEmpty()) {
+        if (new APIProductCollection(loginInformation).getManualCollection().getCollectionNames().isEmpty()) {
             // check when no collection created
             String dbNoCreatedCollection = commonAction.getText(loc_cntNoCollection);
             String ppNoCreatedCollection = getPropertiesValueByDBLang("products.allProducts.createProduct.collections.noCreatedCollection", language);

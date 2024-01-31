@@ -4,7 +4,6 @@ import api.Seller.login.Login;
 import api.Seller.onlineshop.APIMenus;
 import api.Seller.products.APIAllProducts;
 import api.Seller.products.APIProductCollection;
-import api.Seller.products.ProductCollection;
 import api.Buyer.header.APIHeader;
 import app.android.BaseTest;
 import io.appium.java_client.AppiumDriver;
@@ -141,7 +140,7 @@ public class ProductCollectionTest extends BaseTest {
     }
     public void callDeleteCollectionAPI(){
         int collectIDNewest = getNewestCollectionId();
-        ProductCollection collectionAPI = new ProductCollection(loginInformation);
+        APIProductCollection collectionAPI = new APIProductCollection(loginInformation);
         collectionAPI.deleteCollection(collectIDNewest);
     }
     public SellerProductCollection goToSellerCollectionPage() {
