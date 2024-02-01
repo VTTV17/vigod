@@ -294,6 +294,7 @@ public class HomePage extends HomePageElement {
                 }
             }
         }
+        logger.info("Select language: "+language);
         return this;
     }
 

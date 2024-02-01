@@ -113,6 +113,8 @@ public class CheckPermission {
      */
     public boolean checkValueShow(String url, By locator){
         commonAction.navigateToURL(url);
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        commonAction.sleepInMiliSecond(2000);
         String value = commonAction.getValue(locator);
         return !value.isEmpty();
     }
@@ -125,11 +127,15 @@ public class CheckPermission {
      */
     public boolean checkValueShow(By locatorClick, By locatorInput){
         commonAction.click(locatorClick);
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        commonAction.sleepInMiliSecond(2000);
         String value = commonAction.getValue(locatorInput);
         return !value.isEmpty();
     }
     public boolean checkValueShow(By locatorClick,int index, By locatorInput){
         commonAction.click(locatorClick,index);
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        commonAction.sleepInMiliSecond(2000);
         String value = commonAction.getValue(locatorInput);
         return !value.isEmpty();
     }
