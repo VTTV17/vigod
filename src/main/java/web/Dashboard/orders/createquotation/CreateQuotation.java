@@ -74,7 +74,7 @@ public class CreateQuotation {
 	}	
 	
 	public CreateQuotation inputProductSearchTerm(String searchTerm) {
-		commonAction.sendKeys(loc_txtSearchProduct, searchTerm);
+		commonAction.inputText(loc_txtSearchProduct, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
 		return this;
 	}

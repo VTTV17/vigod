@@ -22,6 +22,7 @@ public class Customers {
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
     String GET_200_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=0&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
+    String ASSIGN_STAFF_TO_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/bulk-assign-customer-to-a-staff/%s";
     private String customerTag;
 
     private static String segmentName;
@@ -135,15 +136,55 @@ public class Customers {
                 .then().statusCode(200).extract().response();
         return response.jsonPath();
     }
-
+    
     public List<String> getAllCustomerNames() {
         return getAllCustomerJsonPath().getList("fullName");
+    }
+    
+    public List<Integer> getAllCustomerIds() {
+    	return getAllCustomerJsonPath().getList("id");
+    }
+ 
+    /**
+     * Retrieves a JsonPath object containing information about customers assigned to a specific staff member.
+     * @param staffUserId The ID (userId) of the staff member whose assigned customers are to be retrieved.
+     * @return A JsonPath object representing the retrieved customer data, enabling easy navigation and extraction of information.
+     */
+    public JsonPath getCustomersAssignedToStaffJsonPath(int staffUserId) {
+        Response response = api.get(GET_200_CUSTOMERS_PATH.formatted(loginInfo.getStoreID()) + "&responsibleStaffUserIds=%s".formatted(staffUserId), loginInfo.getAccessToken())
+                .then().statusCode(200).extract().response();
+        return response.jsonPath();
+    } 
+    
+    public List<String> getNamesOfCustomersAssignedToStaff(int staffUserId) {
+    	return getCustomersAssignedToStaffJsonPath(staffUserId).getList("fullName");
+    }
+    
+    public List<Integer> getIdsOfCustomersAssignedToStaff(int staffUserId) {
+    	return getCustomersAssignedToStaffJsonPath(staffUserId).getList("id");
     }
 
     public List<String> getAllAccountCustomer() {
         return getAllCustomerJsonPath().getList("findAll { it.guest == false }.fullName");
     }
 
+    /**
+     * Assigns a specific staff member to a designated customer within the current store.
+     * @param staffUserId The ID (userId) of the staff member to be assigned.
+     * @param customerId The ID of the customer to whom the staff member will be assigned.
+     */
+    public void assignStaffToCustomer(int staffUserId, int customerId) {
+        String body = """
+        		{
+					"userId": %s,
+					"storeId": "%s",
+					"customerIds": [%s]
+    		    }
+        """.formatted(staffUserId, loginInfo.getStoreID(), customerId);
+        Response createRecord = api.post(ASSIGN_STAFF_TO_CUSTOMER_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body);
+        createRecord.then().statusCode(200);
+    }    
+    
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
             Response getCustomerInfo = api.get(CUSTOMER_INFORMATION_PATH.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken()).then()
