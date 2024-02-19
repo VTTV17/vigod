@@ -2,7 +2,6 @@ package web.Dashboard.cashbook;
 
 import static utilities.links.Links.DOMAIN;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

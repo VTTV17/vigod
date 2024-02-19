@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
@@ -17,7 +16,7 @@ import web.StoreFront.detail_product.ProductDetailPage;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 
-public class ProductReviews {
+public class ProductReviews extends ProductReviewElement {
 	WebDriver driver;
 	UICommonAction commons;
 	HomePage homePage;
@@ -29,14 +28,6 @@ public class ProductReviews {
 		commons = new UICommonAction(driver);
 		homePage = new HomePage(driver);
 	}
-	
-	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
-	By loc_btnEnableReviewToggle = By.cssSelector(".gss-content-header .uik-checkbox__label.green");
-	By loc_tltEnableReviewToggle = By.cssSelector(".tippy-tooltip-content");
-	By loc_txtSearchProduct = By.cssSelector(".d-desktop-flex .gs-search-box__wrapper input");
-	By loc_btnFilter = By.cssSelector(".n-filter-container .uik-select__wrapper");
-	By loc_lblTableHeader = By.cssSelector(".product-review-list-widget .d-mobile-none .gs-table-header");
-	By loc_tmpRecords = By.cssSelector(".d-desktop-block .gs-table-body .shortest-row");
 
 	public ProductReviews navigate() {
 		new HomePage(driver).navigateToPage("Products", "Product Reviews");
@@ -45,10 +36,9 @@ public class ProductReviews {
 	
 	/**
 	 * Check whether Product Reviews feature is enabled
-	 * @return
 	 */
 	public boolean isProductReviewsEnabled() {
-		return commons.getElement(loc_btnEnableReviewToggle).findElement(By.xpath("./preceding-sibling::input")).isSelected();
+		return commons.getElement(new ByChained(loc_btnEnableReviewToggle, loc_btnToggleStatus)).isSelected();
 	}	
 	
 	/**
@@ -93,8 +83,7 @@ public class ProductReviews {
 	public ProductReviews selectSortCondition(String condition) {
 		homePage.hideFacebookBubble();
 		commons.click(loc_btnFilter);
-		String xpath = ".//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']".formatted(condition);
-		commons.click(By.xpath(xpath));
+		commons.click(By.xpath(loc_ddlSortCondition.formatted(condition)));
 		logger.info("Selected filter condition: %s.".formatted(condition));
 		homePage.waitTillSpinnerDisappear1();
 		return this;
@@ -109,15 +98,15 @@ public class ProductReviews {
 	 */
 	public List<List<String>> getReviewTable() {
 		List<List<String>> table = new ArrayList<>();
-		for (WebElement row : commons.getElements(loc_tmpRecords)) {
+		for (int i=0; i<commons.getElements(loc_tmpRecords).size(); i++) {
 			List<String> rowData = new ArrayList<>();
-			rowData.add(row.findElement(By.xpath("./div[contains(@class,'product-name')]")).getText());
-			rowData.add(row.findElement(By.xpath("./div[contains(@class,'product-rating')]")).getText());
-			rowData.add(row.findElement(By.xpath("./div[contains(@class,'product-review')]/span[@class='title']")).getText());
-			rowData.add(row.findElement(By.xpath("./div[contains(@class,'product-review')]/span[contains(@class,'description')]")).getText());
-			rowData.add(row.findElement(By.xpath("./div[contains(@class,'customer-name')]")).getText());
-			rowData.add(row.findElement(By.xpath("./div[contains(@class,'created-date')]")).getText());
-			rowData.add(String.valueOf(row.findElement(By.xpath(".//label[contains(@class,'lastest-button')]/input")).isSelected()));
+			rowData.add(commons.getText(loc_tblProductNameColumn, i));
+			rowData.add(commons.getText(loc_tblProductRatingColumn, i));
+			rowData.add(commons.getText(loc_tblReviewTitleColumn, i));
+			rowData.add(commons.getText(loc_tblReviewDescriptionColumn, i));
+			rowData.add(commons.getText(loc_tblCustomerNameColumn, i));
+			rowData.add(commons.getText(loc_tblCreatedDateColumn, i));
+			rowData.add(String.valueOf(commons.getElement(loc_tblStatus, i).isSelected()));
 			table.add(rowData);
 		}
 		return table;
@@ -139,14 +128,10 @@ public class ProductReviews {
 	
 	public ProductDetailPage clickNavigationIcon(int reviewIndex) {
 		homePage.hideFacebookBubble();
-		commons.clickElement(commons.getElement(loc_tmpRecords, reviewIndex).findElement(By.xpath(".//*[contains(@class,'first-button')]")));
+		commons.click(loc_btnNavigation, reviewIndex);
 		logger.info("Clicked on %s-indexed review to navigate to product detail on SF.".formatted(reviewIndex));
 		return new ProductDetailPage(driver);
 	}	
-	
-	public WebElement approveToggleBtn(int reviewIndex) {
-		return commons.getElement(loc_tmpRecords, reviewIndex).findElement(By.xpath(".//*[contains(@class,'lastest-button')]"));
-	}		
 	
 	/**
 	 * Check whether a review with a specific index is approved
@@ -155,13 +140,12 @@ public class ProductReviews {
 	 */
 	public boolean isReviewApproved(int reviewIndex) {
 		commons.sleepInMiliSecond(1000);
-		return approveToggleBtn(reviewIndex).findElement(By.xpath("./input")).isSelected();
+		return commons.getElement(loc_btnEnableSpecificReviewToggle, reviewIndex).findElement(loc_btnToggleStatus).isSelected();
 	}		
 	
 	/**
 	 * Allow a review to appear on Storefront.
 	 * @param reviewIndex Eg. 0,1,2...
-	 * @return
 	 */
 	public ProductReviews approveReview(int reviewIndex) {
 		if (isReviewApproved(reviewIndex)) {
@@ -169,7 +153,7 @@ public class ProductReviews {
 			return this;
 		}
 		homePage.hideFacebookBubble();
-		commons.clickElement(approveToggleBtn(reviewIndex));
+		commons.click(loc_btnEnableSpecificReviewToggle, reviewIndex);
 		logger.info("Allow %s-indexed review to appear on SF.".formatted(reviewIndex));
 		homePage.getToastMessage();
 		return this;
@@ -186,7 +170,7 @@ public class ProductReviews {
 			return this;
 		}
 		homePage.hideFacebookBubble();
-		commons.clickElement(approveToggleBtn(reviewIndex));
+		commons.click(loc_btnEnableSpecificReviewToggle, reviewIndex);
 		logger.info("Hide %s-indexed review from buyers on SF.".formatted(reviewIndex));
 		homePage.getToastMessage();
 		return this;
@@ -198,7 +182,7 @@ public class ProductReviews {
     	String text = commons.getText(loc_lblPageTitle).split("\n")[0];
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management"), text);
     	
-    	text = commons.getText(new ByChained(loc_btnEnableReviewToggle, By.xpath("./ancestor::div[@class=' gs-content-header-right-el']")));
+    	text = commons.getText(new ByChained(loc_btnEnableReviewToggle, loc_lblEnableProductReview));
     	Assert.assertEquals(PropertiesUtil.getPropertiesValueByDBLang("product.review.management.toggle.enable.product.review"), text);
     	
     	text = commons.getAttribute(loc_txtSearchProduct, "placeholder");

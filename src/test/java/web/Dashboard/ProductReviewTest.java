@@ -124,7 +124,7 @@ public class ProductReviewTest extends BaseTest {
 		return PropertiesUtil.getPropertiesValueByDBLang("product.review.filter." + condition);
 	}
 	
-	public List<Integer> sortRatingRetrievedFromAPI(List<Integer> ratings, String condition) throws Exception {
+	public List<Integer> sortRatingRetrievedFromAPI(List<Integer> ratings, String condition) {
 		if (condition.contentEquals("lowToHigh")) {
 			Collections.sort(ratings);
 			return ratings;
@@ -133,7 +133,7 @@ public class ProductReviewTest extends BaseTest {
 		return ratings;
 	}    
 	
-	public List<Date> sortCreatedDate(List<Date> dates, String condition) throws Exception {
+	public List<Date> sortCreatedDate(List<Date> dates, String condition) {
 		if (condition.contentEquals("oldToNew")) {
 			Collections.sort(dates);
 			return dates;
@@ -142,7 +142,7 @@ public class ProductReviewTest extends BaseTest {
 		return dates;
 	}    
 	
-	public List<Date> extractCreatedDateFromReview(List<List<String>> reviews) throws Exception {
+	public List<Date> extractCreatedDateFromReview(List<List<String>> reviews) {
 		List<Date> extractedCreatedDates = new ArrayList<>();
 		FormatDate formatDate = new FormatDate();
 		for (List<String> review : reviews) {
@@ -191,7 +191,7 @@ public class ProductReviewTest extends BaseTest {
 		Assert.assertNotEquals(dbReviews.size(), 0, "Number of found records");
     	List<String> names = extractProductNameFromReview(dbReviews);
     	for (String name : names) {
-    		Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()));
+    		Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()), "The name is " + name);
     	}
     }	
     
@@ -267,12 +267,12 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	@BeforeMethod
-	public void setup() throws InterruptedException {
+	public void setup() {
 		instantiatePageObjects();
 	}
 
 	@Test
-	public void PR_00_PermissionToUseProductReviews() throws Exception {
+	public void PR_00_PermissionToUseProductReviews() {
 		
         Map<String, String> permission = new HashMap<String, String>();
         permission.put(ADMIN_USERNAME_GOWEB, "A");
@@ -341,7 +341,7 @@ public class ProductReviewTest extends BaseTest {
 	}
 	
 	@Test
-	public void PR_04_HideProductReviews() throws Exception {
+	public void PR_04_HideProductReviews() {
 		
 		int reviewIndex = 0;
 		
@@ -375,7 +375,7 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	@Test
-	public void PR_05_ShowProductReviews() throws Exception {
+	public void PR_05_ShowProductReviews() {
 		
 		int reviewIndex = 0;
 		
@@ -454,7 +454,7 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	@Test
-	public void PR_07_NavigateToProductDetailOnSF() throws Exception {
+	public void PR_07_NavigateToProductDetailOnSF() {
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -478,7 +478,7 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	@Test
-	public void PR_08_SearchReviews() throws Exception {
+	public void PR_08_SearchReviews() {
 		
         String randomSearchProduct = randomSearchProduct();
         String searchTerm = randomSearchProduct.substring(0, randomSearchProduct.length()/2);
@@ -489,19 +489,27 @@ public class ProductReviewTest extends BaseTest {
 		/* Absolute match */
 		productReviewPage.navigate().inputSearchTerm(searchTerm);
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm);
+		commonAction.refreshPage();
 		
 		/* Partly match */
-		productReviewPage.navigate().inputSearchTerm(randomSearchProduct);
+		productReviewPage.inputSearchTerm(randomSearchProduct);
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm);
+		commonAction.refreshPage();
 		
 		/* Ignore case */
-		productReviewPage.navigate().inputSearchTerm(randomSearchProduct.toLowerCase());
+		productReviewPage.inputSearchTerm(randomSearchProduct.toLowerCase());
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), randomSearchProduct.toLowerCase());
-		productReviewPage.navigate().inputSearchTerm(searchTerm.toLowerCase());
+		commonAction.refreshPage();
+		
+		productReviewPage.inputSearchTerm(searchTerm.toLowerCase());
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm.toLowerCase());
-		productReviewPage.navigate().inputSearchTerm(randomSearchProduct.toUpperCase());
+		commonAction.refreshPage();
+		
+		productReviewPage.inputSearchTerm(randomSearchProduct.toUpperCase());
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), randomSearchProduct.toUpperCase());
-		productReviewPage.navigate().inputSearchTerm(searchTerm.toUpperCase());
+		commonAction.refreshPage();
+		
+		productReviewPage.inputSearchTerm(searchTerm.toUpperCase());
 		verifyResultMatchSearchTerm(productReviewPage.getAllReviewTable(), searchTerm.toUpperCase());
 	}	
 	
