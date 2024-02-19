@@ -1,7 +1,6 @@
 package web.Dashboard;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -48,8 +47,8 @@ public class CashbookPermissionTest extends BaseTest {
 	
 	@BeforeClass
 	void loadTestData() {
-		ownerCredentials = new Login().setLoginInformation("+84", "uyen.lai@mediastep.com", "Abc@12345").getLoginInformation();
-		staffCredentials = new Login().setLoginInformation("+84", "vuonghoanglong@mailnesia.com", "dks5BjU6").getLoginInformation();
+		ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
+		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		cashbookAPI = new CashbookAPI(ownerCredentials);
 		customerAPI = new Customers(ownerCredentials);
@@ -103,10 +102,6 @@ public class CashbookPermissionTest extends BaseTest {
 	String randomStaff(StaffManagement staffAPI) {
 		return getRandomListElement(staffAPI.getAllStaffNames());
 	}		
-
-	boolean randomBoolean() {
-		return Boolean.parseBoolean(getRandomListElement(Arrays.asList("true", "false")));
-	}		
 	
 	int getStaffUserId(LoginInformation staffCredentials) {
 		return new Login().getInfo(staffCredentials).getUserId();
@@ -155,11 +150,12 @@ public class CashbookPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String cashbookPermissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		if (randomBoolean()) {
+		Random rd = new Random();
+		if (rd.nextBoolean()) {
 			model.setCustomer_customerManagement("11");
 			model.setSetting_staffManagement("01");
 //			model.setSupplier_supplier("01"); //Bug
-		} else if (randomBoolean()) {
+		} else if (rd.nextBoolean()) {
 //			model.setCustomer_customerManagement("10"); //Bug
 			model.setSetting_staffManagement("10");
 		} else {
