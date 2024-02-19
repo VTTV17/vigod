@@ -34,7 +34,7 @@ public class ProductInformation {
     }
 
     @Data
-    public class WholesaleProductRawData {
+    public static class WholesaleProductRawData {
         private String barcode;
         private List<Integer> stock;
         private List<Long> price;

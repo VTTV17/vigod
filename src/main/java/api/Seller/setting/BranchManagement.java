@@ -2,7 +2,6 @@ package api.Seller.setting;
 
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -19,6 +18,7 @@ public class BranchManagement {
     String GET_ALL_BRANCH_PATH = "/storeservice/api/store-branch/full?storeId=%s&page=0&size=100";
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
     String changeBranchStatusPath = "/storeservice/api/store-branch/setting-status/%s/%s?status=%s";
+    String getDestinationBranchesPath = "/storeservice/api/store/branches/%s";
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
@@ -28,14 +28,15 @@ public class BranchManagement {
     public BranchManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
-        brInfo = getInfo();
     }
 
     JsonPath getBranchInfoResponseJsonPath() {
         // get all branches response
-        Response branchRes = api.get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        branchRes.then().statusCode(200);
-        return branchRes.jsonPath();
+        return api.get(GET_ALL_BRANCH_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath();
     }
 
     public BranchInfo getInfo() {
@@ -97,6 +98,8 @@ public class BranchManagement {
     }
 
     private void updateBranchInfo(int brID, boolean isDefault, boolean hideOnStoreFront, String branchStatus) {
+        // get current branch info
+        brInfo = getInfo();
         int index = brInfo.getBranchID().indexOf(brID);
         String branchName = brInfo.getBranchName().get(index);
 
@@ -138,6 +141,9 @@ public class BranchManagement {
 
         api.put(changeBranchStatusPath.formatted(loginInfo.getStoreID(), brID, branchStatus), loginInfo.getAccessToken());
         logger.info("[API]Change '%s' status: %s.".formatted(branchName, branchStatus));
+
+        // get latest branch info
+        brInfo = getInfo();
     }
 
     public void inactiveAllPaidBranches() {
@@ -160,5 +166,26 @@ public class BranchManagement {
         // show free branch on shop online
         updateBranchInfo(brInfo.getBranchID().get(0), true, false, "ACTIVE");
         return this;
+    }
+
+    public BranchInfo getDestinationBranchesInfo() {
+        // init branch info model
+        BranchInfo brInfo = new BranchInfo();
+
+        // using API to get branch information
+        JsonPath resPath = api.get(getDestinationBranchesPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath();
+
+        // set branch index
+        brInfo.setBranchID(resPath.getList("id"));
+
+        // set branch name
+        brInfo.setBranchName(resPath.getList("name"));
+
+        // return branch info
+        return brInfo;
     }
 }

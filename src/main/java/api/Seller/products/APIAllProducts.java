@@ -4,7 +4,6 @@ import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
-import lombok.Getter;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -249,7 +248,7 @@ public class APIAllProducts {
 
     public int countProductItem(boolean hasConversionUnit, String productId) {
         int count;
-        if (hasConversionUnit == true) {
+        if (hasConversionUnit) {
             Response conversionItemRes = api.get(DASHBOAR_CONVERSION_UNIT_ITEM_PATH.formatted(productId), loginInfo.getAccessToken());
             conversionItemRes.then().statusCode(200);
             System.out.println(conversionItemRes.prettyPrint());
@@ -288,20 +287,20 @@ public class APIAllProducts {
         return getAllProductJsonPath().getList("name");
     }
 
-    String allProductListPath = "/itemservice/api/store/dashboard/%s/items-v2?page=%s&size=100&bhStatus=ACTIVE&itemType=BUSINESS_PRODUCT&sort=lastModifiedDate,desc";
+    String allProductListPath = "/itemservice/api/store/dashboard/%s/items-v2?page=%s&size=100&bhStatus=&itemType=BUSINESS_PRODUCT&sort=lastModifiedDate,desc&branchIds=%s";
 
     @Data
-    static
-    public class ProductListInfo {
+    public static class ProductManagementInfo {
         private List<Integer> productIds;
         private List<Integer> variationNumber;
         private List<String> productNames;
     }
 
-    public ProductListInfo getListProduct() {
-        ProductListInfo info = new ProductListInfo();
+    public ProductManagementInfo getListProduct(int... branchIds) {
+        String branchId = branchIds.length == 0 ? "" : String.valueOf(branchIds[0]);
+        ProductManagementInfo info = new ProductManagementInfo();
         // get page 0 data
-        Response allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), 0), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+        Response allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), 0, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
         List<Integer> variationNumber = new ArrayList<>(allProducts.jsonPath().getList("variationNumber"));
         List<Integer> allProductIds = new ArrayList<>(allProducts.jsonPath().getList("id"));
         List<String> allProductNames = new ArrayList<>(allProducts.jsonPath().getList("name"));
@@ -314,7 +313,7 @@ public class APIAllProducts {
 
         // get other page data
         for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex++) {
-            allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+            allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
             variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
             allProductIds.addAll(allProducts.jsonPath().getList("id"));
             allProductNames.addAll(allProducts.jsonPath().getList("name"));
@@ -326,8 +325,8 @@ public class APIAllProducts {
     }
 
     public int searchProductIdByName(String name) {
-        ProductListInfo info = getListProduct();
-        for (int index = 0; index < info.getProductNames().size(); index ++) {
+        ProductManagementInfo info = getListProduct();
+        for (int index = 0; index < info.getProductNames().size(); index++) {
             if (info.getProductNames().get(index).equals(name)) {
                 return info.getProductIds().get(index);
             }
@@ -335,36 +334,153 @@ public class APIAllProducts {
         return 0;
     }
 
-    List<Integer> getListProductId(boolean hasModel) {
-        ProductListInfo info = getListProduct();
+    List<Integer> getListProductId(boolean hasModel, int... branchIds) {
+        ProductManagementInfo info = getListProduct(branchIds);
         return IntStream.range(0, info.getProductIds().size()).filter(i -> (info.getVariationNumber().get(i) > 0) == hasModel).mapToObj(info.getProductIds()::get).toList();
     }
 
-    @Getter
-    private int productID;
-
-    public int getProductIDWithoutVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
-        List<Integer> listProductId = getListProductId(false);
+    public int getProductIdMatchWithConditions(boolean hasModel, boolean isManageByIMEI, boolean inStock, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
+        List<Integer> listProductId = getListProductId(hasModel, branchIds);
         ProductInformation productInfo = new ProductInformation(loginInformation);
-        return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", false, false, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
+        return listProductId.stream()
+                .mapToInt(productId -> productId)
+                .filter(productId -> productInfo.checkProductInfo(productId,
+                        isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT",
+                        hasModel,
+                        inStock,
+                        isHideStock,
+                        isDisplayIfOutOfStock))
+                .findFirst()
+                .orElse(0);
     }
 
-    public int getProductIDWithoutVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
-        List<Integer> listProductId = getListProductId(false);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
-        return listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", false, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
+    public int getProductIDWithoutVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
+        return getProductIdMatchWithConditions(false, isManageByIMEI, false, isHideStock, isDisplayIfOutOfStock, branchIds);
     }
 
-    public int getProductIDWithVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
-        List<Integer> listProductId = getListProductId(true);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
-        return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, false, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
+    public int getProductIDWithoutVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
+        return getProductIdMatchWithConditions(false, isManageByIMEI, true, isHideStock, isDisplayIfOutOfStock, branchIds);
     }
 
-    public int getProductIDWithVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock) {
-        List<Integer> listProductId = getListProductId(true);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
-        return productID = listProductId.stream().mapToInt(productId -> productId).filter(productId -> productInfo.checkProductInfo(productId, isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT", true, true, isHideStock, isDisplayIfOutOfStock)).findFirst().orElse(0);
+    public int getProductIDWithVariationAndOutOfStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
+        return getProductIdMatchWithConditions(true, isManageByIMEI, false, isHideStock, isDisplayIfOutOfStock, branchIds);
+    }
+
+    public int getProductIDWithVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
+        return getProductIdMatchWithConditions(true, isManageByIMEI, true, isHideStock, isDisplayIfOutOfStock, branchIds);
+    }
+
+    String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true&includeConversion=true";
+
+    @Data
+    public static class SuggestionProductsInfo {
+        private List<String> itemIds;
+        private List<String> modelIds;
+        private List<String> itemNames;
+        private List<String> barcodes;
+        private List<Long> remainingStocks;
+        private List<String> inventoryManageTypes;
+    }
+
+    public SuggestionProductsInfo getListProduct(int branchId) {
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        // get page 0 data
+        Response suggestProducts = api.get(suggestProductPath.formatted(loginInfo.getStoreID(), 0, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+        List<String> itemIds = new ArrayList<>(suggestProducts.jsonPath().getList("itemId"));
+        List<String> modelIds = new ArrayList<>(suggestProducts.jsonPath().getList("modelId"));
+        List<String> itemNames = new ArrayList<>(suggestProducts.jsonPath().getList("itemName"));
+        List<String> barcodes = new ArrayList<>(suggestProducts.jsonPath().getList("barcode"));
+        List<String> remainingStocks = new ArrayList<>(suggestProducts.jsonPath().getList("modelStock"));
+        List<String> inventoryManageTypes = new ArrayList<>(suggestProducts.jsonPath().getList("inventoryManageType"));
+
+        // get total products
+        int totalOfProducts = Integer.parseInt(suggestProducts.getHeader("X-Total-Count"));
+
+        // get number of pages
+        int numberOfPages = totalOfProducts / 100;
+
+        // get other page data
+        for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex++) {
+            suggestProducts = api.get(suggestProductPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+            itemIds.addAll(suggestProducts.jsonPath().getList("itemId"));
+            modelIds.addAll(suggestProducts.jsonPath().getList("modelId"));
+            itemNames.addAll(suggestProducts.jsonPath().getList("itemName"));
+            barcodes.addAll(suggestProducts.jsonPath().getList("barcode"));
+            remainingStocks.addAll(suggestProducts.jsonPath().getList("modelStock"));
+            inventoryManageTypes.addAll(suggestProducts.jsonPath().getList("inventoryManageType"));
+        }
+        info.setItemIds(itemIds);
+        info.setModelIds(modelIds);
+        info.setItemNames(itemNames);
+        info.setBarcodes(barcodes);
+        info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
+        info.setInventoryManageTypes(inventoryManageTypes);
+        return info;
+    }
+
+    public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(int branchId) {
+        SuggestionProductsInfo suggestionInfo = getListProduct(branchId);
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        List<String> itemIds = new ArrayList<>();
+        List<String> modelIds = new ArrayList<>();
+        List<String> itemNames = new ArrayList<>();
+        List<String> barcodes = new ArrayList<>();
+        List<String> inventoryManageTypes = new ArrayList<>();
+        IntStream.range(0, suggestionInfo.getItemIds().size())
+                .filter(index -> (suggestionInfo.getRemainingStocks().get(index) > 0))
+                .forEach(index -> {
+                    itemIds.add(suggestionInfo.getItemIds().get(index));
+                    itemNames.add(suggestionInfo.getItemNames().get(index));
+                    modelIds.add(suggestionInfo.getModelIds().get(index));
+                    barcodes.add(suggestionInfo.getBarcodes().get(index));
+                    inventoryManageTypes.add(suggestionInfo.getInventoryManageTypes().get(index));
+                });
+        info.setItemIds(itemIds);
+        info.setModelIds(modelIds);
+        info.setItemNames(itemNames);
+        info.setBarcodes(barcodes);
+        info.setInventoryManageTypes(inventoryManageTypes);
+
+        return info;
+    }
+
+    public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(boolean hasModel, boolean isManageByIMEI, int branchId) {
+        SuggestionProductsInfo suggestionInfo = getListProduct(branchId);
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        List<String> itemIds = new ArrayList<>();
+        List<String> modelIds = new ArrayList<>();
+        List<String> itemNames = new ArrayList<>();
+        List<String> barcodes = new ArrayList<>();
+        List<String> inventoryManageTypes = new ArrayList<>();
+        IntStream.range(0, suggestionInfo.getItemIds().size())
+                .filter(index -> (suggestionInfo.getModelIds().get(index).isEmpty() != hasModel)
+                        && (suggestionInfo.getInventoryManageTypes().get(index).equals("IMEI_SERIAL_NUMBER") == isManageByIMEI)
+                        && (suggestionInfo.getRemainingStocks().get(index) > 0))
+                .forEach(index -> {
+                    itemIds.add(suggestionInfo.getItemIds().get(index));
+                    itemNames.add(suggestionInfo.getItemNames().get(index));
+                    modelIds.add(suggestionInfo.getModelIds().get(index));
+                    barcodes.add(suggestionInfo.getBarcodes().get(index));
+                    inventoryManageTypes.add(suggestionInfo.getInventoryManageTypes().get(index));
+                });
+        info.setItemIds(itemIds);
+        info.setModelIds(modelIds);
+        info.setItemNames(itemNames);
+        info.setBarcodes(barcodes);
+        info.setInventoryManageTypes(inventoryManageTypes);
+
+        return info;
+    }
+
+    String getListIMEIPath = "/itemservice/api/item-model-codes/store/%s/search?itemId=%s&modelId=%s&branchId=%s&status=AVAILABLE&page=0&size=100";
+
+    public List<String> getListIMEI(String itemId, String modelId, int branchId) {
+        return api.get(getListIMEIPath.formatted(loginInfo.getStoreID(), itemId, modelId, branchId), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("code");
     }
 
 }

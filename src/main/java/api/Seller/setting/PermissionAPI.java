@@ -3,15 +3,14 @@ package api.Seller.setting;
 import api.Seller.login.Login;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-import utilities.utils.PropertiesUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,36 +213,14 @@ public class PermissionAPI {
      */
     public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials) {
     	return createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, CreatePermission.getFullPermissionModel());
-    }    
-    
-    public static void main(String[] args) {
-        PropertiesUtil.setEnvironment("STAG");
-        
-        //Set login info of seller and staff
-        LoginInformation ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
-        LoginInformation staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
-        
-        //Set permission model
-        CreatePermission model = new CreatePermission();
-        model.setHome_none("01");
-        model.setProduct_productManagement("010");
-        model.setCashbook_none("111111111111");
-        
-//        int groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, model);
-        int groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-
-        //Edit the permission
-//        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Tien's Permission", "Description Tien's Permission", model);
-        
-        //Get info of the staff after being granted the permission
-        LoginDashboardInfo staffLoginInfo1 = new Login().getInfo(staffCredentials);
-        
-        //See if the staff has permissions to perform some actions
-        System.out.println("Is staff able to change language: " + new AllPermissions(staffLoginInfo1.getStaffPermissionToken()).getHome().isChangLanguage());
-        System.out.println("Is staff able to see notifications: " + new AllPermissions(staffLoginInfo1.getStaffPermissionToken()).getHome().isNotification());
-
-        //Delete the permission group
-        new PermissionAPI(ownerCredentials).deleteGroupPermission(groupPermissionId);
     }
 
+    public void editPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, int groupId, CreatePermission model) {
+        int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
+        //Remove all permission groups from the staff
+        removeAllGroupPermissionsFromStaff(staffId);
+        int groupPermissionId = editGroupPermissionAndGetID(groupId, "Permission %s".formatted(System.currentTimeMillis()), "Description %s".formatted(System.currentTimeMillis()), model);
+        //Grant the permission to the staff
+        grantGroupPermissionToStaff(staffId, groupPermissionId);
+    }
 }

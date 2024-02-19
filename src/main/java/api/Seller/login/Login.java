@@ -151,7 +151,7 @@ public class Login {
         info.setStaffPermissionToken(jPath.getString("staffPermissionsToken"));
 
         // set staff branches
-        info.setAssignedBranches(jPath.getList("branchIds"));
+        info.setAssignedBranchesIds(jPath.getList("branchIds"));
 
         // get ownerId
         int ownerId = api.get("/storeservice/api/stores/%s".formatted(Iterables.getLast(getListStoreId)), info.getAccessToken())

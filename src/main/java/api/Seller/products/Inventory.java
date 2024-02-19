@@ -35,7 +35,7 @@ public class Inventory {
     }
 
     public InventoryInfo getInventoryInformation() {
-        List<Integer> assignedBranches = (info.getAssignedBranches() != null) ? info.getAssignedBranches() : new BranchManagement(loginInformation).getInfo().getBranchID();
+        List<Integer> assignedBranches = (info.getAssignedBranchesIds() != null) ? info.getAssignedBranchesIds() : new BranchManagement(loginInformation).getInfo().getBranchID();
         String branchCondition = assignedBranches.stream().map(branchId -> (assignedBranches.indexOf(branchId) == 0 ? "%s" : ",%s").formatted(branchId)).collect(Collectors.joining());
 
         InventoryInfo info = new InventoryInfo();
