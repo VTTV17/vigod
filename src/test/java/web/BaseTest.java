@@ -12,6 +12,7 @@ import utilities.utils.PropertiesUtil;
 
 import java.io.IOException;
 
+@Listeners(utilities.listeners.ReportListener.class)
 public class BaseTest {
     public WebDriver driver;
     public DataGenerator generate;

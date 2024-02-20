@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import web.BaseTest;
 import web.Dashboard.customers.allcustomers.AllCustomers;
-import web.Dashboard.customers.allcustomers.CustomerDetails;
+import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.StoreFront.header.ChangePasswordDialog;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.login.LoginPage;

@@ -391,9 +391,14 @@ public class UICommonAction {
         Actions action = new Actions(driver);
         action.moveToElement(element).build().perform();
     }
-
+    
+    // This function will soon be deleted
     public boolean isElementVisiblyDisabled(WebElement element) {
         return element.getAttribute("class").contains("gs-atm--disable");
+    }
+    
+    public boolean isElementVisiblyDisabled(By locator) {
+    	return getAttribute(locator, "class").contains("gs-atm--disable");
     }
 
     public int waitTillSelectDropdownHasData(WebElement element) {
