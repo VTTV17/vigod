@@ -3,7 +3,7 @@ package web.Dashboard.customers.segments.customer_in_segment;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import web.Dashboard.customers.segments.Segments;
-import web.Dashboard.customers.segments.CreateSegment;
+import web.Dashboard.customers.segments.createsegment.CreateSegment;
 
 import java.util.ArrayList;
 import java.util.List;

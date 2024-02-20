@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static web.Dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
-import static web.Dashboard.customers.segments.CreateSegment.segmentName;
+import static web.Dashboard.customers.segments.createsegment.CreateSegment.segmentName;
 import static utilities.links.Links.DOMAIN;
 
 public class DiscountPage extends DiscountElement {
