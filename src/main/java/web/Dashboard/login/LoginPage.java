@@ -81,13 +81,13 @@ public class LoginPage {
     }
 
     public LoginPage inputEmailOrPhoneNumber(String username) {
-        commonAction.sendKeys(loc_txtUsername, username);
+        commonAction.inputText(loc_txtUsername, username);
         logger.info("Input '" + username + "' into Username field.");
         return this;
     }
 
     public LoginPage inputPassword(String password) {
-        commonAction.sendKeys(loc_txtPassword, password);
+        commonAction.inputText(loc_txtPassword, password);
         logger.info("Input '" + password + "' into Password field.");
         return this;
     }
@@ -125,7 +125,6 @@ public class LoginPage {
     public LoginPage performLogin(String username, String password) {
         inputEmailOrPhoneNumber(username);
         inputPassword(password);
-        commonAction.sleepInMiliSecond(2000);
         clickLoginBtn();
         return this;
     }

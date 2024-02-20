@@ -20,6 +20,7 @@ import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
+import web.Dashboard.service.ServiceManagementPage;
 
 public class ServiceCollectionManagement {
 
@@ -163,10 +164,11 @@ public class ServiceCollectionManagement {
 		home.navigateToPage("Services", "Service Collections");
 		return this;
 	}
-	public void navigateToServiceCollectUrl(){
+	public ServiceCollectionManagement navigateToServiceCollectUrl(){
 		commonAction.navigateToURL(Links.DOMAIN+"/collection_service/list");
-		commonAction.sleepInMiliSecond(200);
 		logger.info("Navigate to service list.");
+		commonAction.sleepInMiliSecond(200);
+		return this;
 	}
 	public void deleteTheFirstCollection() {
 		commonAction.click(loc_lst_icnDelete,0);
@@ -193,6 +195,7 @@ public class ServiceCollectionManagement {
 	}
 	public void checkPermissionViewCollectionList(){
 		navigateToServiceCollectUrl();
+		commonAction.sleepInMiliSecond(1000);
 		int collectionListSize = commonAction.getElements(loc_lst_lblServiceCollectionName).size();
 		if(allPermissions.getService().getServiceCollection().isViewCollectionList()){
 			assertCustomize.assertTrue(collectionListSize>0,"[Failed] Verify collection list show. Currently Service collection list not show (size is %s)".formatted(collectionListSize));
@@ -249,12 +252,13 @@ public class ServiceCollectionManagement {
 	public void checkPermissionDeleteServiceCollection(int collectionId){
 		boolean hasPermissionViewServiceCollectionList = allPermissions.getService().getServiceCollection().isViewCollectionList();
 		boolean hasPermissionViewCollectionDetail = allPermissions.getService().getServiceCollection().isViewCollectionDetail();
-		String viewDetailServiceCollectionUrl = Links.DOMAIN+"/collection_service/edit/service"+collectionId;
+		String viewDetailServiceCollectionUrl = Links.DOMAIN+"/collection_service/edit/service/"+collectionId;
 		if(hasPermissionViewCollectionDetail){
 			commonAction.navigateToURL(viewDetailServiceCollectionUrl);
-			if(allPermissions.getService().getServiceManagement().isDeleteService()) {
+			if(allPermissions.getService().getServiceCollection().isDeleteCollection()) {
 				commonAction.click(createServiceCollectionUI.loc_btnDelete);
 				commonAction.click(createServiceCollectionUI.loc_dlgConfirmation_btnOK);
+				commonAction.sleepInMiliSecond(500);
 				try {
 					assertCustomize.assertEquals(commonAction.getText(createServiceCollectionUI.loc_dlgNotification_lblMessage),
 							PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.deleteSuccessfully"),
@@ -267,15 +271,17 @@ public class ServiceCollectionManagement {
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceCollectionUI.loc_dlgConfirmation_btnOK),
 						"[Failed] Restricted page or modal not show when click Delete button.");
 				}
-			}
+			logger.info("Verified permission Delete collection on detail page");
+		}
 		if(hasPermissionViewServiceCollectionList){
 			navigateToServiceCollectUrl();
-			if(allPermissions.getService().getServiceManagement().isDeleteService()){
+			if(allPermissions.getService().getServiceCollection().isDeleteCollection()) {
 				commonAction.click(loc_lst_icnDelete,0);
 				try {
-					assertCustomize.assertEquals(commonAction.getText(createServiceCollectionUI.loc_dlgNotification_lblMessage),
-							PropertiesUtil.getPropertiesValueByDBLang("services.delete.confirmMessage"),
-							"[Failed] Delete popup should be shown, but '%s' is shown".formatted(commonAction.getText(createServiceCollectionUI.loc_dlgNotification_lblMessage)));
+					String messageActual = commonAction.getText(createServiceCollectionUI.loc_dlgNotification_lblMessage);
+					String messageExpected = PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.dlgConfirmation.deleteMessage");
+					assertCustomize.assertEquals(messageActual,messageExpected	,
+							"[Failed] Delete popup '%s' should be shown, but '%s' is shown".formatted(messageExpected,messageActual));
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -283,17 +289,23 @@ public class ServiceCollectionManagement {
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnDelete,0),
 						"[Failed] Restricted page or modal not show when click delete icon.");
 			}
+			logger.info("Verified permission Delete collection on collection list.");
 		}
-		logger.info("Verified permission Delete collection.");
 	}
-	public ServiceCollectionManagement checkPermissionServiceCollection(AllPermissions allPermissions){
+	public ServiceCollectionManagement checkPermissionServiceCollection(AllPermissions allPermissions, int collectionId){
 		this.allPermissions = allPermissions;
-		int collectionId = new ServiceCollectionAPI(loginInformation).getNewestCollectionID();
 		checkPermissionViewCollectionList();
 		checkPermissionViewCollectionDetail(collectionId);
 		checkPermissionCreateCollection();
 		checkPermissionEditCollection(collectionId);
 		checkPermissionDeleteServiceCollection(collectionId);
+		return this;
+	}
+	public ServiceCollectionManagement completeVerifyStaffPermissionServiceCollection() {
+		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+		if (assertCustomize.getCountFalse() > 0) {
+			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+		}
 		return this;
 	}
 }

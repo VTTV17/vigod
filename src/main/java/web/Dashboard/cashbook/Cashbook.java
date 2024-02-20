@@ -1,9 +1,12 @@
 package web.Dashboard.cashbook;
 
+import static utilities.links.Links.DOMAIN;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,10 +17,12 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
+import utilities.commons.UICommonAction;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import utilities.utils.PropertiesUtil;
-import utilities.commons.UICommonAction;
 
 public class Cashbook {
 
@@ -83,11 +88,32 @@ public class Cashbook {
 	By loc_txtNote = By.id("note");
 	By loc_chkAccounting = By.name("accounting");
 
+	By loc_tmpRandomReceipt = By.xpath("//*[@class='transaction-code' and contains(.,'RN')]");
+	By loc_tmpRandomPayment = By.xpath("//*[@class='transaction-code' and contains(.,'PN')]");
+	
+	String searchResultXpath = "//div[contains(@class,'search-item') %s]";
 	String conditionFilterDropdownXpath = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']";
+
+	public String translateGroup(String group) {
+		String translatedGroup = null;
+		try {
+			translatedGroup = PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group.%s".formatted(group));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return translatedGroup;
+	}	
 	
 	public Cashbook navigate() {
 		new HomePage(driver).navigateToPage("Cashbook");
-		commonAction.sleepInMiliSecond(5000);
+		commonAction.sleepInMiliSecond(3000);
+		commonAction.removeFbBubble();
+		return this;
+	}
+	
+	public Cashbook navigateByURL() {
+		driver.get(DOMAIN + "/cashbook/management");
+//		commonAction.sleepInMiliSecond(3000);
 		commonAction.removeFbBubble();
 		return this;
 	}
@@ -103,15 +129,20 @@ public class Cashbook {
 			}
 			summary.add(Long.parseLong(String.join("", sub)));
 		}
+		System.out.println(summary.toString());
 		return summary;
 	}
-	
-	public List<String> getSpecificRecord(int index) {
-		//Wait until records are present
+
+	public void waitTillRecordsAppear() {
 		for (int i=0; i<6; i++) {
 			if (!commonAction.getElements(loc_tblCashbookRecord).isEmpty()) break;
-			commonAction.sleepInMiliSecond(500);
+			commonAction.sleepInMiliSecond(500, "Waiting for records to appear");
 		}
+	}	
+	
+	public List<String> getSpecificRecord(int index) {
+		
+		waitTillRecordsAppear();
 		
 		/*
 		 * Loop through the columns of the specific record
@@ -135,23 +166,25 @@ public class Cashbook {
 	}
 
 	public List<List<String>> getRecords() {
+		waitTillRecordsAppear();
 		List<List<String>> table = new ArrayList<>();
 		for (int i=0; i<commonAction.getElements(loc_tblCashbookRecord).size(); i++) {
 			table.add(getSpecificRecord(i));
 		}
+		System.out.println(table.toString());
 		return table;
 	}
 
 	public Cashbook clickCreateReceiptBtn() {
 		commonAction.click(loc_btnCreateReceipt);
-		commonAction.sleepInMiliSecond(1000);
+		commonAction.sleepInMiliSecond(1000, "After clicking Create Receipt button");
 		logger.info("Clicked on Create Receipt button.");
 		return this;
 	}
 
 	public Cashbook clickCreatePaymentBtn() {
 		commonAction.click(loc_btnCreatePayment);
-		commonAction.sleepInMiliSecond(1000);
+		commonAction.sleepInMiliSecond(1000 , "After clicking Create Payment button");
 		logger.info("Clicked on Create Payment button.");
 		return this;
 	}	
@@ -175,10 +208,11 @@ public class Cashbook {
 		commonAction.click(loc_ddlSenderName);
 		// Open dropdown if necessary
 	    if (inputSearchTerm) {
-			commonAction.sendKeys(loc_txtSearchSenderName, name);
+	    	commonAction.sleepInMiliSecond(500, "Wait a little before inputing text or ElementNotInteractableException occurs");
+			commonAction.inputText(loc_txtSearchSenderName, name);
 			new HomePage(driver).waitTillSpinnerDisappear1();
 	    }
-		By customerLocator = By.xpath("//div[contains(@class,'search-item') and text()='%s']".formatted(name));
+		By customerLocator = By.xpath(searchResultXpath.formatted("and text()='%s'".formatted(name)));
 		commonAction.waitVisibilityOfElementLocated(customerLocator);
 		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
 		//The element will go stale after the delay, so we fetch the element again
@@ -672,10 +706,224 @@ public class Cashbook {
 		return this;
 	}    
 
+	public Cashbook deleteRecord(String recordID) {
+		commonAction.click(By.xpath("//td[text()='%s']/following-sibling::td[7]//img".formatted(recordID)));
+		logger.info("Clicked on record '%s' to delete it.".formatted(recordID));
+		new ConfirmationDialog(driver).clickOKBtn();
+		return this;
+	}	
+	
     public void verifyTextAtFilterContainer() throws Exception {
     	String text = commonAction.getText(new ByChained(loc_btnFilterDone, By.xpath("./ancestor::div[contains(@class,'dropdown-menu-right')]")));
     	Assert.assertEquals(text, PropertiesUtil.getPropertiesValueByDBLang("cashbook.filterContainer"));
     	logger.info("verifyTextAtFilterContainer completed");
+    }  		
+    
+    public void checkPermissionToViewReceiptPaymentList(AllPermissions staffPermission) {
+    	navigateByURL(); 
+    	List<List<String>> records = getRecords();
+    	commonAction.sleepInMiliSecond(2000, "Waiting for summary to load");
+    	List<Long> originalSummary = getCashbookSummary();
+    	
+    	for (int i=0; i<2; i++) {
+    		boolean type = false;
+    		List<String> source = null;
+    		Long amount = Long.valueOf(0);
+    		if (i==0) {
+    			type = staffPermission.getCashbook().isViewReceiptTransactionList();
+    			source = records.stream().filter(record -> records.get(TRANSACTIONCODE_COL).contains("RN")).map(record -> record.get(REVENUETYPE_COL)).collect(Collectors.toList());
+    			amount = originalSummary.get(TOTALREVENUE_IDX);
+    		} else {
+    			type = staffPermission.getCashbook().isViewPaymentTransactionList();
+    			source = records.stream().filter(record -> records.get(TRANSACTIONCODE_COL).contains("PN")).map(record -> record.get(EXPENSETYPE_COL)).collect(Collectors.toList());
+    			amount = originalSummary.get(TOTALEXPENDITURE_IDX);
+    		}
+    		
+    		if (type) {
+        		Assert.assertNotEquals(amount, Long.valueOf(0));
+        		Assert.assertFalse(source.contains("-"));
+    		} else {
+        		Assert.assertEquals(amount, Long.valueOf(0));
+        		Assert.assertTrue(source.isEmpty());
+    		}
+    	}
+    	logger.info("Finished checking permission to view receipt/payment list");
+    }
+    
+    public void checkPermissionToViewReceiptPaymentDetail(AllPermissions staffPermission) {
+    	navigateByURL(); 
+    	
+    	for (int i=0; i<2; i++) {
+    		boolean flag = false;
+    		By loc_tmpTransactionType = null;
+    		if (i==0) {
+    			loc_tmpTransactionType = loc_tmpRandomReceipt;
+    			flag = staffPermission.getCashbook().isViewReceiptTransactionDetail();
+    		} else {
+    			loc_tmpTransactionType = loc_tmpRandomPayment;
+    			flag = staffPermission.getCashbook().isViewPaymentTransactionDetail();
+    		}  
+    		
+    		if (commonAction.getElements(loc_tmpTransactionType).isEmpty()) continue;
+    		
+    		commonAction.click(loc_tmpTransactionType);
+    		if (flag) {
+        		new ConfirmationDialog(driver).clickGrayBtn();
+    		} else {
+        		Assert.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_tmpTransactionType));
+    		}
+    	}
+    	logger.info("Finished checking permission to view receipt/payment details");
+    }
+    
+    public void checkPermissionToCreateReceiptPayment(AllPermissions staffPermission, String nonAssignedCustomer, String assignedCustomer, String supplier, String staff) {
+    	navigateByURL(); 
+    	
+    	for (int i=0; i<2; i++) {
+    		boolean flag = false;
+    		if (i==0) {
+    			clickCreateReceiptBtn();
+    			flag = staffPermission.getCashbook().isCreateReceiptTransaction();
+    		} else {
+    			clickCreatePaymentBtn();
+    			flag = staffPermission.getCashbook().isCreatePaymentTransaction();
+    		}
+    		
+        	if (flag) {
+        		String group = translateGroup("customer");
+        		if (staffPermission.getCustomer().getCustomerManagement().isViewAllCustomerList() && staffPermission.getCustomer().getCustomerManagement().isViewAssignedCustomerList()) {
+        			selectGroup(group);
+        			selectName(nonAssignedCustomer, true);
+        			selectName(assignedCustomer, true);
+        		} else if (staffPermission.getCustomer().getCustomerManagement().isViewAllCustomerList()) {
+        			selectGroup(group);
+        			selectName(nonAssignedCustomer, true);
+        		} else if (staffPermission.getCustomer().getCustomerManagement().isViewAssignedCustomerList()) {
+        			selectGroup(group);
+        			selectName(assignedCustomer, true);
+        		} else {
+        			selectGroup(group);
+        			commonAction.click(loc_ddlSenderName);
+        			commonAction.sendKeys(loc_txtSearchSenderName, nonAssignedCustomer);
+        			new HomePage(driver).waitTillSpinnerDisappear1();
+        			By customerLocator = By.xpath(searchResultXpath.formatted(""));
+        			Assert.assertEquals(commonAction.getListElement(customerLocator).size(), 0);
+        		}
+        		group = translateGroup("supplier");
+        		if (staffPermission.getSuppliers().getSupplier().isViewSupplierList()) {
+        			selectGroup(group);
+        			selectName(supplier, true);
+        		} else {
+        			selectGroup(group);
+        			commonAction.click(loc_ddlSenderName);
+        			commonAction.inputText(loc_txtSearchSenderName, supplier);
+        			new HomePage(driver).waitTillSpinnerDisappear1();
+        			By supplierLocator = By.xpath(searchResultXpath.formatted(""));
+        			Assert.assertEquals(commonAction.getListElement(supplierLocator).size(), 0);
+        		}
+        		group = translateGroup("staff");
+        		if (staffPermission.getSetting().getStaffManagement().isViewStaffList()) {
+        			commonAction.sleepInMiliSecond(1000, "This is weird!!!");
+        			selectGroup(group);
+        			selectName(staff, true);
+        		} else {
+        			selectGroup(group);
+        			commonAction.click(loc_ddlSenderName);
+        			commonAction.inputText(loc_txtSearchSenderName, staff);
+        			new HomePage(driver).waitTillSpinnerDisappear1();
+        			By staffLocator = By.xpath(searchResultXpath.formatted(""));
+        			Assert.assertEquals(commonAction.getListElement(staffLocator).size(), 0);
+        		}
+        		commonAction.refreshPage();
+        	} else {
+        		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+        	}
+    	}
+    	logger.info("Finished checking permission to create receipt/payment");
+    }
+    
+    public void checkPermissionToEditReceiptPayment(AllPermissions staffPermission) {
+    	navigateByURL(); 
+    	
+    	for (int i=0; i<2; i++) {
+    		boolean isViewDetail = false;
+    		boolean isEdit = false;
+    		By loc_tmpTransactionType = null;
+    		if (i==0) {
+    			loc_tmpTransactionType = loc_tmpRandomReceipt;
+    			isViewDetail = staffPermission.getCashbook().isViewReceiptTransactionDetail();
+    			isEdit = staffPermission.getCashbook().isEditReceiptTransaction();
+    		} else {
+    			loc_tmpTransactionType = loc_tmpRandomPayment;
+    			
+    			isViewDetail = staffPermission.getCashbook().isViewPaymentTransactionDetail();
+    			isEdit = staffPermission.getCashbook().isEditPaymentTransaction();
+    		}
+    		
+    		if (commonAction.getElements(loc_tmpTransactionType).isEmpty()) continue;
+    		
+    		commonAction.click(loc_tmpTransactionType);
+    		
+    		if (isViewDetail) {
+    			checkAccountingCheckbox(false);
+    			checkAccountingCheckbox(true);
+    			clickSaveBtn();
+        		if (isEdit) {
+        			new HomePage(driver).getToastMessage();
+        		} else {
+        			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+        			commonAction.refreshPage();
+        		}
+    		} else {
+    			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		}
+    	}
+    	logger.info("Finished checking permission to edit receipt/payment");
+    }
+    
+    public void checkPermissionToDeleteReceiptPayment(AllPermissions staffPermission) {
+    	navigateByURL(); 
+    	List<List<String>> records = getRecords();
+    	
+    	String randomReceipt = null;
+    	String randomPayment = null;
+    	for (List<String> record : records) {
+    		if (record.get(CREATEDBY_COL).equals("system")) continue;
+    		if (randomReceipt != null && randomPayment != null) break; 
+    		if (randomReceipt == null && record.get(TRANSACTIONCODE_COL).startsWith("RN")) randomReceipt = record.get(TRANSACTIONCODE_COL);
+    		if (randomPayment == null && record.get(TRANSACTIONCODE_COL).startsWith("PN")) randomPayment = record.get(TRANSACTIONCODE_COL);
+    	}
+    	
+    	for (int i=0; i<2; i++) {
+    		boolean flag = false;
+    		String transactionId = null;
+    		if (i==0) {
+    			transactionId = randomReceipt;
+    			flag = staffPermission.getCashbook().isDeleteReceiptTransaction();
+    		} else {
+    			transactionId = randomPayment;
+    			flag = staffPermission.getCashbook().isDeletePaymentTransaction();
+    		} 
+    		
+    		if (transactionId == null) continue;
+    		
+    		deleteRecord(transactionId);
+    		
+    		if (flag) {
+        		new HomePage(driver).getToastMessage();
+    		} else {
+        		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		}
+    	}
+    	logger.info("Finished checking permission to delete receipt/payment");
+    }
+ 		
+    public void checkCashbookPermission(AllPermissions staffPermission, String unassignedCustomer, String assignedCustomer, String supplier, String staff) {
+    	checkPermissionToViewReceiptPaymentList(staffPermission);
+    	checkPermissionToViewReceiptPaymentDetail(staffPermission);
+    	checkPermissionToCreateReceiptPayment(staffPermission, unassignedCustomer, assignedCustomer, supplier, staff);
+    	checkPermissionToEditReceiptPayment(staffPermission);
+    	checkPermissionToDeleteReceiptPayment(staffPermission);
     }  		
 	
 }

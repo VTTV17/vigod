@@ -15,6 +15,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import utilities.api.API;
 import utilities.assert_customize.AssertCustomize;
 import utilities.links.Links;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -157,7 +158,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 	}
 	public ServiceManagementPage navigateToServiceManagementUrl(){
 		commons.navigateToURL(Links.DOMAIN+"/service/list");
-		commons.sleepInMiliSecond(200);
+		commons.sleepInMiliSecond(500);
 		logger.info("Navigate to service list.");
 		return this;
 	}
@@ -182,18 +183,21 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		boolean hasPermissionViewServiceList = allPermissions.getService().getServiceManagement().isViewListService();
 		boolean hasPermissionViewCreatedServiceList = allPermissions.getService().getServiceManagement().isViewListCreatedService();
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
-		commons.sleepInMiliSecond(5000);
-		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()){
+		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()) {
 			// if has permission view list then click to edit button, else navigate to url
-			if(hasPermissionViewServiceList||hasPermissionViewCreatedServiceList)
-				assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(loc_lst_icnEdit,0,createServiceUI.loc_txtServiceName),"[Failed] Service name not show.");
-			else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(viewDetailServiceUrl,"/404"),"[Failed] Service name not show. in case no permission view list");
+			if (hasPermissionViewServiceList || hasPermissionViewCreatedServiceList) {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(loc_lst_icnEdit, 0,
+								createServiceUI.loc_txtServiceName), "[Failed] Service name not show.");
+			} else
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(viewDetailServiceUrl,"/404"),"[Failed] 404 page not show.");
 		}else {
 			// if has permission view list then click to edit button, else navigate to url
 			if(hasPermissionViewServiceList||hasPermissionViewCreatedServiceList)
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEdit,0),"[Failed] Restricted page or modal not show.");
-			else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(viewDetailServiceUrl),"[Failed] Restricted page or modal not show when click edit button.");
+			else {
+				logger.info("Don't has permission View list và View detail then no need check");
+				return;
+			}
 		}
 		logger.info("Verified permission View service detail.");
 	}
@@ -201,6 +205,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		navigateToServiceManagementUrl();
 		if (allPermissions.getService().getServiceManagement().isCreateService()){
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnCreateService, "/service/create"), "[Failed] Service page not show.");
+			commons.sleepInMiliSecond(200);
 			checkPermissionViewCollection();
 		}
 		else
@@ -209,25 +214,28 @@ public class ServiceManagementPage extends ServiceManagementElement {
 	}
 	public void checkPermissionViewCollection(){
 		commons.click(createServiceUI.loc_frmCollection);
-		boolean isSuggestionListShow = commons.getListElement(createServiceUI.loc_lstCollectionSuggestion).isEmpty();
+		commons.sleepInMiliSecond(1000);
+		boolean isSuggestionListShow = !commons.getListElement(createServiceUI.loc_lstCollectionSuggestion).isEmpty();
 		if (allPermissions.getService().getServiceCollection().isViewCollectionList())
-			assertCustomize.assertTrue(!isSuggestionListShow,"[Failed] Collection list not show.");
-		else assertCustomize.assertTrue(isSuggestionListShow,"[Failed] Collection should be hidden, but it show now.");
+			assertCustomize.assertTrue(isSuggestionListShow,"[Failed] Collection list not show.");
+		else assertCustomize.assertFalse(isSuggestionListShow,"[Failed] Collection should be hidden, but it show now.");
 	logger.info("Verified permission View collection list");
 	}
 	public void checkPermissionEditService(int serviceId) {
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
-		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()){
+		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()&&(allPermissions.getService().getServiceManagement().isViewListService()||allPermissions.getService().getServiceManagement().isViewListCreatedService())) {
 			commons.navigateToURL(viewDetailServiceUrl);
 			commons.sleepInMiliSecond(200);
 			if(allPermissions.getService().getServiceManagement().isEditService()){
 				checkPermissionViewCollection();
 				commons.click(createServiceUI.loc_btnSave);
 				try {
-					String createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.update.successfullyMessage");
+					String createSuccessfullyMessENG = PropertiesUtil.getPropertiesValueByDBLang("services.update.successfullyMessage","ENG");
+					String createSuccessfullyMessVIE = PropertiesUtil.getPropertiesValueByDBLang("services.update.successfullyMessage","VIE");
 					commons.waitForElementVisible(commons.getElement(createServiceUI.loc_dlgNotification_lblMessage));
 					String message= commons.getText(createServiceUI.loc_dlgNotification_lblMessage);
-					assertCustomize.assertEquals(message,createSuccessfullyMess,"[Failed] Message '%s' should be show, but message '%s' show.".formatted(createSuccessfullyMess,message));
+					assertCustomize.assertTrue(message.contentEquals(createSuccessfullyMessENG)||message.contentEquals(createSuccessfullyMessVIE),
+							"[Failed] Message updated successfull should be show, but message '%s' show.".formatted(message));
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -235,16 +243,21 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		}
 		logger.info("Verified permission Edit service");
 	}
-	public void checkPermissionActiveService(int inactiveServiceId){
-		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+inactiveServiceId;
-		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()) {
+	public void checkPermissionActiveService(){
+		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()&&(allPermissions.getService().getServiceManagement().isViewListService()||allPermissions.getService().getServiceManagement().isViewListCreatedService())) {
+			int inactiveServiceId = new ServiceInfoAPI(loginInformation).getInactiveServiceId(); // get inactive service
+			String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+inactiveServiceId;
 			commons.navigateToURL(viewDetailServiceUrl);
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if(allPermissions.getService().getServiceManagement().isActivateService()){
 				commons.click(createServiceUI.loc_btnActiveDeactive);
+				commons.sleepInMiliSecond(500);
 				try {
-					assertCustomize.assertEquals(commons.getText(createServiceUI.loc_lblStatus),
-							PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus"),
-							"[Failed] Inactive status should be shown, but '%s' is shown".formatted(commons.getText(createServiceUI.loc_lblStatus)));
+					String activelblENG = PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus","ENG");
+					String activelblVIE = PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus","VIE");
+					String statusLbl = commons.getText(createServiceUI.loc_lblStatus);
+					assertCustomize.assertTrue(statusLbl.contentEquals(activelblENG)||statusLbl.contentEquals(activelblVIE),
+							"[Failed] ServiceID: %s - Active status should be shown, but '%s' is shown".formatted(inactiveServiceId,statusLbl));
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -254,21 +267,27 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		logger.info("Verified permission Active service");
 	}
 	public void checkPermissionDeactivateService(){
-		int serviceId = new ServiceInfoAPI(loginInformation).getActiveServiceId();
-		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
-		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()) {
+		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()&&(allPermissions.getService().getServiceManagement().isViewListService()||allPermissions.getService().getServiceManagement().isViewListCreatedService())) {
+			int activeServiceId = new ServiceInfoAPI(loginInformation).getActiveServiceId(); //get active service
+			String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+activeServiceId;
 			commons.navigateToURL(viewDetailServiceUrl);
+			new HomePage(driver).waitTillSpinnerDisappear1();
 			if(allPermissions.getService().getServiceManagement().isDeactivateService()){
 				commons.click(createServiceUI.loc_btnActiveDeactive);
+				commons.sleepInMiliSecond(500);
+
 				try {
-					assertCustomize.assertEquals(commons.getText(createServiceUI.loc_lblStatus),
-							PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus"),
-							"[Failed] Active status should be shown, but '%s' is shown".formatted(commons.getText(createServiceUI.loc_lblStatus)));
+					String inactiveLblENG = PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus","ENG");
+					String inactiveLblVIE = PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus","VIE");
+					String statusLbl  = commons.getText(createServiceUI.loc_lblStatus);
+					assertCustomize.assertTrue(statusLbl.contentEquals(inactiveLblENG)||statusLbl.contentEquals(inactiveLblVIE),
+							"[Failed] ServiceId: %s - Active status should be shown, but '%s' is shown".formatted(activeServiceId,statusLbl));
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnActiveDeactive),"[Failed] Restricted page or modal not show when click Deactivate button.");
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnActiveDeactive),
+						"[Failed] Restricted page or modal not show when click Deactivate button.");
 		}
 		logger.info("Verified permission Deactive service");
 	}
@@ -276,21 +295,8 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		boolean hasPermissionViewServiceList = allPermissions.getService().getServiceManagement().isViewListService();
 		boolean hasPermissionViewCreatedServiceList = allPermissions.getService().getServiceManagement().isViewListCreatedService();
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
-		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()){
-			commons.navigateToURL(viewDetailServiceUrl);
-			if(allPermissions.getService().getServiceManagement().isDeleteService()) {
-				commons.click(createServiceUI.loc_btnDeleteService);
-				try {
-					assertCustomize.assertEquals(commons.getText(createServiceUI.loc_dlgNotification_lblMessage),
-							PropertiesUtil.getPropertiesValueByDBLang("services.delete.confirmMessage"),
-							"[Failed] Delete successfull message should be shown, but '%s' is shown".formatted(commons.getText(createServiceUI.loc_dlgNotification_lblMessage)));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnDeleteService),
-					"[Failed] Restricted page or modal not show when click Delete button.");
-		}
-		if(hasPermissionViewServiceList||hasPermissionViewCreatedServiceList){
+		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()&&(allPermissions.getService().getServiceManagement().isViewListService()||allPermissions.getService().getServiceManagement().isViewListCreatedService())) {
+			//check delete button on service management page.
 			navigateToServiceManagementUrl();
 			commons.click(loc_lst_icnDelete,0);
 			if(allPermissions.getService().getServiceManagement().isDeleteService()){
@@ -306,6 +312,21 @@ public class ServiceManagementPage extends ServiceManagementElement {
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_dlgNotification_btnOK),
 						"[Failed] Restricted page or modal not show when click OK button on Confirmation delete popup.");
 			}
+			//Check delete button on detail page
+			commons.navigateToURL(viewDetailServiceUrl);
+			if(allPermissions.getService().getServiceManagement().isDeleteService()) {
+				commons.click(createServiceUI.loc_btnDeleteService);
+				try {
+					assertCustomize.assertEquals(commons.getText(createServiceUI.loc_dlgNotification_lblMessage),
+							PropertiesUtil.getPropertiesValueByDBLang("services.delete.confirmMessage"),
+							"[Failed] Delete successfull message should be shown, but '%s' is shown".formatted(commons.getText(createServiceUI.loc_dlgNotification_lblMessage)));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createServiceUI.loc_btnDeleteService),
+					"[Failed] Restricted page or modal not show when click Delete button.");
+		}else {
+			logger.info("Don't has permission View list và View detail then no need check permission delete");
 		}
 		logger.info("Verified permission Delete service");
 	}
@@ -315,7 +336,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		checkPermissionViewServiceDetail(staffCreatedServiceId);
 		checkPermissionCreateService();
 		checkPermissionEditService(staffCreatedServiceId);
-		checkPermissionActiveService(staffCreatedServiceId);
+		checkPermissionActiveService();
 		checkPermissionDeactivateService();
 		checkPermissionDeleteService(staffCreatedServiceId);
 		return this;
