@@ -15,8 +15,8 @@ import org.testng.annotations.Test;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.products.APIAllProducts;
-import api.Seller.products.ProductInformation;
+import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.ProductInformation;
 import web.BaseTest;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;

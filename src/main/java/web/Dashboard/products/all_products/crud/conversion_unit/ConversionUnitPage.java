@@ -1,6 +1,6 @@
 package web.Dashboard.products.all_products.crud.conversion_unit;
 
-import api.Seller.products.ConversionUnit;
+import api.Seller.products.all_products.ConversionUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;

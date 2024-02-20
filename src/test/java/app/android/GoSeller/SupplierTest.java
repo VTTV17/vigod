@@ -1,6 +1,6 @@
 package app.android.GoSeller;
 
-import api.Seller.products.SupplierAPI;
+import api.Seller.products.supplier.SupplierAPI;
 import app.android.BaseTest;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;

@@ -2,8 +2,8 @@ package api.Seller.promotion;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.products.APIProductCollection;
-import api.Seller.products.CreateProduct;
+import api.Seller.products.product_collections.APIProductCollection;
+import api.Seller.products.all_products.CreateProduct;
 import api.Seller.setting.BranchManagement;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;

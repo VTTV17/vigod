@@ -42,7 +42,7 @@ import web.Dashboard.products.productcollection.productcollectionmanagement.Prod
 import web.Dashboard.products.productreviews.ProductReviews;
 import web.Dashboard.products.purchaseorders.PurchaseOrders;
 import web.Dashboard.products.supplier.management.SupplierManagementPage;
-import web.Dashboard.products.transfer.TransferPage;
+import web.Dashboard.products.transfer.crud.TransferPage;
 import web.Dashboard.promotion.discount.DiscountPage;
 import web.Dashboard.promotion.flashsale.FlashSalePage;
 import web.Dashboard.reservation.ReservationManagement;

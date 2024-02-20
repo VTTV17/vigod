@@ -1,19 +1,28 @@
-package web.Dashboard.products.transfer;
+package web.Dashboard.products.transfer.crud;
 
+import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
+import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.products.transfer.management.TransferManagementPage;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static utilities.links.Links.DOMAIN;
 
 public class TransferPage extends TransferElement {
     WebDriver driver;
@@ -25,31 +34,32 @@ public class TransferPage extends TransferElement {
         this.driver = driver;
         commons = new UICommonAction(driver);
     }
+
     HomePage homePage;
+    TransferManagementPage transferManagementPage;
+
     public TransferPage navigate() {
         homePage = new HomePage(driver);
+        transferManagementPage = new TransferManagementPage(driver);
         homePage.navigateToPage("Products", "Transfer");
-        commons.waitVisibilityOfElementLocated(loc_btnCreateTransfer);
+        commons.waitVisibilityOfElementLocated(transferManagementPage.getLoc_btnCreateTransfer());
         return this;
     }
 
     public void waitTillPageStable() {
-        commons.waitVisibilityOfElementLocated(loc_btnCreateTransfer);
+        commons.waitVisibilityOfElementLocated(transferManagementPage.getLoc_btnCreateTransfer());
         homePage.waitTillLoadingDotsDisappear().waitTillSpinnerDisappear1();
     }
 
     public TransferPage clickAddTransferBtn() {
-        commons.click(loc_btnCreateTransfer);
-        commons.waitVisibilityOfElementLocated(loc_txtNote);
+        commons.click(transferManagementPage.getLoc_btnCreateTransfer());
         logger.info("Clicked on 'Add Transfer' button.");
-        commons.sleepInMiliSecond(1000);
         return this;
     }
 
     public TransferPage inputSearchTerm(String searchTerm) {
         commons.sendKeys(loc_txtSearchRecord, searchTerm);
         logger.info("Input '" + searchTerm + "' into Search box.");
-        homePage.waitTillSpinnerDisappear();
         return this;
     }
 
@@ -57,7 +67,6 @@ public class TransferPage extends TransferElement {
         commons.sendKeys(loc_txtSearchProduct, searchTerm);
         logger.info("Input '" + searchTerm + "' into Product Search box.");
         commons.sleepInMiliSecond(500); //There's a delay of 500ms before search operation commences
-        By searchLoadingIcon = By.xpath("//div[contains(@class,'search-result')]/div[contains(@class,'loading')]");
         commons.waitInvisibilityOfElementLocated(searchLoadingIcon);
         return this;
     }
@@ -71,21 +80,13 @@ public class TransferPage extends TransferElement {
 
     public TransferPage selectSourceBranch(String name) {
         commons.click(loc_ddlBranches, 0);
-        By branchName = By.xpath("//div[contains(@class,'information')]//div[contains(@class,'uik-select__label') and text()='%s']".formatted(name));
+        By branchName = By.xpath(str_branch.formatted(name));
         commons.click(branchName);
         logger.info("Selected source branch: " + name);
         return this;
     }
 
     public void getSearchResults() {
-        By results = By.xpath("//div[contains(@class,'search-result')]/div[contains(@class,'product-item')]");
-
-        By name = By.xpath(".//div[contains(@class,'search-item')]/div/span[position()=1 %s]".formatted(""));
-        By barcode = By.xpath(".//div[contains(@class,'search-item')]/div/span[position()=2 %s]".formatted(""));
-        By variation = By.xpath(".//div[contains(@class,'search-item')]/div/span[position()=3 %s]".formatted(""));
-        By inventory = By.xpath(".//div[contains(@class,'search-item')]/span/p[position()=1 %s]".formatted(""));
-        By unit = By.xpath(".//div[contains(@class,'search-item')]/span/p[position()=2 %s]".formatted(""));
-
         List<List<String>> resultList = new ArrayList<>();
 
         for (int i = 0; i < commons.getElements(results).size(); i++) {
@@ -120,7 +121,6 @@ public class TransferPage extends TransferElement {
 
     public TransferPage selectDestinationBranch(String name) {
         commons.click(loc_ddlBranches, 1);
-        By branchName = By.xpath("//div[contains(@class,'information')]//div[contains(@class,'uik-select__label') and text()='%s']".formatted(name));
         commons.click(branchName);
         logger.info("Selected destination branch: " + name);
         return this;
@@ -133,13 +133,13 @@ public class TransferPage extends TransferElement {
     }
 
     public void selectIMEI(String imei) {
-        By imeiLocator = By.xpath("(//div[@class='code in-purchase'])[2]/div[@class='content']/p[text()='%s']".formatted(imei));
+        By imeiLocator = By.xpath(str_imeiLocator.formatted(imei));
         commons.click(imeiLocator);
         logger.info("Selected IMEI: " + imei);
     }
 
     public TransferPage selectIMEI(String[] imei) {
-        commons.click(new ByChained(loc_btnTransferredQuantity, By.xpath(".//ancestor::div[@class='number']//following-sibling::span")));
+
         for (String value : imei) {
             selectIMEI(value);
         }
@@ -170,7 +170,7 @@ public class TransferPage extends TransferElement {
     }
 
     public TransferPage clickRecord(int recordID) {
-        By record = By.cssSelector("[href='/product/transfer/wizard/%s']".formatted(recordID));
+        By record = By.cssSelector(str_record.formatted(recordID));
         commons.click(record);
         logger.info("Clicked on transfer record '%s'.".formatted(recordID));
         homePage.waitTillSpinnerDisappear1();
@@ -226,11 +226,45 @@ public class TransferPage extends TransferElement {
         }
     }
 
+    void createTransfer() {
+        BranchManagement branchManagement = new BranchManagement(loginInformation);
+        String sourceBranch = branchManagement.getInfo().getBranchName().get(0);
+        int originBranchId = branchManagement.getInfo().getBranchID().get(0);
+        String destinationBranch = branchManagement.getDestinationBranchesInfo().getBranchName().get(0);
+
+        APIAllProducts allProducts = new APIAllProducts(loginInformation);
+        int productId = allProducts.getProductIDWithoutVariationAndInStock(false, false, true, originBranchId);
+        if (productId == 0) {
+            productId = allProducts.getProductIDWithoutVariationAndOutOfStock(false, false, true, originBranchId);
+        }
+//
+//        this.clickAddTransferBtn()
+//                .selectSourceBranch(sourceBranch)
+//                .selectDestinationBranch(destinationBranch)
+//                .inputProductSearchTerm(product)
+//                .selectProduct(product)
+//                .inputTransferredQuantity(quantity)
+//                .inputNote(note)
+//                .clickSaveBtn();
+    }
 
     /*-------------------------------------*/
     // check permission
-    // https://mediastep.atlassian.net/browse/BH-24651
-    void checkViewTransferList() {
+    // ticket: https://mediastep.atlassian.net/browse/BH-31079
+    AllPermissions permissions;
+    CheckPermission checkPermission;
+    AssertCustomize assertCustomize;
+    LoginInformation loginInformation;
+    LoginDashboardInfo loginInfo;
 
+    void checkViewTransferDetail(int transferId, List<Integer> noPermissionViewList) {
+        if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s%s".formatted(DOMAIN, "/product/transfer/wizard/%s".formatted(transferId)), String.valueOf(transferId)), "Transfer detail page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+            if (!noPermissionViewList.isEmpty()) {
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s%s".formatted(DOMAIN, "/product/transfer/wizard/%s".formatted(noPermissionViewList.get(0)))), "Restricted page does not shown.");
+            }
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s%s".formatted(DOMAIN, "/product/transfer/wizard/%s".formatted(transferId))), "Restricted page does not shown.");
+        }
     }
 }

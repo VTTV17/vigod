@@ -1,6 +1,6 @@
 package web.Dashboard.products.supplier.management;
 
-import api.Seller.products.SupplierAPI;
+import api.Seller.products.supplier.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;

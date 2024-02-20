@@ -1,8 +1,8 @@
 package web.Dashboard.products.supplier.crud;
 
 import api.Seller.login.Login;
-import api.Seller.products.PurchaseOrders;
-import api.Seller.products.SupplierAPI;
+import api.Seller.products.purchase_orders.PurchaseOrders;
+import api.Seller.products.supplier.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;

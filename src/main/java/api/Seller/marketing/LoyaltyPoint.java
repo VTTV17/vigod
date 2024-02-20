@@ -1,7 +1,7 @@
 package api.Seller.marketing;
 
 import api.Seller.login.Login;
-import api.Seller.products.CreateProduct;
+import api.Seller.products.all_products.CreateProduct;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;

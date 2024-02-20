@@ -1,4 +1,4 @@
-package api.Seller.products;
+package api.Seller.products.product_collections;
 
 import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;

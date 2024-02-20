@@ -1,6 +1,9 @@
-package api.Seller.products;
+package api.Seller.products.purchase_orders;
 
 import api.Seller.login.Login;
+import api.Seller.products.supplier.SupplierAPI;
+import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.ProductInformation;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;

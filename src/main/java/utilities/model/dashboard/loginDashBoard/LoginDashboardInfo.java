@@ -13,6 +13,6 @@ public class LoginDashboardInfo {
     private int userId;
     private String staffPermissionToken;
     private List<String> userRole;
-    private List<Integer> assignedBranches;
+    private List<Integer> assignedBranchesIds;
     private int ownerId;
 }

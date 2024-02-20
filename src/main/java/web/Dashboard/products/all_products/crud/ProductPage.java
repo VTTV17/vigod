@@ -1,8 +1,8 @@
 package web.Dashboard.products.all_products.crud;
 
-import api.Seller.products.APIAllProducts;
-import api.Seller.products.APIProductCollection;
-import api.Seller.products.ProductInformation;
+import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.product_collections.APIProductCollection;
+import api.Seller.products.all_products.ProductInformation;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import api.Seller.setting.VAT;
@@ -2773,7 +2773,7 @@ public class ProductPage extends ProductPageElement {
         navigateToProductDetailById(productId);
 
         // check permission
-        if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("ACTIVE")) {
+        if (!permissions.getProduct().getProductManagement().isDeactivateProduct() && productInfo.getBhStatus().equals("ACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
             if (productInfo.isHasModel()) {
                 new VariationDetailPage(driver, productInfo.getVariationModelList().get(0), productInfo, loginInformation).checkDeactivateVariation(permissions, checkPermission);

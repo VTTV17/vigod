@@ -343,7 +343,7 @@ public class VariationDetailPage extends VariationDetailElement {
 
     public void checkDeactivateVariation(AllPermissions permissions, CheckPermission checkPermission) {
         navigateToVariationDetailPage();
-        if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getVariationStatus().get(0).equals("ACTIVE")) {
+        if (!permissions.getProduct().getProductManagement().isDeactivateProduct() && productInfo.getVariationStatus().get(0).equals("ACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Deactivate product.");

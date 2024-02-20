@@ -2,7 +2,7 @@ package app.android.Buyer;
 
 import api.Seller.login.Login;
 import api.Seller.onlineshop.APIPreferences;
-import api.Seller.products.APIEditProduct;
+import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.services.CreateServiceAPI;
 import api.Seller.services.EditServiceAPI;
 import api.Seller.services.ServiceInfoAPI;

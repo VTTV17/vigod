@@ -87,7 +87,7 @@ public class ProductReviewTest extends BaseTest {
 	}	
 	
 	public String randomSearchProduct() {
-        List<String> allProducts = new api.Seller.products.ProductReviews(loginInformation).getProductNameList();
+        List<String> allProducts = new api.Seller.products.product_reviews.ProductReviews(loginInformation).getProductNameList();
         Set<String> uniqueNames = new HashSet<String>(allProducts);
         List<String> productNames = new ArrayList<String>(uniqueNames);
         return productNames.get(new Random().nextInt(0, productNames.size()));
@@ -100,11 +100,11 @@ public class ProductReviewTest extends BaseTest {
     }		
 	
 	public List<Integer> getRatingListByAPI() {
-		return new api.Seller.products.ProductReviews(loginInformation).getAllReviewJsonPath().getList("rate");
+		return new api.Seller.products.product_reviews.ProductReviews(loginInformation).getAllReviewJsonPath().getList("rate");
 	}	
 	
 	public List<Date> getCreatedDateListByAPI() {
-		List<String> rawList = new api.Seller.products.ProductReviews(loginInformation).getAllReviewJsonPath().getList("reviewDate");
+		List<String> rawList = new api.Seller.products.product_reviews.ProductReviews(loginInformation).getAllReviewJsonPath().getList("reviewDate");
 		List<Date> processedList = new ArrayList<>();
 		FormatDate formatDate = new FormatDate();
 		for (String date : rawList) {

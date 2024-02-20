@@ -1,7 +1,7 @@
 package app.android.Buyer;
 
 import api.Seller.login.Login;
-import api.Seller.products.CreateProduct;
+import api.Seller.products.all_products.CreateProduct;
 import api.Buyer.login.LoginSF;
 import api.Buyer.productdetail.APIProductDetail;
 import api.Buyer.signup.SignUp;

@@ -1,6 +1,6 @@
 package web.Dashboard.products.all_products.management;
 
-import api.Seller.products.APIAllProducts;
+import api.Seller.products.all_products.APIAllProducts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Keys;
@@ -42,7 +42,7 @@ public class ProductManagementPage extends ProductManagementElement {
         assertCustomize = new AssertCustomize(driver);
     }
 
-    void navigateToProductList() {
+    void navigateToProductListPage() {
         if (!driver.getCurrentUrl().contains("/product/list"))
             driver.get("%s/product/list".formatted(DOMAIN));
     }
@@ -55,23 +55,23 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void exportAllProducts() {
-        navigateToProductList();
+        navigateToProductListPage();
         commonAction.clickJS(loc_btnExport);
         commonAction.clickJS(loc_ddlExportActions, 0);
         commonAction.clickJS(loc_dlgExportProductListingFile_btnExport);
+        logger.info("Export all products.");
     }
 
     void exportWholesaleProducts() {
-        navigateToProductList();
+        navigateToProductListPage();
         commonAction.clickJS(loc_btnExport);
         commonAction.clickJS(loc_ddlExportActions, 1);
+        logger.info("Export wholesale products.");
     }
 
-    void navigateToDownloadHistory() {
+    void navigateToDownloadHistoryPage() {
         if (!driver.getCurrentUrl().contains("/product/export-history")) {
-            navigateToProductList();
-            commonAction.clickJS(loc_btnExport);
-            commonAction.clickJS(loc_ddlExportActions, 2);
+            driver.get(DOMAIN + "/product/export-history");
         }
     }
 
@@ -83,7 +83,7 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.openPopupJS(loc_ddlImportActions, 0, loc_dlgImport);
 
         // upload file
-        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "src/main/resources/uploadfile/import_product/import_product.xlsx".replace("/", File.separator)));
+        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/import_product/import_product.xlsx".replace("/", File.separator)));
         commonAction.uploads(loc_dlgImport_btnDragAndDrop, filePath.toString());
 
         // complete import product
@@ -175,7 +175,7 @@ public class ProductManagementPage extends ProductManagementElement {
      */
     void checkViewProductList(APIAllProducts allProducts, int createdProductId, int notCreatedProductId) {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // GET the product list from API.
         List<Integer> dbProductList = allProducts.getListProduct().getProductIds();
@@ -194,7 +194,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkActivateProduct() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // bulk actions
         openBulkActionsDropdown();
@@ -209,11 +209,11 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkDeactivateProduct() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // bulk actions
         openBulkActionsDropdown();
-        if (permissions.getProduct().getProductManagement().isActivateProduct()) {
+        if (permissions.getProduct().getProductManagement().isDeactivateProduct()) {
             commonAction.clickJS(loc_ddlListActions, 2);
             commonAction.closePopup(loc_dlgConfirm_icnClose);
         } else {
@@ -224,7 +224,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkCreateProduct(List<Integer> manualCollectionIds) throws Exception {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // check create product permission
         if (permissions.getProduct().getProductManagement().isCreateProduct()) {
@@ -249,7 +249,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkEditPrice() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // bulk action
         openBulkActionsDropdown();
@@ -265,11 +265,17 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkExportProduct() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         if (!permissions.getProduct().getProductManagement().isExportProducts()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup does not shown.");
         } else {
+            // export product list
+            exportAllProducts();
+
+            // navigate to history export page
+            navigateToDownloadHistoryPage();
+
             // check download export all products
             checkDownloadExportedProducts();
         }
@@ -278,7 +284,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkImportProduct() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         if (permissions.getProduct().getProductManagement().isImportProducts()) {
             // import product
@@ -295,7 +301,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkPrintBarcode() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         if (permissions.getProduct().getProductManagement().isPrintBarcode()) {
             commonAction.openPopupJS(loc_btnPrintBarcode, loc_dlgPrintBarcode);
@@ -319,18 +325,14 @@ public class ProductManagementPage extends ProductManagementElement {
             // delete old exported product
             fileUtils.deleteFileInDownloadFolder("EXPORT_PRODUCT");
 
-            // export product list
-            exportAllProducts();
-
             // download new exported product
-            navigateToDownloadHistory();
             commonAction.clickJS(loc_icnDownloadExportFile, 0);
             commonAction.sleepInMiliSecond(1000, "Waiting for download.");
             assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("EXPORT_PRODUCT"), "No exported product file is downloaded.");
 
             // export wholesale product
             exportWholesaleProducts();
-            commonAction.sleepInMiliSecond(1000, "Waiting for download.");
+            commonAction.sleepInMiliSecond(3000, "Waiting for download.");
             assertCustomize.assertTrue(fileUtils.isDownloadSuccessful("wholesale-price-export"), "No exported wholesale product file is downloaded.");
         }
         logger.info("Check permission: Product >> Product management >> Download exported product.");
@@ -338,7 +340,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkUpdateWholesalePrice() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // open list actions
         commonAction.clickJS(loc_btnImport);
@@ -359,7 +361,7 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Check permission: Product >> Inventory >> Clear stock.");
 
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // bulk actions
         openBulkActionsDropdown();
@@ -373,7 +375,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkDeleteProduct() {
         // navigate to product list
-        navigateToProductList();
+        navigateToProductListPage();
 
         // bulk actions
         openBulkActionsDropdown();

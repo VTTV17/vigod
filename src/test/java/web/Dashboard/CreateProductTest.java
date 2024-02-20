@@ -2,7 +2,7 @@ package web.Dashboard;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.products.ProductInformation;
+import api.Seller.products.all_products.ProductInformation;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import web.BaseTest;

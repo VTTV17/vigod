@@ -1,6 +1,6 @@
 package web.Dashboard.products.productcollection.createeditproductcollection;
 
-import api.Seller.products.APIAllProducts;
+import api.Seller.products.all_products.APIAllProducts;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

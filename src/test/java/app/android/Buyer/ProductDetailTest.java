@@ -2,10 +2,10 @@ package app.android.Buyer;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.products.APIAllProducts;
-import api.Seller.products.CreateProduct;
-import api.Seller.products.ProductInformation;
-import api.Seller.products.WholesaleProduct;
+import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.setting.BranchManagement;

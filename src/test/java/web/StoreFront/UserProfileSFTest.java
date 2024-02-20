@@ -1,7 +1,7 @@
 package web.StoreFront;
 
 import api.Seller.login.Login;
-import api.Seller.products.CreateProduct;
+import api.Seller.products.all_products.CreateProduct;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;

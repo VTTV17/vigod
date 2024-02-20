@@ -1,4 +1,4 @@
-package api.Seller.products;
+package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
@@ -296,24 +296,32 @@ public class APIAllProducts {
         private List<String> productNames;
     }
 
-    public ProductManagementInfo getListProduct(int... branchIds) {
+    Response getAllProductsResponse(int pageIndex, int... branchIds) {
         String branchId = branchIds.length == 0 ? "" : String.valueOf(branchIds[0]);
+        return api.get(allProductListPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+    }
+
+    public ProductManagementInfo getListProduct(int... branchIds) {
+
         ProductManagementInfo info = new ProductManagementInfo();
         // get page 0 data
-        Response allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), 0, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
-        List<Integer> variationNumber = new ArrayList<>(allProducts.jsonPath().getList("variationNumber"));
-        List<Integer> allProductIds = new ArrayList<>(allProducts.jsonPath().getList("id"));
-        List<String> allProductNames = new ArrayList<>(allProducts.jsonPath().getList("name"));
+        List<Integer> variationNumber = new ArrayList<>();
+        List<Integer> allProductIds = new ArrayList<>();
+        List<String> allProductNames = new ArrayList<>();
 
         // get total products
-        int totalOfProducts = Integer.parseInt(allProducts.getHeader("X-Total-Count"));
+        int totalOfProducts = Integer.parseInt(getAllProductsResponse(0, branchIds).getHeader("X-Total-Count"));
 
         // get number of pages
         int numberOfPages = totalOfProducts / 100;
 
         // get other page data
-        for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex++) {
-            allProducts = api.get(allProductListPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+            Response allProducts = getAllProductsResponse(pageIndex, branchIds);
             variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
             allProductIds.addAll(allProducts.jsonPath().getList("id"));
             allProductNames.addAll(allProducts.jsonPath().getList("name"));
@@ -336,7 +344,10 @@ public class APIAllProducts {
 
     List<Integer> getListProductId(boolean hasModel, int... branchIds) {
         ProductManagementInfo info = getListProduct(branchIds);
-        return IntStream.range(0, info.getProductIds().size()).filter(i -> (info.getVariationNumber().get(i) > 0) == hasModel).mapToObj(info.getProductIds()::get).toList();
+        return IntStream.range(0, info.getProductIds().size())
+                .filter(i -> (info.getVariationNumber().get(i) > 0) == hasModel)
+                .mapToObj(info.getProductIds()::get)
+                .toList();
     }
 
     public int getProductIdMatchWithConditions(boolean hasModel, boolean isManageByIMEI, boolean inStock, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
@@ -371,7 +382,6 @@ public class APIAllProducts {
     }
 
     String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true&includeConversion=true";
-
     @Data
     public static class SuggestionProductsInfo {
         private List<String> itemIds;
@@ -382,26 +392,35 @@ public class APIAllProducts {
         private List<String> inventoryManageTypes;
     }
 
+    Response getSuggestionResponse(int pageIndex, int branchId) {
+        return api.get(suggestProductPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+    }
+
     public SuggestionProductsInfo getListProduct(int branchId) {
+        // init suggestion model
         SuggestionProductsInfo info = new SuggestionProductsInfo();
-        // get page 0 data
-        Response suggestProducts = api.get(suggestProductPath.formatted(loginInfo.getStoreID(), 0, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
-        List<String> itemIds = new ArrayList<>(suggestProducts.jsonPath().getList("itemId"));
-        List<String> modelIds = new ArrayList<>(suggestProducts.jsonPath().getList("modelId"));
-        List<String> itemNames = new ArrayList<>(suggestProducts.jsonPath().getList("itemName"));
-        List<String> barcodes = new ArrayList<>(suggestProducts.jsonPath().getList("barcode"));
-        List<String> remainingStocks = new ArrayList<>(suggestProducts.jsonPath().getList("modelStock"));
-        List<String> inventoryManageTypes = new ArrayList<>(suggestProducts.jsonPath().getList("inventoryManageType"));
+
+        // init temp array
+        List<String> itemIds = new ArrayList<>();
+        List<String> modelIds = new ArrayList<>();
+        List<String> itemNames = new ArrayList<>();
+        List<String> barcodes = new ArrayList<>();
+        List<String> remainingStocks = new ArrayList<>();
+        List<String> inventoryManageTypes = new ArrayList<>();
 
         // get total products
-        int totalOfProducts = Integer.parseInt(suggestProducts.getHeader("X-Total-Count"));
+        int totalOfProducts = Integer.parseInt(getSuggestionResponse(0, branchId).getHeader("X-Total-Count"));
 
         // get number of pages
         int numberOfPages = totalOfProducts / 100;
 
         // get other page data
-        for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex++) {
-            suggestProducts = api.get(suggestProductPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+            Response suggestProducts = getSuggestionResponse(pageIndex, branchId);
             itemIds.addAll(suggestProducts.jsonPath().getList("itemId"));
             modelIds.addAll(suggestProducts.jsonPath().getList("modelId"));
             itemNames.addAll(suggestProducts.jsonPath().getList("itemName"));
@@ -409,23 +428,35 @@ public class APIAllProducts {
             remainingStocks.addAll(suggestProducts.jsonPath().getList("modelStock"));
             inventoryManageTypes.addAll(suggestProducts.jsonPath().getList("inventoryManageType"));
         }
+
+        // set suggestion info
         info.setItemIds(itemIds);
         info.setModelIds(modelIds);
         info.setItemNames(itemNames);
         info.setBarcodes(barcodes);
         info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
         info.setInventoryManageTypes(inventoryManageTypes);
+
+        // return suggestion model
         return info;
     }
 
     public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(int branchId) {
+        // get all suggestions information
         SuggestionProductsInfo suggestionInfo = getListProduct(branchId);
+
+        // init suggestion model to get all products in-stock
         SuggestionProductsInfo info = new SuggestionProductsInfo();
+
+        // init temp array
         List<String> itemIds = new ArrayList<>();
         List<String> modelIds = new ArrayList<>();
         List<String> itemNames = new ArrayList<>();
         List<String> barcodes = new ArrayList<>();
+        List<Long> remainingStocks = new ArrayList<>();
         List<String> inventoryManageTypes = new ArrayList<>();
+
+        // filter by in-stock conditions
         IntStream.range(0, suggestionInfo.getItemIds().size())
                 .filter(index -> (suggestionInfo.getRemainingStocks().get(index) > 0))
                 .forEach(index -> {
@@ -433,14 +464,19 @@ public class APIAllProducts {
                     itemNames.add(suggestionInfo.getItemNames().get(index));
                     modelIds.add(suggestionInfo.getModelIds().get(index));
                     barcodes.add(suggestionInfo.getBarcodes().get(index));
+                    remainingStocks.add(suggestionInfo.getRemainingStocks().get(index));
                     inventoryManageTypes.add(suggestionInfo.getInventoryManageTypes().get(index));
                 });
+
+        // set in-stock all suggestions
         info.setItemIds(itemIds);
         info.setModelIds(modelIds);
         info.setItemNames(itemNames);
         info.setBarcodes(barcodes);
+        info.setRemainingStocks(remainingStocks);
         info.setInventoryManageTypes(inventoryManageTypes);
 
+        // return model
         return info;
     }
 

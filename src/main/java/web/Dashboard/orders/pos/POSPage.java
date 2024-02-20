@@ -1,7 +1,7 @@
 package web.Dashboard.orders.pos;
 
 import api.Seller.customers.Customers;
-import api.Seller.products.ProductInformation;
+import api.Seller.products.all_products.ProductInformation;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.promotion.ProductDiscountCampaign.BranchDiscountCampaignInfo;
 import api.Seller.setting.BranchManagement;
