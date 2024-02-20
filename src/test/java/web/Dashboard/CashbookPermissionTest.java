@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import api.Seller.products.supplier.SupplierAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,7 +14,6 @@ import org.testng.annotations.Test;
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.products.SupplierAPI;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
