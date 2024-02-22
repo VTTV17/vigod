@@ -338,6 +338,18 @@ public class HomePage extends HomePageElement {
             return false;
         }
     }
+    
+    public boolean isElementClicked(By locator) {
+    	try {
+    		commons.click(locator);
+    		logger.debug("Element is clickable");
+    		return true;
+    	} catch (Exception e) {
+    		logger.debug("Element is not clickable");
+    		logger.debug(e.getMessage());
+    		return false;
+    	}
+    }
 
     public boolean isStatisticsDisplayed() {
     	waitTillSpinnerDisappear1();

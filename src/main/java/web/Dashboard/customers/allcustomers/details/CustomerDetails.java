@@ -1,13 +1,12 @@
-package web.Dashboard.customers.allcustomers;
+package web.Dashboard.customers.allcustomers.details;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
-import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
+import web.Dashboard.home.HomePage;
 
 public class CustomerDetails extends HomePage {
 	
@@ -15,83 +14,71 @@ public class CustomerDetails extends HomePage {
 
     WebDriver driver;
     UICommonAction commonAction;
+    CustomerDetailElement elements;
     
     public CustomerDetails (WebDriver driver) {
         super(driver);
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+        elements = new CustomerDetailElement();
     }
 
-    By loc_txtEmail = By.id("email");
-    By loc_txtPhone = By.id("phone");
-    By loc_txtPhoneCode = By.cssSelector(".row.phone-email .phone-code");
-    By loc_txtBirthday = By.cssSelector(".birthday-date input");
-    By loc_ddlCountry = By.id("country");
-    By loc_txtAddress = By.id("address");
-    By loc_ddlProvince = By.id("province");
-    By loc_ddlDistrict = By.id("district");
-    By loc_ddlWard = By.id("ward");
-    By loc_txtAddress2 = By.id("address2");
-    By loc_txtCity = By.id("city");
-    By loc_txtZipcode = By.id("zipCode");
-    By loc_btnCancel = By.cssSelector(".btn-cancel");
-    
     public String getEmail() {
-    	String value = commonAction.getValue(loc_txtEmail);
+    	String value = commonAction.getValue(elements.loc_txtEmail);
     	logger.info("Retrieved Email: " + value);
         return value;
     }
     
     public String getPhoneNumber() {
-        String countryCode = commonAction.getText(loc_txtPhoneCode);
-        String phoneNumber = commonAction.getValue(loc_txtPhone);
+        String countryCode = commonAction.getText(elements.loc_txtPhoneCode);
+        String phoneNumber = commonAction.getValue(elements.loc_txtPhone);
         String value = countryCode + ":" + phoneNumber;
     	logger.info("Retrieved Phone Number: " + value);
     	return value;
     }
     
     public String getBirthday(){
-    	String birthday = commonAction.getValue(loc_txtBirthday);
+    	String birthday = commonAction.getValue(elements.loc_txtBirthday);
     	logger.info("Retrieved birthday: " + birthday);
     	return birthday;
     }	    
     
     public String getCountry(){
     	logger.info("Getting country...");
-        return commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlCountry));
+        return commonAction.getDropDownSelectedValue(commonAction.getElement(elements.loc_ddlCountry));
     }
     public String getAddress(){
-        String address = commonAction.getValue(loc_txtAddress);
+        String address = commonAction.getValue(elements.loc_txtAddress);
         logger.info("Get address: "+address);
         return address;
     }
     public String getCityProvince(){
-        String city = commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlProvince));
+        String city = commonAction.getDropDownSelectedValue(commonAction.getElement(elements.loc_ddlProvince));
         logger.info("Get city/province: "+city);
         return city;
     }
     public String getDistrict(){
-        String district = commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlDistrict));
+        String district = commonAction.getDropDownSelectedValue(commonAction.getElement(elements.loc_ddlDistrict));
         logger.info("Get district: "+district);
         return district;
     }
     public String getWard(){
-        String ward = commonAction.getDropDownSelectedValue(commonAction.getElement(loc_ddlWard));
+        String ward = commonAction.getDropDownSelectedValue(commonAction.getElement(elements.loc_ddlWard));
         logger.info("Get ward: "+ward);
         return ward;
     }
     public String getAddress2(){
-        String address2 = commonAction.getValue(loc_txtAddress2);
+        String address2 = commonAction.getValue(elements.loc_txtAddress2);
         logger.info("Get address 2: "+address2);
         return address2;
     }
     public String getInputtedCity(){
-        String city = commonAction.getValue(loc_txtCity);
+        String city = commonAction.getValue(elements.loc_txtCity);
         logger.info("Get inputted city: "+city);
         return city;
     }
     public String getZipCode(){
-        String zipCode = commonAction.getValue(loc_txtZipcode);
+        String zipCode = commonAction.getValue(elements.loc_txtZipcode);
         logger.info("Get zip code: "+zipCode);
         return zipCode;
     }
@@ -158,7 +145,7 @@ public class CustomerDetails extends HomePage {
     }
     
     public void clickCancelBtn(){
-    	commonAction.click(loc_btnCancel);
+    	commonAction.click(elements.loc_btnCancel);
         logger.info("Clicked on Cancel button");
     }    
 }

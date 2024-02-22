@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.customers.segments.createsegment.CreateSegment;
 import web.Dashboard.home.HomePage;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
@@ -19,38 +20,35 @@ public class Segments {
 
     WebDriver driver;
     UICommonAction commonAction;
+    SegmentElement elements;
+    HomePage homePage;
 
     public Segments(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+        homePage = new HomePage(driver);
+        elements = new SegmentElement();
     }
 
-    By loc_btnCreateSegment = By.cssSelector(".segment-list .btn-create");
-    By loc_txtSearchSegment = By.cssSelector(".gs-search-box__wrapper .uik-input__input");
-    By loc_btnViewIcon = By.cssSelector("tbody > tr:nth-child(1) > td:nth-child(4) > div > a:nth-child(1)");
-
     public Segments navigate() {
-        new HomePage(driver).navigateToPage("Customers", "Segments");
+        homePage.navigateToPage("Customers", "Segments");
         return this;
     }
 
     public CreateSegment clickCreateSegmentBtn() {
-        commonAction.click(loc_btnCreateSegment);
+        commonAction.click(elements.loc_btnCreateSegment);
         logger.info("Clicked on 'Create Segment' button.");
         return new CreateSegment(driver);
     }
 
     public Segments inputSearchTerm(String customerSegment) {
-        commonAction.sendKeys(loc_txtSearchSegment, customerSegment);
+        commonAction.sendKeys(elements.loc_txtSearchSegment, customerSegment);
         logger.info("Input '" + customerSegment + "' into Search box.");
         return this;
     }
 
     public Segments deleteSegment(String customerSegment) {
-        String segmentXpath = "//div[contains(@class,'segment-list__widget-body')]//tbody/tr[1]/td[position()=2 and text()='%s']"
-                .formatted(customerSegment);
-        String deleteBtnXpath = segmentXpath.concat("/following-sibling::*//i[contains(@style,'icon-delete')]");
-        commonAction.click(By.xpath(deleteBtnXpath));
+        commonAction.click(By.xpath(elements.loc_btnDelete.formatted(customerSegment)));
         logger.info("Click on 'Delete' icon to delete customer segment '%s'.".formatted(customerSegment));
         return this;
     }
@@ -75,11 +73,11 @@ public class Segments {
         sleep(1000);
 
         // click on view icon
-        commonAction.click(loc_btnViewIcon);
+        commonAction.click(elements.loc_btnViewIcon);
     }
     
     public void verifyPermissionToCreateSegmentByCustomerData(String dataCondition, String permission) {
-    	String displayLanguage = new HomePage(driver).getDashboardLanguage();
+    	String displayLanguage = homePage.getDashboardLanguage();
     	String dataGroup = null;
     	try {
     		dataGroup = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.dataGroup.customerData", displayLanguage);
@@ -88,7 +86,7 @@ public class Segments {
 		}
     	
     	if (permission.contentEquals("S")) {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     		return;
     	}
     	
@@ -106,7 +104,7 @@ public class Segments {
     	}
     }    
     public void verifyPermissionToCreateSegmentByOrderData(String dataCondition, String permission) {
-    	String displayLanguage = new HomePage(driver).getDashboardLanguage();
+    	String displayLanguage = homePage.getDashboardLanguage();
     	String dataGroup = null;
     	try {
     		dataGroup = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.dataGroup.orderData", displayLanguage);
@@ -123,11 +121,11 @@ public class Segments {
     	} else if (permission.contentEquals("D")) {
     		// Not done
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }    
     public void verifyPermissionToCreateSegmentByPurchasedProduct(String permission) {
-    	String displayLanguage = new HomePage(driver).getDashboardLanguage();
+    	String displayLanguage = homePage.getDashboardLanguage();
     	String dataGroup = null;
     	try {
     		dataGroup = PropertiesUtil.getPropertiesValueByDBLang("customers.segments.create.condition.dataGroup.purchasedProduct", displayLanguage);
@@ -143,7 +141,7 @@ public class Segments {
     	} else if (permission.contentEquals("D")) {
     		// Not done
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }    
 }
