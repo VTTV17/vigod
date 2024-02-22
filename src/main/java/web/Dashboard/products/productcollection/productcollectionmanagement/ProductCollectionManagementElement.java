@@ -9,11 +9,6 @@ import org.openqa.selenium.support.PageFactory;
 import java.util.List;
 
 public class ProductCollectionManagementElement {
-    WebDriver driver;
-    public ProductCollectionManagementElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
     By loc_btnCreateProductCollection = By.cssSelector(".gs-content-header-right-el button");
     By loc_lst_lblCollectionName = By.cssSelector(".collection-name b");
     By loc_lst_lblTypes = By.xpath("//div[contains(@class,'collection-name')]/following-sibling::div[contains(@class,'collection-type')][1]");

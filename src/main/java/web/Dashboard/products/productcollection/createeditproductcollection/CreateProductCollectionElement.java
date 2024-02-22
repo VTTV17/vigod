@@ -9,11 +9,6 @@ import org.openqa.selenium.support.PageFactory;
 import java.util.List;
 
 public class CreateProductCollectionElement {
-    WebDriver driver;
-    public CreateProductCollectionElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
 
     By loc_txtCollectionName = By.id("collectionName");
     By loc_txtUploadImage = By.cssSelector(".image-drop-zone input");

@@ -3,12 +3,11 @@ package web.Dashboard.products.productcollection.createeditproductcollection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import web.Dashboard.home.HomePage;
-import web.Dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import web.Dashboard.home.HomePage;
+import web.Dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,15 +24,15 @@ public class EditProductCollection extends CreateProductCollection {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         common = new UICommonAction(driver);
-        createCollectionUI = new CreateProductCollectionElement(driver);
         generator = new DataGenerator();
-        PageFactory.initElements(driver, this);
+        home = new HomePage(driver);
     }
 
+    HomePage home;
     public EditProductCollection navigateEditCollection(String collectioName, String languageDashboard) throws Exception {
-        waitTillSpinnerDisappear();
-        navigateToPage("Products", "Product Collections");
-        HomePage home = new HomePage(driver);
+        
+        home.waitTillSpinnerDisappear();
+        home.navigateToPage("Products", "Product Collections");
         home.selectLanguage(languageDashboard);
         home.hideFacebookBubble();
         productCollectionManagement = new ProductCollectionManagement(driver);
@@ -41,7 +40,7 @@ public class EditProductCollection extends CreateProductCollection {
     }
 
     public ProductCollectionManagement editProductPriorityInCollection() {
-        waitTillSpinnerDisappear();
+        home.waitTillSpinnerDisappear();
         CreateProductCollection.productPriorityMap = inputPriority(false, true);
         clickOnSaveBTN();//Click outside
         clickOnSaveBTN();
@@ -49,12 +48,12 @@ public class EditProductCollection extends CreateProductCollection {
         return clickOnClose();
     }
     public ProductCollectionManagement editProductListInManualCollection(String[] newProductList, boolean hasDeleteProduct, boolean hasInputPriority){
-        waitTillSpinnerDisappear();
-        int productSize = common.getElements(createCollectionUI.loc_lst_btnDelete).size();
+        home.waitTillSpinnerDisappear();
+        int productSize = common.getElements(loc_lst_btnDelete).size();
         System.out.println("productSize: "+productSize);
         if(hasDeleteProduct) {
            for(int i=0; i< productSize;i++){
-               common.click(createCollectionUI.loc_lst_btnDelete,0);
+               common.click(loc_lst_btnDelete,0);
                System.out.println("Deleted: "+i);
                common.sleepInMiliSecond(500);
            }
@@ -72,11 +71,11 @@ public class EditProductCollection extends CreateProductCollection {
     }
     public String[] getCollectionConditionBefore(){
         List<String> conditionList = new ArrayList<>();
-        int conditionSize = common.getElements(createCollectionUI.loc_lst_txtConditionValue).size();
+        int conditionSize = common.getElements(loc_lst_txtConditionValue).size();
         for (int i=0; i<conditionSize;i++){
-            String condition = common.getDropDownSelectedValue(createCollectionUI.loc_lst_ddlCondition,i);
-            String operate = common.getDropDownSelectedValue(createCollectionUI.loc_lst_ddlOperator,i);
-            String value = common.getAttribute(createCollectionUI.loc_lst_txtConditionValue,i,"value");
+            String condition = common.getDropDownSelectedValue(loc_lst_ddlCondition,i);
+            String operate = common.getDropDownSelectedValue(loc_lst_ddlOperator,i);
+            String value = common.getAttribute(loc_lst_txtConditionValue,i,"value");
             String aCondition = condition+"-"+operate+"-"+value;
             conditionList.add(aCondition);
         }
@@ -85,7 +84,7 @@ public class EditProductCollection extends CreateProductCollection {
         return conditionList.toArray(conditions);
     }
     public String[] EditAutomationCollection(String conditionType, String...conditions) throws Exception {
-        waitTillSpinnerDisappear();
+        home.waitTillSpinnerDisappear();
         common.sleepInMiliSecond(1000);
         selectConditionType(conditionType);
         String[] conditionsAvailable = getCollectionConditionBefore();
