@@ -10,16 +10,15 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class TransferManagement {
     String getAllTransferPath = "/itemservice/api/transfers/store/%s?searchBy=id&transferType=BRANCH&page=%s&size=100&sort=id,desc";
-    LoginDashboardInfo info;
+    LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
     API api = new API();
 
     public TransferManagement(LoginInformation loginInformation) {
-        info = new Login().getInfo(loginInformation);
+        loginInfo = new Login().getInfo(loginInformation);
         this.loginInformation = loginInformation;
     }
 
@@ -28,10 +27,11 @@ public class TransferManagement {
         List<Integer> ids = new ArrayList<>();
         List<Integer> originBranchIds = new ArrayList<>();
         List<Integer> destinationBranchIds = new ArrayList<>();
+        List<String> statues = new ArrayList<>();
     }
 
     Response getTransferResponse(int page) {
-        return api.get(getAllTransferPath.formatted(info.getStoreID(), page), info.getAccessToken());
+        return api.get(getAllTransferPath.formatted(loginInfo.getStoreID(), page), loginInfo.getAccessToken());
     }
 
     public TransferInfo getAllTransferInfo() {
@@ -42,6 +42,7 @@ public class TransferManagement {
         List<Integer> ids = new ArrayList<>();
         List<Integer> originBranchIds = new ArrayList<>();
         List<Integer> destinationBranchIds = new ArrayList<>();
+        List<String> statues = new ArrayList<>();
 
         // get total products
         int totalOfProducts = Integer.parseInt(getTransferResponse(0).getHeader("X-Total-Count"));
@@ -59,6 +60,7 @@ public class TransferManagement {
             ids.addAll(jPath.getList("id"));
             originBranchIds.addAll(jPath.getList("originBranchId"));
             destinationBranchIds.addAll(jPath.getList("destinationBranchId"));
+            statues.addAll(jPath.getList("status"));
         }
         // set transfer id
         info.setIds(ids);
@@ -69,15 +71,116 @@ public class TransferManagement {
         // set destination branch id
         info.setDestinationBranchIds(destinationBranchIds);
 
+        // set transfer status
+        info.setStatues(statues);
+
         return info;
     }
 
-    public List<Integer> getTransferIdWithOriginAndDestinationBranchIsNotInListAssignedBranches(List<Integer> assignedBranches) {
-        TransferInfo info = getAllTransferInfo();
-        return IntStream.range(0, info.getIds().size())
-                .filter(index -> !(assignedBranches.contains(info.getOriginBranchIds().get(index))
-                        || assignedBranches.contains(info.getDestinationBranchIds().get(index))))
-                .mapToObj(index -> info.getIds().get(index))
+    public List<Integer> getListTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // staff can not view detail of transfer
+        // that have origin and destination branch are not in assigned branches
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<Integer> destinationBranchIds = info.getDestinationBranchIds();
+        return transferIds.stream()
+                .filter(transferId -> assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))
+                        || assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
                 .toList();
+
+    }
+
+    public int getViewPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        List<Integer> transferIds = getListTransferId(assignedBranchIds, transferInfo);
+        return transferIds.isEmpty() ? 0 : transferIds.get(0);
+    }
+
+    public int getNoViewPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // staff can not view detail of transfer
+        // that have origin and destination branch are not in assigned branches
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<Integer> destinationBranchIds = info.getDestinationBranchIds();
+        return transferIds.stream().mapToInt(transferId -> transferId)
+                .filter(transferId -> !(assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))
+                        || assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId)))))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public int getConfirmShipGoodsPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // when assigned branches NOT contains origin branch in transfer
+        // => staff can not confirm ship goods
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<String> statues = info.getStatues();
+        return transferIds.stream().filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("READY_FOR_TRANSPORT")
+                && assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))).findFirst().orElse(0);
+    }
+
+
+    public int getNoConfirmShipGoodsPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // when assigned branches NOT contains origin branch in transfer
+        // => staff can not confirm ship goods
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<Integer> destinationBranchIds = info.getDestinationBranchIds();
+        List<String> statues = info.getStatues();
+        return transferIds.stream().mapToInt(transferId -> transferId)
+                .filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("READY_FOR_TRANSPORT")
+                        && !assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))
+                        && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public int getConfirmReceiveGoodsPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // when assigned branches NOT contains destination branch in transfer
+        // => staff can not confirm received goods
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<Integer> destinationBranchIds = info.getDestinationBranchIds();
+        List<String> statues = info.getStatues();
+        return transferIds.stream().mapToInt(transferId -> transferId)
+                .filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("DELIVERING")
+                        && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public int getNoConfirmReceiveGoodsPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // when assigned branches NOT contains destination branch in transfer
+        // => staff can not confirm received goods
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<Integer> destinationBranchIds = info.getDestinationBranchIds();
+        List<String> statues = info.getStatues();
+        return transferIds.stream().mapToInt(transferId -> transferId)
+                .filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("DELIVERING")
+                        && assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))
+                        && !assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public int getCancelTransferPermissionTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
+        TransferInfo info = (transferInfo.length != 0) ? transferInfo[0] : getAllTransferInfo();
+        // when assigned branches NOT contains destination branch in transfer
+        // => staff can not confirm received goods
+        List<Integer> transferIds = info.getIds();
+        List<Integer> originBranchIds = info.getOriginBranchIds();
+        List<Integer> destinationBranchIds = info.getDestinationBranchIds();
+        List<String> statues = info.getStatues();
+        return transferIds.stream().mapToInt(transferId -> transferId)
+                .filter(transferId -> !statues.get(transferIds.indexOf(transferId)).equals("CANCELLED")
+                        && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
+                .findFirst()
+                .orElse(0);
     }
 }

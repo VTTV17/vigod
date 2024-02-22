@@ -10,6 +10,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.APIAllProducts.*;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 
 public class CreateTransfer {
@@ -40,7 +41,7 @@ public class CreateTransfer {
     }
 
     String getItemTransfers(int originBranchId) {
-        APIAllProducts.SuggestionProductsInfo info = allProducts.getSuggestProductIdMatchWithConditions(originBranchId);
+        SuggestionProductsInfo info = allProducts.getSuggestProductIdMatchWithConditions(originBranchId);
 
         String manageTypes = info.getInventoryManageTypes().get(0);
         String itemId = info.getItemIds().get(0);
@@ -92,7 +93,7 @@ public class CreateTransfer {
         // init branch management API
         BranchManagement branchManagement = new BranchManagement(loginInformation);
         // get assigned branches
-        List<Integer> assignedBranches = (loginInfo.getAssignedBranchesIds() != null)
+        List<Integer> assignedBranchIds = (loginInfo.getAssignedBranchesIds() != null)
                 ? loginInfo.getAssignedBranchesIds() // staff
                 : branchManagement.getInfo().getBranchID(); // seller
         // get destination branches
@@ -102,7 +103,7 @@ public class CreateTransfer {
         allProducts = new APIAllProducts(loginInformation);
 
         // find origin branch that have in-stock product
-        int originBranchId = getOriginBranchId(assignedBranches);
+        int originBranchId = getOriginBranchId(assignedBranchIds);
 
         // create transfer
         if (originBranchId != 0) {
