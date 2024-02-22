@@ -12,6 +12,7 @@ public class TransferElement {
     By loc_btnTransferredQuantity = By.xpath("//*[contains(@class,'transfer-form-editor')]//tbody/tr[1]//input[@inputmode='numeric']");
     By loc_ddlBranches = By.cssSelector(".information [type='button'] .uik-select__valueWrapper");
     By loc_btnShipGoods = By.cssSelector(".transfer-toolbar .btn-save");
+    By loc_btnReceiveGoods = By.cssSelector(".transfer-toolbar .btn-save");
 
     String PRODUCT_NAME_IN_RESULT = "//div[contains(@class,'search-item')]/div/span[position()=1 %s]";
     String productBarcodeInResult = "//*[@class=' product-item']//*[text()='%s']";

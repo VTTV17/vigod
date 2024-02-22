@@ -4,13 +4,10 @@ import api.Seller.login.Login;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.home.HomePage;
-
-import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 public class CheckPermission {
     WebDriver driver;
@@ -66,7 +63,7 @@ public class CheckPermission {
     }
 
     public boolean checkAccessedSuccessfully(By locator, int index, By destinationLocator) {
-        commonAction.clickJS(locator);
+        commonAction.clickJS(locator, index);
         try {
             commonAction.getElement(destinationLocator);
             return true;
@@ -86,7 +83,7 @@ public class CheckPermission {
     }
 
     public boolean checkAccessedSuccessfully(By locator, int index, String url) {
-        commonAction.click(locator);
+        commonAction.click(locator, index);
         try {
             commonAction.waitURLShouldBeContains(url);
             return true;

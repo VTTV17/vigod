@@ -143,7 +143,6 @@ public class TransferManagement {
         // when assigned branches NOT contains destination branch in transfer
         // => staff can not confirm received goods
         List<Integer> transferIds = info.getIds();
-        List<Integer> originBranchIds = info.getOriginBranchIds();
         List<Integer> destinationBranchIds = info.getDestinationBranchIds();
         List<String> statues = info.getStatues();
         return transferIds.stream().mapToInt(transferId -> transferId)
@@ -174,11 +173,11 @@ public class TransferManagement {
         // when assigned branches NOT contains destination branch in transfer
         // => staff can not confirm received goods
         List<Integer> transferIds = info.getIds();
-        List<Integer> originBranchIds = info.getOriginBranchIds();
         List<Integer> destinationBranchIds = info.getDestinationBranchIds();
         List<String> statues = info.getStatues();
         return transferIds.stream().mapToInt(transferId -> transferId)
-                .filter(transferId -> !statues.get(transferIds.indexOf(transferId)).equals("CANCELLED")
+                .filter(transferId -> !(statues.get(transferIds.indexOf(transferId)).equals("CANCELLED")
+                        || statues.get(transferIds.indexOf(transferId)).equals("RECEIVED"))
                         && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
                 .findFirst()
                 .orElse(0);

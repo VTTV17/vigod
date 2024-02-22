@@ -3,8 +3,6 @@ package web.Dashboard.products.transfer.management;
 import api.Seller.login.Login;
 import api.Seller.products.transfer.TransferManagement;
 import api.Seller.setting.BranchManagement;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +15,6 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.products.transfer.crud.TransferPage;
 
 import java.util.List;
-import java.util.Map;
 
 import static api.Seller.products.transfer.TransferManagement.TransferInfo;
 import static utilities.links.Links.DOMAIN;
@@ -26,9 +23,6 @@ public class TransferManagementPage extends TransferManagementElement {
     Logger logger = LogManager.getLogger(TransferManagement.class);
     WebDriver driver;
     TransferPage transferPage;
-    AllPermissions permissions;
-    CheckPermission checkPermission;
-    AssertCustomize assertCustomize;
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
     TransferManagement transferManagement;
@@ -44,59 +38,44 @@ public class TransferManagementPage extends TransferManagementElement {
         return this;
     }
 
+    /*-------------------------------------*/
+    // check permission
+    // ticket: https://mediastep.atlassian.net/browse/BH-31079
+    AllPermissions permissions;
+    CheckPermission checkPermission;
+    AssertCustomize assertCustomize;
     public void checkTransferPermission(AllPermissions permissions, TransferInfo transferInfo) throws Exception {
         // get staff permission
         this.permissions = permissions;
-        Map<String, Boolean> transferPermissionMap = new ObjectMapper().convertValue(permissions.getProduct().getTransfer(), new TypeReference<>() {});
-        if (transferPermissionMap.containsValue(true)) {
 
-            // init commons check no permission
-            checkPermission = new CheckPermission(driver);
+        // init commons check no permission
+        checkPermission = new CheckPermission(driver);
 
-            // init transfer page PO
-            transferPage = new TransferPage(driver);
+        // init transfer page PO
+        transferPage = new TransferPage(driver);
 
-            // init transfer management API
-            transferManagement = new TransferManagement(loginInformation);
+        // init transfer management API
+        transferManagement = new TransferManagement(loginInformation);
 
-            // init branch management API
-            BranchManagement branchManagement = new BranchManagement(loginInformation);
+        // init branch management API
+        BranchManagement branchManagement = new BranchManagement(loginInformation);
 
-            // get assigned branches
-            List<Integer> assignedBranchIds = (loginInfo.getAssignedBranchesIds() != null)
-                    ? loginInfo.getAssignedBranchesIds() // staff
-                    : branchManagement.getInfo().getBranchID(); // seller
+        // get assigned branches
+        List<Integer> assignedBranchIds = (loginInfo.getAssignedBranchesIds() != null)
+                ? loginInfo.getAssignedBranchesIds() // staff
+                : branchManagement.getInfo().getBranchID(); // seller
 
-            // check view transfer list
-            checkViewTransferList(assignedBranchIds, transferInfo);
+        // check view transfer list
+        checkViewTransferList(assignedBranchIds, transferInfo);
 
-            // check create transfer
-            checkCreateTransfer();
+        // check create transfer
+        checkCreateTransfer();
 
-            // check view transfer detail
-            int hasViewPermissionTransferId = transferManagement.getViewPermissionTransferId(assignedBranchIds, transferInfo);
-            int noViewPermissionTransferId = transferManagement.getNoViewPermissionTransferId(assignedBranchIds, transferInfo);
-            int hasConfirmShipGoodsPermissionTransferId = transferManagement.getConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
-            int noConfirmShipGoodsPermissionTransferId = transferManagement.getNoConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
-            int hasConfirmReceivedGoodsPermissionTransferId = transferManagement.getConfirmReceiveGoodsPermissionTransferId(assignedBranchIds, transferInfo);
-            int noConfirmReceivedGoodsPermissionTransferId = transferManagement.getNoConfirmReceiveGoodsPermissionTransferId(assignedBranchIds, transferInfo);
-            int hasCancelPermissionTransferId = transferManagement.getCancelTransferPermissionTransferId(assignedBranchIds, transferInfo);
-            transferPage.checkViewTransferDetail(loginInformation,
-                    permissions,
-                    hasViewPermissionTransferId,
-                    noViewPermissionTransferId,
-                    hasConfirmShipGoodsPermissionTransferId,
-                    noConfirmShipGoodsPermissionTransferId,
-                    hasConfirmShipGoodsPermissionTransferId,
-                    noConfirmShipGoodsPermissionTransferId,
-                    hasConfirmReceivedGoodsPermissionTransferId,
-                    noConfirmReceivedGoodsPermissionTransferId,
-                    hasCancelPermissionTransferId);
-
-        }
+        // check view transfer detail
+        transferPage.checkViewTransferDetail(loginInformation, permissions, assignedBranchIds, transferInfo);
     }
 
-    void navigateToTransferManagementPage() {
+     void navigateToTransferManagementPage() {
         if (!driver.getCurrentUrl().contains("product/transfer/list")) {
             driver.get("%s/product/transfer/list".formatted(DOMAIN));
             logger.info("Navigate to transfer management list.");
@@ -137,7 +116,7 @@ public class TransferManagementPage extends TransferManagementElement {
         } else {
             // Staff without permission “Create transfer” => Show restricted when:
             // click on [Add transfer] button in Product >> Transfer
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateTransfer),
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddTransfer),
                     "Restricted popup does not shown.");
         }
     }
