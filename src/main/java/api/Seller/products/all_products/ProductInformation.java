@@ -1,6 +1,7 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
+import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -20,7 +21,6 @@ import java.util.stream.IntStream;
 public class ProductInformation {
     String GET_DASHBOARD_PRODUCT_LIST = "/itemservice/api/store/dashboard/storeID/items-v2?itemType=BUSINESS_PRODUCT&size=100&sort=lastModifiedDate%2Cdesc";
     String GET_PRODUCT_INFORMATION = "/itemservice/api/beehive-items/%s";
-    String GET_PRODUCT_COLLECTION = "/itemservice/api/collections/products/%s";
     String GET_COLLECTION_LANGUAGE = "/itemservice/api/collection-languages/collection/%s";
     String GET_WHOLESALE_PRODUCT_DETAIL_PATH = "/itemservice/api/item/wholesale-pricing/edit/%s?langKey=vi&page=0&size=100";
     API api = new API();
@@ -268,9 +268,7 @@ public class ProductInformation {
                 prdInfo.setTaxName(taxName);
             } catch (NullPointerException ignore) {}
 
-            Response collectionsList = api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken());
-            collectionsList.then().statusCode(200);
-            List<Integer> collectionIDList = collectionsList.jsonPath().getList("id");
+            List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productID);
             prdInfo.setCollectionIdList(collectionIDList);
 
             Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();

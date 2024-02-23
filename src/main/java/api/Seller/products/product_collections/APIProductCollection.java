@@ -32,30 +32,34 @@ public class APIProductCollection {
         List<String> collectionNames = new ArrayList<>();
         List<String> collectionTypes = new ArrayList<>();
     }
-    CollectionInfo getCollectionInfo() {
+
+    public Response getCollectionListResponse(int pageIndex) {
+        return api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), pageIndex),loginInfo.getAccessToken());
+    }
+    public CollectionInfo getCollectionInfo() {
         CollectionInfo info = new CollectionInfo();
 
-        Response res = api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), 0),loginInfo.getAccessToken());
+        Response collectionListResponse = getCollectionListResponse(0);
 
         // if staff do not have permission, end.
-        if (res.getStatusCode() == 403) return info;
+        if (collectionListResponse.getStatusCode() == 403) return info;
 
         // get number of pages
-        int numberOfPages = res.then().statusCode(200).extract().jsonPath().getInt("totalPage");
+        int numberOfPages = collectionListResponse.jsonPath().getInt("totalPage");
 
-        List<Integer> collectionIds = new ArrayList<>(res.jsonPath().getList("lstCollection.id"));
-        List<String> collectionNames = new ArrayList<>(res.jsonPath().getList("lstCollection.name"));
-        List<String> collectionTypes = new ArrayList<>(res.jsonPath().getList("lstCollection.collectionType"));
+        List<Integer> collectionIds = new ArrayList<>();
+        List<String> collectionNames = new ArrayList<>();
+        List<String> collectionTypes = new ArrayList<>();
 
-        for (int pageIndex = 1; pageIndex < numberOfPages; pageIndex ++) {
-            res = api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), pageIndex),loginInfo.getAccessToken())
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex ++) {
+            collectionListResponse = getCollectionListResponse(pageIndex)
                     .then()
                     .statusCode(200)
                     .extract()
                     .response();
-            collectionIds.addAll(res.jsonPath().getList("lstCollection.id"));
-            collectionNames.addAll(res.jsonPath().getList("lstCollection.name"));
-            collectionTypes.addAll(res.jsonPath().getList("lstCollection.collectionType"));
+            collectionIds.addAll(collectionListResponse.jsonPath().getList("lstCollection.id"));
+            collectionNames.addAll(collectionListResponse.jsonPath().getList("lstCollection.name"));
+            collectionTypes.addAll(collectionListResponse.jsonPath().getList("lstCollection.collectionType"));
         }
 
         info.setCollectionIds(collectionIds);
@@ -123,6 +127,16 @@ public class APIProductCollection {
     String DELETE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/delete/%s/%s";
     public void deleteCollection(int collectionId){
         api.delete(DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionId),loginInfo.getAccessToken());
+    }
+
+    String GET_PRODUCT_COLLECTION = "/itemservice/api/collections/products/%s";
+    public List<Integer> getProductListCollectionIds(int productID) {
+        return api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
     }
 
 }

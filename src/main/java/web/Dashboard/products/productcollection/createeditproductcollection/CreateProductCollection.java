@@ -22,6 +22,7 @@ import web.Dashboard.products.productcollection.productcollectionmanagement.Prod
 
 import java.text.ParseException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class CreateProductCollection extends CreateProductCollectionElement {
@@ -516,7 +517,7 @@ public class CreateProductCollection extends CreateProductCollectionElement {
         Assert.assertEquals(common.getText(loc_lblGeneralInformation), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.generalInformationTitle"));
         Assert.assertEquals(common.getText(loc_lblCollectionName), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.collectionNameLbl"));
         Assert.assertEquals(common.getText(loc_lblImages), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.imagesLbl"));
-        Assert.assertEquals(common.getText(loc_lblDrapAndDropPhoto), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.drapAndDropTxt"));
+        Assert.assertEquals(common.getText(loc_lblDragAndDropPhoto), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.drapAndDropTxt"));
         Assert.assertEquals(common.getText(loc_lblCollectionType), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.collectionTypeTitle"));
         Assert.assertEquals(common.getText(loc_chbManualAction), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.manualOptionTxt"));
         Assert.assertEquals(common.getText(loc_lblManualDescription), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.manualDescription"));
@@ -591,6 +592,21 @@ public class CreateProductCollection extends CreateProductCollectionElement {
         Assert.assertEquals(common.getText(operateOptions.get(0)), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isGeaterThanTxt"));
         Assert.assertEquals(common.getText(operateOptions.get(1)), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.isLessThanTxt"));
         Assert.assertEquals(common.getText(operateOptions.get(2)), PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.automated.operateOptions.productPriceIsEqualToTxt"));
+    }
+
+    public void createCollectionForPermissionTest() {
+        // collection name
+        String collectionName = "Collections %d".formatted(Instant.now().toEpochMilli());
+
+        // create collection
+        this.inputCollectionName(collectionName)
+                .clickOnSaveBTN();
+
+        // close notification popup
+        common.getElement(loc_dlgNotification);
+        common.closePopup(loc_dlgNotification_btnClose);
+        logger.info("Complete create product collection.");
+
     }
 
 

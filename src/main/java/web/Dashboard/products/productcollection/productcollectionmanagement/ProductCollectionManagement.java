@@ -1,12 +1,17 @@
 package web.Dashboard.products.productcollection.productcollectionmanagement;
 
+import api.Seller.products.product_collections.APIProductCollection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
@@ -15,6 +20,8 @@ import web.Dashboard.products.productcollection.createeditproductcollection.Edit
 
 import java.time.Duration;
 import java.util.List;
+
+import static utilities.links.Links.DOMAIN;
 
 public class ProductCollectionManagement extends ProductCollectionManagementElement {
     final static Logger logger = LogManager.getLogger(ProductCollectionManagement.class);
@@ -190,5 +197,138 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
 
     public void clickLogout() {
         home.clickLogout();
+    }
+
+    // check permission
+    // ticket: https://mediastep.atlassian.net/browse/BH-24652
+    AllPermissions permissions;
+    CheckPermission checkPermission;
+    AssertCustomize assertCustomize;
+    LoginInformation loginInformation;
+
+    public ProductCollectionManagement getLoginInformation(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        return this;
+    }
+
+    public void checkProductCollectionPermission(AllPermissions permissions, List<Integer> collectionIds) {
+        // get staff permission
+        this.permissions = permissions;
+
+        // init commons check no permission
+        checkPermission = new CheckPermission(driver);
+
+        // init assert customize
+        assertCustomize = new AssertCustomize(driver);
+
+        // check view collection list
+        checkViewCollectionList();
+
+        // check view collection detail
+        new EditProductCollection(driver).checkViewCollectionsDetail(permissions, collectionIds);
+
+        // check create collection
+        checkCreateCollection();
+
+        // check edit collection
+        checkViewCollectionDetail();
+
+        // check delete collection
+        checkDeleteCollection();
+    }
+
+    void navigateToProductCollectionManagementPage() {
+        if (!driver.getCurrentUrl().contains("/collection/list")) {
+            driver.get("%s/collection/list".formatted(DOMAIN));
+            logger.info("Navigate to product collection management.");
+        }
+    }
+
+    void checkViewCollectionList() {
+        int statusCode = new APIProductCollection(loginInformation).getCollectionListResponse(0).statusCode();
+        if (permissions.getProduct().getCollection().isViewCollectionList()) {
+            assertCustomize.assertTrue(statusCode == 200,
+                    "No product collections shows.");
+        } else {
+            assertCustomize.assertTrue(statusCode == 403,
+                    "All product collections still showing when no view list permission.");
+        }
+
+        // If staff don’t have permission “View collection list”
+        // => don’t see any collection when access product collection page
+        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/collection/list".formatted(DOMAIN), "/collection/list"),
+                "Product collection management page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+    }
+
+    void checkCreateCollection() {
+        // navigate to product collection management page
+        navigateToProductCollectionManagementPage();
+
+        // check permission
+        if (permissions.getProduct().getCollection().isCreateCollection()) {
+            // check can create product collection page
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnCreateProductCollection, "/collection/create/product/PRODUCT"),
+                    "Product collection detail page is not shown.");
+
+            // when access is successful create new product collection
+            // => create new product collection
+            if (driver.getCurrentUrl().contains("/collection/create/product/PRODUCT")) {
+                // create collection
+                new CreateProductCollection(driver).createCollectionForPermissionTest();
+            }
+        } else {
+            // Show restricted popup
+            // when click on [Delete] icon in collection management
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateProductCollection),
+                    "Restricted page is not shown.");
+        }
+        logger.info("Check permission: Product >> Collection >> Create collection.");
+    }
+
+    void checkViewCollectionDetail() {
+        // navigate to product collection management page
+        navigateToProductCollectionManagementPage();
+
+        // check permission
+        if (!commonAction.getListElement(loc_lst_btnEdit).isEmpty()) {
+
+            // check permission
+            if (permissions.getProduct().getCollection().isViewCollectionDetail()) {
+                // check can view product collection detail
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_lst_btnEdit, "/collection/edit/product/"),
+                        "Product collection detail page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+            } else {
+                // Show restricted page
+                // if staff don’t have permission “View collection detail”
+                // when open collection detail page
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lst_btnEdit),
+                        "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+            }
+        } else logger.info("Store does not have any product collections.");
+        // log
+        logger.info("Check permission: Product >> Collection >> View collection detail.");
+    }
+
+    void checkDeleteCollection() {
+        // navigate to product collection management page
+        navigateToProductCollectionManagementPage();
+
+        // check permission
+        if (!commonAction.getListElement(loc_lst_btnDelete).isEmpty()) {
+            if (permissions.getProduct().getCollection().isDeleteCollection()) {
+                // check can delete product collection
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_lst_btnDelete, 0, loc_dlgConfirmation),
+                        "Confirm delete popup is not shown.");
+                if (!commonAction.getListElement(loc_dlgConfirmation).isEmpty())
+                    commonAction.closePopup(loc_dlgConfirmation_btnOK);
+
+            } else {
+                // Show restricted popup
+                // when click on [Delete] icon in collection management
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lst_btnDelete, 0),
+                        "Restricted popup is not shown.");
+            }
+        } else logger.info("Store does not have any product collections.");
+        logger.info("Check permission: Product >> Collection >> Delete collection.");
     }
 }

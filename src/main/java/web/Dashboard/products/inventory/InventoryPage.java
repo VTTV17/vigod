@@ -103,7 +103,7 @@ public class InventoryPage extends InventoryElement {
             // check export/download export inventory history
             new InventoryHistoryPage(driver).checkExportInventoryHistory(permissions, assertCustomize, checkPermission, this);
         } else {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnInventoryHistory), "Restricted page does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnInventoryHistory), "Restricted page is not shown.");
         }
         logger.info("Check permission: Product >> Inventory >> View Inventory history.");
     }
@@ -117,7 +117,7 @@ public class InventoryPage extends InventoryElement {
                 commons.openPopupJS(loc_lnkRemainingStock, 0, loc_dlgUpdateStock);
                 commons.closePopup(loc_dlgUpdateStock_btnCancel);
             } else {
-                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lnkRemainingStock, 0), "Restricted popup does not shown.");
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lnkRemainingStock, 0), "Restricted popup is not shown.");
             }
         }
         logger.info("Check permission: Product >> Inventory >> Update stock.");

@@ -1,12 +1,6 @@
 package web.Dashboard.products.productcollection.createeditproductcollection;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
 
 public class CreateProductCollectionElement {
 
@@ -35,15 +29,17 @@ public class CreateProductCollectionElement {
     By loc_txtSEOUrl = By.id("seoUrl");
     By loc_btnClose = By.cssSelector(".modal-footer button");
     By loc_btnSave = By.cssSelector(".header-wrapper .gs-button__green");
+    By loc_btnDelete = By.cssSelector(".icon-delete");
+    By loc_btnEditTranslation = By.xpath("//*[contains(@class, 'btn-save')]/preceding-sibling::button");
     By loc_lst_txtPriority  = By.xpath("//td[contains(@class,'gs-table-body-item')]//input[@precision='0']");
     By loc_lst_lblProductName = By.xpath("//td[contains(@class,gs-table-body-item)][2]//b");
-    By loc_lst_btnDelete = By.cssSelector(".btn-remove__row");
+    By loc_icn_btnDelete = By.cssSelector(".btn-remove__row");
     By loc_lblCreateProductCollectionTitle = By.cssSelector(".gs-page-title");
     By loc_btnCancel = By.xpath("//div[contains(@class,'action-btn--group')]//button[2]");
     By loc_lblGeneralInformation = By.xpath("//button[@type='submit']//following-sibling::div[1]//h3");
     By loc_lblCollectionName = By.xpath("//label[@for='collectionName']");
     By loc_lblImages = By.xpath("//label[@for='collectionName']//following-sibling::label");
-    By loc_lblDrapAndDropPhoto  = By.xpath("//input[@type='file']/following-sibling::div[2]");
+    By loc_lblDragAndDropPhoto = By.xpath("//input[@type='file']/following-sibling::div[2]");
     By loc_lblCollectionType = By.xpath("(//fieldset[@name='collectionType']/preceding::div//h3)[last()]");
     By loc_lblManualDescription = By.xpath("//div[@class='collection-description'][1]");
     By loc_lblAutomatedDescription = By.xpath("//div[@class='collection-description'][2]");
@@ -85,4 +81,11 @@ public class CreateProductCollectionElement {
     By loc_dlgSelectProduct_btnCancel = By.cssSelector(".footer-btn .gs-button__gray--outline");
     By loc_lblConditions = By.xpath("//div[@class='automated-config__header']//h3");
     By loc_lblProductMustMatch = By.xpath("//div[@class='automated-config__condition-type']/span[1]");
+    By loc_dlgNotification = By.cssSelector(".modal-success");
+    By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
+    By loc_dlgConfirmation = By.cssSelector(".confirm-modal");
+    By loc_dlgConfirmation_btnOK = By.cssSelector(".confirm-modal .gs-button__green");
+    By loc_dlgEditTranslation = By.cssSelector(".product-translate");
+    By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal.fade.show > .product-translate .gs-button__green");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast-body");
 }

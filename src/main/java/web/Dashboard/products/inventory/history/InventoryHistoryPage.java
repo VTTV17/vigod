@@ -100,7 +100,7 @@ public class InventoryHistoryPage extends InventoryHistoryElement {
     // https://mediastep.atlassian.net/browse/BH-13841
     public void checkExportInventoryHistory(AllPermissions permissions, AssertCustomize assertCustomize, CheckPermission checkPermission, InventoryPage inventoryPage) {
         if (!permissions.getProduct().getInventory().isExportInventoryHistory()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup is not shown.");
         } else {
             // export inventory history
             exportInventoryHistory();
@@ -116,7 +116,7 @@ public class InventoryHistoryPage extends InventoryHistoryElement {
 
     void checkDownloadExportedProduct(AllPermissions permissions, AssertCustomize assertCustomize, CheckPermission checkPermission, InventoryPage inventoryPage) {
         if (!permissions.getProduct().getInventory().isDownloadExportedProduct()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportedFile, 0), "Restricted popup does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportedFile, 0), "Restricted popup is not shown.");
         } else {
             // init file utils
             FileUtils fileUtils = new FileUtils();

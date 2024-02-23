@@ -3,7 +3,6 @@ package api.Seller.setting;
 import api.Seller.login.Login;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class PermissionAPI {
     String CREATE_GROUP_PERMISSION_PATH = "/storeservice/api/authorized-group-permissions/store/%s";
@@ -216,11 +216,72 @@ public class PermissionAPI {
     }
 
     public void editPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, int groupId, CreatePermission model) {
+        // delete all permission group that are not assigned to staff
+        deleteNoAssignedPermissionGroup();
+
+        // get staffId
         int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
+
         //Remove all permission groups from the staff
         removeAllGroupPermissionsFromStaff(staffId);
+
+        // update permission group
         int groupPermissionId = editGroupPermissionAndGetID(groupId, "Permission %s".formatted(System.currentTimeMillis()), "Description %s".formatted(System.currentTimeMillis()), model);
+
         //Grant the permission to the staff
         grantGroupPermissionToStaff(staffId, groupPermissionId);
+    }
+
+    @Data
+    static class PermissionInformation {
+        List<Integer> permissionIds;
+        List<Integer> numberOfAssigned;
+    }
+
+    String getAllPermissionGroupPath = "/storeservice/api/authorized-group-permissions/store/%s?page=%s&size=100";
+
+    Response getAllPermissionResponse(int pageIndex) {
+        return api.get(getAllPermissionGroupPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+    }
+
+    PermissionInformation getAllPermissionGroupInformation() {
+        // init suggestion model
+        PermissionInformation info = new PermissionInformation();
+
+        // init temp array
+        List<Integer> permissionIds = new ArrayList<>();
+        List<Integer> numberOfAssigned = new ArrayList<>();
+
+        // get total products
+        int totalOfProducts = Integer.parseInt(getAllPermissionResponse(0).getHeader("X-Total-Count"));
+
+        // get number of pages
+        int numberOfPages = totalOfProducts / 100;
+
+        // get other page data
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+            Response suggestProducts = getAllPermissionResponse(pageIndex);
+            permissionIds.addAll(suggestProducts.jsonPath().getList("id"));
+            numberOfAssigned.addAll(suggestProducts.jsonPath().getList("totalStaff"));
+        }
+
+        // set permission group info
+        info.setPermissionIds(permissionIds);
+        info.setNumberOfAssigned(numberOfAssigned);
+
+        // return suggestion model
+        return info;
+    }
+
+    void deleteNoAssignedPermissionGroup() {
+        PermissionInformation info = getAllPermissionGroupInformation();
+        IntStream.range(0, info.getPermissionIds().size())
+                .filter(index -> info.getNumberOfAssigned().get(index) == 0)
+                .map(index -> info.getPermissionIds().get(index))
+                .forEach(this::deleteGroupPermission);
     }
 }

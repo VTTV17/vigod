@@ -130,6 +130,7 @@ public class ProductPageElement {
     By loc_dlgConfirm = By.cssSelector(".modal-content");
     By loc_dlgConfirm_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgConfirm_btnCancel = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By loc_dlgConfirm_btnNo = By.cssSelector(".modal-footer .gs-button__yellow--outline");
     /* UI text element */
     /* Header */
     By loc_lnkGoBackToProductList = By.xpath("//a[@href='/product/list' and not(@name)]");
@@ -287,6 +288,7 @@ public class ProductPageElement {
     By loc_lblCollection = By.cssSelector("[class $= --n2] > div:nth-child(2) h3");
     By loc_plhSearchCollection = By.cssSelector(".product-form-collection-selector2 input");
     By loc_cntNoCollection = By.cssSelector(".product-form-collection-selector2 > .no-content");
+    By loc_lnkCreateCollection = By.cssSelector(".product-form-collection-selector2 > .no-content > .gs-fake-link");
     /* Warehousing */
     By loc_lblWarehousing = By.cssSelector("[class $= --n2] > div:nth-child(3) h3");
     By loc_lblWithoutVariationSKU = By.xpath("//*[@name='barcode']/parent::div/preceding-sibling::div/label|//*[@for='productSKU']");

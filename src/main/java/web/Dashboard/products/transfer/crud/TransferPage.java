@@ -425,7 +425,7 @@ public class TransferPage extends TransferElement {
             if (noViewPermissionTransferId != 0) {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/product/transfer/wizard/%s"
                                 .formatted(DOMAIN, noViewPermissionTransferId)),
-                        "Restricted page does not shown.");
+                        "Restricted page is not shown.");
             }
 
             // check edit transfer
@@ -444,7 +444,7 @@ public class TransferPage extends TransferElement {
             // => show restricted page
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/product/transfer/wizard/%s"
                             .formatted(DOMAIN, hasViewPermissionTransferId)),
-                    "Restricted page does not shown.");
+                    "Restricted page is not shown.");
         }
 
         // log
@@ -480,7 +480,7 @@ public class TransferPage extends TransferElement {
             // Staff don’t have permission Edit transfer but Click [Edit] function in a transfer detail
             // => Show restricted popup
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 0),
-                    "Restricted popup does not shown.");
+                    "Restricted popup is not shown.");
         }
 
         // check edit permission at edit transfer page
@@ -497,14 +497,14 @@ public class TransferPage extends TransferElement {
                 // => Click [Save] in Transfer edit mode => Show restricted popup
                 navigateToEditTransferPage(noEditPermissionTransferId);
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave),
-                        "Restricted popup does not shown.");
+                        "Restricted popup is not shown.");
             }
         } else if (hasEditPermissionTransferId != 0) {
             // Staff don’t have permission Edit transfer but Open direct edit URL of a transfer
             // => Show restricted page
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/product/transfer/edit/%s"
                             .formatted(DOMAIN, hasEditPermissionTransferId)),
-                    "Restricted page does not shown.");
+                    "Restricted page is not shown.");
         }
 
         // log
@@ -537,7 +537,7 @@ public class TransferPage extends TransferElement {
                 // => Show restricted popup
                 navigateToTransferDetailPage(noConfirmShipGoodsPermissionTransferId);
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnShipGoods),
-                        "Restricted popup does not shown.");
+                        "Restricted popup is not shown.");
             }
         } else if (hasConfirmShipGoodsPermissionTransferId != 0) {
             // navigate to transfer detail page
@@ -547,7 +547,7 @@ public class TransferPage extends TransferElement {
             // but Click [Ship Goods] button in a transfer detail
             // => show restricted popup
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnShipGoods),
-                    "Restricted popup does not shown.");
+                    "Restricted popup is not shown.");
         }
 
         // log
@@ -580,7 +580,7 @@ public class TransferPage extends TransferElement {
                 // => Show restricted popup
                 navigateToTransferDetailPage(noConfirmReceivedGoodsPermissionTransferId);
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnReceiveGoods),
-                        "Restricted popup does not shown.");
+                        "Restricted popup is not shown.");
             }
         } else if (hasConfirmReceivedGoodsPermissionTransferId != 0) {
             // navigate to transfer detail page
@@ -590,7 +590,7 @@ public class TransferPage extends TransferElement {
             // click on [Received Goods] button in Transfer detail
             // Show restricted popup
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnReceiveGoods),
-                    "Restricted popup does not shown.");
+                    "Restricted popup is not shown.");
         }
 
         // log
@@ -614,13 +614,14 @@ public class TransferPage extends TransferElement {
                                     commons.getListElement(loc_ddlListActions).size() - 1,
                                     loc_dlgConfirmation),
                             "Can not open confirmation cancel popup.");
-                    commons.click(loc_dlgConfirmation_btnOK);
+                    if (!commons.getListElement(loc_dlgConfirmation).isEmpty())
+                        commons.click(loc_dlgConfirmation_btnOK);
                 } else {
                     // Staff don’t have permission Cancel transfer => Show restricted popup
                     // when: click [Cancel] button in Transfer detail
                     assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions,
                                     commons.getListElement(loc_ddlListActions).size() - 1),
-                            "Restricted popup does not shown.");
+                            "Restricted popup is not shown.");
                 }
             }
         }

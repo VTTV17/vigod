@@ -6,8 +6,10 @@ import api.Seller.setting.BranchManagement;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -23,6 +25,7 @@ public class TransferManagementPage extends TransferManagementElement {
     Logger logger = LogManager.getLogger(TransferManagement.class);
     WebDriver driver;
     TransferPage transferPage;
+    UICommonAction commonAction;
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
     TransferManagement transferManagement;
@@ -30,6 +33,7 @@ public class TransferManagementPage extends TransferManagementElement {
     public TransferManagementPage(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
+        commonAction = new UICommonAction(driver);
     }
 
     public TransferManagementPage getLoginInformation(LoginInformation loginInformation) {
@@ -113,11 +117,23 @@ public class TransferManagementPage extends TransferManagementElement {
         if (permissions.getProduct().getTransfer().isCreateTransfer()) {
             // check can create transfer
             transferPage.createTransfer(loginInformation);
+
+            // staff can view transfer detail after created
+            if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
+                try {
+                    commonAction.waitURLShouldBeContains("/product/transfer/wizard/");
+                } catch (TimeoutException ex) {
+                    logger.error("Transfer detail page is not shown.");
+                }
+            } else {
+                // staff can not view transfer detail
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+            }
         } else {
             // Staff without permission “Create transfer” => Show restricted when:
             // click on [Add transfer] button in Product >> Transfer
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddTransfer),
-                    "Restricted popup does not shown.");
+                    "Restricted popup is not shown.");
         }
     }
 }

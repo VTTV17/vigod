@@ -336,7 +336,7 @@ public class VariationDetailPage extends VariationDetailElement {
     public void checkActiveVariation(AllPermissions permissions, CheckPermission checkPermission) {
         navigateToVariationDetailPage();
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getVariationStatus().get(0).equals("INACTIVE")) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Activate product.");
     }
@@ -344,7 +344,7 @@ public class VariationDetailPage extends VariationDetailElement {
     public void checkDeactivateVariation(AllPermissions permissions, CheckPermission checkPermission) {
         navigateToVariationDetailPage();
         if (!permissions.getProduct().getProductManagement().isDeactivateProduct() && productInfo.getVariationStatus().get(0).equals("ACTIVE")) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Deactivate product.");
     }
@@ -352,7 +352,7 @@ public class VariationDetailPage extends VariationDetailElement {
     public void checkEditTranslation(AllPermissions permissions, CheckPermission checkPermission) {
         navigateToVariationDetailPage();
         if (!permissions.getProduct().getProductManagement().isEditTranslation()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnEditTranslation), "Restricted popup does not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnEditTranslation), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Update product translation.");
     }

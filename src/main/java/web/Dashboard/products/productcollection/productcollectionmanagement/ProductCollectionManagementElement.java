@@ -16,6 +16,7 @@ public class ProductCollectionManagementElement {
     By loc_lst_lblItems = By.xpath("//div[contains(@class,'products')]");
     By loc_lst_btnEdit = By.cssSelector(".actions .first-button");
     By loc_lst_btnDelete = By.cssSelector(".actions .lastest-button");
+    By loc_dlgConfirmation = By.cssSelector(".confirm-modal");
     By loc_dlgConfirmation_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By loc_ttlPageTitleAndTotalNumber = By.xpath("//h5[@class='gs-page-title']/div");
     By loc_txtSearch = By.cssSelector(".gs-search-box__wrapper input");
@@ -28,4 +29,6 @@ public class ProductCollectionManagementElement {
     By loc_dlgConfirmation_lblMessage = By.cssSelector(".modal-body");
     By loc_dlgConfirmation_lblTitle = By.cssSelector(".modal-title");
     By loc_dlgConfirmation_btnCancel = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By loc_dlgNotification = By.cssSelector(".modal-success");
+    By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
 }
