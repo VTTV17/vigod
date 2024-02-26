@@ -257,10 +257,10 @@ public class PermissionAPI {
         List<Integer> numberOfAssigned = new ArrayList<>();
 
         // get total products
-        int totalOfProducts = Integer.parseInt(getAllPermissionResponse(0).getHeader("X-Total-Count"));
+        int totalOfPermissions = Integer.parseInt(getAllPermissionResponse(0).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = totalOfProducts / 100;
+        int numberOfPages = ((totalOfPermissions / 100) > 0) ? (totalOfPermissions / 100) : 1;
 
         // get other page data
         for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {

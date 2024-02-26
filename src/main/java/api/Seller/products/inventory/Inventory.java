@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Inventory {
-    String getInventoryPath = "/itemservice/api/inventory-summary/%s/items?langKey=vi&page=%s&size=50&filter=&sort=priority,asc&search=&branchIds=%s&isAlertStockProducts=false";
+    String getInventoryPath = "/itemservice/api/inventory-summary/%s/items?langKey=vi&page=%s&size=100&filter=&sort=priority,asc&search=&branchIds=%s&isAlertStockProducts=false";
     LoginInformation loginInformation;
     LoginDashboardInfo info;
     API api = new API();
@@ -54,7 +54,7 @@ public class Inventory {
         int totalOfProducts = Integer.parseInt(res.getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = totalOfProducts / 50;
+        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
 
         // get all inventory
         for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {

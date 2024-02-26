@@ -48,7 +48,7 @@ public class TransferManagement {
         int totalOfProducts = Integer.parseInt(getTransferResponse(0).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = totalOfProducts / 100;
+        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
 
         // get all inventory
         for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
