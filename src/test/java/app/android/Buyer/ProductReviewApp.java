@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.product_reviews.APIProductReviews;
 import app.android.BaseTest;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -114,7 +115,7 @@ public class ProductReviewApp extends BaseTest {
 	 * @return a random product out of all product present in product preview management
 	 */
 	public String randomSearchProduct() {
-        List<String> allProducts = new api.Seller.products.product_reviews.ProductReviews(loginInformation).getProductNameList();
+        List<String> allProducts = new APIProductReviews(loginInformation).getProductNameList();
         Set<String> uniqueNames = new HashSet<String>(allProducts);
         List<String> productNames = new ArrayList<String>(uniqueNames);
         return productNames.get(new Random().nextInt(0, productNames.size()));

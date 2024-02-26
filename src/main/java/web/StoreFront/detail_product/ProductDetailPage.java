@@ -4,7 +4,7 @@ import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import api.Seller.onlineshop.Preferences;
 import api.Seller.products.all_products.ProductInformation;
-import api.Seller.products.product_reviews.ProductReviews;
+import api.Seller.products.product_reviews.APIProductReviews;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.FlashSale.FlashSaleInfo;
 import api.Seller.promotion.ProductDiscountCampaign;
@@ -166,7 +166,7 @@ public class ProductDetailPage extends ProductDetailElement {
         logger.info("[UI][%s] Check Product Detail - Description Tab".formatted(language));
 
         // review tab
-        if (new ProductReviews(loginInformation).isIsEnableReview()) {
+        if (new APIProductReviews(loginInformation).isIsEnableReview()) {
             String sfReviewTab = commonAction.getText(loc_tabReview);
             String reviewTab = getPropertiesValueBySFLang("productDetail.review", language);
             assertCustomize.assertEquals(sfReviewTab, reviewTab, "[Failed][Product Detail] Review tab title should be %s, but found %s.".formatted(reviewTab, sfReviewTab));

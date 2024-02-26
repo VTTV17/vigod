@@ -23,4 +23,6 @@ public class ProductReviewElement {
 	By loc_btnEnableSpecificReviewToggle = By.xpath("//*[contains(@class,'lastest-button')]");
 	
 	String loc_ddlSortCondition = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']";
+	By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
+	String str_showHideReviews = "//*[contains(@class, 'd-desktop-block')]//*[@id= 'thumbnal-%s']/following-sibling::div//label";
 }

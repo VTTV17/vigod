@@ -87,5 +87,5 @@ public class CreateProductCollectionElement {
     By loc_dlgConfirmation_btnOK = By.cssSelector(".confirm-modal .gs-button__green");
     By loc_dlgEditTranslation = By.cssSelector(".product-translate");
     By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal.fade.show > .product-translate .gs-button__green");
-    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast-body");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }
