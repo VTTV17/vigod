@@ -1,19 +1,21 @@
 package api.Seller.customers;
 
-import api.Seller.login.Login;
+import static java.lang.Thread.sleep;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import api.Buyer.login.LoginSF;
+import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-
-import java.util.List;
-import java.util.regex.Pattern;
-
-import static java.lang.Thread.sleep;
 
 public class Customers {
     String CUSTOMER_INFORMATION_PATH = "/beehiveservices/api/customer-profiles/detail/%s/%s";
@@ -38,6 +40,26 @@ public class Customers {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
+    @Data
+    public class CustomerManagementInfo {
+        List<Integer> customerId = new ArrayList<>();
+        List<Integer> userId = new ArrayList<>();
+        List<Integer> debtAmount = new ArrayList<>();
+        List<String> saleChannel = new ArrayList<>();
+    }    
+    public CustomerManagementInfo getCustomerManagementInfo() {
+    	
+    	JsonPath jsonResponse = getAllCustomerJsonPath();
+    	
+    	CustomerManagementInfo info = new CustomerManagementInfo();
+    	info.setCustomerId(jsonResponse.getList("id"));
+    	info.setUserId(jsonResponse.getList("userId"));
+    	info.setDebtAmount(jsonResponse.getList("orderDebtSummary"));
+    	info.setSaleChannel(jsonResponse.getList("saleChannel"));
+
+        return info;
+    }    
+    
     public Customers addCustomerTagForMailCustomer(String keywords) {
         Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), keywords, "EMAIL"), loginInfo.getAccessToken());
         searchCustomerByEmail.then().statusCode(200);
