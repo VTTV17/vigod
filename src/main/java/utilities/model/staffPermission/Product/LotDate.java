@@ -6,7 +6,7 @@ import lombok.Data;
 public class LotDate{
 	private boolean viewLotDetail;
 	private boolean importLot;
-	private boolean viewALotList;
+	private boolean viewLotList;
 	private boolean editLot;
 	private boolean enableProductLot;
 	private boolean createLot;

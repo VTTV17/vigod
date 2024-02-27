@@ -17,60 +17,61 @@ import static utilities.character_limit.CharacterLimit.*;
 
 public class DataGenerator {
     public String generateString(int length) {
-        return RandomStringUtils.random(length,true,false);
+        return RandomStringUtils.random(length, true, false);
     }
 
     public String generateNumber(int length) {
         return RandomStringUtils.random(length, false, true);
     }
-    public int generatNumberInBound( int start, int end){
+
+    public int generatNumberInBound(int start, int end) {
         Random rand = new Random();
-        int random_integer = rand.nextInt(end-start) + start;
+        int random_integer = rand.nextInt(end - start) + start;
         return random_integer;
     }
-    
+
     /**
      * Returns a list of all the countries in the phoneCodes.json file as Strings.
      * @return a List of all the countries in the phoneCodes.json file
      */
     public List<String> getCountryList() {
-		JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json");
-		Iterator<String> it = data.fieldNames();
-		List<String> countries = new ArrayList<>();
-		while(it.hasNext()) {
-			countries.add(it.next());
-		}
+        JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json");
+        Iterator<String> it = data.fieldNames();
+        List<String> countries = new ArrayList<>();
+        while (it.hasNext()) {
+            countries.add(it.next());
+        }
         return countries;
     }
 
-	/**
-	 * @return a random country
-	 */
-	public String randomCountry() {
-		List<String> countries = getCountryList();
-		return countries.get(new Random().nextInt(0, countries.size()));
-	}    
-    
+    /**
+     * @return a random country
+     */
+    public String randomCountry() {
+        List<String> countries = getCountryList();
+        return countries.get(new Random().nextInt(0, countries.size()));
+    }
+
     /**
      * Returns the phone code for a given country name as a String
      * @param country the name of the country to get the code for
      * @return the phone code for the given country, or null if it is not found
      */
     public String getPhoneCode(String country) {
-    	JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
-    	return data.asText();
+        JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
+        return data.asText();
     }
-    
+
     /**
      * Returns the country code for a given country name as a String
      * @param country the name of the country to get the code for
      * @return the country code for the given country, or null if it is not found
      */
     public String getCountryCode(String country) {
-    	JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
-    	return data.asText();
+        JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
+        return data.asText();
     }
-    
+
     public static class UniqueRng implements Iterator<Integer> {
         private List<Integer> numbers = new ArrayList<>();
 
@@ -104,14 +105,15 @@ public class DataGenerator {
         }
         return list;
     }
-    public List<Integer> randomListNumberCanDuplicate(int maximum){
+
+    public List<Integer> randomListNumberCanDuplicate(int maximum) {
         List<Integer> listNumber = new ArrayList<>();
-        for (int i=0; i<maximum ; i++){
-            listNumber.add(generatNumberInBound(1,maximum));
+        for (int i = 0; i < maximum; i++) {
+            listNumber.add(generatNumberInBound(1, maximum));
         }
         return listNumber;
     }
-    
+
     /**
      * Generates a random number with the specified number of digits using the current epoch time as a seed.
      * @param numberOfDigits the number of digits in the random number to be generated
@@ -130,8 +132,9 @@ public class DataGenerator {
     }
 
 
-    public String generateDateTime(String dateFormat) {
-        return DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now());
+    public String generateDateTime(String dateFormat, int... plusDate) {
+        int plusDay = plusDate.length == 0 ? 0 : plusDate[0];
+        return DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.now().plusDays(plusDay));
     }
 
     /**
@@ -173,7 +176,7 @@ public class DataGenerator {
         }
 
         // generate random data for variation map
-        for (int i = 0; i < numberOfVariationValue.size(); i ++) {
+        for (int i = 0; i < numberOfVariationValue.size(); i++) {
             map.put("var%s".formatted(i + 1), generateListString(i + 1, numberOfVariationValue.get(i)));
         }
 
@@ -190,7 +193,7 @@ public class DataGenerator {
         List<String> mixedVariationValueList = new ArrayList<>();
         for (String var1 : variationValueList1) {
             for (String var2 : variationValueList2) {
-                mixedVariationValueList.add("%s|%s_%s".formatted(var1, language,  var2));
+                mixedVariationValueList.add("%s|%s_%s".formatted(var1, language, var2));
             }
         }
         return mixedVariationValueList;
@@ -221,44 +224,44 @@ public class DataGenerator {
      * Generates a Vietnamese phone number based on Epoch time
      * @return a {@code String} representing the randomly generated phone number
      */
-	public String randomVNPhone() {
-		String phone = randomNumberGeneratedFromEpochTime(10);
-		String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
-		if (phone.matches("^0[1-9]\\d+")) {
-			return phone;
-		} 
-		if (phone.matches("^(0|[1-9])0\\d+")) {
-			return "0" + nonZeroDigit + phone.substring(2);
-		} 
-		if (phone.matches("^[1-9][1-9]\\d+")) {
-			return "0" + phone.substring(1);
-		}
-		return phone;
-	}	 
-	
+    public String randomVNPhone() {
+        String phone = randomNumberGeneratedFromEpochTime(10);
+        String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
+        if (phone.matches("^0[1-9]\\d+")) {
+            return phone;
+        }
+        if (phone.matches("^(0|[1-9])0\\d+")) {
+            return "0" + nonZeroDigit + phone.substring(2);
+        }
+        if (phone.matches("^[1-9][1-9]\\d+")) {
+            return "0" + phone.substring(1);
+        }
+        return phone;
+    }
+
     /**
      * Generates a foreign phone number based on Epoch time
      * @return a {@code String} representing the randomly generated phone number
      */
-	public String randomForeignPhone() {
-		String phone = randomNumberGeneratedFromEpochTime(10);
-		String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
-		if (phone.matches("^[1-9]\\d+")) {
-			return phone;
-		} 
-		if (phone.matches("^0\\d+")) {
-			return nonZeroDigit + phone.substring(1);
-		}
-		return phone;
-	}
-	
-	/**
-	 * Generates a random phone number based on the specified country
-	 * @param country a {@code String} representing the name of the country
-	 * @return a {@code String} representing the randomly generated phone number
-	 */
-	public String randomPhoneByCountry(String country) {
-		return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
-	}	
-    
+    public String randomForeignPhone() {
+        String phone = randomNumberGeneratedFromEpochTime(10);
+        String nonZeroDigit = String.valueOf(generatNumberInBound(1, 10));
+        if (phone.matches("^[1-9]\\d+")) {
+            return phone;
+        }
+        if (phone.matches("^0\\d+")) {
+            return nonZeroDigit + phone.substring(1);
+        }
+        return phone;
+    }
+
+    /**
+     * Generates a random phone number based on the specified country
+     * @param country a {@code String} representing the name of the country
+     * @return a {@code String} representing the randomly generated phone number
+     */
+    public String randomPhoneByCountry(String country) {
+        return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
+    }
+
 }

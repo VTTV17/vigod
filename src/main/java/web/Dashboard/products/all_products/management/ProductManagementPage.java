@@ -167,6 +167,9 @@ public class ProductManagementPage extends ProductManagementElement {
         // check create product
         checkCreateProduct(manualCollectionIds);
 
+        // check enable product lot
+        checkEnableProductLot();
+
         // check view product detail
         if (!allProducts.getListProduct().getProductIds().isEmpty())
             productPage.checkProductManagementPermission(permissions, createdProductId, manualCollectionIds);
@@ -422,5 +425,32 @@ public class ProductManagementPage extends ProductManagementElement {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productPage.getLoc_btnDeleteVariation()), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Delete variation.");
+    }
+
+    void checkEnableProductLot() {
+        // navigate to product list
+        navigateToProductListPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+        if (permissions.getProduct().getLotDate().isEnableProductLot()) {
+            // manage selected product by lot date
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_ddlListActions, 10, loc_dlgConfirmManageProductByLotDate),
+                    "Can not open confirm manage product by lot-date popup.");
+
+            // close confirm popup
+            if (!commonAction.getListElement(loc_dlgConfirmManageProductByLotDate).isEmpty()) {
+                commonAction.closePopup(loc_dlgConfirmManageProductByLotDate_btnYes);
+            }
+
+        } else {
+            // if staff don’t have permission “Enable product lot”
+            // => show popup restricted
+            // when select action “Manage product by lot” in product list
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 10),
+                    "Restricted popup is not shown.");
+        }
+
+        logger.info("Check permission: Product >> Lot-date >> Enable product lot.");
     }
 }

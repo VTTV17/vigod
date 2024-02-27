@@ -246,7 +246,7 @@ public class AllPermissions {
 
         // parse Product - LotDate
         String lotDatePermission = getBinaryPermissionString(payloadJson, "staffPermissions[\"product-lotDate\"]");
-        product.getLotDate().setViewALotList(checkPermission(lotDatePermission, 0));
+        product.getLotDate().setViewLotList(checkPermission(lotDatePermission, 0));
         product.getLotDate().setViewLotDetail(checkPermission(lotDatePermission, 1));
         product.getLotDate().setCreateLot(checkPermission(lotDatePermission, 2));
         product.getLotDate().setEditLot(checkPermission(lotDatePermission, 3));
