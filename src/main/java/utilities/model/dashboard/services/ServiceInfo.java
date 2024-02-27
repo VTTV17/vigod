@@ -16,4 +16,5 @@ public class ServiceInfo {
     private boolean isActive;
     private boolean isEnableListing = false;
     private int serviceId;
+    private int serviceModelId;
 }

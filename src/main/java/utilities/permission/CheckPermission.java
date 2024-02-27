@@ -101,7 +101,16 @@ public class CheckPermission {
             return false;
         }
     }
-
+    public boolean checkAccessedSuccessfully(String url, By destinationLocator) {
+        driver.get(url);
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        try {
+            commonAction.getElement(destinationLocator);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
+    }
     /**
      * Use: check input has value or not.
      * @param url: use url to navigate to page

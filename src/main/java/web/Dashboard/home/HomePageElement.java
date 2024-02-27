@@ -58,7 +58,7 @@ public class HomePageElement {
     By loc_btnLanguage = By.cssSelector("div.language-selector > button");
     By loc_lst_btnLanguages = By.cssSelector("button.uik-select__option");
     By loc_dlgSalePitch = By.cssSelector(".gs-sale-pitch_content");
-    By loc_lblToastMessage = By.cssSelector(".Toastify__toast-body");
+    public By loc_lblToastMessage = By.cssSelector(".Toastify__toast-body");
     By loc_toastMessage_btnClose = By.cssSelector(".Toastify__close-button");
     By loc_imgFacebookBubble = By.id("fb-root");
     By loc_stnStatistics = By.cssSelector(".statistic");

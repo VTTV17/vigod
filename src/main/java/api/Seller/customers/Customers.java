@@ -187,7 +187,7 @@ public class Customers {
     }
 
     public List<String> getAllAccountCustomer() {
-        return getAllCustomerJsonPath().getList("findAll { it.guest == false }.fullName");
+        return getAllCustomerJsonPath().getList("findAll { it.guest == false }.fullNa me");
     }
 
     /**

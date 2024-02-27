@@ -207,6 +207,16 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnCreateService, "/service/create"), "[Failed] Service page not show.");
 			commons.sleepInMiliSecond(200);
 			checkPermissionViewCollection();
+			try {
+				new CreateServicePage(driver).createServiceWhenHasPermission();
+				commons.waitForElementVisible(commons.getElement(createServiceUI.loc_dlgNotification_lblMessage));
+				String message= commons.getText(createServiceUI.loc_dlgNotification_lblMessage);
+				String createSuccessfullyMess = PropertiesUtil.getPropertiesValueByDBLang("services.create.successullyMessage");
+				assertCustomize.assertEquals(message,createSuccessfullyMess,"[Failed] Successfull message should be show," +
+						"but '%s' is shown.".formatted(message));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 		else
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateService), "[Failed] Restricted page or modal not show when click create service.");
