@@ -390,6 +390,8 @@ public class APIAllProducts {
         private List<String> barcodes;
         private List<Long> remainingStocks;
         private List<String> inventoryManageTypes;
+        private List<Boolean> hasLots;
+        private List<Boolean> hasLocations;
     }
 
     Response getSuggestionResponse(int pageIndex, int branchId) {
@@ -411,6 +413,8 @@ public class APIAllProducts {
         List<String> barcodes = new ArrayList<>();
         List<String> remainingStocks = new ArrayList<>();
         List<String> inventoryManageTypes = new ArrayList<>();
+        List<Boolean> hasLots = new ArrayList<>();
+        List<Boolean> hasLocations = new ArrayList<>();
 
         // get total products
         int totalOfProducts = Integer.parseInt(getSuggestionResponse(0, branchId).getHeader("X-Total-Count"));
@@ -420,13 +424,15 @@ public class APIAllProducts {
 
         // get other page data
         for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
-            Response suggestProducts = getSuggestionResponse(pageIndex, branchId);
-            itemIds.addAll(suggestProducts.jsonPath().getList("itemId"));
-            modelIds.addAll(suggestProducts.jsonPath().getList("modelId"));
-            itemNames.addAll(suggestProducts.jsonPath().getList("itemName"));
-            barcodes.addAll(suggestProducts.jsonPath().getList("barcode"));
-            remainingStocks.addAll(suggestProducts.jsonPath().getList("modelStock"));
-            inventoryManageTypes.addAll(suggestProducts.jsonPath().getList("inventoryManageType"));
+            JsonPath jsonPath = getSuggestionResponse(pageIndex, branchId).jsonPath();
+            itemIds.addAll(jsonPath.getList("itemId"));
+            modelIds.addAll(jsonPath.getList("modelId"));
+            itemNames.addAll(jsonPath.getList("itemName"));
+            barcodes.addAll(jsonPath.getList("barcode"));
+            remainingStocks.addAll(jsonPath.getList("modelStock"));
+            inventoryManageTypes.addAll(jsonPath.getList("inventoryManageType"));
+            hasLots.addAll(jsonPath.getList("hasLot"));
+            hasLocations.addAll(jsonPath.getList("hasLocation"));
         }
 
         // set suggestion info
@@ -436,6 +442,8 @@ public class APIAllProducts {
         info.setBarcodes(barcodes);
         info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
         info.setInventoryManageTypes(inventoryManageTypes);
+        info.setHasLots(hasLots);
+        info.setHasLocations(hasLocations);
 
         // return suggestion model
         return info;
