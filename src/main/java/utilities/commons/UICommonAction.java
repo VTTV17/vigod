@@ -1002,4 +1002,12 @@ public class UICommonAction {
     public WebDriverWait getWait(int miliSeconds) {
         return new WebDriverWait(driver, Duration.ofMillis(miliSeconds));
     }
+    public void selectByIndex(By locator, int index) {
+        WebElement element = getElement(locator);
+        waitTillSelectDropdownHasData(element);
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        Select select = new Select(element);
+        select.selectByIndex(index);
+    }
+
 }

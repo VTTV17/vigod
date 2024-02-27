@@ -255,25 +255,38 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
 //        commonAction.sleepInMiliSecond(5000);
         return new ServiceCollectionManagement(driver);
     }
-    public ServiceCollectionManagement createServiceCollection(ServiceCollectionsInfo serviceCollectionsInfo) throws Exception {
+    public CreateServiceCollection onlyCreateServiceCollection(ServiceCollectionsInfo serviceCollectionsInfo){
         inputCollectionName(serviceCollectionsInfo.getCollectionName());
         uploadImages(FileNameAndPath.FILE_NAME_IMAGE_SERVICE_COLLECTION_1);
-        selectCollectionType(serviceCollectionsInfo.getCollectionType());
+        try {
+            selectCollectionType(serviceCollectionsInfo.getCollectionType());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if(serviceCollectionsInfo.getCollectionType().equalsIgnoreCase(Constant.MANUAL_OPTION)){
             if(serviceCollectionsInfo.getServiceList().length>0){
                 selectServiceWithKeyword(serviceCollectionsInfo.getServiceList());
                 if(serviceCollectionsInfo.isInputPriority()){
                     servicePriorityMap = inputPriority(serviceCollectionsInfo.isSetPriorityForAll(),serviceCollectionsInfo.isSetDuplicatePriority());
                     clickOnSaveBTN(); //tap outside
-                }}
+                }
+            }
         }else {
-            selectConditionType(serviceCollectionsInfo.getConditionType());
+            try {
+                selectConditionType(serviceCollectionsInfo.getConditionType());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             selectCondition(false,serviceCollectionsInfo.getAutomatedConditions());
         }
         if(serviceCollectionsInfo.isInputSEO()){
             inputSEOInfo(serviceCollectionsInfo);
         }
         clickOnSaveBTN();
+        return this;
+    }
+    public ServiceCollectionManagement createServiceCollection(ServiceCollectionsInfo serviceCollectionsInfo)  {
+        onlyCreateServiceCollection(serviceCollectionsInfo);
         clickOnClose();
         new HomePage(driver).waitTillSpinnerDisappear1();
         return new ServiceCollectionManagement(driver);
@@ -395,4 +408,5 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         Assert.assertEquals(commonAction.getText(loc_lblUrlLink), PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.create.URLLinkLbl"));
         return this;
     }
+
 }

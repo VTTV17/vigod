@@ -12,7 +12,10 @@ import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import utilities.assert_customize.AssertCustomize;
+import utilities.constant.Constant;
+import utilities.data.DataGenerator;
 import utilities.links.Links;
+import utilities.model.dashboard.services.ServiceCollectionsInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -223,8 +226,25 @@ public class ServiceCollectionManagement {
 	}
 	public void checkPermissionCreateCollection(){
 		navigateToServiceCollectUrl();
-		if(allPermissions.getService().getServiceCollection().isCreateCollection())
+		if(allPermissions.getService().getServiceCollection().isCreateCollection()) {
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnCreateServiceCollection, "/collection_service/create/SERVICE"), "[Failed] Create service collection page not show.");
+			String randomText = new DataGenerator().generateString(10);
+			String serviceCollectionName = "Collection service starts with " + randomText;
+			String[] condition = new String[]{Constant.SERVICE_TITLE + "-" + Constant.STARTS_WITH + "-" + randomText};
+			ServiceCollectionsInfo serviceCollectionsInfo = new ServiceCollectionsInfo();
+			serviceCollectionsInfo.setCollectionName(serviceCollectionName);
+			serviceCollectionsInfo.setCollectionType(Constant.AUTOMATED_OPTION);
+			serviceCollectionsInfo.setConditionType(Constant.ALL_CONDITION);
+			serviceCollectionsInfo.setAutomatedConditions(condition);
+			new CreateServiceCollection(driver).onlyCreateServiceCollection(serviceCollectionsInfo);
+			String modelMessage = commonAction.getText(new CreateServiceCollection(driver).loc_dlgNotification_lblMessage);
+			try {
+				assertCustomize.assertEquals(modelMessage,PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.create.successMessage"),
+						"[Failed] Create successfully message should be shown, but '%s'".formatted(modelMessage));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 		else
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateServiceCollection), "[Failed] Restricted page or modal not show when click create service collection.");
 		logger.info("Verified permission Create collection.");

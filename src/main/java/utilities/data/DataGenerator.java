@@ -263,5 +263,15 @@ public class DataGenerator {
     public String randomPhoneByCountry(String country) {
         return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
     }
-
+    public String getCurrentDate(String format){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
+    }
+    public String getFutureDate(String format, long xDayFromCurrentDate){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        LocalDateTime now = LocalDateTime.now();
+        now = now.plusDays(xDayFromCurrentDate);
+        return dtf.format(now);
+    }
 }
