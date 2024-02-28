@@ -257,10 +257,10 @@ public class AllPermissions {
         // parse Product - Location
         String locationPermission = getBinaryPermissionString(payloadJson, "staffPermissions[\"product-location\"]");
         product.getLocation().setViewLocationList(checkPermission(locationPermission, 0));
-        product.getLocation().setViewLocationList(checkPermission(locationPermission, 1));
-        product.getLocation().setViewLocationList(checkPermission(locationPermission, 2));
-        product.getLocation().setViewLocationList(checkPermission(locationPermission, 3));
-        product.getLocation().setViewLocationList(checkPermission(locationPermission, 4));
+        product.getLocation().setViewLocationDetail(checkPermission(locationPermission, 1));
+        product.getLocation().setAddLocation(checkPermission(locationPermission, 2));
+        product.getLocation().setEditLocation(checkPermission(locationPermission, 3));
+        product.getLocation().setDeleteLocation(checkPermission(locationPermission, 4));
 
         // parse Product - Location receipt
         String locationReceiptPermission = getBinaryPermissionString(payloadJson, "staffPermissions[\"product-locationReceipt\"]");
