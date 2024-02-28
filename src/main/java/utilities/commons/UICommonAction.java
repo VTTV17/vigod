@@ -810,6 +810,13 @@ public class UICommonAction {
         }
     }
 
+    public void removeAttribute(By locator, int index, String attribute) {
+        if (!getListElement(locator).isEmpty()) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].removeAttribute('%s')".formatted(attribute),
+                    getElement(locator, index));
+        }
+    }
+
     public void removeElement(By locator) {
         if (!getListElement(locator).isEmpty())
             ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
