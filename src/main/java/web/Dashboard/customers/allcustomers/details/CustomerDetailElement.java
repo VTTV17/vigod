@@ -16,4 +16,18 @@ public class CustomerDetailElement {
     By loc_txtCity = By.id("city");
     By loc_txtZipcode = By.id("zipCode");
     By loc_btnCancel = By.cssSelector(".btn-cancel");
+    By loc_btnSave = By.xpath("//button[contains(@class,'btn-save') and not(contains(@class,'gs-atm--disable'))]");
+    By loc_btnStatus = By.cssSelector(".button-user-status button");
+    By loc_ddlStatus = By.cssSelector(".dropdown_item_select");
+    By loc_btnAssignPartner = By.cssSelector("#dropdownPartnerButton");
+    By loc_ddlAssignPartner = By.cssSelector(".partner-item-list");
+    By loc_ddlStaff = By.cssSelector("#responsibleStaffUserId");
+    By loc_ddlStaffOption = By.cssSelector("#responsibleStaffUserId option");
+    By loc_btnConfirmPayment = By.id("btn-print");
+    By loc_dlgConfirmPayment = By.cssSelector(".confirmation-payment-modal");
+    By loc_txtNote = By.id("note");
+    By loc_txtCompany = By.id("companyName");
+    By loc_txtBankBranch = By.id("bankBranchName");
+    By loc_tabGeneral = By.xpath("//img[contains(@src, 'ico-general.svg')]/parent::*");
+    By loc_tabBank = By.xpath("//img[contains(@src, 'credit-card.svg')]/parent::*");
 }

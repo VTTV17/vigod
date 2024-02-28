@@ -143,9 +143,88 @@ public class CustomerDetails extends HomePage {
         verifyZipCode(zipCode);
         return this;
     }
+
+    public void clickGeneralInfoTab(){
+    	commonAction.click(elements.loc_tabGeneral);
+    	logger.info("Clicked on General Info tab");
+    }     
+    
+    public void clickBankInfoTab(){
+    	commonAction.click(elements.loc_tabBank);
+    	logger.info("Clicked on bank tab");
+    }     
+    
+    public void inputNote(String note){
+    	commonAction.inputText(elements.loc_txtNote, note);
+    	logger.info("Input Note: " + note);
+    }    
+    
+    public void inputCompanyName(String company){
+    	commonAction.inputText(elements.loc_txtCompany, company);
+    	logger.info("Input Company: " + company);
+    }    
+    
+    public void inputBankBranchName(String bankBranch){
+    	commonAction.inputText(elements.loc_txtBankBranch, bankBranch);
+    	logger.info("Input Bank Branch Name: " + bankBranch);
+    }    
     
     public void clickCancelBtn(){
     	commonAction.click(elements.loc_btnCancel);
         logger.info("Clicked on Cancel button");
     }    
+    
+    public void clickSaveBtn(){
+    	commonAction.click(elements.loc_btnSave);
+    	logger.info("Clicked on Save button");
+    }    
+    
+    //Updating needed
+    public void selectRandomStatus(){
+    	commonAction.clickJS(elements.loc_btnStatus);
+    	commonAction.clickJS(elements.loc_ddlStatus);
+    	logger.info("Clicked on a random status");
+    }    
+    //Updating needed
+    public void selectRandomStaff(){
+    	commonAction.click(elements.loc_ddlStaff);
+    	commonAction.click(elements.loc_ddlStaffOption);
+    	logger.info("Clicked on a random staff");
+    }    
+    //Updating needed
+    public void selectRandomPartner(){
+    	for (int i=0; i<5; i++) {
+    		commonAction.clickJS(elements.loc_btnAssignPartner);
+    		if (isAssignPartnerListExpanded()) break;
+    	}
+    	commonAction.click(elements.loc_ddlAssignPartner);
+    	logger.info("Clicked on a random partner");
+    }    
+    //Updating needed
+    public boolean isAssignPartnerListExpanded(){
+    	commonAction.sleepInMiliSecond(500, "Wait a little isAssignPartnerListExpanded");
+    	boolean expanded = commonAction.getAttribute(elements.loc_btnAssignPartner, "aria-expanded").equals("true");
+    	logger.info("isAssignPartnerListExpanded: " + expanded);
+    	return expanded;
+    }    
+    
+    public String getSelectedStatus(){
+    	String text = commonAction.getText(elements.loc_ddlStatus);
+    	logger.info("Retrieved selected status: " + text);
+    	return text;
+    }    
+    
+    public void clickConfirmPaymentBtn(){
+    	commonAction.clickActions(elements.loc_btnConfirmPayment);
+    	logger.info("Clicked on Confirm Payment button");
+    }    
+    
+    public boolean isPaymentConfirmationDialogDisplayed(){
+    	commonAction.sleepInMiliSecond(1000, "Wait for payment confirmation dialog to appear");
+    	boolean isDisplayed = !commonAction.getElements(elements.loc_dlgConfirmPayment).isEmpty();
+    	logger.info("isPaymentConfirmationDialogDisplayed: " + isDisplayed);
+    	return isDisplayed;
+    }  
+    
+    
 }

@@ -646,7 +646,7 @@ public class UICommonAction {
         }
     }
 
-    private void clickActions(By locator) {
+    public void clickActions(By locator) {
         hoverActions(locator);
         actions.click().build().perform();
     }

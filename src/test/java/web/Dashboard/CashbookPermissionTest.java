@@ -121,15 +121,8 @@ public class CashbookPermissionTest extends BaseTest {
 	}
 	
 	String getActiveBranchName(BranchManagement branchManagementAPI) {
-		BranchInfo branchInfo = branchManagementAPI.getInfo();
-		
-		List<String> allBranchNames = branchInfo.getBranchName();
-		List<String> activeBranchNames = branchInfo.getActiveBranches();
-		
-		for (String branch : activeBranchNames) {
-			if (allBranchNames.indexOf(branch) >-1) return branch;
-		}
-		return null;
+		List<String> activeBranchNames = branchManagementAPI.getInfo().getActiveBranches();
+		return activeBranchNames.isEmpty() ? null : activeBranchNames.get(0);
 	}
 	
 	int getActiveBranchId(BranchManagement branchManagementAPI) {
