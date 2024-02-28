@@ -42,20 +42,26 @@ public class Customers {
 
     @Data
     public class CustomerManagementInfo {
+    	List<String> customerName = new ArrayList<>();
         List<Integer> customerId = new ArrayList<>();
-        List<Integer> userId = new ArrayList<>();
-        List<Integer> debtAmount = new ArrayList<>();
+        List<String> userId = new ArrayList<>();
+        List<Integer> totalOrder = new ArrayList<>();
+        List<Float> debtAmount = new ArrayList<>();
         List<String> saleChannel = new ArrayList<>();
+        List<Integer> responsibleStaffUserId = new ArrayList<>();
     }    
     public CustomerManagementInfo getCustomerManagementInfo() {
     	
     	JsonPath jsonResponse = getAllCustomerJsonPath();
     	
     	CustomerManagementInfo info = new CustomerManagementInfo();
+    	info.setCustomerName(jsonResponse.getList("fullName"));
     	info.setCustomerId(jsonResponse.getList("id"));
     	info.setUserId(jsonResponse.getList("userId"));
+    	info.setTotalOrder(jsonResponse.getList("totalOrder"));
     	info.setDebtAmount(jsonResponse.getList("orderDebtSummary"));
     	info.setSaleChannel(jsonResponse.getList("saleChannel"));
+    	info.setResponsibleStaffUserId(jsonResponse.getList("responsibleStaffUserId"));
 
         return info;
     }    
