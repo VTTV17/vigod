@@ -165,6 +165,7 @@ public class LocationPage extends LocationElement {
                     "Can not open add new location popup.");
 
             addNewLocation();
+            logger.info("Check create new location.");
 
             // add a new child location
             if (!commonAction.getListElement(loc_imgActions).isEmpty()) {
@@ -174,6 +175,7 @@ public class LocationPage extends LocationElement {
                         "Can not open add new child location popup.");
 
                 addNewLocation();
+                logger.info("Check create new child location.");
             }
 
         } else {

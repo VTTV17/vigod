@@ -391,14 +391,14 @@ public class UICommonAction {
         Actions action = new Actions(driver);
         action.moveToElement(element).build().perform();
     }
-    
+
     // This function will soon be deleted
     public boolean isElementVisiblyDisabled(WebElement element) {
         return element.getAttribute("class").contains("gs-atm--disable");
     }
-    
+
     public boolean isElementVisiblyDisabled(By locator) {
-    	return getAttribute(locator, "class").contains("gs-atm--disable");
+        return getAttribute(locator, "class").contains("gs-atm--disable");
     }
 
     public int waitTillSelectDropdownHasData(WebElement element) {
@@ -646,7 +646,7 @@ public class UICommonAction {
         }
     }
 
-    private void clickActions(By locator) {
+    public void clickActions(By locator) {
         hoverActions(locator);
         actions.click().build().perform();
     }
@@ -888,7 +888,7 @@ public class UICommonAction {
     public void closePopup(By locator) {
         try {
             clickJS(locator);
-        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException | TimeoutException ignore) {
         }
 
         try {
@@ -901,7 +901,7 @@ public class UICommonAction {
     public void closePopup(By locator, By popup) {
         try {
             clickJS(locator);
-        } catch (StaleElementReferenceException | NoSuchElementException ignore) {
+        } catch (StaleElementReferenceException | NoSuchElementException | TimeoutException ignore) {
         }
 
         try {

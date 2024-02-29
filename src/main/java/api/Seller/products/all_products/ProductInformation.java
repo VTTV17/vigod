@@ -272,11 +272,13 @@ public class ProductInformation {
             prdInfo.setCollectionIdList(collectionIDList);
 
             Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();
-            for (int colID : collectionIDList) {
-                Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), loginInfo.getAccessToken());
-                collectionLanguage.then().statusCode(200);
-                JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
-                collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
+            if (!collectionIDList.isEmpty()) {
+                for (int colID : collectionIDList) {
+                    Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), loginInfo.getAccessToken());
+                    collectionLanguage.then().statusCode(200);
+                    JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
+                    collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
+                }
             }
 
             // set collection name map

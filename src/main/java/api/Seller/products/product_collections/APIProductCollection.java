@@ -18,13 +18,15 @@ public class APIProductCollection {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    public APIProductCollection(LoginInformation loginInformation){
+
+    public APIProductCollection(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
 
     public String DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH = "itemservice/api/collections/delete/%s/%s";
     public String DASHBOARD_PRODUCT_COLLECTION_LIST_PATH = "itemservice/api/collections/list/%s?page=%s&size=100&itemType=BUSINESS_PRODUCT&search=";
+
     @Data
     static
     public class CollectionInfo {
@@ -34,8 +36,9 @@ public class APIProductCollection {
     }
 
     public Response getCollectionListResponse(int pageIndex) {
-        return api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), pageIndex),loginInfo.getAccessToken());
+        return api.get(DASHBOARD_PRODUCT_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken());
     }
+
     public CollectionInfo getCollectionInfo() {
         CollectionInfo info = new CollectionInfo();
 
@@ -51,7 +54,7 @@ public class APIProductCollection {
         List<String> collectionNames = new ArrayList<>();
         List<String> collectionTypes = new ArrayList<>();
 
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex ++) {
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
             collectionListResponse = getCollectionListResponse(pageIndex)
                     .then()
                     .statusCode(200)
@@ -68,12 +71,15 @@ public class APIProductCollection {
 
         return info;
     }
-    public int getNewestCollectionID(){
-       return getCollectionInfo().getCollectionIds().get(0);
+
+    public int getNewestCollectionID() {
+        return getCollectionInfo().getCollectionIds().get(0);
     }
-    public void deleteCollection(String collectionID){
-        api.delete(DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionID),loginInfo.getAccessToken());
+
+    public void deleteCollection(String collectionID) {
+        api.delete(DASHBOARD_DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(), collectionID), loginInfo.getAccessToken());
     }
+
     public CollectionInfo getManualCollection() {
         CollectionInfo info = getCollectionInfo();
         List<Integer> collectionIds = new ArrayList<>();
@@ -91,6 +97,7 @@ public class APIProductCollection {
     }
 
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/%s";
+
     public int createCollection(ProductInfo... productInfo) {
         String productName = productInfo.length > 0 ? productInfo[0].getDefaultProductNameMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage()) : "auto";
         String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
@@ -125,18 +132,21 @@ public class APIProductCollection {
     }
 
     String DELETE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/delete/%s/%s";
-    public void deleteCollection(int collectionId){
-        api.delete(DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(),collectionId),loginInfo.getAccessToken());
+
+    public void deleteCollection(int collectionId) {
+        api.delete(DELETE_PRODUCT_COLLECTION_PATH.formatted(loginInfo.getStoreID(), collectionId), loginInfo.getAccessToken());
     }
 
     String GET_PRODUCT_COLLECTION = "/itemservice/api/collections/products/%s";
+
     public List<Integer> getProductListCollectionIds(int productID) {
-        return api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken())
+        return (productID != 0)
+                ? api.get(GET_PRODUCT_COLLECTION.formatted(productID), loginInfo.getAccessToken())
                 .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList("id");
+                .getList("id")
+                : new ArrayList<>();
     }
-
 }

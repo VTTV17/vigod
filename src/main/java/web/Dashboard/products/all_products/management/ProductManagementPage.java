@@ -16,6 +16,7 @@ import web.Dashboard.products.all_products.crud.ProductPage;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -119,12 +120,12 @@ public class ProductManagementPage extends ProductManagementElement {
         }
 
         // complete update price
-        commonAction.closePopup(loc_dlgUpdatePrice_btnUpdate);
+        commonAction.click(loc_dlgUpdatePrice_btnUpdate);
     }
 
     // check permission
     // ticket: https://mediastep.atlassian.net/browse/BH-13814
-    public void checkProductManagementPermission(AllPermissions permissions, int createdProductId, int notCreatedProductId, List<Integer> manualCollectionIds) throws Exception {
+    public void checkProductManagementPermission(AllPermissions permissions, int createdProductId, int notCreatedProductId) throws Exception {
         APIAllProducts allProducts = new APIAllProducts(loginInformation);
         // get staff permission
         this.permissions = permissions;
@@ -162,17 +163,17 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // check edit price
             checkEditPrice();
+
+            // check enable product lot
+            checkEnableProductLot();
         }
 
         // check create product
-        checkCreateProduct(manualCollectionIds);
-
-        // check enable product lot
-        checkEnableProductLot();
+        checkCreateProduct();
 
         // check view product detail
         if (!allProducts.getListProduct().getProductIds().isEmpty())
-            productPage.checkProductManagementPermission(permissions, createdProductId, manualCollectionIds);
+            productPage.checkProductManagementPermission(permissions, createdProductId);
     }
 
     /**
@@ -228,7 +229,7 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Check permission: Product >> Product management >> Deactivate product.");
     }
 
-    void checkCreateProduct(List<Integer> manualCollectionIds) throws Exception {
+    void checkCreateProduct() throws Exception {
         // navigate to product list
         navigateToProductListPage();
 
@@ -238,10 +239,10 @@ public class ProductManagementPage extends ProductManagementElement {
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnCreateProduct, "/create"), "[Failed] Create product page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
 
             // check view list collection
-            productPage.checkViewCollectionList(manualCollectionIds);
+            checkViewCollectionList();
 
             // check create list collection
-            productPage.checkCreateCollection(manualCollectionIds);
+            checkCreateCollection();
 
             // check add/delete variation
             checkAddVariation();
@@ -452,5 +453,45 @@ public class ProductManagementPage extends ProductManagementElement {
         }
 
         logger.info("Check permission: Product >> Lot-date >> Enable product lot.");
+    }
+
+    public void checkViewCollectionList() {
+        // get current url
+        String currentURL = driver.getCurrentUrl();
+
+        // check collection permission
+        if (permissions.getProduct().getCollection().isViewCollectionList()) {
+            assertCustomize.assertTrue(!commonAction.getListElement(productPage.loc_cntNoCollection).isEmpty(), "Can not found any product collection.");
+        }
+        logger.info("Check permission: Product >> Collection >> View collection list.");
+
+        // back to previous page
+        driver.get(currentURL);
+    }
+
+    public void checkCreateCollection() {
+        // get current url
+        String currentURL = driver.getCurrentUrl();
+
+        // check create collection permission
+        if (!permissions.getProduct().getCollection().isViewCollectionList()) {
+            // open confirm popup
+            commonAction.click(productPage.loc_lnkCreateCollection);
+
+            // check permission
+            if (permissions.getProduct().getCollection().isCreateCollection()) {
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(productPage.loc_dlgConfirm_btnNo, "/collection/create/product/PRODUCT"),
+                        "Can not navigate to create product collection page.");
+            } else {
+                // Show restricted popup
+                // when click on [Create product collection] button in Collection management page
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productPage.loc_dlgConfirm_btnNo), "No restricted popup is shown.");
+            }
+        }
+
+        logger.info("Check permission: Product >> Collection >> Create collection.");
+
+        // back to previous page
+        driver.get(currentURL);
     }
 }

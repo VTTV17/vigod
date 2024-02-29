@@ -2575,7 +2575,7 @@ public class ProductPage extends ProductPageElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
 
-    public void checkProductManagementPermission(AllPermissions permissions, int productId, List<Integer> manualCollectionIds) {
+    public void checkProductManagementPermission(AllPermissions permissions, int productId) {
         // get staff permission
         this.permissions = permissions;
 
@@ -2583,11 +2583,11 @@ public class ProductPage extends ProductPageElement {
         checkPermission = new CheckPermission(driver);
 
         // check view product detail
-        checkViewProductDetail(productId, manualCollectionIds);
+        checkViewProductDetail(productId);
     }
 
     int productId;
-    void checkViewProductDetail(int productId, List<Integer> manualCollectionIds) {
+    void checkViewProductDetail(int productId) {
         // check view product detail permission
         if (permissions.getProduct().getProductManagement().isViewProductDetail()) {
             // get product information
@@ -2600,7 +2600,9 @@ public class ProductPage extends ProductPageElement {
             navigateToProductDetailById(productId);
 
             // check edit product and related permission
-            checkEditProduct(manualCollectionIds);
+            List<Integer> productCollectionIds = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
+            System.out.println(productCollectionIds);
+            checkEditProduct(productCollectionIds);
 
             // check view cost price
             checkViewCostPrice();
@@ -2609,12 +2611,13 @@ public class ProductPage extends ProductPageElement {
         logger.info("Check permission: Product >> Product management >> View product detail.");
     }
 
-    public void checkViewCollectionList(List<Integer> manualCollectionIds) {
+    public void checkViewCollectionList(List<Integer> productCollectionIds, AllPermissions... staffPermission) {
+        AllPermissions permission = staffPermission.length == 0 ? this.permissions : staffPermission[0];
         // get current url
         String currentURL = driver.getCurrentUrl();
 
         // check collection permission
-        if (permissions.getProduct().getCollection().isViewCollectionList() && !manualCollectionIds.isEmpty()) {
+        if (permission.getProduct().getCollection().isViewCollectionList() && !productCollectionIds.isEmpty()) {
             assertCustomize.assertTrue(!commonAction.getListElement(loc_cntNoCollection).isEmpty(), "Can not found any product collection.");
         }
         logger.info("Check permission: Product >> Collection >> View collection list.");
@@ -2623,17 +2626,18 @@ public class ProductPage extends ProductPageElement {
         driver.get(currentURL);
     }
 
-    public void checkCreateCollection(List<Integer> manualCollectionIds) {
+    public void checkCreateCollection(List<Integer> manualCollectionIds, AllPermissions... staffPermission) {
+        AllPermissions permission = staffPermission.length == 0 ? this.permissions : staffPermission[0];
         // get current url
         String currentURL = driver.getCurrentUrl();
 
         // check create collection permission
-        if (!permissions.getProduct().getCollection().isViewCollectionList() || manualCollectionIds.isEmpty()) {
+        if (!permission.getProduct().getCollection().isViewCollectionList() || manualCollectionIds.isEmpty()) {
             // open confirm popup
             commonAction.click(loc_lnkCreateCollection);
 
             // check permission
-            if (permissions.getProduct().getCollection().isCreateCollection()) {
+            if (permission.getProduct().getCollection().isCreateCollection()) {
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirm_btnNo, "/collection/create/product/PRODUCT"),
                         "Can not navigate to create product collection page.");
             } else {
@@ -2649,7 +2653,7 @@ public class ProductPage extends ProductPageElement {
         driver.get(currentURL);
     }
 
-    void checkEditProduct(List<Integer> manualCollectionIds) {
+    void checkEditProduct(List<Integer> productCollectionIds) {
         if (permissions.getProduct().getProductManagement().isEditProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnSave, loc_dlgNotification), "Can not update product.");
 
@@ -2681,10 +2685,10 @@ public class ProductPage extends ProductPageElement {
             checkUpdateStock();
 
             // check view collection list
-            checkViewCollectionList(manualCollectionIds);
+            checkViewCollectionList(productCollectionIds);
 
             // check create collection
-            checkCreateCollection(manualCollectionIds);
+            checkCreateCollection(productCollectionIds);
 
             // check edit price
             checkEditPrice();
