@@ -1,5 +1,6 @@
 package web.Dashboard.promotion.discount;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -30,4 +31,16 @@ public class DiscountElement {
 
     @FindBy(xpath = ".search-input")
     WebElement UI_SEARCH_PLACEHOLDER;
+    By loc_ddlDiscountType = By.xpath("(//button[contains(@class,'btn-secondary')])[1]");
+    By loc_ddlStatus = By.xpath("(//button[contains(@class,'btn-secondary')])[2]");
+    /*
+    0: All Types
+    1: Product Discount Code
+    2: Service Discount Code
+    3: Product Discount Campaign
+    4: Service Discount Campaign
+     */
+    By loc_ddvDiscountType = By.xpath("(//button[contains(@class,'btn-secondary')])[1]/following-sibling::div//button");
+    By loc_lstPromotionName = By.cssSelector(".discount-name");
+
 }

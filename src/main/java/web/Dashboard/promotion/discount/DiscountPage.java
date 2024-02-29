@@ -5,10 +5,13 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import utilities.assert_customize.AssertCustomize;
+import utilities.model.staffPermission.AllPermissions;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.segments.Segments;
@@ -30,12 +33,16 @@ import static utilities.links.Links.DOMAIN;
 public class DiscountPage extends DiscountElement {
     WebDriverWait wait;
     UICommonAction commonAction;
+	AssertCustomize assertCustomize;
+	AllPermissions allPermissions;
 
-    public DiscountPage(WebDriver driver) {
+
+	public DiscountPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-    }
+		assertCustomize = new AssertCustomize(driver);
+	}
 
     Logger logger = LogManager.getLogger(DiscountPage.class);
 
@@ -391,6 +398,53 @@ public class DiscountPage extends DiscountElement {
     	}
     }
     /*-------------------------------------*/   
-    
-    
+    public DiscountPage filterDiscountType(String discountType){
+		commonAction.click(loc_ddlDiscountType);
+		switch (discountType){
+			case "All Types":
+				commonAction.click(loc_ddvDiscountType,0);
+				break;
+			case "Product Discount Code":
+				commonAction.click(loc_ddvDiscountType,1);
+				break;
+			case "Service Discount Code":
+				commonAction.click(loc_ddvDiscountType,2);
+				break;
+			case "Product Discount Campaign":
+				commonAction.click(loc_ddvDiscountType,3);
+				break;
+			case "Service Discount Campaign":
+				commonAction.click(loc_ddvDiscountType,4);
+				break;
+			default:
+				try {
+					throw new Exception("Discount type not found!");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+		}
+		return this;
+	}
+	public DiscountPage navigateUrl(){
+		String url = DOMAIN+"/discounts/list";
+		commonAction.navigateToURL(url);
+		return this;
+	}
+    public DiscountPage checkPermissionViewProductCampaignList(){
+		filterDiscountType("Product Discount Campaign");
+		List<WebElement> promotionList = commonAction.getElements(loc_lstPromotionName);
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
+			assertCustomize.assertTrue(promotionList.size()>0,"[Failed]Product discount campaign not shown.");
+		}else {
+			assertCustomize.assertTrue(promotionList.isEmpty(),
+					"[Failed] Don't have permission view prodcut discount campaign, but promotion list still shown (size=%s".formatted(promotionList.size()));
+		}
+		return this;
+	}
+	public DiscountPage checkPermissionViewProductDiscountCampaignDetail(String productDiscountName){
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()){
+
+		}
+		return this;
+	}
 }

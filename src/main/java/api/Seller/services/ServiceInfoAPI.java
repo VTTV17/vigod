@@ -4,6 +4,7 @@ import api.Seller.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
 
@@ -175,5 +176,16 @@ public class ServiceInfoAPI {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    public ServiceInfo getServiceInfo(int id){
+        Response response = getServiceDetail(id);
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setServiceId(id);
+        serviceInfo.setServiceModelId(response.jsonPath().getInt("models[0].id"));
+        serviceInfo.setServiceName(response.jsonPath().getString("name"));
+        serviceInfo.setServiceDescription(response.jsonPath().getString("description"));
+        serviceInfo.setSellingPrice((int)response.jsonPath().getDouble("newPrice"));
+        serviceInfo.setListingPrice((int)response.jsonPath().getDouble("orgPrice"));
+        return serviceInfo;
     }
 }
