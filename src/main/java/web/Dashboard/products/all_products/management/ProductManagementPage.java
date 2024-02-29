@@ -16,7 +16,6 @@ import web.Dashboard.products.all_products.crud.ProductPage;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 

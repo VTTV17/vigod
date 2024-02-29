@@ -607,6 +607,9 @@ public class UICommonAction {
         common for POM modals
      */
     public List<WebElement> getListElement(By locator) {
+        try {
+            getWait(1000).until(ExpectedConditions.presenceOfElementLocated(locator));
+        } catch (TimeoutException ignore) {}
         return driver.findElements(locator).isEmpty()
                 ? driver.findElements(locator)
                 : wait.until(presenceOfAllElementsLocatedBy(locator));

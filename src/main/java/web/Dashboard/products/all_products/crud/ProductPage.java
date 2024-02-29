@@ -2601,7 +2601,6 @@ public class ProductPage extends ProductPageElement {
 
             // check edit product and related permission
             List<Integer> productCollectionIds = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
-            System.out.println(productCollectionIds);
             checkEditProduct(productCollectionIds);
 
             // check view cost price
@@ -2626,13 +2625,13 @@ public class ProductPage extends ProductPageElement {
         driver.get(currentURL);
     }
 
-    public void checkCreateCollection(List<Integer> manualCollectionIds, AllPermissions... staffPermission) {
+    public void checkCreateCollection(List<Integer> productCollectionIds, AllPermissions... staffPermission) {
         AllPermissions permission = staffPermission.length == 0 ? this.permissions : staffPermission[0];
         // get current url
         String currentURL = driver.getCurrentUrl();
 
         // check create collection permission
-        if (!permission.getProduct().getCollection().isViewCollectionList() || manualCollectionIds.isEmpty()) {
+        if (!permission.getProduct().getCollection().isViewCollectionList() && productCollectionIds.isEmpty()) {
             // open confirm popup
             commonAction.click(loc_lnkCreateCollection);
 
@@ -2739,7 +2738,8 @@ public class ProductPage extends ProductPageElement {
         navigateToProductDetailById(productId);
 
         // check permission
-        if (!permissions.getProduct().getLotDate().isEnableProductLot()) {
+        if (!permissions.getProduct().getLotDate().isEnableProductLot()
+                && commonAction.getListElement(loc_cntManageByIMEI).isEmpty()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkManageStockByLotDate), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Enable product.");
