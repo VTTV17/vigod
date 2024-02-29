@@ -188,8 +188,8 @@ public class ProductPageElement {
     By loc_ttlUpdatePrice = By.cssSelector(".modal-title");
     By loc_dlgUpdatePrice_ddvSelectedPriceType = By.cssSelector(".modal-body .uik-select__valueWrapper");
     By loc_dlgUpdatePrice_ddlPriceType = By.cssSelector(".uik-select__optionList");
-    By loc_txtListingPrice_0 = By.xpath("//*[@name = '0-orgPrice']/parent::div/parent::div/preceding-sibling::input");
-    By loc_txtCostPrice_0 = By.xpath("//*[@name = '0-costPrice']/parent::div/parent::div/preceding-sibling::input");
+    By loc_txtVariationListingPrice = By.xpath("//*[contains(@name,'orgPrice')]/parent::div/parent::div/preceding-sibling::input");
+    By loc_txtVariationCostPrice = By.xpath("//*[contains(@name, 'costPrice')]/parent::div/parent::div/preceding-sibling::input");
     /**
      * <p>0: Listing price</p>
      * <p>1: Selling price</p>

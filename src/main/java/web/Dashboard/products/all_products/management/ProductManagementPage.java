@@ -48,6 +48,8 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void openBulkActionsDropdown() {
+        if (commonAction.getListElement(loc_tblProductManagement_productRow).isEmpty())
+            driver.navigate().refresh();
         if (!commonAction.isCheckedJS(loc_chkSelectAll)) {
             commonAction.clickJS(loc_chkSelectAll);
         }

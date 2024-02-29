@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.openqa.selenium.By;
 
 public class ProductManagementElement {
+    By loc_tblProductManagement_productRow = By.cssSelector(".gs-table-body-items");
     @Getter
     By loc_btnCreateProduct = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[1]");
     By loc_btnExport = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[2]");
