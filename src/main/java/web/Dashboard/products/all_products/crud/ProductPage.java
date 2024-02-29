@@ -2740,9 +2740,9 @@ public class ProductPage extends ProductPageElement {
         navigateToProductDetailById(productId);
 
         // check permission
-        if (!permissions.getProduct().getLotDate().isEnableProductLot()
-                && commonAction.getListElement(loc_chkManageStockByLotDate).isEmpty()
-                && !commonAction.isCheckedJS(loc_chkManageStockByLotDate)) {
+        if (!(permissions.getProduct().getLotDate().isEnableProductLot()
+                || commonAction.getListElement(loc_chkManageStockByLotDate).isEmpty()
+                || commonAction.isCheckedJS(loc_chkManageStockByLotDate))) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkManageStockByLotDate), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Enable product.");
