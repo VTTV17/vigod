@@ -2797,6 +2797,9 @@ public class ProductPage extends ProductPageElement {
         // navigate to product detail page
         navigateToProductDetailById(productId);
 
+        // get current productInfo
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+
         // check permission
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("INACTIVE")) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeactivate), "Restricted popup is not shown.");
@@ -2810,6 +2813,9 @@ public class ProductPage extends ProductPageElement {
     void checkDeactivateProduct() {
         // navigate to product detail page
         navigateToProductDetailById(productId);
+
+        // get current product info
+        productInfo = new ProductInformation(loginInformation).getInfo(productId);
 
         // check permission
         if (!permissions.getProduct().getProductManagement().isDeactivateProduct() && productInfo.getBhStatus().equals("ACTIVE")) {
@@ -2850,7 +2856,7 @@ public class ProductPage extends ProductPageElement {
         navigateToProductDetailById(productId);
 
         // check permission
-        if (permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
+        if (!permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
             assertCustomize.assertTrue((productInfo.isHasModel() ? commonAction.getValue(loc_txtCostPrice_0) : commonAction.getValue(loc_txtWithoutVariationCostPrice)).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
         }
         logger.info("Check permission: Product >> Product management >> View cost price.");

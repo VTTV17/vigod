@@ -792,8 +792,14 @@ public class UICommonAction {
             waitVisibilityOfElementLocated(locator, index);
             getElement(locator, index).sendKeys(clearChars);
         }
-        if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
-            clear(locator, index);
+        try {
+            if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
+                clear(locator, index);
+            }
+        } catch (StaleElementReferenceException ex) {
+            if (!getElement(locator, index).getText().isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
+                clear(locator, index);
+            }
         }
     }
 
