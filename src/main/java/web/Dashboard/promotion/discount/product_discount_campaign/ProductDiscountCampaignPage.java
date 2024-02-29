@@ -10,6 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.links.Links;
 import web.Dashboard.promotion.discount.DiscountPage;
 import utilities.commons.UICommonAction;
 
@@ -398,5 +399,11 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
         logger.info("Create a new product discount campaign successfully");
+    }
+    public ProductDiscountCampaignPage navigateUrl(String promotionId){
+        String url = Links.DOMAIN + "/discounts/detail/WHOLE_SALE/" + promotionId;
+        commonAction.navigateToURL(url);
+        logger.info("Navigate to url: "+url);
+        return this;
     }
 }

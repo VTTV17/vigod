@@ -89,6 +89,7 @@ public class CheckServicePermissionTest extends BaseTest {
         new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
         staffLoginInfo = new Login().getInfo(staffCredentials);
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        System.out.println(allPermissions.getService().getServiceManagement());
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName,staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);

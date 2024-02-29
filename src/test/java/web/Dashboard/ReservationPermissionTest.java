@@ -207,22 +207,17 @@ public class ReservationPermissionTest extends BaseTest {
         if(customerAssignedToStaffs.size()==0)
             customerAPI.assignStaffToCustomer(staffUserId,customerIdNotAssigneds.get(0));
         String customerNameAssignedStaff = customerAPI.getNamesOfCustomersAssignedToStaff(staffUserId).get(0);
-
         //Create group permission
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, setPermissionPOSModel(POSPermissionBinary));
         //get staff login info
         staffLoginInfo = new Login().getInfo(staffCredentials);
         //Get permission
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
-
-        //Edit a permisison
-//        permissionAPI.editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission", "Description", setPermissionPOSModel(POSPermissionBinary));
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new POSCreateReservation(driver,staffCredentials)
                 .checkPermissionPOSService(allPermissions,customerNameAssignedStaff,customerNameNotAssignedStaff)
                 .completeVerifyStaffPermissionPOSService();
-
     }
 }
