@@ -33,10 +33,17 @@ public class LotDateManagementPage extends LotDateManagementElement {
     AllPermissions permissions;
     AssertCustomize assertCustomize;
     CheckPermission checkPermission;
-    APILotDate lotDate;
     LotDatePage lotDatePage;
+    LoginInformation staffLoginInformation;
+    LoginInformation sellerLoginInformation;
+    public LotDateManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.staffLoginInformation = staffLoginInformation;
+        this.sellerLoginInformation = sellerLoginInformation;
 
-    public void checkLotDatePermission(AllPermissions permissions, LoginInformation loginInformation, LotDateManagementInfo info) {
+        return this;
+    }
+
+    public void checkLotDatePermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
@@ -46,13 +53,11 @@ public class LotDateManagementPage extends LotDateManagementElement {
         // init assert customize
         assertCustomize = new AssertCustomize(driver);
 
-        // init product lot-date API
-        lotDate = new APILotDate(loginInformation);
-
         // init lot-date page
         lotDatePage = new LotDatePage(driver);
 
         // check view lot list
+        LotDateManagementInfo info = new APILotDate(sellerLoginInformation).getLotDateInformation();
         checkViewLotList(info);
 
         // check view lot detail
@@ -74,7 +79,7 @@ public class LotDateManagementPage extends LotDateManagementElement {
     }
 
     void checkViewLotList(LotDateManagementInfo info) {
-        List<Integer> lotDateIds = lotDate.getLotDateInformation().getLotDateIds();
+        List<Integer> lotDateIds = new APILotDate(staffLoginInformation).getLotDateInformation().getLotDateIds();
         if (permissions.getProduct().getLotDate().isViewLotList()) {
             // check list lot-date
             assertCustomize.assertTrue(CollectionUtils.isEqualCollection(info.getLotDateIds(), lotDateIds),

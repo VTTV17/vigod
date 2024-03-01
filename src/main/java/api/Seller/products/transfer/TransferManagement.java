@@ -31,7 +31,11 @@ public class TransferManagement {
     }
 
     Response getTransferResponse(int page) {
-        return api.get(getAllTransferPath.formatted(loginInfo.getStoreID(), page), loginInfo.getAccessToken());
+        return api.get(getAllTransferPath.formatted(loginInfo.getStoreID(), page), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
     }
 
     public TransferInfo getAllTransferInfo() {
@@ -52,11 +56,7 @@ public class TransferManagement {
 
         // get all inventory
         for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
-            JsonPath jPath = getTransferResponse(pageIndex)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .jsonPath();
+            JsonPath jPath = getTransferResponse(pageIndex).jsonPath();
             ids.addAll(jPath.getList("id"));
             originBranchIds.addAll(jPath.getList("originBranchId"));
             destinationBranchIds.addAll(jPath.getList("destinationBranchId"));

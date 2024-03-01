@@ -245,11 +245,11 @@ public class ProductReviews extends ProductReviewElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
-    LoginInformation loginInformation;
+    LoginInformation staffLoginInformation;
     APIProductReviews productReviews;
 
-    public ProductReviews getLoginInformation(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
+    public ProductReviews getLoginInformation(LoginInformation staffLoginInformation) {
+        this.staffLoginInformation = staffLoginInformation;
         return this;
     }
 
@@ -264,7 +264,7 @@ public class ProductReviews extends ProductReviewElement {
         assertCustomize = new AssertCustomize(driver);
 
         // init product reviews API
-        productReviews = new APIProductReviews(loginInformation);
+        productReviews = new APIProductReviews(staffLoginInformation);
 
         // check view review
         checkViewReview();

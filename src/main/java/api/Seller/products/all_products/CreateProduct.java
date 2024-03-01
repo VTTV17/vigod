@@ -97,7 +97,7 @@ public class CreateProduct {
         private String productDescription;
         private String currency = "đ";
         private ShippingInfo shippingInfo;
-        private int taxId;
+        private String taxId;
         private boolean showOutOfStock = true;
         private boolean hideStock;
         private boolean lotAvailable;
@@ -141,7 +141,8 @@ public class CreateProduct {
         info.setShippingInfo(shippingInfo);
 
         // set taxId
-        info.setTaxId(taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size())));
+        String taxId = taxInfo.getTaxID().isEmpty() ? "" : String.valueOf(taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size())));
+        info.setTaxId(taxId);
 
         // init SEO data
         SeoInfo seoInfo = getSeoInfo();
@@ -435,7 +436,7 @@ public class CreateProduct {
                 productInfo.getSeoInfo().getSeoURL(),
                 productInfo.getSeoInfo().getSeoKeywords(),
                 productInfo.getPriority(),
-                productInfo.getTaxId(),
+                productInfo.getTaxId().isEmpty() ? "\"\"" : productInfo.getTaxId(),
                 productInfo.isShowOutOfStock(),
                 productInfo.isHideStock(),
                 productInfo.isLotAvailable(),

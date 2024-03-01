@@ -1,5 +1,6 @@
 package web.Dashboard.products.inventory;
 
+import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.inventory.Inventory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,23 +73,26 @@ public class InventoryPage extends InventoryElement {
     // check permission
     // https://mediastep.atlassian.net/browse/BH-13841
     AllPermissions permissions;
-    LoginInformation loginInformation;
+    LoginInformation staffLoginInformation;
+    LoginInformation sellerLoginInformation;
     AssertCustomize assertCustomize;
     CheckPermission checkPermission;
 
-    void checkViewProductInventory(Inventory inventory, AllPermissions permissions, int notCreatedProductId, int createdProductId) {
+    void checkViewProductInventory(AllPermissions permissions, List<Integer> dbProductList, int notCreatedProductId, int createdProductId) {
         navigateToInventoryPage();
 
         // GET the product inventory from API.
-        List<Integer> dbProductList = inventory.getInventoryInformation().getProductIds();
         if (permissions.getProduct().getInventory().isViewProductInventory()) {
-            List<Integer> checkData = List.of(createdProductId, notCreatedProductId);
-            assertCustomize.assertTrue(new HashSet<>(dbProductList).containsAll(checkData), "[Failed] List inventory must be contains: %s, but found list product: %s.".formatted(checkData.toString(), dbProductList.toString()));
+            List<Integer> checkData = (createdProductId != 0)
+                    ? List.of(createdProductId, notCreatedProductId)
+                    : List.of(notCreatedProductId);
+            assertCustomize.assertTrue(new HashSet<>(dbProductList).containsAll(checkData), "List inventory must be contains: %s, but found list product: %s.".formatted(checkData.toString(), dbProductList.toString()));
         } else if (permissions.getProduct().getInventory().isViewCreatedProductInventory()) {
-            assertCustomize.assertTrue(new HashSet<>(dbProductList).contains(createdProductId), "[Failed] List inventory must be contains: %s, but found list product: %s.".formatted(createdProductId, dbProductList.toString()));
-            assertCustomize.assertFalse(new HashSet<>(dbProductList).contains(notCreatedProductId), "[Failed] List inventory must not contains: %s, but found list product: %s.".formatted(notCreatedProductId, dbProductList.toString()));
+            if (createdProductId != 0)
+                assertCustomize.assertTrue(new HashSet<>(dbProductList).contains(createdProductId), "List inventory must be contains: %s, but found list product: %s.".formatted(createdProductId, dbProductList.toString()));
+            assertCustomize.assertFalse(new HashSet<>(dbProductList).contains(notCreatedProductId), "List inventory must not contains: %s, but found list product: %s.".formatted(notCreatedProductId, dbProductList.toString()));
         } else {
-            assertCustomize.assertTrue(dbProductList.isEmpty(), "[Failed] All inventory must be hidden, but found: %s.".formatted(dbProductList.toString()));
+            assertCustomize.assertTrue(dbProductList.isEmpty(), "All inventory must be hidden, but found: %s.".formatted(dbProductList.toString()));
         }
         logger.info("Check permission: Product >> Inventory >> View product inventory.");
         logger.info("Check permission: Product >> Product management >> View created product inventory.");
@@ -108,9 +112,7 @@ public class InventoryPage extends InventoryElement {
         logger.info("Check permission: Product >> Inventory >> View Inventory history.");
     }
 
-    void checkUpdateStock(Inventory inventory) {
-        // GET the product inventory from API.
-        List<Integer> dbProductList = inventory.getInventoryInformation().getProductIds();
+    void checkUpdateStock(List<Integer> dbProductList) {
         if (!dbProductList.isEmpty()) {
             navigateToInventoryPage();
             if (permissions.getProduct().getInventory().isUpdateStock()) {
@@ -123,8 +125,14 @@ public class InventoryPage extends InventoryElement {
         logger.info("Check permission: Product >> Inventory >> Update stock.");
     }
 
+    public InventoryPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.staffLoginInformation = staffLoginInformation;
+        this.sellerLoginInformation = sellerLoginInformation;
+        return this;
+    }
 
-    public void checkInventoryPermission(LoginInformation loginInformation, AllPermissions permissions, int notCreatedProductId, int createdProductId) {
+
+    public void checkInventoryPermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
@@ -134,20 +142,25 @@ public class InventoryPage extends InventoryElement {
         // init customize assert
         this.assertCustomize = new AssertCustomize(driver);
 
-        // get login information
-        this.loginInformation = loginInformation;
+        // get productId is created by staff
+        int createdProductId = permissions.getProduct().getProductManagement().isCreateProduct()
+                ? new CreateProduct(staffLoginInformation).createWithoutVariationProduct(false, 1000).getProductID()
+                : 0;
 
-        // init Inventory API
-        Inventory inventory = new Inventory(loginInformation);
+        // get productId is created by seller
+        int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
+
+        // get list productId in inventory
+        List<Integer> dbProductList = new Inventory(staffLoginInformation).getInventoryInformation().getProductIds();
 
         // check view product inventory
-        checkViewProductInventory(inventory, permissions, notCreatedProductId, createdProductId);
+        checkViewProductInventory(permissions, dbProductList, notCreatedProductId, createdProductId);
 
         // check view inventory history
         checkViewInventoryHistory();
 
         // check update stock
-        checkUpdateStock(inventory);
+        checkUpdateStock(dbProductList);
     }
 
 }

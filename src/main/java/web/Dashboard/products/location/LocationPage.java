@@ -112,9 +112,14 @@ public class LocationPage extends LocationElement {
     AllPermissions permissions;
     AssertCustomize assertCustomize;
     CheckPermission checkPermission;
-    APILocation location;
+    LoginInformation staffLoginInformation;
 
-    public void checkLocationPermission(AllPermissions permissions, LoginInformation loginInformation) {
+    public LocationPage getLoginInformation(LoginInformation staffLoginInformation) {
+        this.staffLoginInformation = staffLoginInformation;
+        return this;
+    }
+
+    public void checkLocationPermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
@@ -123,9 +128,6 @@ public class LocationPage extends LocationElement {
 
         // init assert customize
         assertCustomize = new AssertCustomize(driver);
-
-        // init product lot-date API
-        location = new APILocation(loginInformation);
 
         // check view location list
         checkViewLocationList();
@@ -143,7 +145,7 @@ public class LocationPage extends LocationElement {
 
     void checkViewLocationList() {
         navigateToLocationPage();
-        int statusCode = location.getAllLocationResponse().statusCode();
+        int statusCode = new APILocation(staffLoginInformation).getAllLocationResponse().statusCode();
 
         if (permissions.getProduct().getLocation().isViewLocationList()) {
             // check list lot-date

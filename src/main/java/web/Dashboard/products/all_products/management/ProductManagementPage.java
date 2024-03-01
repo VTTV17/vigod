@@ -1,6 +1,7 @@
 package web.Dashboard.products.all_products.management;
 
 import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.CreateProduct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Keys;
@@ -26,20 +27,26 @@ import static utilities.links.Links.DOMAIN;
 public class ProductManagementPage extends ProductManagementElement {
     Logger logger = LogManager.getLogger(ProductManagementPage.class);
     WebDriver driver;
-    LoginInformation loginInformation;
+    LoginInformation staffLoginInformation;
+    LoginInformation sellerLoginInformation;
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
     UICommonAction commonAction;
     ProductPage productPage;
 
-    public ProductManagementPage(WebDriver driver, LoginInformation loginInformation) {
+    public ProductManagementPage(WebDriver driver) {
         this.driver = driver;
-        this.loginInformation = loginInformation;
         checkPermission = new CheckPermission(driver);
         commonAction = new UICommonAction(driver);
-        productPage = new ProductPage(driver, loginInformation);
         assertCustomize = new AssertCustomize(driver);
+    }
+
+    public ProductManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        this.staffLoginInformation = staffLoginInformation;
+        productPage = new ProductPage(driver, staffLoginInformation);
+        return this;
     }
 
     void navigateToProductListPage() {
@@ -126,18 +133,31 @@ public class ProductManagementPage extends ProductManagementElement {
 
     // check permission
     // ticket: https://mediastep.atlassian.net/browse/BH-13814
-    public void checkProductManagementPermission(AllPermissions permissions, int createdProductId, int notCreatedProductId) throws Exception {
-        APIAllProducts allProducts = new APIAllProducts(loginInformation);
+    public void checkProductManagementPermission(AllPermissions permissions) throws Exception {
         // get staff permission
         this.permissions = permissions;
 
         // init commons check no permission
         checkPermission = new CheckPermission(driver);
 
-        // check view product list
-        checkViewProductList(allProducts, createdProductId, notCreatedProductId);
+        // get productId is created by staff
+        int createdProductId = permissions.getProduct().getProductManagement().isCreateProduct()
+                ? new CreateProduct(staffLoginInformation).createWithoutVariationProduct(false, 1000).getProductID()
+                : 0;
 
-        if (permissions.getProduct().getProductManagement().isViewProductList() || permissions.getProduct().getProductManagement().isViewCreatedProductList()) {
+        // get productId is created by seller
+        int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
+
+        // get list product ids
+        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getListProduct().getProductIds();
+
+        // check view product list
+        checkViewProductList(productIds, createdProductId, notCreatedProductId);
+
+        // check create product
+        checkCreateProduct();
+
+        if (!productIds.isEmpty()) {
             // check clear stock
             checkClearStock();
 
@@ -167,34 +187,32 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // check enable product lot
             checkEnableProductLot();
+
+            // check view product detail
+            productPage.checkProductManagementPermission(permissions, productIds.get(0));
         }
-
-        // check create product
-        checkCreateProduct();
-
-        // check view product detail
-        if (!allProducts.getListProduct().getProductIds().isEmpty())
-            productPage.checkProductManagementPermission(permissions, createdProductId);
     }
 
-    /**
-     * @param createdProductId    product is created by staff.
-     * @param notCreatedProductId product is created by owner or other staff.
-     */
-    void checkViewProductList(APIAllProducts allProducts, int createdProductId, int notCreatedProductId) {
+    void checkViewProductList(List<Integer> dbProductList, int createdProductId, int notCreatedProductId) {
         // navigate to product list
         navigateToProductListPage();
 
         // GET the product list from API.
-        List<Integer> dbProductList = allProducts.getListProduct().getProductIds();
         if (permissions.getProduct().getProductManagement().isViewProductList()) {
-            List<Integer> checkData = List.of(createdProductId, notCreatedProductId);
-            assertCustomize.assertTrue(new HashSet<>(dbProductList).containsAll(checkData), "[Failed] List product must be contains: %s, but found list product: %s.".formatted(checkData.toString(), dbProductList.toString()));
+            List<Integer> checkData = (createdProductId != 0)
+                    ? List.of(createdProductId, notCreatedProductId)
+                    : List.of(notCreatedProductId);
+            assertCustomize.assertTrue(new HashSet<>(dbProductList).containsAll(checkData),
+                    "List product must be contains: %s, but found list product: %s.".formatted(checkData.toString(), dbProductList.toString()));
         } else if (permissions.getProduct().getProductManagement().isViewCreatedProductList()) {
-            assertCustomize.assertTrue(new HashSet<>(dbProductList).contains(createdProductId), "[Failed] List product must be contains: %s, but found list product: %s.".formatted(createdProductId, dbProductList.toString()));
-            assertCustomize.assertFalse(new HashSet<>(dbProductList).contains(notCreatedProductId), "[Failed] List product must not contains: %s, but found list product: %s.".formatted(notCreatedProductId, dbProductList.toString()));
+            if (createdProductId != 0)
+                assertCustomize.assertTrue(new HashSet<>(dbProductList).contains(createdProductId),
+                        "List product must be contains: %s, but found list product: %s.".formatted(createdProductId, dbProductList.toString()));
+            assertCustomize.assertFalse(new HashSet<>(dbProductList).contains(notCreatedProductId),
+                    "List product must not contains: %s, but found list product: %s.".formatted(notCreatedProductId, dbProductList.toString()));
         } else {
-            assertCustomize.assertTrue(dbProductList.isEmpty(), "[Failed] All products must be hidden, but found: %s.".formatted(dbProductList.toString()));
+            assertCustomize.assertTrue(dbProductList.isEmpty(),
+                    "All products must be hidden, but found: %s.".formatted(dbProductList.toString()));
         }
         logger.info("Check permission: Product >> Product management >> View product list.");
         logger.info("Check permission: Product >> Product management >> View created product list.");
@@ -237,7 +255,7 @@ public class ProductManagementPage extends ProductManagementElement {
         // check create product permission
         if (permissions.getProduct().getProductManagement().isCreateProduct()) {
             // check create product page
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnCreateProduct, "/create"), "[Failed] Create product page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnCreateProduct, "/create"), "Create product page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
 
             // check view list collection
             checkViewCollectionList();
@@ -252,7 +270,8 @@ public class ProductManagementPage extends ProductManagementElement {
             driver.navigate().refresh();
             productPage.createWithoutVariationProduct(false, 1);
         } else {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateProduct), "[Failed] Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateProduct),
+                    "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
         }
         logger.info("Check permission: Product >> Product management >> Create product.");
     }

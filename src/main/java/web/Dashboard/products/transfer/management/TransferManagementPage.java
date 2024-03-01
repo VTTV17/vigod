@@ -26,9 +26,9 @@ public class TransferManagementPage extends TransferManagementElement {
     WebDriver driver;
     TransferPage transferPage;
     UICommonAction commonAction;
-    LoginInformation loginInformation;
+    LoginInformation staffLoginInformation;
+    LoginInformation sellerLoginInformation;
     LoginDashboardInfo loginInfo;
-    TransferManagement transferManagement;
 
     public TransferManagementPage(WebDriver driver) {
         this.driver = driver;
@@ -36,9 +36,10 @@ public class TransferManagementPage extends TransferManagementElement {
         commonAction = new UICommonAction(driver);
     }
 
-    public TransferManagementPage getLoginInformation(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
+    public TransferManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.staffLoginInformation = staffLoginInformation;
+        this.sellerLoginInformation = sellerLoginInformation;
+        loginInfo = new Login().getInfo(staffLoginInformation);
         return this;
     }
 
@@ -48,7 +49,7 @@ public class TransferManagementPage extends TransferManagementElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
-    public void checkTransferPermission(AllPermissions permissions, TransferInfo transferInfo) throws Exception {
+    public void checkTransferPermission(AllPermissions permissions) throws Exception {
         // get staff permission
         this.permissions = permissions;
 
@@ -58,11 +59,8 @@ public class TransferManagementPage extends TransferManagementElement {
         // init transfer page PO
         transferPage = new TransferPage(driver);
 
-        // init transfer management API
-        transferManagement = new TransferManagement(loginInformation);
-
         // init branch management API
-        BranchManagement branchManagement = new BranchManagement(loginInformation);
+        BranchManagement branchManagement = new BranchManagement(staffLoginInformation);
 
         // get assigned branches
         List<Integer> assignedBranchIds = (loginInfo.getAssignedBranchesIds() != null)
@@ -70,13 +68,14 @@ public class TransferManagementPage extends TransferManagementElement {
                 : branchManagement.getInfo().getBranchID(); // seller
 
         // check view transfer list
+        TransferInfo transferInfo = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
         checkViewTransferList(assignedBranchIds, transferInfo);
 
         // check create transfer
         checkCreateTransfer();
 
         // check view transfer detail
-        transferPage.checkViewTransferDetail(loginInformation, permissions, assignedBranchIds, transferInfo);
+        transferPage.checkViewTransferDetail(staffLoginInformation, permissions, assignedBranchIds, transferInfo);
     }
 
      void navigateToTransferManagementPage() {
@@ -87,6 +86,9 @@ public class TransferManagementPage extends TransferManagementElement {
     }
 
     void checkViewTransferList(List<Integer> assignedBranchIds, TransferInfo allTransfersInfo) {
+        // init transfer management API
+        TransferManagement transferManagement = new TransferManagement(staffLoginInformation);
+
         // check permission
         if (permissions.getProduct().getTransfer().isViewTransferList()) {
             // list transfer ids that filter from all transfer ids
@@ -116,7 +118,7 @@ public class TransferManagementPage extends TransferManagementElement {
 
         if (permissions.getProduct().getTransfer().isCreateTransfer()) {
             // check can create transfer
-            transferPage.createTransfer(loginInformation);
+            transferPage.createTransfer(staffLoginInformation);
 
             // staff can view transfer detail after created
             if (permissions.getProduct().getTransfer().isViewTransferDetail()) {

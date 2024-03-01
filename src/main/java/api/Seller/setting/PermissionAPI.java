@@ -195,6 +195,9 @@ public class PermissionAPI {
      * @return The ID of the newly created permission group.
      */
     public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, CreatePermission model) {
+        // delete all permission group that are not assigned to staff
+        deleteNoAssignedPermissionGroup();
+
         int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
         //Remove all permission groups from the staff
         removeAllGroupPermissionsFromStaff(staffId);

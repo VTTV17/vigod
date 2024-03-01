@@ -109,12 +109,12 @@ public class InventoryHistoryPage extends InventoryHistoryElement {
             navigateToExportInventoryHistoryPage(inventoryPage);
 
             // check download exported product
-            checkDownloadExportedProduct(permissions, assertCustomize, checkPermission, inventoryPage);
+            checkDownloadExportedProduct(permissions, assertCustomize, checkPermission);
         }
         logger.info("Check permission: Product >> Inventory >> Export inventory history.");
     }
 
-    void checkDownloadExportedProduct(AllPermissions permissions, AssertCustomize assertCustomize, CheckPermission checkPermission, InventoryPage inventoryPage) {
+    void checkDownloadExportedProduct(AllPermissions permissions, AssertCustomize assertCustomize, CheckPermission checkPermission) {
         if (!permissions.getProduct().getInventory().isDownloadExportedProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnDownloadExportedFile, 0), "Restricted popup is not shown.");
         } else {

@@ -11,7 +11,7 @@ public class LotDateManagementElement {
     public By loc_dlgAddLotDate_dtpExpiryDate = By.xpath("(//*[contains(@class,'lot-editor-date-input')])[2]");
     public By loc_dlgAddLotDate_btnSave = By.cssSelector(".modal-footer .gs-button__green");
     public By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
-    By loc_icnDelete = By.cssSelector(".gs-component-tooltip i");
+    By loc_icnDelete = By.xpath("//*[contains(@class, 'gs-action-button')]/ancestor::td/preceding-sibling::td[4]/self::node()[string() = '0']/following-sibling::td//i");
     By loc_dlgConfirmDeleteLot = By.cssSelector(".confirm-modal-delete-lot");
     By loc_dlgConfirmDeleteLot_btnYes = By.cssSelector(".confirm-modal-delete-lot .gs-button__green");
 }

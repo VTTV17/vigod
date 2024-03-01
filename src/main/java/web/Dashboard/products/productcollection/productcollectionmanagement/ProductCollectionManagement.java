@@ -204,14 +204,16 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
-    LoginInformation loginInformation;
+    LoginInformation staffLoginInformation;
+    LoginInformation sellerLoginInformation;
 
-    public ProductCollectionManagement getLoginInformation(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
+    public ProductCollectionManagement getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.staffLoginInformation = staffLoginInformation;
+        this.sellerLoginInformation = sellerLoginInformation;
         return this;
     }
 
-    public void checkProductCollectionPermission(AllPermissions permissions, List<Integer> collectionIds) {
+    public void checkProductCollectionPermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
@@ -225,6 +227,7 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
         checkViewCollectionList();
 
         // check view collection detail
+        List<Integer> collectionIds = new APIProductCollection(sellerLoginInformation).getCollectionInfo().getCollectionIds();
         new EditProductCollection(driver).checkViewCollectionsDetail(permissions, collectionIds);
 
         // check create collection
@@ -245,7 +248,7 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
     }
 
     void checkViewCollectionList() {
-        int statusCode = new APIProductCollection(loginInformation).getCollectionListResponse(0).statusCode();
+        int statusCode = new APIProductCollection(staffLoginInformation).getCollectionListResponse(0).statusCode();
         if (permissions.getProduct().getCollection().isViewCollectionList()) {
             assertCustomize.assertTrue(statusCode == 200,
                     "No product collections shows.");
