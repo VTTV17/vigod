@@ -42,5 +42,7 @@ public class DiscountElement {
      */
     By loc_ddvDiscountType = By.xpath("(//button[contains(@class,'btn-secondary')])[1]/following-sibling::div//button");
     By loc_lstPromotionName = By.cssSelector(".discount-name");
+    By loc_lst_icnEdit = By.cssSelector(".icon-edit");
+    By loc_ddvDiscountStatus = By.xpath("(//button[contains(@class,'btn-secondary')])[2]/following-sibling::div//button");
 
 }
