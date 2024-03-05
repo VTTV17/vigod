@@ -161,6 +161,7 @@ public class UserProfileSFTest extends BaseTest {
     @BeforeMethod
     public void setUp(){
         driver = new InitWebdriver().getDriver(browser,"false");
+        homePage = new HomePage(driver);
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
@@ -324,7 +325,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
-        allCustomers.waitTillSpinnerDisappear();
+        homePage.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, state_Edit, cityInput_Edit, zipCode_Edit)
                 .clickLogout();
@@ -391,7 +392,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
-        allCustomers.waitTillSpinnerDisappear().selectLanguage(languageDb).waitTillSpinnerDisappear1();
+        homePage.waitTillSpinnerDisappear().selectLanguage(languageDb).waitTillSpinnerDisappear1();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
                 .clickLogout();
@@ -409,7 +410,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
-        allCustomers.waitTillSpinnerDisappear();
+        homePage.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, state_Edit, cityInput_Edit, zipCode_Edit)
                 .clickLogout();
@@ -431,7 +432,7 @@ public class UserProfileSFTest extends BaseTest {
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
         allCustomers = new AllCustomers(driver);
-        allCustomers.waitTillSpinnerDisappear();
+        homePage.waitTillSpinnerDisappear();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
                 .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
                 .clickLogout();
