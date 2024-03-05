@@ -69,7 +69,7 @@ public class CustomerPermissionTest extends BaseTest {
 
 	@AfterClass
 	void deletePermissionGroup() {
-//		permissionAPI.deleteGroupPermission(permissionGroupId);
+		permissionAPI.deleteGroupPermission(permissionGroupId);
 		segmentAPI.deleteSegment(segmentDesignatedForEditing);
 	}		
 	
@@ -80,7 +80,7 @@ public class CustomerPermissionTest extends BaseTest {
     }	
 
     void preConditionSetup() {
-    	permissionGroupId = 3329;
+    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);;
     	
 		int staffUserId = new Login().getInfo(staffCredentials).getUserId();
 		
