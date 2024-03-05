@@ -13,7 +13,7 @@ import java.util.List;
 public class SegmentAPI {
 	final static Logger logger = LogManager.getLogger(SegmentAPI.class);
 	
-    String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=50&name.contains=";
+    String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=50&name.contains=&sort=id,desc";
     String DELETE_SEGMENT_PATH = "/beehiveservices/api/segments/delete/%s/%s";
     API api = new API();
 
@@ -48,7 +48,7 @@ public class SegmentAPI {
      * @param segmentId The ID of the segment to be deleted.
      */
     public void deleteSegment(int segmentId) {
-    	new API().delete(DELETE_SEGMENT_PATH.formatted(loginInfo.getStoreID(), segmentId), loginInfo.getAccessToken()).then().statusCode(200);
+    	api.delete(DELETE_SEGMENT_PATH.formatted(loginInfo.getStoreID(), segmentId), loginInfo.getAccessToken()).then().statusCode(200);
     	logger.info("Deleted customer segment with id: " + segmentId);
     }
 
