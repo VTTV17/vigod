@@ -1,5 +1,6 @@
 package web.Dashboard.promotion.discount;
 
+import api.Seller.promotion.ProductDiscountCampaign;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -11,11 +12,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import utilities.assert_customize.AssertCustomize;
+import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.segments.Segments;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignElement;
 import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 import web.Dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
 import web.Dashboard.promotion.discount.servicediscountcampaign.ServiceDiscountCampaignPage;
@@ -35,13 +39,18 @@ public class DiscountPage extends DiscountElement {
     UICommonAction commonAction;
 	AssertCustomize assertCustomize;
 	AllPermissions allPermissions;
-
+	ProductDiscountCampaignElement productDiscountCampaignEl;
+	ServiceDiscountCampaignPage serviceCampaignPage;
+	HomePage homePage;
 
 	public DiscountPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
 		assertCustomize = new AssertCustomize(driver);
+		productDiscountCampaignEl = new ProductDiscountCampaignElement(driver);
+		homePage = new HomePage(driver);
+		serviceCampaignPage = new ServiceDiscountCampaignPage(driver);
 	}
 
     Logger logger = LogManager.getLogger(DiscountPage.class);
@@ -425,6 +434,23 @@ public class DiscountPage extends DiscountElement {
 		}
 		return this;
 	}
+	public DiscountPage filterDiscountStatus(String status){
+		commonAction.click(loc_ddlDiscountType);
+		switch (status){
+			case "All Status" -> commonAction.click(loc_ddvDiscountStatus,0);
+			case "Scheduled" ->	commonAction.click(loc_ddvDiscountStatus,1);
+			case "Expired" -> commonAction.click(loc_ddvDiscountStatus,2);
+			case "In Progress" -> commonAction.click(loc_ddvDiscountStatus,3);
+			default ->{
+				try {
+					throw new Exception("Discount status not found!");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return this;
+	}
 	public DiscountPage navigateUrl(){
 		String url = DOMAIN+"/discounts/list";
 		commonAction.navigateToURL(url);
@@ -441,9 +467,147 @@ public class DiscountPage extends DiscountElement {
 		}
 		return this;
 	}
-	public DiscountPage checkPermissionViewProductDiscountCampaignDetail(String productDiscountName){
-		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()){
+	public DiscountPage checkPermissionViewProductCampaignDetail(int productCampaignScheduledId){
+		String detailUrl = Links.DOMAIN + "/discounts/detail/WHOLE_SALE/" + productCampaignScheduledId;
+		String editUrl = Links.DOMAIN + "/discounts/edit/WHOLE_SALE/" + productCampaignScheduledId;
 
+		// has permission: View product campaign list then click on promotion list.
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
+			navigateUrl();
+			filterDiscountType("Product Discount Campaign");
+			filterDiscountStatus("Scheduled");
+			if(allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
+				//click on promotion name 0 to check access to campaign detail page
+				commonAction.click(loc_lstPromotionName,0);
+				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
+				//click on edit campaign 0 to check access to edit campaign page
+				navigateUrl();
+				commonAction.click(loc_lst_icnEdit,0);
+				name = commonAction.getText(productDiscountCampaignEl.loc_txtCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
+
+			}else {
+				//click on promotion to check
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lstPromotionName,0),
+						"[Failed] Restricted page not shown.");
+				//click on edit icon to check
+				navigateUrl();
+				filterDiscountType("Product Discount Campaign");
+				filterDiscountStatus("Scheduled");
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEdit,0),
+						"[Failed] Restricted page not shown.");
+			}
+		}else { //don't have permission View list, then check by navigate url
+			if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
+				//check navigate to detail page
+				new ProductDiscountCampaignPage(driver).navigateUrl(productCampaignScheduledId);
+				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
+				//check navigate to edit page
+				new ProductDiscountCampaignPage(driver).navigateUrl(productCampaignScheduledId);
+				name = commonAction.getText(productDiscountCampaignEl.loc_txtCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
+			} else {
+				//check navigate to detail page.
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(detailUrl),
+						"[Failed] Restricted page not shown.");
+				//check navigate to edit page
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
+						"[Failed] Restricted page not shown.");
+			}
+		}
+		return this;
+	}
+	public DiscountPage checkPermissionViewServiceCampaignList(){
+		filterDiscountType("Service Discount Campaign");
+		List<WebElement> promotionList = commonAction.getElements(loc_lstPromotionName);
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
+			assertCustomize.assertTrue(promotionList.size()>0,"[Failed]Service discount campaign list not shown.");
+		}else {
+			assertCustomize.assertTrue(promotionList.isEmpty(),
+					"[Failed] Don't have permission view service discount campaign, but promotion list still shown (size=%s".formatted(promotionList.size()));
+		}
+		return this;
+	}
+	public DiscountPage checkPermissionViewServiceCampaignDetail(int serviceCampaignId){
+		String detailUrl = Links.DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/" + serviceCampaignId;
+		String editUrl = Links.DOMAIN + "/discounts/edit/WHOLE_SALE_SERVICE/" + serviceCampaignId;
+
+		// has permission: View product campaign list then click on promotion list.
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignList()){
+			navigateUrl();
+			filterDiscountType("Service Discount Campaign");
+			filterDiscountStatus("Scheduled");
+			if(allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignDetail()) {
+				//click on promotion name 0 to check access to campaign detail page
+				commonAction.click(loc_lstPromotionName,0);
+				String name = commonAction.getText(serviceCampaignPage.loc_detailPage_lblDiscountCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name, but '%s' is shown".formatted(name));
+				//click on edit campaign 0 to check access to edit campaign page
+				navigateUrl();
+				commonAction.click(loc_lst_icnEdit,0);
+				name = commonAction.getText(serviceCampaignPage.loc_txtCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name, but '%s' is shown".formatted(name));
+
+			}else {
+				//click on promotion to check
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lstPromotionName,0),
+						"[Failed] Restricted page not shown.");
+				//click on edit icon to check
+				navigateUrl();
+				filterDiscountType("Service Discount Campaign");
+				filterDiscountStatus("Scheduled");
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEdit,0),
+						"[Failed] Restricted page not shown.");
+			}
+		}else { //don't have permission View list, then check by navigate url
+			if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
+				//check navigate to detail page
+				new ProductDiscountCampaignPage(driver).navigateUrl(serviceCampaignId);
+				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name, but '%s' is shown".formatted(name));
+				//check navigate to edit page
+				new ProductDiscountCampaignPage(driver).navigateUrl(serviceCampaignId);
+				name = commonAction.getText(serviceCampaignPage.loc_txtCampaignName);
+				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name, but '%s' is shown".formatted(name));
+			} else {
+				//check navigate to detail page.
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(detailUrl),
+						"[Failed] Restricted page not shown.");
+				//check navigate to edit page
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
+						"[Failed] Restricted page not shown.");
+			}
+		}
+		return this;
+		//
+//		String editProductCampaignUrl = Links.DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/" + serviceCampaignId;
+//		String serviceDiscountCa
+//		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()){
+//			new ServiceDiscountCampaignPage(driver).navigateUrl(serviceCampaignId);
+//			String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
+//			assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
+//		}else {
+//			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(productDiscountCampaignUrl),
+//					"[Failed] Restricted page not shown.");
+//		}
+//		return this;
+	}
+	public DiscountPage checkPermissionCreateProductCampaign(){
+		if (allPermissions.getPromotion().getDiscountCampaign().isCreateProductDiscountCampaign()){
+			openCreateProductDiscountCampaignPage();
+			homePage.waitTillSpinnerDisappear1();
+			//Check permission View customer segment list.
+			if(allPermissions.getCustomer().getSegment().isViewSegmentList()){
+
+			}
+			//
+			String newProductCampaignName = new ProductDiscountCampaignPage(driver).createDefaultProductCampaign();
+			navigateUrl();
+			String firstPromotion = commonAction.getText(loc_lstPromotionName,0);
+			assertCustomize.assertEquals(firstPromotion,newProductCampaignName,
+					"[Failed]New product discount campaign not show on top.");
 		}
 		return this;
 	}

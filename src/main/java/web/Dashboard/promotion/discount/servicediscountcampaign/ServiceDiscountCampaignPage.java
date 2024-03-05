@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -13,6 +14,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.asserts.SoftAssert;
 
 import utilities.commons.UICommonAction;
+import utilities.links.Links;
+import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 
 public class ServiceDiscountCampaignPage {
 
@@ -34,7 +37,10 @@ public class ServiceDiscountCampaignPage {
 
     @FindBy(css = "fieldset[name ='conditionAppliesTo'] label")
     List<WebElement> APPLIES_TO_LABEL;
-    
+	public By loc_detailPage_lblDiscountCampaignName = By.xpath("(//div[@class = 'row'])[3]/div[2]");
+	public By loc_txtCampaignName = By.cssSelector("input#name");
+
+
 	public ServiceDiscountCampaignPage tickAppliesTo(int optionIndex) {
 		commonAction.waitElementList(APPLIES_TO_LABEL);
 		if (optionIndex ==0) {
@@ -51,6 +57,11 @@ public class ServiceDiscountCampaignPage {
 			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(0));
 		}
 		return this;
-	} 
-    
+	}
+	public ServiceDiscountCampaignPage navigateUrl(int serviceDiscountCampaignId){
+		String url = Links.DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/" + serviceDiscountCampaignId;
+		commonAction.navigateToURL(url);
+		logger.info("Navigate to url: "+url);
+		return this;
+	}
 }
