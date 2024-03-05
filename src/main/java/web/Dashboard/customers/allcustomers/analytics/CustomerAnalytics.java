@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
 import utilities.commons.UICommonAction;
-import web.Dashboard.customers.allcustomers.AllCustomers;
 
 public class CustomerAnalytics {
 	
@@ -34,12 +33,5 @@ public class CustomerAnalytics {
     public void clickUpdate(){
     	commonAction.click(elements.loc_lnkUpdate);
         logger.info("Clicked on 'Update' link text");
-    }    
-    
-    public boolean isPaymentConfirmationDialogDisplayed(){
-    	commonAction.sleepInMiliSecond(1000, "Wait for payment confirmation dialog to appear");
-    	boolean isDisplayed = !commonAction.getElements(elements.loc_dlgConfirmPayment).isEmpty();
-    	logger.info("isPaymentConfirmationDialogDisplayed: " + isDisplayed);
-    	return isDisplayed;
     }    
 }

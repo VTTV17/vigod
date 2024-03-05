@@ -300,8 +300,8 @@ public class HomePage extends HomePageElement {
 
 
     public String getToastMessage() {
-        logger.info("Getting toast message.");
         String message = commons.getText(loc_lblToastMessage);
+        logger.info("Retrieved toast message: " + message);
         commons.click(loc_toastMessage_btnClose);
         return message;
     }
