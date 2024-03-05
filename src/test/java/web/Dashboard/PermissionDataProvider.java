@@ -1092,6 +1092,16 @@ public class PermissionDataProvider {
 		};
 	}
 	
+	@DataProvider
+	public Object[][] discountPermission() {
+		return new Object[][] { 
+			{"0000000000"},
+			{"0000000001"},
+			{"0000000100"},
+			{"0000000101"},
+		};
+	}
+	
 	@DataProvider()
 	public Object[][] serviceCollectionPermissionModel() {
 		return new Object[][]

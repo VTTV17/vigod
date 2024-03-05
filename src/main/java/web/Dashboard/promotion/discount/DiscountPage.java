@@ -1,6 +1,5 @@
 package web.Dashboard.promotion.discount;
 
-import api.Seller.promotion.ProductDiscountCampaign;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -15,6 +14,7 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.segments.Segments;
@@ -29,6 +29,7 @@ import utilities.commons.UICommonAction;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static web.Dashboard.customers.allcustomers.create_customer.CreateCustomerPopup.customerTags;
 import static web.Dashboard.customers.segments.createsegment.CreateSegment.segmentName;
@@ -55,6 +56,16 @@ public class DiscountPage extends DiscountElement {
 
     Logger logger = LogManager.getLogger(DiscountPage.class);
 
+	public String translatePromotionType(String type) {
+		String translatedPromotionType = null;
+		try {
+			translatedPromotionType = PropertiesUtil.getPropertiesValueByDBLang("discount.%s".formatted(type));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return translatedPromotionType;
+	}	    
+    
     /**
      * navigate to discount page
      */
@@ -456,6 +467,51 @@ public class DiscountPage extends DiscountElement {
 		commonAction.navigateToURL(url);
 		return this;
 	}
+	
+    public List<List<String>> getPromotionTable() {
+    	commonAction.sleepInMiliSecond(1000, "Wait a little till promotion list appears"); //Will find a better way to handle this
+        List<List<String>> table = new ArrayList<>();
+        for (int i = 0; i < commonAction.getElements(loc_lstPromotionName).size(); i++) {
+            List<String> rowData = new ArrayList<>();
+            rowData.add(commonAction.getText(loc_lstPromotionName, i));
+            rowData.add(commonAction.getText(loc_lstPromotionType, i));
+            rowData.add(commonAction.getText(loc_lstPromotionActiveDate, i));
+            rowData.add(commonAction.getText(loc_lstPromotionStatus, i));
+            table.add(rowData);
+        }
+        return table;
+    }	
+
+    public void checkPermissionToViewDiscountList(AllPermissions staffPermission) {
+    	navigateUrl(); 
+    	List<List<String>> records = getPromotionTable();
+
+    	for (int i=0; i<2; i++) {
+    		boolean isPermissionGranted;
+    		List<String> promotionType;
+    		String type;
+    		if (i==0) {
+    			type = translatePromotionType("productDiscountCode");
+    			isPermissionGranted = staffPermission.getPromotion().getDiscountCode().isViewProductDiscountCodeList();
+    		} else {
+    			type = translatePromotionType("serviceDiscountCode");
+    			isPermissionGranted = staffPermission.getPromotion().getDiscountCode().isViewServiceDiscountCodeList();
+    		}
+    		promotionType = records.stream().filter(record -> records.size()>0).filter(record -> record.get(1).contains(type)).map(record -> record.get(1)).collect(Collectors.toList());
+    		
+    		if (isPermissionGranted) {
+        		Assert.assertFalse(promotionType.isEmpty(), promotionType.toString());
+    		} else {
+        		Assert.assertTrue(promotionType.isEmpty(), promotionType.toString());
+    		}
+    	}
+    	logger.info("Finished checking permission to view discount list");
+    }    
+    
+    public void checkDiscountPermission(AllPermissions staffPermission) {
+    	checkPermissionToViewDiscountList(staffPermission);
+    }      
+    
     public DiscountPage checkPermissionViewProductCampaignList(){
 		filterDiscountType("Product Discount Campaign");
 		List<WebElement> promotionList = commonAction.getElements(loc_lstPromotionName);
