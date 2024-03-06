@@ -101,4 +101,6 @@ public class ProductDiscountCampaignElement {
     public By loc_cbxApplicableBranch = By.cssSelector("fieldset[name ='conditionAppliesToBranch'] label");
     By loc_btnSelectBranch = By.cssSelector("fieldset[name ='conditionAppliesToBranch'] .gs-fake-link");
     By loc_lst_lblBranchName = By.cssSelector(".branch-name");
+    public By loc_btnSave  = By.cssSelector(".gs-button__green");
+    public By loc_btnEndEarly = By.cssSelector(".discount-campaign__detail .btn-save div");
 }

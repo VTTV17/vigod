@@ -44,6 +44,10 @@ public class ServiceDiscountCampaignPage {
 	public By loc_lst_lblCollectionName = By.cssSelector(".product-name");
 	public By loc_lst_lblServiceName = By.cssSelector(".product-name");
 	public By loc_txtSearch = By.cssSelector(".search-input");
+	public By loc_btnSave  = By.cssSelector(".gs-button__green");
+	public By loc_btnEndEarly = By.cssSelector(".discount-campaign__detail .btn-save div");
+
+
 	public ServiceDiscountCampaignPage tickAppliesTo(int optionIndex) {
 		commonAction.waitElementList(APPLIES_TO_LABEL);
 		if (optionIndex ==0) {
