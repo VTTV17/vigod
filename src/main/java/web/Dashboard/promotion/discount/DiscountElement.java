@@ -47,5 +47,6 @@ public class DiscountElement {
     By loc_lstPromotionStatus = By.cssSelector(".gs-status-tag");
     By loc_lst_icnEdit = By.cssSelector(".icon-edit");
     By loc_ddvDiscountStatus = By.xpath("(//button[contains(@class,'btn-secondary')])[2]/following-sibling::div//button");
+    public By loc_lst_icnClone = By.cssSelector("[title='Clone']");
 
 }
