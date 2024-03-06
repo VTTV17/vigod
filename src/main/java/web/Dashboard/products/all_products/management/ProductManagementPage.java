@@ -149,7 +149,7 @@ public class ProductManagementPage extends ProductManagementElement {
         int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
 
         // get list product ids
-        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getListProduct().getProductIds();
+        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getListSuggestionProduct().getProductIds();
 
         // check view product list
         checkViewProductList(productIds, createdProductId, notCreatedProductId);
@@ -481,7 +481,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // check collection permission
         if (permissions.getProduct().getCollection().isViewCollectionList()) {
-            assertCustomize.assertTrue(!commonAction.getListElement(productPage.loc_cntNoCollection).isEmpty(), "Can not found any product collection.");
+            assertCustomize.assertTrue(!commonAction.getListElement(productPage.loc_cntNoCollection).isEmpty(), "Can not find any product collection.");
         }
         logger.info("Check permission: Product >> Collection >> View collection list.");
 

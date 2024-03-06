@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static api.Seller.products.all_products.APIAllProducts.SuggestionProductsInfo;
+import static api.Seller.products.all_products.APIAllProducts.AllSuggestionProductsInfo;
 import static api.Seller.products.transfer.TransferManagement.*;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -245,7 +245,7 @@ public class TransferPage extends TransferElement {
 
     int getOriginBranchId(APIAllProducts allProducts, List<Integer> assignedBranches) {
         return assignedBranches.stream()
-                .filter(assignedBranch -> !allProducts.getSuggestProductIdMatchWithConditions(assignedBranch).getItemIds().isEmpty())
+                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdMatchWithConditions(assignedBranch).getItemIds().isEmpty())
                 .findFirst()
                 .orElse(0);
     }
@@ -321,7 +321,7 @@ public class TransferPage extends TransferElement {
                 logger.info("Get destination branch: %s.".formatted(destinationBranch));
 
                 // get transfer product
-                SuggestionProductsInfo info = allProducts.getSuggestProductIdMatchWithConditions(originBranchId);
+                AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdMatchWithConditions(originBranchId);
                 String manageTypes = info.getInventoryManageTypes().get(0);
                 String itemName = info.getItemNames().get(0);
                 String itemId = info.getItemIds().get(0);
@@ -416,7 +416,7 @@ public class TransferPage extends TransferElement {
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/product/transfer/wizard/%s"
                                 .formatted(DOMAIN, hasViewPermissionTransferId), String.valueOf(hasViewPermissionTransferId)),
                         "Transfer detail page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
-            } else logger.info("Can not found any transfer with origin/destination branch in assigned branch.");
+            } else logger.info("Can not find any transfer with origin/destination branch in assigned branch.");
 
             // Staff have permission view transfer detail
             // but assigned branch NOT contains original or destination of the transfer

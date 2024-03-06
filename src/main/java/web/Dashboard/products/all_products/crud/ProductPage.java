@@ -2619,7 +2619,7 @@ public class ProductPage extends ProductPageElement {
 
         // check collection permission
         if (permission.getProduct().getCollection().isViewCollectionList() && !productCollectionIds.isEmpty()) {
-            assertCustomize.assertTrue(!commonAction.getListElement(loc_cntNoCollection).isEmpty(), "Can not found any product collection.");
+            assertCustomize.assertTrue(!commonAction.getListElement(loc_cntNoCollection).isEmpty(), "Can not find any product collection.");
         }
         logger.info("Check permission: Product >> Collection >> View collection list.");
 

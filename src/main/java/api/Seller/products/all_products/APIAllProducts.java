@@ -1,6 +1,8 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
+import api.Seller.products.location.APILocation;
+import api.Seller.products.location.APILocation.AllProductLocationInfo;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -305,7 +307,7 @@ public class APIAllProducts {
                 .response();
     }
 
-    public ProductManagementInfo getListProduct(int... branchIds) {
+    public ProductManagementInfo getListSuggestionProduct(int... branchIds) {
 
         ProductManagementInfo info = new ProductManagementInfo();
         // get page 0 data
@@ -333,7 +335,7 @@ public class APIAllProducts {
     }
 
     public int searchProductIdByName(String name) {
-        ProductManagementInfo info = getListProduct();
+        ProductManagementInfo info = getListSuggestionProduct();
         for (int index = 0; index < info.getProductNames().size(); index++) {
             if (info.getProductNames().get(index).equals(name)) {
                 return info.getProductIds().get(index);
@@ -343,7 +345,7 @@ public class APIAllProducts {
     }
 
     List<Integer> getListProductId(boolean hasModel, int... branchIds) {
-        ProductManagementInfo info = getListProduct(branchIds);
+        ProductManagementInfo info = getListSuggestionProduct(branchIds);
         return IntStream.range(0, info.getProductIds().size())
                 .filter(i -> (info.getVariationNumber().get(i) > 0) == hasModel)
                 .mapToObj(info.getProductIds()::get)
@@ -382,8 +384,9 @@ public class APIAllProducts {
     }
 
     String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true&includeConversion=true";
+
     @Data
-    public static class SuggestionProductsInfo {
+    public static class AllSuggestionProductsInfo {
         private List<String> itemIds;
         private List<String> modelIds;
         private List<String> itemNames;
@@ -394,6 +397,18 @@ public class APIAllProducts {
         private List<Boolean> hasLocations;
     }
 
+    @Data
+    public static class SuggestionProductsInfo {
+        private String itemId;
+        private String modelId;
+        private String itemName;
+        private String barcode;
+        private Long remainingStock;
+        private String inventoryManageType;
+        private Boolean hasLot;
+        private Boolean hasLocation;
+    }
+
     Response getSuggestionResponse(int pageIndex, int branchId) {
         return api.get(suggestProductPath.formatted(loginInfo.getStoreID(), pageIndex, branchId), loginInfo.getAccessToken())
                 .then()
@@ -402,9 +417,9 @@ public class APIAllProducts {
                 .response();
     }
 
-    public SuggestionProductsInfo getListProduct(int branchId) {
+    public AllSuggestionProductsInfo getListSuggestionProduct(int branchId) {
         // init suggestion model
-        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        AllSuggestionProductsInfo info = new AllSuggestionProductsInfo();
 
         // init temp array
         List<String> itemIds = new ArrayList<>();
@@ -449,12 +464,12 @@ public class APIAllProducts {
         return info;
     }
 
-    public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(int branchId) {
+    public AllSuggestionProductsInfo getAllSuggestProductIdMatchWithConditions(int branchId) {
         // get all suggestions information
-        SuggestionProductsInfo suggestionInfo = getListProduct(branchId);
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
 
         // init suggestion model to get all products in-stock
-        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        AllSuggestionProductsInfo info = new AllSuggestionProductsInfo();
 
         // init temp array
         List<String> itemIds = new ArrayList<>();
@@ -488,30 +503,73 @@ public class APIAllProducts {
         return info;
     }
 
-    public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(boolean hasModel, boolean isManageByIMEI, int branchId) {
-        SuggestionProductsInfo suggestionInfo = getListProduct(branchId);
+    public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(int branchId) {
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
         SuggestionProductsInfo info = new SuggestionProductsInfo();
-        List<String> itemIds = new ArrayList<>();
-        List<String> modelIds = new ArrayList<>();
-        List<String> itemNames = new ArrayList<>();
-        List<String> barcodes = new ArrayList<>();
-        List<String> inventoryManageTypes = new ArrayList<>();
-        IntStream.range(0, suggestionInfo.getItemIds().size())
-                .filter(index -> (suggestionInfo.getModelIds().get(index).isEmpty() != hasModel)
-                        && (suggestionInfo.getInventoryManageTypes().get(index).equals("IMEI_SERIAL_NUMBER") == isManageByIMEI)
-                        && (suggestionInfo.getRemainingStocks().get(index) > 0))
-                .forEach(index -> {
-                    itemIds.add(suggestionInfo.getItemIds().get(index));
-                    itemNames.add(suggestionInfo.getItemNames().get(index));
-                    modelIds.add(suggestionInfo.getModelIds().get(index));
-                    barcodes.add(suggestionInfo.getBarcodes().get(index));
-                    inventoryManageTypes.add(suggestionInfo.getInventoryManageTypes().get(index));
-                });
-        info.setItemIds(itemIds);
-        info.setModelIds(modelIds);
-        info.setItemNames(itemNames);
-        info.setBarcodes(barcodes);
-        info.setInventoryManageTypes(inventoryManageTypes);
+        for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+            if (suggestionInfo.getInventoryManageTypes().get(index).equals("PRODUCT")
+                    && (suggestionInfo.getRemainingStocks().get(index) > 0)) {
+                info.setItemId(suggestionInfo.getItemIds().get(index));
+                info.setModelId(suggestionInfo.getModelIds().get(index));
+                info.setItemName(suggestionInfo.getItemNames().get(index));
+                info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                info.setHasLot(suggestionInfo.getHasLots().get(index));
+                break;
+            }
+        }
+
+        return info;
+    }
+
+    public SuggestionProductsInfo findProductInformationMatchesWithAddLocationReceipt(int branchId) {
+        // conditions: product must be managed inventory by Product and 0 < location's stocks < remaining stock
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
+
+        APILocation location = new APILocation(loginInformation);
+
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+            if (suggestionInfo.getInventoryManageTypes().get(index).equals("PRODUCT") && (suggestionInfo.getRemainingStocks().get(index) > 0)) {
+                // get all location of products
+                AllProductLocationInfo locationInfo = location.getAllProductLocationInfo(suggestionInfo.getItemIds().get(index),
+                        suggestionInfo.getModelIds().get(index),
+                        branchId,
+                        "ADD_PRODUCT_TO_LOCATION");
+
+                // get total location quantity
+                int totalLocationQuantity = locationInfo.getQuantity().stream().mapToInt(Integer::intValue).sum();
+
+                // check remaining stock > total location quantity or not
+                if (suggestionInfo.getRemainingStocks().get(index) > totalLocationQuantity) {
+                    info.setItemId(suggestionInfo.getItemIds().get(index));
+                    info.setModelId(suggestionInfo.getModelIds().get(index));
+                    info.setItemName(suggestionInfo.getItemNames().get(index));
+                    info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                    info.setHasLot(suggestionInfo.getHasLots().get(index));
+                    break;
+                }
+            }
+        }
+
+        return info;
+    }
+
+    public SuggestionProductsInfo findProductInformationMatchesWithGetLocationReceipt(int branchId) {
+        // conditions: product must be managed inventory by Product and has location
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+            if (suggestionInfo.getInventoryManageTypes().get(index).equals("PRODUCT")
+                    && (suggestionInfo.getRemainingStocks().get(index) > 0)
+                    && (suggestionInfo.getHasLocations().get(index))) {
+                info.setItemId(suggestionInfo.getItemIds().get(index));
+                info.setModelId(suggestionInfo.getModelIds().get(index));
+                info.setItemName(suggestionInfo.getItemNames().get(index));
+                info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                info.setHasLot(suggestionInfo.getHasLots().get(index));
+                break;
+            }
+        }
 
         return info;
     }

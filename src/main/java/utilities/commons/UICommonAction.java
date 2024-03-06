@@ -609,7 +609,8 @@ public class UICommonAction {
     public List<WebElement> getListElement(By locator) {
         try {
             getWait(1000).until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (TimeoutException ignore) {}
+        } catch (TimeoutException ignore) {
+        }
         return driver.findElements(locator).isEmpty()
                 ? driver.findElements(locator)
                 : wait.until(presenceOfAllElementsLocatedBy(locator));
@@ -896,7 +897,8 @@ public class UICommonAction {
     /* Click and wait popup closed.*/
     public void closePopup(By locator) {
         try {
-            clickJS(locator);
+            if (!getListElement(locator).isEmpty())
+                clickJS(locator);
         } catch (StaleElementReferenceException | NoSuchElementException | TimeoutException ignore) {
         }
 
@@ -909,7 +911,8 @@ public class UICommonAction {
 
     public void closePopup(By locator, By popup) {
         try {
-            clickJS(locator);
+            if (!getListElement(locator).isEmpty())
+                clickJS(locator);
         } catch (StaleElementReferenceException | NoSuchElementException | TimeoutException ignore) {
         }
 
@@ -923,7 +926,8 @@ public class UICommonAction {
     /* Click and wait popup opened.*/
     public void openPopupJS(By locator, By popup) {
         try {
-            clickJS(locator);
+            if (!getListElement(locator).isEmpty())
+                clickJS(locator);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
 
@@ -936,7 +940,8 @@ public class UICommonAction {
 
     public void openPopupJS(By locator, int index, By popup) {
         try {
-            clickJS(locator, index);
+            if (!getListElement(locator).isEmpty())
+                clickJS(locator, index);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
         try {
@@ -1018,6 +1023,7 @@ public class UICommonAction {
     public WebDriverWait getWait(int miliSeconds) {
         return new WebDriverWait(driver, Duration.ofMillis(miliSeconds));
     }
+
     public void selectByIndex(By locator, int index) {
         WebElement element = getElement(locator);
         waitTillSelectDropdownHasData(element);

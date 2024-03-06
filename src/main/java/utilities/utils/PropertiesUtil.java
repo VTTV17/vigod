@@ -11,9 +11,9 @@ import java.util.Properties;
 import static utilities.file.FileNameAndPath.*;
 
 public class PropertiesUtil {
-    public static String environment;
-    public static String sfLanguage;
-    public static String dbLanguage;
+    public static String environment = "STAG";
+    public static String sfLanguage = "vi";
+    public static String dbLanguage = "vi";
     private static Properties initProperties(String propertyFile) throws IOException {
         Properties properties = new Properties();
         FileInputStream inputStream = null;

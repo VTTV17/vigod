@@ -74,5 +74,117 @@ public class APILocation {
         return info;
     }
 
+    @Data
+    public static class AllProductLocationInfo {
+        private List<Integer> ids;
+        private List<String> locationNames;
+        private List<String> locationCodes;
+        private List<Integer> quantity;
+        private List<String> locationPaths;
+        private List<String> locationPathNames;
+    }
+
+    @Data
+    public static class ProductLocationInfo {
+        private Integer id;
+        private String locationName;
+        private String locationCode;
+        private Integer quantity;
+        private String locationPath;
+        private String locationPathName;
+    }
+
+    String productLocationPath = "/itemservice/api/locations/store/%s/search-receipt?page=%s&size=100";
+
+    Response getProductLocationResponse(int pageIndex, String itemId, String modelId, int branchId, String locationReceiptType) {
+        String body = """
+                {
+                    "itemId": %s,
+                    "modelId": %s,
+                    "branchId": "%s",
+                    "locationReceiptType": "%s"
+                }""".formatted(itemId, modelId, branchId, locationReceiptType);
+        return api.post(productLocationPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken(), body);
+    }
+
+    public AllProductLocationInfo getAllProductLocationInfo(String itemId, String modelId, int branchId, String locationReceiptType) {
+        // init model
+        AllProductLocationInfo info = new AllProductLocationInfo();
+
+        // init temp array
+        List<Integer> ids = new ArrayList<>();
+        List<String> locationNames = new ArrayList<>();
+        List<String> locationCodes = new ArrayList<>();
+        List<Integer> quantity = new ArrayList<>();
+        List<String> locationPaths = new ArrayList<>();
+        List<String> locationPathNames = new ArrayList<>();
+
+        // get total products
+        int totalOfLotDate = Integer.parseInt(getProductLocationResponse(0, itemId, modelId, branchId, locationReceiptType).getHeader("X-Total-Count"));
+
+        // get number of pages
+        int numberOfPages = ((totalOfLotDate / 100) > 0) ? (totalOfLotDate / 100) : 1;
+
+        // get all inventory
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+            JsonPath jPath = getProductLocationResponse(pageIndex, itemId, modelId, branchId, locationReceiptType)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .jsonPath();
+            ids.addAll(jPath.getList("id"));
+            locationNames.addAll(jPath.getList("locationName"));
+            locationCodes.addAll(jPath.getList("locationCode"));
+            quantity.addAll(jPath.getList("quantity"));
+            locationPaths.addAll(jPath.getList("locationPath"));
+            locationPathNames.addAll(jPath.getList("locationPathName"));
+        }
+
+        // set result
+        info.setIds(ids);
+        info.setLocationNames(locationNames);
+        info.setLocationCodes(locationCodes);
+        info.setQuantity(quantity);
+        info.setLocationPaths(locationPaths);
+        info.setLocationPathNames(locationPathNames);
+
+        return info;
+    }
+
+    public ProductLocationInfo getLocation(String itemId, String modelId, int branchId, String locationReceiptType) {
+        AllProductLocationInfo searchInfo = getAllProductLocationInfo(itemId, modelId, branchId, locationReceiptType);
+        ProductLocationInfo info = new ProductLocationInfo();
+
+        if (!searchInfo.getIds().isEmpty()) {
+            info.setId(searchInfo.getIds().get(0));
+            info.setLocationCode(searchInfo.getLocationCodes().get(0));
+            info.setLocationName(searchInfo.getLocationNames().get(0));
+            info.setQuantity(searchInfo.getQuantity().get(0));
+            info.setLocationPath(searchInfo.getLocationPaths().get(0));
+            info.setLocationPathName(searchInfo.getLocationPathNames().get(0));
+        }
+
+        return info;
+    }
+
+    public ProductLocationInfo getLocationInStock(String itemId, String modelId, int branchId, String locationReceiptType) {
+        AllProductLocationInfo searchInfo = getAllProductLocationInfo(itemId, modelId, branchId, locationReceiptType);
+        ProductLocationInfo info = new ProductLocationInfo();
+        for (int index = 0; index < searchInfo.getIds().size(); index++) {
+            if (searchInfo.getQuantity().get(index) > 0) {
+                info.setId(searchInfo.getIds().get(index));
+                info.setLocationCode(searchInfo.getLocationCodes().get(index));
+                info.setLocationName(searchInfo.getLocationNames().get(index));
+                info.setQuantity(searchInfo.getQuantity().get(index));
+                info.setLocationPath(searchInfo.getLocationPaths().get(index));
+                info.setLocationPathName(searchInfo.getLocationPathNames().get(index));
+
+                break;
+            }
+        }
+
+        return info;
+    }
+
 
 }
