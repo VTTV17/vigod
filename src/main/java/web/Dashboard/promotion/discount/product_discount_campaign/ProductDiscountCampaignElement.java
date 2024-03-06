@@ -103,4 +103,8 @@ public class ProductDiscountCampaignElement {
     By loc_lst_lblBranchName = By.cssSelector(".branch-name");
     public By loc_btnSave  = By.cssSelector(".gs-button__green");
     public By loc_btnEndEarly = By.cssSelector(".discount-campaign__detail .btn-save div");
+    By loc_dlgSelectSegment = By.cssSelector(".select-segment-modal");
+    By loc_dlgSelectCollection = By.cssSelector(".select-collection-modal");
+
+    By loc_dlgSelectProduct = By.cssSelector(".product-no-variation-modal");
 }
