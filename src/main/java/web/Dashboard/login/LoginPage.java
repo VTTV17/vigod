@@ -203,12 +203,12 @@ public class LoginPage {
     }
 
     /* get dashboard information */
-    public void loginDashboardByJsAndGetStoreInformation(LoginInformation logInfo) {
+    public void loginDashboardByJsAndGetStoreInformation(LoginInformation loginInformation) {
         // access to dashboard to set cookie
         driver.get(DOMAIN);
 
         // init login information model
-        LoginDashboardInfo loginInfo = new Login().getInfo(logInfo);
+        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
 
         // login by js - local storage
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));
