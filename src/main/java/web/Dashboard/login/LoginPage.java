@@ -203,17 +203,11 @@ public class LoginPage {
     }
 
     /* get dashboard information */
-    public void loginDashboardByJsAndGetStoreInformation(String username, String password) {
+    public void loginDashboardByJsAndGetStoreInformation(LoginInformation logInfo) {
         // access to dashboard to set cookie
         driver.get(DOMAIN);
 
         // init login information model
-        LoginInformation logInfo = new LoginInformation();
-        if (username.matches("\\d+")) {
-            logInfo.setPhoneNumber(username);
-            logInfo.setPhoneCode("+84");
-        } else logInfo.setEmail(username);
-        logInfo.setPassword(password);
         LoginDashboardInfo loginInfo = new Login().getInfo(logInfo);
 
         // login by js - local storage

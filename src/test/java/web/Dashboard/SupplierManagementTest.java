@@ -20,8 +20,10 @@ public class SupplierManagementTest extends BaseTest {
     @BeforeClass
     void setup() {
         driver = new InitWebdriver().getDriver(browser, headless);
-        loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+        LoginInformation loginInformation = new LoginInformation();
+        loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
+        loginInformation.setPassword(ADMIN_PASSWORD_THANG);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);
         tcsFileName = "check_product_detail_sf/Supplier management.xlsx".replace("/", File.separator);
     }
 

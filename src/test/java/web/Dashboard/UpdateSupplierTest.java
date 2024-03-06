@@ -1,6 +1,7 @@
 package web.Dashboard;
 
 import org.testng.annotations.*;
+import utilities.model.sellerApp.login.LoginInformation;
 import web.BaseTest;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.products.supplier.crud.CRUDSupplierPage;
@@ -14,9 +15,11 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 public class UpdateSupplierTest extends BaseTest {
     @BeforeClass
     void setup() {
-
         driver = new InitWebdriver().getDriver(browser, headless);
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+        LoginInformation loginInformation = new LoginInformation();
+        loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
+        loginInformation.setPassword(ADMIN_PASSWORD_THANG);
+        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);
         tcsFileName = "check_product_detail_sf/Update supplier.xlsx".replace("/", File.separator);
     }
 
