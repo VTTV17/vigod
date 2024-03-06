@@ -7,6 +7,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
@@ -104,10 +105,18 @@ public class Login {
 
         // if login by staff => login and get staff information
         if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
-        else info.setAssignedBranchesIds(new BranchManagement(loginInformation, info).getInfo().getBranchID());
 
         // set staffToken
         API.setStaffPermissionToken(info.getStaffPermissionToken() != null ? info.getStaffPermissionToken() : "");
+
+        // get branch info
+        BranchInfo branchInfo = new BranchManagement(loginInformation, info).getInfo();
+
+        // get assigned branch ids
+        info.setAssignedBranchesIds(branchInfo.getBranchID());
+
+        // get assigned branch names
+        info.setAssignedBranchesNames(branchInfo.getBranchName());
 
         // return login dashboard info
         return info;

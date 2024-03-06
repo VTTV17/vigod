@@ -88,7 +88,7 @@ public class APILocationReceipt {
 
     public boolean hasLocationReceiptInUnassignedBranches() {
         // get assigned branches
-        List<String> assignedBranchNames = new BranchManagement(loginInformation).getInfo().getBranchName();
+        List<String> assignedBranchNames = loginInfo.getAssignedBranchesNames();
 
         // get all location receipt
         AllLocationReceiptInfo info = getAllLocationReceiptInfo();

@@ -14,5 +14,6 @@ public class LoginDashboardInfo {
     private String staffPermissionToken;
     private List<String> userRole;
     private List<Integer> assignedBranchesIds;
+    private List<String> assignedBranchesNames;
     private int ownerId;
 }
