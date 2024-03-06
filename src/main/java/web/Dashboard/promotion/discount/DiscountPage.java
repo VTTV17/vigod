@@ -1,6 +1,7 @@
 package web.Dashboard.promotion.discount;
 
 import api.Seller.login.Login;
+import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,7 @@ import web.Dashboard.promotion.discount.product_discount_code.ProductDiscountCod
 import web.Dashboard.promotion.discount.servicediscountcampaign.ServiceDiscountCampaignPage;
 import web.Dashboard.promotion.discount.servicediscountcode.ServiceDiscountCodePage;
 import utilities.commons.UICommonAction;
+import web.Dashboard.service.servicecollections.ServiceCollectionManagement;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -526,7 +528,7 @@ public class DiscountPage extends DiscountElement {
     	checkPermissionToViewDiscountList(staffPermission);
     }      
     
-    public DiscountPage checkPermissionViewProductCampaignList(){
+    public DiscountPage verifyPermissionViewProductCampaignList(){
 		filterDiscountType("Product Discount Campaign");
 		List<WebElement> promotionList = commonAction.getElements(loc_lstPromotionName);
 		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
@@ -537,7 +539,7 @@ public class DiscountPage extends DiscountElement {
 		}
 		return this;
 	}
-	public DiscountPage checkPermissionViewProductCampaignDetail(int productCampaignScheduledId){
+	public DiscountPage verifyPermissionViewProductCampaignDetail(int productCampaignScheduledId){
 		String detailUrl = Links.DOMAIN + "/discounts/detail/WHOLE_SALE/" + productCampaignScheduledId;
 		String editUrl = Links.DOMAIN + "/discounts/edit/WHOLE_SALE/" + productCampaignScheduledId;
 
@@ -589,7 +591,7 @@ public class DiscountPage extends DiscountElement {
 		}
 		return this;
 	}
-	public DiscountPage checkPermissionViewServiceCampaignList(){
+	public DiscountPage verifyPermissionViewServiceCampaignList(){
 		filterDiscountType("Service Discount Campaign");
 		List<WebElement> promotionList = commonAction.getElements(loc_lstPromotionName);
 		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
@@ -600,7 +602,7 @@ public class DiscountPage extends DiscountElement {
 		}
 		return this;
 	}
-	public DiscountPage checkPermissionViewServiceCampaignDetail(int serviceCampaignId){
+	public DiscountPage verifyPermissionViewServiceCampaignDetail(int serviceCampaignId){
 		String detailUrl = Links.DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/" + serviceCampaignId;
 		String editUrl = Links.DOMAIN + "/discounts/edit/WHOLE_SALE_SERVICE/" + serviceCampaignId;
 
@@ -664,7 +666,7 @@ public class DiscountPage extends DiscountElement {
 //		}
 //		return this;
 	}
-	public DiscountPage checkPermissionCreateProductCampaign(String productNameOfShopOwner, String productNameOfStaff){
+	public DiscountPage verifyPermissionCreateProductCampaign(String productNameOfShopOwner, String productNameOfStaff){
 		openCreateProductDiscountCampaignPage();
 		homePage.waitTillSpinnerDisappear1();
 		if (allPermissions.getPromotion().getDiscountCampaign().isCreateProductDiscountCampaign()){
@@ -709,6 +711,7 @@ public class DiscountPage extends DiscountElement {
 			assertCustomize.assertTrue(!segmentList.isEmpty(),"[Failed] Segment list should be shown");
 		else
 			assertCustomize.assertTrue(segmentList.isEmpty(),"[Failed] Segment list should be empty.");
+		logger.info("Verified View Customer Segment list permission.");
 		return this;
 	}
 	public DiscountPage checkPermissionViewProductCollectionList(){
@@ -721,6 +724,7 @@ public class DiscountPage extends DiscountElement {
 			assertCustomize.assertTrue(!collectionList.isEmpty(),"[Failed]Product collection list should be shown");
 		else
 			assertCustomize.assertTrue(collectionList.isEmpty(),"[Failed]Product collection list should be empty.");
+		logger.info("Verified View product collection list permission.");
 		return this;
 	}
 	public DiscountPage checkPermissionViewProductList(String productNameOfShopOwner, String productNameOfStaff){
@@ -744,6 +748,7 @@ public class DiscountPage extends DiscountElement {
 			assertCustomize.assertFalse(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfStaff),
 					"[Failed]Product is created by staff: '%s' should not be shown".formatted(productNameOfStaff));
 		}
+		logger.info("Verified View product list permission.");
 		return this;
 	}
 	public DiscountPage checkPermissionViewServiceList(String serviceNameOfShopOwner, String serviceNameOfStaff){
@@ -793,7 +798,7 @@ public class DiscountPage extends DiscountElement {
 				"[Failed] Branch list expected: %s \nBranch list actual: %s".formatted(branchNamesAssigned,branchListActual));
 		return this;
 	}
-	public DiscountPage checkPermissionCreateServiceCampaign(String serviceNameOfShopOwner, String serviceNameOfStaff){
+	public DiscountPage verifyPermissionCreateServiceCampaign(String serviceNameOfShopOwner, String serviceNameOfStaff){
 		clickServiceDiscountCampaign();
 		homePage.waitTillSpinnerDisappear1();
 		if (allPermissions.getPromotion().getDiscountCampaign().isCreateServiceDiscountCampaign()){
@@ -830,5 +835,155 @@ public class DiscountPage extends DiscountElement {
 		}
 		return this;
 	}
+	public DiscountPage verifyPermissionEditProductDiscountCampaign(int productCampaignScheduleId, String productNameOfShopOwner, String productNameOfStaff){
+		String editUrl = DOMAIN + "/discounts/detail/WHOLE_SALE/" + productCampaignScheduleId;
+		if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
+			commonAction.navigateToURL(editUrl);
+			//Check View customer segment list permission
+			checkPermissionViewCustomerSegmentList();
+			//Check permission View product list or View created product list
+			checkPermissionViewProductList(productNameOfShopOwner,productNameOfStaff);
+			//Check permission View product collection.
+			checkPermissionViewProductCollectionList();
+			//Check edit product campaign permission
+			if (allPermissions.getPromotion().getDiscountCampaign().isEditProductDiscountCampaign()) {
+				commonAction.click(productDiscountCampaignEl.loc_btnSave);
+				assertCustomize.assertTrue(commonAction.isElementDisplay(loc_lst_icnEdit),
+						"[Failed]Promotion management page should be shown after edit successfully.");
+			}else {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(productDiscountCampaignEl.loc_btnSave),
+						"[Failed] Restricted page not show.");
+			}
+			logger.info("Verified Edit product campaign permission.");
+		}else logger.info("Don't have View product campaign detail, so no need check Edit permission.");
+		return this;
+	}
+	public DiscountPage verifyPermissionEditServiceDiscountCampaign(int serviceCampaignScheduleId, String serviceNameOfShopOwner, String serviceNameOfStaff){
+		String editUrl = DOMAIN +"/discounts/detail/WHOLE_SALE_SERVICE/"+serviceCampaignScheduleId;
+		if (allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignDetail()) {
+			commonAction.navigateToURL(editUrl);
+			//Check View customer segment list permission
+			checkPermissionViewCustomerSegmentList();
+			//Check permission View product list or View created product list
+			checkPermissionViewServiceList(serviceNameOfShopOwner,serviceNameOfStaff);
+			//Check permission View product collection.
+			checkPermissionViewServiceCollectionList();
+			//Check edit product campaign permission
+			if (allPermissions.getPromotion().getDiscountCampaign().isEditServiceDiscountCampaign()) {
+				commonAction.click(serviceCampaignPage.loc_btnSave);
+				assertCustomize.assertTrue(commonAction.isElementDisplay(loc_lst_icnEdit),
+						"[Failed]Promotion management page should be shown after edit service campaign successfully.");
+			}else {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(serviceCampaignPage.loc_btnSave),
+						"[Failed] Restricted page not show when click on save to edit service campaign.");
+			}
+			logger.info("Verified Edit service campaign permission.");
+		}else logger.info("Don't have View service campaign detail, so no need check Edit service campaign permission.");
+		return this;
+	}
+	public DiscountPage endFirstCampaign(){
+		commonAction.click(loc_lst_icnEnd,0);
+		commonAction.click(loc_dlgConfirmation_btnOK);
+		return this;
+	}
+	public DiscountPage verifyPermissionEndProductDiscountCampaign(int productCampaignInprogressId) {
+		//Check permission end early on promotion list.
+		boolean hasEndEarlyPermission = allPermissions.getPromotion().getDiscountCampaign().isEndProductDiscountCampaign();
+		if (allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()) {
+			navigateUrl();
+			filterDiscountType("Product Discount Campaign");
+			filterDiscountStatus("Scheduled");
+			if (hasEndEarlyPermission) {
+				endFirstCampaign();
+				String statusFirstCampaign = commonAction.getText(loc_lst_lblStatus, 0);
+				try {
+					assertCustomize.assertEquals(statusFirstCampaign, PropertiesUtil.getPropertiesValueByDBLang("promotion.discount.promotionManagement.status.expired"),
+							"[Failed]Ended status should be shown, but status show '%s'".formatted(statusFirstCampaign));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEnd, 0),
+						"[Failed] Restricted popup not show.");
+			}
+			logger.info("Verified End product campaign on Campaign list");
+		} else
+			logger.info("Don't have View product campain list permission, so no need check end product campaign permission on Discount campaign list.");
 
+		//Check permission end early on detail page
+		String url = DOMAIN + "/discounts/detail/WHOLE_SALE/" + productCampaignInprogressId;
+		commonAction.navigateToURL(url);
+		if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
+			if (hasEndEarlyPermission) {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(productDiscountCampaignEl.loc_btnEndEarly,
+						"home"), "[Failed] Should be navigate to home page when end early successfully.");
+			} else {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(productDiscountCampaignEl.loc_btnEndEarly),
+						"[Failed]Restricted modal not show.");
+			}
+			logger.info("Verified End product campaign on Campaign detail");
+		}else
+			logger.info("Don't have View product campaign detail permission, so no need check end product campaign permission on Discount campaign detail");
+		return this;
+
+	}
+	public DiscountPage verifyPermissionEndServiceDiscountCampaign(int serviceCampaignInprogessId){
+		boolean hasEndEarlyPermission = allPermissions.getPromotion().getDiscountCampaign().isEndServiceDiscountCampaign();
+		//Check permission end early on promotion list.
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignList()){
+			navigateUrl();
+			filterDiscountType("Service Discount Campaign");
+			filterDiscountStatus("Scheduled");
+			if(hasEndEarlyPermission){
+				endFirstCampaign();
+				String statusFirstCampaign = commonAction.getText(loc_lst_lblStatus,0);
+				try {
+					assertCustomize.assertEquals(statusFirstCampaign,PropertiesUtil.getPropertiesValueByDBLang("promotion.discount.promotionManagement.status.expired"),
+							"[Failed]Ended status should be shown, but status show '%s'".formatted(statusFirstCampaign));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEnd, 0),
+						"[Failed] Restricted popup not show.");
+			}
+			logger.info("Verified End service campaign on Campaign list");
+		}else
+			logger.info("Don't have View service campain list permission, so no need check end service campaign permission on Discount campaign list.");
+
+		//Check permission end early on detail page
+		String url = DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/"+ serviceCampaignInprogessId;
+		commonAction.navigateToURL(url);
+		if(allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignDetail()) {
+			if (hasEndEarlyPermission) {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(serviceCampaignPage.loc_btnEndEarly,
+						"home"), "[Failed] Should be navigate to home page when end early successfully.");
+			} else {
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(serviceCampaignPage.loc_btnEndEarly),
+						"[Failed]Restricted modal not show.");
+			}
+		}else
+			logger.info("Don't have View service campaign detail permission, so no need check end service campaign permission on Discount campaign detail");
+		return this;
+	}
+	public DiscountPage verifyPermissionDiscountCampaign(AllPermissions allPermissions, String productNameCreatedByShopOwner, String productNameCreatedByStaff, String serviceNameCreatedByShopOwner, String serviceNameCreatedByStaff, int productCampaignInprogressId, int serviceCampaignInprogessId, int productCampaignScheduleId, int serviceCampaignScheduleId ){
+		this.allPermissions = allPermissions;
+		verifyPermissionViewProductCampaignList();
+		verifyPermissionViewProductCampaignDetail(productCampaignScheduleId);
+		verifyPermissionViewServiceCampaignList();
+		verifyPermissionCreateProductCampaign(productNameCreatedByShopOwner,productNameCreatedByStaff);
+		verifyPermissionCreateServiceCampaign(serviceNameCreatedByShopOwner,serviceNameCreatedByStaff);
+		verifyPermissionEditProductDiscountCampaign(productCampaignScheduleId,productNameCreatedByShopOwner,productNameCreatedByStaff);
+		verifyPermissionEditServiceDiscountCampaign(serviceCampaignScheduleId,serviceNameCreatedByShopOwner,serviceNameCreatedByStaff);
+		verifyPermissionEndProductDiscountCampaign(productCampaignInprogressId);
+		verifyPermissionEndServiceDiscountCampaign(serviceCampaignInprogessId);
+		return this;
+	}
+	public DiscountPage completeVerifyStaffPermissionDiscountCampaign() {
+		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+		if (assertCustomize.getCountFalse() > 0) {
+			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+		}
+		return this;
+	}
 }
