@@ -1,7 +1,6 @@
 package api.Seller.products.location_receipt;
 
 import api.Seller.login.Login;
-import api.Seller.setting.BranchManagement;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
@@ -99,28 +98,74 @@ public class APILocationReceipt {
 
         // get list location receipts that have branch is not in assigned branches.
         return !ids.stream()
-                .filter(id -> !assignedBranchNames.contains(branchNames.get(id)))
+                .filter(id -> !assignedBranchNames.contains(branchNames.get(ids.indexOf(id))))
                 .toList()
                 .isEmpty();
     }
 
-    public List<Integer> getListAddProductToLocation(AllLocationReceiptInfo... receiptInfo) {
+    public List<Integer> getListAddProductToLocation(List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
         AllLocationReceiptInfo info = (receiptInfo.length == 0)
                 ? getAllLocationReceiptInfo()
                 : receiptInfo[0];
+
+        // get receipt info
         List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
         List<String> locationReceiptIds = info.getLocationReceiptIds();
 
-        return ids.stream().filter(id -> locationReceiptIds.get(ids.indexOf(id)).contains("ADD")).toList();
+        return ids.stream().filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
+                && locationReceiptIds.get(ids.indexOf(id)).contains("ADD")).toList();
     }
 
-    public List<Integer> getListGetProductFromLocation(AllLocationReceiptInfo... receiptInfo) {
+    public List<Integer> getListGetProductFromLocation(List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
         AllLocationReceiptInfo info = (receiptInfo.length == 0)
                 ? getAllLocationReceiptInfo()
                 : receiptInfo[0];
+
+        // get receipt info
         List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
         List<String> locationReceiptIds = info.getLocationReceiptIds();
 
-        return ids.stream().filter(id -> locationReceiptIds.get(ids.indexOf(id)).contains("GET")).toList();
+        return ids.stream().filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
+                && locationReceiptIds.get(ids.indexOf(id)).contains("GET")).toList();
+    }
+
+    public Integer getDraftAddLocationReceiptId( List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
+        AllLocationReceiptInfo info = (receiptInfo.length == 0)
+                ? getAllLocationReceiptInfo()
+                : receiptInfo[0];
+
+        // get receipt info
+        List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
+        List<String> locationReceiptIds = info.getLocationReceiptIds();
+        List<String> locationStatues = info.getStatues();
+
+        return ids.stream()
+                .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
+                        && locationReceiptIds.get(ids.indexOf(id)).contains("ADD")
+                        && locationStatues.get(ids.indexOf(id)).equals("DRAFT"))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public Integer getDraftGetLocationReceiptId( List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
+        AllLocationReceiptInfo info = (receiptInfo.length == 0)
+                ? getAllLocationReceiptInfo()
+                : receiptInfo[0];
+
+        // get receipt info
+        List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
+        List<String> locationReceiptIds = info.getLocationReceiptIds();
+        List<String> locationStatues = info.getStatues();
+
+        return ids.stream()
+                .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
+                        && locationReceiptIds.get(ids.indexOf(id)).contains("GET")
+                        && locationStatues.get(ids.indexOf(id)).equals("DRAFT"))
+                .findFirst()
+                .orElse(0);
     }
 }

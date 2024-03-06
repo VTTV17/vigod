@@ -885,9 +885,9 @@ public class UICommonAction {
         }
     }
 
-    public void waitURLShouldBeContains(String path) {
+    public void waitURLShouldBeContains(String path, int... miliSeconds) {
         // wait product list page is loaded
-        wait.until((ExpectedCondition<Boolean>) driver -> {
+        (miliSeconds.length == 0 ? wait : getWait(miliSeconds[0])).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
             return driver.getCurrentUrl().contains(path);
         });

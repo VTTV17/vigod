@@ -12,6 +12,7 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import web.Dashboard.products.location_receipt.crud.LocationReceiptPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +34,12 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
     CheckPermission checkPermission;
     LoginInformation staffLoginInformation;
     LoginInformation sellerLoginInformation;
-    LoginDashboardInfo loginInfo;
 
-    public LocationReceiptManagementPage(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+    public LocationReceiptManagementPage getLoginInformation(LoginInformation sellerLoginInformation,
+                                                             LoginInformation staffLoginInformation) {
         this.staffLoginInformation = staffLoginInformation;
         this.sellerLoginInformation = sellerLoginInformation;
-        loginInfo = new Login().getInfo(staffLoginInformation);
+        return this;
     }
 
     public void checkLocationReceiptPermission(AllPermissions permissions) {
@@ -50,9 +51,19 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
 
         // init assert customize
         assertCustomize = new AssertCustomize(driver);
+
+        // check view product location receipt list
+        checkViewProductLocationReceiptList();
+
+        // check permission at crud location receipt page
+        new LocationReceiptPage(driver).getLoginInformation(sellerLoginInformation, staffLoginInformation)
+                .checkLocationReceiptPermission(permissions);
     }
 
     void checkViewProductLocationReceiptList() {
+        // get staff login info
+        LoginDashboardInfo staffLoginInfo = new Login().getInfo(staffLoginInformation);
+
         // get full location receipt with seller role
         AllLocationReceiptInfo info = new APILocationReceipt(sellerLoginInformation).getAllLocationReceiptInfo();
 
@@ -63,26 +74,26 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         assertCustomize.assertFalse(locationReceipt.hasLocationReceiptInUnassignedBranches(), "Location receipts in unassigned branches are still showing");
 
         // check view add list permission
-        List<Integer> addListFromAPI = locationReceipt.getListAddProductToLocation();
+        List<Integer> addListFromAPI = locationReceipt.getListAddProductToLocation(staffLoginInfo.getAssignedBranchesNames());
         // if staff don’t have permission “View get product location receipt list”
         // => don’t show any get receipt at Location receipt page
         List<Integer> checkAddList = permissions.getProduct().getLocationReceipt().isViewAddProductLocationReceiptList()
-                ? locationReceipt.getListAddProductToLocation(info)
+                ? locationReceipt.getListAddProductToLocation(staffLoginInfo.getAssignedBranchesNames(), info)
                 : new ArrayList<>();
         assertCustomize.assertTrue(CollectionUtils.isEqualCollection(addListFromAPI, checkAddList),
                 "List add location receipts must be %s, but found %s.".formatted(checkAddList.toString(), addListFromAPI.toString()));
         // log
-        logger.info("Check permission: Product >> Location receipt >> View get product location receipt list.");
+        logger.info("Check permission: Product >> Location receipt >> View add product location receipt list.");
 
         // check view get list permission
-        List<Integer> getListFromAPI = locationReceipt.getListGetProductFromLocation();
-        // if staff don’t have permission “View add product location receipt list”
-        // => don’t show any Add receipt at Location receipt page
+        List<Integer> getListFromAPI = locationReceipt.getListGetProductFromLocation(staffLoginInfo.getAssignedBranchesNames());
+        // if staff don’t have permission “View get product location receipt list”
+        // => don’t show any Get receipt at Location receipt page
         List<Integer> checkGetList = permissions.getProduct().getLocationReceipt().isViewGetProductLocationReceiptList()
-                ? locationReceipt.getListGetProductFromLocation(info)
+                ? locationReceipt.getListGetProductFromLocation(staffLoginInfo.getAssignedBranchesNames(), info)
                 : new ArrayList<>();
         assertCustomize.assertTrue(CollectionUtils.isEqualCollection(getListFromAPI, checkGetList),
-                "List add location receipts must be %s, but found %s.".formatted(checkGetList.toString(), getListFromAPI.toString()));
+                "List get location receipts must be %s, but found %s.".formatted(checkGetList.toString(), getListFromAPI.toString()));
         // log
         logger.info("Check permission: Product >> Location receipt >> View get product location receipt list.");
     }

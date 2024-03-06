@@ -25,4 +25,6 @@ public class LocationReceiptElement {
     String loc_dlgSelectLocation_strPage = "//*[@class = 'page-link']/self::node()[string() = '%s']";
     By loc_dlgSelectLocation_btnConfirm = By.cssSelector(".select-location-modal .gs-button__green");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
+    By loc_dlgConfirm = By.cssSelector(".confirm-modal");
+    By loc_dlgConfirm_BtnYes = By.cssSelector(".confirm-modal .gs-button__green");
 }
