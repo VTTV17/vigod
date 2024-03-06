@@ -166,20 +166,20 @@ public class ReservationPermissionTest extends BaseTest {
     CreatePermission setPermissionPOSModel(String POSPermissionBinary) {
         CreatePermission model = new CreatePermission();
         model.setHome_none("11");
-        model.setService_serviceManagement("1");
-        model.setCustomer_customerManagement("100000");
-//        Random rd = new Random();
-//        if (rd.nextBoolean()) {
-//            model.setService_serviceManagement("1");
-//        } else model.setService_serviceManagement("0");
-//        if (rd.nextBoolean()) {
-//            model.setCustomer_customerManagement("11");
-//        } else if (rd.nextBoolean()) {
-//            model.setCustomer_customerManagement("01");
-//        } else model.setCustomer_customerManagement("00");
-//        if (rd.nextBoolean()) {
-//            model.setCustomer_customerManagement("100000");
-//        }
+//        model.setService_serviceManagement("1");
+//        model.setCustomer_customerManagement("100000");
+        Random rd = new Random();
+        if (rd.nextBoolean()) {
+            model.setService_serviceManagement("1");
+        } else model.setService_serviceManagement("0");
+        if (rd.nextBoolean()) {
+            model.setCustomer_customerManagement("11");
+        } else if (rd.nextBoolean()) {
+            model.setCustomer_customerManagement("01");
+        } else model.setCustomer_customerManagement("00");
+        if (rd.nextBoolean()) {
+            model.setCustomer_customerManagement("100000");
+        }
         System.out.println("serviceManagement:"+model.getService_serviceManagement());
         System.out.println("customerManagement:"+model.getCustomer_customerManagement());
         model.setReservation_posService(POSPermissionBinary);
@@ -188,12 +188,12 @@ public class ReservationPermissionTest extends BaseTest {
     @DataProvider
     public Object[] POSPermissionModel() {
         return new Object[][]{
-//                {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
+                {"1"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
                 {"111"}
         };
     }
@@ -219,5 +219,9 @@ public class ReservationPermissionTest extends BaseTest {
         new POSCreateReservation(driver,staffCredentials)
                 .checkPermissionPOSService(allPermissions,customerNameAssignedStaff,customerNameNotAssignedStaff)
                 .completeVerifyStaffPermissionPOSService();
+    }
+    @Test
+    public void checkPermissionDiscountCampaign(){
+
     }
 }
