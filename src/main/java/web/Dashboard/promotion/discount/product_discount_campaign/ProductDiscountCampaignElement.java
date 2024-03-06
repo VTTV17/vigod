@@ -93,4 +93,12 @@ public class ProductDiscountCampaignElement {
     public By loc_btnAddSegment = By.cssSelector("fieldset[name ='conditionCustomerSegment'] .gs-fake-link");
     public By loc_lst_lblSegmentName = By.cssSelector(".segment-name > span");
     public By loc_lst_chkCustomerSegment = By.cssSelector("input[name ='conditionCustomerSegment']");
+    By loc_btnAddCollection = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+    By loc_btnAddProduct = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+    public By loc_lst_lblCollectionName = By.cssSelector(".product-name");
+    public By loc_lst_lblProductName = By.cssSelector(".product-name");
+    public By loc_txtSearch = By.cssSelector(".search-input");
+    public By loc_cbxApplicableBranch = By.cssSelector("fieldset[name ='conditionAppliesToBranch'] label");
+    By loc_btnSelectBranch = By.cssSelector("fieldset[name ='conditionAppliesToBranch'] .gs-fake-link");
+    By loc_lst_lblBranchName = By.cssSelector(".branch-name");
 }

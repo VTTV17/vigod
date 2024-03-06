@@ -981,6 +981,11 @@ public class UICommonAction {
             clickActions(locator);
         }
     }
+    public void checkTheCheckBoxOrRadio(By locator,int index) {
+        if (!getElements(locator).get(index).isSelected()) {
+            clickActions(locator);
+        }
+    }
 
     public void checkTheCheckBoxOrRadio(By locValue, By locAction) {
         if (!getElement(locValue).isSelected()) {

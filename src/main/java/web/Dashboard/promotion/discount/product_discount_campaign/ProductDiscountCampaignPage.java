@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
@@ -395,23 +396,69 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
 			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(0));
 		}
 		return this;
-	}    
-    
+	}
+    public ProductDiscountCampaignPage tickApplicableBranch(int optionIndex) {
+        commonAction.waitVisibilityOfElementLocated(loc_cbxApplicableBranch);
+        if (optionIndex ==0) {
+            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,optionIndex);
+            logger.info("Ticked 'All branches' radio button.");
+        } else if (optionIndex ==1) {
+            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,optionIndex);
+            logger.info("Ticked 'Specific Branch' radio button.");
+        } else {
+            logger.info("Input value is not in range (0:1). By default, 'All Branches' radio button is ticked.");
+            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,0);
+        }
+        return this;
+    }
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
         logger.info("Create a new product discount campaign successfully");
     }
-    public ProductDiscountCampaignPage navigateUrl(int productDiscountCampaignId){
-        String url = Links.DOMAIN + "/discounts/detail/WHOLE_SALE/" + productDiscountCampaignId;
-        commonAction.navigateToURL(url);
-        logger.info("Navigate to url: "+url);
-        return this;
-    }
-    public String createDefaultProductCampaign(){
+    public String createDefaultCampaign(){
         String campaignName ="Discount campaign "+ new DataGenerator().generateString(10);
         inputCampaignName();
         setPromotionDate();
         clickOnTheSaveBtn();
         return campaignName;
+    }
+    public ProductDiscountCampaignPage navigateToCreateProductCampaignPageUrl(){
+        String url = Links.DOMAIN + "/discounts/create/WHOLE_SALE";
+        commonAction.navigateToURL(url);
+        return this;
+    }
+    public ProductDiscountCampaignPage clickOnAddCollection(){
+        commonAction.click(loc_btnAddCollection);
+        logger.info("Click on Add collection.");
+        return this;
+    }
+    public ProductDiscountCampaignPage clickOnAddProducts(){
+        commonAction.click(loc_btnAddProduct);
+        logger.info("Click on Add product.");
+        return this;
+    }
+    public ProductDiscountCampaignPage clickOnSelectBranch(){
+        commonAction.click(loc_btnSelectBranch);
+        logger.info("Click on Select Branch.");
+        return this;
+    }
+    public boolean isProductShowOnSelectProductList(String productName){
+        commonAction.inputText(loc_txtSearch,productName);
+        List<WebElement> productNames = commonAction.getElements(loc_lst_lblProductName);
+        if (productNames.isEmpty()) return false;
+        for (int i=0; i<productNames.size();i++) {
+            if(commonAction.getText(loc_lst_lblProductName,i).equalsIgnoreCase(productName))
+                return true;
+        }
+        return false;
+    }
+    public List<String> getBranchList(){
+        List<WebElement> branchNamesEls = commonAction.getElements(loc_lst_lblBranchName);
+        List<String> branchNames = new ArrayList<>();
+        for (int i=0;i<branchNamesEls.size();i++) {
+            branchNames.add(commonAction.getText(loc_lst_lblBranchName,i));
+        }
+        Collections.sort(branchNames);
+        return branchNames;
     }
 }

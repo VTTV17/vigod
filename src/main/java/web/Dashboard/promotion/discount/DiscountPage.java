@@ -1,5 +1,7 @@
 package web.Dashboard.promotion.discount;
 
+import api.Seller.login.Login;
+import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -12,6 +14,7 @@ import org.testng.Assert;
 
 import utilities.assert_customize.AssertCustomize;
 import utilities.links.Links;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
@@ -43,11 +46,22 @@ public class DiscountPage extends DiscountElement {
 	ProductDiscountCampaignElement productDiscountCampaignEl;
 	ServiceDiscountCampaignPage serviceCampaignPage;
 	HomePage homePage;
+	LoginInformation loginInformation;
 
 	public DiscountPage(WebDriver driver) {
         super(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
+		assertCustomize = new AssertCustomize(driver);
+		productDiscountCampaignEl = new ProductDiscountCampaignElement(driver);
+		homePage = new HomePage(driver);
+		serviceCampaignPage = new ServiceDiscountCampaignPage(driver);
+	}
+	public DiscountPage(WebDriver driver, LoginInformation loginInformation) {
+		super(driver);
+		this.loginInformation = loginInformation;
+		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		commonAction = new UICommonAction(driver);
 		assertCustomize = new AssertCustomize(driver);
 		productDiscountCampaignEl = new ProductDiscountCampaignElement(driver);
 		homePage = new HomePage(driver);
@@ -557,11 +571,11 @@ public class DiscountPage extends DiscountElement {
 		}else { //don't have permission View list, then check by navigate url
 			if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
 				//check navigate to detail page
-				new ProductDiscountCampaignPage(driver).navigateUrl(productCampaignScheduledId);
+				commonAction.navigateToURL(detailUrl);
 				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
 				//check navigate to edit page
-				new ProductDiscountCampaignPage(driver).navigateUrl(productCampaignScheduledId);
+				commonAction.navigateToURL(editUrl);
 				name = commonAction.getText(productDiscountCampaignEl.loc_txtCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Product discount campaign should be shown name, but '%s' is shown".formatted(name));
 			} else {
@@ -620,11 +634,11 @@ public class DiscountPage extends DiscountElement {
 		}else { //don't have permission View list, then check by navigate url
 			if (allPermissions.getPromotion().getDiscountCampaign().isViewProductDiscountCampaignDetail()) {
 				//check navigate to detail page
-				new ProductDiscountCampaignPage(driver).navigateUrl(serviceCampaignId);
+				commonAction.navigateToURL(detailUrl);
 				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name, but '%s' is shown".formatted(name));
 				//check navigate to edit page
-				new ProductDiscountCampaignPage(driver).navigateUrl(serviceCampaignId);
+				commonAction.navigateToURL(editUrl);
 				name = commonAction.getText(serviceCampaignPage.loc_txtCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name, but '%s' is shown".formatted(name));
 			} else {
@@ -650,21 +664,171 @@ public class DiscountPage extends DiscountElement {
 //		}
 //		return this;
 	}
-	public DiscountPage checkPermissionCreateProductCampaign(){
+	public DiscountPage checkPermissionCreateProductCampaign(String productNameOfShopOwner, String productNameOfStaff){
+		openCreateProductDiscountCampaignPage();
+		homePage.waitTillSpinnerDisappear1();
 		if (allPermissions.getPromotion().getDiscountCampaign().isCreateProductDiscountCampaign()){
-			openCreateProductDiscountCampaignPage();
-			homePage.waitTillSpinnerDisappear1();
 			//Check permission View customer segment list.
-			if(allPermissions.getCustomer().getSegment().isViewSegmentList()){
-
-			}
-			//
-			String newProductCampaignName = new ProductDiscountCampaignPage(driver).createDefaultProductCampaign();
+			checkPermissionViewCustomerSegmentList();
+			//Check permission View product list or View created product list
+			checkPermissionViewProductList(productNameOfShopOwner,productNameOfStaff);
+			//Check permission View product collection.
+			checkPermissionViewProductCollectionList();
+			//Create product campaign
+			String newProductCampaignName = new ProductDiscountCampaignPage(driver).createDefaultCampaign();
 			navigateUrl();
 			String firstPromotion = commonAction.getText(loc_lstPromotionName,0);
 			assertCustomize.assertEquals(firstPromotion,newProductCampaignName,
 					"[Failed]New product discount campaign not show on top.");
+			//Check has Clone permission.
+			filterDiscountType("Product Discount Campaign");
+			commonAction.click(loc_lst_icnClone,0);
+			String toastMessage = new HomePage(driver).getToastMessage();
+			try {
+				assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("promotion.discount.promotionManagement.cloneSuccessMessage"),
+						"[Failed] Successed message should be shown, but '%s' shown.".formatted(toastMessage));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}else {
+			assertCustomize.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(),
+					"[Failed] Restricted page not show when click create product discount campaign.");
+			//Check staff don't have Clone permission.
+			navigateUrl();
+			filterDiscountType("Product Discount Campaign");
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnClone,0),
+					"[Restricted page not show when click on Clone product campaign]");
 		}
 		return this;
 	}
+	public DiscountPage checkPermissionViewCustomerSegmentList(){
+		commonAction.clickJS(productDiscountCampaignEl.loc_lst_chkCustomerSegment,1);
+		commonAction.click(productDiscountCampaignEl.loc_btnAddSegment);
+		List<WebElement> segmentList = commonAction.getElements(productDiscountCampaignEl.loc_lst_lblSegmentName);
+		if(allPermissions.getCustomer().getSegment().isViewSegmentList())
+			assertCustomize.assertTrue(!segmentList.isEmpty(),"[Failed] Segment list should be shown");
+		else
+			assertCustomize.assertTrue(segmentList.isEmpty(),"[Failed] Segment list should be empty.");
+		return this;
+	}
+	public DiscountPage checkPermissionViewProductCollectionList(){
+		new ProductDiscountCampaignPage(driver)
+				.navigateToCreateProductCampaignPageUrl()
+				.tickAppliesTo(1)
+				.clickOnAddCollection();
+		List<WebElement> collectionList = commonAction.getElements(productDiscountCampaignEl.loc_lst_lblCollectionName);
+		if(allPermissions.getProduct().getCollection().isViewCollectionList())
+			assertCustomize.assertTrue(!collectionList.isEmpty(),"[Failed]Product collection list should be shown");
+		else
+			assertCustomize.assertTrue(collectionList.isEmpty(),"[Failed]Product collection list should be empty.");
+		return this;
+	}
+	public DiscountPage checkPermissionViewProductList(String productNameOfShopOwner, String productNameOfStaff){
+		new ProductDiscountCampaignPage(driver)
+				.navigateToCreateProductCampaignPageUrl()
+				.tickAppliesTo(2)
+				.clickOnAddProducts();
+		if(allPermissions.getProduct().getProductManagement().isViewProductList()){
+			assertCustomize.assertTrue(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfShopOwner),
+					"[Failed]Product is created by shop owner: '%s' should be shown".formatted(productNameOfShopOwner));
+			assertCustomize.assertTrue(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfStaff),
+					"[Failed]Product is created by staff: '%s' should be shown".formatted(productNameOfStaff));
+		}else if(allPermissions.getProduct().getProductManagement().isViewCreatedProductList()){
+			assertCustomize.assertFalse(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfShopOwner),
+					"[Failed]Product is created by shop owner: '%s' should not be shown".formatted(productNameOfShopOwner));
+			assertCustomize.assertTrue(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfStaff),
+					"[Failed]Product is created by: '%s' should be shown".formatted(productNameOfStaff));
+		}else {
+			assertCustomize.assertFalse(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfShopOwner),
+					"[Failed]Product is created by shop owner: '%s' should not be shown".formatted(productNameOfShopOwner));
+			assertCustomize.assertFalse(new ProductDiscountCampaignPage(driver).isProductShowOnSelectProductList(productNameOfStaff),
+					"[Failed]Product is created by staff: '%s' should not be shown".formatted(productNameOfStaff));
+		}
+		return this;
+	}
+	public DiscountPage checkPermissionViewServiceList(String serviceNameOfShopOwner, String serviceNameOfStaff){
+		new ServiceDiscountCampaignPage(driver)
+				.navigateToCreateServiceCampaign()
+				.tickAppliesTo(2)
+				.clickOnAddService();
+		if(allPermissions.getService().getServiceManagement().isViewListService()){
+			assertCustomize.assertTrue(new ServiceDiscountCampaignPage(driver).isServiceShowOnSelectServiceList(serviceNameOfShopOwner),
+					"[Failed]Service is created by shop owner: '%s' should be shown".formatted(serviceNameOfShopOwner));
+			assertCustomize.assertTrue(new ServiceDiscountCampaignPage(driver).isServiceShowOnSelectServiceList(serviceNameOfStaff),
+					"[Failed]Service is created by staff: '%s' should be shown".formatted(serviceNameOfStaff));
+		}else if(allPermissions.getService().getServiceManagement().isViewListCreatedService()){
+			assertCustomize.assertFalse(new ServiceDiscountCampaignPage(driver).isServiceShowOnSelectServiceList(serviceNameOfShopOwner),
+					"[Failed]Service is created by shop owner: '%s' should not be shown".formatted(serviceNameOfShopOwner));
+			assertCustomize.assertTrue(new ServiceDiscountCampaignPage(driver).isServiceShowOnSelectServiceList(serviceNameOfStaff),
+					"[Failed]Service is created by: '%s' should be shown".formatted(serviceNameOfStaff));
+		}else {
+			assertCustomize.assertFalse(new ServiceDiscountCampaignPage(driver).isServiceShowOnSelectServiceList(serviceNameOfShopOwner),
+					"[Failed]Service is created by shop owner: '%s' should not be shown".formatted(serviceNameOfShopOwner));
+			assertCustomize.assertFalse(new ServiceDiscountCampaignPage(driver).isServiceShowOnSelectServiceList(serviceNameOfStaff),
+					"[Failed]Service is created by staff: '%s' should not be shown".formatted(serviceNameOfStaff));
+		}
+		return this;
+	}
+	public DiscountPage checkPermissionViewServiceCollectionList(){
+		new ServiceDiscountCampaignPage(driver)
+				.navigateToCreateServiceCampaign()
+				.tickAppliesTo(1)
+				.clickOnAddServiceCollection();
+		List<WebElement> collectionList = commonAction.getElements(new ServiceDiscountCampaignPage(driver).loc_lst_lblCollectionName);
+		if(allPermissions.getService().getServiceCollection().isViewCollectionList())
+			assertCustomize.assertTrue(!collectionList.isEmpty(),"[Failed]Service collection list should be shown");
+		else
+			assertCustomize.assertTrue(collectionList.isEmpty(),"[Failed]Service collection list should be empty.");
+		return this;
+	}
+	public DiscountPage checkPermissionViewBranchList(){
+		List<Integer> branchIds = new Login().getInfo(loginInformation).getAssignedBranchesIds();
+		List<String> branchNamesAssigned = new BranchManagement(loginInformation).getBranchNameById(branchIds);
+		new ProductDiscountCampaignPage(driver)
+				.navigateToCreateProductCampaignPageUrl()
+				.tickApplicableBranch(1)
+				.clickOnSelectBranch();
+		List<String> branchListActual = new ProductDiscountCampaignPage(driver).getBranchList();
+		assertCustomize.assertEquals(branchListActual,branchNamesAssigned,
+				"[Failed] Branch list expected: %s \nBranch list actual: %s".formatted(branchNamesAssigned,branchListActual));
+		return this;
+	}
+	public DiscountPage checkPermissionCreateServiceCampaign(String serviceNameOfShopOwner, String serviceNameOfStaff){
+		clickServiceDiscountCampaign();
+		homePage.waitTillSpinnerDisappear1();
+		if (allPermissions.getPromotion().getDiscountCampaign().isCreateServiceDiscountCampaign()){
+			//Check permission View customer segment list.
+			checkPermissionViewCustomerSegmentList();
+			//Check permission View service list or View created service list
+			checkPermissionViewServiceList(serviceNameOfShopOwner,serviceNameOfStaff);
+			//Check permission View service collection.
+			checkPermissionViewServiceCollectionList();
+			//Create service campaign
+			String newServiceCampaignName = new ProductDiscountCampaignPage(driver).createDefaultCampaign();
+			navigateUrl();
+			String firstPromotion = commonAction.getText(loc_lstPromotionName,0);
+			assertCustomize.assertEquals(firstPromotion,newServiceCampaignName,
+					"[Failed]New service discount campaign not show on top.");
+			//Check has Clone permission.
+			filterDiscountType("Service Discount Campaign");
+			commonAction.click(loc_lst_icnClone,0);
+			String toastMessage = new HomePage(driver).getToastMessage();
+			try {
+				assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("promotion.discount.promotionManagement.cloneSuccessMessage"),
+						"[Failed] Successed message should be shown, but '%s' shown.".formatted(toastMessage));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}else {
+			assertCustomize.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(),
+					"[Failed] Restricted page not show when click create service discount campaign.");
+			//Check staff don't have Clone permission.
+			navigateUrl();
+			filterDiscountType("Service Discount Campaign");
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnClone,0),
+					"[Restricted page not show when click on Clone service campaign]");
+		}
+		return this;
+	}
+
 }

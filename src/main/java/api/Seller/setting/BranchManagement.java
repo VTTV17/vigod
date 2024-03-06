@@ -10,6 +10,7 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -187,5 +188,15 @@ public class BranchManagement {
 
         // return branch info
         return brInfo;
+    }
+    public List<String> getBranchNameById(List<Integer> branchIds){
+        JsonPath resPath = getBranchInfoResponseJsonPath();
+        List<String> branchNames = new ArrayList<>();
+        for (int branchId:branchIds) {
+          String branchName =  resPath.getString("find {it.id == %s}.name".formatted(branchId));
+          branchNames.add(branchName);
+        }
+        Collections.sort(branchNames);
+        return branchNames;
     }
 }

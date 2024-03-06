@@ -39,8 +39,11 @@ public class ServiceDiscountCampaignPage {
     List<WebElement> APPLIES_TO_LABEL;
 	public By loc_detailPage_lblDiscountCampaignName = By.xpath("(//div[@class = 'row'])[3]/div[2]");
 	public By loc_txtCampaignName = By.cssSelector("input#name");
-
-
+	public By loc_btnAddCollection = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+	public By loc_btnAddService = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+	public By loc_lst_lblCollectionName = By.cssSelector(".product-name");
+	public By loc_lst_lblServiceName = By.cssSelector(".product-name");
+	public By loc_txtSearch = By.cssSelector(".search-input");
 	public ServiceDiscountCampaignPage tickAppliesTo(int optionIndex) {
 		commonAction.waitElementList(APPLIES_TO_LABEL);
 		if (optionIndex ==0) {
@@ -58,10 +61,30 @@ public class ServiceDiscountCampaignPage {
 		}
 		return this;
 	}
-	public ServiceDiscountCampaignPage navigateUrl(int serviceDiscountCampaignId){
-		String url = Links.DOMAIN + "/discounts/detail/WHOLE_SALE_SERVICE/" + serviceDiscountCampaignId;
+	public ServiceDiscountCampaignPage navigateToCreateServiceCampaign(){
+		String url = Links.DOMAIN + "/discounts/create/WHOLE_SALE_SERVICE";
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
 		return this;
+	}
+	public ServiceDiscountCampaignPage clickOnAddService(){
+		commonAction.click(loc_btnAddService);
+		logger.info("Click on Add service button.");
+		return this;
+	}
+	public ServiceDiscountCampaignPage clickOnAddServiceCollection(){
+		commonAction.click(loc_btnAddCollection);
+		logger.info("Click on Add service collection button.");
+		return this;
+	}
+	public boolean isServiceShowOnSelectServiceList(String productName){
+		commonAction.inputText(loc_txtSearch,productName);
+		List<WebElement> productNames = commonAction.getElements(loc_lst_lblServiceName);
+		if (productNames.isEmpty()) return false;
+		for (int i=0; i<productNames.size();i++) {
+			if(commonAction.getText(loc_lst_lblServiceName,i).equalsIgnoreCase(productName))
+				return true;
+		}
+		return false;
 	}
 }
