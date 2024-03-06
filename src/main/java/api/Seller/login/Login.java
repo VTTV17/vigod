@@ -1,5 +1,6 @@
 package api.Seller.login;
 
+import api.Seller.setting.BranchManagement;
 import com.google.common.collect.Iterables;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
@@ -102,7 +103,8 @@ public class Login {
         }
 
         // if login by staff => login and get staff information
-        if (!jPath.getList("authorities").contains("ROLE_STORE")) info = new Login().getStaffInfo(info);
+        if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
+        else info.setAssignedBranchesIds(new BranchManagement(loginInformation, info).getInfo().getBranchID());
 
         // set staffToken
         API.setStaffPermissionToken(info.getStaffPermissionToken() != null ? info.getStaffPermissionToken() : "");

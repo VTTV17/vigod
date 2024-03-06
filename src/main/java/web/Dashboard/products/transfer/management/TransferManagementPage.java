@@ -63,9 +63,7 @@ public class TransferManagementPage extends TransferManagementElement {
         BranchManagement branchManagement = new BranchManagement(staffLoginInformation);
 
         // get assigned branches
-        List<Integer> assignedBranchIds = (loginInfo.getAssignedBranchesIds() != null)
-                ? loginInfo.getAssignedBranchesIds() // staff
-                : branchManagement.getInfo().getBranchID(); // seller
+        List<Integer> assignedBranchIds = loginInfo.getAssignedBranchesIds();
 
         // check view transfer list
         TransferInfo transferInfo = new TransferManagement(sellerLoginInformation).getAllTransferInfo();

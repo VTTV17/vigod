@@ -25,9 +25,11 @@ public class BranchManagement {
     Logger logger = LogManager.getLogger(BranchManagement.class);
     API api = new API();
 
-    public BranchManagement(LoginInformation loginInformation) {
+    public BranchManagement(LoginInformation loginInformation, LoginDashboardInfo... loginInfo) {
         this.loginInformation = loginInformation;
-        loginInfo = new Login().getInfo(loginInformation);
+        this.loginInfo = loginInfo.length == 0
+                ? new Login().getInfo(loginInformation)
+                : loginInfo[0];
     }
 
     JsonPath getBranchInfoResponseJsonPath() {

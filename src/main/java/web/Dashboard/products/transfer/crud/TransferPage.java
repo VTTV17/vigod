@@ -290,9 +290,8 @@ public class TransferPage extends TransferElement {
         // init branch management API
         BranchManagement branchManagement = new BranchManagement(loginInformation);
         // get assigned branches
-        List<Integer> assignedBranchIds = (loginInfo.getAssignedBranchesIds() != null)
-                ? loginInfo.getAssignedBranchesIds() // staff
-                : branchManagement.getInfo().getBranchID(); // seller
+        List<Integer> assignedBranchIds = loginInfo.getAssignedBranchesIds();
+
         // get destination branches
         BranchInfo destinationInfo = branchManagement.getDestinationBranchesInfo();
         List<String> destinationBranchNames = destinationInfo.getBranchName();
