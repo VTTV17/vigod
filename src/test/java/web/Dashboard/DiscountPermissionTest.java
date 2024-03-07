@@ -30,6 +30,8 @@ public class DiscountPermissionTest extends BaseTest {
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
+	SegmentAPI segmentAPI;
+	
 
 	int permissionGroupId;
 
@@ -38,13 +40,14 @@ public class DiscountPermissionTest extends BaseTest {
 		ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
-
+		segmentAPI = new SegmentAPI(ownerCredentials);
+		
 		preConditionSetup();
 	}
 
 	@AfterClass
 	void deletePermissionGroup() {
-		permissionAPI.deleteGroupPermission(permissionGroupId);
+//		permissionAPI.deleteGroupPermission(permissionGroupId);
 	}
 
     @Override
@@ -55,9 +58,9 @@ public class DiscountPermissionTest extends BaseTest {
     }
 
     void preConditionSetup() {
-    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);;
+    	permissionGroupId = 3671;
 
-		new Login().getInfo(staffCredentials).getUserId();
+    	segmentAPI.getListSegmentIdInStore();
     }
 
 	CreatePermission setPermissionModel(String permissionBinary) {
@@ -74,9 +77,20 @@ public class DiscountPermissionTest extends BaseTest {
 		} else {
 			model.setProduct_productManagement("00000000000000000010");
 		}
+		
+		if (rd.nextBoolean()) {
+			model.setCustomer_segment("0000");
+		} else {
+			model.setCustomer_segment("0001");
+		}
 
+		if (rd.nextBoolean()) {
+			model.setProduct_collection("000000");
+		} else {
+			model.setProduct_collection("000001");
+		}
+		
 		model.setPromotion_discountCode(permissionBinary);
-
 		return model;
 	}
 
@@ -97,7 +111,7 @@ public class DiscountPermissionTest extends BaseTest {
 
 		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
 
-		discountPage.checkDiscountPermission(allPermissionDTO);
+		discountPage.checkDiscountPermission(allPermissionDTO, 11557142, 11565085, "Tien's Jacket", "Staff A's Dog Food");
 	}
 
 }
