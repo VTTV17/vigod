@@ -50,6 +50,5 @@ public class DiscountElement {
     public By loc_lst_icnClone = By.cssSelector("[title='Clone']");
     By loc_lst_icnEnd = By.xpath("//div[contains(@class,'action')]//span[@class='gs-component-tooltip'][1]");
     By loc_lst_lblStatus = By.xpath("//div[contains(@class,'status')]//span");
-    By loc_dlgConfirmation_btnOK = By.xpath("//button[@data-testid='confirmBtn']");
 
 }
