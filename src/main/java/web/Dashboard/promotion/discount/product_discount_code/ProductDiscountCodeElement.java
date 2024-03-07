@@ -112,8 +112,7 @@ public class ProductDiscountCodeElement {
     @FindBy(css = "fieldset[name = 'conditionPlatform'] label")
     List<WebElement> PLATFORM;
 
-    @FindBy(css = ".gs-button__green")
-    WebElement SAVE_BTN;
+    By loc_btnSave = By.cssSelector(".gs-button__green");
 
     By loc_lblPageTitle = By.cssSelector(".gs-page-title");
     By loc_dlgSelectSegment = By.cssSelector(".select-segment-modal");
