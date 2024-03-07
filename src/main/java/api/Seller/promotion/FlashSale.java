@@ -52,6 +52,8 @@ public class FlashSale {
         private List<Long> flashSalePrice;
         private List<Integer> flashSaleStock;
         private Map<String, List<String>> flashSaleStatus;
+        private String flashSaleName;
+        private int flashSaleId;
     }
 
     public void endEarlyFlashSale() {

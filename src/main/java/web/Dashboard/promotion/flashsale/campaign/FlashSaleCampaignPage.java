@@ -386,4 +386,20 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         logger.info("Create new flash sale campaign successfully");
 
     }
+    public FlashSaleCampaignPage clickOnAddProduct(){
+        commonAction.click(loc_btnAddProduct);
+        logger.info("Click on Add product button.");
+        for (int i=0; i<5; i++) {
+            if (!commonAction.getElements(loc_dlgSelectProduct).isEmpty()) break;
+            commonAction.sleepInMiliSecond(500, "Wait a little until the Add Product dialog to appear");
+        }
+        return this;
+    }
+    public FlashSaleCampaignPage createRadomFlashSale(String productName){
+        inputCampaignName();
+        setFlashSaleCampaignDate();
+        setFlashSaleCampaignTime();
+        clickOnAddProduct();
+        searchAndSelectProduct(productName);
+    }
 }

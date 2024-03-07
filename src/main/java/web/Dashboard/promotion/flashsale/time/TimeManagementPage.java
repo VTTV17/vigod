@@ -2,7 +2,9 @@ package web.Dashboard.promotion.flashsale.time;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import web.Dashboard.promotion.flashsale.campaign.FlashSaleCampaignPage;
@@ -143,5 +145,48 @@ public class TimeManagementPage extends TimeManagementElement {
         wait.until(ExpectedConditions.elementToBeClickable(FlashSaleElement.CREATE_CAMPAIGN_BTN)).click();
 
         return new FlashSaleCampaignPage(driver);
+    }
+    public TimeManagementPage clickOnAddTime(){
+        commonAction.click(loc_btnAddTime);
+        logger.info("Click on Add time button.");
+        return this;
+    }
+    public TimeManagementPage clickOnSave_AddTime(){
+        commonAction.click(loc_dlgAddTime_btnSave);
+        logger.info("Click on Save button on Add time popup.");
+        return this;
+    }
+    public void selectTime(By ddlLocator, By ddvLocator, String selectValue){
+        commonAction.click(ddlLocator);
+        List<WebElement> valuesEls = commonAction.getElements(ddvLocator);
+        boolean isClicked = false;
+        for (int i = 0; i<valuesEls.size();i++){
+            String value = commonAction.getValue(ddvLocator,i);
+            if(value.equalsIgnoreCase(selectValue)){
+                commonAction.click(ddvLocator,i);
+                isClicked=true;
+            }
+        }
+        if(!isClicked){
+            try {
+                throw new Exception("Time = '%s' not found.".formatted(selectValue));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public TimeManagementPage addAFlashSaleTime(String startHour, String endHour){
+        clickOnAddTime();
+        commonAction.click(loc_dlgAddTime_ddlStartAtHour);
+        selectTime(loc_dlgAddTime_ddlStartAtHour, loc_dlgAddTime_ddvStartAtHour,startHour);
+        commonAction.click(loc_dlgAddTime_ddlEndAtHour);
+        selectTime(loc_dlgAddTime_ddlEndAtHour,loc_dlgAddTime_ddvEndAtHour,endHour);
+        clickOnSave_AddTime();
+        return this;
+    }
+    public String getPopUpMessage(){
+        String message = commonAction.getText(loc_lblPopUpMessage);
+        logger.info("Get Popup message: "+message);
+        return message;
     }
 }
