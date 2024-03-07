@@ -462,7 +462,7 @@ public class DiscountPage extends DiscountElement {
 		return this;
 	}
 	public DiscountPage filterDiscountStatus(String status){
-		commonAction.click(loc_ddlDiscountType);
+		commonAction.click(loc_ddlStatus);
 		switch (status){
 			case "All Status" -> commonAction.click(loc_ddvDiscountStatus,0);
 			case "Scheduled" ->	commonAction.click(loc_ddvDiscountStatus,1);
@@ -498,7 +498,10 @@ public class DiscountPage extends DiscountElement {
         return table;
     }	
 
-    public void checkPermissionToViewDiscountList(AllPermissions staffPermission) {
+    boolean permissionToCreateProductDiscountCode(AllPermissions staffPermission) {
+    	return staffPermission.getPromotion().getDiscountCode().isCreateProductDiscountCode();
+    }
+    void checkPermissionToViewDiscounCodetList(AllPermissions staffPermission) {
     	navigateUrl(); 
     	List<List<String>> records = getPromotionTable();
 
@@ -521,11 +524,111 @@ public class DiscountPage extends DiscountElement {
         		Assert.assertTrue(promotionType.isEmpty(), promotionType.toString());
     		}
     	}
-    	logger.info("Finished checking permission to view discount list");
+		logger.info("Finished checkPermissionToViewDiscounCodetList");
     }    
     
-    public void checkDiscountPermission(AllPermissions staffPermission) {
-    	checkPermissionToViewDiscountList(staffPermission);
+	void checkPermissionToViewDiscountCodeDetail(AllPermissions staffPermission, int productDiscountCodeId, int serviceDiscountCodeId) {
+	   ProductDiscountCodePage productDiscountCodePage = new ProductDiscountCodePage(driver);
+	   ServiceDiscountCodePage serviceDiscountCodePage = new ServiceDiscountCodePage(driver);
+	   
+	   for (int i=0; i<2; i++) {
+    		boolean isPermissionGranted;
+    		if (i==0) {
+    			isPermissionGranted = staffPermission.getPromotion().getDiscountCode().isViewProductDiscountCodeDetail();
+    			productDiscountCodePage.navigateToProductDiscountCodeScreenByURL(productDiscountCodeId);
+    		} else {
+    			isPermissionGranted = staffPermission.getPromotion().getDiscountCode().isViewServiceDiscountCodeDetail();
+    			serviceDiscountCodePage.navigateToServiceDiscountCodeScreenByURL(serviceDiscountCodeId);
+    		}
+    		
+    		if (isPermissionGranted) {
+    			if (i==0) {
+    				Assert.assertFalse(productDiscountCodePage.getPageTitle().isEmpty());
+    			} else {
+    				Assert.assertFalse(serviceDiscountCodePage.getPageTitle().isEmpty());
+    			}
+    		} else {
+    			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		}
+		}
+		logger.info("Finished checkPermissionToViewDiscountCodeDetail");
+    }    
+   
+	void checkPermissionToCreateProductDiscountCode(AllPermissions staffPermission, String productNotCreatedByStaff, String productCreatedByStaff) {
+		ProductDiscountCodePage productDiscountCodePage = new ProductDiscountCodePage(driver);
+
+		productDiscountCodePage.navigateToCreateProductDiscountCodeScreenByURL();
+
+		if (permissionToCreateProductDiscountCode(staffPermission)) {
+			
+			allPermissions = staffPermission;
+			//In combination with viewSegmentList
+			checkPermissionViewCustomerSegmentList();
+			Assert.assertTrue(AssertCustomize.getCountFalse()==0);
+
+			//In combination with viewAllProductList
+			productDiscountCodePage.navigateToCreateProductDiscountCodeScreenByURL();
+			productDiscountCodePage.selectApplyToOption(2);
+			productDiscountCodePage.clickAddProductLink();
+
+			if (staffPermission.getProduct().getProductManagement().isViewProductList()) {
+				productDiscountCodePage.inputSearchTermInDialog(productNotCreatedByStaff);
+				Assert.assertTrue(productDiscountCodePage.isProductPresentInDialog());
+				productDiscountCodePage.inputSearchTermInDialog(productCreatedByStaff);
+				Assert.assertTrue(productDiscountCodePage.isProductPresentInDialog());
+			} else {
+				if (staffPermission.getProduct().getProductManagement().isViewCreatedProductList()) {
+					productDiscountCodePage.inputSearchTermInDialog(productNotCreatedByStaff);
+					Assert.assertFalse(productDiscountCodePage.isProductPresentInDialog());
+					productDiscountCodePage.inputSearchTermInDialog(productCreatedByStaff);
+					Assert.assertTrue(productDiscountCodePage.isProductPresentInDialog());
+				} else {
+					Assert.assertFalse(productDiscountCodePage.isProductPresentInDialog());
+				}
+			}
+			
+			//In combination with viewProductCollectionList
+			productDiscountCodePage.navigateToCreateProductDiscountCodeScreenByURL();
+			productDiscountCodePage.selectApplyToOption(1);
+			productDiscountCodePage.clickAddCollectionLink();
+			
+			if (staffPermission.getProduct().getCollection().isViewCollectionList()) {
+				Assert.assertTrue(productDiscountCodePage.isCollectionPresentInDialog());
+			} else {
+				Assert.assertFalse(productDiscountCodePage.isCollectionPresentInDialog());
+			}
+			// Need to actually create one?
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+
+		//In combination with cloneDiscount permission
+		if (staffPermission.getPromotion().getDiscountCode().isViewProductDiscountCodeList()) {
+			navigateUrl();
+			filterDiscountType("Product Discount Code");
+			filterDiscountStatus("Scheduled");
+			commonAction.sleepInMiliSecond(500, "Wait a little till there's a change in data");
+			commonAction.click(loc_lst_icnClone,0);
+			
+			if (permissionToCreateProductDiscountCode(staffPermission)) {
+				try {
+					Assert.assertEquals(new HomePage(driver).getToastMessage(), PropertiesUtil.getPropertiesValueByDBLang("promotion.discount.promotionManagement.cloneSuccessMessage"));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			} else {
+				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			}
+		}
+
+		logger.info("Finished checkPermissionToCreateProductDiscountCode");
+	}    
+     
+    public void checkDiscountPermission(AllPermissions staffPermission, int productDiscountCodeId, int serviceDiscountCodeId, String productNotCreatedByStaff, String productCreatedByStaff) {
+    	logger.info("Permissions: " + staffPermission);
+    	checkPermissionToViewDiscounCodetList(staffPermission);
+    	checkPermissionToViewDiscountCodeDetail(staffPermission, productDiscountCodeId, serviceDiscountCodeId);
+    	checkPermissionToCreateProductDiscountCode(staffPermission, productNotCreatedByStaff, productCreatedByStaff);
     }      
     
     public DiscountPage verifyPermissionViewProductCampaignList(){
@@ -705,7 +808,7 @@ public class DiscountPage extends DiscountElement {
 	}
 	public DiscountPage checkPermissionViewCustomerSegmentList(){
 		commonAction.clickJS(productDiscountCampaignEl.loc_lst_chkCustomerSegment,1);
-		commonAction.click(productDiscountCampaignEl.loc_btnAddSegment);
+		new ProductDiscountCampaignPage(driver).clickOnAddSegment();
 		List<WebElement> segmentList = commonAction.getElements(productDiscountCampaignEl.loc_lst_lblSegmentName);
 		if(allPermissions.getCustomer().getSegment().isViewSegmentList())
 			assertCustomize.assertTrue(!segmentList.isEmpty(),"[Failed] Segment list should be shown");
@@ -883,7 +986,7 @@ public class DiscountPage extends DiscountElement {
 	}
 	public DiscountPage endFirstCampaign(){
 		commonAction.click(loc_lst_icnEnd,0);
-		commonAction.click(loc_dlgConfirmation_btnOK);
+		new ConfirmationDialog(driver).clickOKBtn();
 		return this;
 	}
 	public DiscountPage verifyPermissionEndProductDiscountCampaign(int productCampaignInprogressId) {
