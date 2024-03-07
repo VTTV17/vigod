@@ -344,7 +344,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
 		return false;
     }
     public void clickOnTheSaveBtn() {
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        commons.click(loc_btnSave);
         logger.info("Create a new product discount campaign successfully");
     }
 
@@ -355,7 +355,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
         });
     }
 
-	public ProductDiscountCodePage navigateToCreateProductDiscountCodeScreenByURL() {
+	public ProductDiscountCodePage navigateToCreateDiscountCodeScreenByURL() {
 		String url = DOMAIN + "/discounts/create/COUPON/";
 		driver.get(url);
 		logger.info("Navigated to: " + url);
@@ -364,8 +364,17 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
 		return this;
 	}	    
 	
-	public ProductDiscountCodePage navigateToProductDiscountCodeScreenByURL(int productDiscountCodeId) {
+	public ProductDiscountCodePage navigateToDiscountCodeDetailScreenByURL(int productDiscountCodeId) {
 		String url = DOMAIN + "/discounts/detail/COUPON/" + productDiscountCodeId;
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commons.removeFbBubble();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}	    
+	
+	public ProductDiscountCodePage navigateToEditDiscountCodeScreenByURL(int productDiscountCodeId) {
+		String url = DOMAIN + "/discounts/edit/COUPON/" + productDiscountCodeId;
 		driver.get(url);
 		logger.info("Navigated to: " + url);
 		commons.removeFbBubble();

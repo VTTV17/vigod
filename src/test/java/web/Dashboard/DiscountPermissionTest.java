@@ -47,7 +47,7 @@ public class DiscountPermissionTest extends BaseTest {
 
 	@AfterClass
 	void deletePermissionGroup() {
-//		permissionAPI.deleteGroupPermission(permissionGroupId);
+		permissionAPI.deleteGroupPermission(permissionGroupId);
 	}
 
     @Override
@@ -58,7 +58,7 @@ public class DiscountPermissionTest extends BaseTest {
     }
 
     void preConditionSetup() {
-    	permissionGroupId = 3671;
+    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 
     	segmentAPI.getListSegmentIdInStore();
     }
@@ -90,6 +90,12 @@ public class DiscountPermissionTest extends BaseTest {
 			model.setProduct_collection("000001");
 		}
 		
+		if (rd.nextBoolean()) {
+			model.setService_serviceCollection("00000");
+		} else {
+			model.setService_serviceCollection("00001");
+		}
+		
 		model.setPromotion_discountCode(permissionBinary);
 		return model;
 	}
@@ -111,7 +117,7 @@ public class DiscountPermissionTest extends BaseTest {
 
 		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
 
-		discountPage.checkDiscountPermission(allPermissionDTO, 11557142, 11565085, "Tien's Jacket", "Staff A's Dog Food");
+		discountPage.checkDiscountPermission(allPermissionDTO, 11557142, 11565085, "Tien's Jacket", "Staff A's Dog Food", "Air plane ticket 1", "Staff A's Cleaning Services");
 	}
 
 }

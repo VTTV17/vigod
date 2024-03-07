@@ -13,6 +13,7 @@ import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
 
 public class ServiceDiscountCodePage {
 
@@ -76,8 +77,14 @@ public class ServiceDiscountCodePage {
 		}
 		return this;
 	}
-
-	public ServiceDiscountCodePage navigateToServiceDiscountCodeScreenByURL(int serviceDiscountCodeId) {
+	
+	public ServiceDiscountCodePage clickSaveBtn() {
+		commonAction.click(elements.loc_btnSave);
+		logger.info("Clicked on Save button");
+		return this;
+	}		
+	
+	public ServiceDiscountCodePage navigateToDiscountCodeDetailScreenByURL(int serviceDiscountCodeId) {
 		String url = DOMAIN + "/discounts/detail/COUPON_SERVICE/" + serviceDiscountCodeId;
 		driver.get(url);
 		logger.info("Navigated to: " + url);
@@ -85,6 +92,67 @@ public class ServiceDiscountCodePage {
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}	
+	public ServiceDiscountCodePage navigateToCreateDiscountCodeScreenByURL() {
+		String url = DOMAIN + "/discounts/create/COUPON_SERVICE/";
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commonAction.removeFbBubble();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}	 	
+
+	public ServiceDiscountCodePage navigateToEditDiscountCodeScreenByURL(int serviceDiscountCodeId) {
+		String url = DOMAIN + "/discounts/edit/COUPON_SERVICE/" + serviceDiscountCodeId;
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commonAction.removeFbBubble();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}	  	
+	
+	public ServiceDiscountCodePage selectApplyToOption(int option) {
+		commonAction.click(elements.loc_rdoApplyToOptions, option);
+		logger.info("Selected Apply To option: " + option);
+		return this;
+	}
+
+	public ServiceDiscountCodePage clickAddCollectionLink() {
+		commonAction.click(elements.loc_lnkAddCollectionOrSpecificProduct);
+		logger.info("Clicked on Add Collection link");
+		for (int i=0; i<5; i++) {
+			if (!commonAction.getElements(elements.loc_dlgSelectCollection).isEmpty()) break;
+			commonAction.sleepInMiliSecond(500, "Wait a little until the Add Collection dialog to appear");
+		}
+		return this;
+	}	
+	
+	public ServiceDiscountCodePage clickAddServiceLink() {
+		commonAction.click(elements.loc_lnkAddCollectionOrSpecificProduct);
+		logger.info("Clicked on Add Service link");
+		for (int i=0; i<5; i++) {
+			if (!commonAction.getElements(elements.loc_dlgSelectService).isEmpty()) break;
+			commonAction.sleepInMiliSecond(500, "Wait a little until the Select Services dialog to appear");
+		}
+		return this;
+	}	
+
+	public boolean isCollectionPresentInDialog() {
+		commonAction.sleepInMiliSecond(1000, "Wait a little for collections to appear in the Add Collection dialog");
+		return !commonAction.getElements(elements.loc_tblServiceNames).isEmpty();
+	}		
+	
+	public boolean isServicePresentInDialog() {
+		commonAction.sleepInMiliSecond(1000, "Wait a little for services to appear in the Add Services dialog");
+		return !commonAction.getElements(elements.loc_tblServiceNames).isEmpty();
+	}		
+	
+    public ServiceDiscountCodePage inputSearchTermInDialog(String searchTerm) {
+    	commonAction.inputText(elements.loc_txtSearchInDialog, searchTerm);
+        logger.info("Input search term: " + searchTerm);
+        commonAction.sleepInMiliSecond(1000, "Wait a little inputSearchTermInDialog"); // Will find a better way to remove this sleep
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        return this;
+    }		
 	
     public String getPageTitle() {
     	String title = commonAction.getText(elements.loc_lblPageTitle);
