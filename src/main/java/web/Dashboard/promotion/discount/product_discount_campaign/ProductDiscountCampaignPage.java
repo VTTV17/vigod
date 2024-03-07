@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.data.DataGenerator;
 import utilities.links.Links;
+import web.Dashboard.home.HomePage;
 import web.Dashboard.promotion.discount.DiscountPage;
 import utilities.commons.UICommonAction;
 
@@ -458,6 +459,7 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     }
     public boolean isProductShowOnSelectProductList(String productName){
         commonAction.inputText(loc_txtSearch,productName);
+        new HomePage(driver).waitTillSpinnerDisappear1();
         List<WebElement> productNames = commonAction.getElements(loc_lst_lblProductName);
         if (productNames.isEmpty()) return false;
         for (int i=0; i<productNames.size();i++) {

@@ -36,8 +36,6 @@ public class ProductDiscountCampaign {
     String DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE&status=IN_PROGRESS";
     String DISCOUNT_CAMPAIGN_DETAIL_PATH = "/orderservices2/api/gs-discount-campaigns/%s/full-condition";
     String DELETE_DISCOUNT_CAMPAIGN_PATH = "/orderservices2/api/gs-discount-campaigns/";
-    String SERVICE_CAMPAIGN_SCHEDULE_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=WHOLE_SALE_SERVICE&status=SCHEDULED";
-
     API api = new API();
     Logger logger = LogManager.getLogger(ProductDiscountCampaign.class);
     LoginInformation loginInformation;
@@ -457,23 +455,5 @@ public class ProductDiscountCampaign {
         discountInfo.setListOfCouponTypes(listOfCouponTypes);
         discountInfo.setListOfCouponValues(listOfCouponValues);
         return discountInfo;
-    }
-    public int getProductDiscountCampaignScheduledId(){
-        int discountId = api.get(DISCOUNT_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getInt("[0].id");
-        return discountId;
-    }
-    public int getProductServiceCampaignScheduledId(){
-        int discountId = api.get(SERVICE_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getInt("[0].id");
-        return discountId;
     }
 }
