@@ -15,7 +15,7 @@ public class PromotionList {
     String DISCOUNT_CAMPAIGN_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=%s&status=%s";
 
     API api = new API();
-    Logger logger = LogManager.getLogger(ProductDiscountCampaign.class);
+    Logger logger = LogManager.getLogger(PromotionList.class);
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
 
