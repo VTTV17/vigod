@@ -76,4 +76,5 @@ public class FlashSaleCampaignElement {
     public By loc_txtCampaignName = By.cssSelector("#campaign-name");
     public By loc_btnAddProduct = By.cssSelector(".gs-fake-link");
     By loc_dlgSelectProduct = By.cssSelector(".select-product-modal");
+    public By loc_btnSave = By.cssSelector(".create-flash-sale-campaign .gs-button__green");
 }
