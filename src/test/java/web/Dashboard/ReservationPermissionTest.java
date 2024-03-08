@@ -231,7 +231,7 @@ public class ReservationPermissionTest extends BaseTest {
     public Object[] DiscountCampaignPermissionModel() {
         return new Object[][]{
 //                {"1"},
-                {"10"},
+//                {"10"},
 //                {"11"},
 //                {"100"},
 //                {"101"},
@@ -264,9 +264,9 @@ public class ReservationPermissionTest extends BaseTest {
 //                {"100000"},
 //                {"100001"},
 //                {"100010"},
-//                {"100011"},
-//                {"100100"},
-//                {"100101"},
+                {"100011"},
+                {"100100"},
+                {"100101"},
 //                {"100110"},
 //                {"100111"},
 //                {"101000"},
@@ -1304,7 +1304,11 @@ public class ReservationPermissionTest extends BaseTest {
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        new DiscountPage(driver).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
+        new DiscountPage(driver,staffCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
                 .completeVerifyStaffPermissionDiscountCampaign();
+    }
+    @Test(dataProvider = "")
+    public void checkPermissionFlashSale(String flashSalePermissionBinary){
+
     }
 }
