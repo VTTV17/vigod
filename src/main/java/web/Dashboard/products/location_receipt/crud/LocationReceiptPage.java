@@ -99,7 +99,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
                 .orElse(0);
     }
 
-    SuggestionProductsInfo addProductInfo(int branchId) {
+    public SuggestionProductsInfo addProductInfo(int branchId) {
         // get product info
         return (branchId == 0) ? new SuggestionProductsInfo()
                 : allProductsAPIWithSellerToken.findProductInformationMatchesWithAddLocationReceipt(branchId);
@@ -211,6 +211,9 @@ public class LocationReceiptPage extends LocationReceiptElement {
             // completed select lot
             commonAction.closePopup(loc_dlgSelectLotDate_btnConfirm);
         }
+
+        // log
+        logger.info("Select lot: %s.".formatted(lotName));
     }
 
     void selectLocation(String locationName) {
@@ -225,6 +228,9 @@ public class LocationReceiptPage extends LocationReceiptElement {
             // completed select location
             commonAction.closePopup(loc_dlgSelectLocation_btnConfirm);
         }
+
+        // log
+        logger.info("Select location: %s.".formatted(locationName));
     }
 
     void saveAsDraft() {
@@ -631,7 +637,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
             // check permission
             if (permissions.getProduct().getLocationReceipt().isCompleteAddProductReceipt()) {
                 // check can completed add location receipt
-                saveGetReceiptAsACompleted();
+                saveAddReceiptAsACompleted();
 
             } else {
                 // if staff don’t have permission “Complete add product receipt”
