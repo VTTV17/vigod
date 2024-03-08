@@ -46,18 +46,18 @@ public class ServiceDiscountCampaignPage {
 	public By loc_txtSearch = By.cssSelector(".search-input");
 	public By loc_btnSave  = By.cssSelector(".gs-button__green");
 	public By loc_btnEndEarly = By.cssSelector(".discount-campaign__detail .btn-save div");
-
+	public By loc_chkAppliesTo = By.cssSelector("fieldset[name ='conditionAppliesTo'] label");
 
 	public ServiceDiscountCampaignPage tickAppliesTo(int optionIndex) {
-		commonAction.waitElementList(APPLIES_TO_LABEL);
+		commonAction.waitForListLoaded(loc_chkAppliesTo,3);
 		if (optionIndex ==0) {
-			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
+			commonAction.checkTheCheckBoxOrRadio(loc_chkAppliesTo,optionIndex);
 			logger.info("Ticked 'All Services' radio button.");
 		} else if (optionIndex ==1) {
-			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
+			commonAction.checkTheCheckBoxOrRadio(loc_chkAppliesTo,optionIndex);
 			logger.info("Ticked 'Specific Service Collections' radio button.");
 		} else if (optionIndex ==2) {
-			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
+			commonAction.checkTheCheckBoxOrRadio(loc_chkAppliesTo,optionIndex);
 			logger.info("Ticked 'Specific Services' radio button.");
 		} else {
 			logger.info("Input value is not in range (0:2). By default, 'All Products' radio button is ticked.");
@@ -91,4 +91,10 @@ public class ServiceDiscountCampaignPage {
 		}
 		return false;
 	}
+	public ServiceDiscountCampaignPage clickOnEndEarlyBtn(){
+		commonAction.click(loc_btnEndEarly);
+		logger.info("Click on End Early button.");
+		return this;
+	}
+
 }
