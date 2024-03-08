@@ -81,9 +81,25 @@ public class CreateSegment {
 	public CreateSegment clickSelectProduct() {
 		commonAction.click(By.xpath(elements.loc_frmConditionFragmentsSpanTag.formatted("2")));
 		logger.info("Clicked on 'Select product' button.");
+		for (int i=0; i<5; i++) {
+			if (!commonAction.getElements(elements.loc_dlgSelectProduct).isEmpty()) break;
+			commonAction.sleepInMiliSecond(500, "Wait a little until the Select Product dialog to appear");
+		}
 		return this;
 	}	
+	
+	public boolean isProductPresentInDialog() {
+		commonAction.sleepInMiliSecond(1000, "Wait a little for products to appear in the Select Product dialog");
+		return !commonAction.getElements(elements.loc_tblProduct).isEmpty();
+	}	
 
+	public CreateSegment inputProductSearchTerm(String productName) {
+		commonAction.inputText(elements.loc_txtSearchProduct, productName);
+		logger.info("Input '" + productName + "' into search box in the Select Product dialog.");
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}		
+	
 	public CreateSegment clickSaveBtn() {
 		commonAction.click(elements.loc_btnSave);
 		new HomePage(driver).waitTillLoadingDotsDisappear();

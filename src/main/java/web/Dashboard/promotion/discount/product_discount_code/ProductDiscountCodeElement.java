@@ -1,5 +1,6 @@
 package web.Dashboard.promotion.discount.product_discount_code;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -70,11 +71,8 @@ public class ProductDiscountCodeElement {
 
     //0: All customers
     //1: Specific segment
-    @FindBy(css = "input[name ='conditionCustomerSegment']")
-    List<WebElement> CUSTOMER_SEGMENT_LABEL;
-
-    @FindBy(css = "fieldset[name ='conditionCustomerSegment'] .gs-fake-link")
-    WebElement ADD_SEGMENT_BTN;
+    By loc_rdoSegmentOptions = By.cssSelector("input[name ='conditionCustomerSegment']");
+    By loc_lnkAddSegment = By.cssSelector("fieldset[name ='conditionCustomerSegment'] .gs-fake-link");
 
     @FindBy(css = "[class^='search'] > div > div > input")
     WebElement SEARCH_BOX;
@@ -88,12 +86,9 @@ public class ProductDiscountCodeElement {
     //0: Entire order
     //1: Specific product collections
     //2: Specific products
-    @FindBy(css = "fieldset[name ='conditionAppliesTo'] label")
-    List<WebElement> APPLIES_TO_LABEL;
-
-    @FindBy(css = "fieldset[name ='conditionAppliesTo'] .gs-fake-link")
-    WebElement ADD_COLLECTION_OR_PRODUCT_BTN;
-
+    By loc_rdoApplyToOptions = By.cssSelector("fieldset[name ='conditionAppliesTo'] label");
+    By loc_lnkAddCollectionOrSpecificProduct = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+    
     //0: None
     //1: Minimum purchase amount (Only satisfied products)
     //2: Minimum quantity of satisfied products
@@ -117,10 +112,14 @@ public class ProductDiscountCodeElement {
     @FindBy(css = "fieldset[name = 'conditionPlatform'] label")
     List<WebElement> PLATFORM;
 
-    @FindBy(css = ".gs-button__green")
-    WebElement SAVE_BTN;
+    By loc_btnSave = By.cssSelector(".gs-button__green");
 
-    @FindBy(css = ".gs-page-title")
-    WebElement PAGE_TITLE;
+    By loc_lblPageTitle = By.cssSelector(".gs-page-title");
+    By loc_dlgSelectSegment = By.cssSelector(".select-segment-modal");
+    By loc_dlgSelectCollection = By.cssSelector(".select-collection-modal");
+    By loc_dlgSelectProduct = By.cssSelector(".product-no-variation-modal");
+    By loc_txtSearchInDialog = By.cssSelector(".search-input");
+    
+    By loc_tblProductNames = By.cssSelector(".product-name");
 
 }

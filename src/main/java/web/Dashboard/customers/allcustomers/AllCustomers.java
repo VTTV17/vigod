@@ -3,7 +3,6 @@ package web.Dashboard.customers.allcustomers;
 import static utilities.links.Links.DOMAIN;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,23 +21,24 @@ import web.Dashboard.customers.allcustomers.create_customer.CreateCustomerPopup;
 import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.Dashboard.home.HomePage;
 
-public class AllCustomers extends HomePage {
+public class AllCustomers {
 
 	final static Logger logger = LogManager.getLogger(AllCustomers.class);
 
 	WebDriver driver;
 	UICommonAction commonAction;
+	HomePage homePage;
 	AllCustomerElement elements;
 
 	public AllCustomers(WebDriver driver) {
-		super(driver);
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
+		homePage = new HomePage(driver);
 		elements = new AllCustomerElement();
 	}
 
 	public AllCustomers navigate() {
-		navigateToPage("Customers");
+		homePage.navigateToPage("Customers");
 		waitTillDataPresent();
 		return this;
 	}
@@ -48,14 +48,14 @@ public class AllCustomers extends HomePage {
 		driver.get(url);
 		logger.info("Navigated to: " + url);
 		commonAction.removeFbBubble();
-		new HomePage(driver).waitTillSpinnerDisappear1();
+		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
 	
 	public AllCustomers navigateToCustomerDetailScreenByURL(int customerProfileId, int userId, String channel) {
 		String url = DOMAIN + "/customers/all-customers/edit/%s/%s/%s".formatted(customerProfileId, userId, channel);
 		driver.get(url);
-		waitTillSpinnerDisappear1();
+		homePage.waitTillSpinnerDisappear1();
 		logger.info("Navigated to: " + url);
 		commonAction.removeFbBubble();
 		return this;
@@ -103,7 +103,7 @@ public class AllCustomers extends HomePage {
 
 	public AllCustomers clickExportCustomer() {
 		if (commonAction.isElementVisiblyDisabled(new ByChained(elements.loc_btnExportCustomer, elements.loc_tmpParent))) {
-			Assert.assertFalse(isElementClicked(elements.loc_btnExportCustomer));
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnExportCustomer));
 			return this;
 		}
 		commonAction.click(elements.loc_btnExportCustomer);
@@ -119,7 +119,7 @@ public class AllCustomers extends HomePage {
 	
 	public AllCustomers clickImportCustomer() {
 		if (commonAction.isElementVisiblyDisabled(new ByChained(elements.loc_btnImportCustomer, elements.loc_tmpParent))) {
-			Assert.assertFalse(isElementClicked(elements.loc_btnImportCustomer));
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnImportCustomer));
 			return this;
 		}
 		commonAction.click(elements.loc_btnImportCustomer);
@@ -147,7 +147,7 @@ public class AllCustomers extends HomePage {
 	
     public AllCustomers clickPrintBarcode() {
     	if (commonAction.isElementVisiblyDisabled(new ByChained(elements.loc_btnPrintBarcode, elements.loc_tmpParent))) {
-    		Assert.assertFalse(isElementClicked(elements.loc_btnPrintBarcode));
+    		Assert.assertFalse(homePage.isElementClicked(elements.loc_btnPrintBarcode));
     		return this;
     	}
     	commonAction.click(elements.loc_btnPrintBarcode);
@@ -168,7 +168,7 @@ public class AllCustomers extends HomePage {
 	public AllCustomers inputSearchTerm(String searchTerm) {
 		commonAction.sendKeys(elements.loc_txtSearchCustomer, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
-		waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear();
 		return this;
 	}
 
@@ -191,21 +191,21 @@ public class AllCustomers extends HomePage {
 	}
 
 	public AllCustomers selectBranch(String branch) {
-		hideFacebookBubble();
+		homePage.hideFacebookBubble();
 		clickFilterIcon();
 		clickBranchList();
 		commonAction.click(By.xpath(elements.loc_ddlFilterBranchValues.formatted(branch)));
 		logger.info("Selected branch: " + branch);
 		clickFilterDoneBtn();
-		waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear();
 		return this;
 	}
 
 	public AllCustomers clickUser(String customerName) {
-		hideFacebookBubble();
+		homePage.hideFacebookBubble();
 		commonAction.click(By.xpath(elements.loc_lblCustomerName.formatted(customerName)));
 		logger.info("Clicked on user: " + customerName);
-		waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear();
 		return this;
 	}
 
@@ -234,33 +234,33 @@ public class AllCustomers extends HomePage {
 		} else if (permission.contentEquals("D")) {
 			// Not reproducible
 		} else {
-			Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+			Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
 		}
     }
     public void verifyPermissionToImportCustomer(String permission) {
 		clickImportCustomer();
 		boolean flag = isImportCustomerDialogDisplayed();
 		commonAction.refreshPage();
-		waitTillSpinnerDisappear1();
+		homePage.waitTillSpinnerDisappear1();
     	if (permission.contentEquals("A")) {
     		Assert.assertTrue(flag);
     	} else if (permission.contentEquals("D")) {
     		// Not reproducible
     	} else {
-    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToPrintBarCode(String permission) {
 		clickPrintBarcode();
 		boolean flag = isPrintBarcodeDialogDisplayed();
 		commonAction.refreshPage();
-		waitTillSpinnerDisappear1();
+		homePage.waitTillSpinnerDisappear1();
     	if (permission.contentEquals("A")) {
     		Assert.assertTrue(flag);
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(flag);
     	} else {
-    		Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     
@@ -564,7 +564,8 @@ public class AllCustomers extends HomePage {
     	logger.info("Finished checkPermissionToPrintBarcode");
     }
     
-    public void checkCustomerPermission(AllPermissions staffPermission, String unassignedCustomer, String assignedCustomer, int customerId, int userId, String saleChannel, String reponsiblePartner, String responsibleStaff) {
+    //https://mediastep.atlassian.net/browse/BH-13820
+    public void checkCustomerPermission(AllPermissions staffPermission, String unassignedCustomer, String assignedCustomer, int customerId, int userId, String saleChannel) {
     	checkPermissionToViewCustomerList(staffPermission, unassignedCustomer, assignedCustomer);
     	checkPermissionToViewGeneralInfo(staffPermission, customerId, userId, saleChannel);
     	checkPermissionToViewBankInfo(staffPermission, customerId, userId, saleChannel);
@@ -578,7 +579,7 @@ public class AllCustomers extends HomePage {
     	checkPermissionToUpdateStatus(staffPermission, customerId, userId, saleChannel);
     	checkPermissionToMergeCustomer(staffPermission);
     	checkPermissionToSeeCustomerAnalytics(staffPermission);
-    	checkPermissionToConfirmPayment(staffPermission, customerId, userId, saleChannel); //Dev is checking this bug
+    	checkPermissionToConfirmPayment(staffPermission, customerId, userId, saleChannel);
     	checkPermissionToExportCustomer(staffPermission);
     	checkPermissionToDownloadExportedCustomer(staffPermission);
     	checkPermissionToPrintBarcode(staffPermission);

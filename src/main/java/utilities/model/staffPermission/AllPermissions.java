@@ -802,8 +802,8 @@ public class AllPermissions {
         // parse Promotion - Discount campaign
         String discountCampaignPermission = getBinaryPermissionString(payloadJson, "staffPermissions[\"promotion-discountCampaign\"]");
         promotion.getDiscountCampaign().setViewProductCampaignList(checkPermission(discountCampaignPermission, 0));
-        promotion.getDiscountCampaign().setViewServiceDiscountCampaignList(checkPermission(discountCampaignPermission, 1));
-        promotion.getDiscountCampaign().setViewProductDiscountCampaignDetail(checkPermission(discountCampaignPermission, 2));
+        promotion.getDiscountCampaign().setViewProductDiscountCampaignDetail(checkPermission(discountCampaignPermission, 1));
+        promotion.getDiscountCampaign().setViewServiceDiscountCampaignList(checkPermission(discountCampaignPermission, 2));
         promotion.getDiscountCampaign().setViewServiceDiscountCampaignDetail(checkPermission(discountCampaignPermission, 3));
         promotion.getDiscountCampaign().setCreateProductDiscountCampaign(checkPermission(discountCampaignPermission, 4));
         promotion.getDiscountCampaign().setCreateServiceDiscountCampaign(checkPermission(discountCampaignPermission, 5));

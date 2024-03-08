@@ -1,5 +1,6 @@
 package web.Dashboard.promotion.discount.product_discount_campaign;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -87,4 +88,23 @@ public class ProductDiscountCampaignElement {
 
     @FindBy(css = ".gs-page-title")
     WebElement PAGE_TITLE;
+    public By loc_detail_lblDiscountCampaignName = By.xpath("(//div[@class = 'row'])[3]/div[2]");
+    public By loc_txtCampaignName = By.cssSelector("input#name");
+    public By loc_btnAddSegment = By.cssSelector("fieldset[name ='conditionCustomerSegment'] .gs-fake-link");
+    public By loc_lst_lblSegmentName = By.cssSelector(".segment-name > span");
+    public By loc_lst_chkCustomerSegment = By.cssSelector("input[name ='conditionCustomerSegment']");
+    By loc_btnAddCollection = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+    By loc_btnAddProduct = By.cssSelector("fieldset[name ='conditionAppliesTo'] .gs-fake-link");
+    public By loc_lst_lblCollectionName = By.cssSelector(".product-name");
+    public By loc_lst_lblProductName = By.cssSelector(".product-name");
+    public By loc_txtSearch = By.cssSelector(".search-input");
+    public By loc_cbxApplicableBranch = By.cssSelector("fieldset[name ='conditionAppliesToBranch'] label");
+    By loc_btnSelectBranch = By.cssSelector("fieldset[name ='conditionAppliesToBranch'] .gs-fake-link");
+    By loc_lst_lblBranchName = By.cssSelector(".branch-name");
+    public By loc_btnSave  = By.cssSelector(".gs-button__green");
+    public By loc_btnEndEarly = By.cssSelector(".discount-campaign__detail .btn-save div");
+    By loc_dlgSelectSegment = By.cssSelector(".select-segment-modal");
+    By loc_dlgSelectCollection = By.cssSelector(".select-collection-modal");
+
+    By loc_dlgSelectProduct = By.cssSelector(".product-no-variation-modal");
 }

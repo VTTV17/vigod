@@ -1,5 +1,6 @@
 package web.Dashboard.promotion.flashsale.time;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -38,4 +39,13 @@ public class TimeManagementElement {
 
     @FindBy(css = ".modal-dialog-centered .gs-button__green")
     WebElement CLOSE_BTN;
+    By loc_lblPopUpMessage = By.cssSelector(".modal-body");
+    public By loc_lst_lblStartTime = By.xpath("//tr/td[1]/span");
+    By loc_dlgAddTime_ddlStartAtHour = By.xpath("//label[@for='start-at-hour']/following-sibling::div[1]//button");
+    By loc_dlgAddTime_ddvStartAtHour = By.xpath("//label[@for='start-at-hour']/following-sibling::div[1]//div[@class='uik-select__label']");
+    By loc_dlgAddTime_btnSave = By.cssSelector(".add-flash-sale-time-modal__footer button");
+    public By loc_btnAddTime = By.cssSelector(".flash-sale-time-management button");
+    By loc_dlgAddTime_ddlEndAtHour = By.xpath("//label[@for='end-at-hour']/following-sibling::div[1]//button");
+    By loc_dlgAddTime_ddvEndAtHour = By.xpath("//label[@for='end-at-hour']/following-sibling::div[1]//div[@class='uik-select__label']");
+
 }

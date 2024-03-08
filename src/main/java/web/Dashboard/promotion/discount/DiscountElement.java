@@ -42,5 +42,13 @@ public class DiscountElement {
      */
     By loc_ddvDiscountType = By.xpath("(//button[contains(@class,'btn-secondary')])[1]/following-sibling::div//button");
     By loc_lstPromotionName = By.cssSelector(".discount-name");
-
+    By loc_lstPromotionType = By.cssSelector(".type");
+    By loc_lstPromotionActiveDate = By.cssSelector(".active-date");
+    By loc_lstPromotionStatus = By.cssSelector(".gs-status-tag");
+    By loc_lst_icnEdit = By.cssSelector(".icon-edit");
+    By loc_ddvDiscountStatus = By.xpath("(//button[contains(@class,'btn-secondary')])[2]/following-sibling::div//button");
+    public By loc_lst_icnClone = By.cssSelector("[title='Clone']");
+    By loc_lst_icnEnd = By.xpath("//div[contains(@class,'action')]//span[@class='gs-component-tooltip'][1]");
+    By loc_lst_lblStatus = By.xpath("//div[contains(@class,'status')]//span");
+    By loc_btnServiceCampaign = By.cssSelector("div.second-button-group > div > button:nth-child(2)");
 }

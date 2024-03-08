@@ -8,6 +8,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.commons.UICommonAction;
+import utilities.links.Links;
+import web.Dashboard.promotion.flashsale.FlashSalePage;
 import web.Dashboard.promotion.flashsale.time.TimeManagementPage;
 
 import java.time.Duration;
@@ -150,13 +152,13 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         return check;
     }
 
-    private void searchAndSelectProduct(String productName) throws InterruptedException {
+    private void searchAndSelectProduct(String productName) {
         // clear and input new search keyword
         wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX)).clear();
         SEARCH_BOX.sendKeys(productName);
 
         // wait api return search result
-        sleep(1500);
+        commonAction.sleepInMiliSecond(1500);
 
         // check have result or not
         // select all products match with search condition
@@ -170,23 +172,27 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
     /**
      * Search and select product
      */
-//    public FlashSaleCampaignPage addFlashSaleProduct(String... productName) throws InterruptedException {
-//        // open product list
-//        wait.until(ExpectedConditions.elementToBeClickable(ADD_PRODUCT_BTN)).click();
-//        logger.info("Open select flash sale product popup");
-//
-//        // if list product is provided
-//        // search product by product name
-//        // else select just created product name
-//        if (productName.length > 0) for (String name : productName) searchAndSelectProduct(name);
-//        else searchAndSelectProduct(uiProductName);
-//
-//        // close popup
-//        wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
-//        logger.info("Close select flash sale product popup");
-//
-//        return this;
-//    }
+    public FlashSaleCampaignPage addFlashSaleProduct(String... productName) {
+        // open product list
+        wait.until(ExpectedConditions.elementToBeClickable(ADD_PRODUCT_BTN)).click();
+        logger.info("Open select flash sale product popup");
+
+        // if list product is provided
+        // search product by product name
+        // else select just created product name
+        if (productName.length > 0) for (String name : productName) searchAndSelectProduct(name);
+        else try {
+            throw new Exception("Need to product to search.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // close popup
+        wait.until(ExpectedConditions.elementToBeClickable(OK_BTN)).click();
+        logger.info("Close select flash sale product popup");
+
+        return this;
+    }
 
     /**
      * Remove out of stock product
@@ -385,5 +391,37 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         // log
         logger.info("Create new flash sale campaign successfully");
 
+    }
+    public FlashSaleCampaignPage clickOnAddProduct(){
+        commonAction.click(loc_btnAddProduct);
+        logger.info("Click on Add product button.");
+        for (int i=0; i<5; i++) {
+            if (!commonAction.getElements(loc_dlgSelectProduct).isEmpty()) break;
+            commonAction.sleepInMiliSecond(500, "Wait a little until the Add Product dialog to appear");
+        }
+        return this;
+    }
+    public FlashSaleCampaignPage createRadomFlashSale(String productName){
+        inputCampaignName();
+        setFlashSaleCampaignDate();
+        setFlashSaleCampaignTime();
+        clickOnAddProduct();
+        searchAndSelectProduct(productName);
+        inputFlashSalePrice();
+        inputMaxPurchaseLimit();
+        completeCreateFlashSaleCampaign();
+        return this;
+    }
+    public FlashSaleCampaignPage navigateToEditFlashSale(int flashSaleId){
+        String url = Links.DOMAIN + "/flash-sale/edit/%s".formatted(flashSaleId);
+        commonAction.navigateToURL(url);
+        logger.info("Navigate to edit flashsale: "+flashSaleId);
+        return this;
+    }
+    public FlashSaleCampaignPage navigateToCreateFlashSale(){
+        String url = Links.DOMAIN + "/flash-sale/create";
+        commonAction.navigateToURL(url);
+        logger.info("Navigate to create flashsale: ");
+        return this;
     }
 }

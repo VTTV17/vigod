@@ -1,5 +1,6 @@
 package web.Dashboard.promotion.flashsale.campaign;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -72,4 +73,8 @@ public class FlashSaleCampaignElement {
 
     @FindBy(css = ".information h3")
     WebElement UI_PRODUCT_INFORMATION;
+    public By loc_txtCampaignName = By.cssSelector("#campaign-name");
+    public By loc_btnAddProduct = By.cssSelector(".gs-fake-link");
+    By loc_dlgSelectProduct = By.cssSelector(".select-product-modal");
+    public By loc_btnSave = By.cssSelector(".create-flash-sale-campaign .gs-button__green");
 }

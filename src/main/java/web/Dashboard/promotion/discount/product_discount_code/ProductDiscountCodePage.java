@@ -1,6 +1,7 @@
 package web.Dashboard.promotion.discount.product_discount_code;
 
 import static java.lang.Thread.sleep;
+import static utilities.links.Links.DOMAIN;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -21,8 +22,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
+import web.Dashboard.home.HomePage;
 
 public class ProductDiscountCodePage extends ProductDiscountCodeElement {
     WebDriverWait wait;
@@ -54,7 +55,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
         commons = new UICommonAction(driver);
     }
 
-    Logger logger = LogManager.getLogger(ProductDiscountCodePage.class);
+    final static Logger logger = LogManager.getLogger(ProductDiscountCodePage.class);
 
     public ProductDiscountCodePage inputCampaignName() {
         String campaignName = RandomStringUtils.random(255, true, false);
@@ -155,7 +156,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
                 logger.info("Free shipping: %s".formatted(discountValue));
             }
         }
-        PAGE_TITLE.click();
+        commons.click(loc_lblPageTitle);
 
         return this;
     }
@@ -175,7 +176,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
             logger.info("Number of used times: %s".formatted(this.numberOfUsedTimes));
         }
 
-        PAGE_TITLE.click();
+        commons.click(loc_lblPageTitle);
         return this;
     }
 
@@ -190,16 +191,16 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
     }
 
     public ProductDiscountCodePage setCustomerSegment(String... segmentList) throws InterruptedException {
-        waitElementList(CUSTOMER_SEGMENT_LABEL);
+        waitElementList(commons.getElements(loc_rdoSegmentOptions));
         segmentType = segmentList.length == 0 ? 0 : 1;
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", CUSTOMER_SEGMENT_LABEL.get(segmentType));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commons.getElement(loc_rdoSegmentOptions, segmentType));
 
         if (segmentType == 0) {
             logger.info("Customer segment: All customers");
         } else {
             logger.info("Customer segment: %s".formatted((Object) segmentList));
 
-            wait.until(ExpectedConditions.elementToBeClickable(ADD_SEGMENT_BTN)).click();
+            commons.click(loc_lnkAddSegment);
             logger.info("Open add segment popup");
 
             for (String segment : segmentList) {
@@ -216,14 +217,14 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
     }
 
     public ProductDiscountCodePage setAppliesProduct(int appliesProductTypeID, String... productCollectionsOrName) throws InterruptedException {
-        waitElementList(APPLIES_TO_LABEL);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", APPLIES_TO_LABEL.get(appliesProductTypeID));
+        waitElementList(commons.getElements(loc_rdoApplyToOptions));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", commons.getElement(loc_rdoApplyToOptions, appliesProductTypeID));
 
         switch (appliesProductTypeID) {
             case 1 -> {
                 logger.info("Applies to: Specific product collections");
 
-                wait.until(ExpectedConditions.elementToBeClickable(ADD_COLLECTION_OR_PRODUCT_BTN)).click();
+                commons.click(loc_lnkAddCollectionOrSpecificProduct);
                 logger.info("Open add product collection popup");
 
                 for (String collection : productCollectionsOrName) {
@@ -241,7 +242,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
             case 2 -> {
                 logger.info("Applies to: Specific products");
 
-                wait.until(ExpectedConditions.elementToBeClickable(ADD_COLLECTION_OR_PRODUCT_BTN)).click();
+                commons.click(loc_lnkAddCollectionOrSpecificProduct);
                 logger.info("Open add product popup");
 
                 for (String collection : productCollectionsOrName) {
@@ -283,7 +284,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
             }
             default -> logger.info("Minimum requirement: None");
         }
-        PAGE_TITLE.click();
+        commons.click(loc_lblPageTitle);
         return this;
     }
 
@@ -343,7 +344,7 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
 		return false;
     }
     public void clickOnTheSaveBtn() {
-        wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
+        commons.click(loc_btnSave);
         logger.info("Create a new product discount campaign successfully");
     }
 
@@ -353,4 +354,98 @@ public class ProductDiscountCodePage extends ProductDiscountCodeElement {
             return elementList.size() > 0;
         });
     }
+
+	public ProductDiscountCodePage navigateToCreateDiscountCodeScreenByURL() {
+		String url = DOMAIN + "/discounts/create/COUPON/";
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commons.removeFbBubble();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}	    
+	
+	public ProductDiscountCodePage navigateToDiscountCodeDetailScreenByURL(int productDiscountCodeId) {
+		String url = DOMAIN + "/discounts/detail/COUPON/" + productDiscountCodeId;
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commons.removeFbBubble();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}	    
+	
+	public ProductDiscountCodePage navigateToEditDiscountCodeScreenByURL(int productDiscountCodeId) {
+		String url = DOMAIN + "/discounts/edit/COUPON/" + productDiscountCodeId;
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commons.removeFbBubble();
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}	    
+    
+    public String getPageTitle() {
+    	String title = commons.getText(loc_lblPageTitle);
+    	logger.info("Retrieved page title: " + title);
+    	return title;
+    }
+	
+	public ProductDiscountCodePage selectSegmentOption(int option) {
+		commons.click(loc_rdoSegmentOptions, option);
+		logger.info("Selected segment option: " + option);
+		return this;
+	}	    
+	
+	public ProductDiscountCodePage clickAddSegmentLink() {
+		commons.click(loc_lnkAddSegment);
+		logger.info("Clicked on Add Segments link");
+		for (int i=0; i<5; i++) {
+			if (!commons.getElements(loc_dlgSelectSegment).isEmpty()) break;
+			commons.sleepInMiliSecond(500, "Wait a little until the Add Segment dialog to appear");
+		}
+		return this;
+	}	    
+	
+	public ProductDiscountCodePage selectApplyToOption(int option) {
+		commons.click(loc_rdoApplyToOptions, option);
+		logger.info("Selected Apply To option: " + option);
+		return this;
+	}	
+	
+	public ProductDiscountCodePage clickAddCollectionLink() {
+		commons.click(loc_lnkAddCollectionOrSpecificProduct);
+		logger.info("Clicked on Add Collection link");
+		for (int i=0; i<5; i++) {
+			if (!commons.getElements(loc_dlgSelectCollection).isEmpty()) break;
+			commons.sleepInMiliSecond(500, "Wait a little until the Add Collection dialog to appear");
+		}
+		return this;
+	}		
+	
+	public ProductDiscountCodePage clickAddProductLink() {
+		commons.click(loc_lnkAddCollectionOrSpecificProduct);
+		logger.info("Clicked on Add Product link");
+		for (int i=0; i<5; i++) {
+			if (!commons.getElements(loc_dlgSelectProduct).isEmpty()) break;
+			commons.sleepInMiliSecond(500, "Wait a little until the Add Product dialog to appear");
+		}
+		return this;
+	}		
+	
+	public boolean isProductPresentInDialog() {
+		commons.sleepInMiliSecond(1000, "Wait a little for products to appear in the Add Product dialog");
+		return !commons.getElements(loc_tblProductNames).isEmpty();
+	}		
+	
+	public boolean isCollectionPresentInDialog() {
+		commons.sleepInMiliSecond(1000, "Wait a little for collections to appear in the Add Collection dialog");
+		return !commons.getElements(loc_tblProductNames).isEmpty();
+	}		
+
+    public ProductDiscountCodePage inputSearchTermInDialog(String searchTerm) {
+    	commons.inputText(loc_txtSearchInDialog, searchTerm);
+        logger.info("Input search term: " + searchTerm);
+        commons.sleepInMiliSecond(1000, "Wait a little inputSearchTermInDialog"); // Will find a better way to remove this sleep
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        return this;
+    }	
+	
 }

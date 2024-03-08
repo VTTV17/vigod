@@ -4,13 +4,12 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.data.DataGenerator;
 import utilities.links.Links;
+import web.Dashboard.home.HomePage;
 import web.Dashboard.promotion.discount.DiscountPage;
 import utilities.commons.UICommonAction;
 
@@ -19,6 +18,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
@@ -394,16 +394,87 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
 			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(0));
 		}
 		return this;
-	}    
-    
+	}
+    public ProductDiscountCampaignPage tickApplicableBranch(int optionIndex) {
+        commonAction.waitVisibilityOfElementLocated(loc_cbxApplicableBranch);
+        if (optionIndex ==0) {
+            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,optionIndex);
+            logger.info("Ticked 'All branches' radio button.");
+        } else if (optionIndex ==1) {
+            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,optionIndex);
+            logger.info("Ticked 'Specific Branch' radio button.");
+        } else {
+            logger.info("Input value is not in range (0:1). By default, 'All Branches' radio button is ticked.");
+            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,0);
+        }
+        return this;
+    }
     public void clickOnTheSaveBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(SAVE_BTN)).click();
         logger.info("Create a new product discount campaign successfully");
     }
-    public ProductDiscountCampaignPage navigateUrl(String promotionId){
-        String url = Links.DOMAIN + "/discounts/detail/WHOLE_SALE/" + promotionId;
+    public String createDefaultCampaign(){
+        String campaignName ="Discount campaign "+ new DataGenerator().generateString(10);
+        inputCampaignName();
+        setPromotionDate();
+        clickOnTheSaveBtn();
+        return campaignName;
+    }
+    public ProductDiscountCampaignPage navigateToCreateProductCampaignPageUrl(){
+        String url = Links.DOMAIN + "/discounts/create/WHOLE_SALE";
         commonAction.navigateToURL(url);
-        logger.info("Navigate to url: "+url);
         return this;
+    }
+    public ProductDiscountCampaignPage clickOnAddCollection(){
+        commonAction.click(loc_btnAddCollection);
+        logger.info("Click on Add collection.");
+        for (int i=0; i<5; i++) {
+            if (!commonAction.getElements(loc_dlgSelectCollection).isEmpty()) break;
+            commonAction.sleepInMiliSecond(500, "Wait a little until the Add Collection dialog to appear");
+        }
+        return this;
+    }
+    public ProductDiscountCampaignPage clickOnAddSegment(){
+        commonAction.click(loc_btnAddSegment);
+        logger.info("Click on Add Segment.");
+        for (int i=0; i<5; i++) {
+            if (!commonAction.getElements(loc_dlgSelectSegment).isEmpty()) break;
+            commonAction.sleepInMiliSecond(500, "Wait a little until the Add Segment dialog to appear");
+        }
+        return this;
+    }
+    public ProductDiscountCampaignPage clickOnAddProducts(){
+        commonAction.click(loc_btnAddProduct);
+        logger.info("Click on Add product.");
+        for (int i=0; i<5; i++) {
+            if (!commonAction.getElements(loc_dlgSelectProduct).isEmpty()) break;
+            commonAction.sleepInMiliSecond(500, "Wait a little until the Add product dialog to appear");
+        }
+        return this;
+    }
+    public ProductDiscountCampaignPage clickOnSelectBranch(){
+        commonAction.click(loc_btnSelectBranch);
+        logger.info("Click on Select Branch.");
+        return this;
+    }
+    public boolean isProductShowOnSelectProductList(String productName){
+        commonAction.inputText(loc_txtSearch,productName);
+        new HomePage(driver).waitTillSpinnerDisappear1();
+        List<WebElement> productNames = commonAction.getElements(loc_lst_lblProductName);
+        if (productNames.isEmpty()) return false;
+        for (int i=0; i<productNames.size();i++) {
+            if(commonAction.getText(loc_lst_lblProductName,i).equalsIgnoreCase(productName))
+                return true;
+        }
+        return false;
+    }
+    public List<String> getBranchList(){
+        List<WebElement> branchNamesEls = commonAction.getElements(loc_lst_lblBranchName);
+        List<String> branchNames = new ArrayList<>();
+        for (int i=0;i<branchNamesEls.size();i++) {
+            branchNames.add(commonAction.getText(loc_lst_lblBranchName,i));
+        }
+        Collections.sort(branchNames);
+        return branchNames;
     }
 }

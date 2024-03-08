@@ -26,9 +26,7 @@ public class Customers {
     String GET_200_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=0&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
     String ASSIGN_STAFF_TO_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/bulk-assign-customer-to-a-staff/%s";
     private String customerTag;
-
     private static String segmentName;
-
     private static int segmentID;
     LoginDashboardInfo loginInfo;
 

@@ -401,6 +401,7 @@ public class UICommonAction {
         return getAttribute(locator, "class").contains("gs-atm--disable");
     }
 
+    //This function will soon be deleted
     public int waitTillSelectDropdownHasData(WebElement element) {
         List<WebElement> options;
         int optionCount = 0;
@@ -408,10 +409,8 @@ public class UICommonAction {
             options = getAllOptionInDropDown(element);
             optionCount = options.size();
             logger.debug("Number of dropdown options: " + optionCount);
-            if (optionCount > 0) {
-                if (options.get(optionCount - 1).getAttribute("value").length() > 0) return optionCount;
-            }
-            sleepInMiliSecond(100);
+            if (optionCount > 0 && !options.get(optionCount - 1).getAttribute("value").isEmpty()) return optionCount;
+            sleepInMiliSecond(100, "Waiting for dropdown to have options");
         }
         return optionCount;
     }
@@ -990,6 +989,11 @@ public class UICommonAction {
 
     public void checkTheCheckBoxOrRadio(By locator) {
         if (!getElement(locator).isSelected()) {
+            clickActions(locator);
+        }
+    }
+    public void checkTheCheckBoxOrRadio(By locator,int index) {
+        if (!getElements(locator).get(index).isSelected()) {
             clickActions(locator);
         }
     }
