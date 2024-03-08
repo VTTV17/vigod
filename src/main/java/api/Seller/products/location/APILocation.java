@@ -10,6 +10,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class APILocation {
     LoginInformation loginInformation;
@@ -74,6 +75,30 @@ public class APILocation {
         return info;
     }
 
+    public ProductLocationInfo getProductLocationThatHaveNoChildLocation(List<Integer> assignedBranchIds) {
+        ProductLocationInfo locationInfo = new ProductLocationInfo();
+
+        // get all location info
+        LocationManagementInfo allLocation = getAllLocationInformation();
+
+        // get locationId
+        List<Integer> locationIds = allLocation.getLocationIds();
+        List<Integer> branchIds = allLocation.getBranchIds();
+        List<String> branchNames = allLocation.getBranchNames();
+        List<String> locationCodes = allLocation.getLocationCodes();
+        List<Integer> parentIds = allLocation.getParentIds();
+
+        IntStream.range(0, locationIds.size())
+                .filter(index -> assignedBranchIds.contains(branchIds.get(index))
+                        && !parentIds.contains(locationIds.get(index))).forEach(index -> {
+                    locationInfo.setId(locationIds.get(index));
+                    locationInfo.setBranchId(branchIds.get(index));
+                    locationInfo.setBranchName(branchNames.get(index));
+                    locationInfo.setLocationCode(locationCodes.get(index));
+                });
+        return locationInfo;
+    }
+
     @Data
     public static class AllProductLocationInfo {
         private List<Integer> ids;
@@ -92,6 +117,8 @@ public class APILocation {
         private Integer quantity;
         private String locationPath;
         private String locationPathName;
+        private String branchName;
+        private int branchId;
     }
 
     String productLocationPath = "/itemservice/api/locations/store/%s/search-receipt?page=%s&size=100";
@@ -185,6 +212,4 @@ public class APILocation {
 
         return info;
     }
-
-
 }

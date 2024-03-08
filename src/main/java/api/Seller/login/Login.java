@@ -2,7 +2,6 @@ package api.Seller.login;
 
 import api.Seller.setting.BranchManagement;
 import com.google.common.collect.Iterables;
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
@@ -11,9 +10,6 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
-
-import static io.restassured.RestAssured.baseURI;
-import static utilities.links.Links.URI;
 
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
@@ -24,7 +20,6 @@ public class Login {
     private static LoginInformation loginInfo = new LoginInformation();
 
     Response getLoginResponse(String account, String password) {
-        baseURI = URI;
         String body = """
                 {
                     "username": "%s",
@@ -179,7 +174,6 @@ public class Login {
     }
 
     public Response getLoginWithPhoneResponse(String phoneCode, String phoneNumber, String password) {
-        RestAssured.baseURI = URI;
         String body = """
                 {
                 "mobile":

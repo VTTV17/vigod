@@ -1,10 +1,12 @@
 package utilities.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import utilities.utils.jsonFileUtility;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -273,5 +275,16 @@ public class DataGenerator {
         LocalDateTime now = LocalDateTime.now();
         now = now.plusDays(xDayFromCurrentDate);
         return dtf.format(now);
+    }
+
+    public String getFilePath(String fileName) {
+        File root = new File(System.getProperty("user.dir"));
+        return FileUtils.listFiles(root, null, true)
+                .stream()
+                .filter(file -> file.getName().equals(fileName))
+                .filter(file -> !file.getAbsolutePath().contains("target"))
+                .findFirst()
+                .map(File::getAbsolutePath)
+                .orElse("");
     }
 }

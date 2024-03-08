@@ -503,17 +503,17 @@ public class APIAllProducts {
         return info;
     }
 
-    public SuggestionProductsInfo getSuggestProductIdMatchWithConditions(int branchId) {
+    public SuggestionProductsInfo getSuggestProductForImportProductLocationReceipt(int branchId, boolean hasLot) {
         AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
             if (suggestionInfo.getInventoryManageTypes().get(index).equals("PRODUCT")
-                    && (suggestionInfo.getRemainingStocks().get(index) > 0)) {
+                    && (suggestionInfo.getHasLots().get(index) == hasLot)) {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
                 info.setBarcode(suggestionInfo.getBarcodes().get(index));
-                info.setHasLot(suggestionInfo.getHasLots().get(index));
+                info.setHasLot(hasLot);
                 break;
             }
         }

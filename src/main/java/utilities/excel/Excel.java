@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import utilities.data.DataGenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +27,7 @@ public class Excel {
     static String fileName;
 
     public Sheet getSheet(String fileName, int sheetID) throws IOException {
-        FileInputStream fileInput = new FileInputStream("%s/src/main/resources/excels/%s".formatted(System.getProperty("user.dir"), fileName));
+        FileInputStream fileInput = new FileInputStream(new DataGenerator().getFilePath(fileName));
         return new XSSFWorkbook(fileInput).getSheetAt(sheetID);
     }
     
@@ -99,7 +100,7 @@ public class Excel {
     }
 
     public void writeCellValue(String fileName, int sheetId, int rowIndex, int columnIndex, String value) {
-        String filePath = projectLocation + getDirectorySlash("src") + getDirectorySlash("main") + getDirectorySlash("resources") + getDirectorySlash("excels") + fileName;
+        String filePath = new DataGenerator().getFilePath(fileName);
         try {
             FileInputStream excelFile = new FileInputStream(filePath);
             workbook = new XSSFWorkbook(excelFile);
@@ -121,10 +122,7 @@ public class Excel {
     }
 
     public boolean isCellBlank(Cell cell) {
-    	if (cell == null) {
-    		return true;
-    	}
-    	return false;
+        return cell == null;
     }
     public void writeCellValue(int sheetId, int rowIndex, int columnIndex, String value, String...folderAndFileName) {
         String pathChild ="";

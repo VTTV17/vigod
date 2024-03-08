@@ -43,7 +43,7 @@ public class APILotDate {
                 .response();
     }
 
-    public LotDateManagementInfo getLotDateInformation() {
+    public LotDateManagementInfo getAllLotDateInformation() {
         LotDateManagementInfo info = new LotDateManagementInfo();
 
         // init temp array

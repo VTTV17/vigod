@@ -57,7 +57,7 @@ public class LotDateManagementPage extends LotDateManagementElement {
         lotDatePage = new LotDatePage(driver);
 
         // check view lot list
-        LotDateManagementInfo info = new APILotDate(sellerLoginInformation).getLotDateInformation();
+        LotDateManagementInfo info = new APILotDate(sellerLoginInformation).getAllLotDateInformation();
         checkViewLotList(info);
 
         // check view lot detail
@@ -79,7 +79,7 @@ public class LotDateManagementPage extends LotDateManagementElement {
     }
 
     void checkViewLotList(LotDateManagementInfo info) {
-        List<Integer> lotDateIds = new APILotDate(staffLoginInformation).getLotDateInformation().getLotDateIds();
+        List<Integer> lotDateIds = new APILotDate(staffLoginInformation).getAllLotDateInformation().getLotDateIds();
         if (permissions.getProduct().getLotDate().isViewLotList()) {
             // check list lot-date
             assertCustomize.assertTrue(CollectionUtils.isEqualCollection(info.getLotDateIds(), lotDateIds),

@@ -131,7 +131,7 @@ public class APILocationReceipt {
                 && locationReceiptIds.get(ids.indexOf(id)).contains("GET")).toList();
     }
 
-    public Integer getDraftAddLocationReceiptId( List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
+    public Integer getDraftAddLocationReceiptId(List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
         AllLocationReceiptInfo info = (receiptInfo.length == 0)
                 ? getAllLocationReceiptInfo()
                 : receiptInfo[0];
@@ -150,7 +150,7 @@ public class APILocationReceipt {
                 .orElse(0);
     }
 
-    public Integer getDraftGetLocationReceiptId( List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
+    public Integer getDraftGetLocationReceiptId(List<String> assignedBranchNames, AllLocationReceiptInfo... receiptInfo) {
         AllLocationReceiptInfo info = (receiptInfo.length == 0)
                 ? getAllLocationReceiptInfo()
                 : receiptInfo[0];
@@ -167,5 +167,16 @@ public class APILocationReceipt {
                         && locationStatues.get(ids.indexOf(id)).equals("DRAFT"))
                 .findFirst()
                 .orElse(0);
+    }
+
+    String importLotOrLocationPath = "/itemservice/api/items/import-lot-location/%s";
+
+    public void importLotOrLocation() {
+        api.importFile(importLotOrLocationPath.formatted(loginInfo.getStoreID()),
+                        loginInfo.getAccessToken(),
+                        "import_location_receipt_template.xlsx",
+                        "branchIds",
+                        String.valueOf(loginInfo.getAssignedBranchesIds().get(0)))
+                .prettyPrint();
     }
 }

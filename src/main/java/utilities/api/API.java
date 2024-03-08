@@ -2,13 +2,28 @@ package utilities.api;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import lombok.Setter;
+import utilities.data.DataGenerator;
+import utilities.links.Links;
 
+import java.io.File;
+
+import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 
 public class API {
     @Setter
     public static String staffPermissionToken = "";
+
+    public API() {
+        baseURI = Links.URI;
+    }
+
+    public API(String URI) {
+        baseURI = URI;
+    }
+
     public Response get(String path, String token) {
         return given()
                 .auth()
@@ -25,16 +40,16 @@ public class API {
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
-                .when()
                 .body(body)
+                .when()
                 .post(path);
     }
 
     public Response login(String path, String body) {
         return given()
                 .contentType(ContentType.JSON)
-                .when()
                 .body(body)
+                .when()
                 .post(path);
     }
 
@@ -44,8 +59,8 @@ public class API {
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
-                .when()
                 .body(body.length > 0 ? body[0] : "")
+                .when()
                 .post(path);
     }
 
@@ -55,8 +70,8 @@ public class API {
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
                 .contentType(ContentType.JSON)
-                .when()
                 .body(body)
+                .when()
                 .put(path);
     }
 
@@ -79,6 +94,7 @@ public class API {
                 .when()
                 .put(path);
     }
+
     public Response deleteRequest(String path, String token, String body) {
         return given()
                 .auth()
@@ -88,5 +104,29 @@ public class API {
                 .body(body)
                 .when()
                 .delete(path);
+    }
+
+    public Response importFile(String path, String token, String fileName, String... additionParams) {
+        int bound = ((additionParams.length % 2) == 0) ? (additionParams.length - 1) : (additionParams.length - 2);
+
+        return getMultiPartAdditionParams(additionParams)
+                .auth()
+                .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
+                .multiPart(new File(new DataGenerator().getFilePath(fileName)))
+                .when()
+                .post(path);
+
+    }
+
+    public RequestSpecification getMultiPartAdditionParams(String... additionParams) {
+        int bound = ((additionParams.length % 2) == 0)
+                ? (additionParams.length - 1)
+                : (additionParams.length - 2);
+        RequestSpecification requestSpecification = given();
+        for (int index = 0; index < bound; index++) {
+            requestSpecification = requestSpecification.multiPart( additionParams[0], additionParams[1]);
+        }
+        return requestSpecification;
     }
 }
