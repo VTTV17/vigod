@@ -18,7 +18,6 @@ import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.customers.segments.createsegment.CreateSegment;
-import web.Dashboard.customers.segments.createsegment.CreateSegmentElement;
 import web.Dashboard.home.HomePage;
 
 public class Segments {

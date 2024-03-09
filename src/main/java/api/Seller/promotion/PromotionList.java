@@ -1,7 +1,6 @@
 package api.Seller.promotion;
 
 import api.Seller.login.Login;
-import api.Seller.setting.BranchManagement;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,7 +11,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.List;
 
 public class PromotionList {
-    String DISCOUNT_CAMPAIGN_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=%s&status=%s";
+    String DISCOUNT_CAMPAIGN_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=%s&status=%s&sort=lastModifiedDate,desc";
 
     API api = new API();
     Logger logger = LogManager.getLogger(PromotionList.class);
@@ -45,15 +44,11 @@ public class PromotionList {
         return response;
     }
     public int getDiscountId(String discountType, String status){
-        Response response = getPromotionListRes(discountType,status);
-        List<Integer> ids= response.then().statusCode(200).extract().jsonPath().getList("id");
-        if(ids.isEmpty()){
-            try {
-                throw new Exception(discountType + " has status: '%s' not found".formatted(status));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return ids.get(0);
+        List<Integer> ids= getDiscountIdList(discountType, status);
+        return ids.isEmpty() ? -1 : ids.get(0);
+    }
+    public List<Integer> getDiscountIdList(String discountType, String status){
+    	Response response = getPromotionListRes(discountType,status);
+    	return response.then().statusCode(200).extract().jsonPath().getList("id");
     }
 }
