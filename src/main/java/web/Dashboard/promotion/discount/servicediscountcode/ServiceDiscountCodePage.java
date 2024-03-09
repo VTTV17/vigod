@@ -13,7 +13,6 @@ import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.promotion.discount.product_discount_code.ProductDiscountCodePage;
 
 public class ServiceDiscountCodePage {
 

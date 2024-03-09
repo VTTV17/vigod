@@ -5,6 +5,7 @@ import api.Seller.login.Login;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.setting.BranchManagement;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -738,4 +739,144 @@ public class CreatePromotion {
         response.then().statusCode(200);
         logger.info("Call api to end early discount.");
     }
+    
+    //Temporary function. Will think of a better way to do this
+    public JsonPath createProductDiscountCodeJsonPath() {
+    	String discountName = "Auto - [Product] Discount code - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+    	String couponCode = "AUTO" + Instant.now().toEpochMilli();
+    	
+    	String body = """
+    			{
+    			"description": "",
+    			"discounts": [{
+    			"activeDate": "2024-03-06T17:00:00.000Z",
+    			"conditions": [{
+    			"conditionOption": "CUSTOMER_SEGMENT_ALL_CUSTOMERS",
+    			"conditionType": "CUSTOMER_SEGMENT",
+    			"values": []
+    			}, {
+    			"conditionOption": "APPLIES_TO_ENTIRE_ORDER",
+    			"conditionType": "APPLIES_TO",
+    			"values": []
+    			}, {
+    			"conditionOption": "MIN_REQUIREMENTS_NONE",
+    			"conditionType": "MINIMUM_REQUIREMENTS",
+    			"values": [{
+    			"conditionValue": 0
+    			}]
+    			}, {
+    			"conditionOption": "PLATFORMS_WEB_ONLY",
+    			"conditionType": "PLATFORMS",
+    			"values": []
+    			}, {
+    			"conditionOption": "APPLIES_TO_BRANCH_ALL_BRANCHES",
+    			"conditionType": "APPLIES_TO_BRANCH",
+    			"values": []
+    			}, {
+    			"conditionOption": "PAYMENT_METHOD",
+    			"conditionType": "PAYMENT_METHOD",
+    			"values": [{
+    			"conditionValue": "MOMO"
+    			}]
+    			}],
+    			"couponCode": "%s",
+    			"couponLimitToOne": false,
+    			"couponLimitedUsage": false,
+    			"couponTotal": null,
+    			"couponType": "PERCENTAGE",
+    			"couponValue": "1",
+    			"expiredDate": "3024-03-08T16:59:59.999Z",
+    			"storeId": "%s",
+    			"type": "COUPON",
+    			"freeShippingProviders": "",
+    			"feeShippingType": "FIXED_AMOUNT",
+    			"enabledRewards": false,
+    			"rewardsDescription": "",
+    			"hideInStore": false
+    			}],
+    			"name": "%s",
+    			"storeId": "%s",
+    			"timeCopy": 0
+    			}
+    			""".formatted(couponCode, loginInfo.getStoreID(), discountName, loginInfo.getStoreID());
+    	Response createRecord = api.post(CREATE_PRODUCT_DISCOUNT_PATH, loginInfo.getAccessToken(), body);
+    	createRecord.then().statusCode(200);
+    	return createRecord.jsonPath();
+    }  
+    public int createProductDiscountCode() {
+    	return createProductDiscountCodeJsonPath().getInt("id");
+    }    
+    
+    //Temporary function. Will think of a better way to do this
+    public JsonPath createServiceDiscountCodeJsonPath() {
+    	String discountName = "Auto - [Service] Discount code - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
+    	String couponCode = "AUTO" + Instant.now().toEpochMilli();
+    	
+    	String body = """
+    			{
+    			"description": "",
+    			"discounts": [{
+    			"activeDate": "2024-03-06T17:00:00.000Z",
+    			"conditions": [{
+    			"conditionOption": "CUSTOMER_SEGMENT_ALL_CUSTOMERS",
+    			"conditionType": "CUSTOMER_SEGMENT",
+    			"values": []
+    			}, {
+    			"conditionOption": "APPLIES_TO_ENTIRE_ORDER",
+    			"conditionType": "APPLIES_TO",
+    			"values": []
+    			}, {
+    			"conditionOption": "MIN_REQUIREMENTS_NONE",
+    			"conditionType": "MINIMUM_REQUIREMENTS",
+    			"values": [{
+    			"conditionValue": 0
+    			}]
+    			}, {
+    			"conditionOption": "PLATFORMS_WEB_ONLY",
+    			"conditionType": "PLATFORMS",
+    			"values": []
+    			}, {
+    			"conditionOption": "APPLIES_TO_BRANCH_ALL_BRANCHES",
+    			"conditionType": "APPLIES_TO_BRANCH",
+    			"values": []
+    			}, {
+    			"conditionOption": "PAYMENT_METHOD",
+    			"conditionType": "PAYMENT_METHOD",
+    			"values": []
+    			}],
+    			"couponCode": "%s",
+    			"couponLimitToOne": false,
+    			"couponLimitedUsage": false,
+    			"couponTotal": null,
+    			"couponType": "PERCENTAGE",
+    			"couponValue": "1",
+    			"expiredDate": "3024-03-08T16:59:59.999Z",
+    			"storeId": "%s",
+    			"type": "COUPON_SERVICE",
+    			"freeShippingProviders": "",
+    			"feeShippingType": "FIXED_AMOUNT",
+    			"enabledRewards": false,
+    			"rewardsDescription": "",
+    			"hideInStore": false
+    			}],
+    			"name": "%s",
+    			"storeId": "%s",
+    			"timeCopy": 0
+    			}
+    			""".formatted(couponCode, loginInfo.getStoreID(), discountName, loginInfo.getStoreID());
+    	Response createRecord = api.post(CREATE_PRODUCT_DISCOUNT_PATH, loginInfo.getAccessToken(), body);
+    	createRecord.then().statusCode(200);
+    	return createRecord.jsonPath();
+    }  
+    public int createServiceDiscountCode() {
+    	return createServiceDiscountCodeJsonPath().getInt("id");
+    }       
+    
+    public void deleteDiscount(int discountId) {
+        String path = DELETE_DISCOUNT_PATH + discountId;
+        Response response = api.delete(path, loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        logger.info("Deleted Discount with id: " + discountId);
+    }    
+    
 }

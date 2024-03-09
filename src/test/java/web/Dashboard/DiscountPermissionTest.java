@@ -1,6 +1,8 @@
 package web.Dashboard;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.testng.ITestResult;
@@ -13,9 +15,10 @@ import api.Seller.customers.Customers;
 import api.Seller.customers.Customers.CustomerManagementInfo;
 import api.Seller.customers.SegmentAPI;
 import api.Seller.login.Login;
+import api.Seller.promotion.CreatePromotion;
+import api.Seller.promotion.PromotionList;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
-import api.Seller.setting.StaffManagement;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -31,6 +34,8 @@ public class DiscountPermissionTest extends BaseTest {
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
 	SegmentAPI segmentAPI;
+	PromotionList promotionListAPI;
+	CreatePromotion createPromotionAPI;
 	
 
 	int permissionGroupId;
@@ -41,13 +46,15 @@ public class DiscountPermissionTest extends BaseTest {
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		segmentAPI = new SegmentAPI(ownerCredentials);
+		promotionListAPI = new PromotionList(ownerCredentials);
+		createPromotionAPI = new CreatePromotion(ownerCredentials);
 		
 		preConditionSetup();
 	}
 
 	@AfterClass
 	void deletePermissionGroup() {
-		permissionAPI.deleteGroupPermission(permissionGroupId);
+//		permissionAPI.deleteGroupPermission(permissionGroupId);
 	}
 
     @Override
@@ -58,7 +65,7 @@ public class DiscountPermissionTest extends BaseTest {
     }
 
     void preConditionSetup() {
-    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
+    	permissionGroupId = 3671;
 
     	segmentAPI.getListSegmentIdInStore();
     }
@@ -101,7 +108,7 @@ public class DiscountPermissionTest extends BaseTest {
 	}
 
 	@Test(dataProvider = "discountPermission", dataProviderClass = PermissionDataProvider.class)
-	public void CC_01_CheckCustomerPermission(String permissionBinary) {
+	public void CC_01_CheckDiscountPermission(String permissionBinary) {
 
 		driver = new InitWebdriver().getDriver(browser, headless);
 		LoginPage loginPage = new LoginPage(driver);
@@ -117,7 +124,37 @@ public class DiscountPermissionTest extends BaseTest {
 
 		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
 
-		discountPage.checkDiscountPermission(allPermissionDTO, 11557142, 11565085, "Tien's Jacket", "Staff A's Dog Food", "Air plane ticket 1", "Staff A's Cleaning Services");
+		int productDiscountCodeIdToEnd = 0;
+		List<Integer> createdProductList = new ArrayList<>();
+		if (allPermissionDTO.getPromotion().getDiscountCode().isEndProductDiscountCode()) {
+			createdProductList.add(createPromotionAPI.createProductDiscountCode());
+			if (allPermissionDTO.getPromotion().getDiscountCode().isViewProductDiscountCodeDetail()) {
+				productDiscountCodeIdToEnd = createPromotionAPI.createProductDiscountCode();
+				createdProductList.add(productDiscountCodeIdToEnd);
+			}
+		}
+		productDiscountCodeIdToEnd = productDiscountCodeIdToEnd == 0 ? promotionListAPI.getDiscountId("Product Discount Code", "In Progress") : productDiscountCodeIdToEnd;
+		
+		int serviceDiscountCodeIdToEnd = 0;
+		List<Integer> createdServiceList = new ArrayList<>();
+		if (allPermissionDTO.getPromotion().getDiscountCode().isEndServiceDiscountCode()) {
+			createdServiceList.add(createPromotionAPI.createServiceDiscountCode());
+			if (allPermissionDTO.getPromotion().getDiscountCode().isViewServiceDiscountCodeDetail()) {
+				serviceDiscountCodeIdToEnd = createPromotionAPI.createServiceDiscountCode();
+				createdServiceList.add(serviceDiscountCodeIdToEnd);
+			}
+		}
+		
+		serviceDiscountCodeIdToEnd = serviceDiscountCodeIdToEnd == 0 ? promotionListAPI.getDiscountId("Service Discount Code", "In Progress") : serviceDiscountCodeIdToEnd;
+		
+		discountPage.checkDiscountPermission(allPermissionDTO, 11557142, 11565085, productDiscountCodeIdToEnd, serviceDiscountCodeIdToEnd, "Tien's Jacket", "Staff A's Dog Food", "Air plane ticket 1", "Staff A's Cleaning Services");
+		
+		List<Integer> createdDiscountCodeList = new ArrayList<>();
+		createdDiscountCodeList.addAll(createdProductList);
+		createdDiscountCodeList.addAll(createdServiceList);
+		for (int id: createdDiscountCodeList) {
+			createPromotionAPI.deleteDiscount(id);
+		}
 	}
 
 }
