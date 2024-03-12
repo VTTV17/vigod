@@ -1,11 +1,10 @@
 package web.Dashboard;
 
-import api.Seller.login.Login;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import web.BaseTest;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.products.supplier.management.SupplierManagementPage;
+import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 

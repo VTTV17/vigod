@@ -1,4 +1,4 @@
-package web.Dashboard.products.purchaseorders;
+package web.Dashboard.supplier.purchaseorders;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

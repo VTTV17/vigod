@@ -1,4 +1,4 @@
-package web.Dashboard.products.supplier.crud;
+package web.Dashboard.supplier.supplier.crud;
 
 import api.Seller.login.Login;
 import api.Seller.products.purchase_orders.PurchaseOrders;
@@ -11,7 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import web.Dashboard.products.supplier.management.SupplierManagementPage;
+import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.model.sellerApp.login.LoginInformation;

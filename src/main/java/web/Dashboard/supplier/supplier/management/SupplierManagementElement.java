@@ -1,4 +1,4 @@
-package web.Dashboard.products.supplier.management;
+package web.Dashboard.supplier.supplier.management;
 
 import org.openqa.selenium.By;
 

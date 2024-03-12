@@ -1,4 +1,4 @@
-package web.Dashboard.products.supplier.crud;
+package web.Dashboard.supplier.supplier.crud;
 
 import org.openqa.selenium.By;
 

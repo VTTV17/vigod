@@ -4,7 +4,7 @@ import org.testng.annotations.*;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.BaseTest;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.products.supplier.crud.CRUDSupplierPage;
+import web.Dashboard.supplier.supplier.crud.CRUDSupplierPage;
 import utilities.driver.InitWebdriver;
 
 import java.io.File;

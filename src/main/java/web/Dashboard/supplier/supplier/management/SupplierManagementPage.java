@@ -1,4 +1,4 @@
-package web.Dashboard.products.supplier.management;
+package web.Dashboard.supplier.supplier.management;
 
 import api.Seller.products.supplier.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
