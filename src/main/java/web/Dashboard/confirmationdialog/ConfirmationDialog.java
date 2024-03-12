@@ -22,7 +22,7 @@ public class ConfirmationDialog {
 
 	By loc_dlgDialog = By.cssSelector(".modal-dialog.confirm-modal");
 	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')]");
-	By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
+	public By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
 	
 	public void clickGrayBtn() {
 		commonAction.click(loc_btnCancel);

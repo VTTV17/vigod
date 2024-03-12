@@ -379,7 +379,8 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     }
 
 	public ProductDiscountCampaignPage tickAppliesTo(int optionIndex) {
-		commonAction.waitElementList(APPLIES_TO_LABEL);
+        commonAction.sleepInMiliSecond(1000);
+        commonAction.waitElementList(APPLIES_TO_LABEL);
 		if (optionIndex ==0) {
 			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(optionIndex));
 			logger.info("Ticked 'All Products' radio button.");
@@ -398,10 +399,10 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     public ProductDiscountCampaignPage tickApplicableBranch(int optionIndex) {
         commonAction.waitVisibilityOfElementLocated(loc_cbxApplicableBranch);
         if (optionIndex ==0) {
-            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,optionIndex);
+            commonAction.click(loc_cbxApplicableBranch,optionIndex);
             logger.info("Ticked 'All branches' radio button.");
         } else if (optionIndex ==1) {
-            commonAction.checkTheCheckBoxOrRadio(loc_cbxApplicableBranch,optionIndex);
+            commonAction.click(loc_cbxApplicableBranch,optionIndex);
             logger.info("Ticked 'Specific Branch' radio button.");
         } else {
             logger.info("Input value is not in range (0:1). By default, 'All Branches' radio button is ticked.");
@@ -415,7 +416,7 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     }
     public String createDefaultCampaign(){
         String campaignName ="Discount campaign "+ new DataGenerator().generateString(10);
-        inputCampaignName();
+        inputCampaignName(campaignName);
         setPromotionDate();
         clickOnTheSaveBtn();
         return campaignName;
@@ -460,7 +461,14 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     public boolean isProductShowOnSelectProductList(String productName){
         commonAction.inputText(loc_txtSearch,productName);
         new HomePage(driver).waitTillSpinnerDisappear1();
-        List<WebElement> productNames = commonAction.getElements(loc_lst_lblProductName);
+        List<WebElement> productNames = new ArrayList<>();
+        for (int j=0;j<5;j++){
+            productNames = commonAction.getElements(loc_lst_lblProductName);
+            if(!productNames.isEmpty()) {
+                commonAction.sleepInMiliSecond(500);
+                break;
+            }
+        }
         if (productNames.isEmpty()) return false;
         for (int i=0; i<productNames.size();i++) {
             if(commonAction.getText(loc_lst_lblProductName,i).equalsIgnoreCase(productName))
@@ -470,11 +478,17 @@ public class ProductDiscountCampaignPage extends ProductDiscountCampaignElement 
     }
     public List<String> getBranchList(){
         List<WebElement> branchNamesEls = commonAction.getElements(loc_lst_lblBranchName);
+        System.out.println("Size branch: "+branchNamesEls.size());
         List<String> branchNames = new ArrayList<>();
         for (int i=0;i<branchNamesEls.size();i++) {
             branchNames.add(commonAction.getText(loc_lst_lblBranchName,i));
         }
         Collections.sort(branchNames);
         return branchNames;
+    }
+    public ProductDiscountCampaignPage clickOnEndEarlyBtn(){
+        commonAction.click(loc_btnEndEarly);
+        logger.info("Click on End Early button.");
+        return this;
     }
 }

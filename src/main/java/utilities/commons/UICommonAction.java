@@ -989,12 +989,12 @@ public class UICommonAction {
 
     public void checkTheCheckBoxOrRadio(By locator) {
         if (!getElement(locator).isSelected()) {
-            clickActions(locator);
+            click(locator);
         }
     }
     public void checkTheCheckBoxOrRadio(By locator,int index) {
         if (!getElements(locator).get(index).isSelected()) {
-            clickActions(locator);
+            click(locator);
         }
     }
 
@@ -1035,5 +1035,15 @@ public class UICommonAction {
         Select select = new Select(element);
         select.selectByIndex(index);
     }
-
+    public void waitForListLoaded(By locator, int repeatTimes){
+        List<WebElement> elements = new ArrayList<>();
+        for (int i=0;i <repeatTimes;i++){
+            elements = getElements(locator);
+            if(!elements.isEmpty()) break;
+            else sleepInMiliSecond(500);
+        }
+        if (elements.isEmpty()){
+            logger.info("List element still empty after wait %s times".formatted(repeatTimes));
+        }
+    }
 }
