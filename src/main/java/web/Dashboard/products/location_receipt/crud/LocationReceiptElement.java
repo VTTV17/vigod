@@ -18,7 +18,7 @@ public class LocationReceiptElement {
     By loc_dlgSelectLotDate = By.cssSelector(".select-lot-modal");
     By loc_dlgSelectLotDate_chkHideExpiredLot = By.cssSelector("#hide-expired-lot");
     By loc_dlgSelectLotDate_txtSearchLot = By.cssSelector(".modal-body > input");
-    By loc_dlgSelectLotDate_txtQuantity = By.cssSelector(".get-quantity");
+    By loc_dlgSelectLotDate_txtQuantity = By.cssSelector(".get-quantity > input");
     By loc_dlgSelectLotDate_btnConfirm = By.cssSelector(".select-lot-modal .gs-button__green");
     By loc_dlgSelectLocation = By.cssSelector(".select-location-modal");
     String str_dlgSelectLocation_txtQuantity = "//*[contains(@class, 'name')]/*[string() ='%s']/parent::td/following-sibling::*[contains(@class, 'get-quantity')]/input";

@@ -382,8 +382,8 @@ public class ProductPage extends ProductPageElement {
     void uploadProductImage(String... imageFile) {
         // upload product image
         for (String imgFile : imageFile) {
-            Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/product_images/%s".formatted(imgFile).replace("/", File.separator)));
-            commonAction.uploads(imgUploads, filePath.toString());
+            String filePath = new DataGenerator().getFilePath(imgFile);
+            commonAction.uploads(imgUploads, filePath);
             logger.info("[Upload image popup] Upload images, file path: %s.".formatted(filePath));
         }
     }
@@ -910,9 +910,8 @@ public class ProductPage extends ProductPageElement {
 
             // upload image
             for (String imgFile : imageFile) {
-                Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"),
-                        "/src/main/resources/uploadfile/product_images/%s".formatted(imgFile).replace("/", File.separator)));
-                commonAction.uploads(loc_dlgUploadsImage_btnUploads, filePath.toString());
+                String filePath = new DataGenerator().getFilePath(imgFile);
+                commonAction.uploads(loc_dlgUploadsImage_btnUploads, filePath);
                 logger.info("[Upload image popup] Upload images, file path: %s.".formatted(filePath));
             }
 

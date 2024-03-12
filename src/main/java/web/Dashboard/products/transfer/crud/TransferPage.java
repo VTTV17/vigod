@@ -283,12 +283,12 @@ public class TransferPage extends TransferElement {
         }
     }
 
-    private void inputTransferInfo(LoginInformation loginInformation) throws Exception {
+    private void inputTransferInfo(LoginInformation staffLoginInformation) throws Exception {
         // get login information
-        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
+        LoginDashboardInfo loginInfo = new Login().getInfo(staffLoginInformation);
 
         // init branch management API
-        BranchManagement branchManagement = new BranchManagement(loginInformation);
+        BranchManagement branchManagement = new BranchManagement(staffLoginInformation);
         // get assigned branches
         List<Integer> assignedBranchIds = loginInfo.getAssignedBranchesIds();
 
@@ -297,7 +297,7 @@ public class TransferPage extends TransferElement {
         List<String> destinationBranchNames = destinationInfo.getBranchName();
 
         // init get all products API
-        APIAllProducts allProducts = new APIAllProducts(loginInformation);
+        APIAllProducts allProducts = new APIAllProducts(staffLoginInformation);
 
         // find origin branch that have in-stock product
         int originBranchId = getOriginBranchId(allProducts, assignedBranchIds);

@@ -1,22 +1,22 @@
 package web.Dashboard.products.all_products.management;
 
+import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 
@@ -50,8 +50,9 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void navigateToProductListPage() {
-        if (!driver.getCurrentUrl().contains("/product/list"))
-            driver.get("%s/product/list".formatted(DOMAIN));
+        driver.get("%s/product/list".formatted(DOMAIN));
+        driver.navigate().refresh();
+        logger.info("Navigate to product management page.");
     }
 
     void openBulkActionsDropdown() {
@@ -74,14 +75,17 @@ public class ProductManagementPage extends ProductManagementElement {
     void exportWholesaleProducts() {
         navigateToProductListPage();
         commonAction.clickJS(loc_btnExport);
-        commonAction.clickJS(loc_ddlExportActions, 1);
-        logger.info("Export wholesale products.");
+        if (!commonAction.getListElement(loc_ddlExportActions).isEmpty()) {
+            commonAction.clickJS(loc_ddlExportActions, 1);
+            logger.info("Export wholesale products.");
+        }
     }
 
     void navigateToDownloadHistoryPage() {
-        if (!driver.getCurrentUrl().contains("/product/export-history")) {
-            driver.get(DOMAIN + "/product/export-history");
-        }
+        driver.get(DOMAIN + "/product/export-history");
+        driver.navigate().refresh();
+        logger.info("Navigate to download export product history page.");
+
     }
 
     void importProduct() {
@@ -89,14 +93,23 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.clickJS(loc_btnImport);
 
         // open import product popup
-        commonAction.openPopupJS(loc_ddlImportActions, 0, loc_dlgImport);
+        commonAction.clickJS(loc_ddlImportActions, 0);
+
+        // select branch
+        String branchName = new Login().getInfo(staffLoginInformation).getAssignedBranchesNames().get(0);
+        commonAction.clickJS(By.xpath(str_dlgImport_chkBranch.formatted(branchName)));
+
+        // check import product is opened or not
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgImport).isEmpty(), "Can not open import popup");
 
         // upload file
-        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/import_product/import_product.xlsx".replace("/", File.separator)));
-        commonAction.uploads(loc_dlgImport_btnDragAndDrop, filePath.toString());
+        if (!commonAction.getListElement(loc_dlgImport).isEmpty()) {
+            commonAction.uploads(loc_dlgImport_btnDragAndDrop, new DataGenerator().getFilePath("import_product.xlsx"));
 
-        // complete import product
-        commonAction.closePopup(loc_dlgImport_btnImport);
+            // complete import product
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgImport_btnImport, loc_prgImportStatus),
+                    "Can not import product.");
+        }
     }
 
     void applyAll(long price, int typeIndex) {

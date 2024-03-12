@@ -210,10 +210,10 @@ public class LocationReceiptPage extends LocationReceiptElement {
 
             // completed select lot
             commonAction.closePopup(loc_dlgSelectLotDate_btnConfirm);
-        }
 
-        // log
-        logger.info("Select lot: %s.".formatted(lotName));
+            // log
+            logger.info("Select lot: %s.".formatted(lotName));
+        }
     }
 
     void selectLocation(String locationName) {

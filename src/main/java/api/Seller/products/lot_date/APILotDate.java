@@ -97,7 +97,7 @@ public class APILotDate {
         private List<Integer> ids;
         private List<String> lotNames;
         private List<String> lotCodes;
-        private List<Long> remainingStocks;
+        private List<Integer> remainingStocks;
     }
 
     @Data
@@ -105,7 +105,7 @@ public class APILotDate {
         private Integer id;
         private String lotName;
         private String lotCode;
-        private Long remainingStock;
+        private Integer remainingStock;
     }
 
     String productLotPath = "/itemservice/api/lot-dates/store/%s/search-receipt?page=%s&size=100";
@@ -131,7 +131,7 @@ public class APILotDate {
         List<Integer> ids = new ArrayList<>();
         List<String> lotNames = new ArrayList<>();
         List<String> lotCodes = new ArrayList<>();
-        List<String> remainingStocks = new ArrayList<>();
+        List<Integer> remainingStocks = new ArrayList<>();
 
         // get total products
         int totalOfLotDate = Integer.parseInt(getProductLotResponse(0, itemId, modelId, branchId, locationReceiptType).getHeader("X-Total-Count"));
@@ -156,7 +156,7 @@ public class APILotDate {
         info.setIds(ids);
         info.setLotNames(lotNames);
         info.setLotCodes(lotCodes);
-        info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
+        info.setRemainingStocks(remainingStocks);
 
         return info;
     }

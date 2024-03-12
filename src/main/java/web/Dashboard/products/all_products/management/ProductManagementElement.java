@@ -18,9 +18,11 @@ public class ProductManagementElement {
     By loc_btnImport = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[3]");
     By loc_ddlImportActions = By.xpath("(//*[contains(@class, 'gs-button__green gs-button--undefined')])[3]/following-sibling::div/button");
     By loc_dlgImport = By.cssSelector(".item-list-import-modal");
+    String str_dlgImport_chkBranch = "//span[contains(text(), '%s')]/parent::div/preceding-sibling::input";
     By loc_dlgImport_btnDragAndDrop = By.cssSelector(".item-list-import-modal__drop-zone input");
     By loc_dlgImport_btnImport = By.cssSelector(".item-list-import-modal .gs-button__green");
     By loc_dlgImport_btnCancel = By.cssSelector(".item-list-import-modal .gs-button__white");
+    By loc_prgImportStatus = By.xpath("//*[contains(@class, 'uik-widget-table__wrapper')]/preceding-sibling::div[1]/span");
     By loc_btnPrintBarcode = By.cssSelector(".gs-button__green--outline");
     By loc_dlgPrintBarcode = By.cssSelector(".product-list-barcode-printer");
     By loc_dlgPrintBarcode_btnCancel = By.cssSelector(".product-list-barcode-printer .gs-button__gray--outline");
