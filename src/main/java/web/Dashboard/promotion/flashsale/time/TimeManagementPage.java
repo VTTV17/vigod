@@ -161,10 +161,13 @@ public class TimeManagementPage extends TimeManagementElement {
         List<WebElement> valuesEls = commonAction.getElements(ddvLocator);
         boolean isClicked = false;
         for (int i = 0; i<valuesEls.size();i++){
-            String value = commonAction.getValue(ddvLocator,i);
+            String value = commonAction.getText(ddvLocator,i);
             if(value.equalsIgnoreCase(selectValue)){
+                commonAction.scrollToElement(commonAction.getElement(ddvLocator,i));
                 commonAction.click(ddvLocator,i);
                 isClicked=true;
+                logger.info("Select hourt: "+selectValue);
+                break;
             }
         }
         if(!isClicked){
@@ -177,9 +180,8 @@ public class TimeManagementPage extends TimeManagementElement {
     }
     public TimeManagementPage addAFlashSaleTime(String startHour, String endHour){
         clickOnAddTime();
-        commonAction.click(loc_dlgAddTime_ddlStartAtHour);
         selectTime(loc_dlgAddTime_ddlStartAtHour, loc_dlgAddTime_ddvStartAtHour,startHour);
-        commonAction.click(loc_dlgAddTime_ddlEndAtHour);
+        commonAction.sleepInMiliSecond(1000);
         selectTime(loc_dlgAddTime_ddlEndAtHour,loc_dlgAddTime_ddvEndAtHour,endHour);
         clickOnSave_AddTime();
         return this;
