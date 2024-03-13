@@ -30,12 +30,17 @@ public class SupplierManagementPage extends SupplierManagementElement {
     AssertCustomize assertCustomize;
     final static Logger logger = LogManager.getLogger(SupplierManagementPage.class);
 
-    public SupplierManagementPage(WebDriver driver, LoginInformation loginInformation) {
+    public SupplierManagementPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        this.loginInformation = loginInformation;
+
         assertCustomize = new AssertCustomize(driver);
+    }
+
+    public SupplierManagementPage getLoginInformation(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
+        return this;
     }
 
     public SupplierManagementPage inputSearchTerm(String searchTerm) {

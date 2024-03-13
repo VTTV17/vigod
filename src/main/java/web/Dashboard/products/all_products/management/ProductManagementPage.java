@@ -45,7 +45,7 @@ public class ProductManagementPage extends ProductManagementElement {
     public ProductManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
         this.sellerLoginInformation = sellerLoginInformation;
         this.staffLoginInformation = staffLoginInformation;
-        productPage = new ProductPage(driver, staffLoginInformation);
+        productPage = new ProductPage(driver);
         return this;
     }
 
@@ -202,7 +202,9 @@ public class ProductManagementPage extends ProductManagementElement {
             checkEnableProductLot();
 
             // check view product detail
-            productPage.checkProductManagementPermission(permissions, productIds.get(0));
+            productPage.getLoginInformation(staffLoginInformation)
+                    .checkProductManagementPermission(permissions,
+                    productIds.get(0));
         }
     }
 

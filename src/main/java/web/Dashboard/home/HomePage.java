@@ -570,10 +570,10 @@ public class HomePage extends HomePageElement {
             Assert.assertEquals(verifySalePitchPopupDisplay(), 0);
         }
     }
-    public void verifyPermissionToCreateProduct(String permission, LoginInformation loginInformation) {
+    public void verifyPermissionToCreateProduct(String permission) {
         if (permission.contentEquals("A")) {
             clickCreateProduct();
-            new ProductPage(driver, loginInformation).clickOnTheCreateProductBtn();
+            new ProductPage(driver).clickOnTheCreateProductBtn();
         } else if (permission.contentEquals("D")) {
             // Not reproducible
         } else {

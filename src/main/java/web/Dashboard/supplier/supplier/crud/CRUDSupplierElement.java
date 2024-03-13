@@ -11,7 +11,8 @@ class CRUDSupplierElement {
     By loc_txtSupplierCode = By.cssSelector("#code");
     By loc_txtPhoneNumber = By.cssSelector("#phone-number");
     By loc_txtEmail = By.cssSelector("#email");
-    By loc_lblSelectedCountry = By.cssSelector("#countryCode");
+    By loc_ddvSelectedCountry = By.cssSelector("#countryCode");
+    String str_ddvCountry = "//*[@id='countryCode']/*[text() = \"%s\"]";
     By loc_ddlCountry = By.cssSelector("#countryCode option");
     By loc_txtVNAddress = By.cssSelector("#address");
     By loc_lblSelectedVNCity = By.cssSelector("#province");

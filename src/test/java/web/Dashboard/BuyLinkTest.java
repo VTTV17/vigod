@@ -606,7 +606,7 @@ public class BuyLinkTest extends BaseTest {
                 .clickOnFinishBTN()
                 .verifyCreateBuyLinkSuccessfulMessage();
         String buyLinkURL = buyLinkManagement.getNewestBuyLinkURL();
-        new ProductPage(driver, loginInformation).navigateToProductAndDeleteAllVariation(productId);
+        new ProductPage(driver).navigateToProductAndDeleteAllVariation(productId);
         loginSF = new web.StoreFront.login.LoginPage(driver);
         loginSF.navigate(shopDomain)
                 .performLogin(userNameSF, passWordSF);

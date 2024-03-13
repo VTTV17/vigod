@@ -23,42 +23,42 @@ public class SupplierManagementTest extends BaseTest {
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);
-        tcsFileName = "check_product_detail_sf/Supplier management.xlsx".replace("/", File.separator);
+        tcsFileName = "Supplier management.xlsx";
     }
 
     @Test
     void MN_SUPPLIER_01_CheckUI() throws Exception {
         testCaseId = "MN_SUPPLIER_01";
-        new SupplierManagementPage(driver, loginInformation).setLanguage(language).checkUISupplierManagementPage();
+        new SupplierManagementPage(driver).getLoginInformation(loginInformation).setLanguage(language).checkUISupplierManagementPage();
     }
 
     @Test
     void MN_SUPPLIER_02_CheckNavigateToAddSupplierPage() {
         testCaseId = "MN_SUPPLIER_02";
-        new SupplierManagementPage(driver, loginInformation).setLanguage(language).checkNavigateToAddSupplierPage();
+        new SupplierManagementPage(driver).getLoginInformation(loginInformation).setLanguage(language).checkNavigateToAddSupplierPage();
     }
 
     @Test
     void MN_SUPPLIER_03_SearchSupplierByInvalidSupplierCode() {
         testCaseId = "MN_SUPPLIER_03";
-        new SupplierManagementPage(driver, loginInformation).setLanguage(language).checkSearchWithInvalidSupplierCode();
+        new SupplierManagementPage(driver).getLoginInformation(loginInformation).setLanguage(language).checkSearchWithInvalidSupplierCode();
     }
 
     @Test
     void MN_SUPPLIER_04_SearchSupplierByValidSupplierCode() {
         testCaseId = "MN_SUPPLIER_04";
-        new SupplierManagementPage(driver, loginInformation).setLanguage(language).checkSearchWithValidSupplierCode();
+        new SupplierManagementPage(driver).getLoginInformation(loginInformation).setLanguage(language).checkSearchWithValidSupplierCode();
     }
 
     @Test
     void MN_SUPPLIER_05_SearchSupplierByInvalidSupplierName() {
         testCaseId = "MN_SUPPLIER_05";
-        new SupplierManagementPage(driver, loginInformation).setLanguage(language).checkSearchWithInvalidSupplierName();
+        new SupplierManagementPage(driver).getLoginInformation(loginInformation).setLanguage(language).checkSearchWithInvalidSupplierName();
     }
 
     @Test
     void MN_SUPPLIER_06_SearchSupplierByValidSupplierName() {
         testCaseId = "MN_SUPPLIER_06";
-        new SupplierManagementPage(driver, loginInformation).setLanguage(language).checkSearchWithValidSupplierName();
+        new SupplierManagementPage(driver).getLoginInformation(loginInformation).setLanguage(language).checkSearchWithValidSupplierName();
     }
 }

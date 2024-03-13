@@ -366,7 +366,7 @@ public class SignupDashboard extends BaseTest {
 		loginPage.navigate().performLogin(country, username, password);
 
 		loginInformation = new Login().setLoginInformation(generate.getPhoneCode(country), username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(packages);
+		new Permission(driver).testPermission(packages);
 		homePage.clickLogout();
 	}
 
@@ -865,7 +865,7 @@ public class SignupDashboard extends BaseTest {
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
 		loginInformation = new Login().setLoginInformation(generate.getPhoneCode(country), username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(plan);
+		new Permission(driver).testPermission(plan);
 
 		/* Check mail */
 //		verifyEmail(username, "COMPLETE");
@@ -917,7 +917,7 @@ public class SignupDashboard extends BaseTest {
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
 		loginInformation = new Login().setLoginInformation(generate.getPhoneCode(country), username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(plan);
+		new Permission(driver).testPermission(plan);
 		
 		/* Check mail */
 //		verifyEmail(username, "COMPLETE");
@@ -1053,7 +1053,7 @@ public class SignupDashboard extends BaseTest {
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
 		loginInformation = new Login().setLoginInformation(generate.getPhoneCode(country), username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(plan);
+		new Permission(driver).testPermission(plan);
 		
 		/* Check mails */
 		String welcomeMsg = PropertiesUtil.getPropertiesValueByDBLang("mail.signup.welcome");
@@ -1249,7 +1249,7 @@ public class SignupDashboard extends BaseTest {
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
 		loginInformation = new Login().setLoginInformation(phoneCode, username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(plan);
+		new Permission(driver).testPermission(plan);
 
 		/* Check mail */
 		verifyEmail(username, "COMPLETE");
@@ -1284,7 +1284,7 @@ public class SignupDashboard extends BaseTest {
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
 		loginInformation = new Login().setLoginInformation(phoneCode, username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(plan);
+		new Permission(driver).testPermission(plan);
 
 		/* Check mail */
 		verifyEmail(username, "COMPLETE");
@@ -1321,7 +1321,7 @@ public class SignupDashboard extends BaseTest {
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
 		loginInformation = new Login().setLoginInformation(phoneCode, username, password).getLoginInformation();
-		new Permission(driver, loginInformation).testPermission(plan);
+		new Permission(driver).testPermission(plan);
 		
 		/* Check mail */
 		verifyEmail(username, "COMPLETE");

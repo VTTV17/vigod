@@ -33,7 +33,7 @@ public class SupplierTest extends BaseTest {
 
     @BeforeClass
     void setup() throws Exception {
-        tcsFileName = "android/Check CRUD supplier.xlsx".replace("/", File.separator);
+        tcsFileName = "android/Check CRUD supplier.xlsx";
         // init appium driver
         driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage, appActivity, URL);
 

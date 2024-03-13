@@ -47,7 +47,7 @@ public class BH_8887 extends BaseTest {
         conditions = new ProductDiscountCampaignConditions();
         conditions.setCustomerId(customerId);
         new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
-        tcsFileName = "check_product_detail_sf/BH_8887_View discount campaign at product detail.xlsx".replace("/", File.separator);
+        tcsFileName = "BH_8887_View discount campaign at product detail.xlsx";
     }
 
     @BeforeGroups(groups = "[BH_8887] Normal product - Without variation")

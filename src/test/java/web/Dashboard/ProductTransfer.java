@@ -1,23 +1,23 @@
 package web.Dashboard;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
+import api.Seller.login.Login;
+import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.ProductInformation;
+import api.Seller.setting.BranchManagement;
+import api.Seller.setting.StoreInformation;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.ProductInformation;
-import api.Seller.setting.BranchManagement;
-import api.Seller.setting.StoreInformation;
+import utilities.account.AccountTest;
+import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 import web.BaseTest;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -25,13 +25,12 @@ import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.inventory.InventoryPage;
 import web.Dashboard.products.inventory.history.InventoryHistoryPage;
 import web.Dashboard.products.transfer.crud.TransferPage;
-import utilities.commons.UICommonAction;
-import utilities.account.AccountTest;
-import utilities.data.DataGenerator;
-import utilities.driver.InitWebdriver;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
-import utilities.model.dashboard.setting.branchInformation.BranchInfo;
-import utilities.model.sellerApp.login.LoginInformation;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class ProductTransfer extends BaseTest {
 
@@ -70,7 +69,7 @@ public class ProductTransfer extends BaseTest {
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		transferPage = new TransferPage(driver);
-		productPage = new ProductPage(driver, loginInformation);
+		productPage = new ProductPage(driver);
 		inventoryPage = new InventoryPage(driver);
 		inventoryHistoryPage = new InventoryHistoryPage(driver);
 		commonAction = new UICommonAction(driver);

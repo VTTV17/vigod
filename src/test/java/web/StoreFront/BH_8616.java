@@ -29,7 +29,7 @@ public class BH_8616 extends BaseTest {
 
     @BeforeClass
     void setup() {
-        tcsFileName = "check_product_detail_sf/BH_8616_Check hide remaining stock on online store.xlsx".replace("/", File.separator);
+        tcsFileName = "BH_8616_Check hide remaining stock on online store.xlsx";
         loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
         driver = new InitWebdriver().getDriver(browser, headless);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);

@@ -34,7 +34,7 @@ public class BH_9536 extends BaseTest {
         driver = new InitWebdriver().getDriver(browser, headless);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
-        tcsFileName = "check_product_detail_sf/BH_9536_Check to display if out of stock at product detail.xlsx".replace("/", File.separator);
+        tcsFileName = "BH_9536_Check to display if out of stock at product detail.xlsx";
     }
 
     // G1: Normal product - without variation

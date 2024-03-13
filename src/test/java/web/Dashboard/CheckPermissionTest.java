@@ -18,6 +18,7 @@ import web.Dashboard.products.productreviews.ProductReviews;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static utilities.account.AccountTest.*;
 import static utilities.links.Links.DOMAIN;
@@ -69,14 +70,14 @@ public class CheckPermissionTest extends BaseTest {
 		permission.put(ADMIN_USERNAME_GOSOCIAL, "D");
 		permission.put(ADMIN_USERNAME_GOLEAD, "D");
 		
-		Map<String, String> url = new Permission(driver, new Login().setLoginInformation("Vietnam", ADMIN_USERNAME_GOWEB, "fortesting!1").getLoginInformation()).getFeatureURL();
+		Map<String, String> url = new Permission(driver).getFeatureURL();
 		
 		for (String username : permission.keySet()) {
 			dbLoginPage.navigate().performLogin(username, "fortesting!1");
 			homePage.waitTillSpinnerDisappear().navigateToPage("Marketing", "Push Notification");
 			new PushNotificationManagement(driver).verifyPermissionToCreatePushNotification(permission.get(username), url.get("Marketing-Push Notification-Create Push Notification"));
 			
-			if (permission.get(username) == "D") {
+			if (Objects.equals(permission.get(username), "D")) {
 	            commonAction.navigateToURL(DOMAIN + url.get("Marketing-Push Notification-Create Push Notification"));
 	            Assert.assertTrue(commonAction.getCurrentURL().contains("/404"));
 	            commonAction.navigateToURL(DOMAIN);

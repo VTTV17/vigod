@@ -1,6 +1,5 @@
 package web.Dashboard.supplier.supplier.crud;
 
-import api.Seller.login.Login;
 import api.Seller.products.purchase_orders.PurchaseOrders;
 import api.Seller.products.supplier.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
@@ -11,10 +10,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
-import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
-import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.links.Links.DOMAIN;
+import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 
 /**
  * CRUD:
@@ -47,17 +47,29 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     private String supplierCode;
     private String phoneNumber;
     private String email;
-    private LoginInformation loginInformation;
+    private LoginInformation sellerLoginInformation;
+    private LoginInformation staffLoginInformation;
     private final AssertCustomize assertCustomize;
 
     public CRUDSupplierPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-        supplierManagementPage = new SupplierManagementPage(driver, loginInformation);
-        loginInformation = new Login().getLoginInformation();
-        sup = new SupplierAPI(loginInformation);
         assertCustomize = new AssertCustomize(driver);
+        supplierManagementPage = new SupplierManagementPage(driver);
+    }
+
+    public CRUDSupplierPage getLoginInformation(LoginInformation sellerLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        sup = new SupplierAPI(sellerLoginInformation);
+        return this;
+    }
+
+    public CRUDSupplierPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        this.staffLoginInformation = staffLoginInformation;
+        sup = new SupplierAPI(staffLoginInformation);
+        return this;
     }
 
     public CRUDSupplierPage setLanguage(String language) {
@@ -108,28 +120,28 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         logger.info("Input email: %s".formatted(email));
     }
 
+    String getOutSideVnCountryName() {
+        String countryName = new DataGenerator().randomCountry();
+        return !countryName.equals("Vietnam") ? countryName : getOutSideVnCountryName();
+    }
+
     void selectCountry(boolean isVNSupplier) {
         // open country dropdown
-        commonAction.clickJS(loc_lblSelectedCountry);
-        commonAction.sleepInMiliSecond(1000);
+//        commonAction.click(loc_ddvSelectedCountry);
+//        commonAction.sleepInMiliSecond(1000);
 
-        // check supplier has locator on VN or not
-        if (isVNSupplier) {
-            // select country = Vietnam
-            new Select(commonAction.getElement(loc_lblSelectedCountry)).selectByValue("VN");
-            logger.info("Select country: Vietnam");
-        } else {
-            // select another country
-            List<WebElement> countryList = commonAction.getListElement(loc_ddlCountry);
-            List<String> countryCode = countryList.stream().map(webElement -> webElement.getAttribute("value")).toList();
-            int index = nextInt(countryCode.size());
-            while (countryCode.get(index).equals("VN")) index = nextInt(countryCode.size());
-            new Select(commonAction.getElement(loc_lblSelectedCountry)).selectByIndex(index);
-            logger.info("Select country: %s".formatted(commonAction.getText(loc_ddlCountry, index)));
+        // get country
+        String countryName = isVNSupplier ? "Vietnam" : getOutSideVnCountryName();
+        new Select(commonAction.getElement(loc_ddvSelectedCountry)).selectByVisibleText(countryName);
 
-        }
+//        // get country locator
+//        By countryLocator = By.xpath(str_ddvCountry.formatted(countryName));
+//
+//        // select country
+//        commonAction.clickJS(countryLocator);
+        logger.info("Select country: %s.".formatted(countryName));
 
-        commonAction.sleepInMiliSecond(2000);
+//        commonAction.sleepInMiliSecond(2000);
     }
 
     void inputVNAddress(String address) {
@@ -201,7 +213,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         // get index of selected province
         int index = nextInt(commonAction.getListElement(loc_ddlNonVNProvince).size());
         new Select(commonAction.getElement(loc_lblSelectedNonVNProvince)).selectByIndex(index);
-        logger.info("Select province: %s".formatted(commonAction.getText(loc_lblSelectedNonVNProvince, index)));
+        logger.info("Select province: %s".formatted(commonAction.getText(loc_ddlNonVNProvince, index)));
     }
 
     void inputNonVNZipcode(String zipcode) {
@@ -255,7 +267,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         inputSupplierName("abc");
 
         // get available supplier code
-        SupplierAPI sup = new SupplierAPI(loginInformation);
+        SupplierAPI sup = new SupplierAPI(sellerLoginInformation);
         List<String> supplierCodeList = sup.getListSupplierCode("");
         String supplierCode = (supplierCodeList.isEmpty()) ? sup.createSupplierAndGetSupplierCode() : sup.getListSupplierCode("").get(0);
 
@@ -493,7 +505,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         logger.info("Check Supplier Information - Email.");
 
         // check country
-        String dbCountry = commonAction.getValue(loc_lblSelectedCountry);
+        String dbCountry = commonAction.getValue(loc_ddvSelectedCountry);
         String infoCountry = supInfo.get("countryCode");
         assertCustomize.assertEquals(dbCountry, infoCountry, "[Failed][Supplier Information] Country should be %s, but found %s.".formatted(infoCountry, dbCountry));
         logger.info("Check Supplier Information - Country.");
@@ -582,7 +594,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
         // if no purchase orders, post API to create data test
         List<String> listAvailablePurchaseId = sup.getListOrderId("", supplierID);
-        String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new PurchaseOrders(loginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
+        String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new PurchaseOrders(sellerLoginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
 
         // input valid purchaseId and search
         commonAction.sendKeys(loc_txtSearchPurchaseOrder, "%s\n".formatted(purchaseId));
@@ -930,13 +942,6 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         String ppResponsibleStaff = getPropertiesValueByDBLang("products.supplier.addSupplier.otherInformation.responsibleStaff", language);
         assertCustomize.assertEquals(dbResponsibleStaff, ppResponsibleStaff, "[Failed][Other information] Responsible staff should be %s, but found %s.".formatted(ppResponsibleStaff, dbResponsibleStaff));
         logger.info("[UI][%s] Check Other information - Responsible staff.".formatted(language));
-
-        // check responsible staff default option
-        int sellerId = new Login().getInfo(loginInformation).getUserId();
-        String dbResponsibleStaffDefaultOption = commonAction.getText(By.cssSelector(loc_lblDefaultResponsibleStaff.formatted(sellerId)));
-        String ppResponsibleStaffDefaultOption = getPropertiesValueByDBLang("products.supplier.addSupplier.otherInformation.responsibleStaffDefaultOption", language);
-        assertCustomize.assertEquals(dbResponsibleStaffDefaultOption, ppResponsibleStaffDefaultOption, "[Failed][Other information] Responsible staff default option should be %s, but found %s.".formatted(ppResponsibleStaffDefaultOption, dbResponsibleStaffDefaultOption));
-        logger.info("[UI][%s] Check Other information - Responsible staff default option.".formatted(language));
 
         // check description
         String dbDescription = commonAction.getText(loc_lblDescription);

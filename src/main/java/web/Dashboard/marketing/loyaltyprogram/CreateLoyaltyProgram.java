@@ -48,7 +48,7 @@ public class CreateLoyaltyProgram {
 	}
 
 	public CreateLoyaltyProgram uploadImages(String imgFile) {
-        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/membership_images/%s".formatted(imgFile).replace("/", File.separator)));
+        Path filePath = Paths.get("%s%s".formatted(System.getProperty("user.dir"), "/src/main/resources/uploadfile/membership_images/%s".formatted(imgFile)));
 		commonAction.uploads(loc_btnUploadImage, filePath.toString());
 		logger.info("Upload file: " + imgFile);
 		return this;

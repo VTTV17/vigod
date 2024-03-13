@@ -1,19 +1,15 @@
 package web.Dashboard.home;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
+import utilities.commons.UICommonAction;
+import utilities.excel.Excel;
+import utilities.file.FileNameAndPath;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.analytics.OrderAnalytics;
 import web.Dashboard.analytics.ReservationAnalytics;
 import web.Dashboard.customers.allcustomers.AllCustomers;
@@ -32,16 +28,14 @@ import web.Dashboard.onlineshop.blog.BlogManagement;
 import web.Dashboard.onlineshop.menus.MenuManagement;
 import web.Dashboard.onlineshop.pages.PageManagement;
 import web.Dashboard.onlineshop.preferences.Configuration;
-import web.Dashboard.orders.pos.POSPage;
 import web.Dashboard.orders.createquotation.CreateQuotation;
 import web.Dashboard.orders.orderlist.OrderList;
+import web.Dashboard.orders.pos.POSPage;
 import web.Dashboard.orders.returnorders.ReturnOrders;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.inventory.InventoryPage;
 import web.Dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
 import web.Dashboard.products.productreviews.ProductReviews;
-import web.Dashboard.supplier.purchaseorders.PurchaseOrders;
-import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 import web.Dashboard.products.transfer.crud.TransferPage;
 import web.Dashboard.promotion.discount.DiscountPage;
 import web.Dashboard.promotion.flashsale.FlashSalePage;
@@ -56,11 +50,15 @@ import web.Dashboard.settings.shippingandpayment.ShippingAndPayment;
 import web.Dashboard.settings.storeinformation.StoreInformation;
 import web.Dashboard.settings.storelanguages.StoreLanguages;
 import web.Dashboard.settings.vat.VATInformation;
-import utilities.utils.PropertiesUtil;
-import utilities.commons.UICommonAction;
-import utilities.excel.Excel;
-import utilities.file.FileNameAndPath;
-import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.supplier.purchaseorders.PurchaseOrders;
+import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class Permission {
 
@@ -70,13 +68,11 @@ public class Permission {
 	WebDriverWait wait;
 	UICommonAction commonAction;
 
-	LoginInformation loginInformation;
-	public Permission(WebDriver driver, LoginInformation loginInformation) {
+	public Permission(WebDriver driver) {
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
 		PageFactory.initElements(driver, this);
-		this.loginInformation = loginInformation;
 	}
 
 	/**
@@ -121,7 +117,7 @@ public class Permission {
 							home.verifyPermissionToDisplayStatistics(permission.get(menuComponent));
 						}
 						case "Create Product" -> {
-							home.verifyPermissionToCreateProduct(permission.get(menuComponent), loginInformation);
+							home.verifyPermissionToCreateProduct(permission.get(menuComponent));
 						}
 						case "Import Product From Shopee" -> {
 							home.verifyPermissionToImportProductFromShopee(permission.get(menuComponent),
@@ -163,20 +159,20 @@ public class Permission {
 						case "All Products" -> {
 							switch (function) {
 								case "Print Barcode" -> {
-									new ProductPage(driver, loginInformation).verifyPermissionToPrintBarCode(permission.get(menuComponent));
+									new ProductPage(driver).verifyPermissionToPrintBarCode(permission.get(menuComponent));
 								}
 								case "Create Product" -> {
-									new ProductPage(driver, loginInformation).verifyPermissionToCreateProduct(permission.get(menuComponent),
+									new ProductPage(driver).verifyPermissionToCreateProduct(permission.get(menuComponent),
 											url.get(menuComponent));
 								}
 								case "Create Variation Product" -> {
-									new ProductPage(driver, loginInformation).verifyPermissionToCreateVariationProduct(permission.get(menuComponent));
+									new ProductPage(driver).verifyPermissionToCreateVariationProduct(permission.get(menuComponent));
 								}
 								case "Create Deposit Product" -> {
-									new ProductPage(driver, loginInformation).verifyPermissionToCreateDepositProduct(permission.get(menuComponent));
+									new ProductPage(driver).verifyPermissionToCreateDepositProduct(permission.get(menuComponent));
 								}
 								case "Product SEO" -> {
-									new ProductPage(driver, loginInformation).verifyPermissionToCreateProductSEO(permission.get(menuComponent));
+									new ProductPage(driver).verifyPermissionToCreateProductSEO(permission.get(menuComponent));
 								}
 							}
 						}
@@ -201,7 +197,7 @@ public class Permission {
 						new ProductReviews(driver).verifyPermissionToManageReviews(permission.get(menuComponent));
 					}
 					if (subMenu.contentEquals("Supplier")) {
-						new SupplierManagementPage(driver, loginInformation).verifyPermissionToManageSupplier(permission.get(menuComponent),
+						new SupplierManagementPage(driver).verifyPermissionToManageSupplier(permission.get(menuComponent),
 								url.get(menuComponent));
 					}
 					if (subMenu.contentEquals("Purchase Orders")) {

@@ -61,12 +61,17 @@ public class ProductPage extends ProductPageElement {
     private static ProductInfo productInfo;
     LoginInformation loginInformation;
 
-    public ProductPage(WebDriver driver, LoginInformation loginInformation) {
+    public ProductPage(WebDriver driver) {
         this.driver = driver;
 
         // init common function
         commonAction = new UICommonAction(driver);
 
+        // init assert customize function
+        assertCustomize = new AssertCustomize(driver);
+    }
+
+    public ProductPage getLoginInformation(LoginInformation loginInformation) {
         // get login information (username, password)
         this.loginInformation = loginInformation;
 
@@ -75,9 +80,7 @@ public class ProductPage extends ProductPageElement {
 
         // get store information
         storeInfo = new StoreInformation(loginInformation).getInfo();
-
-        // init assert customize function
-        assertCustomize = new AssertCustomize(driver);
+        return this;
     }
 
     String name;
