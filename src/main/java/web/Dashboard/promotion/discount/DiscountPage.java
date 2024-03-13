@@ -2,6 +2,7 @@ package web.Dashboard.promotion.discount;
 
 import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -53,18 +54,18 @@ public class DiscountPage extends DiscountElement {
 		super(driver);
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
-	}
-	public DiscountPage(WebDriver driver, LoginInformation loginInformation) {
-		super(driver);
-		this.loginInformation = loginInformation;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		commonAction = new UICommonAction(driver);
 		assertCustomize = new AssertCustomize(driver);
 		productDiscountCampaignEl = new ProductDiscountCampaignElement(driver);
 		homePage = new HomePage(driver);
 		serviceCampaignPage = new ServiceDiscountCampaignPage(driver);
 	}
 
+    public DiscountPage getLoginInformation(LoginInformation loginInformation) {
+        // get login information (username, password)
+        this.loginInformation = loginInformation;
+        return this;
+    }	
+	
 	Logger logger = LogManager.getLogger(DiscountPage.class);
 
     /**
@@ -919,11 +920,6 @@ public class DiscountPage extends DiscountElement {
 	
     public void checkDiscountPermission(AllPermissions staffPermission, int productDiscountCodeId, int serviceDiscountCodeId, int productDiscountCodeIdToEnd, int serviceDiscountCodeIdToEnd, String productNotCreatedByStaff, String productCreatedByStaff, String serviceNotCreatedByStaff, String serviceCreatedByStaff) {
     	logger.info("Permissions: " + staffPermission);
-    	assertCustomize = new AssertCustomize(driver);
-    	productDiscountCampaignEl = new ProductDiscountCampaignElement(driver);
-		homePage = new HomePage(driver);
-		serviceCampaignPage = new ServiceDiscountCampaignPage(driver);
-    	
     	checkPermissionToViewDiscounCodeList(staffPermission);
     	checkPermissionToViewDiscountCodeDetail(staffPermission, productDiscountCodeId, serviceDiscountCodeId);
     	checkPermissionToCreateProductDiscountCode(staffPermission, productNotCreatedByStaff, productCreatedByStaff);
@@ -933,16 +929,6 @@ public class DiscountPage extends DiscountElement {
     	checkPermissionToEndProductDiscountCode(staffPermission, productDiscountCodeIdToEnd);
     	checkPermissionToEndServiceDiscountCode(staffPermission, serviceDiscountCodeIdToEnd);
     }
-
-	public void checkDiscountPermission(AllPermissions staffPermission, int productDiscountCodeId, int serviceDiscountCodeId, String productNotCreatedByStaff, String productCreatedByStaff, String serviceNotCreatedByStaff, String serviceCreatedByStaff) {
-		logger.info("Permissions: " + staffPermission);
-		checkPermissionToViewDiscounCodeList(staffPermission);
-		checkPermissionToViewDiscountCodeDetail(staffPermission, productDiscountCodeId, serviceDiscountCodeId);
-		checkPermissionToCreateProductDiscountCode(staffPermission, productNotCreatedByStaff, productCreatedByStaff);
-		checkPermissionToCreateServiceDiscountCode(staffPermission, serviceNotCreatedByStaff, serviceCreatedByStaff);
-		checkPermissionToEditProductDiscountCode(staffPermission, productDiscountCodeId, productNotCreatedByStaff, productCreatedByStaff);
-		checkPermissionToEditServiceDiscountCode(staffPermission, serviceDiscountCodeId, serviceNotCreatedByStaff, serviceCreatedByStaff);
-	}
 
 	public DiscountPage verifyPermissionViewProductCampaignList(){
 		navigateUrl();
@@ -1228,6 +1214,7 @@ public class DiscountPage extends DiscountElement {
 		return this;
 	}
 	public DiscountPage checkPermissionViewBranchList(){
+		
 		List<Integer> branchIds = new Login().getInfo(loginInformation).getAssignedBranchesIds();
 		List<String> branchNamesAssigned = new BranchManagement(loginInformation).getBranchNameById(branchIds);
 		new ProductDiscountCampaignPage(driver)
@@ -1434,6 +1421,7 @@ public class DiscountPage extends DiscountElement {
 	}
 	public DiscountPage verifyPermissionDiscountCampaign(AllPermissions allPermissions, String productNameCreatedByShopOwner, String productNameCreatedByStaff, String serviceNameCreatedByShopOwner, String serviceNameCreatedByStaff, int productCampaignInprogressId, int serviceCampaignInprogessId, int productCampaignScheduleId, int serviceCampaignScheduleId ){
 		this.allPermissions = allPermissions;
+		
 		verifyPermissionViewProductCampaignList();
 		verifyPermissionViewProductCampaignDetail(productCampaignScheduleId);
 		verifyPermissionViewServiceCampaignList();
