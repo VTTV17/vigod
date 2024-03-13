@@ -1321,7 +1321,7 @@ public class ReservationPermissionTest extends BaseTest {
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        new DiscountPage(driver,staffCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
+        new DiscountPage(driver).getLoginInformation(ownerCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
                 .completeVerifyStaffPermissionDiscountCampaign();
     }
     public int callAPIGetFlashScheduleId(){
