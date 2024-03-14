@@ -1150,6 +1150,18 @@ public class PermissionDataProvider {
 		};
 	}
 	
+	@DataProvider
+	public Object[][] buyXGetYPermission() {
+		return new Object[][] { 
+//			{"00000"},
+//			{"00001"},
+//			{"00110"},
+//			{"00110"},
+//			{"00110"},
+			{"00010"},
+		};
+	}
+	
 	@DataProvider()
 	public Object[][] serviceCollectionPermissionModel() {
 		return new Object[][]
