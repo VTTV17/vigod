@@ -5,7 +5,6 @@ import api.Seller.onlineshop.APIMenus;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Buyer.header.APIHeader;
-import app.android.BaseTest;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.ITestResult;

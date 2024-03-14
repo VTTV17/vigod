@@ -8,7 +8,6 @@ import app.GoSeller.login.LoginPage;
 import app.GoSeller.supplier.create.CreateSupplierScreen;
 import app.GoSeller.supplier.management.SupplierManagementScreen;
 import app.GoSeller.supplier.update.UpdateSupplierScreen;
-import app.android.BaseTest;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;

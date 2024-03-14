@@ -3,7 +3,7 @@ package web.Dashboard;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import web.BaseTest;
+
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.staff_management.StaffPage;
 import web.Dashboard.settings.staff_management.StaffVerify;

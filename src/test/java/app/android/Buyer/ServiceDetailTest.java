@@ -6,7 +6,7 @@ import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.services.CreateServiceAPI;
 import api.Seller.services.EditServiceAPI;
 import api.Seller.services.ServiceInfoAPI;
-import app.android.BaseTest;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;

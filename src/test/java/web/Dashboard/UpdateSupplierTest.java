@@ -4,7 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
-import web.BaseTest;
+
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.supplier.supplier.crud.CRUDSupplierPage;
 

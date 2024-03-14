@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import app.android.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;

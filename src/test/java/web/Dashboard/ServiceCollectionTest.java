@@ -9,7 +9,7 @@ import api.Seller.services.ServiceCollectionAPI;
 import api.Seller.services.ServiceInfoAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
-import web.BaseTest;
+
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.service.servicecollections.CreateServiceCollection;

@@ -11,15 +11,12 @@ import api.Seller.promotion.ProductDiscountCampaign;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
-import web.BaseTest;
 import web.StoreFront.detail_product.ProductDetailPage;
 import web.StoreFront.login.LoginPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-
-import java.io.File;
 
 import static java.lang.Thread.sleep;
 import static utilities.account.AccountTest.*;

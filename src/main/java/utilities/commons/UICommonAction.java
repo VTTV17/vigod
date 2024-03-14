@@ -1063,8 +1063,15 @@ public class UICommonAction {
         }
 
         // check option is selected or not
-        if (!getSelectedValue(ddvSelectedLocator).equals(value)) {
-            selectDropdownOptionByValue(ddvSelectedLocator, value);
+        try {
+            if (!getSelectedValue(ddvSelectedLocator).equals(value)) {
+                selectDropdownOptionByValue(ddvSelectedLocator, value);
+            }
+        } catch (StaleElementReferenceException ex) {
+            logger.info(ex);
+            if (!getSelectedValue(ddvSelectedLocator).equals(value)) {
+                selectDropdownOptionByValue(ddvSelectedLocator, value);
+            }
         }
     }
 }

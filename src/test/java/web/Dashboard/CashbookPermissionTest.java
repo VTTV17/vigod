@@ -22,7 +22,7 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-import web.BaseTest;
+
 import web.Dashboard.cashbook.Cashbook;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;

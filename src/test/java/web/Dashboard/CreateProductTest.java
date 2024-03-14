@@ -5,7 +5,7 @@ import api.Seller.login.Login;
 import api.Seller.products.all_products.ProductInformation;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import web.BaseTest;
+
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.StoreFront.detail_product.ProductDetailPage;

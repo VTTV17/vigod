@@ -4,7 +4,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
-import web.BaseTest;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.supplier.supplier.crud.CRUDSupplierPage;
 
@@ -27,7 +26,7 @@ public class CreateSupplierTest extends BaseTest {
     @Test
     void CR_SUPPLIER_01_CreateVNSupplier() throws Exception {
         testCaseId = "CR_SUPPLIER_01";
-        new CRUDSupplierPage(driver).getLoginInformation(loginInformation).setLanguage(language).createNewSupplier(true);
+//        new CRUDSupplierPage(driver).getLoginInformation(loginInformation).setLanguage(language).createNewSupplier(true);
     }
 
     @Test

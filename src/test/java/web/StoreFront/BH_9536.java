@@ -7,14 +7,11 @@ import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import web.BaseTest;
 import web.StoreFront.detail_product.ProductDetailPage;
 import web.StoreFront.login.LoginPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-
-import java.io.File;
 
 import static utilities.account.AccountTest.*;
 import static utilities.account.AccountTest.BUYER_PASSWORD_THANG;

@@ -10,7 +10,7 @@ import java.util.Set;
 
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.product_reviews.APIProductReviews;
-import app.android.BaseTest;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;

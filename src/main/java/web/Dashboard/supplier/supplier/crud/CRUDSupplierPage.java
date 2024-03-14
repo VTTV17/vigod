@@ -124,7 +124,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
     void selectCountry(boolean isVNSupplier) {
         // get country name
-        String countryName = isVNSupplier ? "VN" : getOutSideVnCountryName();
+        String countryName = isVNSupplier ? "Vietnam" : getOutSideVnCountryName();
 
         // get country code
         String countryCode = new DataGenerator().getCountryCode(countryName);
@@ -222,7 +222,6 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
         // get province code
         String provinceCode = commonAction.getValue(loc_ddlNonVNProvince, index);
-        System.out.println(provinceCode);
 
         // select province
         commonAction.selectDropdownOptionByValue(loc_lblSelectedNonVNProvince, provinceCode);

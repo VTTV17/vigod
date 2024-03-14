@@ -1,7 +1,6 @@
 package app.android.GoSeller;
 import java.io.IOException;
 
-import app.android.BaseTest;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;

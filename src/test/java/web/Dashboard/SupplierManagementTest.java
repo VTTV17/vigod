@@ -2,7 +2,7 @@ package web.Dashboard;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import web.BaseTest;
+
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 import utilities.driver.InitWebdriver;

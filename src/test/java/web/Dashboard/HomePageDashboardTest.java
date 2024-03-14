@@ -2,7 +2,7 @@ package web.Dashboard;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import web.BaseTest;
+
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import utilities.utils.PropertiesUtil;

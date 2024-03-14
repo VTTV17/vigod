@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import web.BaseTest;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.allcustomers.details.CustomerDetails;
 import web.Dashboard.home.HomePage;

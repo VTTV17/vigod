@@ -18,7 +18,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import api.Seller.login.Login;
-import web.BaseTest;
+
 import web.Dashboard.home.HomePage;
 import web.Dashboard.home.Permission;
 import web.Dashboard.login.LoginPage;

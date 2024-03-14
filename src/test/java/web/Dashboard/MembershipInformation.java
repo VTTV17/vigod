@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import api.Seller.customers.SegmentAPI;
 import api.Seller.login.Login;
-import web.BaseTest;
+
 import web.Dashboard.customers.segments.Segments;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
