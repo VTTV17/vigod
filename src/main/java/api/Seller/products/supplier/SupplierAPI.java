@@ -10,10 +10,9 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class SupplierAPI {
-    String GET_SUPPLIER_LIST = "/itemservice/api/suppliers/store/%s?page=%s&size=100&nameOrCode=%s";
+    String GET_SUPPLIER_LIST = "/itemservice/api/suppliers/store/%s?page=%s&size=100&sort=id,desc&itemNameOrCode=%s";
     String CREATE_SUPPLIER_PATH = "/itemservice/api/suppliers";
     String SUPPLIER_DETAIL_PATH = "/itemservice/api/suppliers/%s";
     String GET_SUPPLIER_ORDER_HISTORY_PATH = "/itemservice/api/purchase-orders/store-id/%s?searchBy=id&purchaseId=%s&supplierId=%s&page=0&size=5&sort=id,desc";
@@ -26,21 +25,17 @@ public class SupplierAPI {
 
     @Data
     public static class AllSupplierInformation {
-        List<Integer> ids;
-        List<String> codes;
-        List<String> names;
-        List<String> emails;
-        List<String> phoneNumbers;
-        List<Integer> totalBalance;
-        List<String> statues;
+        List<Integer> ids = new ArrayList<>();
+        List<String> codes = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<String> emails = new ArrayList<>();
+        List<String> phoneNumbers = new ArrayList<>();
+        List<Integer> totalBalance = new ArrayList<>();
+        List<String> statues = new ArrayList<>();
     }
 
     public Response getAllSupplierResponse(String supplierCode, int pageIndex) {
-        return api.get(GET_SUPPLIER_LIST.formatted(loginInfo.getStoreID(), pageIndex, supplierCode), loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+        return api.get(GET_SUPPLIER_LIST.formatted(loginInfo.getStoreID(), pageIndex, supplierCode), loginInfo.getAccessToken());
     }
 
     public AllSupplierInformation getAllSupplierInformation(String... supplierCode) {
@@ -58,15 +53,25 @@ public class SupplierAPI {
         List<Integer> totalBalances = new ArrayList<>();
         List<String> statues = new ArrayList<>();
 
+        // get page 0 response
+        Response response = getAllSupplierResponse(code, 0);
+
+        // if staff do not have permission view list, end.
+        if (response.statusCode() == 403) return info;
+
         // get total products
-        int totalOfSuppliers = Integer.parseInt(getAllSupplierResponse(code, 0).getHeader("X-Total-Count"));
+        int totalOfSuppliers = Integer.parseInt(response.getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfSuppliers / 100) > 0) ? (totalOfSuppliers / 100) : 1;
+        int numberOfPages = totalOfSuppliers / 100;
 
         // get other page data
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllSupplierResponse(code, pageIndex).jsonPath();
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+            JsonPath jsonPath = getAllSupplierResponse(code, pageIndex)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .jsonPath();
             ids.addAll(jsonPath.getList("id"));
             codes.addAll(jsonPath.getList("code"));
             names.addAll(jsonPath.getList("name"));

@@ -7,7 +7,6 @@ import api.Seller.products.location.APILocation;
 import api.Seller.products.location_receipt.APILocationReceipt;
 import api.Seller.products.location_receipt.APILocationReceipt.AllLocationReceiptInfo;
 import api.Seller.products.lot_date.APILotDate;
-import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,7 +93,7 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         logger.info("Import lot/location, file path: %s.".formatted(importFilePath));
     }
 
-    public void checkLocationReceiptPermission(AllPermissions permissions) {
+    public void checkLocationReceiptPermission(AllPermissions permissions) throws IOException {
         // get staff permission
         this.permissions = permissions;
 
@@ -170,7 +169,7 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         return modelId.isEmpty() ? itemId : "%s-%s".formatted(itemId, modelId);
     }
 
-    void checkImportProductToLocation() {
+    void checkImportProductToLocation() throws IOException {
         // navigate to product location receipt management page
         navigateToLocationReceiptManagementPage();
 
@@ -220,8 +219,7 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         logger.info("Check permission: Product >> Location receipt >> Import product to location.");
     }
 
-    @SneakyThrows
-    void checkImport(String branchName, String productId, String productName, String lotId, String locationCode) {
+    void checkImport(String branchName, String productId, String productName, String lotId, String locationCode) throws IOException {
         // input data into file import
         generateImportLocationFile(productId, productName, String.valueOf(lotId), locationCode);
 

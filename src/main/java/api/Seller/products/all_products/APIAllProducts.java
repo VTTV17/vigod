@@ -319,10 +319,10 @@ public class APIAllProducts {
         int totalOfProducts = Integer.parseInt(getAllProductsResponse(0, branchIds).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
+        int numberOfPages = totalOfProducts / 100;
 
         // get other page data
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             Response allProducts = getAllProductsResponse(pageIndex, branchIds);
             variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
             allProductIds.addAll(allProducts.jsonPath().getList("id"));
@@ -435,10 +435,10 @@ public class APIAllProducts {
         int totalOfProducts = Integer.parseInt(getSuggestionResponse(0, branchId).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
+        int numberOfPages = totalOfProducts / 100;
 
         // get other page data
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jsonPath = getSuggestionResponse(pageIndex, branchId).jsonPath();
             itemIds.addAll(jsonPath.getList("itemId"));
             modelIds.addAll(jsonPath.getList("modelId"));

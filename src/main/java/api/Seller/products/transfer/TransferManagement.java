@@ -52,10 +52,10 @@ public class TransferManagement {
         int totalOfProducts = Integer.parseInt(getTransferResponse(0).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
+        int numberOfPages = totalOfProducts / 100;
 
         // get all inventory
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jPath = getTransferResponse(pageIndex).jsonPath();
             ids.addAll(jPath.getList("id"));
             originBranchIds.addAll(jPath.getList("originBranchId"));

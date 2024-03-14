@@ -263,10 +263,10 @@ public class PermissionAPI {
         int totalOfPermissions = Integer.parseInt(getAllPermissionResponse(0).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfPermissions / 100) > 0) ? (totalOfPermissions / 100) : 1;
+        int numberOfPages = totalOfPermissions / 100;
 
         // get other page data
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             Response suggestProducts = getAllPermissionResponse(pageIndex);
             permissionIds.addAll(suggestProducts.jsonPath().getList("id"));
             numberOfAssigned.addAll(suggestProducts.jsonPath().getList("totalStaff"));

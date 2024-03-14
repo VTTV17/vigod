@@ -150,10 +150,10 @@ public class APILocation {
         int totalOfLotDate = Integer.parseInt(getProductLocationResponse(0, itemId, modelId, branchId, locationReceiptType).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfLotDate / 100) > 0) ? (totalOfLotDate / 100) : 1;
+        int numberOfPages = totalOfLotDate / 100;
 
         // get all inventory
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jPath = getProductLocationResponse(pageIndex, itemId, modelId, branchId, locationReceiptType)
                     .then()
                     .statusCode(200)

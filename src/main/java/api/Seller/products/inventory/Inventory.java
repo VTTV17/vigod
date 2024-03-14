@@ -54,10 +54,10 @@ public class Inventory {
         int totalOfProducts = Integer.parseInt(res.getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
+        int numberOfPages = totalOfProducts / 100;
 
         // get all inventory
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jPath = getInventoryResponse(branchCondition, pageIndex)
                     .then()
                     .statusCode(200)

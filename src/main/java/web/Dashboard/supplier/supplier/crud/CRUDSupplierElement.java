@@ -83,4 +83,5 @@ class CRUDSupplierElement {
     By loc_dlgConfirmDeleteSupplier_lblCancel = By.cssSelector(".modal-footer .gs-button__red--outline");
     By loc_lblSupplierNameError = By.cssSelector("#name +*");
     By lblSupplierCodeError = By.cssSelector("#code +*");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

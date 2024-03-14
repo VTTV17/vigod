@@ -69,7 +69,7 @@ public class APIProductReviews {
         int totalOfProducts = Integer.parseInt(getReviewListResponse(0).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
+        int numberOfPages = totalOfProducts / 100;
 
         List<Integer> reviewIds = new ArrayList<>();
         List<String> itemNames = new ArrayList<>();
@@ -81,7 +81,7 @@ public class APIProductReviews {
         List<String> userNames = new ArrayList<>();
         List<Boolean> enableReviews = new ArrayList<>();
 
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jsonPath = getReviewListResponse(pageIndex)
                     .then()
                     .statusCode(200)

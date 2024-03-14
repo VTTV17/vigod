@@ -57,13 +57,13 @@ public class APILotDate {
         List<Integer> totalBranches = new ArrayList<>();
 
         // get total products
-        int totalOfProducts = Integer.parseInt(getAllLotDateResponse(0).getHeader("X-Total-Count"));
+        int totalOfLotDates = Integer.parseInt(getAllLotDateResponse(0).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfProducts / 100) > 0) ? (totalOfProducts / 100) : 1;
+        int numberOfPages = totalOfLotDates / 100;
 
         // get all inventory
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jPath = getAllLotDateResponse(pageIndex)
                     .then()
                     .statusCode(200)
@@ -137,10 +137,10 @@ public class APILotDate {
         int totalOfLotDate = Integer.parseInt(getProductLotResponse(0, itemId, modelId, branchId, locationReceiptType).getHeader("X-Total-Count"));
 
         // get number of pages
-        int numberOfPages = ((totalOfLotDate / 100) > 0) ? (totalOfLotDate / 100) : 1;
+        int numberOfPages = totalOfLotDate / 100;
 
         // get all inventory
-        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
             JsonPath jPath = getProductLotResponse(pageIndex, itemId, modelId, branchId, locationReceiptType)
                     .then()
                     .statusCode(200)

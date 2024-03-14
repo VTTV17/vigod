@@ -13,6 +13,8 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 
 import java.time.Duration;
@@ -20,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.links.Links.DOMAIN;
 import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
@@ -39,13 +42,12 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     public String language;
     UICommonAction commonAction;
     SupplierManagementPage supplierManagementPage;
-    SupplierAPI sup;
+    SupplierAPI supplierAPIWithSellerToken;
     private String supplierName;
     private String supplierCode;
     private String phoneNumber;
     private String email;
     private LoginInformation sellerLoginInformation;
-    private LoginInformation staffLoginInformation;
     private final AssertCustomize assertCustomize;
 
     public CRUDSupplierPage(WebDriver driver) {
@@ -58,14 +60,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
     public CRUDSupplierPage getLoginInformation(LoginInformation sellerLoginInformation) {
         this.sellerLoginInformation = sellerLoginInformation;
-        sup = new SupplierAPI(sellerLoginInformation);
-        return this;
-    }
-
-    public CRUDSupplierPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
-        this.sellerLoginInformation = sellerLoginInformation;
-        this.staffLoginInformation = staffLoginInformation;
-        sup = new SupplierAPI(staffLoginInformation);
+        supplierAPIWithSellerToken = new SupplierAPI(sellerLoginInformation);
         return this;
     }
 
@@ -397,8 +392,8 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         // click Save button to complete create supplier
         completeCRUSupplier();
 
-        // wait supplier management page loaded
-//        commonAction.sleepInMiliSecond(3000);
+        // check supplier is created or not
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not create supplier.");
 
         // check information after create supplier
         supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber);
@@ -409,8 +404,17 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
     void navigateSupplierDetailPage() {
         // navigate to supplier detail page
-        supplierCode = (sup.getListSupplierCode("").isEmpty()) ? sup.createSupplierAndGetSupplierCode() : sup.getListSupplierCode("").get(0);
+        supplierCode = (supplierAPIWithSellerToken.getListSupplierCode("").isEmpty())
+                ? supplierAPIWithSellerToken.createSupplierAndGetSupplierCode() : supplierAPIWithSellerToken.getListSupplierCode("").get(0);
         supplierManagementPage.findAndNavigateToSupplierDetailPage(supplierCode);
+    }
+
+    void navigateSupplierDetailPage(int supplierId) {
+        // navigate to supplier detail page
+        driver.get("%s/supplier/edit/%s".formatted(DOMAIN, supplierId));
+
+        // log
+        logger.info("Navigate to supplier detail page by URL, supplierId: %s.".formatted(supplierId));
     }
 
     public void updateSupplier(boolean isVNSupplier) throws Exception {
@@ -483,8 +487,8 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         // click Save button to complete create supplier
         completeCRUSupplier();
 
-        // wait supplier management page loaded
-        commonAction.sleepInMiliSecond(3000);
+        // check supplier is updated or not
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not update supplier.");
 
         // check information after update supplier
         supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber);
@@ -501,7 +505,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         int supplierID = Pattern.compile("(\\d+)").matcher(driver.getCurrentUrl()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
 
         // get supplier information map
-        SupplierAPI.SupplierInformation supInfo = sup.getSupplierInformation(supplierID);
+        SupplierAPI.SupplierInformation supInfo = supplierAPIWithSellerToken.getSupplierInformation(supplierID);
 
         // check supplier name
         String dbSupplierName = commonAction.getValue(loc_txtSupplierName);
@@ -616,7 +620,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         int supplierID = Pattern.compile("(\\d+)").matcher(driver.getCurrentUrl()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
 
         // if no purchase orders, post API to create data test
-        List<String> listAvailablePurchaseId = sup.getListOrderId("", supplierID);
+        List<String> listAvailablePurchaseId = supplierAPIWithSellerToken.getListOrderId("", supplierID);
         String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new PurchaseOrders(sellerLoginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
 
         // input valid purchaseId and search
@@ -1033,11 +1037,111 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         checkOtherInformation(language);
     }
 
-    void checkEditSupplier() {
 
+    /*-------------------------------------*/
+    // check permission
+    // https://mediastep.atlassian.net/browse/BH-13849
+    AllPermissions permissions;
+    CheckPermission checkPermission;
+
+    public void addNewSupplier() {
+        // get supplier name
+        String name = Pattern.compile("([\\w\\W]{0,100})").matcher("Auto - Supplier %s - %s".formatted(nextBoolean() ? "VN" : "Non VN",
+                Instant.now().toEpochMilli()))
+                .results()
+                .map(matchResult -> matchResult.group(1)).toList().get(0);
+        // input supplier name
+        inputSupplierName(name);
+
+        // complete create supplier
+        completeCRUSupplier();
+
+        // check supplier is updated or not
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not update supplier.");
     }
 
-    void checkDeleteSupplier() {
+    public void checkViewSupplierDetail(AllPermissions permissions) {
+        // get staff permission
+        this.permissions = permissions;
 
+        // init commons check no permission
+        checkPermission = new CheckPermission(driver);
+
+        // get supplier id
+        int supplierId = supplierAPIWithSellerToken.getListSupplierID("").isEmpty()
+                ? supplierAPIWithSellerToken.createSupplierAndGetSupplierID()
+                : supplierAPIWithSellerToken.getListSupplierID("").get(0);
+
+        // check permission
+        if (permissions.getSuppliers().getSupplier().isViewSupplierDetail()) {
+            // check can access to supplier detail by URL
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/supplier/edit/%s".formatted(DOMAIN, supplierId),
+                            String.valueOf(supplierId)),
+                    "Can not access to supplier detail page.");
+
+//            // check edit supplier
+//            checkEditSupplier(supplierId);
+//
+//            // check delete supplier
+//            checkDeleteSupplier(supplierId);
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/supplier/edit/%s".formatted(DOMAIN, supplierId)),
+                    "Restricted page is not shown.");
+        }
+
+        // log
+        logger.info("Check permission: Supplier >> Supplier >> View supplier detail.");
+    }
+
+    void checkEditSupplier(int supplierId) {
+        // navigate to supplier detail page
+        navigateSupplierDetailPage(supplierId);
+
+        // check permission
+        if (permissions.getSuppliers().getSupplier().isEditSupplier()) {
+            // check can update supplier
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnHeaderSave,
+                            loc_dlgToastSuccess),
+                    "Can not update supplier.");
+        } else {
+            // show restricted popup
+            // if staff don’t have permission “Edit supplier”
+            // and click on [Save] button in Supplier detail page
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnHeaderSave),
+                    "Restricted popup is not shown.");
+        }
+
+        // log
+        logger.info("Check permission: Supplier >> Supplier >> Edit supplier.");
+    }
+
+    void checkDeleteSupplier(int supplierId) {
+        // navigate to supplier detail page
+        navigateSupplierDetailPage(supplierId);
+
+        // check can delete supplier
+        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnHeaderDelete,
+                        loc_dlgConfirmDeleteSupplier),
+                "Can not open confirm delete supplier popup.");
+
+        if (!commonAction.getListElement(loc_dlgConfirmDeleteSupplier).isEmpty()) {
+            // check permission
+            if (permissions.getSuppliers().getSupplier().isDeleteSupplier()) {
+                if (!commonAction.getListElement(loc_dlgConfirmDeleteSupplier).isEmpty()) {
+                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmDeleteSupplier_btnDelete,
+                                    loc_dlgToastSuccess),
+                            "Can not delete supplier.");
+                }
+            } else {
+                // if staff don’t have permission “Delete supplier”
+                // => show restricted popup
+                // when staff click [Delete] button on popup confirm delete a supplier
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_dlgConfirmDeleteSupplier_btnDelete),
+                        "Restricted popup is not shown.");
+            }
+        }
+
+        // log
+        logger.info("Check permission: Supplier >> Supplier >> Delete supplier.");
     }
 }

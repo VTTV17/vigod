@@ -1,6 +1,7 @@
 package web.Dashboard.supplier.supplier.management;
 
 import api.Seller.products.supplier.SupplierAPI;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -14,9 +15,11 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.supplier.supplier.crud.CRUDSupplierPage;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -27,9 +30,9 @@ public class SupplierManagementPage extends SupplierManagementElement {
     UICommonAction commonAction;
     WebDriver driver;
     WebDriverWait wait;
-    String SUPPLIER_MANAGEMENT_PATH = "/supplier/list";
     String language;
-    LoginInformation loginInformation;
+    LoginInformation sellerLoginInformation;
+    LoginInformation staffLoginInformation;
     AssertCustomize assertCustomize;
     final static Logger logger = LogManager.getLogger(SupplierManagementPage.class);
 
@@ -41,7 +44,13 @@ public class SupplierManagementPage extends SupplierManagementElement {
     }
 
     public SupplierManagementPage getLoginInformation(LoginInformation loginInformation) {
-        this.loginInformation = loginInformation;
+        this.sellerLoginInformation = loginInformation;
+        return this;
+    }
+
+    public SupplierManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        this.staffLoginInformation = staffLoginInformation;
         return this;
     }
 
@@ -88,17 +97,13 @@ public class SupplierManagementPage extends SupplierManagementElement {
     }
 
     public void navigateToSupplierManagementPage() {
-        driver.get(DOMAIN + SUPPLIER_MANAGEMENT_PATH);
-
-//        commonAction.sleepInMiliSecond(3000);
+        driver.get("%s/supplier/list".formatted(DOMAIN));
     }
 
     public void navigateToAddSupplierPage() {
         navigateToSupplierManagementPage();
 
         commonAction.clickJS(loc_btnAddSupplier);
-
-//        commonAction.sleepInMiliSecond(3000);
     }
 
     public void searchSupplierByCode(String supplierCode) {
@@ -225,7 +230,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         List<String> listAvailableSupplier = getListSupplierCode();
         if (listAvailableSupplier.isEmpty()) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI(loginInformation).createSupplier();
+            new SupplierAPI(sellerLoginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -268,7 +273,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         List<String> listAvailableSupplier = getListSupplierCode();
         if (listAvailableSupplier.isEmpty()) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI(loginInformation).createSupplier();
+            new SupplierAPI(sellerLoginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -337,33 +342,85 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
     /*-------------------------------------*/
     // check permission
-    // https://mediastep.atlassian.net/browse/BH-24809
+    // https://mediastep.atlassian.net/browse/BH-13849
     AllPermissions permissions;
     CheckPermission checkPermission;
-    LoginInformation staffLoginInformation;
+    CRUDSupplierPage supplierPage;
 
-    public void checkLocationPermission(AllPermissions permissions) {
+
+    public void checkSupplierPermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
         // init commons check no permission
         checkPermission = new CheckPermission(driver);
 
+        // init crud supplier POM
+        supplierPage = new CRUDSupplierPage(driver);
+
         // init assert customize
         assertCustomize = new AssertCustomize(driver);
 
+        // check view supplier list
+        checkViewSupplierList();
 
+        // check create supplier
+        checkAddSupplier();
+
+        // check view detail/edit/delete supplier
+        supplierPage.getLoginInformation(sellerLoginInformation)
+                .checkViewSupplierDetail(permissions);
     }
 
     void checkViewSupplierList() {
-//        SupplierAPI.SupplierInformation info = new SupplierAPI(staffLoginInformation).getListSupplierInformation();
+        // get list supplier ids with staff token
+        List<Integer> listSupplierIDWithStaffToken = new SupplierAPI(staffLoginInformation).getListSupplierID("");
+        Collections.sort(listSupplierIDWithStaffToken);
         if (permissions.getSuppliers().getSupplier().isViewSupplierList()) {
+            // get list supplier ids with seller token
+            List<Integer> listSupplierIDWithSellerToken = new SupplierAPI(sellerLoginInformation).getListSupplierID("");
 
+            // check all suppliers must be shown.
+            assertCustomize.assertTrue(CollectionUtils.isEqualCollection(listSupplierIDWithStaffToken, listSupplierIDWithSellerToken), "List supplier must be %s, but found %s."
+                    .formatted(listSupplierIDWithSellerToken.toString(), listSupplierIDWithStaffToken.toString()));
+        } else {
+            // if staff don’t have permission “View supplier list”
+            // => don’t see any supplier when access supplier page
+            assertCustomize.assertTrue(listSupplierIDWithStaffToken.isEmpty(), "All suppliers must be hidden, but found %s."
+                    .formatted(listSupplierIDWithStaffToken.toString()));
         }
+
+        // check can access to supplier management page
+        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/supplier/list".formatted(DOMAIN),
+                        "/supplier/list"),
+                "Can not access to supplier management page.");
+
+        // log
+        logger.info("Check permission: Supplier >> Supplier >> View supplier list.");
 
     }
 
-    void addSupplier() {
+    void checkAddSupplier() {
+        // navigate to supplier management page
+        navigateToSupplierManagementPage();
 
+        // check permission
+        if (permissions.getSuppliers().getSupplier().isAddSupplier()) {
+            // check can access to create supplier page
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnAddSupplier, "/supplier/create"), "Can not access to create supplier page.");
+
+            // check can create supplier
+            supplierPage.addNewSupplier();
+        } else {
+            // show restricted popup
+            // if staff don’t have permission “Add supplier”
+            // and click on [Add supplier] button Product >> Supplier
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddSupplier), "Restricted popup is not shown.");
+            // check restricted page shows when staff access by URL
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/supplier/create".formatted(DOMAIN)), "Restricted page is not shown.");
+        }
+
+        // log
+        logger.info("Check permission: Supplier >> Supplier >> Add supplier.");
     }
 }
