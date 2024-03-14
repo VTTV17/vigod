@@ -1,22 +1,21 @@
 package app.android.GoSeller;
 
 import api.Seller.products.supplier.SupplierAPI;
-import app.android.BaseTest;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import api.Seller.products.supplier.SupplierAPI.SupplierInformation;
 import app.GoSeller.account.SellerAccount;
 import app.GoSeller.home.HomePage;
 import app.GoSeller.login.LoginPage;
 import app.GoSeller.supplier.create.CreateSupplierScreen;
 import app.GoSeller.supplier.management.SupplierManagementScreen;
 import app.GoSeller.supplier.update.UpdateSupplierScreen;
+import app.android.BaseTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.model.sellerApp.supplier.SupplierInformation;
 
-import java.io.File;
 import java.io.IOException;
 
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;

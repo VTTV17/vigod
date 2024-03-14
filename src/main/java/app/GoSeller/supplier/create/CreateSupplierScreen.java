@@ -8,12 +8,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
-import utilities.model.sellerApp.supplier.SupplierInformation;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static api.Seller.products.supplier.SupplierAPI.SupplierInformation;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 public class CreateSupplierScreen extends CreateSupplierElement {
@@ -33,7 +33,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(SUPPLIER_NAME, name);
 
         // set info
-        supInfo.setSupplierName(name);
+        supInfo.setName(name);
 
         // log
         logger.info("[Create supplier] Input supplier name: %s".formatted(name));
@@ -45,7 +45,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(SUPPLIER_CODE, code);
 
         // set info
-        supInfo.setSupplierCode(code);
+        supInfo.setCode(code);
 
         // log
         logger.info("[Create supplier] Input supplier code: %s".formatted(code));
@@ -58,7 +58,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(SUPPLIER_PHONE, phone);
 
         // set info
-        supInfo.setSupplierPhone(phone);
+        supInfo.setPhoneNumber(phone);
 
         // log
         logger.info("[Create supplier] Input phone number: %s".formatted(phone));
@@ -70,7 +70,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(SUPPLIER_EMAIL, email);
 
         // set info
-        supInfo.setSupplierEmail(email);
+        supInfo.setEmail(email);
 
         // log
         logger.info("[Create supplier] Input email: %s".formatted(email));
@@ -83,12 +83,12 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         while (countryKeywords.equals("Vietnam"));
 
         // re-initialize supplier information
-        if (supInfo.getCountry() != null) supInfo = new SupplierInformation();
+        if (supInfo.getCountryCode() != null) supInfo = new SupplierInformation();
 
         // set info
         supInfo.setVNSupplier(isVNSupplier);
-        supInfo.setCountry(countryKeywords);
-        supInfo.setSupplierPhoneCode(new DataGenerator().getPhoneCode(countryKeywords));
+        supInfo.setCountryCode(countryKeywords);
+        supInfo.setPhoneCode(new DataGenerator().getPhoneCode(countryKeywords));
 
         // search and select country
         if (!commonMobile.getText(SELECTED_COUNTRY).equals(countryKeywords)) {
@@ -105,7 +105,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         }
 
         // log
-        logger.info("[Create supplier] Select country: %s".formatted(supInfo.getCountry()));
+        logger.info("[Create supplier] Select country: %s".formatted(supInfo.getCountryCode()));
     }
 
     void inputVNAddress(String address) {
@@ -114,7 +114,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(VN_ADDRESS, address);
 
         // set info
-        supInfo.setVnAddress(address);
+        supInfo.setAddress(address);
 
         // log
         logger.info("[Create supplier] Input address: %s".formatted(address));
@@ -134,7 +134,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
 
 
         // set info
-        supInfo.setVnCity(cityList.get(index).getText());
+        supInfo.setCityName(cityList.get(index).getText());
 
         // select city
         commonMobile.click(cityList.get(index));
@@ -143,7 +143,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         } catch (NoSuchElementException ignored) {}
 
         // log
-        logger.info("[Create supplier] Select city: %s".formatted(supInfo.getVnCity()));
+        logger.info("[Create supplier] Select city: %s".formatted(supInfo.getCityName()));
     }
 
     void selectVNDistrict() {
@@ -155,7 +155,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         int index = nextInt(districtList.size());
 
         // set info
-        supInfo.setVnDistrict(districtList.get(index).getText());
+        supInfo.setDistrict(districtList.get(index).getText());
 
         // select district
         commonMobile.click(districtList.get(index));
@@ -164,7 +164,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         } catch (NoSuchElementException ignore) {}
 
         // log
-        logger.info("[Create supplier] Select district: %s".formatted(supInfo.getVnDistrict()));
+        logger.info("[Create supplier] Select district: %s".formatted(supInfo.getDistrict()));
     }
 
     void selectVNWard() {
@@ -176,7 +176,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         int index = nextInt(wardList.size());
 
         // set info
-        supInfo.setVnWard(wardList.get(index).getText());
+        supInfo.setWard(wardList.get(index).getText());
 
         // select ward
         commonMobile.click(wardList.get(index));
@@ -185,7 +185,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         } catch (NoSuchElementException ignore) {}
 
         // log
-        logger.info("[Create supplier] Select ward: %s".formatted(supInfo.getVnWard()));
+        logger.info("[Create supplier] Select ward: %s".formatted(supInfo.getWard()));
     }
 
     /* Outside VN address */
@@ -195,7 +195,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_STREET_ADDRESS, address);
 
         // set info
-        supInfo.setOutsideVnStreetAddress(address);
+        supInfo.setStreetAddress(address);
 
         // log
         logger.info("[Create supplier] Input street address: %s".formatted(address));
@@ -207,7 +207,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_ADDRESS2, address2);
 
         // set info
-        supInfo.setOutsideVnAddress2(address2);
+        supInfo.setAddress2(address2);
 
         // log
         logger.info("[Create supplier] Input address2: %s".formatted(address2));
@@ -222,7 +222,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         int index = nextInt(stateList.size());
 
         // set info
-        supInfo.setOutsideVnState(stateList.get(index).getText());
+        supInfo.setProvince(stateList.get(index).getText());
 
         // select state
         commonMobile.click(stateList.get(index));
@@ -231,7 +231,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         } catch (NoSuchElementException ignore) {}
 
         // log
-        logger.info("[Create supplier] Select state: %s".formatted(supInfo.getOutsideVnState()));
+        logger.info("[Create supplier] Select state: %s".formatted(supInfo.getProvince()));
     }
 
     void inputOutsideVNCity(String city) {
@@ -240,7 +240,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_CITY, city);
 
         // set info
-        supInfo.setOutsideVNCity(city);
+        supInfo.setCityName(city);
 
         // log
         logger.info("[Create supplier] Input city: %s".formatted(city));
@@ -252,7 +252,7 @@ public class CreateSupplierScreen extends CreateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_ZIPCODE, zipcode);
 
         // set info
-        supInfo.setOutsideVnZipCode(zipcode);
+        supInfo.setZipcode(zipcode);
 
         // log
         logger.info("[Create supplier] Input zipcode: %s".formatted(zipcode));

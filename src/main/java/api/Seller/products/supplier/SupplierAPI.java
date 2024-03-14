@@ -3,19 +3,17 @@ package api.Seller.products.supplier;
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.model.sellerApp.supplier.SupplierInformation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 public class SupplierAPI {
-    String GET_SUPPLIER_LIST = "/itemservice/api/suppliers/store/%s?page=0&size=100&nameOrCode=%s";
+    String GET_SUPPLIER_LIST = "/itemservice/api/suppliers/store/%s?page=%s&size=100&nameOrCode=%s";
     String CREATE_SUPPLIER_PATH = "/itemservice/api/suppliers";
     String SUPPLIER_DETAIL_PATH = "/itemservice/api/suppliers/%s";
     String GET_SUPPLIER_ORDER_HISTORY_PATH = "/itemservice/api/purchase-orders/store-id/%s?searchBy=id&purchaseId=%s&supplierId=%s&page=0&size=5&sort=id,desc";
@@ -26,36 +24,80 @@ public class SupplierAPI {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    public JsonPath getAllSupplierJsonPath(String supplierCode) {
-        Response response = api.get(GET_SUPPLIER_LIST.formatted(loginInfo.getStoreID(), supplierCode), loginInfo.getAccessToken());
-        response.then().statusCode(200);
-        return response.jsonPath();
+    @Data
+    public static class AllSupplierInformation {
+        List<Integer> ids;
+        List<String> codes;
+        List<String> names;
+        List<String> emails;
+        List<String> phoneNumbers;
+        List<Integer> totalBalance;
+        List<String> statues;
+    }
+
+    public Response getAllSupplierResponse(String supplierCode, int pageIndex) {
+        return api.get(GET_SUPPLIER_LIST.formatted(loginInfo.getStoreID(), pageIndex, supplierCode), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+    }
+
+    public AllSupplierInformation getAllSupplierInformation(String... supplierCode) {
+        String code = (supplierCode.length > 0) ? supplierCode[0] : "";
+
+        // init model
+        AllSupplierInformation info = new AllSupplierInformation();
+
+        // init temp array
+        List<Integer> ids = new ArrayList<>();
+        List<String> codes = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<String> emails = new ArrayList<>();
+        List<String> phoneNumbers = new ArrayList<>();
+        List<Integer> totalBalances = new ArrayList<>();
+        List<String> statues = new ArrayList<>();
+
+        // get total products
+        int totalOfSuppliers = Integer.parseInt(getAllSupplierResponse(code, 0).getHeader("X-Total-Count"));
+
+        // get number of pages
+        int numberOfPages = ((totalOfSuppliers / 100) > 0) ? (totalOfSuppliers / 100) : 1;
+
+        // get other page data
+        for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+            JsonPath jsonPath = getAllSupplierResponse(code, pageIndex).jsonPath();
+            ids.addAll(jsonPath.getList("id"));
+            codes.addAll(jsonPath.getList("code"));
+            names.addAll(jsonPath.getList("name"));
+            emails.addAll(jsonPath.getList("email"));
+            phoneNumbers.addAll(jsonPath.getList("phoneNumber"));
+            totalBalances.addAll(jsonPath.getList("totalBalance"));
+            statues.addAll(jsonPath.getList("status"));
+        }
+
+        // get info
+        info.setIds(ids);
+        info.setCodes(codes);
+        info.setNames(names);
+        info.setEmails(emails);
+        info.setPhoneNumbers(phoneNumbers);
+        info.setTotalBalance(totalBalances);
+        info.setStatues(statues);
+
+        return info;
     }
 
     public List<String> getAllSupplierNames() {
-        return getAllSupplierJsonPath("").getList("name");
+        return getAllSupplierInformation().getNames();
     }
 
     public List<String> getListSupplierCode(String supplierCode) {
-        return getAllSupplierJsonPath(supplierCode).getList("code");
+        return getAllSupplierInformation(supplierCode).getCodes();
     }
 
     public List<Integer> getListSupplierID(String supplierCode) {
-        return getAllSupplierJsonPath(supplierCode).getList("id");
-    }
-
-    public List<SupplierInformation> getListSupplierInformation() {
-        List<SupplierInformation> supplierInformationList = new ArrayList<>();
-        JsonPath allSupplierJsonPath = getAllSupplierJsonPath("");
-        List<String> supplierNameList = allSupplierJsonPath.getList("code");
-        List<String> supplierCodeList = allSupplierJsonPath.getList("name");
-        IntStream.range(0, supplierCodeList.size()).forEach(index -> {
-            var supInfo = new SupplierInformation();
-            supInfo.setSupplierCode(supplierCodeList.get(index));
-            supInfo.setSupplierName(supplierNameList.get(index));
-            supplierInformationList.add(supInfo);
-        });
-        return supplierInformationList;
+        return getAllSupplierInformation(supplierCode).getIds();
     }
 
     public JsonPath createSupplier() {
@@ -95,27 +137,46 @@ public class SupplierAPI {
         return supInfo.jsonPath();
     }
 
-    /**
-     * Key: name, code, phoneCode, phoneNumber, email, countryCode, address, address2, cityName, district, ward, zipcode, responsibleStaffName and description
-     */
-    public Map<String, String> getSupplierInformationMap(int supplierID) {
-        Map<String, String> supplierInfo = new HashMap<>();
+    @Data
+    public static class SupplierInformation {
+        String name;
+        String code;
+        String phoneCode;
+        String phoneNumber;
+        String email;
+        String countryCode;
+        String address;
+        String streetAddress;
+        String address2;
+        String cityName;
+        String district;
+        String ward;
+        String zipcode;
+        String responsibleStaff;
+        String description;
+        String province;
+        boolean isVNSupplier;
+    }
+
+    public SupplierInformation getSupplierInformation(int supplierID) {
+        SupplierInformation supplierInfo = new SupplierInformation();
         JsonPath supJsonPath = getSupplierInformationJsonPath(supplierID);
-        supplierInfo.put("name", supJsonPath.getString("name"));
-        supplierInfo.put("code", supJsonPath.getString("code"));
-        supplierInfo.put("phoneCode", supJsonPath.getString("phoneCode"));
-        supplierInfo.put("phoneNumber", supJsonPath.getString("phoneNumber"));
-        supplierInfo.put("email", supJsonPath.getString("email"));
-        supplierInfo.put("countryCode", supJsonPath.getString("countryCode"));
-        supplierInfo.put("address", supJsonPath.getString("address"));
-        supplierInfo.put("address2", supJsonPath.getString("address2"));
-        supplierInfo.put("cityName", supJsonPath.getString("cityName"));
-        supplierInfo.put("district", supJsonPath.getString("district"));
-        supplierInfo.put("ward", supJsonPath.getString("ward"));
-        supplierInfo.put("zipCode", supJsonPath.getString("zipCode"));
-        supplierInfo.put("responsibleStaff", supJsonPath.getString("responsibleStaff"));
-        supplierInfo.put("description", supJsonPath.getString("description"));
-        supplierInfo.put("province", supJsonPath.getString("province"));
+        supplierInfo.setName(supJsonPath.getString("name"));
+        supplierInfo.setCode(supJsonPath.getString("code"));
+        supplierInfo.setPhoneCode(supJsonPath.getString("phoneCode"));
+        supplierInfo.setPhoneNumber(supJsonPath.getString("phoneNumber"));
+        supplierInfo.setEmail(supJsonPath.getString("email"));
+        supplierInfo.setCountryCode(supJsonPath.getString("countryCode"));
+        supplierInfo.setAddress(supJsonPath.getString("address"));
+        supplierInfo.setStreetAddress(supplierInfo.getAddress());
+        supplierInfo.setAddress2(supJsonPath.getString("address2"));
+        supplierInfo.setCityName(supJsonPath.getString("cityName"));
+        supplierInfo.setDistrict(supJsonPath.getString("district"));
+        supplierInfo.setWard(supJsonPath.getString("ward"));
+        supplierInfo.setZipcode(supJsonPath.getString("zipCode"));
+        supplierInfo.setResponsibleStaff(supJsonPath.getString("responsibleStaff"));
+        supplierInfo.setDescription(supJsonPath.getString("description"));
+        supplierInfo.setProvince(supJsonPath.getString("province"));
         return supplierInfo;
     }
 

@@ -1,18 +1,17 @@
 package app.GoSeller.supplier.management;
 
 import api.Seller.products.supplier.SupplierAPI;
+import api.Seller.products.supplier.SupplierAPI.SupplierInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import app.GoSeller.login.LoginPage;
-import utilities.commons.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
-import utilities.model.sellerApp.supplier.SupplierInformation;
+import utilities.commons.UICommonMobile;
+import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -22,6 +21,7 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     WebDriver driver;
     UICommonMobile commonMobile;
     AssertCustomize assertCustomize;
+    LoginInformation loginInformation;
     private final Logger logger = LogManager.getLogger();
 
     public SupplierManagementScreen(WebDriver driver) {
@@ -43,7 +43,7 @@ public class SupplierManagementScreen extends SupplierManagementElement {
         int numberOfMatches = 0;
         for (int index = 0; index < allSupCode.size(); index++) {
             if (allSupName.get(index).contains(keywords) || allSupCode.get(index).contains(keywords)) {
-                numberOfMatches ++;
+                numberOfMatches++;
             }
         }
         commonMobile.inputText(SEARCH_BOX, keywords);
@@ -61,13 +61,9 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     }
 
     public void searchAndVerifySearchResult() {
-        List<SupplierInformation> allSupplierInformation = new SupplierAPI(new LoginPage(driver).getLoginInfo()).getListSupplierInformation();
-        List<String> allSupCode = new ArrayList<>();
-        List<String> allSupName = new ArrayList<>();
-        allSupplierInformation.forEach(supplierInformation -> {
-            allSupCode.add(supplierInformation.getSupplierCode());
-            allSupName.add(supplierInformation.getSupplierName());
-        });
+        SupplierAPI.AllSupplierInformation allSupplierInformation = new SupplierAPI(loginInformation).getAllSupplierInformation();
+        List<String> allSupCode = allSupplierInformation.getCodes();
+        List<String> allSupName = allSupplierInformation.getNames();
 
         // search with a part of supplier name
         String keywords = allSupName.get(nextInt(allSupName.size()));
@@ -93,23 +89,23 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     }
 
     public void checkSupplierInformationAtSupplierManagementScreen(SupplierInformation supInfo) {
-        commonMobile.inputText(SEARCH_BOX, supInfo.getSupplierCode());
+        commonMobile.inputText(SEARCH_BOX, supInfo.getCode());
 
         // check supplier name
         String supName = commonMobile.getText(SUPPLIER_NAME).replaceAll(".*?:\\s", "");
-        assertCustomize.assertEquals(supName, supInfo.getSupplierName(),"[Failed][Supplier management screen] Supplier name should be %s, but found %s.".formatted(supName, supInfo.getSupplierName()));
+        assertCustomize.assertEquals(supName, supInfo.getName(), "[Failed][Supplier management screen] Supplier name should be %s, but found %s.".formatted(supName, supInfo.getName()));
 
         // check supplier code
         String supCode = commonMobile.getText(SUPPLIER_CODE).replaceAll(".*?:\\s", "");
-        assertCustomize.assertEquals(supCode, supInfo.getSupplierCode(),"[Failed][Supplier management screen] Supplier code should be %s, but found %s.".formatted(supCode, supInfo.getSupplierCode()));
+        assertCustomize.assertEquals(supCode, supInfo.getCode(), "[Failed][Supplier management screen] Supplier code should be %s, but found %s.".formatted(supCode, supInfo.getCode()));
 
         // check supplier email
         String supEmail = commonMobile.getText(SUPPLIER_EMAIL).replaceAll(".*?:\\s", "");
-        assertCustomize.assertEquals(supEmail, supInfo.getSupplierEmail(),"[Failed][Supplier management screen] Supplier email should be %s, but found %s.".formatted(supEmail, supInfo.getSupplierEmail()));
+        assertCustomize.assertEquals(supEmail, supInfo.getEmail(), "[Failed][Supplier management screen] Supplier email should be %s, but found %s.".formatted(supEmail, supInfo.getEmail()));
 
         // check supplier phone number
         String supPhone = commonMobile.getText(SUPPLIER_PHONE).replaceAll(".*?:\\s", "");
-        assertCustomize.assertEquals(supPhone, supInfo.getSupplierPhone(),"[Failed][Supplier management screen] Supplier phone number should be %s, but found %s.".formatted(supPhone, supInfo.getSupplierPhone()));
+        assertCustomize.assertEquals(supPhone, supInfo.getPhoneNumber(), "[Failed][Supplier management screen] Supplier phone number should be %s, but found %s.".formatted(supPhone, supInfo.getPhoneNumber()));
     }
 
     public SupplierManagementScreen deleteSupplier(String supplierCode) {
@@ -130,13 +126,13 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     public void verifySupplierIsDeleted(String supplierCode) {
         commonMobile.inputText(SEARCH_BOX, supplierCode);
 
-        assertCustomize.assertTrue(driver.findElements(SUPPLIER_CODE).isEmpty(),"[Failed][Supplier management screen] Supplier is deleted but it still shows on supplier management list, supplier code: %s.".formatted(supplierCode));
+        assertCustomize.assertTrue(driver.findElements(SUPPLIER_CODE).isEmpty(), "[Failed][Supplier management screen] Supplier is deleted but it still shows on supplier management list, supplier code: %s.".formatted(supplierCode));
         logger.info("[Supplier management] Check deleted supplier.");
     }
 
     public void completeTest() {
-        if (assertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+        if (AssertCustomize.getCountFalse() > 0) {
+            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
         }
     }
 }

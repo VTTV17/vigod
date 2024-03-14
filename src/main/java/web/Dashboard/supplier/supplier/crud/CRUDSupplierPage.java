@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
@@ -19,11 +18,9 @@ import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static utilities.links.Links.DOMAIN;
 import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 
@@ -126,22 +123,17 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     }
 
     void selectCountry(boolean isVNSupplier) {
-        // open country dropdown
-//        commonAction.click(loc_ddvSelectedCountry);
-//        commonAction.sleepInMiliSecond(1000);
+        // get country name
+        String countryName = isVNSupplier ? "VN" : getOutSideVnCountryName();
 
-        // get country
-        String countryName = isVNSupplier ? "Vietnam" : getOutSideVnCountryName();
-        new Select(commonAction.getElement(loc_ddvSelectedCountry)).selectByVisibleText(countryName);
+        // get country code
+        String countryCode = new DataGenerator().getCountryCode(countryName);
 
-//        // get country locator
-//        By countryLocator = By.xpath(str_ddvCountry.formatted(countryName));
-//
-//        // select country
-//        commonAction.clickJS(countryLocator);
+        // select country
+        commonAction.selectDropdownOptionByValue(loc_ddvSelectedCountry, countryCode);
+
+        // log
         logger.info("Select country: %s.".formatted(countryName));
-
-//        commonAction.sleepInMiliSecond(2000);
     }
 
     void inputVNAddress(String address) {
@@ -152,37 +144,54 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
     /* VN address */
     void selectVNCity() {
-        // open city dropdown
-        commonAction.click(loc_lblSelectedVNCity);
-
         // get index of selected city
         int index = nextInt(commonAction.getListElement(loc_ddlVNCity).size());
-        new Select(commonAction.getElement(loc_lblSelectedVNCity)).selectByIndex(index);
-        logger.info("Select city: %s".formatted(commonAction.getText(loc_ddlVNCity, index)));
-        commonAction.sleepInMiliSecond(2000);
+
+        // get city name
+        String cityName = commonAction.getText(loc_ddlVNCity, index);
+
+        // get city code
+        String cityCode = commonAction.getValue(loc_ddlVNCity, index);
+
+        // select city
+        commonAction.selectDropdownOptionByValue(loc_lblSelectedVNCity, cityCode);
+
+        // log
+        logger.info("Select city: %s".formatted(cityName));
     }
 
     void selectVNDistrict() {
-        // open district dropdown
-        commonAction.click(loc_lblSelectedVNDistrict);
-
         // get index of selected district
         int index = nextInt(commonAction.getListElement(loc_ddlVNDistrict).size());
-        new Select(commonAction.getElement(loc_lblSelectedVNDistrict)).selectByIndex(index);
-        logger.info("Select district: %s".formatted(commonAction.getText(loc_ddlVNDistrict, index)));
 
-        commonAction.sleepInMiliSecond(2000);
+        // get district name
+        String districtName = commonAction.getText(loc_ddlVNDistrict, index);
+
+        // get district code
+        String districtCode = commonAction.getValue(loc_ddlVNDistrict, index);
+
+        // select district
+        commonAction.selectDropdownOptionByValue(loc_lblSelectedVNDistrict, districtCode);
+
+        // log
+        logger.info("Select district: %s".formatted(districtName));
     }
 
     void selectVNWard() {
-        // open ward dropdown
-        wait.until(elementToBeClickable(loc_lblSelectedVNWard)).click();
-
         // get index of selected ward
         int index = nextInt(commonAction.getListElement(loc_ddlVNWard).size());
 
-        new Select(commonAction.getElement(loc_lblSelectedVNWard)).selectByIndex(index);
-        logger.info("Select ward: %s".formatted(commonAction.getText(loc_ddlVNWard, index)));
+        // get ward name
+        String wardName = commonAction.getText(loc_ddlVNWard, index);
+
+        // get ward name
+        String wardCode = commonAction.getValue(loc_ddlVNWard, index);
+
+        // select ward
+        commonAction.selectDropdownOptionByValue(loc_lblSelectedVNWard, wardCode);
+
+        // log
+        logger.info("Select ward: %s".formatted(wardName));
     }
 
     /* non-VN address */
@@ -205,15 +214,23 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     }
 
     void selectNonVNProvince() {
-        // open province dropdown
-        wait.until(elementToBeClickable(loc_lblSelectedNonVNProvince)).click();
-
-        commonAction.sleepInMiliSecond(1000);
-
         // get index of selected province
         int index = nextInt(commonAction.getListElement(loc_ddlNonVNProvince).size());
-        new Select(commonAction.getElement(loc_lblSelectedNonVNProvince)).selectByIndex(index);
-        logger.info("Select province: %s".formatted(commonAction.getText(loc_ddlNonVNProvince, index)));
+
+        // get province name
+        String provinceName = commonAction.getText(loc_ddlNonVNProvince, index);
+
+        // get province code
+        String provinceCode = commonAction.getValue(loc_ddlNonVNProvince, index);
+        System.out.println(provinceCode);
+
+        // select province
+        commonAction.selectDropdownOptionByValue(loc_lblSelectedNonVNProvince, provinceCode);
+        commonAction.selectDropdownOptionByValue(loc_lblSelectedNonVNProvince, provinceCode);
+
+
+        // log
+        logger.info("Select province: %s".formatted(provinceName));
     }
 
     void inputNonVNZipcode(String zipcode) {
@@ -223,13 +240,20 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     }
 
     void selectResponsibleStaff() {
-        // open responsible staff dropdown
-        commonAction.clickJS(loc_lblSelectedResponsibleStaff);
-
         // get index of selected staff
         int index = nextInt(commonAction.getListElement(loc_ddlResponsibleStaff).size());
-        new Select(commonAction.getElement(loc_lblSelectedResponsibleStaff)).selectByIndex(index);
-        logger.info("Select responsible staff: %s".formatted(commonAction.getText(loc_ddlResponsibleStaff, index)));
+
+        // get staff name
+        String staffName = commonAction.getText(loc_ddlResponsibleStaff, index);
+
+        // get staff name
+        String staffId = commonAction.getValue(loc_ddlResponsibleStaff, index);
+
+        // select staff
+        commonAction.selectDropdownOptionByValue(loc_lblSelectedResponsibleStaff, staffId);
+
+        // log
+        logger.info("Select responsible staff: %s".formatted(staffName));
     }
 
     void inputDescription(String description) {
@@ -375,7 +399,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         completeCRUSupplier();
 
         // wait supplier management page loaded
-        commonAction.sleepInMiliSecond(3000);
+//        commonAction.sleepInMiliSecond(3000);
 
         // check information after create supplier
         supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber);
@@ -478,61 +502,61 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         int supplierID = Pattern.compile("(\\d+)").matcher(driver.getCurrentUrl()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
 
         // get supplier information map
-        Map<String, String> supInfo = sup.getSupplierInformationMap(supplierID);
+        SupplierAPI.SupplierInformation supInfo = sup.getSupplierInformation(supplierID);
 
         // check supplier name
         String dbSupplierName = commonAction.getValue(loc_txtSupplierName);
-        String infoSupplierName = supInfo.get("name");
+        String infoSupplierName = supInfo.getName();
         assertCustomize.assertEquals(dbSupplierName, infoSupplierName, "[Failed][Supplier Information] Supplier name should be %s, but found %s.".formatted(infoSupplierName, dbSupplierName));
         logger.info("Check Supplier Information - Supplier name.");
 
         // check supplier code
         String dbSupplierCode = commonAction.getValue(loc_txtSupplierCode);
-        String infoSupplierCode = supInfo.get("code");
+        String infoSupplierCode = supInfo.getCode();
         assertCustomize.assertEquals(dbSupplierCode, infoSupplierCode, "[Failed][Supplier Information] Supplier code should be %s, but found %s.".formatted(infoSupplierCode, dbSupplierCode));
         logger.info("Check Supplier Information - Supplier code.");
 
         // check phone number
         String dbPhoneNumber = commonAction.getValue(loc_txtPhoneNumber);
-        String infoPhoneNumber = supInfo.get("phoneNumber");
+        String infoPhoneNumber = supInfo.getPhoneNumber();
         assertCustomize.assertEquals(dbPhoneNumber, infoPhoneNumber, "[Failed][Supplier Information] Phone number should be %s, but found %s.".formatted(infoPhoneNumber, dbPhoneNumber));
         logger.info("Check Supplier Information - Phone number.");
 
         // check email
         String dbEmail = commonAction.getValue(loc_txtEmail);
-        String infoEmail = supInfo.get("email");
+        String infoEmail = supInfo.getEmail();
         assertCustomize.assertEquals(dbEmail, infoEmail, "[Failed][Supplier Information] Email should be %s, but found %s.".formatted(infoEmail, dbEmail));
         logger.info("Check Supplier Information - Email.");
 
         // check country
         String dbCountry = commonAction.getValue(loc_ddvSelectedCountry);
-        String infoCountry = supInfo.get("countryCode");
+        String infoCountry = supInfo.getCountryCode();
         assertCustomize.assertEquals(dbCountry, infoCountry, "[Failed][Supplier Information] Country should be %s, but found %s.".formatted(infoCountry, dbCountry));
         logger.info("Check Supplier Information - Country.");
 
         // check VN supplier
-        if (supInfo.get("countryCode").equals("VN")) {
+        if (infoCountry.equals("VN")) {
             // check address
             String dbAddress = commonAction.getValue(loc_txtVNAddress);
-            String infoAddress = supInfo.get("address");
+            String infoAddress = supInfo.getAddress();
             assertCustomize.assertEquals(dbAddress, infoAddress, "[Failed][Supplier Information] Address should be %s, but found %s.".formatted(infoAddress, dbAddress));
             logger.info("Check Supplier Information - Address.");
 
             // check city/province
             String dbCity = commonAction.getValue(loc_lblSelectedVNCity);
-            String infoCity = supInfo.get("province");
+            String infoCity = supInfo.getProvince();
             assertCustomize.assertEquals(dbCity, infoCity, "[Failed][Supplier Information] City/Province should be %s, but found %s.".formatted(infoCity, dbCity));
             logger.info("Check Supplier Information - City/Province.");
 
             // check district
             String dbDistrict = commonAction.getValue(loc_lblSelectedVNDistrict);
-            String infoDistrict = supInfo.get("district");
+            String infoDistrict = supInfo.getDistrict();
             assertCustomize.assertEquals(dbDistrict, infoDistrict, "[Failed][Supplier Information] District should be %s, but found %s.".formatted(infoDistrict, dbDistrict));
             logger.info("Check Supplier Information - District.");
 
             // check ward
             String dbWard = commonAction.getValue(loc_lblSelectedVNWard);
-            String infoWard = supInfo.get("ward");
+            String infoWard = supInfo.getWard();
             assertCustomize.assertEquals(dbWard, infoWard, "[Failed][Supplier Information] Ward should be %s, but found %s.".formatted(infoWard, dbWard));
             logger.info("Check Supplier Information - Ward.");
         }
@@ -540,44 +564,44 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         else {
             // check street address
             String dbStreetAddress = commonAction.getValue(loc_txtNonVNStreetAddress);
-            String infoStreetAddress = supInfo.get("address");
+            String infoStreetAddress = supInfo.getAddress();
             assertCustomize.assertEquals(dbStreetAddress, infoStreetAddress, "[Failed][Supplier Information] Street address should be %s, but found %s.".formatted(infoStreetAddress, dbStreetAddress));
             logger.info("Check Supplier Information - Street address.");
 
             // check address2
             String dbAddress2 = commonAction.getValue(loc_txtNonVNAddress2);
-            String infoAddress2 = supInfo.get("address2");
+            String infoAddress2 = supInfo.getAddress2();
             assertCustomize.assertEquals(dbAddress2, infoAddress2, "[Failed][Supplier Information] Address2 should be %s, but found %s.".formatted(infoAddress2, dbAddress2));
             logger.info("Check Supplier Information - Address2.");
 
             // check city
             String dbCity = commonAction.getValue(loc_txtNonVNCity);
-            String infoCity = supInfo.get("cityName");
+            String infoCity = supInfo.getCityName();
             assertCustomize.assertEquals(dbCity, infoCity, "[Failed][Supplier Information] City should be %s, but found %s.".formatted(infoCity, dbCity));
             logger.info("Check Supplier Information - City.");
 
             // check state/region/province
             String dbProvince = commonAction.getValue(loc_lblSelectedNonVNProvince);
-            String infoProvince = supInfo.get("province");
+            String infoProvince = supInfo.getProvince();
             assertCustomize.assertEquals(dbProvince, infoProvince, "[Failed][Supplier Information] State/Region/Province should be %s, but found %s.".formatted(infoProvince, dbProvince));
             logger.info("Check Supplier Information - State/Region/Province.");
 
             // check zip code
             String dbZipCode = commonAction.getValue(loc_txtNonVnZipcode);
-            String infoZipCode = supInfo.get("zipCode");
+            String infoZipCode = supInfo.getZipcode();
             assertCustomize.assertEquals(dbZipCode, infoZipCode, "[Failed][Supplier Information] Zip code should be %s, but found %s.".formatted(infoZipCode, dbZipCode));
             logger.info("Check Supplier Information - Zip code.");
         }
 
         // check responsible staff
         String dbResponsibleStaff = commonAction.getValue(loc_lblSelectedResponsibleStaff);
-        String infoResponsibleStaff = supInfo.get("responsibleStaff") != null ? supInfo.get("responsibleStaff") : "";
+        String infoResponsibleStaff = supInfo.getResponsibleStaff() != null ? supInfo.getResponsibleStaff() : "";
         assertCustomize.assertEquals(dbResponsibleStaff, infoResponsibleStaff, "[Failed][Supplier Information] Responsible staff should be %s, but found %s.".formatted(infoResponsibleStaff, dbResponsibleStaff));
         logger.info("Check Supplier Information - Responsible staff.");
 
         // check description
         String dbDescription = commonAction.getValue(loc_txtDescription);
-        String infoDescription = supInfo.get("description") != null ? supInfo.get("description") : "";
+        String infoDescription = supInfo.getDescription() != null ? supInfo.getDescription() : "";
         assertCustomize.assertEquals(dbDescription, infoDescription, "[Failed][Supplier Information] Description should be %s, but found %s.".formatted(infoDescription, dbDescription));
         logger.info("Check Supplier Information - Description.");
 
@@ -600,7 +624,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         commonAction.sendKeys(loc_txtSearchPurchaseOrder, "%s\n".formatted(purchaseId));
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list result
         List<String> listResult = commonAction.getListElement(loc_tblSearchResult_purchaseOrderId).stream().map(WebElement::getText).toList();
@@ -614,7 +638,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         commonAction.sendKeys(loc_txtSearchPurchaseOrder, "%s\n".formatted(Instant.now().toEpochMilli()));
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list result
         listResult = commonAction.getListElement(loc_tblSearchResult_purchaseOrderId).stream().map(WebElement::getText).toList();
@@ -652,14 +676,11 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         // wait confirm popup invisible
         commonAction.waitInvisibilityOfElementLocated(loc_dlgConfirmDeleteSupplier);
 
-        // wait page loaded
-        commonAction.sleepInMiliSecond(3000);
-
         // search supplier code
         supplierManagementPage.searchSupplierByCode(supplierCode);
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list result
         List<String> listResult = supplierManagementPage.getListSupplierCode();
@@ -672,7 +693,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         supplierManagementPage.searchSupplierByName(supplierName);
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list result
         listResult = supplierManagementPage.getListSupplierCode();
@@ -833,7 +854,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
             logger.info("[UI][%s] Check Address Information - Non-VN address2.".formatted(language));
 
             // check non-VN address2 placeholder
-            String dbNonVNAddress2Placeholder = commonAction.getAttribute(loc_plhNonVNAddress2,"placeholder");
+            String dbNonVNAddress2Placeholder = commonAction.getAttribute(loc_plhNonVNAddress2, "placeholder");
             String ppNonVNAddress2Placeholder = getPropertiesValueByDBLang("products.supplier.addSupplier.addressInformation.nonVN.address2Placeholder", language);
             assertCustomize.assertEquals(dbNonVNAddress2Placeholder, ppNonVNAddress2Placeholder, "[Failed][Address Information] Non-VN address2 placeholder should be %s, but found %s.".formatted(ppNonVNAddress2Placeholder, dbNonVNAddress2Placeholder));
             logger.info("[UI][%s] Check Address Information - Non-VN address2 placeholder.".formatted(language));
@@ -975,6 +996,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         assertCustomize.assertEquals(dbCancelBtn, ppCancelBtn, "[Failed][Delete supplier confirm popup] Cancel button should be %s, but found %s.".formatted(ppCancelBtn, dbCancelBtn));
         logger.info("[UI][%s] Check Delete supplier confirm popup - Cancel button.".formatted(language));
     }
+
     public void checkErrorWhenLeaveRequiredFieldBlank(String language) throws Exception {
         String dbSupplierBlank = commonAction.getText(loc_lblSupplierNameError);
         String ppSupplierBlank = getPropertiesValueByDBLang("products.supplier.addSupplier.error.supplierName.blank", language);
@@ -1010,5 +1032,13 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         checkOrderHistory(language);
         checkSupplierSummary(language);
         checkOtherInformation(language);
+    }
+
+    void checkEditSupplier() {
+
+    }
+
+    void checkDeleteSupplier() {
+
     }
 }

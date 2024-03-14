@@ -952,7 +952,7 @@ public class UICommonAction {
 
     public void openDropdownJS(By locator, By dropdown) {
         try {
-            clickJS(locator);
+            click(locator);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
         try {
@@ -992,7 +992,8 @@ public class UICommonAction {
             click(locator);
         }
     }
-    public void checkTheCheckBoxOrRadio(By locator,int index) {
+
+    public void checkTheCheckBoxOrRadio(By locator, int index) {
         if (!getElements(locator).get(index).isSelected()) {
             click(locator);
         }
@@ -1035,15 +1036,35 @@ public class UICommonAction {
         Select select = new Select(element);
         select.selectByIndex(index);
     }
-    public void waitForListLoaded(By locator, int repeatTimes){
+
+    public void waitForListLoaded(By locator, int repeatTimes) {
         List<WebElement> elements = new ArrayList<>();
-        for (int i=0;i <repeatTimes;i++){
+        for (int i = 0; i < repeatTimes; i++) {
             elements = getElements(locator);
-            if(!elements.isEmpty()) break;
+            if (!elements.isEmpty()) break;
             else sleepInMiliSecond(500);
         }
-        if (elements.isEmpty()){
+        if (elements.isEmpty()) {
             logger.info("List element still empty after wait %s times".formatted(repeatTimes));
+        }
+    }
+
+    String getSelectedValue(By ddvSelectedLocator) {
+        return (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].value", getElement(ddvSelectedLocator));
+    }
+
+    public void selectDropdownOptionByValue(By ddvSelectedLocator, String value) {
+        // select option
+        try {
+            new Select(getElement(ddvSelectedLocator)).selectByValue(value);
+        } catch (NoSuchElementException | StaleElementReferenceException ex) {
+            logger.info(ex);
+            selectDropdownOptionByValue(ddvSelectedLocator, value);
+        }
+
+        // check option is selected or not
+        if (!getSelectedValue(ddvSelectedLocator).equals(value)) {
+            selectDropdownOptionByValue(ddvSelectedLocator, value);
         }
     }
 }

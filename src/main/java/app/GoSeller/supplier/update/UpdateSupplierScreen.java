@@ -1,16 +1,16 @@
 package app.GoSeller.supplier.update;
 
+import api.Seller.products.supplier.SupplierAPI.SupplierInformation;
+import app.GoSeller.supplier.management.SupplierManagementScreen;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import app.GoSeller.supplier.management.SupplierManagementScreen;
-import utilities.commons.UICommonMobile;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
-import utilities.model.sellerApp.supplier.SupplierInformation;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,6 +25,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
     @Getter
     private SupplierInformation supInfo;
     private final static Logger logger = LogManager.getLogger();
+
     public UpdateSupplierScreen(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
@@ -37,7 +38,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(SUPPLIER_NAME, name);
 
         // set info
-        supInfo.setSupplierName(name);
+        supInfo.setName(name);
 
         // log
         logger.info("[Update supplier] Input supplier name: %s".formatted(name));
@@ -49,7 +50,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(SUPPLIER_CODE, code);
 
         // set info
-        supInfo.setSupplierCode(code);
+        supInfo.setCode(code);
 
         // log
         logger.info("[Update supplier] Input supplier code: %s".formatted(code));
@@ -62,7 +63,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(SUPPLIER_PHONE, phone);
 
         // set info
-        supInfo.setSupplierPhone(phone);
+        supInfo.setPhoneNumber(phone);
 
         // log
         logger.info("[Update supplier] Input phone number: %s".formatted(phone));
@@ -74,7 +75,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(SUPPLIER_EMAIL, email);
 
         // set info
-        supInfo.setSupplierEmail(email);
+        supInfo.setEmail(email);
 
         // log
         logger.info("[Update supplier] Input email: %s".formatted(email));
@@ -87,12 +88,12 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         while (countryKeywords.equals("Vietnam"));
 
         // re-initialize supplier information
-        if (supInfo.getSupplierName() != null) supInfo = new SupplierInformation();
+        if (supInfo.getName() != null) supInfo = new SupplierInformation();
 
         // set info
         supInfo.setVNSupplier(isVNSupplier);
-        supInfo.setCountry(countryKeywords);
-        supInfo.setSupplierPhoneCode(new DataGenerator().getPhoneCode(countryKeywords));
+        supInfo.setCountryCode(countryKeywords);
+        supInfo.setPhoneCode(new DataGenerator().getPhoneCode(countryKeywords));
 
         // search and select country
         if (!commonMobile.getText(SELECTED_COUNTRY).equals(countryKeywords)) {
@@ -109,7 +110,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         }
 
         // log
-        logger.info("[Update supplier] Select country: %s".formatted(supInfo.getCountry()));
+        logger.info("[Update supplier] Select country: %s".formatted(supInfo.getCountryCode()));
     }
 
     void inputVNAddress(String address) {
@@ -118,7 +119,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(VN_ADDRESS, address);
 
         // set info
-        supInfo.setVnAddress(address);
+        supInfo.setAddress(address);
 
         // log
         logger.info("[Update supplier] Input address: %s".formatted(address));
@@ -138,16 +139,17 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
 
 
         // set info
-        supInfo.setVnCity(cityList.get(index).getText());
+        supInfo.setCityName(cityList.get(index).getText());
 
         // select city
         commonMobile.click(cityList.get(index));
         try {
             driver.findElement(VN_CITY_DROPDOWN_CLOSE_ICON).click();
-        } catch (NoSuchElementException ignore) {}
+        } catch (NoSuchElementException ignore) {
+        }
 
         // log
-        logger.info("[Update supplier] Select city: %s".formatted(supInfo.getVnCity()));
+        logger.info("[Update supplier] Select city: %s".formatted(supInfo.getCityName()));
     }
 
     void selectVNDistrict() {
@@ -159,16 +161,17 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         int index = nextInt(districtList.size());
 
         // set info
-        supInfo.setVnDistrict(districtList.get(index).getText());
+        supInfo.setDistrict(districtList.get(index).getText());
 
         // select district
         commonMobile.click(districtList.get(index));
         try {
             driver.findElement(VN_DISTRICT_DROPDOWN_CLOSE_ICON).click();
-        } catch (NoSuchElementException ignore) {}
+        } catch (NoSuchElementException ignore) {
+        }
 
         // log
-        logger.info("[Update supplier] Select district: %s".formatted(supInfo.getVnDistrict()));
+        logger.info("[Update supplier] Select district: %s".formatted(supInfo.getDistrict()));
     }
 
     void selectVNWard() {
@@ -180,16 +183,17 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         int index = nextInt(wardList.size());
 
         // set info
-        supInfo.setVnWard(wardList.get(index).getText());
+        supInfo.setWard(wardList.get(index).getText());
 
         // select ward
         commonMobile.click(wardList.get(index));
         try {
             driver.findElement(VN_WARD_DROPDOWN_CLOSE_ICON).click();
-        } catch (NoSuchElementException ignore) {}
+        } catch (NoSuchElementException ignore) {
+        }
 
         // log
-        logger.info("[Update supplier] Select ward: %s".formatted(supInfo.getVnWard()));
+        logger.info("[Update supplier] Select ward: %s".formatted(supInfo.getWard()));
     }
 
     /* Outside VN address */
@@ -199,7 +203,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_STREET_ADDRESS, address);
 
         // set info
-        supInfo.setOutsideVnStreetAddress(address);
+        supInfo.setStreetAddress(address);
 
         // log
         logger.info("[Update supplier] Input street address: %s".formatted(address));
@@ -211,7 +215,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_ADDRESS2, address2);
 
         // set info
-        supInfo.setOutsideVnAddress2(address2);
+        supInfo.setAddress2(address2);
 
         // log
         logger.info("[Update supplier] Input address2: %s".formatted(address2));
@@ -226,16 +230,17 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         int index = nextInt(stateList.size());
 
         // set info
-        supInfo.setOutsideVnState(stateList.get(index).getText());
+        supInfo.setProvince(stateList.get(index).getText());
 
         // select state
         commonMobile.click(stateList.get(index));
         try {
             driver.findElement(OUTSIDE_VN_STATE_DROPDOWN_CLOSE_ICON).click();
-        } catch (NoSuchElementException ignore) {}
+        } catch (NoSuchElementException ignore) {
+        }
 
         // log
-        logger.info("[Update supplier] Select state: %s".formatted(supInfo.getOutsideVnState()));
+        logger.info("[Update supplier] Select state: %s".formatted(supInfo.getProvince()));
     }
 
     void inputOutsideVNCity(String city) {
@@ -244,7 +249,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_CITY, city);
 
         // set info
-        supInfo.setOutsideVNCity(city);
+        supInfo.setCityName(city);
 
         // log
         logger.info("[Update supplier] Input city: %s".formatted(city));
@@ -256,7 +261,7 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         commonMobile.inputText(OUTSIDE_VN_ZIPCODE, zipcode);
 
         // set info
-        supInfo.setOutsideVnZipCode(zipcode);
+        supInfo.setZipcode(zipcode);
 
         // log
         logger.info("[Update supplier] Input zipcode: %s".formatted(zipcode));
@@ -373,94 +378,95 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         this.supInfo = supInfo;
 
         // navigate to create supplier page
-        new SupplierManagementScreen(driver).openSupplierDetailScreen(supInfo.getSupplierCode());
+        new SupplierManagementScreen(driver).openSupplierDetailScreen(supInfo.getCode());
 
         // check supplier name
         String supName = commonMobile.moveAndGetElement(SUPPLIER_NAME).getText();
-        assertCustomize.assertEquals(supName, supInfo.getSupplierName(),"[Failed][Supplier detail screen] Supplier name should be %s, but found %s.".formatted(supInfo.getSupplierName(), supName));
+        assertCustomize.assertEquals(supName, supInfo.getName(), ("[Failed][Supplier detail screen] Supplier name " +
+                "should be %s, but found %s.").formatted(supInfo.getName(), supName));
         logger.info("[Supplier detail] Check supplier name.");
 
         // check supplier code
         String supCode = commonMobile.moveAndGetElement(SUPPLIER_CODE).getText();
-        assertCustomize.assertEquals(supCode, supInfo.getSupplierCode(),"[Failed][Supplier detail screen] Supplier code should be %s, but found %s.".formatted(supInfo.getSupplierCode(), supCode));
+        assertCustomize.assertEquals(supCode, supInfo.getCode(), ("[Failed][Supplier detail screen] Supplier code should be %s, but found %s.").formatted(supInfo.getCode(), supCode));
         logger.info("[Supplier detail] Check supplier code.");
 
         // check supplier phone code
         String supPhoneCode = commonMobile.moveAndGetElement(SUPPLIER_PHONE_CODE).getText().replaceAll("[()]", "");
-        assertCustomize.assertEquals(supPhoneCode, supInfo.getSupplierPhoneCode(),"[Failed][Supplier detail screen] Supplier phone code should be %s, but found %s.".formatted(supInfo.getSupplierPhoneCode(), supPhoneCode));
+        assertCustomize.assertEquals(supPhoneCode, supInfo.getPhoneCode(), "[Failed][Supplier detail screen] Supplier phone code should be %s, but found %s.".formatted(supInfo.getPhoneCode(), supPhoneCode));
         logger.info("[Supplier detail] Check supplier phone code.");
 
         // check supplier phone number
         String supPhoneNumber = commonMobile.moveAndGetElement(SUPPLIER_PHONE).getText();
-        assertCustomize.assertEquals(supPhoneNumber, supInfo.getSupplierPhone(),"[Failed][Supplier detail screen] Supplier phone number should be %s, but found %s.".formatted(supInfo.getSupplierPhone(), supPhoneNumber));
+        assertCustomize.assertEquals(supPhoneNumber, supInfo.getPhoneNumber(), "[Failed][Supplier detail screen] Supplier phone number should be %s, but found %s.".formatted(supInfo.getPhoneNumber(), supPhoneNumber));
         logger.info("[Supplier detail] Check supplier phone number.");
 
         // check supplier mail
         String supEmail = commonMobile.moveAndGetElement(SUPPLIER_EMAIL).getText();
-        assertCustomize.assertEquals(supEmail, supInfo.getSupplierEmail(),"[Failed][Supplier detail screen] Supplier email should be %s, but found %s.".formatted(supInfo.getSupplierEmail(), supEmail));
+        assertCustomize.assertEquals(supEmail, supInfo.getEmail(), "[Failed][Supplier detail screen] Supplier email should be %s, but found %s.".formatted(supInfo.getEmail(), supEmail));
         logger.info("[Supplier detail] Check Supplier email.");
 
         // check country
         String country = commonMobile.moveAndGetElement(SELECTED_COUNTRY).getText();
-        assertCustomize.assertEquals(country, supInfo.getCountry(),"[Failed][Supplier detail screen] Country should be %s, but found %s.".formatted(supInfo.getCountry(), country));
+        assertCustomize.assertEquals(country, supInfo.getCountryCode(), "[Failed][Supplier detail screen] Country should be %s, but found %s.".formatted(supInfo.getCountryCode(), country));
         logger.info("[Supplier detail] Check Country.");
 
         // check address information
         if (supInfo.isVNSupplier()) {
             // check VN address
             String vnAddress = commonMobile.moveAndGetElement(VN_ADDRESS).getText();
-            assertCustomize.assertEquals(vnAddress, supInfo.getVnAddress(),"[Failed][Supplier detail screen] VN address should be %s, but found %s.".formatted(supInfo.getSupplierName(), vnAddress));
+            assertCustomize.assertEquals(vnAddress, supInfo.getAddress(), "[Failed][Supplier detail screen] VN address should be %s, but found %s.".formatted(supInfo.getAddress(), vnAddress));
             logger.info("[Supplier detail] Check VN address.");
 
             // check VN city
             String vnCity = commonMobile.moveAndGetElement(SELECTED_VN_CITY).getText();
-            assertCustomize.assertEquals(vnCity, supInfo.getVnCity(),"[Failed][Supplier detail screen] VN city should be %s, but found %s.".formatted(supInfo.getVnCity(), vnCity));
+            assertCustomize.assertEquals(vnCity, supInfo.getCityName(), "[Failed][Supplier detail screen] VN city should be %s, but found %s.".formatted(supInfo.getCityName(), vnCity));
             logger.info("[Supplier detail] Check VN city.");
 
             // check VN district
             String vnDistrict = commonMobile.moveAndGetElement(SELECTED_VN_DISTRICT).getText();
-            assertCustomize.assertEquals(vnDistrict, supInfo.getVnDistrict(),"[Failed][Supplier detail screen] VN district should be %s, but found %s.".formatted(supInfo.getVnDistrict(), vnDistrict));
+            assertCustomize.assertEquals(vnDistrict, supInfo.getDistrict(), "[Failed][Supplier detail screen] VN district should be %s, but found %s.".formatted(supInfo.getDistrict(), vnDistrict));
             logger.info("[Supplier detail] Check VN district.");
 
             // check VN ward
             String vnWard = commonMobile.moveAndGetElement(SELECTED_VN_WARD).getText();
-            assertCustomize.assertEquals(vnWard, supInfo.getVnWard(),"[Failed][Supplier detail screen] VN ward should be %s, but found %s.".formatted(supInfo.getVnWard(), vnWard));
+            assertCustomize.assertEquals(vnWard, supInfo.getWard(), "[Failed][Supplier detail screen] VN ward should be %s, but found %s.".formatted(supInfo.getWard(), vnWard));
             logger.info("[Supplier detail] Check VN ward.");
         } else {
             // check outside VN street address
             String streetAddress = commonMobile.moveAndGetElement(OUTSIDE_VN_STREET_ADDRESS).getText();
-            assertCustomize.assertEquals(streetAddress, supInfo.getOutsideVnStreetAddress(),"[Failed][Supplier detail screen] Outside VN street address should be %s, but found %s.".formatted(supInfo.getOutsideVnStreetAddress(), streetAddress));
+            assertCustomize.assertEquals(streetAddress, supInfo.getStreetAddress(), "[Failed][Supplier detail screen] Outside VN street address should be %s, but found %s.".formatted(supInfo.getStreetAddress(), streetAddress));
             logger.info("[Supplier detail] Check outside VN street address.");
 
             // check outside VN address2
             String address2 = commonMobile.moveAndGetElement(OUTSIDE_VN_ADDRESS2).getText();
-            assertCustomize.assertEquals(address2, supInfo.getOutsideVnAddress2(),"[Failed][Supplier detail screen] Outside VN address2 should be %s, but found %s.".formatted(supInfo.getOutsideVnAddress2(), address2));
+            assertCustomize.assertEquals(address2, supInfo.getAddress2(), "[Failed][Supplier detail screen] Outside VN address2 should be %s, but found %s.".formatted(supInfo.getAddress2(), address2));
             logger.info("[Supplier detail] Check outside VN address2.");
 
             // check outside VN state
             String state = commonMobile.moveAndGetElement(SELECTED_OUTSIDE_VN_STATE).getText();
-            assertCustomize.assertEquals(state, supInfo.getOutsideVnState(),"[Failed][Supplier detail screen] Outside VN state should be %s, but found %s.".formatted(supInfo.getOutsideVnState(), state));
+            assertCustomize.assertEquals(state, supInfo.getProvince(), "[Failed][Supplier detail screen] Outside VN state should be %s, but found %s.".formatted(supInfo.getProvince(), state));
             logger.info("[Supplier detail] Check outside VN state.");
 
             // check outside VN city
             String city = commonMobile.moveAndGetElement(OUTSIDE_VN_CITY).getText();
-            assertCustomize.assertEquals(city, supInfo.getOutsideVNCity(),"[Failed][Supplier detail screen] Outside VN city should be %s, but found %s.".formatted(supInfo.getOutsideVNCity(), city));
+            assertCustomize.assertEquals(city, supInfo.getCityName(), "[Failed][Supplier detail screen] Outside VN city should be %s, but found %s.".formatted(supInfo.getCityName(), city));
             logger.info("[Supplier detail] Check outside VN city.");
 
             // check outside VN zipcode
             String zipcode = commonMobile.moveAndGetElement(OUTSIDE_VN_ZIPCODE).getText();
-            assertCustomize.assertEquals(zipcode, supInfo.getOutsideVnZipCode(),"[Failed][Supplier detail screen] Outside VN zipcode should be %s, but found %s.".formatted(supInfo.getOutsideVnZipCode(), zipcode));
+            assertCustomize.assertEquals(zipcode, supInfo.getZipcode(), "[Failed][Supplier detail screen] Outside VN zipcode should be %s, but found %s.".formatted(supInfo.getZipcode(), zipcode));
             logger.info("[Supplier detail] Check outside VN zipcode.");
         }
 
         // check responsible staff
         String responsibleStaff = commonMobile.moveAndGetElement(SELECTED_RESPONSIBLE_STAFF).getText();
-        assertCustomize.assertEquals(responsibleStaff, supInfo.getResponsibleStaff(),"[Failed][Supplier detail screen] Responsible staff should be %s, but found %s.".formatted(supInfo.getResponsibleStaff(), responsibleStaff));
+        assertCustomize.assertEquals(responsibleStaff, supInfo.getResponsibleStaff(), "[Failed][Supplier detail screen] Responsible staff should be %s, but found %s.".formatted(supInfo.getResponsibleStaff(), responsibleStaff));
         logger.info("[Supplier detail] Check responsible staff.");
 
         // check description
         String description = commonMobile.moveAndGetElement(DESCRIPTION).getText();
-        assertCustomize.assertEquals(description, supInfo.getDescription(),"[Failed][Supplier detail screen] should be %s, but found %s.".formatted(supInfo.getDescription(), description));
+        assertCustomize.assertEquals(description, supInfo.getDescription(), "[Failed][Supplier detail screen] should be %s, but found %s.".formatted(supInfo.getDescription(), description));
         logger.info("[Supplier detail] Check description.");
     }
 

@@ -8,17 +8,20 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import web.Dashboard.home.HomePage;
-import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import web.Dashboard.home.HomePage;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.IntStream;
 
-import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.links.Links.DOMAIN;
+import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 
 public class SupplierManagementPage extends SupplierManagementElement {
     UICommonAction commonAction;
@@ -34,7 +37,6 @@ public class SupplierManagementPage extends SupplierManagementElement {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
-
         assertCustomize = new AssertCustomize(driver);
     }
 
@@ -88,7 +90,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
     public void navigateToSupplierManagementPage() {
         driver.get(DOMAIN + SUPPLIER_MANAGEMENT_PATH);
 
-        commonAction.sleepInMiliSecond(3000);
+//        commonAction.sleepInMiliSecond(3000);
     }
 
     public void navigateToAddSupplierPage() {
@@ -96,7 +98,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
         commonAction.clickJS(loc_btnAddSupplier);
 
-        commonAction.sleepInMiliSecond(3000);
+//        commonAction.sleepInMiliSecond(3000);
     }
 
     public void searchSupplierByCode(String supplierCode) {
@@ -109,23 +111,27 @@ public class SupplierManagementPage extends SupplierManagementElement {
         logger.info("Search supplier by code, keywords: %s".formatted(supplierCode));
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
     }
 
     public List<String> getListSupplierCode() {
-        return commonAction.getListElement(loc_lblSupplierCode).stream().map(WebElement::getText).toList();
+        List<WebElement> listElement = commonAction.getListElement(loc_lblSupplierCode);
+        return IntStream.range(0, listElement.size()).mapToObj(index -> commonAction.getText(loc_lblSupplierCode, index)).toList();
     }
 
     public List<String> getListSupplierName() {
-        return commonAction.getListElement(loc_lblSupplierName).stream().map(WebElement::getText).toList();
+        List<WebElement> listElement = commonAction.getListElement(loc_lblSupplierName);
+        return IntStream.range(0, listElement.size()).mapToObj(index -> commonAction.getText(loc_lblSupplierName, index)).toList();
     }
 
     public List<String> getListEmail() {
-        return commonAction.getListElement(loc_lblEmail).stream().map(WebElement::getText).toList();
+        List<WebElement> listElement = commonAction.getListElement(loc_lblEmail);
+        return IntStream.range(0, listElement.size()).mapToObj(index -> commonAction.getText(loc_lblEmail, index)).toList();
     }
 
     public List<String> getListPhoneNumber() {
-        return commonAction.getListElement(loc_lblPhoneNumber).stream().map(WebElement::getText).toList();
+        List<WebElement> listElement = commonAction.getListElement(loc_lblPhoneNumber);
+        return IntStream.range(0, listElement.size()).mapToObj(index -> commonAction.getText(loc_lblPhoneNumber, index)).toList();
     }
 
     public void searchSupplierByName(String supplierName) {
@@ -138,7 +144,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         logger.info("Search supplier by name, keywords: %s".formatted(supplierName));
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
     }
 
     public void findAndNavigateToSupplierDetailPage(String supplierCode) {
@@ -148,9 +154,6 @@ public class SupplierManagementPage extends SupplierManagementElement {
         // navigate to supplier page
         logger.info("Navigate to supplier detail with supplier code: %s".formatted(commonAction.getText(loc_lblSupplierCode, 0)));
         commonAction.click(loc_lblSupplierCode, 0);
-
-        // wait page loaded
-        commonAction.sleepInMiliSecond(3000);
     }
 
     public void checkSupplierInformationAfterCRU(String supplierCode, String supplierName, String email, String phoneNumber) {
@@ -207,7 +210,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         searchSupplierByCode(keywords);
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list supplier match search result
         List<String> listAvailableSupplier = getListSupplierCode();
@@ -226,9 +229,6 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
             // refresh page
             driver.navigate().refresh();
-
-            // wait page loaded
-            commonAction.sleepInMiliSecond(3000);
         }
 
         // search supplier by valid code
@@ -236,7 +236,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         searchSupplierByCode(keywords);
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list supplier match search result
         listAvailableSupplier = getListSupplierCode();
@@ -253,7 +253,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         searchSupplierByName(keywords);
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list supplier match search result
         List<String> listAvailableSupplier = getListSupplierName();
@@ -272,9 +272,6 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
             // refresh page
             driver.navigate().refresh();
-
-            // wait page loaded
-            commonAction.sleepInMiliSecond(3000);
         }
 
         // search supplier by valid name
@@ -282,7 +279,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         searchSupplierByName(keywords);
 
         // wait result
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.sleepInMiliSecond(1000, "Wait result updated.");
 
         // get list supplier match search result
         listAvailableSupplier = getListSupplierName();
@@ -338,4 +335,35 @@ public class SupplierManagementPage extends SupplierManagementElement {
         checkNoSearchResult(language);
     }
 
+    /*-------------------------------------*/
+    // check permission
+    // https://mediastep.atlassian.net/browse/BH-24809
+    AllPermissions permissions;
+    CheckPermission checkPermission;
+    LoginInformation staffLoginInformation;
+
+    public void checkLocationPermission(AllPermissions permissions) {
+        // get staff permission
+        this.permissions = permissions;
+
+        // init commons check no permission
+        checkPermission = new CheckPermission(driver);
+
+        // init assert customize
+        assertCustomize = new AssertCustomize(driver);
+
+
+    }
+
+    void checkViewSupplierList() {
+//        SupplierAPI.SupplierInformation info = new SupplierAPI(staffLoginInformation).getListSupplierInformation();
+        if (permissions.getSuppliers().getSupplier().isViewSupplierList()) {
+
+        }
+
+    }
+
+    void addSupplier() {
+
+    }
 }
