@@ -51,17 +51,17 @@ public class ServiceDiscountCampaignPage {
 	public ServiceDiscountCampaignPage tickAppliesTo(int optionIndex) {
 		commonAction.waitForListLoaded(loc_chkAppliesTo,3);
 		if (optionIndex ==0) {
-			commonAction.checkTheCheckBoxOrRadio(loc_chkAppliesTo,optionIndex);
+			commonAction.click(loc_chkAppliesTo,optionIndex);
 			logger.info("Ticked 'All Services' radio button.");
 		} else if (optionIndex ==1) {
-			commonAction.checkTheCheckBoxOrRadio(loc_chkAppliesTo,optionIndex);
+			commonAction.click(loc_chkAppliesTo,optionIndex);
 			logger.info("Ticked 'Specific Service Collections' radio button.");
 		} else if (optionIndex ==2) {
-			commonAction.checkTheCheckBoxOrRadio(loc_chkAppliesTo,optionIndex);
+			commonAction.click(loc_chkAppliesTo,optionIndex);
 			logger.info("Ticked 'Specific Services' radio button.");
 		} else {
-			logger.info("Input value is not in range (0:2). By default, 'All Products' radio button is ticked.");
-			commonAction.checkTheCheckBoxOrRadio(APPLIES_TO_LABEL.get(0));
+			logger.info("Input value is not in range (0:2). By default, 'All Service' radio button is ticked.");
+			commonAction.click(loc_chkAppliesTo,0);
 		}
 		return this;
 	}
@@ -83,6 +83,7 @@ public class ServiceDiscountCampaignPage {
 	}
 	public boolean isServiceShowOnSelectServiceList(String productName){
 		commonAction.inputText(loc_txtSearch,productName);
+		commonAction.sleepInMiliSecond(1000);
 		List<WebElement> productNames = commonAction.getElements(loc_lst_lblServiceName);
 		if (productNames.isEmpty()) return false;
 		for (int i=0; i<productNames.size();i++) {

@@ -2,7 +2,10 @@ package web.Dashboard;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.ProductInformation;
+import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.promotion.PromotionList;
 import api.Seller.reservations.CreateBookingPOS;
@@ -16,6 +19,7 @@ import org.testng.annotations.*;
 import utilities.constant.Constant;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -25,6 +29,7 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.promotion.discount.DiscountPage;
+import web.Dashboard.promotion.flashsale.FlashSalePage;
 import web.Dashboard.reservation.POSReservation.POSCreateReservation;
 import web.Dashboard.reservation.ReservationManagement;
 
@@ -47,7 +52,8 @@ public class ReservationPermissionTest extends BaseTest {
     int groupPermissionId;
     int serviceId;
     Customers customerAPI;
-
+    String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
+    String productCreatedByStaff = "Ao thun staff tao";
     @BeforeClass
     public void beforeClass() {
         sellerUserName = ADMIN_SHOP_VI_USERNAME;
@@ -63,14 +69,13 @@ public class ReservationPermissionTest extends BaseTest {
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         customerAPI = new Customers(ownerCredentials);
-
     }
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
-        new PermissionAPI(ownerCredentials).deleteGroupPermission(groupPermissionId);
-        new ServiceInfoAPI(ownerCredentials).deleteService(serviceId);
+//        new PermissionAPI(ownerCredentials).deleteGroupPermission(groupPermissionId);
+//        new ServiceInfoAPI(ownerCredentials).deleteService(serviceId);
         super.writeResult(result);
 //        driver.quit();
     }
@@ -173,20 +178,20 @@ public class ReservationPermissionTest extends BaseTest {
     CreatePermission setPermissionPOSModel(String POSPermissionBinary) {
         CreatePermission model = new CreatePermission();
         model.setHome_none("11");
-//        model.setService_serviceManagement("1");
-//        model.setCustomer_customerManagement("100000");
-        Random rd = new Random();
-        if (rd.nextBoolean()) {
-            model.setService_serviceManagement("1");
-        } else model.setService_serviceManagement("0");
-        if (rd.nextBoolean()) {
-            model.setCustomer_customerManagement("11");
-        } else if (rd.nextBoolean()) {
-            model.setCustomer_customerManagement("01");
-        } else model.setCustomer_customerManagement("00");
-        if (rd.nextBoolean()) {
-            model.setCustomer_customerManagement("100000");
-        }
+        model.setService_serviceManagement("1");
+        model.setCustomer_customerManagement("100000");
+//        Random rd = new Random();
+//        if (rd.nextBoolean()) {
+//            model.setService_serviceManagement("1");
+//        } else model.setService_serviceManagement("0");
+//        if (rd.nextBoolean()) {
+//            model.setCustomer_customerManagement("11");
+//        } else if (rd.nextBoolean()) {
+//            model.setCustomer_customerManagement("01");
+//        } else model.setCustomer_customerManagement("00");
+//        if (rd.nextBoolean()) {
+//            model.setCustomer_customerManagement("100000");
+//        }
         System.out.println("serviceManagement:"+model.getService_serviceManagement());
         System.out.println("customerManagement:"+model.getCustomer_customerManagement());
         model.setReservation_posService(POSPermissionBinary);
@@ -196,14 +201,15 @@ public class ReservationPermissionTest extends BaseTest {
     public Object[] POSPermissionModel() {
         return new Object[][]{
                 {"1"},
-                {"10"},
-                {"11"},
-                {"100"},
-                {"101"},
-                {"110"},
+//                {"10"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
+//                {"110"},
                 {"111"}
         };
     }
+    //BH-24884
     @Test(dataProvider = "POSPermissionModel")
     public void checkPermissionPOS(String POSPermissionBinary) {
         List<String> customerNameNotAssigneds= customerAPI.getNamesOfCustomersAssignedToStaff(-1);
@@ -230,7 +236,7 @@ public class ReservationPermissionTest extends BaseTest {
     @DataProvider
     public Object[] DiscountCampaignPermissionModel() {
         return new Object[][]{
-//                {"1"},
+                {"1"},
 //                {"10"},
 //                {"11"},
 //                {"100"},
@@ -264,9 +270,9 @@ public class ReservationPermissionTest extends BaseTest {
 //                {"100000"},
 //                {"100001"},
 //                {"100010"},
-                {"100011"},
-                {"100100"},
-                {"100101"},
+//                {"100011"},
+//                {"100100"},
+//                {"100101"},
 //                {"100110"},
 //                {"100111"},
 //                {"101000"},
@@ -1252,7 +1258,7 @@ public class ReservationPermissionTest extends BaseTest {
 //                {"1111111100"},
 //                {"1111111101"},
 //                {"1111111110"},
-//                {"1111111111"}
+                {"1111111111"}
         };
     }
     CreatePermission setPermissionDiscountCampaignModel(String discountCampaignPermissionBinary) {
@@ -1262,8 +1268,10 @@ public class ReservationPermissionTest extends BaseTest {
         model.setCustomer_segment("1");
         model.setProduct_productManagement("1");
         model.setProduct_collection("1");
+        model.setService_serviceManagement("1");
+        model.setService_serviceCollection("1");
         //random
-//        Random rd = new Random();
+        Random rd = new Random();
 //        if (rd.nextBoolean()) {
 //            model.setCustomer_segment("1");
 //        } else model.setCustomer_segment("0");
@@ -1275,40 +1283,210 @@ public class ReservationPermissionTest extends BaseTest {
 //        if (rd.nextBoolean()) {
 //            model.setProduct_collection("1");
 //        }else model.setProduct_collection("0");
+//        if (rd.nextBoolean()) {
+//            model.setService_serviceManagement("1");
+//        } else if (rd.nextBoolean()) {
+//            model.setService_serviceManagement("01");
+//        } else model.setService_serviceManagement("00");
+//        if (rd.nextBoolean()) {
+//            model.setService_serviceCollection("1");
+//        }else model.setService_serviceCollection("0");
         model.setPromotion_discountCampaign(discountCampaignPermissionBinary);
         return model;
     }
+    //BH-24962
     @Test(dataProvider = "DiscountCampaignPermissionModel")
     public void checkPermissionDiscountCampaign(String discountCampaignPermissionBinary){
 //        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,1);
-        String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
-        String productCreatedByStaff = "Ao thun staff tao";
         String serviceCreatedByShowOwner = new CreateServiceAPI(ownerCredentials).createService(new ServiceInfo()).getServiceName();
         int productCampaignScheduleId = new PromotionList(ownerCredentials).getDiscountId("Product Discount Camapign","Scheduled");
         int serviceCampaignScheduleId = new PromotionList(ownerCredentials).getDiscountId("Service Discount Campaign","Scheduled");
         int productCampaignInprogressId = new PromotionList(ownerCredentials).getDiscountId("Product Discount Campaign","In Progress");
         int serviceCampaignInprogressId = new PromotionList(ownerCredentials).getDiscountId("Service Discount Campaign","In Progress");
-
+        System.out.println("serviceCreatedByShowOwner: "+serviceCreatedByShowOwner);
         //Create a permisison and assign all permision to staff.
-        staffLoginInfo = new Login().getInfo(staffCredentials);
+//        staffLoginInfo = new Login().getInfo(staffCredentials);
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
+//        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
         String serviceCreateByStaff = new CreateServiceAPI(staffCredentials).createService(new ServiceInfo()).getServiceName();
+        System.out.println("serviceCreateByStaff: "+serviceCreateByStaff);
+
         //edit permisison
         new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Tien's Permission", setPermissionDiscountCampaignModel(discountCampaignPermissionBinary));
         //Get info of the staff after being granted the permission
-        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
+//        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
         staffLoginInfo = new Login().getInfo(staffCredentials);
         //Get permission
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        new DiscountPage(driver,staffCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
+        new DiscountPage(driver).getLoginInformation(ownerCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
                 .completeVerifyStaffPermissionDiscountCampaign();
     }
-    @Test(dataProvider = "")
+    public int callAPIGetFlashScheduleId(){
+        int flashSaleId = new FlashSale(ownerCredentials).getAFlashSaleScheduled();
+        if(flashSaleId==0){
+            int productId = new APIAllProducts(ownerCredentials).getProductIDWithoutVariationAndInStock(false, false, true);
+            ProductInfo productInfo = new ProductInformation(ownerCredentials).getInfo(productId);
+            new FlashSale(ownerCredentials).createFlashSale(productInfo);
+            flashSaleId = new FlashSale(ownerCredentials).getAFlashSaleScheduled();
+        }
+        return flashSaleId;
+    }
+    @DataProvider
+    public Object[] FlashSalePermissionModel() {
+        return new Object[][]{
+//                {"1"},
+//                {"10"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
+//                {"110"},
+//                {"111"},
+//                {"1000"},
+//                {"1001"},
+//                {"1010"},
+//                {"1011"},
+//                {"1100"},
+//                {"1101"},
+//                {"1110"},
+//                {"1111"},
+//                {"10000"},
+//                {"10001"},
+//                {"10010"},
+//                {"10011"},
+//                {"10100"}, //Bug create flashsale BH-32840
+//                {"10101"},
+//                {"10110"},
+//                {"10111"},
+//                {"11000"},
+//                {"11001"},
+//                {"11010"},
+//                {"11011"},
+//                {"11100"},
+//                {"11101"},
+//                {"11110"},
+//                {"11111"},
+//                {"100000"},
+//                {"100001"},
+//                {"100010"}, //Bug BH-32851 show toast message when no permission View flash sale time
+//                {"100011"},
+//                {"100100"},
+//                {"100101"},
+//                {"100110"},
+//                {"100111"},
+//                {"101000"},
+//                {"101001"},
+//                {"101010"},
+//                {"101011"},
+//                {"101100"},
+//                {"101101"},
+//                {"101110"},
+//                {"101111"},
+//                {"110000"},
+//                {"110001"},
+//                {"110010"},
+//                {"110011"},
+//                {"110100"},
+//                {"110101"},
+//                {"110110"},
+//                {"110111"},
+//                {"111000"},
+//                {"111001"},
+//                {"111010"},
+//                {"111011"},
+//                {"111100"},
+//                {"111101"},
+//                {"111110"},
+//                {"111111"},
+//                {"1000000"},
+//                {"1000001"},
+//                {"1000010"},
+//                {"1000011"},
+//                {"1000100"},
+//                {"1000101"},
+//                {"1000110"},
+//                {"1000111"},
+//                {"1001000"},
+//                {"1001001"},
+//                {"1001010"},
+//                {"1001011"},
+//                {"1001100"},
+//                {"1001101"},
+//                {"1001110"},
+//                {"1001111"},
+//                {"1010000"},
+//                {"1010001"},
+//                {"1010010"},
+//                {"1010011"},
+//                {"1010100"},
+//                {"1010101"},
+//                {"1010110"},
+//                {"1010111"},
+//                {"1011000"},
+//                {"1011001"},
+//                {"1011010"},
+//                {"1011011"},
+//                {"1011100"},
+//                {"1011101"},
+//                {"1011110"},
+//                {"1011111"},
+//                {"1100000"},
+//                {"1100001"},
+//                {"1100010"},
+//                {"1100011"},
+//                {"1100100"},
+//                {"1100101"},
+//                {"1100110"},
+//                {"1100111"},
+//                {"1101000"},
+//                {"1101001"},
+//                {"1101010"},
+//                {"1101011"},
+//                {"1101100"},
+//                {"1101101"},
+//                {"1101110"},
+//                {"1101111"},
+//                {"1110000"},
+//                {"1110001"},
+//                {"1110010"},
+//                {"1110011"},
+//                {"1110100"},
+//                {"1110101"},
+//                {"1110110"},
+//                {"1110111"},
+//                {"1111000"},
+//                {"1111001"},
+//                {"1111010"},
+//                {"1111011"},
+//                {"1111100"},
+//                {"1111101"},
+//                {"1111110"},
+                {"1111111"}
+        };
+    }
+    //BH-24965
+    @Test(dataProvider = "FlashSalePermissionModel")
     public void checkPermissionFlashSale(String flashSalePermissionBinary){
+        //Get flashsale has status = schedule
+        int flashSaleId = callAPIGetFlashScheduleId();
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("11");
+        model.setProduct_productManagement("1");
+        model.setPromotion_flashSale(flashSalePermissionBinary);
+        //Create a permisison and assign permision to staff.
+        groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,model);
+        //Get permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        System.out.println("All permission: "+allPermissions.getPromotion().getFlashSale());
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Promotion","Flash Sale");
+        new FlashSalePage(driver).clickExploreNow()
+                .verifyPermissionFlashSale(allPermissions,flashSaleId,productCreatedByShopOwner,productCreatedByStaff)
+                .completeVerifyStaffPermissionFlashSale();
 
     }
 }

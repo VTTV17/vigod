@@ -405,10 +405,11 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         inputCampaignName();
         setFlashSaleCampaignDate();
         setFlashSaleCampaignTime();
-        clickOnAddProduct();
-        searchAndSelectProduct(productName);
+//        clickOnAddProduct();
+        addFlashSaleProduct(productName);
         inputFlashSalePrice();
-        inputMaxPurchaseLimit();
+        inputFlashSaleStock(1);
+        inputMaxPurchaseLimit(1);
         completeCreateFlashSaleCampaign();
         return this;
     }

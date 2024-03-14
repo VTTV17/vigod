@@ -22,6 +22,7 @@ import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.promotion.discount.DiscountPage;
 import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 import web.Dashboard.promotion.flashsale.campaign.FlashSaleCampaignElement;
 import web.Dashboard.promotion.flashsale.campaign.FlashSaleCampaignPage;
@@ -45,6 +46,7 @@ public class FlashSalePage extends FlashSaleElement {
         commonAction = new UICommonAction(driver);
         campaignDetailEl = new FlashSaleCampaignElement(driver);
         timeManagementEl = new TimeManagementElement(driver);
+        assertCustomize = new AssertCustomize(driver);
     }
 
     Logger logger = LogManager.getLogger(FlashSalePage.class);
@@ -173,7 +175,7 @@ public class FlashSalePage extends FlashSaleElement {
     }
 
     public FlashSalePage verifyPermissionViewFlashSaleList(){
-        navigateUrl();
+        commonAction.waitForListLoaded(loc_lst_lblFlashSaleCampaignName,3);
         List<WebElement> flashSaleList = commonAction.getElements(loc_lst_lblFlashSaleCampaignName);
         if(allPermission.getPromotion().getFlashSale().isViewFlashSaleList()){
             assertCustomize.assertTrue(!flashSaleList.isEmpty(),
@@ -185,7 +187,7 @@ public class FlashSalePage extends FlashSaleElement {
         logger.info("Verified permission View flash sale list.");
         return this;
     }
-    public FlashSalePage verifyPermissionViewFlashSaleDetail(FlashSale.FlashSaleInfo flashSaleInfo){
+    public FlashSalePage verifyPermissionViewFlashSaleDetail(int flashSaleId){
         boolean hasPermissionViewList = allPermission.getPromotion().getFlashSale().isViewFlashSaleList();
         boolean hasPermissionViewDetail = allPermission.getPromotion().getFlashSale().isViewFlashSaleDetail();
         if(hasPermissionViewList){
@@ -199,7 +201,7 @@ public class FlashSalePage extends FlashSaleElement {
                         "[Failed] Restricted page should be shown.");
             }
         }else {
-            String campaignDetailUrl = Links.DOMAIN +"/flash-sale/edit/"+ flashSaleInfo.getFlashSaleId();
+            String campaignDetailUrl = Links.DOMAIN +"/flash-sale/edit/"+ flashSaleId;
             if(hasPermissionViewDetail){
                 assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(campaignDetailUrl,campaignDetailEl.loc_txtCampaignName),
                         "[Failed]Campaign should be shown value.");
@@ -213,6 +215,7 @@ public class FlashSalePage extends FlashSaleElement {
     public FlashSalePage verifyPermissionViewFlashSaleTime(){
         navigateUrl();
         clickOnManageFlashSaleTime();
+        commonAction.waitForListLoaded(timeManagementEl.loc_lst_lblStartTime,5);
         List<WebElement> startTimeList = commonAction.getElements(timeManagementEl.loc_lst_lblStartTime);
         if(allPermission.getPromotion().getFlashSale().isViewFlashSaleTime()){
             assertCustomize.assertTrue(!startTimeList.isEmpty(),
@@ -229,6 +232,7 @@ public class FlashSalePage extends FlashSaleElement {
         clickOnManageFlashSaleTime();
         if(allPermission.getPromotion().getFlashSale().isAddFlashSaleTime()){
             new TimeManagementPage(driver).addAFlashSaleTime("01","10");
+            commonAction.sleepInMiliSecond(1000);
             String modalMessage = new TimeManagementPage(driver).getPopUpMessage();
             try {
                 assertCustomize.assertEquals(modalMessage, PropertiesUtil.getPropertiesValueByDBLang("promotion.flashSale.addTime.successMessage"),
@@ -246,17 +250,24 @@ public class FlashSalePage extends FlashSaleElement {
     public FlashSalePage verifyPermissionCreateFlashSale(String productNameOfShopOwner, String productNameOfStaff){
         navigateUrl();
         if(allPermission.getPromotion().getFlashSale().isCreateFlashSale()){
-            clickCreateCampaign();
-            checkPermissionViewProductList(productNameOfShopOwner,productNameOfStaff);
-            new FlashSaleCampaignPage(driver).navigateToCreateFlashSale()
-                    .createRadomFlashSale(productNameOfStaff);
-            String toastMessage = new HomePage(driver).getToastMessage();
-            try {
-                assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("promotion.flashSale.create.successMessage"),
-                        "[Failed] Created successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            boolean hasPermissionViewProductList = allPermission.getProduct().getProductManagement().isViewProductList();
+            boolean hasPermissionViewCreatedProductList = allPermission.getProduct().getProductManagement().isViewCreatedProductList();
+            boolean hasPermissionViewTimeList = allPermission.getPromotion().getFlashSale().isViewFlashSaleTime();
+            if((hasPermissionViewProductList||hasPermissionViewCreatedProductList)&& hasPermissionViewTimeList){
+                clickCreateCampaign();
+                checkPermissionViewProductList(productNameOfShopOwner,productNameOfStaff);
+                new FlashSaleCampaignPage(driver).navigateToCreateFlashSale()
+                        .createRadomFlashSale(productNameOfStaff);
+                String toastMessage = new HomePage(driver).getToastMessage();
+                try {
+                    assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("promotion.flashSale.create.successMessage"),
+                            "[Failed] Created successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnCreateCampaign,"flash-sale/create"),
+                    "[Failed] Create flash sale should be shown.");
+
         }else
             assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateCampaign),
                     "[Failed] Restricted page should be shown when click on Create FlashSale");
@@ -348,6 +359,24 @@ public class FlashSalePage extends FlashSaleElement {
     public FlashSalePage clickOnDeleteFirstFlashSale(){
         commonAction.click(loc_icnDelete,0);
         logger.info("Click on delete icon of first schedule flashsale");
+        return this;
+    }
+    public FlashSalePage verifyPermissionFlashSale(AllPermissions allPermissions, int flashSaleScheduleId,String productNameOfShopOwner, String productNameOfStaff){
+        this.allPermission = allPermissions;
+        verifyPermissionViewFlashSaleList();
+        verifyPermissionViewFlashSaleDetail(flashSaleScheduleId);
+        verifyPermissionViewFlashSaleTime();
+        verifyPermissionAddFlashSaleTime();
+        verifyPermissionCreateFlashSale(productNameOfShopOwner,productNameOfStaff);
+        verifyPermissionEditFlashSale(flashSaleScheduleId);
+        verifyPermissionDeleteFlashSale();
+        return this;
+    }
+    public FlashSalePage completeVerifyStaffPermissionFlashSale() {
+        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+        if (assertCustomize.getCountFalse() > 0) {
+            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+        }
         return this;
     }
 }

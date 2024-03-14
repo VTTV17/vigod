@@ -22,7 +22,7 @@ public class FlashSaleCampaignElement {
     @FindBy(css = ".date > input")
     WebElement DATE_SET;
 
-    @FindBy(css = ".time > div:nth-child(2) > div:nth-child(4) > button")
+    @FindBy(xpath = "//div[contains(@class,'input-group date')]//parent::div/parent::div[@class='position-relative']/following-sibling::div")
     WebElement TIME_SET;
 
     @FindBy(css = ".time > div:nth-child(2) > div:nth-child(4) > div  button")

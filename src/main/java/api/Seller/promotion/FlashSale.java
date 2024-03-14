@@ -207,14 +207,11 @@ public class FlashSale {
 
         return info;
     }
-    public FlashSaleInfo getAFlashSaleScheduled(){
+    public int getAFlashSaleScheduled(){
         Response response = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken());
-        FlashSaleInfo flashSaleInfo = new FlashSaleInfo();
-        int id = (int) response.jsonPath().getList("id").get(0);
-        String name = response.jsonPath().getList("name").get(0).toString();
-        flashSaleInfo.setFlashSaleId(id);
-        flashSaleInfo.setFlashSaleName(name);
-        return flashSaleInfo;
+        List<Integer> ids = response.jsonPath().getList("id");
+        if(ids.isEmpty()) return 0;
+        return ids.get(0);
     }
 
 }
