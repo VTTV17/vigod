@@ -3,6 +3,7 @@ package web.Dashboard;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
 import api.Seller.promotion.FlashSale;
@@ -34,6 +35,7 @@ import web.Dashboard.reservation.POSReservation.POSCreateReservation;
 import web.Dashboard.reservation.ReservationManagement;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -54,6 +56,8 @@ public class ReservationPermissionTest extends BaseTest {
     Customers customerAPI;
     String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
     String productCreatedByStaff = "Ao thun staff tao";
+    List<Integer> productIds = new ArrayList<>();
+
     @BeforeClass
     public void beforeClass() {
         sellerUserName = ADMIN_SHOP_VI_USERNAME;
@@ -61,14 +65,33 @@ public class ReservationPermissionTest extends BaseTest {
         staffUserName = STAFF_SHOP_VI_USERNAME;
         staffPass = STAFF_SHOP_VI_PASSWORD;
         languageDB = language;
-    }
+        ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
+        staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
+        // Shop owner create product
+        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productCreatedByShopOwner = productInfo.getProductName();
+        productIds.add(productInfo.getProductID());
 
+        //Create full permission for staff
+        groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
+
+        //Staff create product
+        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productCreatedByStaff = productInfo.getProductName();
+        productIds.add(productInfo.getProductID());
+
+    }
+    @AfterClass
+    public void afterClass(){
+        //delete product
+        for (int productId:productIds) {
+            new APIEditProduct(ownerCredentials).deleteProduct(productId);
+        }
+    }
     @BeforeMethod
     public void beforeMethod() {
         driver = new InitWebdriver().getDriver(browser, "false");
-        ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
-        staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
-        customerAPI = new Customers(ownerCredentials);
+         customerAPI = new Customers(ownerCredentials);
     }
 
     @AfterMethod
@@ -162,7 +185,7 @@ public class ReservationPermissionTest extends BaseTest {
         //get staff login info
         staffLoginInfo = new Login().getInfo(staffCredentials);
         //create permisison
-        groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, model);
+        new PermissionAPI(ownerCredentials).editPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,groupPermissionId, model);
         //Get info of the staff after being granted the permission
         new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(), staffCredentials);
         staffLoginInfo = new Login().getInfo(staffCredentials);
@@ -221,7 +244,7 @@ public class ReservationPermissionTest extends BaseTest {
             customerAPI.assignStaffToCustomer(staffUserId,customerIdNotAssigneds.get(0));
         String customerNameAssignedStaff = customerAPI.getNamesOfCustomersAssignedToStaff(staffUserId).get(0);
         //Create group permission
-        groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, setPermissionPOSModel(POSPermissionBinary));
+        new PermissionAPI(ownerCredentials).editPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,groupPermissionId, setPermissionPOSModel(POSPermissionBinary));
         //get staff login info
         staffLoginInfo = new Login().getInfo(staffCredentials);
         //Get permission
@@ -1475,8 +1498,8 @@ public class ReservationPermissionTest extends BaseTest {
         model.setHome_none("11");
         model.setProduct_productManagement("1");
         model.setPromotion_flashSale(flashSalePermissionBinary);
-        //Create a permisison and assign permision to staff.
-        groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,model);
+        //edit a permisison and assign permision to staff.
+        new PermissionAPI(ownerCredentials).editPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,groupPermissionId,model);
         //Get permission
         staffLoginInfo = new Login().getInfo(staffCredentials);
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());

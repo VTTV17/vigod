@@ -23,7 +23,8 @@ public class ConfirmationDialog {
 	By loc_dlgDialog = By.cssSelector(".modal-dialog.confirm-modal");
 	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')]");
 	public By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
-	
+	By loc_cntMessage = By.cssSelector(".modal-body");
+	By loc_ctnTitle = By.cssSelector(".modal-title");
 	public void clickGrayBtn() {
 		commonAction.click(loc_btnCancel);
 	}
@@ -56,6 +57,16 @@ public class ConfirmationDialog {
 	public boolean isConfirmationDialogDisplayed() {
 		commonAction.sleepInMiliSecond(1000);
 		return commonAction.getElements(loc_dlgDialog).size() > 0;
+	}
+	public String getPopUpContent(){
+		String message = commonAction.getText(loc_cntMessage);
+		logger.info("PopUp content: "+message);
+		return message;
+	}
+	public String getPopUpTitle(){
+		String message = commonAction.getText(loc_ctnTitle);
+		logger.info("PopUp title: "+message);
+		return message;
 	}
 
 }
