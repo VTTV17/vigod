@@ -55,7 +55,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         language = ProductPage.getLanguage();
         hasModel = ProductPage.isHasModel();
         productSellingPrice = ProductPage.getProductSellingPrice();
-        assertCustomize = ProductPage.getAssertCustomize();
+        assertCustomize = new AssertCustomize(driver);
     }
 
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {

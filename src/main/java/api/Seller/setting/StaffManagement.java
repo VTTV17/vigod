@@ -85,4 +85,9 @@ public class StaffManagement {
         AllStaffInformation info = getAllStaffInformation();
         return info.getIds().get(info.getUserIds().indexOf(userId));
     }
+
+    public String getStaffName(int userId) {
+        AllStaffInformation info = getAllStaffInformation();
+        return info.getNames().get(info.getUserIds().indexOf(userId));
+    }
 }

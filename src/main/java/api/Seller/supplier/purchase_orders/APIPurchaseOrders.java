@@ -3,8 +3,8 @@ package api.Seller.supplier.purchase_orders;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
-import api.Seller.supplier.supplier.SupplierAPI;
 import api.Seller.setting.BranchManagement;
+import api.Seller.supplier.supplier.SupplierAPI;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -95,7 +95,7 @@ public class APIPurchaseOrders {
     }
 
     Response getAllPurchaseOrderResponse(int pageIndex) {
-        return api.get(getListPurchaseOrderPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken())
+        return api.get(getListPurchaseOrderPath.formatted(loginInfo.getStoreID(), pageIndex, getBranchQueryParams()), loginInfo.getAccessToken())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -145,5 +145,25 @@ public class APIPurchaseOrders {
 
         // return model
         return info;
+    }
+
+    public List<Integer> getListPurchaseOrderMatchWithCondition(List<String> assignedBranchNames) {
+        AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
+        List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
+        return ids.stream()
+                .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id))))
+                .toList();
+    }
+
+    public List<Integer> getListPurchaseOrderMatchWithCondition(List<String> assignedBranchNames, String staffName) {
+        AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
+        List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
+        List<String> staffCreated = info.getStaffCreated();
+        return ids.stream()
+                .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
+                        && staffName.equals(staffCreated.get(ids.indexOf(id))))
+                .toList();
     }
 }

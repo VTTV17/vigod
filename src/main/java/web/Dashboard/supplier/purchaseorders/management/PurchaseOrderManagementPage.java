@@ -1,11 +1,17 @@
 package web.Dashboard.supplier.purchaseorders.management;
 
+import api.Seller.login.Login;
+import api.Seller.setting.StaffManagement;
+import api.Seller.supplier.purchase_orders.APIPurchaseOrders;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
@@ -13,6 +19,8 @@ import web.Dashboard.supplier.purchaseorders.crud.PurchaseOrderPage;
 
 import java.util.HashSet;
 import java.util.List;
+
+import static utilities.links.Links.DOMAIN;
 
 public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement {
     WebDriver driver;
@@ -52,10 +60,19 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
     // https://mediastep.atlassian.net/browse/BH-13849
     AllPermissions permissions;
     CheckPermission checkPermission;
-    PurchaseOrderPage supplierPage;
+    LoginInformation staffLoginInformation;
+    LoginInformation sellerLoginInformation;
+    PurchaseOrderPage purchaseOrderPage;
+    LoginDashboardInfo staffLoginInfo;
 
+    public PurchaseOrderManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        this.staffLoginInformation = staffLoginInformation;
+        staffLoginInfo = new Login().getInfo(staffLoginInformation);
+        return this;
+    }
 
-    public void checkSupplierPermission(AllPermissions permissions) {
+    public void checkPurchaseOrderPermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
@@ -63,25 +80,50 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
         checkPermission = new CheckPermission(driver);
 
         // init crud purchase order POM
+
+        // check view purchase order list
+        checkViewPurchaseOrderList();
     }
 
     void checkViewPurchaseOrderList() {
+        List<Integer> listPurchaseIdWithStaffToken = new APIPurchaseOrders(staffLoginInformation).getAllPurchaseOrdersInformation().getIds();
         if (permissions.getSuppliers().getPurchaseOrder().isViewPurchaseOrderList()) {
-            List<Integer> checkData = List.of();
-            assertCustomize.assertTrue(new HashSet<>(checkData).containsAll(checkData),
-                    "List product must be contains: %s, but found list product: %s.".formatted(checkData.toString(), dbProductList.toString()));
+            // staff can see list all purchase order
+            // that has Original branch in assigned branch list
+            // if they have permission “View purchase order list”
+            List<Integer> listPurchaseIdWithSellerToken = new APIPurchaseOrders(sellerLoginInformation)
+                    .getListPurchaseOrderMatchWithCondition(staffLoginInfo.getAssignedBranchesNames());
+
+            // check purchase order list
+            assertCustomize.assertTrue(CollectionUtils.isEqualCollection(listPurchaseIdWithSellerToken, listPurchaseIdWithStaffToken),
+                    "List purchase order must be %s, but found %s.".formatted(listPurchaseIdWithSellerToken.toString(), listPurchaseIdWithStaffToken.toString()));
         } else if (permissions.getSuppliers().getPurchaseOrder().isViewListCreatedPurchaseOrder()) {
-            if (createdProductId != 0)
-                assertCustomize.assertTrue(new HashSet<>(dbProductList).contains(createdProductId),
-                        "List product must be contains: %s, but found list product: %s.".formatted(createdProductId, dbProductList.toString()));
-            assertCustomize.assertFalse(new HashSet<>(dbProductList).contains(notCreatedProductId),
-                    "List product must not contains: %s, but found list product: %s.".formatted(notCreatedProductId, dbProductList.toString()));
+            // get staff name
+            String staffName = new StaffManagement(sellerLoginInformation).getStaffName(staffLoginInfo.getUserId());
+
+            // staff can see list purchase order
+            // that has Original branch in assigned branch list and created by staff only
+            // if they have permission “View created purchase order list”
+            List<Integer> listPurchaseIdWithSellerToken = new APIPurchaseOrders(sellerLoginInformation)
+                    .getListPurchaseOrderMatchWithCondition(staffLoginInfo.getAssignedBranchesNames(), staffName);
+
+            // check created purchase order list
+            assertCustomize.assertTrue(CollectionUtils.isEqualCollection(listPurchaseIdWithSellerToken, listPurchaseIdWithStaffToken),
+                    "List purchase order must be %s, but found %s.".formatted(listPurchaseIdWithSellerToken.toString(), listPurchaseIdWithStaffToken.toString()));
         } else {
-            assertCustomize.assertTrue(dbProductList.isEmpty(),
-                    "All products must be hidden, but found: %s.".formatted(dbProductList.toString()));
+            // show empty list in Purchase Order
+            // if staff don’t have permission “View purchaser order list”
+            // and “View created purchase order list”
+            assertCustomize.assertTrue(listPurchaseIdWithStaffToken.isEmpty(),
+                    "All purchase orders must be hidden, but found: %s.".formatted(listPurchaseIdWithStaffToken.toString()));
         }
-        logger.info("Check permission: Product >> Product management >> View product list.");
-        logger.info("Check permission: Product >> Product management >> View created product list.");
+
+        // check can access to purchase order management page by URL
+        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/product/purchase-order/list".formatted(DOMAIN),
+                        "/product/purchase-order/list"),
+                "Can not access to purchase order management page by URL.");
+        logger.info("Check permission: Supplier >> Purchase order >> View purchase order list.");
+        logger.info("Check permission: Supplier >> Purchase order >> View created purchase order list.");
 
     }
 
