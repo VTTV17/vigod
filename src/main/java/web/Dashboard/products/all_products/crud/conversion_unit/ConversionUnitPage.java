@@ -41,7 +41,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
         language = ProductPage.getLanguage();
         unit = new ConversionUnit(loginInformation);
         variationList = ProductPage.getVariationList();
-        assertCustomize = ProductPage.getAssertCustomize();
+        assertCustomize = new AssertCustomize(driver);
     }
 
     public ConversionUnitPage navigateToConversionUnitPage() throws Exception {

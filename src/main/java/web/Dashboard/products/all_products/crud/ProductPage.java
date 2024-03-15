@@ -50,8 +50,7 @@ public class ProductPage extends ProductPageElement {
     String createProductPath = "/product/create";
     @Getter
     String updateProductPath = "/product/edit/%s";
-    @Getter
-    private static AssertCustomize assertCustomize;
+    AssertCustomize assertCustomize;
     String epoch = String.valueOf(Instant.now().toEpochMilli());
     private boolean noDiscount = nextBoolean();
     private boolean hasDimension = nextBoolean();

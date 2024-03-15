@@ -17,7 +17,7 @@ import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.products.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.SupplierAPI;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StaffManagement;
 import io.appium.java_client.AppiumDriver;

@@ -1,7 +1,7 @@
 package app.android.GoSeller;
 
-import api.Seller.products.supplier.SupplierAPI;
-import api.Seller.products.supplier.SupplierAPI.SupplierInformation;
+import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.SupplierAPI.SupplierInformation;
 import app.GoSeller.account.SellerAccount;
 import app.GoSeller.home.HomePage;
 import app.GoSeller.login.LoginPage;

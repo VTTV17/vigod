@@ -50,7 +50,7 @@ public class VariationDetailPage extends VariationDetailElement {
         variation = productInfo.getVariationListMap()
                 .get(storeInfo.getDefaultLanguage())
                 .get(productInfo.getBarcodeList().indexOf(modelId));
-        assertCustomize = ProductPage.getAssertCustomize();
+        assertCustomize = new AssertCustomize(driver);
         defaultLanguage = storeInfo.getDefaultLanguage();
     }
 

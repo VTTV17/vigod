@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static api.Seller.products.supplier.SupplierAPI.SupplierInformation;
+import static api.Seller.supplier.supplier.SupplierAPI.SupplierInformation;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 public class CreateSupplierScreen extends CreateSupplierElement {

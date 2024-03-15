@@ -1,6 +1,6 @@
 package web.Dashboard.supplier.supplier.management;
 
-import api.Seller.products.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.SupplierAPI;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
