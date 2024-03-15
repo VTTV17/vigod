@@ -3,37 +3,86 @@ package api.Seller.setting;
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StaffManagement {
-    String GET_STAFF_LIST = "/storeservice/api/store-staffs/store/%s?isEnabledCC=false&page=0&size=100&sort=id,desc";
+    String GET_STAFF_LIST = "/storeservice/api/store-staffs/store/%s?isEnabledCC=false&page=%s&size=100&sort=id,desc";
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    public StaffManagement(LoginInformation loginInformation){
+
+    public StaffManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    public JsonPath getAllStaffJsonPath() {
-    	Response response = api.get(GET_STAFF_LIST.formatted(loginInfo.getStoreID()),  loginInfo.getAccessToken());
-    	response.then().statusCode(200);
-    	return response.jsonPath();
+    @Data
+    public static class AllStaffInformation {
+        List<Integer> ids;
+        List<Integer> userIds;
+        List<String> emails;
+        List<String> names;
+        List<Boolean> enables;
     }
-    
+
+    public Response getAllStaffResponse(int pageIndex) {
+        return api.get(GET_STAFF_LIST.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+    }
+
+    AllStaffInformation getAllStaffInformation() {
+        // init suggestion model
+        AllStaffInformation info = new AllStaffInformation();
+
+        // init temp array
+        List<Integer> ids = new ArrayList<>();
+        List<Integer> userIds = new ArrayList<>();
+        List<String> emails = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<Boolean> enables = new ArrayList<>();
+
+        // get total products
+        int totalOfStaffs = Integer.parseInt(getAllStaffResponse(0).getHeader("X-Total-Count"));
+
+        // get number of pages
+        int numberOfPages = totalOfStaffs / 100;
+
+        // get all staff info
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+            JsonPath jsonPath = getAllStaffResponse(pageIndex).jsonPath();
+            ids.addAll(jsonPath.getList("id"));
+            userIds.addAll(jsonPath.getList("userId"));
+            emails.addAll(jsonPath.getList("email"));
+            names.addAll(jsonPath.getList("name"));
+            enables.addAll(jsonPath.getList("enabled"));
+        }
+
+        // set permission group info
+        info.setIds(ids);
+        info.setUserIds(userIds);
+        info.setNames(names);
+        info.setEmails(emails);
+        info.setEnables(enables);
+
+        // return model
+        return info;
+    }
+
     public List<String> getAllStaffNames() {
-    	return getAllStaffJsonPath().getList("name");
+        return getAllStaffInformation().getNames();
     }
-    public List<Integer> getAllStaffUserId() { return  getAllStaffJsonPath().getList("userId");}
-    public List<String> getAllStaffPermissionCode() {
-        return getAllStaffJsonPath().getList("permissionCode");}
 
     public int getStaffId(int userId) {
-    	return  getAllStaffJsonPath().get("find { it.userId == %s }.id".formatted(userId));
+        AllStaffInformation info = getAllStaffInformation();
+        return info.getIds().get(info.getUserIds().indexOf(userId));
     }
-    
 }

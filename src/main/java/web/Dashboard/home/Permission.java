@@ -50,7 +50,7 @@ import web.Dashboard.settings.shippingandpayment.ShippingAndPayment;
 import web.Dashboard.settings.storeinformation.StoreInformation;
 import web.Dashboard.settings.storelanguages.StoreLanguages;
 import web.Dashboard.settings.vat.VATInformation;
-import web.Dashboard.supplier.purchaseorders.PurchaseOrders;
+import web.Dashboard.supplier.purchaseorders.management.PurchaseOrderManagementPage;
 import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 
 import java.io.IOException;
@@ -201,7 +201,7 @@ public class Permission {
 								url.get(menuComponent));
 					}
 					if (subMenu.contentEquals("Purchase Orders")) {
-						new PurchaseOrders(driver).verifyPermissionToManagePurchaseOrders(permission.get(menuComponent), url.get(menuComponent));
+						new PurchaseOrderManagementPage(driver).verifyPermissionToManagePurchaseOrders(permission.get(menuComponent), url.get(menuComponent));
 					}
 					break;
 				case "Services":

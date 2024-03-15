@@ -15,7 +15,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.supplier.supplier.crud.CRUDSupplierPage;
+import web.Dashboard.supplier.supplier.crud.SupplierPage;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -345,7 +345,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
     // https://mediastep.atlassian.net/browse/BH-13849
     AllPermissions permissions;
     CheckPermission checkPermission;
-    CRUDSupplierPage supplierPage;
+    SupplierPage supplierPage;
 
 
     public void checkSupplierPermission(AllPermissions permissions) {
@@ -356,7 +356,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         checkPermission = new CheckPermission(driver);
 
         // init crud supplier POM
-        supplierPage = new CRUDSupplierPage(driver);
+        supplierPage = new SupplierPage(driver);
 
         // init assert customize
         assertCustomize = new AssertCustomize(driver);

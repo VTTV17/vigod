@@ -2,7 +2,7 @@ package web.Dashboard.supplier.supplier.crud;
 
 import org.openqa.selenium.By;
 
-class CRUDSupplierElement {
+class SupplierElement {
     By loc_lblSelectedLanguage = By.cssSelector(".language-selector .uik-select__valueWrapper");
     String languageLocator = "//*[@class = 'uik-select__label']/span[text()= '%s']";
     By loc_btnHeaderSave = By.cssSelector(".btn-save");

@@ -1,6 +1,6 @@
 package web.Dashboard.supplier.supplier.crud;
 
-import api.Seller.products.purchase_orders.PurchaseOrders;
+import api.Seller.products.purchase_orders.APIPurchaseOrders;
 import api.Seller.products.supplier.SupplierAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,10 +33,10 @@ import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
  * <p> U: Update</p>
  * <p> D: Delete</p>
  */
-public class CRUDSupplierPage extends CRUDSupplierElement {
+public class SupplierPage extends SupplierElement {
     WebDriver driver;
 
-    Logger logger = LogManager.getLogger(CRUDSupplierPage.class);
+    Logger logger = LogManager.getLogger(SupplierPage.class);
 
     WebDriverWait wait;
     public String language;
@@ -50,7 +50,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
     private LoginInformation sellerLoginInformation;
     private final AssertCustomize assertCustomize;
 
-    public CRUDSupplierPage(WebDriver driver) {
+    public SupplierPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -58,13 +58,13 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
         supplierManagementPage = new SupplierManagementPage(driver);
     }
 
-    public CRUDSupplierPage getLoginInformation(LoginInformation sellerLoginInformation) {
+    public SupplierPage getLoginInformation(LoginInformation sellerLoginInformation) {
         this.sellerLoginInformation = sellerLoginInformation;
         supplierAPIWithSellerToken = new SupplierAPI(sellerLoginInformation);
         return this;
     }
 
-    public CRUDSupplierPage setLanguage(String language) {
+    public SupplierPage setLanguage(String language) {
         this.language = language;
 
         driver.get(DOMAIN);
@@ -621,7 +621,7 @@ public class CRUDSupplierPage extends CRUDSupplierElement {
 
         // if no purchase orders, post API to create data test
         List<String> listAvailablePurchaseId = supplierAPIWithSellerToken.getListOrderId("", supplierID);
-        String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new PurchaseOrders(sellerLoginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
+        String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new APIPurchaseOrders(sellerLoginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
 
         // input valid purchaseId and search
         commonAction.sendKeys(loc_txtSearchPurchaseOrder, "%s\n".formatted(purchaseId));
