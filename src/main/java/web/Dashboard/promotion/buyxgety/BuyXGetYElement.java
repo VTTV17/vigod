@@ -37,6 +37,8 @@ public class BuyXGetYElement {
 	By loc_lnkAddCollectionOrSpecificProductAsGift = By.xpath("(//div[contains(@class,'condition-group')])[3]//span[starts-with(@class,'gs-fake-link')]");
 	
 	By loc_btnSave = By.cssSelector(".gs-button__green--outline");
+	By loc_btnMarkExpired = By.cssSelector(".gs-button__green");
+	By loc_btnStop = By.id("stop");
 	
 	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
 	By loc_dlgSelectSegment = By.cssSelector(".select-segment-modal");
@@ -44,10 +46,10 @@ public class BuyXGetYElement {
 	By loc_dlgSelectCollection = By.cssSelector(".select-collection-modal");
 	By loc_tblCollectionNames = By.cssSelector(".product-name");
 	By loc_dlgSelectProduct = By.cssSelector(".product-select-variation-modal");
-	By loc_tblProductNames = By.cssSelector(".item-info-name");
+	By loc_tblProductNames = By.cssSelector(".product-select-variation-modal .item-info-name");
 	By loc_txtSearchInDialog = By.cssSelector(".modal-body input[type='text']");
 	
-	
+
 	
 
 }

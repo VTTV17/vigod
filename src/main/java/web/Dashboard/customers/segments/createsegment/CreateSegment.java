@@ -96,6 +96,7 @@ public class CreateSegment {
 	public CreateSegment inputProductSearchTerm(String productName) {
 		commonAction.inputText(elements.loc_txtSearchProduct, productName);
 		logger.info("Input '" + productName + "' into search box in the Select Product dialog.");
+		commonAction.sleepInMiliSecond(500, "Wait in inputProductSearchTerm");
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}		

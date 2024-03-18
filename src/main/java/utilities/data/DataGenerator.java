@@ -265,6 +265,11 @@ public class DataGenerator {
     public String randomPhoneByCountry(String country) {
         return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
     }
+    
+    public static <T> T getRandomListElement(List<T> list) {
+    	return list.get(new Random().nextInt(0, list.size()));
+    }	
+    
     public String getCurrentDate(String format){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         LocalDateTime now = LocalDateTime.now();
