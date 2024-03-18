@@ -69,6 +69,7 @@ public class Segments {
 	}
 
     public List<List<String>> getSegmentTable() {
+    	commonAction.sleepInMiliSecond(500, "Wait in getSegmentTable");
         List<List<String>> table = new ArrayList<>();
         for (int i = 0; i < commonAction.getElements(elements.loc_tblSegmentIdColumn).size(); i++) {
             List<String> rowData = new ArrayList<>();

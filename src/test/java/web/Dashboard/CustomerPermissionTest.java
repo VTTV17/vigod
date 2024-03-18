@@ -2,8 +2,8 @@ package web.Dashboard;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
@@ -19,11 +19,11 @@ import api.Seller.mediaservices.MediaServices.ExportHistoryInfo;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
+import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.segments.Segments;
 import web.Dashboard.home.HomePage;
@@ -151,25 +151,19 @@ public class CustomerPermissionTest extends BaseTest {
 		return null;
 	}	
 	
-	CreatePermission setPermissionModel(String permissionBinary) {
-		Random rd = new Random();
+	CreatePermission setCustomerPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		model.setSetting_staffManagement("00001");
-		model.setAffiliate_dropshipPartner("000001");
-		model.setMarketing_loyaltyPoint("0001");
-		
-		if (rd.nextBoolean()) {
-			model.setProduct_productManagement("00000000000000000011");
-		} else if (rd.nextBoolean()) {
-			model.setProduct_productManagement("00000000000000000000");
-		} else if (rd.nextBoolean()) {
-			model.setProduct_productManagement("00000000000000000001");
-		} else {
-			model.setProduct_productManagement("00000000000000000010");
-		}
-		
+		model.setSetting_staffManagement("1");
+		model.setAffiliate_dropshipPartner("1");
+		model.setMarketing_loyaltyPoint("1");
+		model.setProduct_productManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
 		model.setCustomer_customerManagement(permissionBinary);
+		return model;
+	}
+	
+	CreatePermission setSegmentCustomerPermissionModel(String permissionBinary) {
+		CreatePermission model = setCustomerPermissionModel(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
 		model.setCustomer_segment(permissionBinary);
 		return model;
 	}
@@ -183,7 +177,7 @@ public class CustomerPermissionTest extends BaseTest {
 		AllCustomers customerPage = new AllCustomers(driver);
 		
 		//Edit a permisison
-		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description Tien's Permission", setPermissionModel(permissionBinary));		
+		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description Tien's Permission", setCustomerPermissionModel(permissionBinary));		
 		
 		//Check permission
 		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
@@ -202,7 +196,7 @@ public class CustomerPermissionTest extends BaseTest {
 		Segments segmentPage = new Segments(driver);
 		
 		//Edit a permisison
-		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description Tien's Permission", setPermissionModel(permissionBinary));		
+		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description Tien's Permission", setSegmentCustomerPermissionModel(permissionBinary));		
 		
 		//Check permission
 		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
