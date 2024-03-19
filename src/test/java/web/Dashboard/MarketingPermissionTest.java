@@ -1,10 +1,12 @@
 package web.Dashboard;
-
-import api.Seller.customers.Customers;
 import api.Seller.login.Login;
+import api.Seller.marketing.APIBuyLink;
 import api.Seller.marketing.APILandingPage;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
+import api.Seller.promotion.CreatePromotion;
+import api.Seller.promotion.DiscountCode;
+import api.Seller.promotion.PromotionList;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
@@ -13,9 +15,9 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-import web.BaseTest;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.marketing.buylink.BuyLinkManagement;
 import web.Dashboard.marketing.landingpage.LandingPage;
 
 import java.io.IOException;
@@ -25,7 +27,7 @@ import java.util.List;
 import static utilities.account.AccountTest.*;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 
-public class LandingPagePermissionTest extends BaseTest {
+public class MarketingPermissionTest extends BaseTest {
     String sellerUserName;
     String sellerPassword;
     String staffUserName;
@@ -38,6 +40,7 @@ public class LandingPagePermissionTest extends BaseTest {
     String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
     String productCreatedByStaff = "Ao thun staff tao";
     List<Integer> productIds = new ArrayList<>();
+    int landingPageId;
     @BeforeClass
     public void beforeClass() {
         sellerUserName = ADMIN_SHOP_VI_USERNAME;
@@ -66,6 +69,7 @@ public class LandingPagePermissionTest extends BaseTest {
         for (int productId:productIds) {
             new APIEditProduct(ownerCredentials).deleteProduct(productId);
         }
+
     }
     @BeforeMethod
     public void beforeMethod() {
@@ -380,5 +384,58 @@ public class LandingPagePermissionTest extends BaseTest {
         new LandingPage(driver).getLoginInformation(staffCredentials)
                 .verifyLandingPagePermission(allPermissions,draftLandingId,publishedLandingId,productCreatedByShopOwner,productCreatedByStaff)
                 .completeVerifyLandingPagePermission();
+    }
+    public void callAPISetUpDataToRunBuyLink(){
+        int buyLinkId = new APIBuyLink(ownerCredentials).getNewestBuyLinkID();
+        if(buyLinkId==0){
+            new APIBuyLink(ownerCredentials).createBuyLink();
+        }
+        int productDiscountCodeList = new PromotionList(ownerCredentials).getDiscountId("Product Discount Code","In Progress");
+        if(productDiscountCodeList==-1){
+            new CreatePromotion(ownerCredentials).createProductDiscountCode();
+        }
+    }
+    @DataProvider
+    public Object[][] BuyLinkPermissionModel() {
+        return new Object[][]{
+                {"1","1"},
+//                {"10","1"},
+//                {"11","1"},
+//                {"100","1"},
+//                {"101","1"},
+//                {"110","1"},
+//                {"111","1"},
+//                {"1000","1"},
+//                {"1001","1"},
+//                {"1010","1"},
+//                {"1011","1"},
+//                {"1100","1"},
+//                {"1101","1"},
+//                {"1110","1"},
+//                {"1111","1"}
+        };
+    }
+    @Test(dataProvider = "BuyLinkPermissionModel")
+    public void checkBuyLinkPermission(String buyLinkPermissionBinary, String productPermissionBinary){
+        //Ensure that buy link list and product discount list have data.
+        callAPISetUpDataToRunBuyLink();
+
+        //Set permission
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("11");
+        model.setProduct_productManagement(productPermissionBinary);
+        model.setMarketing_buyLink(buyLinkPermissionBinary);
+
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Vi edit permission", model);
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new BuyLinkManagement(driver).checkBuyLinkPermission(allPermissions,productCreatedByShopOwner,productCreatedByStaff);
     }
 }

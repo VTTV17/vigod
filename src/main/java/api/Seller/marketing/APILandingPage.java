@@ -1,6 +1,7 @@
 package api.Seller.marketing;
 
 import api.Seller.login.Login;
+import com.google.gson.JsonObject;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -16,6 +17,7 @@ public class APILandingPage {
     String GET_LANDING_PAGE_TEMPLATE = "/themeservices/api/landing-page-templates?page=0&size=9999";
     String CREATE_LANDING_PAGE_PATH = "/themeservices/api/landing-pages/%s";
     String PUBLISH_LANDING_PAGE_PATH = "/themeservices/api/landing-pages/publish/%s/%s";
+    String DELETE_LANDING_PAGE = "/themeservices/api/landing-pages/store/%s/delete/%s";
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
@@ -33,11 +35,9 @@ public class APILandingPage {
     public LandingPageTemplateInfo getALandingPageTemplateInfo(){
         Response response = api.get(GET_LANDING_PAGE_TEMPLATE,loginInfo.getAccessToken());
         response.then().statusCode(200);
-        System.out.println("________Response Template______");
-        response.prettyPrint();
         LandingPageTemplateInfo landingPageTemplateInfo = new LandingPageTemplateInfo();
         landingPageTemplateInfo.setId((int)response.jsonPath().getList("id").get(0));
-        landingPageTemplateInfo.setContent(response.jsonPath().getList("content").get(0).toString());
+        landingPageTemplateInfo.setContent((String)response.jsonPath().getList("content").get(0));
         return landingPageTemplateInfo;
     }
     public LandingPageInfo createLandingPage(){
@@ -45,39 +45,33 @@ public class APILandingPage {
         LandingPageTemplateInfo landingPageTemplateInfo = getALandingPageTemplateInfo();
         String contentHtml  = landingPageTemplateInfo.getContent();
         int templateId = landingPageTemplateInfo.getId();
-        String body = """
-                {
-                    "id": null,
-                    "contentHtml":"%s"
-                    "customerTag": "",
-                    "description": "",
-                    "status": "DRAFT",
-                    "storeId": "%s",
-                    "templateId": %s,
-                    "title": "%s",
-                    "domainType": "FREE",
-                    "primaryColor": "#ffa500",
-                    "fbPixelId": "",
-                    "ggAnalyticsId": "",
-                    "seoThumbnail": "",
-                    "seoTitle": "",
-                    "seoDescription": "",
-                    "seoKeywords": "",
-                    "popupMainShow": true,
-                    "popupMainTime": 3,
-                    "fbChatId": "",
-                    "zlChatId": "",
-                    "slug": "%s",
-                    "freeDomainType": "GOSELL"
-                }
-                """.formatted(contentHtml,loginInfo.getStoreID(),templateId,landingPageInfo.getName(),landingPageInfo.getDomainName());
-        Response response = api.post(CREATE_LANDING_PAGE_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),body);
-        response.then().statusCode(201);
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("contentHtml",contentHtml);
+        requestBody.addProperty("customerTag","");
+        requestBody.addProperty("description","");
+        requestBody.addProperty("status","DRAFT");
+        requestBody.addProperty("storeId",loginInfo.getStoreID());
+        requestBody.addProperty("templateId",templateId);
+        requestBody.addProperty("title",landingPageInfo.getName());
+        requestBody.addProperty("domainType","FREE");
+        requestBody.addProperty("primaryColor","#ffa500");
+        requestBody.addProperty("fbPixelId","");
+        requestBody.addProperty("ggAnalyticsId","");
+        requestBody.addProperty("seoThumbnail","");
+        requestBody.addProperty("seoTitle","");
+        requestBody.addProperty("seoKeywords","");
+        requestBody.addProperty("popupMainShow",true);
+        requestBody.addProperty("popupMainTime",3);
+        requestBody.addProperty("fbChatId","");
+        requestBody.addProperty("zlChatId","");
+        requestBody.addProperty("slug",landingPageInfo.getDomainName());
+        requestBody.addProperty("freeDomainType","GOSELL");
+        Response response = api.post(CREATE_LANDING_PAGE_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),requestBody.toString());
+        System.out.println(requestBody.toString());
+        response.then().log().all().statusCode(201);
         landingPageInfo.setId(response.jsonPath().getInt("id"));
         landingPageInfo.setContentHtml(contentHtml);
         landingPageInfo.setTemplateId(templateId);
-        System.out.println("________Response______");
-        response.prettyPrint();
         return landingPageInfo;
     }
     public void publishLandingPage(int draftLandingPageId){
@@ -90,5 +84,9 @@ public class APILandingPage {
         List<Integer> ids = response.jsonPath().getList("findAll {it.status=='PUBLISH'}.id");
         if(ids.isEmpty()) return 0;
         return ids.get(0);
+    }
+    public void deleteLandingPage(int id){
+        api.delete(DELETE_LANDING_PAGE.formatted(loginInfo.getStoreID(),id),loginInfo.getAccessToken())
+                .then();
     }
 }

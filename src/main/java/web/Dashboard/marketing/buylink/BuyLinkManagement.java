@@ -3,19 +3,27 @@ package web.Dashboard.marketing.buylink;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import utilities.assert_customize.AssertCustomize;
+import utilities.links.Links;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
+import web.Dashboard.marketing.landingpage.LandingPage;
 
 public class BuyLinkManagement extends HomePage{
 
@@ -26,13 +34,16 @@ public class BuyLinkManagement extends HomePage{
 	UICommonAction commonAction;
 
 	SoftAssert soft = new SoftAssert();
-
+	AssertCustomize assertCustomize;
+	AllPermissions allPermissions;
+	CreateBuyLink createBuyLink;
 	public BuyLinkManagement(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		commonAction = new UICommonAction(driver);
-
+		assertCustomize = new AssertCustomize(driver);
+		createBuyLink = new CreateBuyLink(driver);
 		PageFactory.initElements(driver, this);
 	}
 	By loc_btnExploreNow = By.cssSelector(".buylink-intro .gs-button__green");
@@ -137,11 +148,170 @@ public class BuyLinkManagement extends HomePage{
 		return this;
 	}
 	public BuyLinkManagement verifyAfterDeleteBuyLink(String linkBefore){
-
 		waitTillLoadingDotsDisappear();
 		Assert.assertNotEquals(getNewestBuyLinkURL(),linkBefore);
 		logger.info("Verify newest buy link after deleted.");
 		return this;
 	}
-
+	public boolean hasViewBuyLinkPers(){
+		return allPermissions.getMarketing().getBuyLink().isViewBuyLinkList();
+	}
+	public boolean hasCreateBuyLinkPers(){
+		return allPermissions.getMarketing().getBuyLink().isCreateBuyLink();
+	}
+	public boolean hasEditBuyLinkPers(){
+		return allPermissions.getMarketing().getBuyLink().isEditBuyLink();
+	}
+	public boolean hasDeleteBuyLinkPers(){
+		return allPermissions.getMarketing().getBuyLink().isDeleteBuyLink();
+	}
+	private boolean hasViewProductListPers() {
+		return allPermissions.getProduct().getProductManagement().isViewProductList();
+	}
+	private boolean hasViewDiscountCodeListPers() {
+		return allPermissions.getPromotion().getDiscountCode().isViewProductDiscountCodeList();
+	}
+	private boolean hasViewCreatedProductListPers() {
+		return allPermissions.getProduct().getProductManagement().isCreateProduct();
+	}	public void navigateUrl(){
+		String url = Links.DOMAIN + "/marketing/landing-page/list";
+		commonAction.navigateToURL(url);
+		logger.info("Navigate to url: "+url);
+	}
+	public void checkPermissionViewBuyLinkList(){
+		List<WebElement> buyLinkList = commonAction.getElements(loc_lst_lblUrl);
+		if (hasViewBuyLinkPers()) {
+			assertCustomize.assertTrue(buyLinkList.size() > 0, "[Failed] Buy link list should be shown");
+		} else
+			assertCustomize.assertTrue(buyLinkList.isEmpty(), "[Failed] Buy link list should not be shown");
+		logger.info("Complete check View buy link list permission.");
+	}
+	public void checkPermissionCreateBuyLink(String productNameOfShopOwner, String productNameOfStaff){
+		navigateUrl();
+		if(hasCreateBuyLinkPers()){
+			clickCreateBuyLink();
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnCreateBuyLink,createBuyLink.loc_dlgProductSelection),
+					"[Failed] Select product dialog not show when click on Create buy link button.");
+			navigateUrl();
+			clickCreateBuyLink();
+			checkPermissionViewProductList(productNameOfShopOwner,productNameOfStaff);
+			navigateUrl();
+			clickCreateBuyLink();
+			checkPermissionViewDiscountList(productNameOfStaff);
+			if(hasViewProductListPers()){
+				navigateUrl();
+				createBuyLink.createASimpleBuyLink(productNameOfStaff);
+				String toastMessage = new HomePage(driver).getToastMessage();
+				try {
+					assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.createSuccessfullyMessage"),
+							"[Failed] Create successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}else
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateBuyLink),
+					"[Failed] Restricted page not show when click on create buy link button.");
+	}
+	public void checkPermissionViewProductList(String productNameOfShopOwner, String productNameOfStaff) {
+		if (hasViewProductListPers()) {
+			assertCustomize.assertTrue(createBuyLink.isProductShowWhenSearch(productNameOfShopOwner),
+					"[Failed]Product is created by shop owner: '%s' should be shown".formatted(productNameOfShopOwner));
+			assertCustomize.assertTrue(createBuyLink.isProductShowWhenSearch(productNameOfStaff),
+					"[Failed]Product is created by staff: '%s' should be shown".formatted(productNameOfStaff));
+		} else if (hasViewCreatedProductListPers()) {
+			assertCustomize.assertFalse(createBuyLink.isProductShowWhenSearch(productNameOfShopOwner),
+					"[Failed]Product is created by shop owner: '%s' should not be shown".formatted(productNameOfShopOwner));
+			assertCustomize.assertTrue(createBuyLink.isProductShowWhenSearch(productNameOfStaff),
+					"[Failed]Product is created by: '%s' should be shown".formatted(productNameOfStaff));
+		} else {
+			assertCustomize.assertFalse(createBuyLink.isProductShowWhenSearch(productNameOfShopOwner),
+					"[Failed]Product is created by shop owner: '%s' should not be shown".formatted(productNameOfShopOwner));
+			assertCustomize.assertFalse(createBuyLink.isProductShowWhenSearch(productNameOfStaff),
+					"[Failed]Product is created by staff: '%s' should not be shown".formatted(productNameOfStaff));
+		}
+		logger.info("Complete check View product commission.");
+	}
+	public void checkPermissionViewDiscountList(String productName){
+		if(hasViewProductListPers()){
+			createBuyLink.searchAndSelectProduct(productName)
+					.clickOnNextBtn();
+			List<WebElement> couponList = commonAction.getElements(createBuyLink.loc_lst_lblCouponName);
+			if(hasViewDiscountCodeListPers()){
+				assertCustomize.assertTrue(couponList.size() > 0, "[Failed] Discount code list should be shown");
+			}else
+				assertCustomize.assertTrue(couponList.isEmpty(), "[Failed] Discount code list should not be shown");
+		}else logger.info("Don't has View product list permission, so can't check View discount code permission.");
+	}
+	public void checkPermissionEditBuyLink(String productNameOfShopOwner, String productNameOfStaff) {
+		navigateUrl();
+		if (hasViewBuyLinkPers()) {
+			if (hasEditBuyLinkPers()) {
+				clickEditNewestBuyLink();
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnEditLink, createBuyLink.loc_dlgProductSelection),
+						"[Failed] Select product dialog not show when click on Edit buy link button.");
+				navigateUrl();
+				clickEditNewestBuyLink();
+				checkPermissionViewProductList(productNameOfShopOwner, productNameOfStaff);
+				navigateUrl();
+				clickEditNewestBuyLink();
+				checkPermissionViewDiscountList(productNameOfStaff);
+				if (hasViewProductListPers()) {
+					navigateUrl();
+					clickEditNewestBuyLink()
+							.clickOnNextBtn()
+							.clickOnFinishBTN();
+					String toastMessage = new HomePage(driver).getToastMessage();
+					try {
+						assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.updateSuccessfullyMessage"),
+								"[Failed] Updated successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			} else
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateBuyLink),
+						"[Failed] Restricted page not show when click on edit buy link button.");
+		}else logger.info("No permission View buy link list, so can't check Edit permission.");
+	}
+	public void checkPermissionDelete(){
+		if(hasViewBuyLinkPers()){
+			if(hasDeleteBuyLinkPers()){
+				clickDeleteNewestBuyLink();
+				String messagePopup = new ConfirmationDialog(driver).getPopUpContent();
+				try {
+					assertCustomize.assertEquals(messagePopup,PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.delete.popUpMessage"),
+							"[Failed] Delete confirm message should be shown, but '%s' is shown.".formatted(messagePopup));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				clickDeleteBtnOnModal();
+				String toastMessage = new HomePage(driver).getToastMessage();
+				try {
+					assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("marketing.buyLink.management.updateSuccessfullyMessage"),
+							"[Failed] Update successful mesage not show when delete");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnDelete),
+						"[Failed] Restricted popup not show when click on detele icon.");
+		}else logger.info("Don't have View buy link permission, so no need check Delete buy link permission.");
+	}
+	public BuyLinkManagement checkBuyLinkPermission(AllPermissions allPermissions,String productNameOfShopOwner, String productNameOfStaff){
+		this.allPermissions = allPermissions;
+		checkPermissionViewBuyLinkList();
+		checkPermissionCreateBuyLink(productNameOfShopOwner, productNameOfStaff);
+		checkPermissionEditBuyLink(productNameOfShopOwner, productNameOfStaff);
+		checkPermissionDelete();
+		completeVerifyLandingPagePermission();
+		return this;
+	}
+	public BuyLinkManagement completeVerifyLandingPagePermission() {
+		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+		if (assertCustomize.getCountFalse() > 0) {
+			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+		}
+		return this;
+	}
 }
