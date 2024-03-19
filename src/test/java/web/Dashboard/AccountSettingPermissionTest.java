@@ -17,6 +17,7 @@ import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.account.AccountPage;
+import web.Dashboard.settings.storeinformation.StoreInformation;
 
 public class AccountSettingPermissionTest extends BaseTest {
 
@@ -32,7 +33,7 @@ public class AccountSettingPermissionTest extends BaseTest {
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		
-		permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);;
+		permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 	}
 
 	@AfterClass
@@ -54,6 +55,13 @@ public class AccountSettingPermissionTest extends BaseTest {
 		model.setSetting_account(permissionBinary);
 		return model;
 	}
+	
+	CreatePermission setStoreInfoPermissionModel(String permissionBinary) {
+		CreatePermission model = new CreatePermission();
+		model.setHome_none("11");
+		model.setSetting_storeInformation(permissionBinary);
+		return model;
+	}
 
 	@Test(dataProvider = "accountSettingPermission", dataProviderClass = PermissionDataProvider.class)
 	public void CC_01_CheckAccountSettingPermission(String permissionBinary) {
@@ -73,5 +81,25 @@ public class AccountSettingPermissionTest extends BaseTest {
 		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
 		
 		accountPage.checkAccountSettingPermission(allPermissionDTO, staffCredentials.getPassword());
+	}
+	
+	@Test(dataProvider = "storeInfoSettingPermission", dataProviderClass = PermissionDataProvider.class)
+	public void CC_02_CheckStoreInfoSettingPermission(String permissionBinary) {
+		
+		driver = new InitWebdriver().getDriver(browser, headless);
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = new HomePage(driver);
+		StoreInformation storeInforPage = new StoreInformation(driver);
+		
+		//Edit a permisison
+		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description", setStoreInfoPermissionModel(permissionBinary));
+		
+		//Check permission
+		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
+		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		
+		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
+		
+		storeInforPage.checkStoreInfoSettingPermission(allPermissionDTO);
 	}
 }
