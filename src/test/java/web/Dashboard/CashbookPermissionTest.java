@@ -146,8 +146,8 @@ public class CashbookPermissionTest extends BaseTest {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
 		model.setSetting_staffManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-//		model.setSupplier_supplier(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"}))); //Bug case 1
-		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "11"}))); //Bug "10"
+//		model.setSupplier_supplier(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"}))); //Bug case 1 https://mediastep.atlassian.net/browse/BH-33078
+		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "11"}))); //Bug "10" https://mediastep.atlassian.net/browse/BH-33085
 		model.setCashbook_none(cashbookPermissionBinary);
 		return model;
 	}
