@@ -222,12 +222,12 @@ public class AccountPage {
 	}
 	
 	void checkPermissionToResetPassword(AllPermissions staffPermission, String currentPassword) {
-		navigateToAccountTabByURL(); 
-		
 		if (!staffPermission.getSetting().getAccount().isViewAccountDetail()) {
 			logger.info("Permission to reset password is not granted. Skipping this check");
 			return;
 		}
+		
+		navigateToAccountTabByURL(); 
 		
 		String originalPassword = currentPassword;
 		

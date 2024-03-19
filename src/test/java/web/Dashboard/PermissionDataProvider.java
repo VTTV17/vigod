@@ -1202,6 +1202,16 @@ public class PermissionDataProvider {
 		};
 	}
 	
+	@DataProvider
+	public Object[][] storeInfoSettingPermission() {
+		return new Object[][] { 
+			{"00"},
+			{"01"},
+			{"10"},
+			{"11"},
+		};
+	}
+	
 	@DataProvider()
 	public Object[][] serviceCollectionPermissionModel() {
 		return new Object[][]
