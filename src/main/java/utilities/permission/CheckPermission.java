@@ -19,7 +19,7 @@ public class CheckPermission {
     }
     By loc_dlgRestricted_btnOK = By.cssSelector(".modal.fade.show .gs-button__deep-blue");
 
-    By loc_lblNoPermissionNotice = By.xpath("//*[@class='no-permission-wrapper__content' or @class='access-restricted modal-header']/ancestor::div[position()=2 and not(@hidden)]/div/div[1]");
+    By loc_lblNoPermissionNotice = By.xpath("//*[@class='no-permission-wrapper__content' or @class='access-restricted modal-header']/ancestor::div[2]/self::*[(not(@hidden) and (@class='tab-pane active' or not(@class='tab-pane')))]/div/div[1]");
 
     public boolean isAccessRestrictedPresent() {
     	try {
