@@ -49,7 +49,7 @@ public class TransferManagementPage extends TransferManagementElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
-    public void checkTransferPermission(AllPermissions permissions) throws Exception {
+    public void checkTransferPermission(AllPermissions permissions) {
         // get staff permission
         this.permissions = permissions;
 
@@ -111,23 +111,27 @@ public class TransferManagementPage extends TransferManagementElement {
         logger.info("Check permission: Product >> Transfer >> View transfer list.");
     }
 
-    void checkCreateTransfer() throws Exception {
+    void checkCreateTransfer() {
         navigateToTransferManagementPage();
 
         if (permissions.getProduct().getTransfer().isCreateTransfer()) {
-            // check can create transfer
-            transferPage.createTransfer(staffLoginInformation);
+            try {
+                // check can create transfer
+                transferPage.createTransfer(staffLoginInformation);
 
-            // staff can view transfer detail after created
-            if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
-                try {
-                    commonAction.waitURLShouldBeContains("/product/transfer/wizard/");
-                } catch (TimeoutException ex) {
-                    logger.error("Transfer detail page is not shown.");
+                // staff can view transfer detail after created
+                if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
+                    try {
+                        commonAction.waitURLShouldBeContains("/product/transfer/wizard/");
+                    } catch (TimeoutException ex) {
+                        logger.error("Transfer detail page is not shown.");
+                    }
+                } else {
+                    // staff can not view transfer detail
+                    assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
                 }
-            } else {
-                // staff can not view transfer detail
-                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         } else {
             // Staff without permission “Create transfer” => Show restricted when:

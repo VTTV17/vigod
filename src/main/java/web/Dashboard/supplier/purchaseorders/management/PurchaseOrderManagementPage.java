@@ -17,7 +17,6 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.supplier.purchaseorders.crud.PurchaseOrderPage;
 
-import java.util.HashSet;
 import java.util.List;
 
 import static utilities.links.Links.DOMAIN;
@@ -54,10 +53,8 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
     }
 
     /*-------------------------------------*/
-
-    /*-------------------------------------*/
     // check permission
-    // https://mediastep.atlassian.net/browse/BH-13849
+    // https://mediastep.atlassian.net/browse/BH-13850
     AllPermissions permissions;
     CheckPermission checkPermission;
     LoginInformation staffLoginInformation;
@@ -80,9 +77,14 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
         checkPermission = new CheckPermission(driver);
 
         // init crud purchase order POM
+        purchaseOrderPage = new PurchaseOrderPage(driver);
 
         // check view purchase order list
         checkViewPurchaseOrderList();
+
+        // check crud permission
+        purchaseOrderPage.getLoginInformation(sellerLoginInformation, staffLoginInformation)
+                .checkPurchaseOrderPermission(permissions);
     }
 
     void checkViewPurchaseOrderList() {
@@ -124,10 +126,6 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
                 "Can not access to purchase order management page by URL.");
         logger.info("Check permission: Supplier >> Purchase order >> View purchase order list.");
         logger.info("Check permission: Supplier >> Purchase order >> View created purchase order list.");
-
-    }
-
-    void checkCreatePurchaseOrder() {
 
     }
 }

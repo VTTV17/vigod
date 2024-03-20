@@ -27,6 +27,7 @@ public class ProductInformation {
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
     BranchInfo branchInfo;
+
     public ProductInformation(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
@@ -122,9 +123,12 @@ public class ProductInformation {
             // get price from response
             List<Long> listingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
             List<Long> sellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+            List<Long> costPrice = Pattern.compile("costPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+
             // set price
             prdInfo.setProductListingPrice(prdInfo.isHasModel() ? IntStream.range(1, listingPrice.size()).mapToObj(listingPrice::get).toList() : listingPrice);
             prdInfo.setProductSellingPrice(prdInfo.isHasModel() ? IntStream.range(1, sellingPrice.size()).mapToObj(sellingPrice::get).toList() : sellingPrice);
+            prdInfo.setProductCostPrice(prdInfo.isHasModel() ? IntStream.range(0, costPrice.size() - 1).mapToObj(costPrice::get).toList() : costPrice);
 
             if (prdInfo.isHasModel()) {
                 // set model list
@@ -266,7 +270,8 @@ public class ProductInformation {
 
                 String taxName = resJson.getString("taxName");
                 prdInfo.setTaxName(taxName);
-            } catch (NullPointerException ignore) {}
+            } catch (NullPointerException ignore) {
+            }
 
             List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productID);
             prdInfo.setCollectionIdList(collectionIDList);

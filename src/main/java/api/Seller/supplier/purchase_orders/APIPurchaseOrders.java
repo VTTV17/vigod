@@ -14,6 +14,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class APIPurchaseOrders {
@@ -165,5 +166,69 @@ public class APIPurchaseOrders {
                 .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
                         && staffName.equals(staffCreated.get(ids.indexOf(id))))
                 .toList();
+    }
+
+    public int getOrderPurchaseId(List<String> assignedBranchNames) {
+        AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
+        List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
+        List<String> statues = info.getStatues();
+        return ids.stream()
+                .filter(id -> statues.get(ids.indexOf(id)).equals("ORDER")
+                        && assignedBranchNames.contains(branchNames.get(ids.indexOf(id))))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public int getInProgressPurchaseId(List<String> assignedBranchNames) {
+        AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
+        List<Integer> ids = info.getIds();
+        List<String> branchNames = info.getBranchNames();
+        List<String> statues = info.getStatues();
+        return ids.stream()
+                .filter(id -> statues.get(ids.indexOf(id)).equals("IN_PROGRESS")
+                        && assignedBranchNames.contains(branchNames.get(ids.indexOf(id))))
+                .findFirst()
+                .orElse(0);
+    }
+
+    @Data
+    public static class PurchaseOrderInformation {
+        int branchId;
+        List<Integer> purchaseOderItems_itemId;
+        List<Integer> purchaseOderItems_modelId;
+        List<Integer> purchaseOrderItems_quantity;
+        List<Long> purchaseOrderItems_importPrice;
+    }
+
+    String purchaseOrderDetailPath = "/itemservice/api/purchase-orders/%s";
+
+    Response getDetailOfPurchaseOrderResponse(int purchaseId) {
+        return api.get(purchaseOrderDetailPath.formatted(purchaseId), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract().response();
+    }
+
+    public PurchaseOrderInformation getPurchaseOrderInformation(int purchaseId) {
+        // init model
+        PurchaseOrderInformation info = new PurchaseOrderInformation();
+
+        // get jsonPath
+        Response response = getDetailOfPurchaseOrderResponse(purchaseId);
+        JsonPath jsonPath = response.jsonPath();
+
+        // get purchase order info
+        info.setBranchId(jsonPath.getInt("branchId"));
+        info.setPurchaseOderItems_itemId(jsonPath.getList("purchaseOrderItems.itemId"));
+        info.setPurchaseOderItems_modelId(jsonPath.getList("purchaseOrderItems.modelId"));
+        info.setPurchaseOrderItems_quantity(jsonPath.getList("purchaseOrderItems.quantity"));
+        info.setPurchaseOrderItems_importPrice(Pattern.compile("importPrice\":\\s*\"*(\\d+\\w+)").matcher(response.asPrettyString())
+                .results()
+                .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                .toList());
+
+        // return model
+        return info;
     }
 }

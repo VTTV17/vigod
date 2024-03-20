@@ -233,7 +233,7 @@ public class UICommonAction {
     }
 
     public ArrayList<String> getAllWindowHandles() {
-        ArrayList<String> availableWindows = new ArrayList<String>(driver.getWindowHandles());
+        ArrayList<String> availableWindows = new ArrayList<>(driver.getWindowHandles());
         logger.debug("All opening window(s): " + availableWindows);
         return availableWindows;
     }

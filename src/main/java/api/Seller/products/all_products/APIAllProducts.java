@@ -307,7 +307,7 @@ public class APIAllProducts {
                 .response();
     }
 
-    public ProductManagementInfo getListSuggestionProduct(int... branchIds) {
+    public ProductManagementInfo getAllProductInformation(int... branchIds) {
 
         ProductManagementInfo info = new ProductManagementInfo();
         // get page 0 data
@@ -335,7 +335,7 @@ public class APIAllProducts {
     }
 
     public int searchProductIdByName(String name) {
-        ProductManagementInfo info = getListSuggestionProduct();
+        ProductManagementInfo info = getAllProductInformation();
         for (int index = 0; index < info.getProductNames().size(); index++) {
             if (info.getProductNames().get(index).equals(name)) {
                 return info.getProductIds().get(index);
@@ -345,7 +345,7 @@ public class APIAllProducts {
     }
 
     List<Integer> getListProductId(boolean hasModel, int... branchIds) {
-        ProductManagementInfo info = getListSuggestionProduct(branchIds);
+        ProductManagementInfo info = getAllProductInformation(branchIds);
         return IntStream.range(0, info.getProductIds().size())
                 .filter(i -> (info.getVariationNumber().get(i) > 0) == hasModel)
                 .mapToObj(info.getProductIds()::get)
@@ -390,11 +390,14 @@ public class APIAllProducts {
         private List<String> itemIds;
         private List<String> modelIds;
         private List<String> itemNames;
+        private List<String> modelNames;
         private List<String> barcodes;
         private List<Long> remainingStocks;
         private List<String> inventoryManageTypes;
         private List<Boolean> hasLots;
         private List<Boolean> hasLocations;
+        private List<Long> price;
+        private List<Long> costPrice;
     }
 
     @Data
@@ -402,11 +405,14 @@ public class APIAllProducts {
         private String itemId;
         private String modelId;
         private String itemName;
+        private String modelName;
         private String barcode;
         private Long remainingStock;
         private String inventoryManageType;
         private Boolean hasLot;
         private Boolean hasLocation;
+        private Long price;
+        private Long costPrice;
     }
 
     Response getSuggestionResponse(int pageIndex, int branchId) {
@@ -425,11 +431,14 @@ public class APIAllProducts {
         List<String> itemIds = new ArrayList<>();
         List<String> modelIds = new ArrayList<>();
         List<String> itemNames = new ArrayList<>();
+        List<String> modelNames = new ArrayList<>();
         List<String> barcodes = new ArrayList<>();
         List<String> remainingStocks = new ArrayList<>();
         List<String> inventoryManageTypes = new ArrayList<>();
         List<Boolean> hasLots = new ArrayList<>();
         List<Boolean> hasLocations = new ArrayList<>();
+        List<Long> price = new ArrayList<>();
+        List<Long> costPrice = new ArrayList<>();
 
         // get total products
         int totalOfProducts = Integer.parseInt(getSuggestionResponse(0, branchId).getHeader("X-Total-Count"));
@@ -439,26 +448,38 @@ public class APIAllProducts {
 
         // get other page data
         for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getSuggestionResponse(pageIndex, branchId).jsonPath();
-            itemIds.addAll(jsonPath.getList("itemId"));
-            modelIds.addAll(jsonPath.getList("modelId"));
-            itemNames.addAll(jsonPath.getList("itemName"));
-            barcodes.addAll(jsonPath.getList("barcode"));
-            remainingStocks.addAll(jsonPath.getList("modelStock"));
-            inventoryManageTypes.addAll(jsonPath.getList("inventoryManageType"));
-            hasLots.addAll(jsonPath.getList("hasLot"));
-            hasLocations.addAll(jsonPath.getList("hasLocation"));
+            Response response = getSuggestionResponse(pageIndex, branchId);
+            itemIds.addAll(response.jsonPath().getList("itemId"));
+            modelIds.addAll(response.jsonPath().getList("modelId"));
+            itemNames.addAll(response.jsonPath().getList("itemName"));
+            modelNames.addAll(response.jsonPath().getList("modelName"));
+            barcodes.addAll(response.jsonPath().getList("barcode"));
+            remainingStocks.addAll(response.jsonPath().getList("modelStock"));
+            inventoryManageTypes.addAll(response.jsonPath().getList("inventoryManageType"));
+            hasLots.addAll(response.jsonPath().getList("hasLot"));
+            hasLocations.addAll(response.jsonPath().getList("hasLocation"));
+            price.addAll(Pattern.compile("price.{4}(\\d+)").matcher(response.asPrettyString())
+                    .results()
+                    .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                    .toList());
+            costPrice.addAll(Pattern.compile("costPrice.{4}(\\d+)").matcher(response.asPrettyString())
+                    .results()
+                    .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                    .toList());
         }
 
         // set suggestion info
         info.setItemIds(itemIds);
         info.setModelIds(modelIds);
         info.setItemNames(itemNames);
+        info.setModelNames(modelNames);
         info.setBarcodes(barcodes);
         info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
         info.setInventoryManageTypes(inventoryManageTypes);
         info.setHasLots(hasLots);
         info.setHasLocations(hasLocations);
+        info.setPrice(price);
+        info.setCostPrice(costPrice);
 
         // return suggestion model
         return info;
@@ -475,6 +496,7 @@ public class APIAllProducts {
         List<String> itemIds = new ArrayList<>();
         List<String> modelIds = new ArrayList<>();
         List<String> itemNames = new ArrayList<>();
+        List<String> modelNames = new ArrayList<>();
         List<String> barcodes = new ArrayList<>();
         List<Long> remainingStocks = new ArrayList<>();
         List<String> inventoryManageTypes = new ArrayList<>();
@@ -485,6 +507,7 @@ public class APIAllProducts {
                 .forEach(index -> {
                     itemIds.add(suggestionInfo.getItemIds().get(index));
                     itemNames.add(suggestionInfo.getItemNames().get(index));
+                    modelNames.add(suggestionInfo.getModelNames().get(index));
                     modelIds.add(suggestionInfo.getModelIds().get(index));
                     barcodes.add(suggestionInfo.getBarcodes().get(index));
                     remainingStocks.add(suggestionInfo.getRemainingStocks().get(index));
@@ -495,6 +518,7 @@ public class APIAllProducts {
         info.setItemIds(itemIds);
         info.setModelIds(modelIds);
         info.setItemNames(itemNames);
+        info.setModelNames(modelNames);
         info.setBarcodes(barcodes);
         info.setRemainingStocks(remainingStocks);
         info.setInventoryManageTypes(inventoryManageTypes);
@@ -512,6 +536,7 @@ public class APIAllProducts {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
+                info.setModelName(suggestionInfo.getModelNames().get(index));
                 info.setBarcode(suggestionInfo.getBarcodes().get(index));
                 info.setHasLot(hasLot);
                 break;
@@ -544,6 +569,7 @@ public class APIAllProducts {
                     info.setItemId(suggestionInfo.getItemIds().get(index));
                     info.setModelId(suggestionInfo.getModelIds().get(index));
                     info.setItemName(suggestionInfo.getItemNames().get(index));
+                    info.setModelName(suggestionInfo.getModelNames().get(index));
                     info.setBarcode(suggestionInfo.getBarcodes().get(index));
                     info.setHasLot(suggestionInfo.getHasLots().get(index));
                     break;
@@ -565,6 +591,7 @@ public class APIAllProducts {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
+                info.setModelName(suggestionInfo.getModelNames().get(index));
                 info.setBarcode(suggestionInfo.getBarcodes().get(index));
                 info.setHasLot(suggestionInfo.getHasLots().get(index));
                 break;
@@ -574,6 +601,28 @@ public class APIAllProducts {
         return info;
     }
 
+    public SuggestionProductsInfo findProductInformationWithItemIdAndModelId(int branchId, String itemId, String modelId) {
+        // conditions: product must be managed inventory by Product and has location
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+            if (suggestionInfo.getItemIds().get(index).equals(itemId)
+                    && suggestionInfo.getModelIds().get(index).equals(modelId)) {
+                info.setItemId(suggestionInfo.getItemIds().get(index));
+                info.setModelId(suggestionInfo.getModelIds().get(index));
+                info.setItemName(suggestionInfo.getItemNames().get(index));
+                info.setModelName(suggestionInfo.getModelNames().get(index));
+                info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                info.setHasLot(suggestionInfo.getHasLots().get(index));
+                info.setPrice(suggestionInfo.getPrice().get(index));
+                info.setCostPrice(suggestionInfo.getCostPrice().get(index));
+                info.setRemainingStock(suggestionInfo.getRemainingStocks().get(index));
+                break;
+            }
+        }
+
+        return info;
+    }
     String getListIMEIPath = "/itemservice/api/item-model-codes/store/%s/search?itemId=%s&modelId=%s&branchId=%s&status=AVAILABLE&page=0&size=100";
 
     public List<String> getListIMEI(String itemId, String modelId, int branchId) {

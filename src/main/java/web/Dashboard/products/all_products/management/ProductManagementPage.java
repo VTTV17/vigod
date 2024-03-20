@@ -162,7 +162,7 @@ public class ProductManagementPage extends ProductManagementElement {
         int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
 
         // get list product ids
-        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getListSuggestionProduct().getProductIds();
+        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getAllProductInformation().getProductIds();
 
         // check view product list
         checkViewProductList(productIds, createdProductId, notCreatedProductId);
@@ -204,7 +204,7 @@ public class ProductManagementPage extends ProductManagementElement {
             // check view product detail
             productPage.getLoginInformation(staffLoginInformation)
                     .checkProductManagementPermission(permissions,
-                    productIds.get(0));
+                            productIds.get(0));
         }
     }
 

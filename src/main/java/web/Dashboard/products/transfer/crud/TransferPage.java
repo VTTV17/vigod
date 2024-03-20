@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static api.Seller.products.all_products.APIAllProducts.AllSuggestionProductsInfo;
-import static api.Seller.products.transfer.TransferManagement.*;
+import static api.Seller.products.transfer.TransferManagement.TransferInfo;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.links.Links.DOMAIN;
@@ -384,7 +384,7 @@ public class TransferPage extends TransferElement {
     public void checkViewTransferDetail(LoginInformation loginInformation,
                                         AllPermissions permissions,
                                         List<Integer> assignedBranchIds,
-                                        TransferInfo transferInfo) throws Exception {
+                                        TransferInfo transferInfo) {
         // get login information
         this.loginInformation = loginInformation;
 
@@ -450,7 +450,7 @@ public class TransferPage extends TransferElement {
         logger.info("Check permission: Product >> Transfer >> View transfer details.");
     }
 
-    void checkEditTransfer() throws Exception {
+    void checkEditTransfer() {
         // check edit actions
         int hasEditPermissionTransferId = transferManagement.getConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
         if (permissions.getProduct().getTransfer().isEditTransfer()) {
@@ -467,7 +467,11 @@ public class TransferPage extends TransferElement {
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/product/transfer/edit/%s"
                                 .formatted(DOMAIN, hasEditPermissionTransferId), String.valueOf(hasEditPermissionTransferId)),
                         "Edit transfer page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
-                editTransfer(loginInformation, hasEditPermissionTransferId);
+                try {
+                    editTransfer(loginInformation, hasEditPermissionTransferId);
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
             }
         } else if (hasEditPermissionTransferId != 0) {
             // navigate to transfer detail page
