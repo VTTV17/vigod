@@ -1,6 +1,7 @@
 package web.Dashboard.marketing.buylink;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -60,7 +61,7 @@ public class CreateBuyLink extends HomePage {
         return this;
     }
 
-    public CreateBuyLink searchAndSelectProduct(String... productNames) throws Exception {
+    public CreateBuyLink searchAndSelectProduct(String... productNames){
         for (String productName : productNames) {
             commonAction.sendKeys(loc_txtSearch, productName);
             commonAction.sleepInMiliSecond(1000);
@@ -69,7 +70,11 @@ public class CreateBuyLink extends HomePage {
             if (commonAction.getText(loc_lst_lblProductNameSuggestion,0).equalsIgnoreCase(productName)) {
                 commonAction.click(loc_lst_lblProductNameSuggestion,0);
             } else {
-                throw new Exception(productName + ": Product Not Found");
+                try {
+                    throw new Exception(productName + ": Product Not Found");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         return this;
@@ -134,6 +139,30 @@ public class CreateBuyLink extends HomePage {
             commonAction.clickElement(el);
         }
         logger.info("Delete all selected product.");
+        return this;
+    }
+    public boolean isProductShowWhenSearch(String productName){
+        commonAction.inputText(loc_txtSearch,productName);
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+        List<WebElement> productNames = new ArrayList<>();
+        for (int j=0;j<5;j++){
+            productNames = commonAction.getElements(loc_lst_lblProductNameSuggestion);
+            if(!productNames.isEmpty()) {
+                commonAction.sleepInMiliSecond(500);
+                break;
+            }
+        }
+        if (productNames.isEmpty()) return false;
+        for (int i=0; i<productNames.size();i++) {
+            if(commonAction.getText(loc_lst_lblProductNameSuggestion,i).equalsIgnoreCase(productName))
+                return true;
+        }
+        return false;
+    }
+    public CreateBuyLink createASimpleBuyLink(String productName){
+        searchAndSelectProduct(productName)
+                .clickOnNextBtn()
+                .clickOnFinishBTN();
         return this;
     }
 }

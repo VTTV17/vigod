@@ -2,8 +2,8 @@ package web.Dashboard;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
@@ -11,19 +11,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import api.Seller.customers.Customers;
-import api.Seller.customers.Customers.CustomerManagementInfo;
 import api.Seller.customers.SegmentAPI;
 import api.Seller.login.Login;
 import api.Seller.promotion.CreatePromotion;
 import api.Seller.promotion.PromotionList;
-import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
+import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.promotion.discount.DiscountPage;
@@ -54,7 +51,7 @@ public class DiscountPermissionTest extends BaseTest {
 
 	@AfterClass
 	void deletePermissionGroup() {
-//		permissionAPI.deleteGroupPermission(permissionGroupId);
+		permissionAPI.deleteGroupPermission(permissionGroupId);
 	}
 
     @Override
@@ -65,7 +62,7 @@ public class DiscountPermissionTest extends BaseTest {
     }
 
     void preConditionSetup() {
-    	permissionGroupId = 3671;
+    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);;
 
     	segmentAPI.getListSegmentIdInStore();
     }
@@ -73,36 +70,10 @@ public class DiscountPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-
-		Random rd = new Random();
-		if (rd.nextBoolean()) {
-			model.setProduct_productManagement("00000000000000000011");
-		} else if (rd.nextBoolean()) {
-			model.setProduct_productManagement("00000000000000000000");
-		} else if (rd.nextBoolean()) {
-			model.setProduct_productManagement("00000000000000000001");
-		} else {
-			model.setProduct_productManagement("00000000000000000010");
-		}
-		
-		if (rd.nextBoolean()) {
-			model.setCustomer_segment("0000");
-		} else {
-			model.setCustomer_segment("0001");
-		}
-
-		if (rd.nextBoolean()) {
-			model.setProduct_collection("000000");
-		} else {
-			model.setProduct_collection("000001");
-		}
-		
-		if (rd.nextBoolean()) {
-			model.setService_serviceCollection("00000");
-		} else {
-			model.setService_serviceCollection("00001");
-		}
-		
+		model.setProduct_productManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
+		model.setCustomer_segment(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setProduct_collection(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setService_serviceCollection(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
 		model.setPromotion_discountCode(permissionBinary);
 		return model;
 	}

@@ -1,6 +1,7 @@
 package web.Dashboard;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -17,6 +18,7 @@ import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
+import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -143,17 +145,9 @@ public class CashbookPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String cashbookPermissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		Random rd = new Random();
-		if (rd.nextBoolean()) {
-			model.setCustomer_customerManagement("11");
-			model.setSetting_staffManagement("01");
-//			model.setSupplier_supplier("01"); //Bug
-		} else if (rd.nextBoolean()) {
-//			model.setCustomer_customerManagement("10"); //Bug
-			model.setSetting_staffManagement("10");
-		} else {
-			model.setCustomer_customerManagement("01");
-		}
+		model.setSetting_staffManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+//		model.setSupplier_supplier(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"}))); //Bug case 1 https://mediastep.atlassian.net/browse/BH-33078
+		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "11"}))); //Bug "10" https://mediastep.atlassian.net/browse/BH-33085
 		model.setCashbook_none(cashbookPermissionBinary);
 		return model;
 	}
