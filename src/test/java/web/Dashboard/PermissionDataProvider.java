@@ -1212,6 +1212,16 @@ public class PermissionDataProvider {
 		};
 	}
 	
+	@DataProvider
+	public Object[][] shippingPaymentSettingPermission() {
+		return new Object[][] { 
+//			{"0000000"},
+//			{"0000001"},
+			{"0000011"},
+			{"0000111"},
+		};
+	}
+	
 	@DataProvider()
 	public Object[][] serviceCollectionPermissionModel() {
 		return new Object[][]

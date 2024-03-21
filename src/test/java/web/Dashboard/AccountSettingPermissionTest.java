@@ -17,6 +17,7 @@ import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.account.AccountPage;
+import web.Dashboard.settings.shippingandpayment.ShippingAndPayment;
 import web.Dashboard.settings.storeinformation.StoreInformation;
 
 public class AccountSettingPermissionTest extends BaseTest {
@@ -63,6 +64,13 @@ public class AccountSettingPermissionTest extends BaseTest {
 		return model;
 	}
 
+	CreatePermission setShippingPaymentPermissionModel(String permissionBinary) {
+		CreatePermission model = new CreatePermission();
+		model.setHome_none("11");
+		model.setSetting_shippingAndPayment(permissionBinary);
+		return model;
+	}	
+	
 	@Test(dataProvider = "accountSettingPermission", dataProviderClass = PermissionDataProvider.class)
 	public void CC_01_CheckAccountSettingPermission(String permissionBinary) {
 
@@ -101,5 +109,25 @@ public class AccountSettingPermissionTest extends BaseTest {
 		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
 		
 		storeInforPage.checkStoreInfoSettingPermission(allPermissionDTO);
+	}
+	
+	@Test(dataProvider = "shippingPaymentSettingPermission", dataProviderClass = PermissionDataProvider.class)
+	public void CC_03_CheckShippingPaymentSettingPermission(String permissionBinary) {
+		
+		driver = new InitWebdriver().getDriver(browser, headless);
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = new HomePage(driver);
+		ShippingAndPayment shippingPaymentPage = new ShippingAndPayment(driver);
+		
+		//Edit a permisison
+		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description", setShippingPaymentPermissionModel(permissionBinary));
+		
+		//Check permission
+		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
+		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		
+		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
+		
+		shippingPaymentPage.checkShippingPaymentSettingPermission(allPermissionDTO);
 	}
 }
