@@ -41,7 +41,7 @@ public class CreateTransfer {
     }
 
     String getItemTransfers(int originBranchId) {
-        AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdMatchWithConditions(originBranchId);
+        AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdInStock(originBranchId);
 
         String manageTypes = info.getInventoryManageTypes().get(0);
         String itemId = info.getItemIds().get(0);
@@ -82,7 +82,7 @@ public class CreateTransfer {
 
     int getOriginBranchId(List<Integer> assignedBranches) {
         return assignedBranches.stream()
-                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdMatchWithConditions(assignedBranch).getItemIds().isEmpty())
+                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdInStock(assignedBranch).getItemIds().isEmpty())
                 .findFirst()
                 .orElse(0);
     }

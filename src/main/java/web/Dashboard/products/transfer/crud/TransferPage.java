@@ -245,7 +245,7 @@ public class TransferPage extends TransferElement {
 
     int getOriginBranchId(APIAllProducts allProducts, List<Integer> assignedBranches) {
         return assignedBranches.stream()
-                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdMatchWithConditions(assignedBranch).getItemIds().isEmpty())
+                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdInStock(assignedBranch).getItemIds().isEmpty())
                 .findFirst()
                 .orElse(0);
     }
@@ -320,7 +320,7 @@ public class TransferPage extends TransferElement {
                 logger.info("Get destination branch: %s.".formatted(destinationBranch));
 
                 // get transfer product
-                AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdMatchWithConditions(originBranchId);
+                AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdInStock(originBranchId);
                 String manageTypes = info.getInventoryManageTypes().get(0);
                 String itemName = info.getItemNames().get(0);
                 String itemId = info.getItemIds().get(0);

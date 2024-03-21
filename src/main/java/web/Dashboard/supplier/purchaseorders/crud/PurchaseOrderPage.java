@@ -106,7 +106,9 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
                     productsInfo.getBarcodes().get(0)));
 
             // input price
-            importPrice = nextLong(productsInfo.getPrice().get(0));
+            importPrice = (productsInfo.getPrice().get(0) != 0L)
+                    ? nextLong(productsInfo.getPrice().get(0))
+                    : 0;
             commonAction.sendKeys(loc_txtImportPrice, 0, String.valueOf(importPrice));
             logger.info("Input import price: %s.".formatted(importPrice));
 
@@ -197,7 +199,8 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
         // get product info
         AllSuggestionProductsInfo productsInfo = new APIAllProducts(staffLoginInformation)
-                .getListSuggestionProduct(staffLoginInfo.getAssignedBranchesIds().get(0));
+                .getAllSuggestProductIdNoManagedByLot(staffLoginInfo.getAssignedBranchesIds().get(0), false);
+
         selectProduct(productsInfo);
         inputPaymentAmount();
     }

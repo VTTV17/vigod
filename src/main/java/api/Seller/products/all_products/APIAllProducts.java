@@ -485,7 +485,7 @@ public class APIAllProducts {
         return info;
     }
 
-    public AllSuggestionProductsInfo getAllSuggestProductIdMatchWithConditions(int branchId) {
+    public AllSuggestionProductsInfo getAllSuggestProductIdInStock(int branchId) {
         // get all suggestions information
         AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
 
@@ -522,6 +522,54 @@ public class APIAllProducts {
         info.setBarcodes(barcodes);
         info.setRemainingStocks(remainingStocks);
         info.setInventoryManageTypes(inventoryManageTypes);
+
+        // return model
+        return info;
+    }
+
+    public AllSuggestionProductsInfo getAllSuggestProductIdNoManagedByLot(int branchId, boolean hasLot) {
+        // get all suggestions information
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
+
+        // init suggestion model to get all products in-stock
+        AllSuggestionProductsInfo info = new AllSuggestionProductsInfo();
+
+        // init temp array
+        List<String> itemIds = new ArrayList<>();
+        List<String> modelIds = new ArrayList<>();
+        List<String> itemNames = new ArrayList<>();
+        List<String> modelNames = new ArrayList<>();
+        List<String> barcodes = new ArrayList<>();
+        List<Long> remainingStocks = new ArrayList<>();
+        List<String> inventoryManageTypes = new ArrayList<>();
+        List<Long> price = new ArrayList<>();
+        List<Long> costPrice = new ArrayList<>();
+
+        // filter by in-stock conditions
+        IntStream.range(0, suggestionInfo.getItemIds().size())
+                .filter(index -> (suggestionInfo.getHasLots().get(index).equals(hasLot)))
+                .forEach(index -> {
+                    itemIds.add(suggestionInfo.getItemIds().get(index));
+                    itemNames.add(suggestionInfo.getItemNames().get(index));
+                    modelNames.add(suggestionInfo.getModelNames().get(index));
+                    modelIds.add(suggestionInfo.getModelIds().get(index));
+                    barcodes.add(suggestionInfo.getBarcodes().get(index));
+                    remainingStocks.add(suggestionInfo.getRemainingStocks().get(index));
+                    inventoryManageTypes.add(suggestionInfo.getInventoryManageTypes().get(index));
+                    price.add(suggestionInfo.getPrice().get(index));
+                    costPrice.add(suggestionInfo.getCostPrice().get(index));
+                });
+
+        // set in-stock all suggestions
+        info.setItemIds(itemIds);
+        info.setModelIds(modelIds);
+        info.setItemNames(itemNames);
+        info.setModelNames(modelNames);
+        info.setBarcodes(barcodes);
+        info.setRemainingStocks(remainingStocks);
+        info.setInventoryManageTypes(inventoryManageTypes);
+        info.setPrice(price);
+        info.setCostPrice(costPrice);
 
         // return model
         return info;

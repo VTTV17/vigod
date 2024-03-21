@@ -9,6 +9,9 @@ public class PurchaseOrderElement {
     By loc_icnRemoveProduct = By.cssSelector("[alt='remove product']");
     By loc_txtProductSearchBox = By.cssSelector(".clearfix .product-list-wrapper input[placeholder]");
     String str_ddvProduct = "//*[text() = '%s']";
+    By loc_lnkSelectLot = By.cssSelector("td .cursor--pointer");
+    By loc_dlgSelectLot = By.cssSelector(".select-lot-date-modal");
+
     By loc_lnkAddIMEI = By.xpath("//td/div[contains(@class, 'input')]/div/following-sibling::span");
     By loc_dlgAddIMEI = By.cssSelector(".imei-serial-modal");
     By loc_dlgAddIMEI_txtInputIMEI = By.cssSelector(".imei-serial-modal  .desktop-view input");
