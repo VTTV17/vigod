@@ -1,5 +1,7 @@
 package web.Dashboard.settings.shippingandpayment;
 
+import static utilities.links.Links.DOMAIN;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -7,9 +9,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
+import utilities.commons.UICommonAction;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import utilities.commons.UICommonAction;
 
 public class ShippingAndPayment {
 
@@ -17,54 +22,148 @@ public class ShippingAndPayment {
 
 	WebDriver driver;
 	UICommonAction commonAction;
+	HomePage homePage;
+	ShippingAndPaymentElement elements;
 
 	public ShippingAndPayment(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
+		homePage = new HomePage(driver);
+		elements = new ShippingAndPaymentElement();
 	}
 
-	By loc_tabShippingPayment = By.cssSelector("li:nth-child(3) > a.nav-link");
-	By loc_blkGHTK = By.id("provider-giaohangtietkiem");
-	By loc_blkGHN = By.id("provider-giaohangnhanh");
-	By loc_blkAhamove = By.id("provider-ahamove_bike");
-	By loc_blkSelfDelivery = By.id("provider-selfdelivery");
-	By loc_btnSaveShippingProvider = By.cssSelector(".shipping__provider button.gs-button__blue");
-	By loc_chkProduct = By.xpath("(//div[contains(@class,'payment__method')]//label[contains(@class,'custom-check-box')])[1]");
-	By loc_chkService = By.xpath("(//div[contains(@class,'payment__method')]//label[contains(@class,'custom-check-box')])[2]");
-	By loc_btnATMToggle = By.xpath("//img[@alt='Local ATM']/parent::*/following-sibling::*//label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_btnCreditCardToggle = By.xpath("//img[@alt='Credit card']/parent::*/parent::*/following-sibling::*//label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_btnCODToggle = By.xpath("//img[contains(@src,'COD')]/parent::*/following-sibling::*/label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_btnCashToggle = By.xpath("//img[@alt='cash']/parent::*/following-sibling::*//label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_btnDebtToggle = By.xpath("//img[@alt='debt']/parent::*/following-sibling::*//label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_btnPaypalToggle = By.xpath("//img[@alt='paypal']/parent::*/following-sibling::*//label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_btnBankTransferToggle = By.xpath("//img[@alt='bank transfer']/parent::*/following-sibling::*//label[contains(@class,'uik-checkbox__toggle')]");
-
-	By loc_btnToggle = By.xpath(".//label[contains(@class,'uik-checkbox__toggle')]");
-	By loc_tmpChecked = By.xpath(".//*[@class='uik-checkbox__checkboxIcon']");
-	By loc_imgPaypal = By.xpath("//img[@alt='paypal']");
-
+	/**
+	 * A temporary function that helps get rid of the annoying try catch block when reading text from property file
+	 * @param propertyKey
+	 */
+	public String translateText(String propertyKey) {
+		String translatedText = null;
+		try {
+			translatedText = PropertiesUtil.getPropertiesValueByDBLang(propertyKey);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return translatedText;
+	}	
+	
 	public ShippingAndPayment navigate() {
 		clickShippingAndPaymentTab();
-    	new HomePage(driver).waitTillSpinnerDisappear1();
+    	homePage.waitTillSpinnerDisappear1();
     	
     	//Sometimes the element is not present even after the loading icon has disappeared. The code below fixes this intermittent issue
     	for (int i=0; i<30; i++) {
-    		if (commonAction.getElements(loc_imgPaypal).size() >0) break;
+    		if (!commonAction.getElements(elements.loc_imgPaypal).isEmpty()) break;
     		commonAction.sleepInMiliSecond(500);
     	}
 		return this;
 	}
 
+	ShippingAndPayment navigateByURL(String url) {
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commonAction.removeFbBubble();
+		homePage.waitTillSpinnerDisappear1();
+		return this;
+	}		
+
+	public ShippingAndPayment navigateToDetailScreenByURL() {
+		navigateByURL(DOMAIN + "/setting?tabId=2");
+    	for (int i=0; i<30; i++) {
+    		if (!commonAction.getElements(elements.loc_imgPaypal).isEmpty()) break;
+    		commonAction.sleepInMiliSecond(500);
+    	}
+		return this;
+	}		
+	
 	public ShippingAndPayment clickShippingAndPaymentTab() {
-		commonAction.click(loc_tabShippingPayment);
+		commonAction.click(elements.loc_tabShippingPayment);
 		logger.info("Clicked on Shipping And Payment tab.");
 		return this;
 	}
 
+	public ShippingAndPayment clickGoogleAPIKeyBtn() {
+		commonAction.click(elements.loc_btnGoogleAPIKey);
+		logger.info("Clicked on Google API Key button.");
+		return this;
+	}	
+	
+	public ShippingAndPayment inputGoogleAPIKey(String key) {
+		commonAction.inputText(elements.loc_txtGoogleAPIKey, key);
+		logger.info("Input Google API Key: " + key);
+		return this;
+	}	
+
+	public String getGoogleAPIKey() {
+		commonAction.sleepInMiliSecond(500, "Wait in getGoogleAPIKey");
+		String value = commonAction.getAttribute(elements.loc_txtGoogleAPIKey, "value");
+		logger.info("Retrieved Google API Key: " + value);
+		return value;
+	}	
+	
+	public ShippingAndPayment clickSaveGoogleAPIKeyBtn() {
+		commonAction.click(elements.loc_btnSaveGoogleAPIKey);
+		logger.info("Clicked on Save Google API Key button.");
+		return this;
+	}
+	
+	boolean isGHTKTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkGHTK, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Giao Hang Tiet Kiem turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+	
+	boolean isGHNTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkGHN, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Giao Hang Nhanh turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+	
+	boolean isAhamoveTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkAhamove, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Ahamove turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+	
+	boolean isVNPostTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkVnPost, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is VNPost turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}
+
+	boolean isSelfDeliveryTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkSelfDelivery, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Self-Delivery turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	boolean isLocalATMTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnATMToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Local ATM turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	boolean isCreditCardTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCreditCardToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Credit Card turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	boolean isCODTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCODToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Cash On Delivery turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	boolean isCashTurnedOn() {
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCashToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Cash turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+
 	public ShippingAndPayment clickGHTKToggle() {
-		By chainedBy = new ByChained(loc_blkGHTK, loc_btnToggle);
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(new ByChained(loc_blkGHTK, By.xpath("./parent::*"))))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(chainedBy)));
+		By chainedBy = new ByChained(elements.loc_blkGHTK, elements.loc_btnToggle);
+		if (commonAction.isElementVisiblyDisabled(elements.loc_blkGHTKAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(chainedBy));
 			return this;
 		}
 		commonAction.click(chainedBy);
@@ -72,58 +171,10 @@ public class ShippingAndPayment {
 		return this;
 	}
 	
-	public boolean isGHTKTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_blkGHTK).findElement(loc_btnToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Giao Hang Tiet Kiem turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}
-	
-	public boolean isGHNTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_blkGHN).findElement(loc_btnToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Giao Hang Nhanh turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}
-	
-	public boolean isAhamoveTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_blkAhamove).findElement(loc_btnToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Ahamove turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}
-
-	public boolean isSelfDeliveryTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_blkSelfDelivery).findElement(loc_btnToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Self-Delivery turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}	
-	
-	public boolean isLocalATMTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_btnATMToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Local ATM turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}	
-	
-	public boolean isCreditCardTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_btnCreditCardToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Credit Card turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}	
-	
-	public boolean isCODTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_btnCODToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Cash On Delivery turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}	
-	
-	public boolean isCashTurnedOn() {
-		boolean isTurnedOn = commonAction.getElement(loc_btnCashToggle).findElement(By.xpath("./input")).isSelected();
-		logger.info("Is Cash turned on: " + isTurnedOn);
-		return isTurnedOn;
-	}	
-	
 	public ShippingAndPayment clickGHNToggle() {
-		By chainedBy = new ByChained(loc_blkGHN, loc_btnToggle);
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_blkGHN).findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(chainedBy)));
+		By chainedBy = new ByChained(elements.loc_blkGHN, elements.loc_btnToggle);
+		if (commonAction.isElementVisiblyDisabled(elements.loc_blkGHNAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(chainedBy));
 			return this;
 		}
 		commonAction.click(chainedBy);
@@ -132,9 +183,9 @@ public class ShippingAndPayment {
 	}
 
 	public ShippingAndPayment clickAhamoveToggle() {
-		By chainedBy = new ByChained(loc_blkAhamove, loc_btnToggle);
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_blkAhamove).findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(chainedBy)));
+		By chainedBy = new ByChained(elements.loc_blkAhamove, elements.loc_btnToggle);
+		if (commonAction.isElementVisiblyDisabled(elements.loc_blkAhamoveAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(chainedBy));
 			return this;
 		}
 		commonAction.click(chainedBy);
@@ -142,10 +193,21 @@ public class ShippingAndPayment {
 		return this;
 	}
 	
+	public ShippingAndPayment clickVNPostToggle() {
+		By chainedBy = new ByChained(elements.loc_blkVnPost, elements.loc_btnToggle);
+		if (commonAction.isElementVisiblyDisabled(elements.loc_blkVnPostAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(chainedBy));
+			return this;
+		}
+		commonAction.click(chainedBy);
+		logger.info("Clicked on VNPost toggle button.");
+		return this;
+	}	
+	
 	public ShippingAndPayment clickSelfDeliveryToggle() {
-		By chainedBy = new ByChained(loc_blkSelfDelivery, loc_btnToggle);
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_blkSelfDelivery).findElement(By.xpath("./parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(chainedBy)));
+		By chainedBy = new ByChained(elements.loc_blkSelfDelivery, elements.loc_btnToggle);
+		if (commonAction.isElementVisiblyDisabled(elements.loc_blkSelfDeliveryAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(chainedBy));
 			return this;
 		}
 		commonAction.click(chainedBy);
@@ -162,7 +224,7 @@ public class ShippingAndPayment {
 	}	
 	
 	public ShippingAndPayment clickShippingProviderSaveBtn() {
-		commonAction.click(loc_btnSaveShippingProvider);
+		commonAction.click(elements.loc_btnSaveShippingProvider);
 		logger.info("Clicked on Save button at Shipping Provider tab.");
 		return this;
 	}	
@@ -170,12 +232,12 @@ public class ShippingAndPayment {
 	/*--------------------------------------------------------------*/
 	public ShippingAndPayment enablePaymentMethodFor(String productOrService) {
 		if (productOrService.contentEquals("Product")) {
-			if (!commonAction.getElement(loc_chkProduct).findElement(loc_tmpChecked).isDisplayed()) {
-				commonAction.click(loc_chkProduct);
+			if (!commonAction.isElementDisplay(new ByChained(elements.loc_chkProduct, elements.loc_tmpChecked))) {
+				commonAction.click(elements.loc_chkProduct);
 			}
 		} else {
-			if (!commonAction.getElement(loc_chkService).findElement(loc_tmpChecked).isDisplayed()) {
-				commonAction.click(loc_chkService);
+			if (!commonAction.isElementDisplay(new ByChained(elements.loc_chkService, elements.loc_tmpChecked))) {
+				commonAction.click(elements.loc_chkService);
 			}
 		}
 		logger.info("Enabled Payment Method for %s.".formatted(productOrService));
@@ -183,75 +245,75 @@ public class ShippingAndPayment {
 	}
 
 	public ShippingAndPayment clickLocalATMToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnATMToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnATMToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnATMToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnATMToggle));
 			return this;
 		}
-		commonAction.click(loc_btnATMToggle);
+		commonAction.click(elements.loc_btnATMToggle);
 		logger.info("Clicked on Local ATM toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickCreditCardToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnCreditCardToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnCreditCardToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnCreditCardToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnCreditCardToggle));
 			return this;
 		}
-		commonAction.click(loc_btnCreditCardToggle);
+		commonAction.click(elements.loc_btnCreditCardToggle);
 		logger.info("Clicked on Credit Card toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickCODToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnCODToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnCODToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnCODToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnCODToggle));
 			return this;
 		}
-		commonAction.click(loc_btnCODToggle);
+		commonAction.click(elements.loc_btnCODToggle);
 		logger.info("Clicked on Cash On Delivery toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickCashToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnCashToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnCashToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnCashToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnCashToggle));
 			return this;
 		}
-		commonAction.click(loc_btnCashToggle);
+		commonAction.click(elements.loc_btnCashToggle);
 		logger.info("Clicked on Cash toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickDebtToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnDebtToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnDebtToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnDebtToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnDebtToggle));
 			return this;
 		}
-		commonAction.click(loc_btnDebtToggle);
+		commonAction.click(elements.loc_btnDebtToggle);
 		logger.info("Clicked on Debt toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickPaypalToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnPaypalToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnPaypalToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnPaypalToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnPaypalToggle));
 			return this;
 		}
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnPaypalToggle).findElement(By.xpath("./parent::*/parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnPaypalToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnPaypalToggleAncestor1)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnPaypalToggle));
 			return this;
 		}
-		commonAction.click(loc_btnPaypalToggle);
+		commonAction.click(elements.loc_btnPaypalToggle);
 		logger.info("Clicked on Paypal toggle button.");
 		return this;
 	}
 	
 	public ShippingAndPayment clickBankTransferToggle() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnBankTransferToggle).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnBankTransferToggle)));
+		if (commonAction.isElementVisiblyDisabled(elements.loc_btnBankTransferToggleAncestor)) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnBankTransferToggle));
 			return this;
 		}
-		commonAction.click(loc_btnBankTransferToggle);
+		commonAction.click(elements.loc_btnBankTransferToggle);
 		logger.info("Clicked on Bank-Transfer toggle button.");
 		return this;
 	}
@@ -294,7 +356,7 @@ public class ShippingAndPayment {
 	}		
 	
 	public ShippingAndPayment enableDebt() {
-		if (!commonAction.getElement(loc_btnDebtToggle).findElement(By.xpath("./input")).isSelected()) {
+		if (!commonAction.getElement(new ByChained(elements.loc_btnDebtToggle, elements.loc_tmpInput)).isSelected()) {
 			clickDebtToggle();
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Debt"));
@@ -302,14 +364,14 @@ public class ShippingAndPayment {
 	}		
 	
 	public ShippingAndPayment enablePaypal() {
-		if (!commonAction.getElement(loc_btnPaypalToggle).findElement(By.xpath("./input")).isSelected()) {
+		if (!commonAction.getElement(new ByChained(elements.loc_btnPaypalToggle, elements.loc_tmpInput)).isSelected()) {
 			clickPaypalToggle();
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Paypal"));
 		return this;
 	}		
 	public ShippingAndPayment enableBankTransfer() {
-		if (!commonAction.getElement(loc_btnBankTransferToggle).findElement(By.xpath("./input")).isSelected()) {
+		if (!commonAction.getElement(new ByChained(elements.loc_btnBankTransferToggle, elements.loc_tmpInput)).isSelected()) {
 			clickBankTransferToggle();
 		}
 		logger.info("Enabled Payment Method for %s.".formatted("Bank Transfer"));
@@ -325,7 +387,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "GHTK");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableGHN(String permission) {
@@ -337,7 +399,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "GHN");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableAhamove(String permission) {
@@ -349,7 +411,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "Ahamove");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableSelfDelivery(String permission) {
@@ -361,7 +423,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "Self-Delivery");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     
@@ -376,7 +438,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "Local ATM");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableCreditCard(String permission) {
@@ -389,7 +451,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "Credit Card");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableCOD(String permission) {
@@ -402,7 +464,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "Cash On Delivery");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableCash(String permission) {
@@ -415,7 +477,7 @@ public class ShippingAndPayment {
     	} else if (permission.contentEquals("D")) {
     		Assert.assertFalse(isTurnedOn, "Cash");
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnableDebt(String permission) {
@@ -427,7 +489,7 @@ public class ShippingAndPayment {
     		enableDebt();
     		// Not completed
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
     public void verifyPermissionToEnablePaypal(String permission) {
@@ -439,8 +501,154 @@ public class ShippingAndPayment {
     		enablePaypal();
     		// Not completed
     	} else {
-    		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+    		Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
     	}
     }
 
+	void checkPermissionToEnableDisableShippingPayment(AllPermissions staffPermission) {
+		boolean originalStatus;
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isGHTKTurnedOn();
+		clickGHTKToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHNTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isGHTKTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isGHTKTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isGHNTurnedOn();
+		clickGHNToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isGHNTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isGHNTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}		
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isAhamoveTurnedOn();
+		clickAhamoveToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isGHNTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isAhamoveTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isAhamoveTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isVNPostTurnedOn();
+		clickVNPostToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isGHNTurnedOn()|isAhamoveTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isVNPostTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isVNPostTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+
+		navigateToDetailScreenByURL();
+		originalStatus = isSelfDeliveryTurnedOn();
+		clickSelfDeliveryToggle();
+		if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisableSelfDeliveryMethod()) {
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isGHNTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isSelfDeliveryTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isSelfDeliveryTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}		
+		
+		logger.info("Finished checkPermissionToEnableDisableShippingPayment");
+	}
+	
+	void checkPermissionToAddRemoveGoogleAPIKey(AllPermissions staffPermission) {
+		navigateToDetailScreenByURL();
+
+		clickGoogleAPIKeyBtn();
+		
+		if (staffPermission.getSetting().getShippingAndPayment().isAddRemoveGoogleAPIKey()) {
+			String originalKey = getGoogleAPIKey();
+			if (originalKey.isEmpty()) {
+				inputGoogleAPIKey("TestPermission");
+				clickSaveGoogleAPIKeyBtn();
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				clickGoogleAPIKeyBtn();
+				inputGoogleAPIKey("");
+				clickSaveGoogleAPIKeyBtn();
+			} else {
+				inputGoogleAPIKey("");
+				clickSaveGoogleAPIKeyBtn();
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				
+				clickGoogleAPIKeyBtn();
+				inputGoogleAPIKey(originalKey);
+				clickSaveGoogleAPIKeyBtn();
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+
+		logger.info("Finished checkPermissionToAddRemoveGoogleAPIKey");
+	}
+	
+	public void checkShippingPaymentSettingPermission(AllPermissions staffPermission) {
+//		checkPermissionToEnableDisableShippingPayment(staffPermission);
+		checkPermissionToAddRemoveGoogleAPIKey(staffPermission);
+	}    
+    
 }
