@@ -144,6 +144,7 @@ public class CreateBuyLink extends HomePage {
     public boolean isProductShowWhenSearch(String productName){
         commonAction.inputText(loc_txtSearch,productName);
         new HomePage(driver).waitTillLoadingDotsDisappear();
+        commonAction.sleepInMiliSecond(1000);
         List<WebElement> productNames = new ArrayList<>();
         for (int j=0;j<5;j++){
             productNames = commonAction.getElements(loc_lst_lblProductNameSuggestion);
