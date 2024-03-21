@@ -153,8 +153,6 @@ public class CheckPermission {
             newToken = info.getStaffPermissionToken();
             System.out.println("info: "+info);
             System.out.println("newToken: "+newToken);
-
-
             System.out.println("Wait to update staff permission...");
             i++;
         }while (newToken.equals(staffPermissionTokenOld) && i<20);
@@ -164,7 +162,6 @@ public class CheckPermission {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
     }
 
 }

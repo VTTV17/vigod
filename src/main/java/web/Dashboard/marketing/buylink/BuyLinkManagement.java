@@ -174,11 +174,13 @@ public class BuyLinkManagement extends HomePage{
 	private boolean hasViewCreatedProductListPers() {
 		return allPermissions.getProduct().getProductManagement().isCreateProduct();
 	}	public void navigateUrl(){
-		String url = Links.DOMAIN + "/marketing/landing-page/list";
+		String url = Links.DOMAIN + "/marketing/buy-link/list";
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
+		commonAction.sleepInMiliSecond(500);
 	}
 	public void checkPermissionViewBuyLinkList(){
+		commonAction.sleepInMiliSecond(500);
 		List<WebElement> buyLinkList = commonAction.getElements(loc_lst_lblUrl);
 		if (hasViewBuyLinkPers()) {
 			assertCustomize.assertTrue(buyLinkList.size() > 0, "[Failed] Buy link list should be shown");
@@ -200,6 +202,7 @@ public class BuyLinkManagement extends HomePage{
 			checkPermissionViewDiscountList(productNameOfStaff);
 			if(hasViewProductListPers()){
 				navigateUrl();
+				clickCreateBuyLink();
 				createBuyLink.createASimpleBuyLink(productNameOfStaff);
 				String toastMessage = new HomePage(driver).getToastMessage();
 				try {
@@ -270,7 +273,7 @@ public class BuyLinkManagement extends HomePage{
 					}
 				}
 			} else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateBuyLink),
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnEditLink),
 						"[Failed] Restricted page not show when click on edit buy link button.");
 		}else logger.info("No permission View buy link list, so can't check Edit permission.");
 	}

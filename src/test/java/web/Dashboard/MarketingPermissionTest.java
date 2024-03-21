@@ -1,6 +1,7 @@
 package web.Dashboard;
 import api.Seller.login.Login;
 import api.Seller.marketing.APIBuyLink;
+import api.Seller.marketing.APIEmailCampaign;
 import api.Seller.marketing.APILandingPage;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
@@ -10,14 +11,17 @@ import api.Seller.promotion.PromotionList;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import utilities.constant.Constant;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
+import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.buylink.BuyLinkManagement;
+import web.Dashboard.marketing.emailcampaign.EmailCampaignManagement;
 import web.Dashboard.marketing.landingpage.LandingPage;
 
 import java.io.IOException;
@@ -40,7 +44,6 @@ public class MarketingPermissionTest extends BaseTest {
     String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
     String productCreatedByStaff = "Ao thun staff tao";
     List<Integer> productIds = new ArrayList<>();
-    int landingPageId;
     @BeforeClass
     public void beforeClass() {
         sellerUserName = ADMIN_SHOP_VI_USERNAME;
@@ -51,17 +54,17 @@ public class MarketingPermissionTest extends BaseTest {
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product
-        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
-        productCreatedByShopOwner = productInfo.getProductName();
-        productIds.add(productInfo.getProductID());
+//        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+//        productCreatedByShopOwner = productInfo.getProductName();
+//        productIds.add(productInfo.getProductID());
 
         //Create full permission for staff
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 
-        //Staff create product
-        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
-        productCreatedByStaff = productInfo.getProductName();
-        productIds.add(productInfo.getProductID());
+//        //Staff create product
+//        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+//        productCreatedByStaff = productInfo.getProductName();
+//        productIds.add(productInfo.getProductID());
     }
     @AfterClass
     public void afterClass(){
@@ -80,7 +83,7 @@ public class MarketingPermissionTest extends BaseTest {
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
         super.writeResult(result);
-//        driver.quit();
+        driver.quit();
     }
     public int callAPIGetPublishedLandingPageId(){
         int publishedLandingId = new APILandingPage(ownerCredentials).getAPublishLandingPageId();
@@ -358,6 +361,7 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"11111111","0"},
         };
     }
+    /* https://mediastep.atlassian.net/browse/BH-25137 */
     @Test(dataProvider = "LandingPagePermissionModel")
     public void checkLandingPagePermission(String landingPagePersBinary,String productListPersBinary){
         int publishedLandingId = callAPIGetPublishedLandingPageId();
@@ -398,7 +402,62 @@ public class MarketingPermissionTest extends BaseTest {
     @DataProvider
     public Object[][] BuyLinkPermissionModel() {
         return new Object[][]{
-                {"1","1"},
+//                {"1","1"},
+//                {"10","1"}, //Bug: show restricted page when don't have View list permission
+//                {"11","1"},
+//                {"100","1"},
+//                {"101","1"},
+//                {"110","1"},
+//                {"111","1"},
+//                {"1000","1"},
+//                {"1001","1"},
+//                {"1010","1"},
+//                {"1011","1"},
+//                {"1100","1"},
+//                {"1101","1"},
+//                {"1110","1"},
+                {"1111","1"}
+        };
+    }
+    /* https://mediastep.atlassian.net/browse/BH-25138 */
+    @Test(dataProvider = "BuyLinkPermissionModel")
+    public void checkBuyLinkPermission(String buyLinkPermissionBinary, String productPermissionBinary){
+        //Ensure that buy link list and product discount list have data.
+        callAPISetUpDataToRunBuyLink();
+
+        //Set permission
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("11");
+        model.setProduct_productManagement(productPermissionBinary);
+        model.setMarketing_buyLink(buyLinkPermissionBinary);
+
+        //edit permisison
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Vi edit permission", model);
+        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.MARKETING_MENU_ITEM_NAME, Constant.BUYLINK_MENU_ITEM_NAME);
+        new BuyLinkManagement(driver).clickExploreNow()
+                .checkBuyLinkPermission(allPermissions,productCreatedByShopOwner,productCreatedByStaff);
+    }
+    public int callAPIGetDraftId(){
+        int campaignId = new APIEmailCampaign(ownerCredentials).getDraftEmailCampaignId();
+        if(campaignId==0){
+            campaignId = new APIEmailCampaign(ownerCredentials).createEmailCampaign().getId();
+        }
+        return campaignId;
+    }
+    /* https://mediastep.atlassian.net/browse/BH-25142 */
+    @DataProvider
+    public Object[][] EmailCampaignPermissionModel() {
+        return new Object[][]{
+//                {"1","1"},
 //                {"10","1"},
 //                {"11","1"},
 //                {"100","1"},
@@ -412,19 +471,20 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"1100","1"},
 //                {"1101","1"},
 //                {"1110","1"},
-//                {"1111","1"}
+//                {"1111","1"},
+//                {"1111","0"}
         };
     }
-    @Test(dataProvider = "BuyLinkPermissionModel")
-    public void checkBuyLinkPermission(String buyLinkPermissionBinary, String productPermissionBinary){
-        //Ensure that buy link list and product discount list have data.
-        callAPISetUpDataToRunBuyLink();
+    @Test(dataProvider = "EmailCampaignPermissionModel")
+    public void checkEmailCampaignPermission(String emailCampaignPersBinary, String customerSegmentPersBinary){
+        //Ensure that has Draft email campaign.
+        int draftId = callAPIGetDraftId();
 
         //Set permission
         CreatePermission model = new CreatePermission();
         model.setHome_none("11");
-        model.setProduct_productManagement(productPermissionBinary);
-        model.setMarketing_buyLink(buyLinkPermissionBinary);
+        model.setMarketing_emailCampaign(emailCampaignPersBinary);
+        model.setCustomer_segment(customerSegmentPersBinary);
 
         //edit permisison
         new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Vi edit permission", model);
@@ -436,6 +496,6 @@ public class MarketingPermissionTest extends BaseTest {
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        new BuyLinkManagement(driver).checkBuyLinkPermission(allPermissions,productCreatedByShopOwner,productCreatedByStaff);
+        new EmailCampaignManagement(driver).checkEmailCampaignPermission(allPermissions,draftId);
     }
 }
