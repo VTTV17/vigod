@@ -17,7 +17,7 @@ import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StaffManagement;
 import io.appium.java_client.AppiumDriver;
@@ -70,7 +70,7 @@ public class CashbookApp extends BaseTest {
 		
 		LoginInformation loginInformation = new Login().setLoginInformation(AccountTest.ADMIN_COUNTRY_TIEN, AccountTest.ADMIN_USERNAME_TIEN, AccountTest.ADMIN_PASSWORD_TIEN).getLoginInformation();
 		customerList = new Customers(loginInformation).getAllCustomerNames();
-		supplierList = new SupplierAPI(loginInformation).getAllSupplierNames();
+		supplierList = new APISupplier(loginInformation).getAllSupplierNames();
 		staffList = new StaffManagement(loginInformation).getAllStaffNames();
 		othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
 		branchList = new BranchManagement(loginInformation).getInfo().getActiveBranches();

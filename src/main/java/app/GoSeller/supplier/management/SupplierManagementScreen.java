@@ -1,7 +1,7 @@
 package app.GoSeller.supplier.management;
 
-import api.Seller.supplier.supplier.SupplierAPI;
-import api.Seller.supplier.supplier.SupplierAPI.SupplierInformation;
+import api.Seller.supplier.supplier.APISupplier;
+import api.Seller.supplier.supplier.APISupplier.SupplierInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -61,7 +61,7 @@ public class SupplierManagementScreen extends SupplierManagementElement {
     }
 
     public void searchAndVerifySearchResult() {
-        SupplierAPI.AllSupplierInformation allSupplierInformation = new SupplierAPI(loginInformation).getAllSupplierInformation();
+        APISupplier.AllSupplierInformation allSupplierInformation = new APISupplier(loginInformation).getAllSupplierInformation();
         List<String> allSupCode = allSupplierInformation.getCodes();
         List<String> allSupName = allSupplierInformation.getNames();
 

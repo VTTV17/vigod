@@ -1,14 +1,13 @@
 package api.Seller.marketing;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APISuggestionProduct;
+import api.Seller.products.all_products.APISuggestionProduct.AllSuggestionProductsInfo;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
@@ -41,7 +40,7 @@ public class APIBuyLink {
     }
     public int createBuyLink(){
         int branchId = new Login().getInfo(loginInformation).getAssignedBranchesIds().get(0);
-        APIAllProducts.AllSuggestionProductsInfo productSuggesionInfo = new APIAllProducts(loginInformation).getListSuggestionProduct(branchId);
+        AllSuggestionProductsInfo productSuggesionInfo = new APISuggestionProduct(loginInformation).getListSuggestionProduct(branchId);
         String body = """
                 {
                       "buyLinkItems": [

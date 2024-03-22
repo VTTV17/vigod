@@ -1,8 +1,7 @@
 package web.Dashboard.products.location_receipt.management;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.APIAllProducts.SuggestionProductsInfo;
+import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.location.APILocation;
 import api.Seller.products.location_receipt.APILocationReceipt;
 import api.Seller.products.location_receipt.APILocationReceipt.AllLocationReceiptInfo;
@@ -187,9 +186,9 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         // if no location => skip.
         if (branchId != 0) {
             // get product info
-            APIAllProducts allProductsWithSellerToken = new APIAllProducts(sellerLoginInformation);
-            SuggestionProductsInfo hasLotProductInfo = allProductsWithSellerToken.getSuggestProductForImportProductLocationReceipt(branchId, true);
-            SuggestionProductsInfo noLotProductInfo = allProductsWithSellerToken.getSuggestProductForImportProductLocationReceipt(branchId, false);
+            APISuggestionProduct suggestionProductProductsWithSellerToken = new APISuggestionProduct(sellerLoginInformation);
+            APISuggestionProduct.SuggestionProductsInfo hasLotProductInfo = suggestionProductProductsWithSellerToken.getSuggestProductForImportProductLocationReceipt(branchId, true);
+            APISuggestionProduct.SuggestionProductsInfo noLotProductInfo = suggestionProductProductsWithSellerToken.getSuggestProductForImportProductLocationReceipt(branchId, false);
 
             // get lot
             APILotDate.LotDateManagementInfo lotDateManagementInfo = new APILotDate(sellerLoginInformation).getAllLotDateInformation();

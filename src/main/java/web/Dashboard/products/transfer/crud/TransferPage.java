@@ -1,7 +1,8 @@
 package web.Dashboard.products.transfer.crud;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.APISuggestionProduct;
+import api.Seller.products.all_products.ProductInformation;
 import api.Seller.products.transfer.TransferManagement;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static api.Seller.products.all_products.APIAllProducts.AllSuggestionProductsInfo;
 import static api.Seller.products.transfer.TransferManagement.TransferInfo;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -243,9 +243,9 @@ public class TransferPage extends TransferElement {
         }
     }
 
-    int getOriginBranchId(APIAllProducts allProducts, List<Integer> assignedBranches) {
+    int getOriginBranchId(APISuggestionProduct suggestionProduct, List<Integer> assignedBranches) {
         return assignedBranches.stream()
-                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdInStock(assignedBranch).getItemIds().isEmpty())
+                .filter(assignedBranch -> !suggestionProduct.getAllSuggestProductIdInStock(assignedBranch).getItemIds().isEmpty())
                 .findFirst()
                 .orElse(0);
     }
@@ -297,10 +297,10 @@ public class TransferPage extends TransferElement {
         List<String> destinationBranchNames = destinationInfo.getBranchName();
 
         // init get all products API
-        APIAllProducts allProducts = new APIAllProducts(staffLoginInformation);
+        APISuggestionProduct suggestionProduct = new APISuggestionProduct(staffLoginInformation);
 
         // find origin branch that have in-stock product
-        int originBranchId = getOriginBranchId(allProducts, assignedBranchIds);
+        int originBranchId = getOriginBranchId(suggestionProduct, assignedBranchIds);
 
         // create transfer
         if (originBranchId != 0) {
@@ -320,7 +320,7 @@ public class TransferPage extends TransferElement {
                 logger.info("Get destination branch: %s.".formatted(destinationBranch));
 
                 // get transfer product
-                AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdInStock(originBranchId);
+                APISuggestionProduct.AllSuggestionProductsInfo info = suggestionProduct.getAllSuggestProductIdInStock(originBranchId);
                 String manageTypes = info.getInventoryManageTypes().get(0);
                 String itemName = info.getItemNames().get(0);
                 String itemId = info.getItemIds().get(0);
@@ -338,7 +338,7 @@ public class TransferPage extends TransferElement {
                                 .formatted(originBranchName, destinationBranch));
 
                 if (manageTypes.equals("IMEI_SERIAL_NUMBER")) {
-                    List<String> listIMEI = allProducts.getListIMEI(itemId, modelId, originBranchId);
+                    List<String> listIMEI = new ProductInformation(loginInformation).getListIMEI(itemId, modelId, originBranchId);
                     this.selectIMEI(listIMEI.subList(0, (int) transferredQuantity).toArray(new String[0]));
                 }
             } else throw new Exception("Must have at least 2 branches to create a new transfer.");

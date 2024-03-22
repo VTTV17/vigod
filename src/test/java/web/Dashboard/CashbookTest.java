@@ -16,7 +16,7 @@ import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StaffManagement;
 
@@ -59,7 +59,7 @@ public class CashbookTest extends BaseTest {
 		country = AccountTest.ADMIN_COUNTRY_TIEN;
         loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
         customerList = new Customers(loginInformation).getAllCustomerNames();
-        supplierList = new SupplierAPI(loginInformation).getAllSupplierNames();
+        supplierList = new APISupplier(loginInformation).getAllSupplierNames();
         staffList = new StaffManagement(loginInformation).getAllStaffNames();
         othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
         branchList = new BranchManagement(loginInformation).getInfo().getActiveBranches();

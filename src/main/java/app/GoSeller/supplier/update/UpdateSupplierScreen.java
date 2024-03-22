@@ -1,6 +1,6 @@
 package app.GoSeller.supplier.update;
 
-import api.Seller.supplier.supplier.SupplierAPI.SupplierInformation;
+import api.Seller.supplier.supplier.APISupplier.SupplierInformation;
 import app.GoSeller.supplier.management.SupplierManagementScreen;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;

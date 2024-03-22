@@ -1,7 +1,7 @@
 package app.android.GoSeller;
 
-import api.Seller.supplier.supplier.SupplierAPI;
-import api.Seller.supplier.supplier.SupplierAPI.SupplierInformation;
+import api.Seller.supplier.supplier.APISupplier;
+import api.Seller.supplier.supplier.APISupplier.SupplierInformation;
 import app.GoSeller.account.SellerAccount;
 import app.GoSeller.home.HomePage;
 import app.GoSeller.login.LoginPage;
@@ -132,7 +132,7 @@ public class SupplierTest extends BaseTest {
         loginInfo.setPassword(ADMIN_PASSWORD_THANG);
 
         // init supplier API
-        SupplierAPI api = new SupplierAPI(loginInfo);
+        APISupplier api = new APISupplier(loginInfo);
 
         // create and get supplier code
         String supCode = api.createSupplierAndGetSupplierCode();
@@ -153,7 +153,7 @@ public class SupplierTest extends BaseTest {
         loginInfo.setPassword(ADMIN_PASSWORD_THANG);
 
         // init supplier API
-        SupplierAPI api = new SupplierAPI(loginInfo);
+        APISupplier api = new APISupplier(loginInfo);
 
         // create and get supplier code
         String supCode = api.createSupplierAndGetSupplierCode();

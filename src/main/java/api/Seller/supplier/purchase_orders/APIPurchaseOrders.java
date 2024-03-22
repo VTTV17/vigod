@@ -4,7 +4,7 @@ import api.Seller.login.Login;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
 import api.Seller.setting.BranchManagement;
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -30,7 +30,7 @@ public class APIPurchaseOrders {
     String CREATE_PURCHASE_ORDER_PATH = "/itemservice/api/purchase-orders";
 
     JsonPath createPurchaseOrderJsonPath() {
-        SupplierAPI sup = new SupplierAPI(loginInformation);
+        APISupplier sup = new APISupplier(loginInformation);
         int supplierId = sup.getListSupplierID("").isEmpty() ? sup.createSupplierAndGetSupplierID() : sup.getListSupplierID("").get(0);
         int branchId = new BranchManagement(loginInformation).getInfo() // get branch info
                 .getBranchID() // get list branch ID

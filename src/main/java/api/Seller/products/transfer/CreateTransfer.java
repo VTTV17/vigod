@@ -1,7 +1,8 @@
 package api.Seller.products.transfer;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.APISuggestionProduct;
+import api.Seller.products.all_products.ProductInformation;
 import api.Seller.setting.BranchManagement;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -10,7 +11,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static api.Seller.products.all_products.APIAllProducts.*;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 
 public class CreateTransfer {
@@ -41,14 +41,14 @@ public class CreateTransfer {
     }
 
     String getItemTransfers(int originBranchId) {
-        AllSuggestionProductsInfo info = allProducts.getAllSuggestProductIdInStock(originBranchId);
+        APISuggestionProduct.AllSuggestionProductsInfo info = apiSuggestionProduct.getAllSuggestProductIdInStock(originBranchId);
 
         String manageTypes = info.getInventoryManageTypes().get(0);
         String itemId = info.getItemIds().get(0);
         String modelId = info.getModelIds().get(0);
         long transferredQuantity = nextLong(info.getRemainingStocks().get(0)) + 1;
         String costList = manageTypes.equals("IMEI_SERIAL_NUMBER")
-                ? getCostList(itemId, modelId, originBranchId, allProducts.getListIMEI(itemId, modelId, originBranchId), transferredQuantity).toString()
+                ? getCostList(itemId, modelId, originBranchId, new ProductInformation(loginInformation).getListIMEI(itemId, modelId, originBranchId), transferredQuantity).toString()
                 : "[]";
         return """
                 {
@@ -82,13 +82,14 @@ public class CreateTransfer {
 
     int getOriginBranchId(List<Integer> assignedBranches) {
         return assignedBranches.stream()
-                .filter(assignedBranch -> !allProducts.getAllSuggestProductIdInStock(assignedBranch).getItemIds().isEmpty())
+                .filter(assignedBranch -> !apiSuggestionProduct.getAllSuggestProductIdInStock(assignedBranch).getItemIds().isEmpty())
                 .findFirst()
                 .orElse(0);
     }
 
-    APIAllProducts allProducts;
+    APISuggestionProduct apiSuggestionProduct;
     String createTransferPath = "/itemservice/api/transfers/create";
+
     public TransferManagement.TransferInfo createAndGetTransferInfo() throws Exception {
         // init branch management API
         BranchManagement branchManagement = new BranchManagement(loginInformation);
@@ -98,7 +99,7 @@ public class CreateTransfer {
         List<Integer> destinationBranches = branchManagement.getDestinationBranchesInfo().getBranchID();
 
         // init get all products API
-        allProducts = new APIAllProducts(loginInformation);
+        apiSuggestionProduct = new APISuggestionProduct(loginInformation);
 
         // find origin branch that have in-stock product
         int originBranchId = getOriginBranchId(assignedBranchIds);

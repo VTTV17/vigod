@@ -1,12 +1,12 @@
 package web.Dashboard.supplier.purchaseorders.crud;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.APIAllProducts.AllSuggestionProductsInfo;
+import api.Seller.products.all_products.APISuggestionProduct;
+import api.Seller.products.all_products.APISuggestionProduct.AllSuggestionProductsInfo;
 import api.Seller.products.all_products.ProductInformation;
 import api.Seller.supplier.purchase_orders.APIPurchaseOrders;
 import api.Seller.supplier.purchase_orders.APIPurchaseOrders.PurchaseOrderInformation;
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -191,14 +191,14 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
     void inputPurchaseOrderInfo() throws Exception {
         // get supplier info
-        List<String> allSupplierName = new SupplierAPI(staffLoginInformation).getAllSupplierNames();
+        List<String> allSupplierName = new APISupplier(staffLoginInformation).getAllSupplierNames();
         String supplierName = allSupplierName.isEmpty() ? "" : allSupplierName.get(0);
 
         // select supplier
         selectSupplier(supplierName);
 
         // get product info
-        AllSuggestionProductsInfo productsInfo = new APIAllProducts(staffLoginInformation)
+        AllSuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation)
                 .getAllSuggestProductIdNoManagedByLot(staffLoginInfo.getAssignedBranchesIds().get(0), false);
 
         selectProduct(productsInfo);

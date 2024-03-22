@@ -1,7 +1,7 @@
 package web.Dashboard.supplier.supplier.crud;
 
 import api.Seller.supplier.purchase_orders.APIPurchaseOrders;
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -42,7 +42,7 @@ public class SupplierPage extends SupplierElement {
     public String language;
     UICommonAction commonAction;
     SupplierManagementPage supplierManagementPage;
-    SupplierAPI supplierAPIWithSellerToken;
+    APISupplier supplierAPIWithSellerToken;
     private String supplierName;
     private String supplierCode;
     private String phoneNumber;
@@ -60,7 +60,7 @@ public class SupplierPage extends SupplierElement {
 
     public SupplierPage getLoginInformation(LoginInformation sellerLoginInformation) {
         this.sellerLoginInformation = sellerLoginInformation;
-        supplierAPIWithSellerToken = new SupplierAPI(sellerLoginInformation);
+        supplierAPIWithSellerToken = new APISupplier(sellerLoginInformation);
         return this;
     }
 
@@ -285,7 +285,7 @@ public class SupplierPage extends SupplierElement {
         inputSupplierName("abc");
 
         // get available supplier code
-        SupplierAPI sup = new SupplierAPI(sellerLoginInformation);
+        APISupplier sup = new APISupplier(sellerLoginInformation);
         List<String> supplierCodeList = sup.getListSupplierCode("");
         String supplierCode = (supplierCodeList.isEmpty()) ? sup.createSupplierAndGetSupplierCode() : sup.getListSupplierCode("").get(0);
 
@@ -505,7 +505,7 @@ public class SupplierPage extends SupplierElement {
         int supplierID = Pattern.compile("(\\d+)").matcher(driver.getCurrentUrl()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList().get(0);
 
         // get supplier information map
-        SupplierAPI.SupplierInformation supInfo = supplierAPIWithSellerToken.getSupplierInformation(supplierID);
+        APISupplier.SupplierInformation supInfo = supplierAPIWithSellerToken.getSupplierInformation(supplierID);
 
         // check supplier name
         String dbSupplierName = commonAction.getValue(loc_txtSupplierName);

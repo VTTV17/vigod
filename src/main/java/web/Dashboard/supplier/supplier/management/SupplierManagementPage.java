@@ -1,6 +1,6 @@
 package web.Dashboard.supplier.supplier.management;
 
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -230,7 +230,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         List<String> listAvailableSupplier = getListSupplierCode();
         if (listAvailableSupplier.isEmpty()) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI(sellerLoginInformation).createSupplier();
+            new APISupplier(sellerLoginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -273,7 +273,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         List<String> listAvailableSupplier = getListSupplierCode();
         if (listAvailableSupplier.isEmpty()) {
             // check available supplier or not, if no supplier, post API to create new supplier
-            new SupplierAPI(sellerLoginInformation).createSupplier();
+            new APISupplier(sellerLoginInformation).createSupplier();
 
             // refresh page
             driver.navigate().refresh();
@@ -374,11 +374,11 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
     void checkViewSupplierList() {
         // get list supplier ids with staff token
-        List<Integer> listSupplierIDWithStaffToken = new SupplierAPI(staffLoginInformation).getListSupplierID("");
+        List<Integer> listSupplierIDWithStaffToken = new APISupplier(staffLoginInformation).getListSupplierID("");
         Collections.sort(listSupplierIDWithStaffToken);
         if (permissions.getSuppliers().getSupplier().isViewSupplierList()) {
             // get list supplier ids with seller token
-            List<Integer> listSupplierIDWithSellerToken = new SupplierAPI(sellerLoginInformation).getListSupplierID("");
+            List<Integer> listSupplierIDWithSellerToken = new APISupplier(sellerLoginInformation).getListSupplierID("");
 
             // check all suppliers must be shown.
             assertCustomize.assertTrue(CollectionUtils.isEqualCollection(listSupplierIDWithStaffToken, listSupplierIDWithSellerToken), "List supplier must be %s, but found %s."

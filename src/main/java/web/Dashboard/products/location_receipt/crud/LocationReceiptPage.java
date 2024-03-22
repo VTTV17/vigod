@@ -1,8 +1,7 @@
 package web.Dashboard.products.location_receipt.crud;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.APIAllProducts.SuggestionProductsInfo;
+import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.location.APILocation;
 import api.Seller.products.location_receipt.APILocationReceipt;
 import api.Seller.products.lot_date.APILotDate;
@@ -23,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.APISuggestionProduct.*;
 import static api.Seller.products.location.APILocation.ProductLocationInfo;
 import static utilities.links.Links.DOMAIN;
 
@@ -41,14 +41,14 @@ public class LocationReceiptPage extends LocationReceiptElement {
     LoginInformation staffLoginInformation;
     LoginInformation sellLoginInformation;
     LoginDashboardInfo staffLoginInfo;
-    APIAllProducts allProductsAPIWithSellerToken;
+    APISuggestionProduct suggestionProductsAPIWithSellerToken;
     APILocationReceipt allLocationReceiptWithSellerToken;
 
     public LocationReceiptPage getLoginInformation(LoginInformation sellLoginInformation, LoginInformation staffLoginInformation) {
         this.staffLoginInformation = staffLoginInformation;
         staffLoginInfo = new Login().getInfo(staffLoginInformation);
         this.sellLoginInformation = sellLoginInformation;
-        allProductsAPIWithSellerToken = new APIAllProducts(sellLoginInformation);
+        suggestionProductsAPIWithSellerToken = new APISuggestionProduct(sellLoginInformation);
         allLocationReceiptWithSellerToken = new APILocationReceipt(sellLoginInformation);
         return this;
     }
@@ -82,7 +82,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
 
         return assignedBranchIds.stream()
                 .mapToInt(branchId -> branchId)
-                .filter(branchId -> allProductsAPIWithSellerToken.findProductInformationMatchesWithAddLocationReceipt(branchId)
+                .filter(branchId -> suggestionProductsAPIWithSellerToken.findProductInformationMatchesWithAddLocationReceipt(branchId)
                         .getItemId() != null)
                 .findFirst()
                 .orElse(0);
@@ -93,7 +93,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
 
         return assignedBranchIds.stream()
                 .mapToInt(branchId -> branchId)
-                .filter(branchId -> allProductsAPIWithSellerToken.findProductInformationMatchesWithGetLocationReceipt(branchId)
+                .filter(branchId -> suggestionProductsAPIWithSellerToken.findProductInformationMatchesWithGetLocationReceipt(branchId)
                         .getItemId() != null)
                 .findFirst()
                 .orElse(0);
@@ -102,13 +102,13 @@ public class LocationReceiptPage extends LocationReceiptElement {
     public SuggestionProductsInfo addProductInfo(int branchId) {
         // get product info
         return (branchId == 0) ? new SuggestionProductsInfo()
-                : allProductsAPIWithSellerToken.findProductInformationMatchesWithAddLocationReceipt(branchId);
+                : suggestionProductsAPIWithSellerToken.findProductInformationMatchesWithAddLocationReceipt(branchId);
     }
 
     SuggestionProductsInfo getProductInfo(int branchId) {
         // get product info
         return (branchId == 0) ? new SuggestionProductsInfo()
-                : allProductsAPIWithSellerToken.findProductInformationMatchesWithGetLocationReceipt(branchId);
+                : suggestionProductsAPIWithSellerToken.findProductInformationMatchesWithGetLocationReceipt(branchId);
     }
 
     ProductLotInfo addLotInfo(int branchId, SuggestionProductsInfo productsInfo) {

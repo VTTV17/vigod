@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import api.Seller.supplier.supplier.SupplierAPI;
+import api.Seller.supplier.supplier.APISupplier;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -37,7 +37,7 @@ public class CashbookPermissionTest extends BaseTest {
 	CashbookAPI cashbookAPI;
 	Customers customerAPI;
 	BranchManagement branchManagmentAPI;
-	SupplierAPI supplierAPI;
+	APISupplier supplierAPI;
 	StaffManagement staffManagementAPI;
 	
 	int permissionGroupId;
@@ -55,7 +55,7 @@ public class CashbookPermissionTest extends BaseTest {
 		cashbookAPI = new CashbookAPI(ownerCredentials);
 		customerAPI = new Customers(ownerCredentials);
 		branchManagmentAPI = new BranchManagement(ownerCredentials);
-		supplierAPI = new SupplierAPI(ownerCredentials);
+		supplierAPI = new APISupplier(ownerCredentials);
 		staffManagementAPI = new StaffManagement(ownerCredentials);
 		
 		preConditionSetup();
@@ -97,7 +97,7 @@ public class CashbookPermissionTest extends BaseTest {
 		return list.get(new Random().nextInt(0, list.size()));
 	}
 	
-	String randomSupplier(SupplierAPI supplierAPI) {
+	String randomSupplier(APISupplier supplierAPI) {
 		return getRandomListElement(supplierAPI.getAllSupplierNames());
 	}		
 	
