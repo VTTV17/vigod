@@ -4,8 +4,8 @@ import api.Seller.login.Login;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APISuggestionProduct.AllSuggestionProductsInfo;
 import api.Seller.products.all_products.ProductInformation;
-import api.Seller.supplier.purchase_orders.APIPurchaseOrders;
-import api.Seller.supplier.purchase_orders.APIPurchaseOrders.PurchaseOrderInformation;
+import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders;
+import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders.PurchaseOrderInformation;
 import api.Seller.supplier.supplier.APISupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -213,7 +213,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
     LoginInformation staffLoginInformation;
     LoginInformation sellerLoginInformation;
     LoginDashboardInfo staffLoginInfo;
-    APIPurchaseOrders purchaseOrders;
+    APIAllPurchaseOrders purchaseOrders;
 
     public PurchaseOrderPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
         this.sellerLoginInformation = sellerLoginInformation;
@@ -230,7 +230,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
         checkPermission = new CheckPermission(driver);
 
         // init purchase order api
-        purchaseOrders = new APIPurchaseOrders(sellerLoginInformation);
+        purchaseOrders = new APIAllPurchaseOrders(sellerLoginInformation);
 
         // get purchaseId for view detail/ print purchase order
         List<Integer> listViewId = purchaseOrders.getListPurchaseOrderMatchWithCondition(staffLoginInfo.getAssignedBranchesNames());
@@ -431,7 +431,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
     void checkViewProductCostPrice(int purchaseId) {
         // get purchase info
-        PurchaseOrderInformation purchaseInfo = new APIPurchaseOrders(sellerLoginInformation).getPurchaseOrderInformation(purchaseId);
+        PurchaseOrderInformation purchaseInfo = new APIAllPurchaseOrders(sellerLoginInformation).getPurchaseOrderInformation(purchaseId);
         long importQuantity = purchaseInfo.getPurchaseOrderItems_quantity().get(0);
         long importPrice = purchaseInfo.getPurchaseOrderItems_importPrice().get(0);
         int itemId = purchaseInfo.getPurchaseOderItems_itemId().get(0);

@@ -1,6 +1,6 @@
 package web.Dashboard.supplier.supplier.crud;
 
-import api.Seller.supplier.purchase_orders.APIPurchaseOrders;
+import api.Seller.supplier.purchase_orders.APICreatePurchaseOrder;
 import api.Seller.supplier.supplier.APISupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -621,7 +621,7 @@ public class SupplierPage extends SupplierElement {
 
         // if no purchase orders, post API to create data test
         List<String> listAvailablePurchaseId = supplierAPIWithSellerToken.getListOrderId("", supplierID);
-        String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new APIPurchaseOrders(sellerLoginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
+        String purchaseId = (listAvailablePurchaseId.isEmpty()) ? new APICreatePurchaseOrder(sellerLoginInformation).createPurchaseOrderAndGetOrderId() : listAvailablePurchaseId.get(0);
 
         // input valid purchaseId and search
         commonAction.sendKeys(loc_txtSearchPurchaseOrder, "%s\n".formatted(purchaseId));

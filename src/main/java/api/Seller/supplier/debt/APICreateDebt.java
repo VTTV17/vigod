@@ -37,7 +37,7 @@ public class APICreateDebt {
                 supplierInformation.getIds().get(0));
     }
 
-    String getCreateSupplierDebtBody(boolean isPublic) {
+    String getCreateSupplierDebtBody(boolean isPublic, ReceiptType receiptType) {
         long epoch = Instant.now().toEpochMilli();
         String name = "Debt name %s".formatted(epoch);
         String description = "Debt description %s".formatted(epoch);
@@ -60,7 +60,7 @@ public class APICreateDebt {
                     },
                     "supplierDebtCosts": [],
                     "originalAmount": 10000,
-                    "receiptType": "PAYMENT",
+                    "receiptType": "%s",
                     "supplierDebtReceipts": []
                 }""".formatted(getSupplier(),
                 loginInfo.getStoreID(),
@@ -68,12 +68,18 @@ public class APICreateDebt {
                 loginInfo.getAssignedBranchesNames().get(0),
                 isPublic,
                 name,
-                description);
+                description,
+                receiptType);
     }
 
     String createSupplierDebtPath = "/itemservice/api/supplier-debts";
-    public Response createNewSupplierDebt(boolean isPublic) {
-        return api.post(createSupplierDebtPath, loginInfo.getAccessToken(), getCreateSupplierDebtBody(isPublic))
+
+    public enum ReceiptType {
+        PAYMENT, RECEIPT
+    }
+
+    public Response createNewSupplierDebt(boolean isPublic, ReceiptType receiptType) {
+        return api.post(createSupplierDebtPath, loginInfo.getAccessToken(), getCreateSupplierDebtBody(isPublic, receiptType))
                 .then().statusCode(201)
                 .extract()
                 .response();

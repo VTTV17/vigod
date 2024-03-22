@@ -2,7 +2,7 @@ package web.Dashboard.supplier.purchaseorders.management;
 
 import api.Seller.login.Login;
 import api.Seller.setting.StaffManagement;
-import api.Seller.supplier.purchase_orders.APIPurchaseOrders;
+import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,12 +88,12 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
     }
 
     void checkViewPurchaseOrderList() {
-        List<Integer> listPurchaseIdWithStaffToken = new APIPurchaseOrders(staffLoginInformation).getAllPurchaseOrdersInformation().getIds();
+        List<Integer> listPurchaseIdWithStaffToken = new APIAllPurchaseOrders(staffLoginInformation).getAllPurchaseOrdersInformation().getIds();
         if (permissions.getSuppliers().getPurchaseOrder().isViewPurchaseOrderList()) {
             // staff can see list all purchase order
             // that has Original branch in assigned branch list
             // if they have permission “View purchase order list”
-            List<Integer> listPurchaseIdWithSellerToken = new APIPurchaseOrders(sellerLoginInformation)
+            List<Integer> listPurchaseIdWithSellerToken = new APIAllPurchaseOrders(sellerLoginInformation)
                     .getListPurchaseOrderMatchWithCondition(staffLoginInfo.getAssignedBranchesNames());
 
             // check purchase order list
@@ -106,7 +106,7 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
             // staff can see list purchase order
             // that has Original branch in assigned branch list and created by staff only
             // if they have permission “View created purchase order list”
-            List<Integer> listPurchaseIdWithSellerToken = new APIPurchaseOrders(sellerLoginInformation)
+            List<Integer> listPurchaseIdWithSellerToken = new APIAllPurchaseOrders(sellerLoginInformation)
                     .getListPurchaseOrderMatchWithCondition(staffLoginInfo.getAssignedBranchesNames(), staffName);
 
             // check created purchase order list
