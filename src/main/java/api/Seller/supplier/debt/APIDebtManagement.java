@@ -1,6 +1,7 @@
 package api.Seller.supplier.debt;
 
 import api.Seller.login.Login;
+import api.Seller.supplier.debt.APICreateDebt.ReceiptType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -10,7 +11,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class APIDebtManagement {
@@ -103,13 +103,15 @@ public class APIDebtManagement {
                 .toList();
     }
 
-    public int getIdOfOpenDebt() {
+    public int getIdOfOpenDebt(ReceiptType receiptType) {
         AllSupplierDebtInformation info = getAllDebtInformation();
         List<Integer> ids = info.getIds();
         List<String> statues = info.getStatues();
+        List<String> receiptTypes = info.getReceiptType();
         return ids.stream()
                 .mapToInt(id -> id)
-                .filter(id -> statues.get(ids.indexOf(id)).equals(DebtStatus.OPEN.toString()))
+                .filter(id -> statues.get(ids.indexOf(id)).equals(DebtStatus.OPEN.toString())
+                        && receiptTypes.get(ids.indexOf(id)).equals(receiptType.toString()))
                 .findFirst()
                 .orElse(0);
     }

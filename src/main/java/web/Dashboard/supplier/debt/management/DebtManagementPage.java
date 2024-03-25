@@ -58,7 +58,7 @@ public class DebtManagementPage {
         checkViewDebtHistory();
 
         // check create/edit/delete/public/make a debt repayment
-        debtPage.getLoginInformation(staffLoginInformation).checkDebtPermission(permissions);
+        debtPage.getLoginInformation(sellerLoginInformation, staffLoginInformation).checkDebtPermission(permissions);
     }
 
     void checkViewDebtHistory() {
