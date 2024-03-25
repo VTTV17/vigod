@@ -27,6 +27,15 @@ public class DebtPage extends DebtElement {
         commonAction = new UICommonAction(driver);
     }
 
+    void navigateToCreateDebtPage() {
+        // navigate to create debt page by URL
+        driver.get("%s/supplier/supplier-debt/create".formatted(DOMAIN));
+        driver.navigate().refresh();
+
+        // log
+        logger.info("Navigate to create debt page by URL.");
+    }
+
     void navigateToDebtDetailPage(int debtId) {
         // navigate to debt detail page by URL
         driver.get("%s/supplier/supplier-debt/detail/%s".formatted(DOMAIN, debtId));
@@ -35,6 +44,16 @@ public class DebtPage extends DebtElement {
         // log
         logger.info("Navigate to debt detail page by URL, debtId: %s.".formatted(debtId));
     }
+
+    void navigateToEditDebtPage(int debtId) {
+        // navigate to edit debt page by URL
+        driver.get("%s/supplier/supplier-debt/edit/%s".formatted(DOMAIN, debtId));
+        driver.navigate().refresh();
+
+        // log
+        logger.info("Navigate to edit debt page by URL, debtId: %s.".formatted(debtId));
+    }
+
 
     /*----------------------------------------------------*/
     // check permission
@@ -124,7 +143,7 @@ public class DebtPage extends DebtElement {
     void checkEditADebt(int debtId) {
         if (debtId != 0) {
             // navigate to debt detail page
-            navigateToDebtDetailPage(debtId);
+            navigateToEditDebtPage(debtId);
 
             // check permission
             if (permissions.getSuppliers().getDebt().isEditADebt()) {
@@ -148,7 +167,7 @@ public class DebtPage extends DebtElement {
     void checkDeleteADebt(int debtId) {
         if (debtId != 0) {
             // navigate to debt detail page
-            navigateToDebtDetailPage(debtId);
+            navigateToEditDebtPage(debtId);
 
             // check permission
             if (permissions.getSuppliers().getDebt().isDeleteADebt()) {
@@ -170,12 +189,31 @@ public class DebtPage extends DebtElement {
     }
 
     void checkPublicADebt(int debtId) {
-        if (debtId != 0) {
-            // navigate to debt detail page
-            navigateToDebtDetailPage(debtId);
+        // check public debt at create page
+        if (permissions.getSuppliers().getDebt().isCreateANewDebt()) {
+            // navigate to create supplier page
+            navigateToCreateDebtPage();
 
             // check permission
-            if (permissions.getSuppliers().getDebt().isDeleteADebt()) {
+            if (permissions.getSuppliers().getDebt().isPublicADebt()) {
+                // open confirm public debt popup
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnPublic,
+                                loc_dlgConfirmPublic),
+                        "Can not open confirm public supplier debt popup.");
+            } else {
+                // check public debt
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPublic),
+                        "Restricted popup is not shown.");
+            }
+        }
+
+        // check public debt at edit page
+        if (debtId != 0) {
+            // navigate to debt detail page
+            navigateToEditDebtPage(debtId);
+
+            // check permission
+            if (permissions.getSuppliers().getDebt().isPublicADebt()) {
                 // open confirm public debt popup
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnPublic,
                                 loc_dlgConfirmPublic),

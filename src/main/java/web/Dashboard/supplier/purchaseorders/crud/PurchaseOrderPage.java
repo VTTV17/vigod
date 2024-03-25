@@ -151,6 +151,22 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
             commonAction.clickJS(loc_dlgChoosePaymentMethod_chkPaymentMethod, 0);
         logger.info("Select cash payment.");
 
+        if (permissions != null) {
+            // check permission
+            if (permissions.getSuppliers().getDebt().isCreateANewDebt()) {
+                // check debt method is enabled
+                assertCustomize.assertFalse(commonAction.isDisableJS(loc_dlgChoosePaymentMethod_chkPaymentMethod, 5), "Debt payment method is not enabled.");
+            } else {
+                // if staff don’t have "Create a new debt" permission
+                // => don’t show debt payment method
+                // when they create a purchase order.
+                assertCustomize.assertTrue(commonAction.isDisableJS(loc_dlgChoosePaymentMethod_chkPaymentMethod, 5), "Debt payment method is not disabled.");
+            }
+
+            // log
+            logger.info("Check permission: Supplier >> Debt >> Create a new debt.");
+        }
+
         // close choose payment method popup
         commonAction.closePopup(loc_dlgChoosePaymentMethod_btnConfirm);
         logger.info("Close choose payment method popup.");

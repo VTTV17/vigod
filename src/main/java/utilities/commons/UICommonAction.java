@@ -819,6 +819,22 @@ public class UICommonAction {
         }
     }
 
+    public boolean isDisableJS(By locator) {
+        try {
+            return (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator));
+        } catch (StaleElementReferenceException ex) {
+            return (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator));
+        }
+    }
+
+    public boolean isDisableJS(By locator, int index) {
+        try {
+            return (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator, index));
+        } catch (StaleElementReferenceException ex) {
+            return (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator, index));
+        }
+    }
+
     public void removeAttribute(By locator, int index, String attribute) {
         if (!getListElement(locator).isEmpty()) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].removeAttribute('%s')".formatted(attribute),
