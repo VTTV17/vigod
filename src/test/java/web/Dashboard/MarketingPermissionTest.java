@@ -3,6 +3,7 @@ import api.Seller.login.Login;
 import api.Seller.marketing.APIBuyLink;
 import api.Seller.marketing.APIEmailCampaign;
 import api.Seller.marketing.APILandingPage;
+import api.Seller.marketing.APIPushNotification;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.promotion.CreatePromotion;
@@ -13,6 +14,7 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.constant.Constant;
 import utilities.driver.InitWebdriver;
+import utilities.enums.PushNotiEvent;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -23,6 +25,7 @@ import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.buylink.BuyLinkManagement;
 import web.Dashboard.marketing.emailcampaign.EmailCampaignManagement;
 import web.Dashboard.marketing.landingpage.LandingPage;
+import web.Dashboard.marketing.pushnotification.PushNotificationManagement;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ public class MarketingPermissionTest extends BaseTest {
     String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
     String productCreatedByStaff = "Ao thun staff tao";
     List<Integer> productIds = new ArrayList<>();
+    List<Integer> pushNotiCampaignIds = new ArrayList<>();
     @BeforeClass
     public void beforeClass() {
         sellerUserName = ADMIN_SHOP_VI_USERNAME;
@@ -72,6 +76,9 @@ public class MarketingPermissionTest extends BaseTest {
         for (int productId:productIds) {
             new APIEditProduct(ownerCredentials).deleteProduct(productId);
         }
+        for (int notiId:pushNotiCampaignIds) {
+            new APIPushNotification(ownerCredentials).deletePushNotiCampaign(notiId);
+        }
 
     }
     @BeforeMethod
@@ -83,7 +90,7 @@ public class MarketingPermissionTest extends BaseTest {
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
         super.writeResult(result);
-        driver.quit();
+//        driver.quit();
     }
     public int callAPIGetPublishedLandingPageId(){
         int publishedLandingId = new APILandingPage(ownerCredentials).getAPublishLandingPageId();
@@ -497,5 +504,81 @@ public class MarketingPermissionTest extends BaseTest {
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new EmailCampaignManagement(driver).checkEmailCampaignPermission(allPermissions,draftId);
+    }
+    public int callAPIGetPushNotiCampaignId(){
+        int id = new APIPushNotification(ownerCredentials).getActivePushNoti();
+        if (id == 0) {
+            id = new APIPushNotification(ownerCredentials).createEventPushNotification(PushNotiEvent.ACCOUNT_CREATED);
+        }
+        return id;
+    }
+    @DataProvider
+    public Object[][] PushNotificationPermissionModel() {
+        return new Object[][]{
+                {"1"},
+//                {"10"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
+//                {"110"},
+//                {"111"},
+//                {"1000"}, //Bug: Ko co quyen view detail, vo edit bị 403 >> Expected: co the vo edit page mien la co quyen edit
+//                {"1001"},   //Bug nhu tren
+//                {"1010"},
+//                {"1011"},
+//                {"1100"},   //Bug nhu tren
+//                {"1101"},   //Bug nhu tren
+//                {"1110"},
+//                {"1111"},
+//                {"10000"},
+//                {"10001"},
+//                {"10010"},
+//                {"10011"},
+//                {"10100"},
+//                {"10101"},
+//                {"10110"},
+//                {"10111"},
+//                {"11000"},
+//                {"11001" }, //Bug nhu tren
+//                {"11010"},
+//                {"11011"},
+//                {"11100"},  //Bug nhu tren
+//                {"11101"},  //Bug nhu tren
+//                {"11110"},
+//                {"11111"}
+        };
+    }
+    //https://mediastep.atlassian.net/browse/BH-25139
+    @Test(dataProvider = "PushNotificationPermissionModel")
+    public void checkPushNotificationPermission(String permissionBinary){
+        //Ensure that has Event push noti campaign.
+        int eventCampaignId = callAPIGetPushNotiCampaignId();
+
+        //Set permission
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("11");
+        model.setProduct_productManagement("1");
+        model.setService_serviceManagement("1");
+        model.setProduct_collection("1");
+        model.setService_serviceCollection("1");
+        model.setOnlineStore_page("1");
+        model.setCustomer_segment("1");
+        model.setMarketing_pushNotification(permissionBinary);
+
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Vi edit permission", model);
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Push Notification");
+        new PushNotificationManagement(driver).clickExploreNow()
+                .checkPushNotificationPermission(allPermissions,eventCampaignId);
+
+        //Get newest data to clear
+        pushNotiCampaignIds = new APIPushNotification(ownerCredentials).getSomeActiveCampaign(eventCampaignId);
     }
 }

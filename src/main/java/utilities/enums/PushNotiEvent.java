@@ -1,0 +1,11 @@
+package utilities.enums;
+
+public enum PushNotiEvent {
+    ACCOUNT_CREATED,
+    BIRTHDAY,
+    ORDER_COMPLETED,
+    ABANDONED_CHECKOUT,
+    ACTIVATED_PARTNER,
+    REJECTED_PARTNER,
+    DEACTIVATED_PARTNER
+}
