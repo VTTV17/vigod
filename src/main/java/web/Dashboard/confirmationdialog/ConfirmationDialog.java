@@ -22,11 +22,15 @@ public class ConfirmationDialog {
 
 	By loc_dlgDialog = By.cssSelector(".modal-dialog.confirm-modal");
 	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')]");
+	By loc_btnClose = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__yellow')]");
 	public By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
 	By loc_cntMessage = By.cssSelector(".modal-body");
 	By loc_ctnTitle = By.cssSelector(".modal-title");
 	public void clickGrayBtn() {
 		commonAction.click(loc_btnCancel);
+	}
+	public void clickYellowBtn() {
+		commonAction.click(loc_btnClose);
 	}
 	
 	public void clickGreenBtn() {
