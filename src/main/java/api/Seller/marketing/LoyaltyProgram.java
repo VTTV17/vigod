@@ -11,6 +11,8 @@ import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.List;
+
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.account.AccountTest.BUYER_ACCOUNT_THANG;
@@ -32,13 +34,19 @@ public class LoyaltyProgram {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public void createNewMembership() throws InterruptedException {
+    public void createNewMembership(){
         String name = "Auto - Membership - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String description = randomAlphabetic(nextInt(MAX_MEMBERSHIP_DESCRIPTION_LENGTH));
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
         int discountMaxAmount = nextInt(1000000) + 1;
 
-        if (new Customers(loginInformation).getSegmentID() == 0) new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+        if (new Customers(loginInformation).getSegmentID() == 0) {
+            try {
+                new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         String body = """
                 {
@@ -57,7 +65,7 @@ public class LoyaltyProgram {
                     }
                 }""".formatted(name, description, new Customers(loginInformation).getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
 
-        new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body).then().statusCode(200);
+        new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body).then().statusCode(201);
         
     }
     
@@ -88,5 +96,9 @@ public class LoyaltyProgram {
     	new API().delete(DELETE_MEMBERSHIP_PATH.formatted(membershipId,loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200);
     	logger.info("Deleted membership with id: " + membershipId);
     }        
-    
+    public int getAMembershipId(){
+        List<Integer> ids = getAllMembershipJsonPath().getList("id");
+        if(ids.isEmpty()) return 0;
+        return ids.get(0);
+    }
 }
