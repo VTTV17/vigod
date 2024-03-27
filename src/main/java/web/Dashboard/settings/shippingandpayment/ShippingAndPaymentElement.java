@@ -67,4 +67,19 @@ public class ShippingAndPaymentElement {
 	By loc_tmpChecked = By.xpath(".//*[@class='uik-checkbox__checkboxIcon']");
 	
 	By loc_imgPaypal = By.xpath("//img[@alt='paypal']");
+	
+	By loc_txtMomoPartnerCode = By.id("partnerCode");
+	By loc_txtMomoAccessKey = By.id("accessKey");
+	By loc_txtMomoSecretKey = By.id("secretKey");
+	By loc_btnMomoSave = By.cssSelector(".setting_btn_save");
+	
+	By loc_ddlDebtSegment = By.cssSelector(".select-customer-options");
+	By loc_btnDebtSegmentDone = new ByChained(loc_ddlDebtSegment, By.cssSelector(".btn-save"));
+	
+	By loc_txtPayPalExchangeRate = By.id("paypalExchangeRate");
+	By loc_tltPayPalExchangeRate = By.xpath("//*[contains(@class,'bank-condition paypal')]//div[@data-tooltipped]");
+	
+	By loc_btnVNPaySetting = By.cssSelector(".payment__method .uik-widget-title__wrapper button");
+	By loc_btnSaveVNPaySetting = By.cssSelector(".VNPay-modal .gs-button__green");
+	
 }
