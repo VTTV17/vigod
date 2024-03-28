@@ -44,7 +44,7 @@ public class LoginPage {
     By loc_btnLogin = By.cssSelector("button.gs-button"); 
     By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
-    By loc_lblLoginFailError = By.cssSelector("div.alert__wrapper");
+    By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
     By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook"); 
     By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
     
@@ -53,7 +53,6 @@ public class LoginPage {
     By loc_lnkForgotPassword = By.cssSelector(".login-widget__forgotPassword");
     By loc_btnContinue = By.cssSelector(".login-widget__btnSubmit"); 
     By loc_txtVerificationCode = By.cssSelector("input[name='key']"); 
-    By loc_lblWrongCodeError = By.cssSelector(".alert__wrapper");
     By loc_lnkResendOTP = By.cssSelector(".btn-resend");
 
     public LoginPage navigate() {
@@ -226,7 +225,7 @@ public class LoginPage {
     }
 
     public void verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(loc_lblWrongCodeError);
+        String text = commonAction.getText(loc_lblLoginFailError);
         String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
         Assert.assertEquals(text, retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
         logger.info("verifyVerificationCodeError completed");
