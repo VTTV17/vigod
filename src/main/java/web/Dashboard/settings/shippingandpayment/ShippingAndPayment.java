@@ -107,56 +107,72 @@ public class ShippingAndPayment {
 	}
 	
 	boolean isGHTKTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkGHTK, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
-		logger.info("Is Giao Hang Tiet Kiem turned on: " + isTurnedOn);
+		logger.info("Is GHTK turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 	
 	boolean isGHNTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkGHN, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
-		logger.info("Is Giao Hang Nhanh turned on: " + isTurnedOn);
+		logger.info("Is GHN turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 	
 	boolean isAhamoveTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkAhamove, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Ahamove turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 	
 	boolean isVNPostTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkVnPost, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is VNPost turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 
 	boolean isSelfDeliveryTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkSelfDelivery, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Self-Delivery turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isLocalATMTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnATMToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Local ATM turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isCreditCardTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCreditCardToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Credit Card turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isCODTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCODToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Cash On Delivery turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isCashTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCashToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Cash turned on: " + isTurnedOn);
+		return isTurnedOn;
+	}	
+	
+	boolean isDebtTurnedOn() {
+		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
+		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnDebtToggle, elements.loc_tmpInput)).isSelected();
+		logger.info("Is Debt turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 
@@ -377,6 +393,78 @@ public class ShippingAndPayment {
 		logger.info("Enabled Payment Method for %s.".formatted("Bank Transfer"));
 		return this;
 	}		
+
+	public ShippingAndPayment inputMomoPartnerCode(String partnerCode) {
+		commonAction.inputText(elements.loc_txtMomoPartnerCode, partnerCode);
+		logger.info("Input Momo Partner Code: " + partnerCode);
+		return this;
+	}		
+	public ShippingAndPayment inputMomoAccessKey(String accessKey) {
+		commonAction.inputText(elements.loc_txtMomoAccessKey, accessKey);
+		logger.info("Input Momo Access Key: " + accessKey);
+		return this;
+	}		
+	public ShippingAndPayment inputMomoSecretKey(String secretKey) {
+		commonAction.inputText(elements.loc_txtMomoSecretKey, secretKey);
+		logger.info("Input Momo Secret Key: " + secretKey);
+		return this;
+	}		
+	public ShippingAndPayment clickMomoSaveBtn() {
+		commonAction.click(elements.loc_btnMomoSave);
+		logger.info("Clicked on Momo Save button");
+		return this;
+	}		
+	public String getMomoPartnerCode() {
+		String value = commonAction.getAttribute(elements.loc_txtMomoPartnerCode, "value");
+		logger.info("Retrieved Momo Partner Code: " + value);
+		return value;
+	}		
+	public String getMomoAccessKey() {
+		String value = commonAction.getAttribute(elements.loc_txtMomoAccessKey, "value");
+		logger.info("Retrieved Momo Access Key: " + value);
+		return value;
+	}		
+	public String getMomoSecretKey() {
+		String value = commonAction.getAttribute(elements.loc_txtMomoSecretKey, "value");
+		logger.info("Retrieved Momo Secret Key: " + value);
+		return value;
+	}		
+
+	public ShippingAndPayment clickDebtSegmentDropdown() {
+		commonAction.click(elements.loc_ddlDebtSegment);
+		logger.info("Clicked on Debt Segment dropdown");
+		return this;
+	}
+	
+	public ShippingAndPayment clickDebtSegmentDoneBtn() {
+		commonAction.click(elements.loc_btnDebtSegmentDone);
+		logger.info("Clicked on Debt Segment Done button");
+		return this;
+	}
+	
+	public ShippingAndPayment clickPayPalExchangeRateField() {
+		commonAction.click(elements.loc_txtPayPalExchangeRate);
+		logger.info("Clicked on PayPal Exchange Rate field");
+		return this;
+	}
+	
+	public ShippingAndPayment clickPayPalTooltip() {
+		commonAction.click(elements.loc_tltPayPalExchangeRate);
+		logger.info("Clicked on PayPal Exchange Rate tooltip");
+		return this;
+	}
+	
+	public ShippingAndPayment clickVNPaySettingBtn() {
+		commonAction.click(elements.loc_btnVNPaySetting);
+		logger.info("Clicked on VNPay setting button");
+		return this;
+	}
+	
+	public ShippingAndPayment clickSaveVNPaySettingBtn() {
+		commonAction.click(elements.loc_btnSaveVNPaySetting);
+		logger.info("Clicked on Save VNPay setting button");
+		return this;
+	}
 	
     public void verifyPermissionToEnableGHTK(String permission) {
     	navigate();
@@ -613,12 +701,16 @@ public class ShippingAndPayment {
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 		}		
 		
+		//Re-enable SelfDelivery so that it facilitate testing of other permissions
+		enableSelfDelivery();
+		clickShippingProviderSaveBtn();
+		
 		logger.info("Finished checkPermissionToEnableDisableShippingPayment");
 	}
 	
 	void checkPermissionToAddRemoveGoogleAPIKey(AllPermissions staffPermission) {
 		navigateToDetailScreenByURL();
-
+		
 		clickGoogleAPIKeyBtn();
 		
 		if (staffPermission.getSetting().getShippingAndPayment().isAddRemoveGoogleAPIKey()) {
@@ -642,13 +734,146 @@ public class ShippingAndPayment {
 		} else {
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 		}
-
+		
 		logger.info("Finished checkPermissionToAddRemoveGoogleAPIKey");
 	}
 	
+	void checkPermissionToEnableDisablePaymentMethod(AllPermissions staffPermission) {
+		boolean originalStatus;
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isLocalATMTurnedOn();
+		clickLocalATMToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
+			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			Assert.assertNotEquals(isLocalATMTurnedOn(), originalStatus);
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		enableLocalATM();
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isCreditCardTurnedOn();
+		clickCreditCardToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
+			Assert.assertNotEquals(isCreditCardTurnedOn(), originalStatus);
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isCODTurnedOn();
+		clickCODToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
+			Assert.assertNotEquals(isCODTurnedOn(), originalStatus);
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isCashTurnedOn();
+		clickCashToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
+			Assert.assertNotEquals(isCashTurnedOn(), originalStatus);
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		//Code for Momo payment goes here
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isDebtTurnedOn();
+		clickDebtToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
+			if (isSelfDeliveryTurnedOn()) {
+				Assert.assertNotEquals(isDebtTurnedOn(), originalStatus);
+			} else {
+				Assert.assertEquals(isDebtTurnedOn(), originalStatus); // If Self-Delivery is not turned on, debt payment cannot be turned on
+			}
+			
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+
+		//Code for Paypal and Banktransfer payment goes here
+		
+		logger.info("Finished checkPermissionToEnableDisablePaymentMethod");
+	}	
+	
+	void checkPermissionToUpdatePaymentMethodInfo(AllPermissions staffPermission) {
+		
+		navigateToDetailScreenByURL();
+		
+		if (isDebtTurnedOn()) {
+			clickDebtSegmentDropdown();
+			if (staffPermission.getSetting().getShippingAndPayment().isUpdatePaymentMethodInformation()) {
+				clickDebtSegmentDoneBtn();
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+			} else {
+				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			}
+		} else if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
+			if (isSelfDeliveryTurnedOn()) {
+				enableDebt();
+				clickDebtSegmentDropdown();
+				if (staffPermission.getSetting().getShippingAndPayment().isUpdatePaymentMethodInformation()) {
+					clickDebtSegmentDoneBtn();
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				} else {
+					Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+				}
+			} else {
+				logger.info("Self-Delivery is off. Skipping this case");
+			}
+		} else {
+			logger.info("Debt payment is off and permission to enable payment method is not granted. Skipping checking permission to update Debt payment info");
+		}
+		
+		navigateToDetailScreenByURL();
+		
+		//Re-enable SelfDelivery so that it facilitate testing of other permissions
+		if (!isSelfDeliveryTurnedOn()) {
+			enableSelfDelivery();
+			clickShippingProviderSaveBtn();
+			isSelfDeliveryTurnedOn();
+			navigateToDetailScreenByURL();
+		}
+		
+		if (getMomoPartnerCode().isEmpty()) inputMomoPartnerCode("partnercode");
+		if (getMomoAccessKey().isEmpty()) inputMomoAccessKey("accesskey");
+		if (getMomoSecretKey().isEmpty()) inputMomoSecretKey("secretkey");
+		clickMomoSaveBtn();
+		if (staffPermission.getSetting().getShippingAndPayment().isUpdatePaymentMethodInformation()) {
+			Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.create.successMessage"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+
+		clickPayPalExchangeRateField();
+		clickPayPalTooltip();
+		if (staffPermission.getSetting().getShippingAndPayment().isUpdatePaymentMethodInformation()) {
+			Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+				
+		clickVNPaySettingBtn();
+		if (staffPermission.getSetting().getShippingAndPayment().isUpdatePaymentMethodInformation()) {
+			clickSaveVNPaySettingBtn();
+//			Assert.assertTrue(homePage.getToastMessage().contains("VNPay") || homePage.getToastMessage().contentEquals(translateText("promotion.flashSale.edit.successMessage")));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}	
+		
+		logger.info("Finished checkPermissionToEnableDisablePaymentMethod");
+	}	
+	
 	public void checkShippingPaymentSettingPermission(AllPermissions staffPermission) {
-//		checkPermissionToEnableDisableShippingPayment(staffPermission);
+		checkPermissionToEnableDisableShippingPayment(staffPermission);
 		checkPermissionToAddRemoveGoogleAPIKey(staffPermission);
+		checkPermissionToEnableDisablePaymentMethod(staffPermission);
+		checkPermissionToUpdatePaymentMethodInfo(staffPermission);
 	}    
     
 }
