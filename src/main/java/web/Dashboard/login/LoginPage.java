@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
 import api.Seller.login.Login;
@@ -39,9 +40,10 @@ public class LoginPage {
 
     By loc_ddlCountry = By.cssSelector(".phone-code div.uik-select__valueRenderedWrapper");
 
-    By loc_txtUsername = By.cssSelector("input[name='username']"); 
-    By loc_txtPassword = By.cssSelector("input[name='password']"); 
-    By loc_btnLogin = By.cssSelector("button.gs-button"); 
+    By loc_frmLogin = By.xpath("//div[contains(@class,'login-widget__formBody') and not(@hidden)]");
+    By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']")); 
+    By loc_txtPassword = new ByChained(loc_frmLogin, By.cssSelector("input[name='password']"));
+    By loc_btnLogin = new ByChained(loc_frmLogin, By.xpath(".//button[contains(@class,'gs-button') and contains(@class,'login-widget__btnSubmit')]"));
     By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
