@@ -28,7 +28,7 @@ public class CreateProductTest extends BaseTest {
     @BeforeClass
     void setup() {
         driver = new InitWebdriver().getDriver(browser, headless);
-        LoginInformation loginInformation = new LoginInformation();
+        loginInformation = new LoginInformation();
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);

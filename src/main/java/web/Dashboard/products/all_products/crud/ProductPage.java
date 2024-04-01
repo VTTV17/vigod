@@ -1,8 +1,8 @@
 package web.Dashboard.products.all_products.crud;
 
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import api.Seller.setting.VAT;
@@ -28,9 +28,6 @@ import web.Dashboard.products.all_products.crud.conversion_unit.ConversionUnitPa
 import web.Dashboard.products.all_products.crud.variation_detail.VariationDetailPage;
 import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -1395,13 +1392,13 @@ public class ProductPage extends ProductPageElement {
 
     void checkUIVariations() throws Exception {
         // check variations title
-        String dbVariations = commonAction.getText(loc_lblVariations);
+        String dbVariations = commonAction.getText(loc_lblVariations).split("\n")[0];
         String ppVariations = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.title", language);
         assertCustomize.assertEquals(dbVariations, ppVariations, "[Failed][Body] Variations title should be %s, but found %s.".formatted(ppVariations, dbVariations));
         logger.info("[UI][%s] Check Body - Variations title.".formatted(language));
 
         // check variation description
-        String dbVariationDescription = commonAction.getText(loc_cntVariation);
+        String dbVariationDescription = commonAction.getText(loc_lblVariations).split("\n\n")[1];
         String ppVariationDescription = getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationDescription", language);
         assertCustomize.assertTrue(dbVariationDescription.equals(ppVariationDescription), "[Failed][Body] Variation description should be %s, but found %s.".formatted(ppVariationDescription, dbVariationDescription));
         logger.info("[UI][%s] Check Body - Variation description.".formatted(language));
@@ -1824,7 +1821,7 @@ public class ProductPage extends ProductPageElement {
 
     void checkUIDeposit() throws Exception {
         // check deposit title
-        String dbDeposit = commonAction.getText(loc_lblDeposit);
+        String dbDeposit = commonAction.getText(loc_lblDeposit).split("\n")[0];
         String ppDeposit = getPropertiesValueByDBLang("products.allProducts.createProduct.deposit.title", language);
         assertCustomize.assertEquals(dbDeposit, ppDeposit, "[Failed][Body] Deposit title should be %s, but found %s.".formatted(ppDeposit, dbDeposit));
         logger.info("[UI][%s] Check Body - Deposit.".formatted(language));
@@ -1836,7 +1833,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Add deposit button.".formatted(language));
 
         // check deposit description
-        String dbDepositDescription = commonAction.getText(loc_cntDeposit);
+        String dbDepositDescription = commonAction.getText(loc_lblDeposit).split("\n\n")[1];
         String ppDepositDescription = getPropertiesValueByDBLang("products.allProducts.createProduct.deposit.depositDescription", language);
         assertCustomize.assertEquals(dbDepositDescription, ppDepositDescription, "[Failed][Body] Deposit description should be %s, but found %s.".formatted(ppDepositDescription, dbDepositDescription));
         logger.info("[UI][%s] Check Body - Deposit description.".formatted(language));
@@ -2593,6 +2590,7 @@ public class ProductPage extends ProductPageElement {
     }
 
     int productId;
+
     void checkViewProductDetail() {
         // check view product detail permission
         if (permissions.getProduct().getProductManagement().isViewProductDetail()) {

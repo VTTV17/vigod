@@ -2,13 +2,10 @@ package web.Dashboard;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import web.Dashboard.login.LoginPage;
-import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
-
-import java.io.File;
+import web.Dashboard.login.LoginPage;
+import web.Dashboard.supplier.supplier.management.SupplierManagementPage;
 
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
@@ -19,7 +16,7 @@ public class SupplierManagementTest extends BaseTest {
     @BeforeClass
     void setup() {
         driver = new InitWebdriver().getDriver(browser, headless);
-        LoginInformation loginInformation = new LoginInformation();
+        loginInformation = new LoginInformation();
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
         new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);
