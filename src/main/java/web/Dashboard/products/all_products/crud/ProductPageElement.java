@@ -68,7 +68,7 @@ public class ProductPageElement {
     @Getter
     By loc_txtVariationName = By.cssSelector("div.first-item > div > div > input");
     @Getter
-    By loc_txtVariationValue = By.cssSelector(".second-item .css-nwjfc > input");
+    By loc_txtVariationValue = By.cssSelector(".second-item .box-input input");
     By loc_tblVariation_chkSelectAll = By.cssSelector(".product-form-variation-selector__table  th:nth-child(1) input");
     By loc_tblVariation_lnkSelectAction = By.cssSelector("th .gs-fake-link");
     /**
@@ -96,7 +96,7 @@ public class ProductPageElement {
     /* Product list page */
     /* Tien */
     @Getter
-    By loc_btnDeleteVariation = By.xpath("//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/following-sibling::*/button");
+    By loc_btnDeleteVariation = By.cssSelector(".d-none .product-form-variation-selector__btn-delete");
     By loc_icnDeleteDeposit = By.xpath( "//div[contains(@class,'product-form-variation-selector__gs-tag')]/parent::*/parent::*/following-sibling::*/button");
     By loc_dlgPrintProductBarcode = By.cssSelector(".modal-content.product-list-barcode-printer");
     By btnAddDeposit = By.xpath("//input[@class='uik-checkbox__checkbox' and @name='enabledListing']/ancestor::div[contains(@class,'uik-widget__wrapper')]/following-sibling::*/div[1]//span");
@@ -162,7 +162,7 @@ public class ProductPageElement {
     By loc_cntVariation = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) .gs-widget__content > p");
     By loc_lblVariationName = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) .product-form-variation-selector > .d-none > div:nth-child(1) > label");
     By loc_lblVariationValue = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) .product-form-variation-selector > .d-none > div:nth-child(2) > label");
-    By loc_plhVariationValue = By.cssSelector(".second-item .css-14el2xx-placeholder");
+    By loc_plhVariationValue = By.cssSelector(".second-item .placeholder");
     // Variation table
     By loc_lblNumberOfSelectedVariations = By.xpath("//span[contains(@class,'gs-fake-link')]/ancestor::th/div");
     By loc_lnkSelectAction = By.xpath("//th/div/div/span");
@@ -279,11 +279,11 @@ public class ProductPageElement {
     By loc_lblSEOUrl = By.xpath("(//*[@name= 'seoUrl']/parent::div/preceding-sibling::div[1]//span)[1]");
     /* Sale chanel */
     By loc_lblSaleChannel = By.cssSelector("[class $= --n2] > div:nth-child(1) h3");
-    String loc_tltSaleChannel = "//*[@id='%s']//div[@class='tippy-tooltip-content']";
-    By loc_icnOnlineShop = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[1]/parent::span/parent::div");
-    By loc_icnGoMua = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[2]/parent::span/parent::div");
-    By loc_icnShopee = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[3]/parent::span/parent::div");
-    By loc_icnTiktok = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[4]/parent::span/parent::div");
+    By loc_tltSaleChannel = By.xpath("//div[@class='tippy-tooltip-content']");
+    By loc_icnOnlineShop = By.cssSelector(".gs-component-tooltip:nth-child(1)");
+    By loc_icnGoMua = By.cssSelector(".gs-component-tooltip:nth-child(2)");
+    By loc_icnShopee = By.cssSelector(".gs-component-tooltip:nth-child(3)");
+    By loc_icnTiktok = By.cssSelector(".gs-component-tooltip:nth-child(4)");
     /* Collections */
     By loc_lblCollection = By.cssSelector("[class $= --n2] > div:nth-child(2) h3");
     By loc_plhSearchCollection = By.cssSelector(".product-form-collection-selector2 input");

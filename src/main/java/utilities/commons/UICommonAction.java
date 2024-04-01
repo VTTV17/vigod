@@ -856,7 +856,7 @@ public class UICommonAction {
             return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
         } catch (NullPointerException ex) {
             driver.navigate().refresh();
-            return ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')").toString();
+            return getLangKey();
         }
     }
 

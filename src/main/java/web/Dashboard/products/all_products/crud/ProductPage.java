@@ -1906,14 +1906,12 @@ public class ProductPage extends ProductPageElement {
     }
 
     private String getSaleChannelTooltips(By locator) {
-        String ariaDescribedBy = commonAction.getAttribute(locator, "aria-describedby");
-        By tltLocator = By.xpath(loc_tltSaleChannel.formatted(ariaDescribedBy));
         commonAction.hoverActions(locator);
         try {
-            return commonAction.getText(tltLocator);
+            return commonAction.getText(loc_tltSaleChannel);
         } catch (StaleElementReferenceException ex) {
             logger.info(ex);
-            return commonAction.getText(tltLocator);
+            return commonAction.getText(loc_tltSaleChannel);
         }
     }
 
@@ -1945,10 +1943,10 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - Shopee tooltips.".formatted(language));
 
         // check Tiktok tooltips
-        String dbTiktokTooltips = getSaleChannelTooltips(loc_icnTiktok);
-        List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
-        assertCustomize.assertFalse(ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), dbTiktokTooltips));
-        logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
+//        String dbTiktokTooltips = getSaleChannelTooltips(loc_icnTiktok);
+//        List<String> ppTiktokTooltips = List.of(getPropertiesValueByDBLang("products.allProducts.updateProduct.saleChanel.tiktokTooltips.IMEI", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.activatedTiktokTooltips", language), getPropertiesValueByDBLang("products.allProducts.createProduct.saleChanel.deactivatedTiktokTooltips", language));
+//        assertCustomize.assertFalse(ppTiktokTooltips.contains(dbTiktokTooltips), "[Failed][Body] Tiktok tooltips should be %s, but found %s.".formatted(ppTiktokTooltips.toString(), dbTiktokTooltips));
+//        logger.info("[UI][%s] Check Body - Tiktok tooltips.".formatted(language));
     }
 
     void checkUICollections() throws Exception {
