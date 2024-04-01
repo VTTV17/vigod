@@ -101,8 +101,6 @@ public class BranchManagement {
     }
 
     private void updateBranchInfo(int brID, boolean isDefault, boolean hideOnStoreFront, String branchStatus) {
-        // get current branch info
-        brInfo = getInfo();
         int index = brInfo.getBranchID().indexOf(brID);
         String branchName = brInfo.getBranchName().get(index);
 
@@ -150,28 +148,43 @@ public class BranchManagement {
     }
 
     public void inactiveAllPaidBranches() {
+        // get current branch info
+        brInfo = getInfo();
+
         // inactive all paid branches
         IntStream.range(1, brInfo.getBranchID().size()).forEachOrdered(i -> updateBranchInfo(brInfo.getBranchID().get(i), false, brInfo.getIsHideOnStoreFront().get(i), "INACTIVE"));
     }
 
     public void activeAndShowAllPaidBranchesOnShopOnline() {
+        // get current branch info
+        brInfo = getInfo();
+
         // active and show all paid branches on shop online
         IntStream.range(1, brInfo.getBranchID().size()).forEachOrdered(i -> updateBranchInfo(brInfo.getBranchID().get(i), false, false, "ACTIVE"));
     }
 
     public BranchManagement hideFreeBranchOnShopOnline() {
+        // get current branch info
+        brInfo = getInfo();
+
         // hide free branch on shop online
         updateBranchInfo(brInfo.getBranchID().get(0), true, true, "ACTIVE");
         return this;
     }
 
     public BranchManagement showFreeBranchOnShopOnline() {
+        // get current branch info
+        brInfo = getInfo();
+
         // show free branch on shop online
         updateBranchInfo(brInfo.getBranchID().get(0), true, false, "ACTIVE");
         return this;
     }
 
     public BranchInfo getDestinationBranchesInfo() {
+        // get current branch info
+        brInfo = getInfo();
+
         // init branch info model
         BranchInfo brInfo = new BranchInfo();
 

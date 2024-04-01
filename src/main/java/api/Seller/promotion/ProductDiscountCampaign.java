@@ -45,7 +45,7 @@ public class ProductDiscountCampaign {
     ProductInfo productInfo;
 
     @Data
-    public class DiscountCampaignInfo {
+    public static class DiscountCampaignInfo {
         private String couponType;
         private Long couponValue;
         private Integer discountCampaignMinQuantity;
@@ -56,7 +56,7 @@ public class ProductDiscountCampaign {
     }
 
     @Data
-    public class BranchDiscountCampaignInfo {
+    public static class BranchDiscountCampaignInfo {
         private List<Integer> listOfMinimumRequirements;
         private List<String> listOfCouponTypes;
         private List<Long> listOfCouponValues;

@@ -2,7 +2,6 @@ package api.Seller.products.all_products;
 
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.setting.StoreInformation;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -15,33 +14,34 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
 import static utilities.character_limit.CharacterLimit.MAX_WHOLESALE_PRICE_TITLE;
 import static utilities.links.Links.STORE_CURRENCY;
 
 public class WholesaleProduct {
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+
     public WholesaleProduct(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
 
     public void addWholesalePriceProduct(ProductInfo productInfo) {
-        String defaultLanguage = new StoreInformation(loginInformation).getInfo().getDefaultLanguage();
-
         String CREATE_WHOLESALE_PRICE_PATH = "/itemservice/api/item/wholesale-pricing";
         StringBuilder body = new StringBuilder("""
                 {
                     "itemId": "%s",
                     "lstWholesalePricingDto": [""".formatted(productInfo.getProductID()));
-        String segmentIDs = nextBoolean() ? "ALL" : String.valueOf(new Customers(loginInformation).getSegmentID());
-        int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationListMap().get(defaultLanguage).size()) + 1 : 1;
+        String segmentIDs = "ALL";
+        int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationModelList().size()) + 1 : 1;
         if (productInfo.isHasModel()) {
             for (int i = 0; i < num; i++) {
                 long price = productInfo.getProductSellingPrice().get(i) == 0
                         ? productInfo.getProductSellingPrice().get(i)
                         : nextLong(productInfo.getProductSellingPrice().get(i)) + 1;
-                int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(i))), 1)) + 1;
+                int maxStock = Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(i)));
+                int stock = nextInt(Math.min(MAX_STOCK_QUANTITY, Math.max(maxStock, 1))) + 1;
                 String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
                 String variationWholesaleConfig = """
                         {
@@ -61,7 +61,8 @@ public class WholesaleProduct {
         } else {
             String title = randomAlphabetic(nextInt(MAX_WHOLESALE_PRICE_TITLE) + 1);
             long price = nextLong(productInfo.getProductSellingPrice().get(0)) + 1;
-            int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(0)))) + 1;
+            int maxStock = Collections.max(productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(0)));
+            int stock = nextInt(Math.min(MAX_STOCK_QUANTITY, Math.max(maxStock, 1))) + 1;
             String variationWholesaleConfig = """
                     {
                         "id": null,
