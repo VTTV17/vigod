@@ -61,6 +61,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(productID)));
+        driver.navigate().refresh();
 
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
         if (!commonAction.isCheckedJS(productPage.getLoc_chkAddWholesalePricing()))

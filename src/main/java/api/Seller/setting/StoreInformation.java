@@ -1,6 +1,7 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -17,6 +18,7 @@ public class StoreInformation {
     // get login dashboard information
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+
     public StoreInformation(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
@@ -39,21 +41,17 @@ public class StoreInformation {
         storeInfo.setDefaultLanguage(storeRes.jsonPath().getString("countryCode").equals("VN") ? "vi" : "en");
 
         // get store language list
-        Response languageRes = new API().get(API_STORE_LANGUAGE_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        languageRes.then().statusCode(200);
-        List<Boolean> publishLangList = languageRes.jsonPath().getList("published");
-
-        // set all store languages code.
-        List<String> langCodeList = languageRes.jsonPath().getList("langCode");
-        storeInfo.setStoreLanguageList(langCodeList);
-
-        // set all store languages name.
-        Response resGetLangName = new API().get(getLangNamePath, loginInfo.getAccessToken())
+        JsonPath jsonPath = new API().get(API_STORE_LANGUAGE_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
                 .then()
                 .statusCode(200)
-                .extract()
-                .response();
-        List<String> langNameList = langCodeList.stream().map(langKey -> resGetLangName.jsonPath().getString("findAll { it.langCode == '%s' }.displayValue".formatted(langKey)).replaceAll("[\\[\\]]", "")).toList();
+                .extract().jsonPath();
+        List<Boolean> publishLangList = jsonPath.getList("published");
+
+        // set all store languages code.
+        List<String> langCodeList = jsonPath.getList("langCode");
+        storeInfo.setStoreLanguageList(langCodeList);
+
+        List<String> langNameList = jsonPath.getList("langName");
         storeInfo.setStoreLanguageName(langNameList);
 
         // set published language
