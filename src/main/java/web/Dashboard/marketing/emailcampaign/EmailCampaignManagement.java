@@ -42,7 +42,9 @@ public class EmailCampaignManagement {
 	By loc_ddvStatus = By.cssSelector(".uik-select__option");
 	By loc_icnEdit = By.xpath("//i[contains(@class,'gs-action-button')][1]");
 	By loc_icnDelete = By.xpath("//i[contains(@class,'gs-action-button')][3]");
-    public EmailCampaignManagement clickCreateEmailCampaign() {
+	By loc_icnClone = By.xpath("//i[contains(@class,'gs-action-button')][2]");
+
+	public EmailCampaignManagement clickCreateEmailCampaign() {
     	commonAction.click(loc_btnCreateEmailCampaign);
     	logger.info("Clicked on 'Create New Email Campaign' button.");
     	return this;
@@ -115,8 +117,13 @@ public class EmailCampaignManagement {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-		}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateEmailCampaign),
-				"[Failed] Restricted page not show when click on Create Email campaign button.");
+		}else {
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateEmailCampaign),
+					"[Failed] Restricted page not show when click on Create Email campaign button.");
+			navigateUrl();
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_icnClone),
+					"[Failed] Restricted page not show when click on Clone email campaign.");
+		}
 	}
 	public void checkPermissionViewSegment(){
 		createEmailCampaign.selectSendTo(1)

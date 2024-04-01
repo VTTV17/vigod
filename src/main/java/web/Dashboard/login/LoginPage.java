@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
 import api.Seller.login.Login;
@@ -39,12 +40,13 @@ public class LoginPage {
 
     By loc_ddlCountry = By.cssSelector(".phone-code div.uik-select__valueRenderedWrapper");
 
-    By loc_txtUsername = By.cssSelector("input[name='username']"); 
-    By loc_txtPassword = By.cssSelector("input[name='password']"); 
-    By loc_btnLogin = By.cssSelector("button.gs-button"); 
+    By loc_frmLogin = By.xpath("//div[contains(@class,'login-widget__formBody') and not(@hidden)]");
+    By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']")); 
+    By loc_txtPassword = new ByChained(loc_frmLogin, By.cssSelector("input[name='password']"));
+    By loc_btnLogin = new ByChained(loc_frmLogin, By.xpath(".//button[contains(@class,'gs-button') and contains(@class,'login-widget__btnSubmit')]"));
     By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
-    By loc_lblLoginFailError = By.cssSelector("div.alert__wrapper");
+    By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
     By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook"); 
     By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
     
@@ -53,7 +55,6 @@ public class LoginPage {
     By loc_lnkForgotPassword = By.cssSelector(".login-widget__forgotPassword");
     By loc_btnContinue = By.cssSelector(".login-widget__btnSubmit"); 
     By loc_txtVerificationCode = By.cssSelector("input[name='key']"); 
-    By loc_lblWrongCodeError = By.cssSelector(".alert__wrapper");
     By loc_lnkResendOTP = By.cssSelector(".btn-resend");
 
     public LoginPage navigate() {
@@ -226,7 +227,7 @@ public class LoginPage {
     }
 
     public void verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(loc_lblWrongCodeError);
+        String text = commonAction.getText(loc_lblLoginFailError);
         String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
         Assert.assertEquals(text, retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
         logger.info("verifyVerificationCodeError completed");
