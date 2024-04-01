@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Thang">
         <classes>
-            <class name="BH_9536">
+            <class name="web.StoreFront.BH_9536">
                 <methods>
                     <include name="BH_9536_G1_Case1_1_SettingDisplayAndProductInStock"/>
                     <include name="BH_9536_G1_Case2_1_SettingDisplayAndProductOutOfStock" />

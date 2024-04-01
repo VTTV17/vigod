@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Thang">
         <classes>
-            <class name="BH_9753">
+            <class name="web.StoreFront.BH_9753">
                 <methods>
                     <include name="BH_9753_G1_Case1_1_OneBranchActiveAndHideBranchOnStoreFront"/>
                     <include name="BH_9753_G1_Case2_1_AllBranchesActiveAndHideBranchOnStoreFront" />

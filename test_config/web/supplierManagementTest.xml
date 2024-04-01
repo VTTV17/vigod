@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Automation">
         <classes>
-            <class name="SupplierManagementTest">
+            <class name="web.Dashboard.SupplierManagementTest">
                 <methods>
                     <include name="MN_SUPPLIER_01_CheckUI" />
                     <include name="MN_SUPPLIER_02_CheckNavigateToAddSupplierPage" />

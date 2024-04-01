@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Automation">
         <classes>
-            <class name="UpdateSupplierTest">
+            <class name="web.Dashboard.UpdateSupplierTest">
                 <methods>
                     <include name="UP_SUPPLIER_01_ViewSupplierDetail" />
                     <include name="UP_SUPPLIER_02_UpdateVNSupplier" />

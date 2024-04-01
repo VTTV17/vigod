@@ -3,7 +3,7 @@
 <suite name="Default Suite">
   <test thread-count="5" name="GoSELL-Thang">
     <classes>
-      <class name="BH_8888">
+      <class name="web.StoreFront.BH_8888">
         <methods>
           <include name="BH_8888_G1_Case1_1_FlashSaleIsInProgress"/>
           <include name="BH_8888_G1_Case1_2_FlashSaleIsExpired" />

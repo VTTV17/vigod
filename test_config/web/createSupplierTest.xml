@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Automation">
         <classes>
-            <class name="CreateSupplierTest">
+            <class name="web.Dashboard.CreateSupplierTest">
                 <methods>
                     <!-- Language: VIE -->
                     <include name="CR_SUPPLIER_01_CreateVNSupplier"/>
