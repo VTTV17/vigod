@@ -108,6 +108,7 @@ public class HeaderSF extends GeneralSF {
     }
 
     public HeaderSF verifySearchSuggestion(String fullName, String price) {
+        commons.sleepInMiliSecond(500);
         new GeneralSF(driver).waitDotLoadingDisappear();
 
         String searchSuggestionItem1_Title = commons.getText(SEARCH_SUGGESTION_RESULT_TITLE,0);

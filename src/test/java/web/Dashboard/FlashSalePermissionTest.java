@@ -71,7 +71,7 @@ public class FlashSalePermissionTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        driver.quit();
+        driver.quit();
     }
     public int callAPIGetFlashScheduleId(){
         int flashSaleId = new FlashSale(ownerCredentials).getAFlashSaleScheduled();

@@ -7,8 +7,17 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import utilities.assert_customize.AssertCustomize;
+import utilities.links.Links;
+import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import utilities.utils.PropertiesUtil;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
+import web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram;
 
 public class LoyaltyPoint {
 	
@@ -18,14 +27,23 @@ public class LoyaltyPoint {
     UICommonAction commonAction;
     
     SoftAssert soft = new SoftAssert();
+	AllPermissions allPermissions;
+	AssertCustomize assertCustomize;
+	LoginInformation shopOwnerLoginInfo;
     
     public LoyaltyPoint (WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+		assertCustomize = new AssertCustomize(driver);
     }
-
+	public LoyaltyPoint getLoginInformation(LoginInformation shopOwnerLoginInfo){
+		this.shopOwnerLoginInfo = shopOwnerLoginInfo;
+		return this;
+	}
     By loc_btnSave = By.cssSelector(".loyalty-point-setting .gs-button__green");
     By loc_btnActivateNow = By.cssSelector(".loyalty-point-intro__left-col__activate");
+	By loc_lblStatus = By.cssSelector(".loyalty-point-setting-section__header__status");
+	By loc_btnStatus = By.cssSelector(".uik-checkbox__toggle");
     
     public LoyaltyPoint clickSave() {
     	commonAction.click(loc_btnSave);
@@ -58,6 +76,108 @@ public class LoyaltyPoint {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
     }
-    /*-------------------------------------*/   
-    
+    /*-------------------------------------*/
+	public void navigateByUrl(){
+		String url = Links.DOMAIN + "/marketing/loyalty-point/setting";
+		commonAction.navigateToURL(url);
+		commonAction.sleepInMiliSecond(500);
+		logger.info("Navigate to url: "+url);
+	}
+    public boolean hasViewPointProgramInformation(){
+		return allPermissions.getMarketing().getLoyaltyPoint().isViewPointProgramInformation();
+	}
+	public boolean hasEnableProgram(){
+		return allPermissions.getMarketing().getLoyaltyPoint().isEnableProgram();
+	}
+	public boolean hasDisableProgram(){
+		return allPermissions.getMarketing().getLoyaltyPoint().isDisableProgram();
+	}
+	public boolean hasEditProgram(){
+		return allPermissions.getMarketing().getLoyaltyPoint().isEditProgram();
+	}
+	public void checkPermissionViewPointProgramInfo(){
+		if(hasViewPointProgramInformation()){
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(Links.DOMAIN+"/marketing/loyalty-point/setting","loyalty-point/setting"),
+					"Loyalty point setting page not shown");
+		}else
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(Links.DOMAIN+"/marketing/loyalty-point/setting"),
+					"Restricted page not show when navigate to loyalty point setting link.");
+	}
+	public void checkPermissionEnableProgram(){
+		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(true);
+		if(hasViewPointProgramInformation()) {
+			navigateByUrl();
+			if (hasEnableProgram()) {
+				commonAction.click(loc_btnStatus);
+				String status = commonAction.getText(loc_lblStatus);
+				try {
+					assertCustomize.assertEquals(status,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.status.enable"),
+							"[Failed] Status = enable not show.");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnStatus),
+						"[Failed] Restricted popup not show when click to enable loyalty point.");
+		}else logger.info("Don't have View loyalty point setting permission, so can't check enable program permission.");
+	}
+	public void checkPermissionDisableProgram(){
+		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(false);
+		if(hasViewPointProgramInformation()) {
+			navigateByUrl();
+			if (hasDisableProgram()) {
+				commonAction.click(loc_btnStatus);
+				String message = new ConfirmationDialog(driver).getPopUpContent();
+				try {
+					assertCustomize.assertEquals(message, PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.deletePointNotiMessage"),
+							"[Failed] Delete point notification message should be shown.");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				new ConfirmationDialog(driver).clickOnRedBtn();
+				String status = commonAction.getText(loc_lblStatus);
+				try {
+					assertCustomize.assertEquals(status,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.status.disable"),
+							"[Failed] Status = enable not show.");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnStatus),
+						"[Failed] Restricted popup not show when click to disable loyalty point.");
+		}else logger.info("Don't have View loyalty point setting permission, so can't check disable program permission.");
+	}
+	public void checkEditProgramPermission(){
+		if(hasViewPointProgramInformation()){
+			navigateByUrl();
+			if(hasEditProgram()){
+				clickSave();
+				String toastMessage = new HomePage(driver).getToastMessage();
+				try {
+					assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.update.successMessage"),
+							"[Failed] Updated successfully message not show");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}else
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnSave),
+						"Restricted popup not show when click on Save button.");
+		}else logger.info("Don't have View program info permission, so can't check Edit program permission.");
+	}
+	public LoyaltyPoint completeVerifyLoyaltyPointPermission() {
+		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+		if (assertCustomize.getCountFalse() > 0) {
+			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+		}
+		return this;
+	}
+	public LoyaltyPoint checkLoyaltyPointPermission(AllPermissions allPermissions){
+		this.allPermissions = allPermissions;
+		checkPermissionViewPointProgramInfo();
+		checkPermissionEnableProgram();
+		checkPermissionDisableProgram();
+		checkEditProgramPermission();
+		completeVerifyLoyaltyPointPermission();
+		return this;
+	}
 }

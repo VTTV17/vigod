@@ -115,14 +115,15 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		int countFail = homePage.verifySalePitchPopupDisplay();
 		Assert.assertEquals(countFail,0,"Verify sale-pitch has %s error".formatted(countFail));
 	}
-	public String clickOnEditNewestService() {
+	public void clickOnEditNewestService() {
 		HomePage homePage = new HomePage(driver);
 		homePage.waitTillSpinnerDisappear1();
 		commons.click(loc_lst_icnEdit,0);
 		logger.info("Click on edit newest service.");
-		return commons.getText(loc_lst_lblServiceName,0);
+//		return commons.getText(loc_lst_lblServiceName,0);
 	}
 	public CreateServicePage goToEditService(String serviceName) throws Exception {
+		commons.sleepInMiliSecond(1000);
 		if (serviceName.equalsIgnoreCase("")){
 			commons.click(loc_lst_lblServiceName,0);
 			logger.info("Go to edit newest service.");

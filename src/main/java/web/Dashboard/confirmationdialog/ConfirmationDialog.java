@@ -26,6 +26,7 @@ public class ConfirmationDialog {
 	public By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
 	By loc_cntMessage = By.cssSelector(".modal-body");
 	By loc_ctnTitle = By.cssSelector(".modal-title");
+	By loc_btnRed = By.cssSelector(".gs-button__red");
 	public void clickGrayBtn() {
 		commonAction.click(loc_btnCancel);
 	}
@@ -72,5 +73,9 @@ public class ConfirmationDialog {
 		logger.info("PopUp title: "+message);
 		return message;
 	}
-
+	public ConfirmationDialog clickOnRedBtn(){
+		commonAction.click(loc_btnRed);
+		logger.info("Click on red button.");
+		return this;
+	}
 }

@@ -168,7 +168,7 @@ public class AllCustomers {
 	public AllCustomers inputSearchTerm(String searchTerm) {
 		commonAction.sendKeys(elements.loc_txtSearchCustomer, searchTerm);
 		logger.info("Input '" + searchTerm + "' into Search box.");
-		homePage.waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
 

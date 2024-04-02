@@ -24,7 +24,7 @@ public class OrderComplete {
         PageFactory.initElements(driver, this);
     }
     public void clickOnBackToMarket(){
-        commonAction.click(orderCompleteUI.loc_btnBackToMarket);
+        commonAction.click(orderCompleteUI.loc_btnBackToHome);
         commonAction.sleepInMiliSecond(2000);
         logger.info("Click on Back to market button");
     }

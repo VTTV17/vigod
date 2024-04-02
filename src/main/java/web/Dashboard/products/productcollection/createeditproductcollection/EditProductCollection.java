@@ -46,7 +46,7 @@ public class EditProductCollection extends CreateProductCollection {
     }
 
     public ProductCollectionManagement editProductPriorityInCollection() {
-        home.waitTillSpinnerDisappear();
+        home.waitTillSpinnerDisappear1();
         CreateProductCollection.productPriorityMap = inputPriority(false, true);
         clickOnSaveBTN();//Click outside
         clickOnSaveBTN();
@@ -55,7 +55,7 @@ public class EditProductCollection extends CreateProductCollection {
     }
 
     public ProductCollectionManagement editProductListInManualCollection(String[] newProductList, boolean hasDeleteProduct, boolean hasInputPriority) {
-        home.waitTillSpinnerDisappear();
+        home.waitTillSpinnerDisappear1();
         int productSize = common.getElements(loc_icn_btnDelete).size();
         System.out.println("productSize: " + productSize);
         if (hasDeleteProduct) {
