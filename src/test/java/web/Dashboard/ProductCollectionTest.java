@@ -26,6 +26,7 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -208,7 +209,7 @@ public class ProductCollectionTest extends BaseTest {
     public void editAutomationCollectionAndVerify(String collectionName, String conditionType, String... conditions) throws Exception {
         String[] allCondition = loginAndNavigateToEditCollection(collectionName)
                 .EditAutomationCollection(conditionType, conditions);
-        System.out.println("allCondition" + allCondition);
+        System.out.println("allCondition" + Arrays.stream(allCondition).toList());
         List<String> productExpectedList;
         int countItemExpected;
         callLoginAPI();
@@ -219,7 +220,6 @@ public class ProductCollectionTest extends BaseTest {
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else if (allCondition.length == 1) {
             Map productBelongCollectionMap = createProductCollection.productsBelongCollectionExpected_OneCondition( loginInformation, conditions[0]);
-            System.out.println("productBelongCollectionMap: " + productBelongCollectionMap);
             productExpectedList = (List<String>) productBelongCollectionMap.get("ExpectedList");
             countItemExpected = (int) productBelongCollectionMap.get("CountItem");
         } else {
@@ -228,7 +228,7 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("Product: " + productExpectedList);
         productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, productType, automatedMode, String.valueOf(countItemExpected))
-                .waitToUpdateCollection(2);
+                .waitToUpdateCollection(5);
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);

@@ -82,7 +82,7 @@ public class GeneralSF {
 		return this;
 	}
 	public GeneralSF waitDotLoadingDisappear(){
-		commons.waitVisibilityOfElementLocated(loc_icnSearchLoading);
+//		commons.waitVisibilityOfElementLocated(loc_icnSearchLoading);
 		commons.waitInvisibilityOfElementLocated(loc_icnSearchLoading);
 		return this;
 	}

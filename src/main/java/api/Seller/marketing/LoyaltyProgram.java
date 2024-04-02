@@ -34,7 +34,7 @@ public class LoyaltyProgram {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public void createNewMembership(){
+    public int createNewMembership(){
         String name = "Auto - Membership - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String description = randomAlphabetic(nextInt(MAX_MEMBERSHIP_DESCRIPTION_LENGTH));
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
@@ -64,9 +64,9 @@ public class LoyaltyProgram {
                         "extension": ""
                     }
                 }""".formatted(name, description, new Customers(loginInformation).getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
-
-        new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body).then().statusCode(201);
-        
+         Response response = new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body);
+         response.then().statusCode(201);
+         return response.jsonPath().getInt("id");
     }
     
     /**

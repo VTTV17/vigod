@@ -18,7 +18,7 @@ import web.Dashboard.marketing.buylink.BuyLinkManagement;
 import web.Dashboard.marketing.buylink.CreateBuyLink;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.StoreFront.GeneralSF;
-import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
+import web.StoreFront.checkout.checkoutOneStep.Checkout;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.quicklycheckout.QuicklyCheckout;
 import web.StoreFront.signup.SignupPage;
@@ -49,7 +49,7 @@ public class BuyLinkTest extends BaseTest {
     GeneralSF generalSF;
     HeaderSF headerSF;
     web.StoreFront.login.LoginPage loginSF;
-    CheckOutStep1 checkOutStep1;
+//    CheckOutStep1 checkOutStep1;
     String discountCodeName;
     double productPrice;
     double discountAmount;
@@ -58,6 +58,7 @@ public class BuyLinkTest extends BaseTest {
     QuicklyCheckout quicklyCheckout;
     String token;
     LoginInformation loginInformation;
+    Checkout checkout;
     @BeforeClass
     public void beforeClass() throws Exception {
         userNameDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
@@ -137,12 +138,7 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-         checkOutStep1.selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnNextButton()
+        new Checkout(driver).clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
         deleteNewestBuyLink();
@@ -196,15 +192,9 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         deleteNewestBuyLink();
@@ -244,15 +234,9 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         deleteNewestBuyLink();
@@ -291,14 +275,9 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .verifyShippingFeeAfterDiscount("0đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .verifyShippingFreeAfterDiscount("0đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyShippingFeeAfterDiscount("0đ");
         deleteNewestBuyLink();
@@ -338,15 +317,9 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         deleteNewestBuyLink();
@@ -375,13 +348,10 @@ public class BuyLinkTest extends BaseTest {
         String buyerAccount_Signup = "01" + generate.generateNumber(9);
         String buyerDisplayName_Signup = generateName;
         signupSF.signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .inputAddressInfo_VN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
-                .clickOnNextButton()
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .updateAddressVN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
         deleteNewestBuyLink();
@@ -405,15 +375,10 @@ public class BuyLinkTest extends BaseTest {
         headerSF.clickUserInfoIcon().changeLanguage(languageSF);
         generalSF = new GeneralSF(driver);
         generalSF.navigateToURL(buyLinkURL);
-        checkOutStep1 = new CheckOutStep1(driver);
-        String phoneNumber = "01"+generate.generateNumber(7);
-        checkOutStep1.selectPaymentMethod("COD")
-                .inputPhoneNumber(phoneNumber)
-                .inputAddressInfo_VN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
-                .clickOnNextButton()
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .updateAddressVN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
         new APIPreferences(loginInformation).setUpGuestCheckout(false);
@@ -495,15 +460,9 @@ public class BuyLinkTest extends BaseTest {
         headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
         generalSF = new GeneralSF(driver);
         generalSF.navigateToURL(buyLinkURL);
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         generalSF = new GeneralSF(driver);
@@ -549,15 +508,9 @@ public class BuyLinkTest extends BaseTest {
         headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
         generalSF = new GeneralSF(driver);
         generalSF.navigateToURL(buyLinkURL);
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
         generalSF = new GeneralSF(driver);
@@ -703,13 +656,9 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .verifyProductName(productName)
-                .clickOnNextButton()
-                .verifyProductName(productName)
-                .clickOnNextButton()
+       new Checkout(driver)
+               .verifyProductName(productName)
+               .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .clickOnBackToMarket();
         APIEditProduct apiEditProduct = new APIEditProduct(loginInformation);
@@ -722,13 +671,9 @@ public class BuyLinkTest extends BaseTest {
         headerSF.clickUserInfoIcon().changeLanguage("ENG").waitTillLoaderDisappear();
         generalSF = new GeneralSF(driver);
         generalSF.navigateToURL(buyLinkURL);
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnNextButton()
-                .verifyProductName(productNameEN)
-                .clickOnNextButton()
-                .verifyProductName(productNameEN)
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyProductName(productName)
+                .clickOnCompleteBtn()
                 .verifyProductNames(productNameEN);
         new APIPreferences(loginInformation).setUpGuestCheckout(false);
     }
@@ -780,15 +725,10 @@ public class BuyLinkTest extends BaseTest {
         generalSF.navigateToURL(buyLinkURL);
         loginSF = new GeneralSF(driver).clickOnLoginButtonOnRequiredLoginModal();
         loginSF.inputEmailOrPhoneNumber(userNameSF).inputPassword(passWordSF).clickLoginBtn();
-        checkOutStep1 = new CheckOutStep1(driver);
-        checkOutStep1.selectPaymentMethod("COD")
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .selectShippingMethod("Self delivery")
-                .clickOnNextButton()
-                .clickOnArrowIcon().verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .clickOnNextButton()
+        new Checkout(driver)
+                .verifyProductName(productName)
+                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount(String.format("%.0f",discountAmount)+"đ");
     }

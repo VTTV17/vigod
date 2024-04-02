@@ -23,7 +23,7 @@ public class AddSegmentDialog {
 	}
 
 	By loc_txtSearchSegment = By.cssSelector(".search-input.uik-input__input");
-	By loc_lblSegments = By.cssSelector(".custom-control-label");
+	By loc_lblSegments = By.xpath("//div[@class='segments-row ']//label");
 	By loc_btnOK = By.cssSelector(".modal-body .gs-button__green");
 	By loc_btnCancel = By.cssSelector(".modal-body .gs-button__gray--outline");
 
@@ -34,12 +34,13 @@ public class AddSegmentDialog {
 		return this;
 	}
 
-	public AddSegmentDialog selectCustomerSegment(String customerSegment) {
+	public AddSegmentDialog selectCustomerSegment(String...customerSegment) {
 		String retrievedText;
 		boolean clicked = false;
+		if(customerSegment.length ==0 )
 		for (WebElement el : commonAction.getListElement(loc_lblSegments)) {
 			retrievedText = commonAction.getText(el).trim();
-			if (retrievedText.contentEquals(customerSegment)) {
+			if (retrievedText.contentEquals(customerSegment[0])) {
 				clicked = true;
 				commonAction.clickElement(el);
 				logger.info("Selected Customer Segment: " + customerSegment);

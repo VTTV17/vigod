@@ -2,15 +2,22 @@ package api.Seller.marketing;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.CreateProduct;
+import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 
 import java.util.Collections;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 public class LoyaltyPoint {
+    final static Logger logger = LogManager.getLogger(LoyaltyPoint.class);
+
     String LOYALTY_POINT_PATH = "/beehiveservices/api/loyalty-point-settings/store/";
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
@@ -48,5 +55,54 @@ public class LoyaltyPoint {
                 }""".formatted(loyaltyPointID, loginInfo.getStoreID(), apiRatePoint, apiRateAmount, apiExchangeAmount);
 
         new API().put(LOYALTY_POINT_PATH + loginInfo.getStoreID(),  loginInfo.getAccessToken(), body);
+    }
+    public LoyaltyPointInfo getLoyaltyPointSetting(){
+        Response response = new API().get(LOYALTY_POINT_PATH + loginInfo.getStoreID(),loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        LoyaltyPointInfo info = new LoyaltyPointInfo();
+        info.setId(response.jsonPath().getInt("id"));
+        info.setEnabled(response.jsonPath().getBoolean("enabled"));
+        info.setEnableExpiryDate(response.jsonPath().getBoolean("enableExpiryDate"));
+        info.setExchangeAmount(response.jsonPath().getLong("exchangeAmount"));
+        info.setExchangePoint(response.jsonPath().getInt("exchangePoint"));
+        info.setCheckout(response.jsonPath().getBoolean("checkouted"));
+        info.setIntroduced(response.jsonPath().getBoolean("introduced"));
+        info.setRefered(response.jsonPath().getBoolean("refered"));
+        info.setRateAmount(response.jsonPath().getLong("rateAmount"));
+        info.setRatePoint(response.jsonPath().getInt("ratePoint"));
+        info.setPurchased(response.jsonPath().getBoolean("purchased"));
+        info.setShowPoint(response.jsonPath().getBoolean("showPoint"));
+        info.setExpirySince(response.jsonPath().getInt("expirySince"));
+        return info;
+    }
+    public void enableOrDisableProgram(boolean isEnable){
+        LoyaltyPointInfo info = getLoyaltyPointSetting();
+        if(info.isEnabled() == isEnable) {
+            logger.info("Point program is %s, so no need call api to set up.".formatted(info.isEnabled()));
+            return;
+        }
+        String body = """
+                {
+                    "id": %s,
+                    "storeId": %s,
+                    "enabled": %s,
+                    "expirySince": %s,
+                    "showPoint": %s,
+                    "purchased": %s,
+                    "ratePoint": %s,
+                    "rateAmount": %s,
+                    "refered": %s,
+                    "introduced": %s,
+                    "checkouted": %s,
+                    "exchangePoint": %s,
+                    "exchangeAmount": %s,
+                    "enableExpiryDate": %s
+                }
+                """.formatted(info.getId(),info.getStoreId(),isEnable,info.getExpirySince(),info.isShowPoint(),
+                info.isPurchased(),info.getRatePoint(),info.getRateAmount(),info.isRefered(),info.isIntroduced(),
+                info.isCheckout(),info.getExchangePoint(),info.getExchangeAmount(),info.isEnableExpiryDate());
+        Response response = new API().put(LOYALTY_POINT_PATH + loginInfo.getStoreID(),loginInfo.getAccessToken(),body);
+        response.then().statusCode(200);
+
     }
 }

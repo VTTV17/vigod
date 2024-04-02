@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import web.StoreFront.GeneralSF;
+import web.StoreFront.checkout.checkoutOneStep.Checkout;
 import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
 import utilities.commons.UICommonAction;
 
@@ -26,11 +27,13 @@ public class ShoppingCart extends ShoppingCartElement {
         PageFactory.initElements(driver, this);
     }
 
-    public CheckOutStep1 clickOnContinue() {
+    public Checkout clickOnContinue() {
+        new GeneralSF(driver).waitTillLoaderDisappear();
+        commonAction.sleepInMiliSecond(1000);
         commonAction.clickElement(CONTINUE_BTN);
         logger.info("Click on Continue button");
         new GeneralSF(driver).waitTillLoaderDisappear();
-        return new CheckOutStep1(driver);
+        return new Checkout(driver);
     }
 
 }
