@@ -30,6 +30,7 @@ import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProduct
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.StringUtils.trim;
@@ -100,7 +101,7 @@ public class ProductPage extends ProductPageElement {
     @Getter
     private static boolean manageByIMEI;
     @Getter
-    private static int productID;
+    private static int productId;
     @Getter
     private static boolean hasModel;
     @Getter
@@ -307,7 +308,7 @@ public class ProductPage extends ProductPageElement {
 
     public ProductPage navigateToUpdateProductPage(int productID) throws Exception {
         // get product id
-        ProductPage.productID = productID;
+        ProductPage.productId = productID;
 
         // log
         logger.info("Product id: %s".formatted(productID));
@@ -322,10 +323,10 @@ public class ProductPage extends ProductPageElement {
         driver.navigate().refresh();
 
         // clear old conversion unit config
-        if (commonAction.isCheckedJS(loc_chkAddConversionUnit)) {
-            commonAction.clickJS(loc_chkAddConversionUnit);
-        }
-        logger.info("Remove old conversion unit config.");
+//        if (commonAction.isCheckedJS(loc_chkAddConversionUnit)) {
+//            commonAction.clickJS(loc_chkAddConversionUnit);
+//        }
+//        logger.info("Remove old conversion unit config.");
 
         // delete old wholesale product config if any
         if (commonAction.isCheckedJS(loc_chkAddWholesalePricing)) {
@@ -338,13 +339,10 @@ public class ProductPage extends ProductPageElement {
         logger.info("Remove old wholesale pricing config.");
 
         // save changes
-        commonAction.openPopupJS(loc_btnSave, loc_dlgNotification);
+        commonAction.click(loc_btnSave);
 
         // if update product failed, try again
-        if (!commonAction.getListElement(loc_dlgUpdateFailed).isEmpty()) {
-            // close update product failed popup
-            commonAction.closePopup(loc_dlgNotification_btnClose);
-
+        if (commonAction.getListElement(loc_dlgNotification).isEmpty()) {
             // save changes
             commonAction.openPopupJS(loc_btnSave, loc_dlgNotification);
         }
@@ -615,7 +613,7 @@ public class ProductPage extends ProductPageElement {
             for (int i = 0; i < branchStock.get(brStockIndex); i++) {
                 String imei = "%s%s_IMEI_%s_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", brInfo.getActiveBranches().get(brIndex), epoch, i);
                 commonAction.sendKeys(loc_dlgAddIMEI_txtAddIMEI, brIndex, imei);
-                logger.info("Input IMEI: %s.".formatted(imei));
+                logger.info("Input IMEI: %s.".formatted(imei.replace("\n", "")));
             }
             logger.info("%s[%s] Add IMEI, stock: %s.".formatted(variationValue == null ? "" : "[%s]".formatted(variationValue), brName, branchStock.get(brStockIndex)));
         }
@@ -967,33 +965,39 @@ public class ProductPage extends ProductPageElement {
         }
     }
 
-
     /* Complete create/update product */
     void completeCreateProduct() {
         // save changes
-        commonAction.openPopupJS(loc_btnSave, loc_dlgNotification);
+        commonAction.click(loc_btnSave);
 
-        // close notification popup
-        commonAction.closePopup(loc_dlgNotification_btnClose);
+        // if create product successfully, close notification popup
+        if (!commonAction.getListElement(loc_dlgNotification).isEmpty()) {
+            // close notification popup
+            commonAction.closePopup(loc_dlgNotification_btnClose);
+        }
 
-        // wait api return list product
-        productID = new APIAllProducts(loginInformation).searchProductIdByName(name);
+        // if that still failed, end test.
+        Assert.assertTrue(commonAction.getListElement(loc_dlgUpdateFailed).isEmpty(), "[Failed][Create product] Can not create product.");
+
 
         // log
-        logger.info("Product id: %s".formatted(productID));
+        logger.info("Wait and get product id after creation.");
+
+        // wait api return list product
+        productId = new APIAllProducts(loginInformation).searchProductIdByName(name);
+
+        // log
+        logger.info("Product id: %s".formatted(productId));
     }
 
     void completeUpdateProduct() {
         // save changes
-        commonAction.openPopupJS(loc_btnSave, loc_dlgNotification);
+        commonAction.click(loc_btnSave);
 
-        // if update product failed, try again
-        if (!commonAction.getListElement(loc_dlgUpdateFailed).isEmpty()) {
-            // close update product failed popup
+        // if update product successfully, close notification popup
+        if (!commonAction.getListElement(loc_dlgNotification).isEmpty()) {
+            // close notification popup
             commonAction.closePopup(loc_dlgNotification_btnClose);
-
-            // save changes again
-            commonAction.openPopupJS(loc_btnSave, loc_dlgNotification);
         }
 
         // if that still failed, end test.
@@ -1004,14 +1008,18 @@ public class ProductPage extends ProductPageElement {
     }
 
     public void configWholesaleProduct() throws Exception {
-        if (hasModel) new WholesaleProductPage(driver, loginInformation, this)
-                .navigateToWholesaleProductPage()
-                .getWholesaleProductInfo()
-                .addWholesaleProductVariation();
-        else new WholesaleProductPage(driver, loginInformation, this)
-                .navigateToWholesaleProductPage()
-                .getWholesaleProductInfo()
-                .addWholesaleProductWithoutVariation();
+        if (productId != 0) {
+            if (hasModel) new WholesaleProductPage(driver, loginInformation, this)
+                    .navigateToWholesaleProductPage()
+                    .getWholesaleProductInfo()
+                    .addWholesaleProductVariation();
+            else new WholesaleProductPage(driver, loginInformation, this)
+                    .navigateToWholesaleProductPage()
+                    .getWholesaleProductInfo()
+                    .addWholesaleProductWithoutVariation();
+        } else {
+            logger.info("Can not found product id.");
+        }
     }
 
     public ProductPage configConversionUnit() throws Exception {
@@ -1450,7 +1458,8 @@ public class ProductPage extends ProductPageElement {
 
     void checkListActionsOnVariationTable() throws Exception {
         // check list actions
-        List<String> dbListActions = commonAction.getListElement(loc_lblActionsList).stream().map(WebElement::getText).toList();
+        int bound = commonAction.getListElement(loc_lblActionsList).size();
+        List<String> dbListActions = IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_lblActionsList, index)).toList();
         List<String> ppListActions = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.listAction.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.listAction.1", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.listAction.2", language),
@@ -1461,7 +1470,8 @@ public class ProductPage extends ProductPageElement {
 
     void checkVariationTable() throws Exception {
         // check variation table column
-        List<String> dbVariationTableImageColumn = commonAction.getListElement(loc_tblVariation_lblColumn).stream().map(WebElement::getText).toList();
+        int bound = commonAction.getListElement(loc_tblVariation_lblColumn).size();
+        List<String> dbVariationTableImageColumn = IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_tblVariation_lblColumn, index)).toList();
         List<String> ppVariationTableImageColumn = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.column.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.column.1", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.variationTable.column.2", language),
@@ -1603,7 +1613,8 @@ public class ProductPage extends ProductPageElement {
         // open price dropdown
         commonAction.clickJS(loc_dlgUpdatePrice_ddvSelectedPriceType);
         commonAction.getElement(loc_dlgUpdatePrice_ddlPriceType);
-        List<String> dbListPriceInDropdown = commonAction.getListElement(loc_dlgUpdatePrice_lblPriceType).stream().map(WebElement::getText).toList();
+        int bound = commonAction.getListElement(loc_dlgUpdatePrice_lblPriceType).size();
+        List<String> dbListPriceInDropdown = IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_dlgUpdatePrice_lblPriceType, index)).toList();
         List<String> ppListPriceInDropdown = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.1", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updatePricePopup.priceInDropdown.2", language));
@@ -1655,7 +1666,8 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Update normal variation stock popup - Number of selected branches.".formatted(language));
 
         // check list actions
-        List<String> dbListActions = commonAction.getListElement(loc_dlgUpdateStock_lblActions).stream().map(WebElement::getText).toList();
+        int bound = commonAction.getListElement(loc_dlgUpdateStock_lblActions).size();
+        List<String> dbListActions = IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_dlgUpdateStock_lblActions, index)).toList();
         List<String> ppListActions = List.of(getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.0", language),
                 getPropertiesValueByDBLang("products.allProducts.createProduct.variations.updateStockPopup.listActions.1", language));
         assertCustomize.assertEquals(dbListActions, ppListActions, "[Failed][Update normal variation stock popup] List actions should be %s, but found %s.".formatted(ppListActions, dbListActions));
@@ -2581,13 +2593,11 @@ public class ProductPage extends ProductPageElement {
         checkPermission = new CheckPermission(driver);
 
         // get productId
-        this.productId = productId;
+        ProductPage.productId = productId;
 
         // check view product detail
         checkViewProductDetail();
     }
-
-    int productId;
 
     void checkViewProductDetail() {
         // check view product detail permission

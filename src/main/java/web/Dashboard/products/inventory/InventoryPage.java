@@ -78,8 +78,12 @@ public class InventoryPage extends InventoryElement {
     AssertCustomize assertCustomize;
     CheckPermission checkPermission;
 
-    void checkViewProductInventory(AllPermissions permissions, List<Integer> dbProductList, int notCreatedProductId, int createdProductId) {
+    void checkViewProductInventory(AllPermissions permissions, int notCreatedProductId, int createdProductId) {
+        // navigate to inventory page
         navigateToInventoryPage();
+
+        // get list productId in inventory
+        List<Integer> dbProductList = new Inventory(staffLoginInformation).getInventoryInformation().getProductIds();
 
         // GET the product inventory from API.
         if (permissions.getProduct().getInventory().isViewProductInventory()) {
@@ -112,7 +116,10 @@ public class InventoryPage extends InventoryElement {
         logger.info("Check permission: Product >> Inventory >> View Inventory history.");
     }
 
-    void checkUpdateStock(List<Integer> dbProductList) {
+    void checkUpdateStock() {
+        // get list productId in inventory
+        List<Integer> dbProductList = new Inventory(staffLoginInformation).getInventoryInformation().getProductIds();
+
         if (!dbProductList.isEmpty()) {
             navigateToInventoryPage();
             if (permissions.getProduct().getInventory().isUpdateStock()) {
@@ -150,17 +157,14 @@ public class InventoryPage extends InventoryElement {
         // get productId is created by seller
         int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
 
-        // get list productId in inventory
-        List<Integer> dbProductList = new Inventory(staffLoginInformation).getInventoryInformation().getProductIds();
-
         // check view product inventory
-        checkViewProductInventory(permissions, dbProductList, notCreatedProductId, createdProductId);
+        checkViewProductInventory(permissions,  notCreatedProductId, createdProductId);
 
         // check view inventory history
         checkViewInventoryHistory();
 
         // check update stock
-        checkUpdateStock(dbProductList);
+        checkUpdateStock();
     }
 
 }

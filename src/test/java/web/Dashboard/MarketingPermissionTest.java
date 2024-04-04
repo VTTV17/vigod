@@ -60,7 +60,7 @@ public class MarketingPermissionTest extends BaseTest {
         // Shop owner create product
 //        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
 //        productCreatedByShopOwner = productInfo.getProductName();
-//        productIds.add(productInfo.getProductID());
+//        productIds.add(productInfo.getProductId());
 
         //Create full permission for staff
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
@@ -68,7 +68,7 @@ public class MarketingPermissionTest extends BaseTest {
 //        //Staff create product
 //        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
 //        productCreatedByStaff = productInfo.getProductName();
-//        productIds.add(productInfo.getProductID());
+//        productIds.add(productInfo.getProductId());
     }
     @AfterClass
     public void afterClass(){

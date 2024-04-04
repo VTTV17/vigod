@@ -2,6 +2,7 @@ package api.Seller.setting;
 
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;

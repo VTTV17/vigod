@@ -161,15 +161,14 @@ public class ProductManagementPage extends ProductManagementElement {
         // get productId is created by seller
         int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
 
-        // get list product ids
-        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getAllProductInformation().getProductIds();
-
         // check view product list
-        checkViewProductList(productIds, createdProductId, notCreatedProductId);
+        checkViewProductList(createdProductId, notCreatedProductId);
 
         // check create product
         checkCreateProduct();
 
+        // get list product ids
+        List<Integer> productIds = new APIAllProducts(staffLoginInformation).getAllProductInformation().getProductIds();
         if (!productIds.isEmpty()) {
             // check clear stock
             checkClearStock();
@@ -208,9 +207,12 @@ public class ProductManagementPage extends ProductManagementElement {
         }
     }
 
-    void checkViewProductList(List<Integer> dbProductList, int createdProductId, int notCreatedProductId) {
+    void checkViewProductList(int createdProductId, int notCreatedProductId) {
         // navigate to product list
         navigateToProductListPage();
+
+        // get list product ids
+        List<Integer> dbProductList = new APIAllProducts(staffLoginInformation).getAllProductInformation().getProductIds();
 
         // GET the product list from API.
         if (permissions.getProduct().getProductManagement().isViewProductList()) {
@@ -241,7 +243,7 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isActivateProduct()) {
             commonAction.clickJS(loc_ddlListActions, 3);
-            commonAction.closePopup(loc_dlgConfirm_icnClose);
+            commonAction.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 3), "Restricted popup is not shown.");
         }
@@ -256,7 +258,7 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isDeactivateProduct()) {
             commonAction.clickJS(loc_ddlListActions, 2);
-            commonAction.closePopup(loc_dlgConfirm_icnClose);
+            commonAction.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 2), "Restricted popup is not shown.");
         }
@@ -283,7 +285,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // create product
             driver.navigate().refresh();
-            productPage.createWithoutVariationProduct(false, 1);
+            productPage.getLoginInformation(staffLoginInformation).createWithoutVariationProduct(false, 1);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnCreateProduct),
                     "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
@@ -350,7 +352,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
         if (permissions.getProduct().getProductManagement().isPrintBarcode()) {
             commonAction.openPopupJS(loc_btnPrintBarcode, loc_dlgPrintBarcode);
-            commonAction.closePopup(loc_dlgPrintBarcode_btnCancel);
+            commonAction.click(loc_dlgPrintBarcode_btnCancel);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPrintBarcode), "Restricted popup is not shown.");
         }
@@ -399,7 +401,7 @@ public class ProductManagementPage extends ProductManagementElement {
             commonAction.openPopupJS(loc_ddlImportActions, 1, loc_dlgImport);
 
             // close popup
-            commonAction.closePopup(loc_dlgImport_btnCancel);
+            commonAction.click(loc_dlgImport_btnCancel);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlImportActions, 1), "Restricted popup is not shown.");
         }
@@ -416,7 +418,7 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
         if (permissions.getProduct().getInventory().isClearStock()) {
             commonAction.clickJS(loc_ddlListActions, 0);
-            commonAction.closePopup(loc_dlgConfirm_icnClose);
+            commonAction.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 0), "Restricted popup is not shown.");
         }
@@ -430,7 +432,7 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
         if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
             commonAction.clickJS(loc_ddlListActions, 1);
-            commonAction.closePopup(loc_dlgConfirm_icnClose);
+            commonAction.click(loc_dlgConfirm_icnClose);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 1), "Restricted popup is not shown.");
         }
@@ -476,7 +478,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
             // close confirm popup
             if (!commonAction.getListElement(loc_dlgConfirmManageProductByLotDate).isEmpty()) {
-                commonAction.closePopup(loc_dlgConfirmManageProductByLotDate_btnYes);
+                commonAction.click(loc_dlgConfirmManageProductByLotDate_btnYes);
             }
 
         } else {

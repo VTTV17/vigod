@@ -1,8 +1,6 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
-import api.Seller.products.location.APILocation;
-import api.Seller.products.location.APILocation.AllProductLocationInfo;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -336,10 +334,13 @@ public class APIAllProducts {
 
     public int searchProductIdByName(String name) {
         ProductManagementInfo info = getAllProductInformation();
-        for (int index = 0; index < info.getProductNames().size(); index++) {
-            if (info.getProductNames().get(index).equals(name)) {
-                return info.getProductIds().get(index);
+        if (!info.getProductIds().isEmpty()) {
+            for (int index = 0; index < info.getProductNames().size(); index++) {
+                if (info.getProductNames().get(index).equals(name)) {
+                    return info.getProductIds().get(index);
+                }
             }
+            return searchProductIdByName(name);
         }
         return 0;
     }

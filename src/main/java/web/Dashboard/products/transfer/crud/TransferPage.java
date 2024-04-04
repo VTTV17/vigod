@@ -143,7 +143,7 @@ public class TransferPage extends TransferElement {
     }
 
     public TransferPage inputTransferredQuantity(int quantity) {
-        commons.sendKeys(loc_btnTransferredQuantity, String.valueOf(quantity));
+        commons.sendKeys(loc_txtTransferredQuantity, String.valueOf(quantity));
         logger.info("Input '" + quantity + "' into Transferred Quantity field.");
         return this;
     }
@@ -283,12 +283,12 @@ public class TransferPage extends TransferElement {
         }
     }
 
-    private void inputTransferInfo(LoginInformation staffLoginInformation) throws Exception {
+    private void inputTransferInfo(LoginInformation loginInformation) throws Exception {
         // get login information
-        LoginDashboardInfo loginInfo = new Login().getInfo(staffLoginInformation);
+        LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
 
         // init branch management API
-        BranchManagement branchManagement = new BranchManagement(staffLoginInformation);
+        BranchManagement branchManagement = new BranchManagement(loginInformation);
         // get assigned branches
         List<Integer> assignedBranchIds = loginInfo.getAssignedBranchesIds();
 
@@ -297,7 +297,7 @@ public class TransferPage extends TransferElement {
         List<String> destinationBranchNames = destinationInfo.getBranchName();
 
         // init get all products API
-        APISuggestionProduct suggestionProduct = new APISuggestionProduct(staffLoginInformation);
+        APISuggestionProduct suggestionProduct = new APISuggestionProduct(loginInformation);
 
         // find origin branch that have in-stock product
         int originBranchId = getOriginBranchId(suggestionProduct, assignedBranchIds);
@@ -345,18 +345,18 @@ public class TransferPage extends TransferElement {
         } else throw new Exception("All products are out of stock, so can not create a new transfer.");
     }
 
-    public void createTransfer(LoginInformation loginInformation) throws Exception {
+    public void createTransfer() throws Exception {
         // navigate to create transfer page
         navigateToCreateTransferPage();
 
         // input transfer info
-        inputTransferInfo(loginInformation);
+        inputTransferInfo(staffLoginInformation);
 
         // complete create transfer
         clickSaveBtn();
     }
 
-    public void editTransfer(LoginInformation loginInformation, int transferId) throws Exception {
+    public void editTransfer(int transferId) throws Exception {
         // navigate to update transfer page
         navigateToEditTransferPage(transferId);
 
@@ -364,7 +364,7 @@ public class TransferPage extends TransferElement {
         removeOldProducts();
 
         // input transfer info
-        inputTransferInfo(loginInformation);
+        inputTransferInfo(staffLoginInformation);
 
         // complete create transfer
         clickSaveBtn();
@@ -377,17 +377,17 @@ public class TransferPage extends TransferElement {
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
     List<Integer> assignedBranchIds;
-    TransferInfo transferInfo;
     TransferManagement transferManagement;
-    LoginInformation loginInformation;
+    LoginInformation sellerLoginInformation;
+    LoginInformation staffLoginInformation;
 
-    public void checkViewTransferDetail(LoginInformation loginInformation,
-                                        AllPermissions permissions,
-                                        List<Integer> assignedBranchIds,
-                                        TransferInfo transferInfo) {
-        // get login information
-        this.loginInformation = loginInformation;
+    public TransferPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        this.staffLoginInformation = staffLoginInformation;
+        return this;
+    }
 
+    public void checkViewTransferDetail(AllPermissions permissions, List<Integer> assignedBranchIds) {
         // get staff permission
         this.permissions = permissions;
 
@@ -400,14 +400,14 @@ public class TransferPage extends TransferElement {
         // get assigned branchesIds
         this.assignedBranchIds = assignedBranchIds;
 
-        // get transfer information
-        this.transferInfo = transferInfo;
+        // get transfer info with seller token
+        TransferInfo transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
 
         // init transfer management API
-        this.transferManagement = new TransferManagement(loginInformation);
+        this.transferManagement = new TransferManagement(staffLoginInformation);
 
         // check permission
-        int hasViewPermissionTransferId = transferManagement.getViewPermissionTransferId(assignedBranchIds, transferInfo);
+        int hasViewPermissionTransferId = transferManagement.getViewPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
         if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
             // check can access to transfer detail page
 
@@ -420,7 +420,7 @@ public class TransferPage extends TransferElement {
             // Staff have permission view transfer detail
             // but assigned branch NOT contains original or destination of the transfer
             // => show restricted page
-            int noViewPermissionTransferId = transferManagement.getNoViewPermissionTransferId(assignedBranchIds, transferInfo);
+            int noViewPermissionTransferId = transferManagement.getNoViewPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
             if (noViewPermissionTransferId != 0) {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/product/transfer/wizard/%s"
                                 .formatted(DOMAIN, noViewPermissionTransferId)),
@@ -452,7 +452,9 @@ public class TransferPage extends TransferElement {
 
     void checkEditTransfer() {
         // check edit actions
-        int hasEditPermissionTransferId = transferManagement.getConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
+        // get transfer info with seller token
+        TransferInfo transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+        int hasEditPermissionTransferId = transferManagement.getConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
         if (permissions.getProduct().getTransfer().isEditTransfer()) {
             // check can access to edit transfer page
             if (hasEditPermissionTransferId != 0) {
@@ -468,7 +470,7 @@ public class TransferPage extends TransferElement {
                                 .formatted(DOMAIN, hasEditPermissionTransferId), String.valueOf(hasEditPermissionTransferId)),
                         "Edit transfer page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
                 try {
-                    editTransfer(loginInformation, hasEditPermissionTransferId);
+                    editTransfer(hasEditPermissionTransferId);
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -485,6 +487,7 @@ public class TransferPage extends TransferElement {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddlListActions, 0),
                     "Restricted popup is not shown.");
         }
+        logger.info("Check permission hen accessing transfer page editing through transfer details page.");
 
         // check edit permission at edit transfer page
         if (permissions.getProduct().getTransfer().isEditTransfer()) {
@@ -494,11 +497,20 @@ public class TransferPage extends TransferElement {
                                 .formatted(DOMAIN, hasEditPermissionTransferId), String.valueOf(hasEditPermissionTransferId)),
                         "Edit transfer page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
             }
-            int noEditPermissionTransferId = transferManagement.getNoConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
+            // get current transfer info with seller token
+            transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+            int noEditPermissionTransferId = transferManagement.getNoConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
             if (noEditPermissionTransferId != 0) {
+                // navigate to edit transfer page by url
+                navigateToEditTransferPage(noEditPermissionTransferId);
+
+                // re-input stock to enable Save button
+                int currentStock = Integer.parseInt(commons.getValue(loc_txtTransferredQuantity)) + 1;
+                commons.sendKeys(loc_txtTransferredQuantity, String.valueOf(currentStock));
+                commons.click(loc_txtSearchProduct);
+
                 // Staff have permission Edit transfer but assigned branch not contains Original branch of transfer
                 // => Click [Save] in Transfer edit mode => Show restricted popup
-                navigateToEditTransferPage(noEditPermissionTransferId);
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnSave),
                         "Restricted popup is not shown.");
             }
@@ -509,14 +521,18 @@ public class TransferPage extends TransferElement {
                             .formatted(DOMAIN, hasEditPermissionTransferId)),
                     "Restricted page is not shown.");
         }
+        logger.info("Check permission when access by url.");
 
         // log
         logger.info("Check permission: Product >> Transfer >> Edit transfer.");
     }
 
     void checkConfirmShipGoods() {
+        // get transfer info with seller token
+        TransferInfo transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+
         // check permission
-        int hasConfirmShipGoodsPermissionTransferId = transferManagement.getConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
+        int hasConfirmShipGoodsPermissionTransferId = transferManagement.getConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
         if (permissions.getProduct().getTransfer().isConfirmShipGoods()) {
             if (hasConfirmShipGoodsPermissionTransferId != 0) {
                 // navigate to transfer detail page
@@ -526,13 +542,11 @@ public class TransferPage extends TransferElement {
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnShipGoods, loc_dlgToastSuccess),
                         "Can not ship goods.");
 
-                // update last transfer information
-                List<String> statues = new ArrayList<>(transferInfo.getStatues());
-                statues.set(transferInfo.getIds().indexOf(hasConfirmShipGoodsPermissionTransferId), "DELIVERING");
-                transferInfo.setStatues(statues);
             }
 
-            int noConfirmShipGoodsPermissionTransferId = transferManagement.getNoConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfo);
+            // get current transfer info
+            transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+            int noConfirmShipGoodsPermissionTransferId = transferManagement.getNoConfirmShipGoodsPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
             if (noConfirmShipGoodsPermissionTransferId != 0) {
                 // Staff Have permission Confirm ship goods
                 // but Assigned branches NOT contains original branch in transfer
@@ -558,8 +572,11 @@ public class TransferPage extends TransferElement {
     }
 
     void checkConfirmReceivedGoods() {
+        // get transfer info with seller token
+        TransferInfo transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+
         // check permission
-        int hasConfirmReceivedGoodsPermissionTransferId = transferManagement.getConfirmReceiveGoodsPermissionTransferId(assignedBranchIds, transferInfo);
+        int hasConfirmReceivedGoodsPermissionTransferId = transferManagement.getConfirmReceiveGoodsPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
         if (permissions.getProduct().getTransfer().isConfirmReceivedGoods()) {
             if (hasConfirmReceivedGoodsPermissionTransferId != 0) {
                 // navigate to transfer detail page
@@ -568,14 +585,11 @@ public class TransferPage extends TransferElement {
                 // check can receive goods
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnReceiveGoods, loc_dlgToastSuccess),
                         "Can not receive goods.");
-
-                // update last transfer information
-                List<String> statues = new ArrayList<>(transferInfo.getStatues());
-                statues.set(transferInfo.getIds().indexOf(hasConfirmReceivedGoodsPermissionTransferId), "RECEIVED");
-                transferInfo.setStatues(statues);
             }
 
-            int noConfirmReceivedGoodsPermissionTransferId = transferManagement.getNoConfirmReceiveGoodsPermissionTransferId(assignedBranchIds, transferInfo);
+            // get current transfer info with seller token
+            transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+            int noConfirmReceivedGoodsPermissionTransferId = transferManagement.getNoConfirmReceiveGoodsPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
             if (noConfirmReceivedGoodsPermissionTransferId != 0) {
                 // Staff Have permission Confirm received goods
                 // but Assigned branches NOT contains destination branch in transfer
@@ -602,7 +616,9 @@ public class TransferPage extends TransferElement {
 
     void checkCancelTransfer() {
         // check cancel actions at transfer detail page
-        int hasCancelPermissionTransferId = transferManagement.getCancelTransferPermissionTransferId(assignedBranchIds, transferInfo);
+        // get transfer info with seller token
+        TransferInfo transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+        int hasCancelPermissionTransferId = transferManagement.getCancelTransferPermissionTransferId(assignedBranchIds, transferInfoWithSellerToken);
         if (hasCancelPermissionTransferId != 0) {
             if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
                 // navigate to transfer detail page

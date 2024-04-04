@@ -607,7 +607,7 @@ public class UICommonAction {
      */
     public List<WebElement> getListElement(By locator) {
         try {
-            getWait(1000).until(ExpectedConditions.presenceOfElementLocated(locator));
+            getWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignore) {
         }
         return driver.findElements(locator).isEmpty()
@@ -662,11 +662,11 @@ public class UICommonAction {
     public void hoverActions(By locator) {
         try {
             actions.moveToElement(getElement(locator)).build().perform();
-            sleep(500);
+            sleep(3000);
         } catch (StaleElementReferenceException | InterruptedException | ElementClickInterceptedException ex) {
             actions.moveToElement(getElement(locator)).build().perform();
             try {
-                sleep(500);
+                sleep(3000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -918,7 +918,7 @@ public class UICommonAction {
         }
 
         try {
-            getWait(500).until(numberOfElementsToBeLessThan(locator, 1));
+            getWait(3000).until(numberOfElementsToBeLessThan(locator, 1));
         } catch (TimeoutException ex) {
             closePopup(locator);
         }
@@ -932,7 +932,7 @@ public class UICommonAction {
         }
 
         try {
-            getWait(500).until(numberOfElementsToBeLessThan(popup, 1));
+            getWait(3000).until(numberOfElementsToBeLessThan(popup, 1));
         } catch (TimeoutException ex) {
             closePopup(locator);
         }
@@ -946,9 +946,7 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
 
-        try {
-            getWait(500).until(numberOfElementsToBeMoreThan(popup, 0));
-        } catch (TimeoutException ex) {
+        if (getListElement(popup).isEmpty()) {
             openPopupJS(locator, popup);
         }
     }
@@ -959,24 +957,20 @@ public class UICommonAction {
                 clickJS(locator, index);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-        try {
-            getWait(500).until(numberOfElementsToBeMoreThan(popup, 0));
-        } catch (TimeoutException ex) {
+        if (getListElement(popup).isEmpty()) {
             openPopupJS(locator, index, popup);
         }
     }
 
     public void openDropdownJS(By locator, By dropdown) {
         try {
-            click(locator);
+            clickJS(locator);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-        try {
-            getWait(500).until(numberOfElementsToBeMoreThan(dropdown, 0));
-        } catch (TimeoutException ex) {
+
+        if (getListElement(dropdown).isEmpty()) {
             openDropdownJS(locator, dropdown);
         }
-
     }
 
     public void openDropdownJS(By locator, int index, By dropdown) {
@@ -984,9 +978,7 @@ public class UICommonAction {
             clickJS(locator, index);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-        try {
-            getWait(500).until(numberOfElementsToBeMoreThan(dropdown, 0));
-        } catch (TimeoutException ex) {
+        if (getListElement(dropdown).isEmpty()) {
             openDropdownJS(locator, index, dropdown);
         }
     }
@@ -996,9 +988,7 @@ public class UICommonAction {
             clickJS(locator);
         } catch (StaleElementReferenceException | NoSuchElementException ignore) {
         }
-        try {
-            getWait(500).until(numberOfElementsToBeLessThan(dropdown, 1));
-        } catch (TimeoutException ex) {
+        if (!getListElement(dropdown).isEmpty()) {
             closeDropdown(locator, dropdown);
         }
     }
@@ -1058,7 +1048,7 @@ public class UICommonAction {
         for (int i = 0; i < repeatTimes; i++) {
             elements = getElements(locator);
             if (!elements.isEmpty()) break;
-            else sleepInMiliSecond(500);
+            else sleepInMiliSecond(3000);
         }
         if (elements.isEmpty()) {
             logger.info("List element still empty after wait %s times".formatted(repeatTimes));

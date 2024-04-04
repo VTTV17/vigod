@@ -38,7 +38,7 @@ public class APIDebtManagement {
         RECEIVABLE, OPEN, PAYABLE, DEBT_FREE
     }
 
-    String getAllSupplierDebtPath = "/itemservice/api/supplier-debts/store/%s?page=%s&size=100";
+    String getAllSupplierDebtPath = "/itemservice/api/supplier-debts/store/%s?branchId=&page=%s&size=100";
 
     Response getAllSupplierDebtResponse(int pageIndex) {
         return api.get(getAllSupplierDebtPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken());
@@ -60,7 +60,12 @@ public class APIDebtManagement {
         Response response = getAllSupplierDebtResponse(0);
 
         if (response.getStatusCode() == 403) return info;
-        int totalOfDebts = Integer.parseInt(response.getHeader("X-Total-Count"));
+        int totalOfDebts = Integer.parseInt(response
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .getHeader("X-Total-Count"));
 
         // get number of pages
         int numberOfPages = totalOfDebts / 100;

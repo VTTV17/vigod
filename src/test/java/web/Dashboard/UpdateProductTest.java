@@ -4,6 +4,7 @@ import api.Seller.customers.Customers;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -37,6 +38,10 @@ public class UpdateProductTest extends BaseTest {
         tcsFileName = "Update product.xlsx";
     }
 
+    @Test
+    void t() {
+        Assert.assertTrue(false);
+    }
     @BeforeGroups(groups = "[UPDATE] Normal product - Without variation")
     void preCondition_G1() {
         boolean isIMEIProduct = false;

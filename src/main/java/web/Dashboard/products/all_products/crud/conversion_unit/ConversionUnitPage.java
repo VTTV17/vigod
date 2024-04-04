@@ -46,8 +46,8 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
     public ConversionUnitPage navigateToConversionUnitPage() throws Exception {
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(ProductPage.getProductID())));
-        logger.info("Navigate to product detail page by URL, productId: %s".formatted(ProductPage.getProductID()));
+        driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(ProductPage.getProductId())));
+        logger.info("Navigate to product detail page by URL, productId: %s".formatted(ProductPage.getProductId()));
 
         // If product has conversion unit, remove that to add new configuration
         if (commonAction.isCheckedJS(productPage.getLoc_chkAddConversionUnit())) {

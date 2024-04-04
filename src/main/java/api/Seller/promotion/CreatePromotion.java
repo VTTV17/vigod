@@ -147,13 +147,13 @@ public class CreatePromotion {
 //                                        "price": "%s",
 //                                        "saleStock": "%s"
 //                                    }
-//                            """.formatted(productInfo.getProductID(), purchaseLimit, modelID, price, stock);
+//                            """.formatted(productInfo.getProductId(), purchaseLimit, modelID, price, stock);
 //                    tempBody.append(flashSaleProduct);
 //                }
 //            }
 //        } else {
 //            // sale stock
-//            int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductID()))), 1)) + 1;
+//            int stock = nextInt(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductId()))), 1)) + 1;
 //
 //            // purchase limit
 //            int purchaseLimit = nextInt(stock) + 1;
@@ -168,7 +168,7 @@ public class CreatePromotion {
 //                                "price": "%s",
 //                                "saleStock": "%s"
 //                            }
-//                    """.formatted(productInfo.getProductID(), purchaseLimit, price, stock);
+//                    """.formatted(productInfo.getProductId(), purchaseLimit, price, stock);
 //            tempBody.append(flashSaleProduct);
 //        }
 //
@@ -358,7 +358,7 @@ public class CreatePromotion {
 //                {
 //                    "conditionValue": %s
 //                }
-//                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection(productInfo) : productInfo.getProductID());
+//                """.formatted(appliesToType == 1 ? new ProductCollection(loginInformation).createCollection(productInfo) : productInfo.getProductId());
 //        String appliesToCondition = """
 //                {
 //                    "conditionOption": "%s",
@@ -372,7 +372,7 @@ public class CreatePromotion {
 //        int min = 1;
 //        if (productInfo.isHasModel()) for (String key : productInfo.getProductStockQuantityMap().keySet())
 //            min = Math.min(min, Collections.min(productInfo.getProductStockQuantityMap().get(key)));
-//        else min = Collections.min(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductID())));
+//        else min = Collections.min(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductId())));
 //        discountCampaignMinQuantity = nextInt(Math.max(1, min)) + 1;
 //
 //        String minimumRequirement = """

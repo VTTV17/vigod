@@ -526,9 +526,15 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
                 if (commonAction.getAllWindowHandles().size() > 1) {
                     // switch to print tab
                     commonAction.switchToWindow(1);
+
+                    // check print purchase order tab is shown
+                    assertCustomize.assertTrue(driver.getCurrentUrl().contains("blob:"),
+                            "Can not print purchase order.");
+
+                    // close print tab
+                    driver.close();
                 }
-                assertCustomize.assertTrue(driver.getCurrentUrl().contains("blob:"),
-                        "Can not print purchase order.");
+
 
                 // back to purchase order tab
                 commonAction.switchToWindow(0);

@@ -165,7 +165,7 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
     }
 
     String getProductId(String itemId, String modelId) {
-        return modelId.isEmpty() ? itemId : "%s-%s".formatted(itemId, modelId);
+        return modelId == null ? itemId : "%s-%s".formatted(itemId, modelId);
     }
 
     void checkImportProductToLocation() throws IOException {

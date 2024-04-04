@@ -33,7 +33,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     private List<Long> wholesaleProductPrice;
     private List<Integer> wholesaleProductStock;
-    int productID;
+    int productId;
     ProductPage productPage;
     List<String> variationList;
     Map<String, List<Integer>> productStockQuantity;
@@ -49,7 +49,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         this.loginInformation = loginInformation;
         this.productPage = productPage;
         commonAction = productPage.getCommonAction();
-        productID = ProductPage.getProductID();
+        productId = ProductPage.getProductId();
         variationList = ProductPage.getVariationList();
         productStockQuantity = ProductPage.getProductStockQuantity();
         language = ProductPage.getLanguage();
@@ -60,8 +60,9 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
     public WholesaleProductPage navigateToWholesaleProductPage() throws Exception {
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(productID)));
+        driver.get("%s%s".formatted(DOMAIN, productPage.getUpdateProductPath().formatted(productId)));
         driver.navigate().refresh();
+        logger.info("Navigate to create wholesale product page, productId: %s.".formatted(productId));
 
         // if 'Add Wholesale Pricing' checkbox is not checked, check and click on 'Configure' button
         if (!commonAction.isCheckedJS(productPage.getLoc_chkAddWholesalePricing()))

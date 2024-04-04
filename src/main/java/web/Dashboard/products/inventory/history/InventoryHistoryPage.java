@@ -94,6 +94,8 @@ public class InventoryHistoryPage extends InventoryHistoryElement {
         inventoryPage.navigateToInventoryHistoryPage();
         commons.click(loc_btnExport);
         commons.click(loc_ddvExportActions, 1);
+
+        driver.navigate().refresh();
     }
 
     // check permission

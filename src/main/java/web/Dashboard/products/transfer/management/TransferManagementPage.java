@@ -2,7 +2,6 @@ package web.Dashboard.products.transfer.management;
 
 import api.Seller.login.Login;
 import api.Seller.products.transfer.TransferManagement;
-import api.Seller.setting.BranchManagement;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,21 +58,17 @@ public class TransferManagementPage extends TransferManagementElement {
         // init transfer page PO
         transferPage = new TransferPage(driver);
 
-        // init branch management API
-        BranchManagement branchManagement = new BranchManagement(staffLoginInformation);
-
         // get assigned branches
         List<Integer> assignedBranchIds = loginInfo.getAssignedBranchesIds();
 
         // check view transfer list
-        TransferInfo transferInfo = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
-        checkViewTransferList(assignedBranchIds, transferInfo);
+        checkViewTransferList(assignedBranchIds);
 
         // check create transfer
         checkCreateTransfer();
 
         // check view transfer detail
-        transferPage.checkViewTransferDetail(staffLoginInformation, permissions, assignedBranchIds, transferInfo);
+        transferPage.getLoginInformation(sellerLoginInformation, staffLoginInformation).checkViewTransferDetail( permissions, assignedBranchIds);
     }
 
      void navigateToTransferManagementPage() {
@@ -83,14 +78,17 @@ public class TransferManagementPage extends TransferManagementElement {
         }
     }
 
-    void checkViewTransferList(List<Integer> assignedBranchIds, TransferInfo allTransfersInfo) {
+    void checkViewTransferList(List<Integer> assignedBranchIds) {
+        // get transfer info with seller token
+        TransferInfo transferInfoWithSellerToken = new TransferManagement(sellerLoginInformation).getAllTransferInfo();
+
         // init transfer management API
         TransferManagement transferManagement = new TransferManagement(staffLoginInformation);
 
         // check permission
         if (permissions.getProduct().getTransfer().isViewTransferList()) {
             // list transfer ids that filter from all transfer ids
-            List<Integer> checkList = transferManagement.getListTransferId(assignedBranchIds, allTransfersInfo);
+            List<Integer> checkList = transferManagement.getListTransferId(assignedBranchIds, transferInfoWithSellerToken);
 
             // list transfer ids get from API
             List<Integer> fromAPI = transferManagement.getAllTransferInfo().getIds();
@@ -117,7 +115,7 @@ public class TransferManagementPage extends TransferManagementElement {
         if (permissions.getProduct().getTransfer().isCreateTransfer()) {
             try {
                 // check can create transfer
-                transferPage.createTransfer(staffLoginInformation);
+                transferPage.getLoginInformation(sellerLoginInformation, staffLoginInformation).createTransfer();
 
                 // staff can view transfer detail after created
                 if (permissions.getProduct().getTransfer().isViewTransferDetail()) {
@@ -139,5 +137,8 @@ public class TransferManagementPage extends TransferManagementElement {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddTransfer),
                     "Restricted popup is not shown.");
         }
+
+        // log
+        logger.info("Check permission: Product >> Transfer >> Create transfer.");
     }
 }
