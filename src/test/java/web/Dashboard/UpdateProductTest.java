@@ -240,7 +240,7 @@ public class UpdateProductTest extends BaseTest {
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
-    @Test(groups = "[UPDATE] IMEI product - Without variation")
+    @Test(groups = "[UPDATE] IMEI product - Without variation", invocationCount = 10)
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stock quantity = 0

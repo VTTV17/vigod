@@ -30,7 +30,6 @@ import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProduct
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.StringUtils.trim;
@@ -603,6 +602,13 @@ public class ProductPage extends ProductPageElement {
         else commonAction.closeDropdown(loc_dlgAddIMEISelectedBranch, loc_dlgAddIMEI_chkSelectAllBranches);
         logger.info("[Add IMEI popup] Select all branches.");
 
+        // remove old IMEI
+        int bound = commonAction.getListElement(loc_dlgAddIMEI_icnDeleteIMEI).size();
+        for (int index = bound - 1; index >= 0; index--) {
+            commonAction.clickJS(loc_dlgAddIMEI_icnDeleteIMEI, index);
+        }
+        logger.info("Remove old IMEI.");
+
         // check [UI] add IMEI popup
         if (varIndex == 0) checkAddIMEIPopup();
 
@@ -971,14 +977,10 @@ public class ProductPage extends ProductPageElement {
         commonAction.click(loc_btnSave);
 
         // if create product successfully, close notification popup
-        if (!commonAction.getListElement(loc_dlgNotification).isEmpty()) {
+        if (!commonAction.getListElement(loc_dlgNotification, 30000).isEmpty()) {
             // close notification popup
             commonAction.closePopup(loc_dlgNotification_btnClose);
-        }
-
-        // if that still failed, end test.
-        Assert.assertTrue(commonAction.getListElement(loc_dlgUpdateFailed).isEmpty(), "[Failed][Create product] Can not create product.");
-
+        } else Assert.fail("[Failed][Create product] Can not create product.");
 
         // log
         logger.info("Wait and get product id after creation.");
@@ -995,16 +997,13 @@ public class ProductPage extends ProductPageElement {
         commonAction.click(loc_btnSave);
 
         // if update product successfully, close notification popup
-        if (!commonAction.getListElement(loc_dlgNotification).isEmpty()) {
+        if (!commonAction.getListElement(loc_dlgNotification, 30000).isEmpty()) {
             // close notification popup
             commonAction.closePopup(loc_dlgNotification_btnClose);
-        }
 
-        // if that still failed, end test.
-        Assert.assertTrue(commonAction.getListElement(loc_dlgUpdateFailed).isEmpty(), "[Failed][Update product] Can not update product.");
-
-        // close notification popup
-        commonAction.closePopup(loc_dlgNotification_btnClose);
+            // log
+            logger.info("Complete update product.");
+        } else Assert.fail("[Failed][Update product] Can not update product.");
     }
 
     public void configWholesaleProduct() throws Exception {
@@ -1132,7 +1131,7 @@ public class ProductPage extends ProductPageElement {
             // select language for translation
             if (!commonAction.getText(loc_dlgEditTranslation_ddvSelectedLanguage).equals(languageName)) {
                 // open language dropdown
-                commonAction.openPopupJS(loc_dlgEditTranslation_ddvSelectedLanguage, By.cssSelector(".product-translate .uik-select__optionList"));
+                commonAction.openDropdownJS(loc_dlgEditTranslation_ddvSelectedLanguage, loc_dlgEditTranslation_ddlLanguages);
 
                 // select language
                 commonAction.click(By.xpath(dlgEditTranslation_ddvOtherLanguage.formatted(languageName)));
@@ -1143,7 +1142,7 @@ public class ProductPage extends ProductPageElement {
             if (langIndex == 0) checkEditTranslationPopup();
 
             // input translate product name
-            name = "[%s]%s%s".formatted(language, productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
+            name = "[%s] %s%s".formatted(language, productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
             commonAction.sendKeys(loc_dlgEditTranslation_txtProductName, name);
             logger.info("Input translation for product name: %s.".formatted(name));
 
@@ -1219,12 +1218,7 @@ public class ProductPage extends ProductPageElement {
         }
 
         // save edit translation
-        commonAction.openPopupJS(loc_btnSave, loc_dlgNotification);
-        logger.info("Complete translation.");
-
-        // close Notification popup
-        commonAction.closePopup(loc_dlgNotification_btnClose);
-        logger.info("Close Notification popup.");
+        completeUpdateProduct();
     }
 
     public void uncheckWebPlatform() {
@@ -1917,13 +1911,25 @@ public class ProductPage extends ProductPageElement {
         logger.info("[UI][%s] Check Body - SEO URL link.".formatted(language));
     }
 
+//    private String getSaleChannelTooltips(By locator) {
+//        commonAction.openTooltips(locator, loc_tltSaleChannel);
+//        try {
+//            return commonAction.getText(loc_tltSaleChannel);
+//        } catch (StaleElementReferenceException ex) {
+//            logger.info(ex);
+//            return commonAction.getText(loc_tltSaleChannel);
+//        }
+//    }
+
     private String getSaleChannelTooltips(By locator) {
-        commonAction.hoverActions(locator);
+        String ariaDescribedBy = commonAction.getAttribute(locator, "aria-describedby");
+        By tltLocator = By.xpath(loc_tltSaleChannel.formatted(ariaDescribedBy));
+        commonAction.openTooltips(locator, tltLocator);
         try {
-            return commonAction.getText(loc_tltSaleChannel);
+            return commonAction.getText(tltLocator);
         } catch (StaleElementReferenceException ex) {
             logger.info(ex);
-            return commonAction.getText(loc_tltSaleChannel);
+            return commonAction.getText(tltLocator);
         }
     }
 

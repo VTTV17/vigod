@@ -44,4 +44,5 @@ public class VariationDetailElement {
     By loc_dlgEditTranslation_lblDescription = By.xpath("//*[@for='informationName']/parent::div/following-sibling::div/label");
     By loc_dlgEditTranslation_lblSave = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgEditTranslation_lblCancel =  By.cssSelector(".modal-footer .gs-button__white");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

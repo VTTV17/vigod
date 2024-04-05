@@ -85,6 +85,11 @@ public class VariationDetailPage extends VariationDetailElement {
     }
 
     void updateVariationTranslation(String languageCode, String languageName, int langIndex) throws Exception {
+        String variation = productInfo.getVariationListMap()
+                .get(languageCode)
+                .get(productInfo.getBarcodeList().indexOf(modelId));
+        System.out.println(variation);
+        System.out.println(productInfo.getVariationListMap());
         commonAction.click(loc_btnEditTranslation);
         logger.info("[%s] Open edit translation popup.".formatted(variation));
 
@@ -125,7 +130,7 @@ public class VariationDetailPage extends VariationDetailElement {
         commonAction.sendKeys(loc_dlgEditTranslation_variationDescription, description);
         logger.info("[%s] Edit translation for product description: %s.".formatted(variation, description));
 
-        commonAction.click(loc_dlgEditTranslation_btnSave);
+        commonAction.openPopupJS(loc_dlgEditTranslation_btnSave, loc_dlgToastSuccess);
         logger.info("[%s] Add translation successfully.".formatted(variation));
 
         // close edit translation popup

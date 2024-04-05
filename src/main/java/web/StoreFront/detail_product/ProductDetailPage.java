@@ -642,7 +642,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         commonAction.clickJS(By.cssSelector(variationDropdownLocator.formatted(index + 1)));
                         logger.info("Open variation dropdown %s.".formatted(index));
 
-                        commonAction.clickJS(By.xpath(variationValueLocator.formatted(var)));
+                        commonAction.clickJS(By.xpath(variationValueLocator.formatted(var, var)));
                         logger.info("Select variation: %s.".formatted(var));
 
                         // check variation is selected or not

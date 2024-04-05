@@ -59,7 +59,8 @@ public class ProductPageElement {
     By loc_dlgUpdateStock = By.cssSelector(".product-multiple-branch-stock_editor_modal");
     By loc_dlgAddIMEI = By.cssSelector(".managed-inventory-modal");
     By loc_dlgAddIMEISelectedBranch = By.cssSelector(".modal-body .uik-select__valueWrapper");
-    By loc_dlgAddIMEI_chkSelectAllBranches = By.cssSelector(".modal-body .uik-menuDrop__list > button:nth-child(1)  input");
+    By loc_dlgAddIMEI_chkSelectAllBranches = By.cssSelector(".managed-inventory-modal .uik-menuDrop__list > button:nth-child(1)  input");
+    By loc_dlgAddIMEI_icnDeleteIMEI = By.cssSelector(".code .fa-times");
     By loc_dlgAddIMEI_txtAddIMEI = By.cssSelector(".input-code input");
     By loc_dlgAddIMEI_btnSave = By.cssSelector(".modal-footer > .gs-button__green");
     /* Variation product */
@@ -102,6 +103,7 @@ public class ProductPageElement {
     By btnAddDeposit = By.xpath("//input[@class='uik-checkbox__checkbox' and @name='enabledListing']/ancestor::div[contains(@class,'uik-widget__wrapper')]/following-sibling::*/div[1]//span");
     By loc_dlgEditTranslation = By.cssSelector(".modal.fade.show");
     By loc_dlgEditTranslation_ddvSelectedLanguage = By.cssSelector(".product-translate .text-truncate");
+    By loc_dlgEditTranslation_ddlLanguages = By.cssSelector(".product-translate .uik-select__optionList");
     String dlgEditTranslation_ddvOtherLanguage = "//*[@class = 'uik-select__label']//*[text()='%s']";
     By loc_dlgEditTranslation_txtProductName = By.cssSelector("#informationName");
     By loc_dlgEditTranslation_txtProductDescription = By.cssSelector(".modal-body .fr-element");
@@ -279,11 +281,11 @@ public class ProductPageElement {
     By loc_lblSEOUrl = By.xpath("(//*[@name= 'seoUrl']/parent::div/preceding-sibling::div[1]//span)[1]");
     /* Sale chanel */
     By loc_lblSaleChannel = By.cssSelector("[class $= --n2] > div:nth-child(1) h3");
-    By loc_tltSaleChannel = By.xpath("//div[@class='tippy-tooltip-content']");
-    By loc_icnOnlineShop = By.cssSelector(".gs-component-tooltip:nth-child(1)");
-    By loc_icnGoMua = By.cssSelector(".gs-component-tooltip:nth-child(2)");
-    By loc_icnShopee = By.cssSelector(".gs-component-tooltip:nth-child(3)");
-    By loc_icnTiktok = By.cssSelector(".gs-component-tooltip:nth-child(4)");
+    String loc_tltSaleChannel = "//*[@id='%s']//div[@class='tippy-tooltip-content']";
+    By loc_icnOnlineShop = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[1]/parent::span/parent::div");
+    By loc_icnGoMua = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[2]/parent::span/parent::div");
+    By loc_icnShopee = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[3]/parent::span/parent::div");
+    By loc_icnTiktok = By.xpath("(//*[@class = 'gs-component-tooltip']//div[@class = 'channels-wrapper'])[4]/parent::span/parent::div");
     /* Collections */
     By loc_lblCollection = By.cssSelector("[class $= --n2] > div:nth-child(2) h3");
     By loc_plhSearchCollection = By.cssSelector(".product-form-collection-selector2 input");

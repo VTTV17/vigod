@@ -8,7 +8,7 @@ public class ProductDetailElement {
     By loc_lblListingPrice = By.cssSelector(".price-org");
     By loc_lblVariationName = By.cssSelector("span[rv-text='variation.label']");
     String variationDropdownLocator = "[aria-owns='bs-select-%s']";
-    String variationValueLocator = "//span[text() = '%s']";
+    String variationValueLocator = "//span[contains(text(), '%s ') or text() = '%s']";
     String selectedLocator = "[aria-owns='bs-select-%s']";
     By loc_lblBranchStock = By.cssSelector("#branch-list .stock");
     By loc_pnlDescription = By.cssSelector("#product-description");

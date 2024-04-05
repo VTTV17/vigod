@@ -615,6 +615,16 @@ public class UICommonAction {
                 : wait.until(presenceOfAllElementsLocatedBy(locator));
     }
 
+    public List<WebElement> getListElement(By locator, int waitTime) {
+        try {
+            getWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
+        } catch (TimeoutException ignore) {
+        }
+        return driver.findElements(locator).isEmpty()
+                ? driver.findElements(locator)
+                : wait.until(presenceOfAllElementsLocatedBy(locator));
+    }
+
     public void click(By locator) {
         try {
             elementToBeClickable(locator).click();
@@ -662,14 +672,24 @@ public class UICommonAction {
     public void hoverActions(By locator) {
         try {
             actions.moveToElement(getElement(locator)).build().perform();
-            sleep(3000);
+            sleep(500);
         } catch (StaleElementReferenceException | InterruptedException | ElementClickInterceptedException ex) {
             actions.moveToElement(getElement(locator)).build().perform();
             try {
-                sleep(3000);
+                sleep(500);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    public void openTooltips(By locator, By tooltips) {
+        // hover element
+        actions.moveToElement(getElement(locator)).build().perform();
+
+        // check tooltips shows or not
+        if (getListElement(tooltips).isEmpty()) {
+            openTooltips(locator, tooltips);
         }
     }
 
@@ -678,6 +698,22 @@ public class UICommonAction {
             actions.moveToElement(getElement(locator, index)).build().perform();
         } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
             actions.moveToElement(getElement(locator, index)).build().perform();
+        }
+    }
+
+    void clickOutOfTextBox(By locator) {
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator));
+        } catch (StaleElementReferenceException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator));
+        }
+    }
+
+    void clickOutOfTextBox(By locator, int index) {
+        try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator, index));
+        } catch (StaleElementReferenceException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator, index));
         }
     }
 
@@ -690,6 +726,8 @@ public class UICommonAction {
         } catch (StaleElementReferenceException | InvalidElementStateException ex) {
             getElement(locator).sendKeys(content);
         }
+
+        clickOutOfTextBox(locator);
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
@@ -701,6 +739,8 @@ public class UICommonAction {
         } catch (StaleElementReferenceException ex) {
             getElement(locator, index).sendKeys(content);
         }
+
+        clickOutOfTextBox(locator, index);
     }
 
     public void uploads(By locator, CharSequence content) {
