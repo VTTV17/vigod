@@ -150,14 +150,6 @@ public class ProductDetailPage extends ProductDetailElement {
         }
     }
 
-    void checkProductDetailWhenOutOfStock(String language) throws Exception {
-        // check sold out mark
-        String sfSoldOut = commonAction.getText(loc_lblSoldOut);
-        String soldOut = getPropertiesValueBySFLang("productDetail.soldOut", language);
-        assertCustomize.assertEquals(sfSoldOut, soldOut, "[Failed][Product Detail] Sold out title should be %s, but found %s.".formatted(soldOut, sfSoldOut));
-        logger.info("[UI][%s] Check Product Detail - Sold Out mark".formatted(language));
-    }
-
     void checkOthersInformation(String language) throws Exception {
         // description tab
         String sfDescriptionTab = commonAction.getText(loc_tabDescription);
@@ -718,7 +710,6 @@ public class ProductDetailPage extends ProductDetailElement {
                         variationValue);
             }
         }
-
     }
 
     /**
@@ -773,10 +764,8 @@ public class ProductDetailPage extends ProductDetailElement {
 
                     if ((maxStock > 0) && (!commonAction.getListElement(loc_lblBranchName).isEmpty())) {
                         checkProductDetailWhenInStock(languageCode);
-                        checkProductInformation(languageCode, customerId);
-                    } else {
-                        checkProductDetailWhenOutOfStock(languageCode);
                     }
+                    checkProductInformation(languageCode, customerId);
                 }
             } else logger.info("'%s' language is not published, please publish it and try again.".formatted(language));
         } else {

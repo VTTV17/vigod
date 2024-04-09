@@ -39,15 +39,13 @@ public class BH_8616 extends BaseTest {
     // setting: Hide remaining stock on online store
     // stock quantity > 0
     void BH_8616_G1_Case1_1_HideStockAndInStock() throws Exception {
-//        testCaseId = "BH_8616_G1_Case1_1";
-//        boolean isIMEIProduct = false;
-//        isHideStock = true;
-//        int branchStock = 5;
-//        productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-//        if (productID == 0)
-//            productID = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-//        productID = 1254451;
-        productID = 1276800;
+        testCaseId = "BH_8616_G1_Case1_1";
+        boolean isIMEIProduct = false;
+        isHideStock = true;
+        int branchStock = 5;
+        productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
+        if (productID == 0)
+            productID = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new ProductInformation(loginInformation).getInfo(productID);
 
         new ProductDetailPage(driver)
