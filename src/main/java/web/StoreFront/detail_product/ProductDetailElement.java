@@ -18,6 +18,9 @@ public class ProductDetailElement {
     By loc_lblFlashSale = By.cssSelector(".flash-sale");
     By loc_chkBuyInBulk = By.cssSelector(".buy-in-bulk__checkbox");
     By loc_pnlWholesalePricing = By.cssSelector(".product-wholesale-pricing");
+    By loc_cntAttributeGroup = By.cssSelector("[rv-text='attribute.attributeName']");
+    By loc_cntAttributeValue = By.cssSelector("[rv-text='attribute.attributeValue']");
+    By loc_btnViewMore = By.cssSelector(".btn-view-more");
     By loc_btnBuyNow = By.cssSelector("#button-buy-now");
     By loc_btnAddToCart = By.cssSelector("#button-add-to-cart");
     By loc_spnLoading = By.cssSelector(".loader");

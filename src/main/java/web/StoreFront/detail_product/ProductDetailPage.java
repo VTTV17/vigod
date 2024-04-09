@@ -16,23 +16,23 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.*;
 import org.testng.Assert;
-import web.StoreFront.shoppingcart.ShoppingCart;
-import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.products.wholesaleProduct.WholesaleProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import web.StoreFront.shoppingcart.ShoppingCart;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static utilities.utils.PropertiesUtil.getPropertiesValueBySFLang;
 import static utilities.links.Links.SF_DOMAIN;
 import static utilities.links.Links.STORE_CURRENCY;
+import static utilities.utils.PropertiesUtil.getPropertiesValueBySFLang;
 
 public class ProductDetailPage extends ProductDetailElement {
     WebDriver driver;
@@ -369,6 +369,32 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
 
+    void checkAttribution(List<Boolean> isDisplayAttribute, List<String> attributeGroups, List<String> attributeValues, String... variationName) {
+        String varName = variationName.length > 0 ? ((variationName[0] != null) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
+        if (isDisplayAttribute.stream().anyMatch(b -> b)) {
+            // if product have more than 3 attributes, show all attribute
+            if (Collections.frequency(isDisplayAttribute, true) > 3) commonAction.clickJS(loc_btnViewMore);
+
+            // check attribute
+            for (int attributeIndex = 0; attributeIndex < attributeGroups.size(); attributeIndex++) {
+                if (isDisplayAttribute.get(attributeIndex)) {
+                    // check attribute name
+                    String sfAttributeName = commonAction.getText(loc_cntAttributeGroup, attributeIndex);
+                    assertCustomize.assertEquals(sfAttributeName, attributeGroups.get(attributeIndex),
+                            "Attribute name must be '%s', but found '%s'.".formatted(attributeGroups.get(attributeIndex), sfAttributeName));
+
+                    // check attribute value
+                    String sfAttributeValue = commonAction.getText(loc_cntAttributeValue, attributeIndex);
+                    assertCustomize.assertEquals(sfAttributeValue, attributeValues.get(attributeIndex),
+                            "Attribute name must be '%s', but found '%s'.".formatted(attributeGroups.get(attributeIndex), sfAttributeName));
+                }
+            }
+        }
+
+        // log
+        logger.info("%s Check product attribute.".formatted(varName));
+    }
+
     /**
      * Compare variation name/value on the SF with Dashboard
      */
@@ -556,18 +582,32 @@ public class ProductDetailPage extends ProductDetailElement {
         }
     }
 
-    void checkAllVariationsAndDiscount(int index, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) {
+    void checkAllVariationsAndDiscount(int varIndex,
+                                       long listingPrice,
+                                       long sellingPrice,
+                                       long flashSalePrice,
+                                       int wholesaleProductStock,
+                                       long wholesaleProductPrice,
+                                       List<Integer> branchStock,
+                                       List<Boolean> isDisplayAttribute,
+                                       List<String> attributeGroups,
+                                       List<String> attributeValues,
+                                       String language,
+                                       String... variationName) {
         // get branch info
         brInfo = new BranchManagement(loginInformation).getInfo();
 
         // check product name
-        checkProductName(productInfo.getVariationModelList().get(index), language);
+        checkProductName(productInfo.getVariationModelList().get(varIndex), language);
+
+        // check attribute
+        checkAttribution(isDisplayAttribute, attributeGroups, attributeValues, variationName);
 
         // check variation name if any
         if (productInfo.isHasModel()) checkVariationName(language);
 
         // check description
-        checkProductDescription(productInfo.getVariationModelList().get(index), language);
+        checkProductDescription(productInfo.getVariationModelList().get(varIndex), language);
 
         int numberOfDisplayBranches = IntStream.range(0, brInfo.getAllBranchStatus().size()).filter(i -> !brInfo.getIsHideOnStoreFront().get(i) && brInfo.getAllBranchStatus().get(i).equals("ACTIVE") && (branchStock.get(i) > 0)).mapToObj(i -> true).toList().size();
         if (numberOfDisplayBranches > 0) {
@@ -595,7 +635,7 @@ public class ProductDetailPage extends ProductDetailElement {
                 checkBranch(brName, branchStatus.get(brIndex), branchStock.get(brIndex), variationName);
 
                 // check product price
-                checkVariationPriceAndDiscount(index, listingPrice, sellingPrice, flashSalePrice, wholesaleProductStock, wholesaleProductPrice, brName);
+                checkVariationPriceAndDiscount(varIndex, listingPrice, sellingPrice, flashSalePrice, wholesaleProductStock, wholesaleProductPrice, brName);
             }
 
         } else {
@@ -660,6 +700,9 @@ public class ProductDetailPage extends ProductDetailElement {
                     }
                 }
 
+                // get modelCode
+                String modelCode = productInfo.getVariationModelList().get(varIndex);
+
                 // check product information
                 checkAllVariationsAndDiscount(varIndex,
                         productInfo.getProductListingPrice().get(varIndex),
@@ -667,7 +710,10 @@ public class ProductDetailPage extends ProductDetailElement {
                         flashSaleInfo.getFlashSalePrice().get(varIndex),
                         wholesaleProductInfo.getStockList().get(varIndex),
                         wholesaleProductInfo.getPriceList().get(varIndex),
-                        productInfo.getProductStockQuantityMap().get(productInfo.getVariationModelList().get(varIndex)),
+                        productInfo.getProductStockQuantityMap().get(modelCode),
+                        productInfo.getIsDisplayVariationAttributes().get(modelCode),
+                        productInfo.getVariationAttributeGroups().get(modelCode),
+                        productInfo.getVariationAttributeValues().get(modelCode),
                         language,
                         variationValue);
             }
@@ -695,7 +741,6 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // get max stock
         int maxStock = productInfo.isDeleted() ? 0 : Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
-
 
         // check product is display or not
         if (!productInfo.isDeleted() && productInfo.isOnWeb() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
@@ -786,11 +831,11 @@ public class ProductDetailPage extends ProductDetailElement {
     }
 
     public List<List<String>> getAllReviews() {
-		// Wait until Review tab is present in a period of 10s
-		for(int i=0; i<10; i++) {
-			if (isReviewTabDisplayed()) break;
-			commonAction.sleepInMiliSecond(1000);
-		}
+        // Wait until Review tab is present in a period of 10s
+        for (int i = 0; i < 10; i++) {
+            if (isReviewTabDisplayed()) break;
+            commonAction.sleepInMiliSecond(1000);
+        }
         List<List<String>> table = new ArrayList<>();
         List<WebElement> reviews = commonAction.getListElement(loc_tblReview);
         for (WebElement eachReview : reviews) {

@@ -91,6 +91,11 @@ public class ProductInformation {
             // set product description
             prdInfo.setDefaultProductDescriptionMap(IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].description".formatted(i)), (a, b) -> b)));
 
+            // set product attribution
+            prdInfo.setAttributeGroups(IntStream.range(0, resJson.getList("itemAttributes.attributeName").size()).mapToObj(attributeIndex -> resJson.getString("itemAttributes[%s].attributeName".formatted(attributeIndex))).toList());
+            prdInfo.setAttributeValues(IntStream.range(0, resJson.getList("itemAttributes.attributeValue").size()).mapToObj(attributeIndex -> resJson.getString("itemAttributes[%s].attributeValue".formatted(attributeIndex))).toList());
+            prdInfo.setIsDisplayAttributes(IntStream.range(0, resJson.getList("itemAttributes.isDisplay").size()).mapToObj(attributeIndex -> resJson.getBoolean("itemAttributes[%s].isDisplay".formatted(attributeIndex))).toList());
+
             // get SEO config from response
             Map<String, Map<String, String>> seoMap = new HashMap<>();
             seoMap.put("title", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoTitle".formatted(i)) != null ? resJson.getString("languages[%s].seoTitle".formatted(i)) : "", (a, b) -> b)));
@@ -112,7 +117,7 @@ public class ProductInformation {
             prdInfo.setOnApp(resJson.getBoolean("onApp"));
             prdInfo.setOnWeb(resJson.getBoolean("onWeb"));
             prdInfo.setInStore(resJson.getBoolean("inStore"));
-            prdInfo.setInGosocial(resJson.getBoolean("inGosocial"));
+            prdInfo.setInGoSocial(resJson.getBoolean("inGosocial"));
 
             // set product status
             prdInfo.setBhStatus(resJson.getString("bhStatus"));
@@ -159,51 +164,79 @@ public class ProductInformation {
                 // init product description map
                 Map<String, Map<String, String>> productDescriptionMap = new HashMap<>();
 
-                // get variation info
-                for (int modelsID = 0; modelsID < resJson.getList("models.languages").size(); modelsID++) {
+                // init variation attribution groups map
+                Map<String, List<String>> attributionGroupsMap = new HashMap<>();
 
+                // init variation attribution values map
+                Map<String, List<String>> attributionValuesMap = new HashMap<>();
+
+                // init variation attribution values map
+                Map<String, List<Boolean>> isDisplayAttributeMap = new HashMap<>();
+
+                // get variation info
+                for (int modelIndex = 0; modelIndex < resJson.getList("models.id").size(); modelIndex++) {
                     // get variation list map
                     Map<String, String> nameMap = new HashMap<>();
                     Map<String, String> descriptionMap = new HashMap<>();
-                    for (int langID = 0; langID < resJson.getList("models[%s].languages.language".formatted(modelsID)).size(); langID++) {
+                    for (int languageIndex = 0; languageIndex < resJson.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
                         // get language
-                        String language = resJson.getString("models[%s].languages[%s].language".formatted(modelsID, langID));
+                        String language = resJson.getString("models[%s].languages[%s].language".formatted(modelIndex, languageIndex));
 
                         // add new variation value
                         List<String> variationList = new ArrayList<>();
                         if (variationListMap.get(language) != null)
                             variationList.addAll(variationListMap.get(language));
-                        variationList.add(resJson.getString("models[%s].languages[%s].name".formatted(modelsID, langID)));
+                        variationList.add(resJson.getString("models[%s].languages[%s].name".formatted(modelIndex, languageIndex)));
 
                         // add to map
                         variationListMap.put(language, variationList);
 
                         // get name map
-                        nameMap.put(language, resJson.getString("models[%s].languages[%s].versionName".formatted(modelsID, langID)));
+                        nameMap.put(language, resJson.getString("models[%s].languages[%s].versionName".formatted(modelIndex, languageIndex)));
 
                         // get description map
-                        descriptionMap.put(language, resJson.getString("models[%s].languages[%s].description".formatted(modelsID, langID)));
+                        descriptionMap.put(language, resJson.getString("models[%s].languages[%s].description".formatted(modelIndex, languageIndex)));
                     }
 
                     // if variation product name
                     nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).isEmpty()).forEachOrdered(language -> nameMap.put(language, prdInfo.getDefaultProductNameMap().get(language)));
-                    productNameMap.put(prdInfo.getVariationModelList().get(modelsID), nameMap);
+                    productNameMap.put(prdInfo.getVariationModelList().get(modelIndex), nameMap);
 
                     // get variation product description
                     descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).isEmpty()).forEach(language -> descriptionMap.put(language, prdInfo.getDefaultProductDescriptionMap().get(language)));
-                    productDescriptionMap.put(prdInfo.getVariationModelList().get(modelsID), descriptionMap);
+                    productDescriptionMap.put(prdInfo.getVariationModelList().get(modelIndex), descriptionMap);
 
                     // get variation branch stock
                     Map<Integer, Integer> varStock = new HashMap<>();
-                    for (int brID = 0; brID < resJson.getList("models[0].branches.branchId").size(); brID++) {
-                        varStock.put(resJson.getInt("models[%s].branches[%s].branchId".formatted(modelsID, brID)), resJson.getInt("models[%s].branches[%s].totalItem".formatted(modelsID, brID)));
+                    for (int brIndex = 0; brIndex < resJson.getList("models[0].branches.branchId").size(); brIndex++) {
+                        varStock.put(resJson.getInt("models[%s].branches[%s].branchId".formatted(modelIndex, brIndex)), resJson.getInt("models[%s].branches[%s].totalItem".formatted(modelIndex, brIndex)));
                     }
 
                     // get variation stock
-                    productStockQuantityMap.put(prdInfo.getVariationModelList().get(modelsID), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
+                    productStockQuantityMap.put(prdInfo.getVariationModelList().get(modelIndex), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
 
                     // get variation status
-                    variationStatus.add(resJson.getString("models[%s].status".formatted(modelsID)));
+                    variationStatus.add(resJson.getString("models[%s].status".formatted(modelIndex)));
+
+                    // get variation attribute
+                    if (resJson.getBoolean("models[%s].reuseAttributes".formatted(modelIndex))) {
+                        attributionGroupsMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getAttributeGroups());
+                        attributionValuesMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getAttributeValues());
+                        isDisplayAttributeMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getIsDisplayAttributes());
+                    } else {
+                        List<String> attributeGroups = new ArrayList<>();
+                        List<String> attributeValues = new ArrayList<>();
+                        List<Boolean> isDisplay = new ArrayList<>();
+                        for (int attributeIndex= 0; attributeIndex < resJson.getList("models[%s].modelAttributes.id".formatted(modelIndex)).size(); attributeIndex ++) {
+                            attributeGroups.add(resJson.getString("models[%s].modelAttributes[%s].attributeName".formatted(modelIndex, attributeIndex)));
+                            attributeValues.add(resJson.getString("models[%s].modelAttributes[%s].attributeValue".formatted(modelIndex, attributeIndex)));
+                            isDisplay.add(resJson.getBoolean("models[%s].modelAttributes[%s].isDisplay".formatted(modelIndex, attributeIndex)));
+                        }
+
+                        attributionGroupsMap.put(prdInfo.getVariationModelList().get(modelIndex), attributeGroups);
+                        attributionValuesMap.put(prdInfo.getVariationModelList().get(modelIndex), attributeValues);
+                        isDisplayAttributeMap.put(prdInfo.getVariationModelList().get(modelIndex), isDisplay);
+                    }
                 }
                 // set variation list map
                 prdInfo.setVariationListMap(variationListMap);
@@ -219,6 +252,11 @@ public class ProductInformation {
 
                 // set variation product description map
                 prdInfo.setProductDescriptionMap(productDescriptionMap);
+
+                // set variation attribution
+                prdInfo.setVariationAttributeGroups(attributionGroupsMap);
+                prdInfo.setVariationAttributeValues(attributionValuesMap);
+                prdInfo.setIsDisplayVariationAttributes(isDisplayAttributeMap);
 
             } else {
                 // set model list
@@ -258,9 +296,13 @@ public class ProductInformation {
                 // set stock
                 prdInfo.setProductStockQuantityMap(Map.of(prdInfo.getVariationModelList().get(0), branchInfo.getBranchID().stream().map(IntStream.range(0, resJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> resJson.getInt("branches[%s].branchId".formatted(i)), i -> resJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList()));
 
-
                 // set variation status
                 prdInfo.setVariationStatus(List.of(resJson.getString("bhStatus")));
+
+                // set attribution
+                prdInfo.setVariationAttributeGroups(Map.of(prdInfo.getVariationModelList().get(0), prdInfo.getAttributeGroups()));
+                prdInfo.setVariationAttributeValues(Map.of(prdInfo.getVariationModelList().get(0), prdInfo.getAttributeValues()));
+                prdInfo.setIsDisplayVariationAttributes(Map.of(prdInfo.getVariationModelList().get(0), prdInfo.getIsDisplayAttributes()));
             }
             // s.out
             try {
