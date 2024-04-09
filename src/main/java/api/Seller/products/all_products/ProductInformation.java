@@ -64,9 +64,9 @@ public class ProductInformation {
                 & res.jsonPath().getString("inventoryManageType").equals(manageInventoryType);
     }
 
-    public ProductInfo getInfo(int productID) {
+    public ProductInfo getInfo(int productId) {
         // get product response
-        Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productID), loginInfo.getAccessToken());
+        Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productId), loginInfo.getAccessToken());
 
         // set JsonPath to get product info
         JsonPath resJson = res.jsonPath();
@@ -75,7 +75,7 @@ public class ProductInformation {
         ProductInfo prdInfo = new ProductInfo();
 
         // set product ID
-        prdInfo.setProductID(productID);
+        prdInfo.setProductID(productId);
 
         // set deleted
         prdInfo.setDeleted((res.getStatusCode() == 404) && res.asPrettyString().contains("message"));
@@ -137,7 +137,7 @@ public class ProductInformation {
 
             if (prdInfo.isHasModel()) {
                 // set model list
-                List<String> modelList = resJson.getList("models.id").stream().map(modelId -> "%s-%s".formatted(productID, modelId)).toList();
+                List<String> modelList = resJson.getList("models.id").stream().map(modelId -> "%s-%s".formatted(productId, modelId)).toList();
                 prdInfo.setVariationModelList(modelList);
 
                 // set barcode list
@@ -218,8 +218,15 @@ public class ProductInformation {
                     // get variation status
                     variationStatus.add(resJson.getString("models[%s].status".formatted(modelIndex)));
 
+                    boolean reuseAttribute;
+                    try {
+                         reuseAttribute = resJson.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+                    } catch (NullPointerException ignored) {
+                        reuseAttribute = true;
+                    }
+
                     // get variation attribute
-                    if (resJson.getBoolean("models[%s].reuseAttributes".formatted(modelIndex))) {
+                    if (reuseAttribute) {
                         attributionGroupsMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getAttributeGroups());
                         attributionValuesMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getAttributeValues());
                         isDisplayAttributeMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getIsDisplayAttributes());
@@ -260,7 +267,7 @@ public class ProductInformation {
 
             } else {
                 // set model list
-                prdInfo.setVariationModelList(List.of(String.valueOf(productID)));
+                prdInfo.setVariationModelList(List.of(String.valueOf(productId)));
 
                 // set barcode list
                 prdInfo.setBarcodeList(List.of(resJson.getString("barcode")));
@@ -315,7 +322,7 @@ public class ProductInformation {
             } catch (NullPointerException ignore) {
             }
 
-            List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productID);
+            List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
             prdInfo.setCollectionIdList(collectionIDList);
 
             Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();
