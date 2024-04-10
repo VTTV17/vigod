@@ -132,7 +132,7 @@ public class FlashSale {
         // post api create new flash sale campaign
         Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBody(productInfo, time));
 
-        logger.debug("Flash sale information: %s".formatted(createFlashSale.asPrettyString()));
+        logger.debug("Flash sale id: %s.".formatted(createFlashSale.jsonPath().getInt("id")));
 
         createFlashSale.then().statusCode(200);
 

@@ -579,16 +579,16 @@ public class ProductPage extends ProductPageElement {
 
         // input listing price
         commonAction.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(productListingPrice.get(0)));
-        logger.info("Listing price: %s".formatted(String.format("%,d", productListingPrice.get(0))));
+        logger.info("Listing price: %,d".formatted(productListingPrice.get(0)));
 
         // input selling price
         commonAction.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(productSellingPrice.get(0)));
-        logger.info("Selling price: %s".formatted(String.format("%,d", productSellingPrice.get(0))));
+        logger.info("Selling price: %,d".formatted(productSellingPrice.get(0)));
 
         // input cost price
         long costPrice = nextLong(productSellingPrice.get(0));
         commonAction.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(costPrice));
-        logger.info("Cost price: %s.".formatted(String.format("%,d", costPrice)));
+        logger.info("Cost price: %,d.".formatted(costPrice));
 
     }
 
@@ -832,18 +832,18 @@ public class ProductPage extends ProductPageElement {
 
             // input listing price
             long listingPrice = productListingPrice.get(varIndex);
-            commonAction.sendKeys(loc_dlgUpdatePrice_txtListingPrice, varIndex, String.valueOf(String.format("%,d", listingPrice)));
-            logger.info("[%s] Listing price: %s.".formatted(variation, String.format("%,d", listingPrice)));
+            commonAction.sendKeys(loc_dlgUpdatePrice_txtListingPrice, varIndex, String.valueOf(listingPrice));
+            logger.info("[%s] Listing price: %,d.".formatted(variation, listingPrice));
 
             // input selling price
             long sellingPrice = productSellingPrice.get(varIndex);
             commonAction.sendKeys(loc_dlgUpdatePrice_txtSellingPrice, varIndex, String.valueOf(sellingPrice));
-            logger.info("[%s] Selling price: %s.".formatted(variation, String.format("%,d", sellingPrice)));
+            logger.info("[%s] Selling price: %,d.".formatted(variation, sellingPrice));
 
             // input costPrice
             long costPrice = nextLong(sellingPrice);
             commonAction.sendKeys(loc_dlgUpdatePrice_txtCostPrice, varIndex, String.valueOf(costPrice));
-            logger.info("[%s] Cost price: %s.".formatted(variation, String.format("%,d", costPrice)));
+            logger.info("[%s] Cost price: %,d.".formatted(variation, costPrice));
         });
 
 
@@ -1910,16 +1910,6 @@ public class ProductPage extends ProductPageElement {
         assertCustomize.assertEquals(dbSEOUrlLink, ppSEOUrlLink, "[Failed][Body] SEO URL link should be %s, but found %s.".formatted(ppSEOUrlLink, dbSEOUrlLink));
         logger.info("[UI][%s] Check Body - SEO URL link.".formatted(language));
     }
-
-//    private String getSaleChannelTooltips(By locator) {
-//        commonAction.openTooltips(locator, loc_tltSaleChannel);
-//        try {
-//            return commonAction.getText(loc_tltSaleChannel);
-//        } catch (StaleElementReferenceException ex) {
-//            logger.info(ex);
-//            return commonAction.getText(loc_tltSaleChannel);
-//        }
-//    }
 
     private String getSaleChannelTooltips(By locator) {
         String ariaDescribedBy = commonAction.getAttribute(locator, "aria-describedby");

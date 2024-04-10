@@ -7,7 +7,6 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.excel.Excel;
-import utilities.screenshot.Screenshot;
 import utilities.utils.PropertiesUtil;
 
 import java.io.IOException;
@@ -27,9 +26,9 @@ public class BaseTest {
     @BeforeSuite
     @Parameters({"browser", "headless", "environment", "language"})
     public void getConfig(@Optional("chrome") String browser,
-                   @Optional("true") String headless,
-                   @Optional("STAG") String environment,
-                   @Optional("VIE") String language) {
+                          @Optional("false") String headless,
+                          @Optional("STAG") String environment,
+                          @Optional("VIE") String language) {
         this.browser = browser;
         this.headless = headless;
         this.language = language;
@@ -61,6 +60,6 @@ public class BaseTest {
 
     @AfterSuite
     void tearDown() {
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
 }

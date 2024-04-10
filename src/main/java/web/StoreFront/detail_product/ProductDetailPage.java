@@ -300,7 +300,7 @@ public class ProductDetailPage extends ProductDetailElement {
             String actSellingPrice = new UICommonAction(driver).getText(loc_lblSellingPrice).replace(",", "");
             long actSellingPriceValue = Long.parseLong(actSellingPrice.replace(STORE_CURRENCY, ""));
 
-            assertCustomize.assertTrue(Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %s ±1 instead of %s".formatted(branch, sellingPrice, actSellingPrice));
+            assertCustomize.assertTrue(Math.abs(actSellingPriceValue - sellingPrice) <= 1, "[Failed]%s Selling price should be show %,d ±1 instead of %,d".formatted(branch, sellingPrice, actSellingPriceValue));
             logger.info("%s Check product price/ store currency show correctly".formatted(branch));
         } else logger.info("%s Website listing enable, so listing/selling price is hidden".formatted(branch));
     }
@@ -556,6 +556,9 @@ public class ProductDetailPage extends ProductDetailElement {
             case "WHOLESALE PRODUCT" -> {
                 // increase quantity to wholesale product minimum requirement
                 commonAction.sendKeys(loc_txtQuantity, String.valueOf(wholesaleProductStock));
+                while (!commonAction.getValue(loc_txtQuantity).equals(String.valueOf(wholesaleProductStock))) {
+                    commonAction.sendKeys(loc_txtQuantity, String.valueOf(wholesaleProductStock));
+                }
 
                 // wait spinner loading if any
                 try {
@@ -709,6 +712,9 @@ public class ProductDetailPage extends ProductDetailElement {
                         language,
                         variationValue);
             }
+
+            // refresh page before check next variation
+            driver.navigate().refresh();
         }
     }
 

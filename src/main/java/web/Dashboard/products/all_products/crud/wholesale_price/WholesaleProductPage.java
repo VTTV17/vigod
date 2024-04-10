@@ -116,7 +116,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
         // wait and input price per item
         commonAction.sendKeys(withoutVariationWholesalePrice, String.valueOf(wholesaleProductPrice.get(0)));
-        logger.info("Input price per item: %s".formatted(String.format("%,d", wholesaleProductPrice.get(0))));
+        logger.info("Input price per item: %,d".formatted(wholesaleProductPrice.get(0)));
 
         // open segment dropdown
         commonAction.click(withoutVariationSegmentDropdown);
@@ -205,7 +205,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
 
             // wait and input price per item
             commonAction.sendKeys(variationWholesalePrice, index, String.valueOf(wholesaleProductPrice.get(varIndex)));
-            logger.info("[%s] Input price per item: %s.".formatted(value, String.format("%,d", wholesaleProductPrice.get(varIndex))));
+            logger.info("[%s] Input price per item: %,d.".formatted(value, wholesaleProductPrice.get(varIndex)));
 
             // open segment dropdown
             commonAction.click(variationSegmentDropdown, index);

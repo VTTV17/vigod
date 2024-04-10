@@ -285,7 +285,7 @@ public class ProductDiscountCampaign {
         createProductDiscountCampaign.then().statusCode(200);
 
         // debug log
-        logger.debug("Create product discount campaign: %s".formatted(createProductDiscountCampaign.asPrettyString()));
+        logger.debug("Product discount campaign id: %s".formatted(createProductDiscountCampaign.jsonPath().getInt("id")));
     }
 
     boolean isMatchWithConditions(List<String> conditionOption, Map<String, List<Integer>> conditionValueMap, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
