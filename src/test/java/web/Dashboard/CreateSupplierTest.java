@@ -26,7 +26,7 @@ public class CreateSupplierTest extends BaseTest {
     @Test
     void CR_SUPPLIER_01_CreateVNSupplier() throws Exception {
         testCaseId = "CR_SUPPLIER_01";
-//        new CRUDSupplierPage(driver).getLoginInformation(loginInformation).setLanguage(language).createNewSupplier(true);
+        new SupplierPage(driver).getLoginInformation(loginInformation).setLanguage(language).createNewSupplier(true);
     }
 
     @Test

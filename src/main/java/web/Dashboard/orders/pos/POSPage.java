@@ -108,7 +108,7 @@ public class POSPage extends POSElement {
 
     void selectProduct(ProductInfo productInfo) {
         // search by product name
-        commons.sendKeys(SEARCH_PRODUCT_BOX, productInfo.getDefaultProductNameMap().get(storeInfo.getDefaultLanguage()));
+        commons.sendKeys(SEARCH_PRODUCT_BOX, productInfo.getMainProductNameMap().get(storeInfo.getDefaultLanguage()));
 
         // add product to cart
         for (String barcode : productInfo.getBarcodeList()) {

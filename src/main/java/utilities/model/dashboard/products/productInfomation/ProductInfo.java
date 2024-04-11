@@ -7,9 +7,9 @@ import java.util.Map;
 
 @Data
 public class ProductInfo {
-    private int productID;
-    private Map<String, String> variationNameMap;
-    private Map<String, List<String>> variationListMap;
+    private int productId;
+    private Map<String, String> variationGroupNameMap;
+    private Map<String, List<String>> variationValuesMap;
     private List<Long> productListingPrice;
     private List<Long> productSellingPrice;
     private List<Long> productCostPrice;
@@ -18,10 +18,10 @@ public class ProductInfo {
     private List<String> variationModelList;
     private List<String> barcodeList;
     private List<String> variationStatus;
-    private Map<String, String> defaultProductNameMap;
-    private Map<String, Map<String, String>> productNameMap;
-    private Map<String, String> defaultProductDescriptionMap;
-    private Map<String, Map<String, String>> productDescriptionMap;
+    private Map<String, String> mainProductNameMap;
+    private Map<String, Map<String, String>> versionNameMap;
+    private Map<String, String> mainProductDescriptionMap;
+    private Map<String, Map<String, String>> versionDescriptionMap;
     private Map<String, Map<String, String>> seoMap;
     private Map<String, List<Integer>> productStockQuantityMap;
     private boolean showOutOfStock;

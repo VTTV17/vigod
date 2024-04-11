@@ -1154,9 +1154,9 @@ public class ProductPage extends ProductPageElement {
 
             // input variation if any
             if (productInfo.isHasModel()) {
-                List<String> variationName = IntStream.range(0, productInfo.getVariationNameMap().get(storeInfo.getDefaultLanguage()).split("\\|").length).mapToObj(i -> "%s_var%s".formatted(language, i + 1)).toList();
+                List<String> variationName = IntStream.range(0, productInfo.getVariationGroupNameMap().get(storeInfo.getDefaultLanguage()).split("\\|").length).mapToObj(i -> "%s_var%s".formatted(language, i + 1)).toList();
                 List<String> variationValue = new ArrayList<>();
-                List<String> variationList = productInfo.getVariationListMap().get(storeInfo.getDefaultLanguage());
+                List<String> variationList = productInfo.getVariationValuesMap().get(storeInfo.getDefaultLanguage());
                 variationList.stream().map(varValue -> varValue.replace(storeInfo.getDefaultLanguage(), language).split("\\|")).forEach(varValueList -> Arrays.stream(varValueList).filter(varValue -> !variationValue.contains(varValue)).forEach(var -> variationValue.add(var.contains("%s_".formatted(language)) ? var : "%s_%s".formatted(language, var))));
                 Collections.sort(variationList);
                 // input variation name
@@ -1225,7 +1225,7 @@ public class ProductPage extends ProductPageElement {
         showOnWeb = false;
 
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productInfo.getProductID())));
+        driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productInfo.getProductId())));
 
         // wait page loaded
         commonAction.getElement(loc_lblSEOSetting);

@@ -97,7 +97,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
 
     void checkProductName(String barcode, String language) {
         // get product name on dashboard
-        String dbProductName = StringUtils.capitalize(productInfo.getProductNameMap().get(barcode).get(language));
+        String dbProductName = StringUtils.capitalize(productInfo.getVersionNameMap().get(barcode).get(language));
 
         // get product name on shop online
         String adrProductName = commonMobile.moveAndGetElement(PRODUCT_NAME).getText();
@@ -163,7 +163,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      */
     void checkVariationName(String language) {
         // get variation name list on dashboard
-        List<String> variationNameListDB = Arrays.stream(productInfo.getVariationNameMap().get(language).split("\\|")).toList();
+        List<String> variationNameListDB = Arrays.stream(productInfo.getVariationGroupNameMap().get(language).split("\\|")).toList();
         List<String> variationNameListAndroid = commonMobile.getListElementText(VARIATION_NAME_LIST);
 
         assertCustomize.assertTrue(variationNameListAndroid.toString().equals(variationNameListDB.toString()), "[Failed][Check variation name] Variation name should be %s, but found %s.".formatted(variationNameListDB, variationNameListAndroid));
@@ -242,7 +242,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      */
     void checkProductDescription(String barcode, String language) {
         // get dashboard product description
-        String dbDescription = productInfo.getProductDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
+        String dbDescription = productInfo.getVersionDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // get SF product description
         if (dbDescription.length() > 1) {
@@ -436,7 +436,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
             String modelId = variationModelList.get(varIndex);
 
             // variation value
-            String variationValue = productInfo.getVariationListMap().get(language).get(varIndex);
+            String variationValue = productInfo.getVariationValuesMap().get(language).get(varIndex);
 
             // ignore if variation inactive
             if (productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) {

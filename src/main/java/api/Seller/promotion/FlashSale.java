@@ -92,7 +92,7 @@ public class FlashSale {
                             "price": "%s",
                             "saleStock": "%s"
                         }
-                """.formatted(productInfo.getProductID(), purchaseLimit, model.split("-")[1], price, stock)
+                """.formatted(productInfo.getProductId(), purchaseLimit, model.split("-")[1], price, stock)
                     : """
                 {
                             "itemId": "%s",
@@ -100,7 +100,7 @@ public class FlashSale {
                             "price": "%s",
                             "saleStock": "%s"
                         }
-                """.formatted(productInfo.getProductID(), purchaseLimit, price, stock);
+                """.formatted(productInfo.getProductId(), purchaseLimit, price, stock);
         } else return "";
     }
 

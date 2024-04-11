@@ -47,7 +47,7 @@ public class VariationDetailPage extends VariationDetailElement {
         storeInfo = new StoreInformation(loginInformation).getInfo();
         uiLanguage = ProductPage.getLanguage();
         this.driver = driver;
-        variation = productInfo.getVariationListMap()
+        variation = productInfo.getVariationValuesMap()
                 .get(storeInfo.getDefaultLanguage())
                 .get(productInfo.getBarcodeList().indexOf(modelId));
         assertCustomize = new AssertCustomize(driver);
@@ -85,11 +85,9 @@ public class VariationDetailPage extends VariationDetailElement {
     }
 
     void updateVariationTranslation(String languageCode, String languageName, int langIndex) throws Exception {
-        String variation = productInfo.getVariationListMap()
+        String variation = productInfo.getVariationValuesMap()
                 .get(languageCode)
                 .get(productInfo.getBarcodeList().indexOf(modelId));
-        System.out.println(variation);
-        System.out.println(productInfo.getVariationListMap());
         commonAction.click(loc_btnEditTranslation);
         logger.info("[%s] Open edit translation popup.".formatted(variation));
 

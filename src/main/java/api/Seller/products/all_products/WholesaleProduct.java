@@ -1,6 +1,5 @@
 package api.Seller.products.all_products;
 
-import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import io.restassured.response.Response;
 import utilities.api.API;
@@ -12,7 +11,6 @@ import java.util.Collections;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
 import static utilities.character_limit.CharacterLimit.MAX_WHOLESALE_PRICE_TITLE;
@@ -32,7 +30,7 @@ public class WholesaleProduct {
         StringBuilder body = new StringBuilder("""
                 {
                     "itemId": "%s",
-                    "lstWholesalePricingDto": [""".formatted(productInfo.getProductID()));
+                    "lstWholesalePricingDto": [""".formatted(productInfo.getProductId()));
         String segmentIDs = "ALL";
         int num = productInfo.isHasModel() ? nextInt(productInfo.getVariationModelList().size()) + 1 : 1;
         if (productInfo.isHasModel()) {
@@ -54,7 +52,7 @@ public class WholesaleProduct {
                             "segmentIds": "%s",
                             "itemId": "%s",
                             "action": null
-                        }""".formatted(title, stock, "%s_%s".formatted(productInfo.getProductID(), productInfo.getVariationModelList().get(i).split("-")[1]), STORE_CURRENCY, price, segmentIDs, productInfo.getProductID());
+                        }""".formatted(title, stock, "%s_%s".formatted(productInfo.getProductId(), productInfo.getVariationModelList().get(i).split("-")[1]), STORE_CURRENCY, price, segmentIDs, productInfo.getProductId());
                 body.append(variationWholesaleConfig);
                 body.append((i == (num - 1)) ? "" : ",");
             }
@@ -74,7 +72,7 @@ public class WholesaleProduct {
                         "segmentIds": "%s",
                         "itemId": "%s",
                         "action": null
-                    }""".formatted(title, stock, productInfo.getProductID(), STORE_CURRENCY, price, segmentIDs, productInfo.getProductID());
+                    }""".formatted(title, stock, productInfo.getProductId(), STORE_CURRENCY, price, segmentIDs, productInfo.getProductId());
             body.append(variationWholesaleConfig);
         }
         body.append("]}");

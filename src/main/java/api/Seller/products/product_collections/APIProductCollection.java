@@ -99,7 +99,7 @@ public class APIProductCollection {
     String CREATE_PRODUCT_COLLECTION_PATH = "/itemservice/api/collections/create/%s";
 
     public int createCollection(ProductInfo... productInfo) {
-        String productName = productInfo.length > 0 ? productInfo[0].getDefaultProductNameMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage()) : "auto";
+        String productName = productInfo.length > 0 ? productInfo[0].getMainProductNameMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage()) : "auto";
         String collectionName = "Auto - Collections - " + new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
         String body = """
                 {

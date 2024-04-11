@@ -121,7 +121,7 @@ public class ProductDiscountCode {
                 {
                     "conditionValue": %s
                 }
-                """.formatted((appliesToType == 1) ? productInfo.getCollectionIdList().get(0) : productInfo.getProductID());
+                """.formatted((appliesToType == 1) ? productInfo.getCollectionIdList().get(0) : productInfo.getProductId());
         return """
                 {
                     "conditionOption": "%s",
@@ -394,7 +394,7 @@ public class ProductDiscountCode {
     boolean isMatchWithConditions(List<String> conditionOption, Map<String, List<String>> conditionValueMap, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
         // check product condition
         boolean appliesToProduct = conditionOption.contains("APPLIES_TO_SPECIFIC_PRODUCTS")
-                ? conditionValueMap.get("APPLIES_TO").contains(String.valueOf(productInfo.getProductID()))
+                ? conditionValueMap.get("APPLIES_TO").contains(String.valueOf(productInfo.getProductId()))
                 : (!conditionOption.contains("APPLIES_TO_SPECIFIC_COLLECTIONS") || conditionValueMap.get("APPLIES_TO")
                 .stream()
                 .anyMatch(collectionId -> productInfo.getCollectionIdList().contains(Integer.valueOf(collectionId))));

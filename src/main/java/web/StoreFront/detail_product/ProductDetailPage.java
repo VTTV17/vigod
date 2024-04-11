@@ -89,7 +89,7 @@ public class ProductDetailPage extends ProductDetailElement {
         // check breadcrumbs
         List<WebElement> breadcrumbsElements = commonAction.getListElement(loc_brcBreadCrumbs);
         List<String> sfBreadCrumbs = IntStream.range(0, breadcrumbsElements.size()).filter(index -> index != 1).mapToObj(index -> commonAction.getText(loc_brcBreadCrumbs, index)).toList();
-        List<String> ppBreadCrumbs = List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), productInfo.getDefaultProductNameMap().get(language));
+        List<String> ppBreadCrumbs = List.of(getPropertiesValueBySFLang("productDetail.breadCrumbs.0", language), productInfo.getMainProductNameMap().get(language));
         assertCustomize.assertTrue(ppBreadCrumbs.toString().equals(sfBreadCrumbs.toString()), "[Failed][Breadcrumbs] Breadcrumbs should be %s, but found %s.".formatted(ppBreadCrumbs, sfBreadCrumbs));
         logger.info("[UI][%s] Check Breadcrumbs".formatted(language));
     }
@@ -273,7 +273,7 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     void checkProductName(String barcode, String language) {
         // get product name on dashboard
-        String dbProductName = productInfo.getProductNameMap().get(barcode).get(language);
+        String dbProductName = productInfo.getVersionNameMap().get(barcode).get(language);
 
         // get product name on shop online
         String sfProductName = commonAction.getText(loc_lblProductName);
@@ -392,7 +392,7 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     void checkVariationName(String language) {
         // get variation name list on dashboard
-        List<String> variationNameListDB = Arrays.stream(productInfo.getVariationNameMap().get(language).split("\\|")).toList();
+        List<String> variationNameListDB = Arrays.stream(productInfo.getVariationGroupNameMap().get(language).split("\\|")).toList();
         List<WebElement> listElement = commonAction.getListElement(loc_lblVariationName);
         List<String> variationNameListSF = IntStream.range(0, listElement.size()).mapToObj(index -> commonAction.getText(loc_lblVariationName, index)).toList().stream().sorted().toList();
 
@@ -450,7 +450,7 @@ public class ProductDetailPage extends ProductDetailElement {
      */
     void checkProductDescription(String barcode, String language) {
         // get dashboard product description
-        String dbDescription = productInfo.getProductDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
+        String dbDescription = productInfo.getVersionDescriptionMap().get(barcode).get(language).replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // get SF product description
         String sfDescription = commonAction.getText(loc_pnlDescription).replaceAll("\n", "");
@@ -659,9 +659,9 @@ public class ProductDetailPage extends ProductDetailElement {
             wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // verify on each variation
-        for (String variationValue : productInfo.getVariationListMap().get(language)) {
+        for (String variationValue : productInfo.getVariationValuesMap().get(language)) {
             // variation index
-            int varIndex = productInfo.getVariationListMap().get(language).indexOf(variationValue);
+            int varIndex = productInfo.getVariationValuesMap().get(language).indexOf(variationValue);
 
             // ignore if variation inactive
             if (productInfo.getVariationStatus().get(varIndex).equals("ACTIVE")) {
@@ -746,9 +746,9 @@ public class ProductDetailPage extends ProductDetailElement {
             if (storeInfo.getSFLangList().contains(languageCode)) {
                 // check all information with language
                 if (languageCode.equals(storeInfo.getDefaultLanguage()) || !productInfo.getSeoMap().get("url").get(languageCode).equals(productInfo.getSeoMap().get("url").get(storeInfo.getDefaultLanguage()))) {
-                    driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductID()));
+                    driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductId()));
                     driver.navigate().refresh();
-                    logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
+                    logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductId()));
 
                     // wait product detail page loaded
                     try {
@@ -756,7 +756,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         logger.info("Wait page loaded.");
                     } catch (TimeoutException ex) {
                         logger.info(ex);
-                        driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductID()));
+                        driver.get("https://%s%s/%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, languageCode, productInfo.getProductId()));
                         commonAction.getElement(loc_lblProductName);
                         logger.info("Wait page loaded.");
                     }
@@ -777,8 +777,8 @@ public class ProductDetailPage extends ProductDetailElement {
         } else {
             // in-case out of stock and setting hide product when out of stock
             // wait 404 page loaded
-            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, !storeInfo.getStoreLanguageList().isEmpty() ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getProductID()));
-            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductID()));
+            driver.get("https://%s%s%s/product/%s".formatted(storeInfo.getStoreURL(), SF_DOMAIN, !storeInfo.getStoreLanguageList().isEmpty() ? "/%s".formatted(storeInfo.getStoreLanguageList().get(0)) : "", productInfo.getProductId()));
+            logger.info("Navigate to Product detail page by URL, with productID: %s".formatted(productInfo.getProductId()));
 
             // wait 404 page loaded
             commonAction.waitURLShouldBeContains("404");

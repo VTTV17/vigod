@@ -226,7 +226,7 @@ public class ProductTransfer extends BaseTest {
 		
 		
 		String productBarcodeModel = productInfo.getVariationModelList().get(0);
-		String product = productInfo.getDefaultProductNameMap().get(storeDefaultLanguage);
+		String product = productInfo.getMainProductNameMap().get(storeDefaultLanguage);
 		
 		Map<String, List<Integer>> apiStock = productInfo.getProductStockQuantityMap();
 		
@@ -425,7 +425,7 @@ public class ProductTransfer extends BaseTest {
 		
 		
 		String productBarcodeModel = productInfo.getVariationModelList().get(0);
-		String product = productInfo.getDefaultProductNameMap().get(storeDefaultLanguage);
+		String product = productInfo.getMainProductNameMap().get(storeDefaultLanguage);
 		
 		Map<String, List<Integer>> apiStock = productInfo.getProductStockQuantityMap();
 		
@@ -543,7 +543,7 @@ public class ProductTransfer extends BaseTest {
 		
 		
 //		String productBarcodeModel = productInfo.getVariationModelList().get(0);
-		String product = productInfo.getDefaultProductNameMap().get(storeDefaultLanguage);
+		String product = productInfo.getMainProductNameMap().get(storeDefaultLanguage);
 		
 		Map<String, List<Integer>> apiStock = productInfo.getProductStockQuantityMap();
 		

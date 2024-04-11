@@ -64,260 +64,375 @@ public class ProductInformation {
                 & res.jsonPath().getString("inventoryManageType").equals(manageInventoryType);
     }
 
+    public Map<String, String> getMainProductNameMap(JsonPath jsonPath) {
+        return IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].name".formatted(i)), (a, b) -> b));
+    }
+
+    public Map<String, String> getMainProductDescription(JsonPath jsonPath) {
+        return IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].description".formatted(i)), (a, b) -> b));
+    }
+
+    public List<String> getAttributeGroups(JsonPath jsonPath) {
+        return IntStream.range(0, jsonPath.getList("itemAttributes.attributeName").size()).mapToObj(attributeIndex -> jsonPath.getString("itemAttributes[%s].attributeName".formatted(attributeIndex))).toList();
+    }
+
+    public List<String> getAttributeValues(JsonPath jsonPath) {
+        return IntStream.range(0, jsonPath.getList("itemAttributes.attributeValue").size()).mapToObj(attributeIndex -> jsonPath.getString("itemAttributes[%s].attributeValue".formatted(attributeIndex))).toList();
+    }
+
+    public List<Boolean> getIsDisplayAttributes(JsonPath jsonPath) {
+        return IntStream.range(0, jsonPath.getList("itemAttributes.isDisplay").size()).mapToObj(attributeIndex -> jsonPath.getBoolean("itemAttributes[%s].isDisplay".formatted(attributeIndex))).toList();
+    }
+
+    public Map<String, Map<String, String>> getSEOMap(JsonPath jsonPath) {
+        // get SEO config from response
+        Map<String, Map<String, String>> seoMap = new HashMap<>();
+        seoMap.put("title", IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].seoTitle".formatted(i)) != null ? jsonPath.getString("languages[%s].seoTitle".formatted(i)) : "", (a, b) -> b)));
+        seoMap.put("description", IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].seoDescription".formatted(i)) != null ? jsonPath.getString("languages[%s].seoDescription".formatted(i)) : "", (a, b) -> b)));
+        seoMap.put("keywords", IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].seoKeywords".formatted(i)) != null ? jsonPath.getString("languages[%s].seoKeywords".formatted(i)) : "", (a, b) -> b)));
+        seoMap.put("url", IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].seoUrl".formatted(i)) != null ? jsonPath.getString("languages[%s].seoUrl".formatted(i)) : "", (a, b) -> b)));
+        // set SEO map
+        return seoMap;
+    }
+
+    public boolean isShowOutOfStock(JsonPath jsonPath) {
+        return jsonPath.getBoolean("showOutOfStock");
+    }
+
+    public List<Long> getListingPrices(Response response) {
+        List<Long> listingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(response.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        return (listingPrice.size() > 1)
+                ? IntStream.range(1, listingPrice.size()).mapToObj(listingPrice::get).toList()
+                : listingPrice;
+    }
+
+    public List<Long> getSellingPrices(Response response) {
+        List<Long> sellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(response.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+
+        return (sellingPrice.size() > 1)
+                ? IntStream.range(1, sellingPrice.size()).mapToObj(sellingPrice::get).toList()
+                : sellingPrice;
+    }
+
+    public List<Long> getCostPrices(Response response) {
+        List<Long> costPrice = Pattern.compile("costPrice.{3}(\\d+)").matcher(response.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+        return (costPrice.size() > 1)
+                ? IntStream.range(0, costPrice.size() - 1).mapToObj(costPrice::get).toList()
+                : costPrice;
+    }
+
+    public List<String> getVariationModelList(JsonPath jsonPath, int productId) {
+        List<String> modelList = jsonPath.getList("models.id").stream().map(modelId -> "%s-%s".formatted(productId, modelId)).toList();
+        return modelList.isEmpty()
+                ? List.of(String.valueOf(productId))
+                : modelList;
+    }
+
+    public List<String> getListBarcodes(JsonPath jsonPath) {
+        List<String> barcodes = jsonPath.getList("models.barcode");
+        return barcodes.isEmpty()
+                ? List.of(jsonPath.getString("barcode"))
+                : barcodes;
+    }
+
+    Map<String, String> getVariationGroupNamesMap(JsonPath jsonPath) {
+        List<Object> languageList = jsonPath.getList("models[0].languages.id");
+        return languageList == null
+                ? Map.of()
+                : IntStream.range(0, jsonPath.getList("models[0].languages.language").size())
+                .boxed()
+                .collect(Collectors.toMap(languageIndex -> jsonPath.getString("models[0].languages[%s].language".formatted(languageIndex)),
+                        langID -> jsonPath.getString("models[0].languages[%s].label".formatted(langID)),
+                        (a, b) -> b));
+    }
+
+    public Map<String, List<String>> getVariationValuesMap(JsonPath jsonPath, List<String> languages) {
+        // init variation list map
+        Map<String, List<String>> variationValuesMap = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            for (int languageIndex = 0; languageIndex < jsonPath.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
+                // get language
+                String language = jsonPath.getString("models[%s].languages[%s].language".formatted(modelIndex, languageIndex));
+
+                // add new variation value
+                List<String> variationList = new ArrayList<>();
+                if (variationValuesMap.get(language) != null)
+                    variationList.addAll(variationValuesMap.get(language));
+                variationList.add(jsonPath.getString("models[%s].languages[%s].name".formatted(modelIndex, languageIndex)));
+
+                // add to map
+                variationValuesMap.put(language, variationList);
+            }
+        }
+
+        return variationValuesMap.isEmpty()
+                ? languages.stream()
+                .collect(Collectors.toMap(language -> language,
+                        language -> List.of(""),
+                        (a, b) -> b))
+                : variationValuesMap;
+    }
+
+    public Map<String, List<Integer>> getProductQuantityMap(JsonPath jsonPath, List<String> modelList) {
+        // init product stock map
+        Map<String, List<Integer>> productStockQuantityMap = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            // get variation branch stock
+            Map<Integer, Integer> varStock = new HashMap<>();
+            for (int brIndex = 0; brIndex < jsonPath.getList("models[0].branches.branchId").size(); brIndex++) {
+                varStock.put(jsonPath.getInt("models[%s].branches[%s].branchId".formatted(modelIndex, brIndex)), jsonPath.getInt("models[%s].branches[%s].totalItem".formatted(modelIndex, brIndex)));
+            }
+
+            // get variation stock
+            productStockQuantityMap.put(modelList.get(modelIndex), branchInfo.getBranchID().stream().mapToInt(brIndex -> brIndex).mapToObj(varStock::get).toList());
+        }
+        return productStockQuantityMap.isEmpty()
+                ? Map.of(modelList.get(0),
+                branchInfo.getBranchID().stream().map(IntStream.range(0, jsonPath.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getInt("branches[%s].branchId".formatted(i)), i -> jsonPath.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList())
+                : productStockQuantityMap;
+    }
+
+    public List<String> getVariationStatues(JsonPath jsonPath, String bhStatus) {
+        // get variation status
+        List<String> variationStatus = IntStream.range(0, jsonPath.getList("models.id").size()).mapToObj(modelIndex -> jsonPath.getString("models[%s].status".formatted(modelIndex))).toList();
+        return variationStatus.isEmpty() ? List.of(bhStatus) : variationStatus;
+    }
+
+    public Map<String, Map<String, String>> getVersionNamesMap(JsonPath jsonPath, List<String> modelList, Map<String, String> mainName) {
+        // init product name map
+        Map<String, Map<String, String>> versionNames = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            // get variation list map
+            Map<String, String> nameMap = new HashMap<>();
+            for (int languageIndex = 0; languageIndex < jsonPath.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
+                // get language
+                String language = jsonPath.getString("models[%s].languages[%s].language".formatted(modelIndex, languageIndex));
+
+                // get name map
+                nameMap.put(language, jsonPath.getString("models[%s].languages[%s].versionName".formatted(modelIndex, languageIndex)));
+            }
+
+            // if variation product name
+            nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).isEmpty()).forEachOrdered(language -> nameMap.put(language, mainName.get(language)));
+            versionNames.put(modelList.get(modelIndex), nameMap);
+        }
+        return versionNames.isEmpty() ? Map.of(modelList.get(0), mainName) : versionNames;
+    }
+
+    public Map<String, Map<String, String>> getVersionDescriptionsMap(JsonPath jsonPath, List<String> modelList, Map<String, String> mainDescription) {
+        // init product description map
+        Map<String, Map<String, String>> versionDescriptions = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            // get variation list map
+            Map<String, String> descriptionMap = new HashMap<>();
+            for (int languageIndex = 0; languageIndex < jsonPath.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
+                // get language
+                String language = jsonPath.getString("models[%s].languages[%s].language".formatted(modelIndex, languageIndex));
+                // get description map
+                descriptionMap.put(language, jsonPath.getString("models[%s].languages[%s].description".formatted(modelIndex, languageIndex)));
+            }
+
+            // get variation product description
+            descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).isEmpty()).forEach(language -> descriptionMap.put(language, mainDescription.get(language)));
+            versionDescriptions.put(modelList.get(modelIndex), descriptionMap);
+        }
+        return versionDescriptions.isEmpty() ? Map.of(modelList.get(0), mainDescription) : versionDescriptions;
+    }
+
+    public Map<String, List<String>> getVariationAttributionGroupsMap(JsonPath jsonPath, List<String> modelList, List<String> attributionGroups) {
+        // init variation attribution groups map
+        Map<String, List<String>> attributionGroupsMap = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            boolean reuseAttribute;
+            try {
+                reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+            } catch (NullPointerException ignored) {
+                reuseAttribute = true;
+            }
+
+            // get variation attribute
+            if (reuseAttribute) {
+                attributionGroupsMap.put(modelList.get(modelIndex), attributionGroups);
+            } else {
+                List<String> attributeGroups = new ArrayList<>();
+                for (int attributeIndex = 0; attributeIndex < jsonPath.getList("models[%s].modelAttributes.id".formatted(modelIndex)).size(); attributeIndex++) {
+                    attributeGroups.add(jsonPath.getString("models[%s].modelAttributes[%s].attributeName".formatted(modelIndex, attributeIndex)));
+                }
+
+                attributionGroupsMap.put(modelList.get(modelIndex), attributeGroups);
+            }
+        }
+        return attributionGroupsMap.isEmpty() ? Map.of(modelList.get(0), attributionGroups) : attributionGroupsMap;
+    }
+
+    public Map<String, List<String>> getVariationAttributionValuesMap(JsonPath jsonPath, List<String> modelList, List<String> attributionValues) {
+        // init variation attribution values map
+        Map<String, List<String>> attributionValuesMap = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            boolean reuseAttribute;
+            try {
+                reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+            } catch (NullPointerException ignored) {
+                reuseAttribute = true;
+            }
+
+            // get variation attribute
+            if (reuseAttribute) {
+                attributionValuesMap.put(modelList.get(modelIndex), attributionValues);
+            } else {
+                List<String> attributeValues = new ArrayList<>();
+                for (int attributeIndex = 0; attributeIndex < jsonPath.getList("models[%s].modelAttributes.id".formatted(modelIndex)).size(); attributeIndex++) {
+                    attributeValues.add(jsonPath.getString("models[%s].modelAttributes[%s].attributeValue".formatted(modelIndex, attributeIndex)));
+                }
+                attributionValuesMap.put(modelList.get(modelIndex), attributeValues);
+            }
+        }
+        return attributionValuesMap.isEmpty() ? Map.of(modelList.get(0), attributionValues) : attributionValuesMap;
+    }
+
+    public Map<String, List<Boolean>> getIsDisplayVariationAttributeMap(JsonPath jsonPath, List<String> modelList, List<Boolean> isDisplayAttributes) {
+        // init variation attribution values map
+        Map<String, List<Boolean>> isDisplayAttributeMap = new HashMap<>();
+
+        // get variation info
+        for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
+            // get variation list map
+            for (int languageIndex = 0; languageIndex < jsonPath.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
+                boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+                System.out.println("reuseAttribute: " + reuseAttribute);
+//                try {
+//                    reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+//                } catch (NullPointerException ignored) {
+//                    reuseAttribute = true;
+//                }
+//                if (reuseAttribute == null)
+
+                // get variation attribute
+                if (reuseAttribute) {
+                    isDisplayAttributeMap.put(modelList.get(modelIndex), isDisplayAttributes);
+                } else {
+                    List<Boolean> isDisplay = new ArrayList<>();
+                    for (int attributeIndex = 0; attributeIndex < jsonPath.getList("models[%s].modelAttributes.id".formatted(modelIndex)).size(); attributeIndex++) {
+                        isDisplay.add(jsonPath.getBoolean("models[%s].modelAttributes[%s].isDisplay".formatted(modelIndex, attributeIndex)));
+                    }
+
+                    isDisplayAttributeMap.put(modelList.get(modelIndex), isDisplay);
+                }
+            }
+        }
+        return isDisplayAttributeMap.isEmpty() ? Map.of(modelList.get(0), isDisplayAttributes) : isDisplayAttributeMap;
+    }
+
+
     public ProductInfo getInfo(int productId) {
         // get product response
-        Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productId), loginInfo.getAccessToken());
+        Response response = api.get(GET_PRODUCT_INFORMATION.formatted(productId), loginInfo.getAccessToken());
 
         // set JsonPath to get product info
-        JsonPath resJson = res.jsonPath();
+        JsonPath jsonPath = response.jsonPath();
 
         // init product info model
         ProductInfo prdInfo = new ProductInfo();
 
         // set product ID
-        prdInfo.setProductID(productId);
+        prdInfo.setProductId(productId);
 
         // set deleted
-        prdInfo.setDeleted((res.getStatusCode() == 404) && res.asPrettyString().contains("message"));
+        prdInfo.setDeleted((response.getStatusCode() == 404) && response.asPrettyString().contains("message"));
 
         // if product is not deleted, get product information
         if ((!prdInfo.isDeleted())) {
             // check response API 200
-            res.then().statusCode(200);
+            response.then().statusCode(200);
 
             // set product name
-            prdInfo.setDefaultProductNameMap(IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].name".formatted(i)), (a, b) -> b)));
+            prdInfo.setMainProductNameMap(getMainProductNameMap(jsonPath));
 
             // set product description
-            prdInfo.setDefaultProductDescriptionMap(IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].description".formatted(i)), (a, b) -> b)));
+            prdInfo.setMainProductDescriptionMap(getMainProductDescription(jsonPath));
 
             // set product attribution
-            prdInfo.setAttributeGroups(IntStream.range(0, resJson.getList("itemAttributes.attributeName").size()).mapToObj(attributeIndex -> resJson.getString("itemAttributes[%s].attributeName".formatted(attributeIndex))).toList());
-            prdInfo.setAttributeValues(IntStream.range(0, resJson.getList("itemAttributes.attributeValue").size()).mapToObj(attributeIndex -> resJson.getString("itemAttributes[%s].attributeValue".formatted(attributeIndex))).toList());
-            prdInfo.setIsDisplayAttributes(IntStream.range(0, resJson.getList("itemAttributes.isDisplay").size()).mapToObj(attributeIndex -> resJson.getBoolean("itemAttributes[%s].isDisplay".formatted(attributeIndex))).toList());
+            prdInfo.setAttributeGroups(getAttributeGroups(jsonPath));
+            prdInfo.setAttributeValues(getAttributeValues(jsonPath));
+            prdInfo.setIsDisplayAttributes(getIsDisplayAttributes(jsonPath));
 
-            // get SEO config from response
-            Map<String, Map<String, String>> seoMap = new HashMap<>();
-            seoMap.put("title", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoTitle".formatted(i)) != null ? resJson.getString("languages[%s].seoTitle".formatted(i)) : "", (a, b) -> b)));
-            seoMap.put("description", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoDescription".formatted(i)) != null ? resJson.getString("languages[%s].seoDescription".formatted(i)) : "", (a, b) -> b)));
-            seoMap.put("keywords", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoKeywords".formatted(i)) != null ? resJson.getString("languages[%s].seoKeywords".formatted(i)) : "", (a, b) -> b)));
-            seoMap.put("url", IntStream.range(0, resJson.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> resJson.getString("languages[%s].language".formatted(i)), i -> resJson.getString("languages[%s].seoUrl".formatted(i)) != null ? resJson.getString("languages[%s].seoUrl".formatted(i)) : "", (a, b) -> b)));
             // set SEO map
-            prdInfo.setSeoMap(seoMap);
+            prdInfo.setSeoMap(getSEOMap(jsonPath));
 
             // set hasModel
-            prdInfo.setHasModel(resJson.getBoolean("hasModel"));
+            prdInfo.setHasModel(jsonPath.getBoolean("hasModel"));
 
             // set SF/Buyer app config
-            prdInfo.setShowOutOfStock(resJson.getBoolean("showOutOfStock"));
-            prdInfo.setHideStock(resJson.getBoolean("isHideStock"));
-            prdInfo.setEnabledListing(resJson.getBoolean("enabledListing"));
+            prdInfo.setShowOutOfStock(isShowOutOfStock(jsonPath));
+            prdInfo.setHideStock(jsonPath.getBoolean("isHideStock"));
+            prdInfo.setEnabledListing(jsonPath.getBoolean("enabledListing"));
 
             // set product platform
-            prdInfo.setOnApp(resJson.getBoolean("onApp"));
-            prdInfo.setOnWeb(resJson.getBoolean("onWeb"));
-            prdInfo.setInStore(resJson.getBoolean("inStore"));
-            prdInfo.setInGoSocial(resJson.getBoolean("inGosocial"));
+            prdInfo.setOnApp(jsonPath.getBoolean("onApp"));
+            prdInfo.setOnWeb(jsonPath.getBoolean("onWeb"));
+            prdInfo.setInStore(jsonPath.getBoolean("inStore"));
+            prdInfo.setInGoSocial(jsonPath.getBoolean("inGosocial"));
 
             // set product status
-            prdInfo.setBhStatus(resJson.getString("bhStatus"));
+            prdInfo.setBhStatus(jsonPath.getString("bhStatus"));
 
             // manage inventory
-            prdInfo.setManageInventoryByIMEI(resJson.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
-
-            // get price from response
-            List<Long> listingPrice = Pattern.compile("orgPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
-            List<Long> sellingPrice = Pattern.compile("newPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
-            List<Long> costPrice = Pattern.compile("costPrice.{3}(\\d+)").matcher(res.asPrettyString()).results().map(matchResult -> Long.valueOf(matchResult.group(1))).toList();
+            prdInfo.setManageInventoryByIMEI(jsonPath.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
 
             // set price
-            prdInfo.setProductListingPrice(prdInfo.isHasModel() ? IntStream.range(1, listingPrice.size()).mapToObj(listingPrice::get).toList() : listingPrice);
-            prdInfo.setProductSellingPrice(prdInfo.isHasModel() ? IntStream.range(1, sellingPrice.size()).mapToObj(sellingPrice::get).toList() : sellingPrice);
-            prdInfo.setProductCostPrice(prdInfo.isHasModel() ? IntStream.range(0, costPrice.size() - 1).mapToObj(costPrice::get).toList() : costPrice);
+            prdInfo.setProductListingPrice(getListingPrices(response));
+            prdInfo.setProductSellingPrice(getSellingPrices(response));
+            prdInfo.setProductCostPrice(getCostPrices(response));
 
-            if (prdInfo.isHasModel()) {
-                // set model list
-                List<String> modelList = resJson.getList("models.id").stream().map(modelId -> "%s-%s".formatted(productId, modelId)).toList();
-                prdInfo.setVariationModelList(modelList);
+            // set model list
+            prdInfo.setVariationModelList(getVariationModelList(jsonPath, productId));
 
-                // set barcode list
-                prdInfo.setBarcodeList(resJson.getList("models.barcode"));
+            // set barcodes list
+            prdInfo.setBarcodeList(getListBarcodes(jsonPath));
 
-                // get variation name map
-                Map<String, String> variationNameMap = new HashMap<>();
-                IntStream.range(0, resJson.getList("models[0].languages.language").size()).forEach(langID -> variationNameMap.put(resJson.getString("models[0].languages[%s].language".formatted(langID)), resJson.getString("models[0].languages[%s].label".formatted(langID))));
-                // set variation map
-                prdInfo.setVariationNameMap(variationNameMap);
+            // set variation group name map
+            prdInfo.setVariationGroupNameMap(getVariationGroupNamesMap(jsonPath));
+            
+            // set variation list map
+            prdInfo.setVariationValuesMap(getVariationValuesMap(jsonPath,  new ArrayList<>(prdInfo.getMainProductNameMap().keySet())));
 
-                // init variation list map
-                Map<String, List<String>> variationListMap = new HashMap<>();
+            // set product quantity map
+            prdInfo.setProductStockQuantityMap(getProductQuantityMap(jsonPath, prdInfo.getVariationModelList()));
 
-                // init product stock map
-                Map<String, List<Integer>> productStockQuantityMap = new HashMap<>();
+            // set variation status list
+            prdInfo.setVariationStatus(getVariationStatues(jsonPath, prdInfo.getBhStatus()));
 
-                // init variation status
-                List<String> variationStatus = new ArrayList<>();
+            // set variation product name map
+            prdInfo.setVersionNameMap(getVersionNamesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getMainProductNameMap()));
 
-                // init product name map
-                Map<String, Map<String, String>> productNameMap = new HashMap<>();
+            // set variation product description map
+            prdInfo.setVersionDescriptionMap(getVersionDescriptionsMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getMainProductDescriptionMap()));
 
-                // init product description map
-                Map<String, Map<String, String>> productDescriptionMap = new HashMap<>();
+            // set variation attribution
+            prdInfo.setVariationAttributeGroups(getVariationAttributionGroupsMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getAttributeGroups()));
+            prdInfo.setVariationAttributeValues(getVariationAttributionValuesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getAttributeValues()));
+            prdInfo.setIsDisplayVariationAttributes(getIsDisplayVariationAttributeMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getIsDisplayAttributes()));
 
-                // init variation attribution groups map
-                Map<String, List<String>> attributionGroupsMap = new HashMap<>();
 
-                // init variation attribution values map
-                Map<String, List<String>> attributionValuesMap = new HashMap<>();
-
-                // init variation attribution values map
-                Map<String, List<Boolean>> isDisplayAttributeMap = new HashMap<>();
-
-                // get variation info
-                for (int modelIndex = 0; modelIndex < resJson.getList("models.id").size(); modelIndex++) {
-                    // get variation list map
-                    Map<String, String> nameMap = new HashMap<>();
-                    Map<String, String> descriptionMap = new HashMap<>();
-                    for (int languageIndex = 0; languageIndex < resJson.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
-                        // get language
-                        String language = resJson.getString("models[%s].languages[%s].language".formatted(modelIndex, languageIndex));
-
-                        // add new variation value
-                        List<String> variationList = new ArrayList<>();
-                        if (variationListMap.get(language) != null)
-                            variationList.addAll(variationListMap.get(language));
-                        variationList.add(resJson.getString("models[%s].languages[%s].name".formatted(modelIndex, languageIndex)));
-
-                        // add to map
-                        variationListMap.put(language, variationList);
-
-                        // get name map
-                        nameMap.put(language, resJson.getString("models[%s].languages[%s].versionName".formatted(modelIndex, languageIndex)));
-
-                        // get description map
-                        descriptionMap.put(language, resJson.getString("models[%s].languages[%s].description".formatted(modelIndex, languageIndex)));
-                    }
-
-                    // if variation product name
-                    nameMap.keySet().stream().filter(language -> nameMap.get(language) == null || nameMap.get(language).isEmpty()).forEachOrdered(language -> nameMap.put(language, prdInfo.getDefaultProductNameMap().get(language)));
-                    productNameMap.put(prdInfo.getVariationModelList().get(modelIndex), nameMap);
-
-                    // get variation product description
-                    descriptionMap.keySet().stream().filter(language -> descriptionMap.get(language) == null || descriptionMap.get(language).isEmpty()).forEach(language -> descriptionMap.put(language, prdInfo.getDefaultProductDescriptionMap().get(language)));
-                    productDescriptionMap.put(prdInfo.getVariationModelList().get(modelIndex), descriptionMap);
-
-                    // get variation branch stock
-                    Map<Integer, Integer> varStock = new HashMap<>();
-                    for (int brIndex = 0; brIndex < resJson.getList("models[0].branches.branchId").size(); brIndex++) {
-                        varStock.put(resJson.getInt("models[%s].branches[%s].branchId".formatted(modelIndex, brIndex)), resJson.getInt("models[%s].branches[%s].totalItem".formatted(modelIndex, brIndex)));
-                    }
-
-                    // get variation stock
-                    productStockQuantityMap.put(prdInfo.getVariationModelList().get(modelIndex), branchInfo.getBranchID().stream().mapToInt(brID -> brID).mapToObj(varStock::get).toList());
-
-                    // get variation status
-                    variationStatus.add(resJson.getString("models[%s].status".formatted(modelIndex)));
-
-                    boolean reuseAttribute;
-                    try {
-                         reuseAttribute = resJson.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
-                    } catch (NullPointerException ignored) {
-                        reuseAttribute = true;
-                    }
-
-                    // get variation attribute
-                    if (reuseAttribute) {
-                        attributionGroupsMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getAttributeGroups());
-                        attributionValuesMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getAttributeValues());
-                        isDisplayAttributeMap.put(prdInfo.getVariationModelList().get(modelIndex), prdInfo.getIsDisplayAttributes());
-                    } else {
-                        List<String> attributeGroups = new ArrayList<>();
-                        List<String> attributeValues = new ArrayList<>();
-                        List<Boolean> isDisplay = new ArrayList<>();
-                        for (int attributeIndex= 0; attributeIndex < resJson.getList("models[%s].modelAttributes.id".formatted(modelIndex)).size(); attributeIndex ++) {
-                            attributeGroups.add(resJson.getString("models[%s].modelAttributes[%s].attributeName".formatted(modelIndex, attributeIndex)));
-                            attributeValues.add(resJson.getString("models[%s].modelAttributes[%s].attributeValue".formatted(modelIndex, attributeIndex)));
-                            isDisplay.add(resJson.getBoolean("models[%s].modelAttributes[%s].isDisplay".formatted(modelIndex, attributeIndex)));
-                        }
-
-                        attributionGroupsMap.put(prdInfo.getVariationModelList().get(modelIndex), attributeGroups);
-                        attributionValuesMap.put(prdInfo.getVariationModelList().get(modelIndex), attributeValues);
-                        isDisplayAttributeMap.put(prdInfo.getVariationModelList().get(modelIndex), isDisplay);
-                    }
-                }
-                // set variation list map
-                prdInfo.setVariationListMap(variationListMap);
-
-                // set product quantity map
-                prdInfo.setProductStockQuantityMap(productStockQuantityMap);
-
-                // set variation status list
-                prdInfo.setVariationStatus(variationStatus);
-
-                // set variation product name map
-                prdInfo.setProductNameMap(productNameMap);
-
-                // set variation product description map
-                prdInfo.setProductDescriptionMap(productDescriptionMap);
-
-                // set variation attribution
-                prdInfo.setVariationAttributeGroups(attributionGroupsMap);
-                prdInfo.setVariationAttributeValues(attributionValuesMap);
-                prdInfo.setIsDisplayVariationAttributes(isDisplayAttributeMap);
-
-            } else {
-                // set model list
-                prdInfo.setVariationModelList(List.of(String.valueOf(productId)));
-
-                // set barcode list
-                prdInfo.setBarcodeList(List.of(resJson.getString("barcode")));
-
-                // get variation name map
-                Map<String, String> variationNameMap = new HashMap<>();
-                variationNameMap.put("en", null);
-                variationNameMap.put("vi", null);
-                // set variation name map
-                prdInfo.setVariationNameMap(variationNameMap);
-
-                // get variation list map
-                Map<String, List<String>> variationListMap = new HashMap<>();
-                List<String> noVar = new ArrayList<>();
-                noVar.add(null);
-                variationListMap.put("en", noVar);
-                variationListMap.put("vi", noVar);
-                // set variation list map
-                prdInfo.setVariationListMap(variationListMap);
-
-                // get variation product name
-                Map<String, Map<String, String>> productNameMap = new HashMap<>();
-                productNameMap.put(prdInfo.getVariationModelList().get(0), prdInfo.getDefaultProductNameMap());
-                //set variation product name
-                prdInfo.setProductNameMap(productNameMap);
-
-                // get product description
-                Map<String, Map<String, String>> productDescriptionMap = new HashMap<>();
-                productDescriptionMap.put(prdInfo.getVariationModelList().get(0), prdInfo.getDefaultProductDescriptionMap());
-                // set variation product description
-                prdInfo.setProductDescriptionMap(productDescriptionMap);
-
-                // set stock
-                prdInfo.setProductStockQuantityMap(Map.of(prdInfo.getVariationModelList().get(0), branchInfo.getBranchID().stream().map(IntStream.range(0, resJson.getList("branches.branchId").size()).boxed().collect(Collectors.toMap(i -> resJson.getInt("branches[%s].branchId".formatted(i)), i -> resJson.getInt("branches[%s].totalItem".formatted(i)), (a, b) -> b))::get).toList()));
-
-                // set variation status
-                prdInfo.setVariationStatus(List.of(resJson.getString("bhStatus")));
-
-                // set attribution
-                prdInfo.setVariationAttributeGroups(Map.of(prdInfo.getVariationModelList().get(0), prdInfo.getAttributeGroups()));
-                prdInfo.setVariationAttributeValues(Map.of(prdInfo.getVariationModelList().get(0), prdInfo.getAttributeValues()));
-                prdInfo.setIsDisplayVariationAttributes(Map.of(prdInfo.getVariationModelList().get(0), prdInfo.getIsDisplayAttributes()));
-            }
             // s.out
             try {
-                int taxId = resJson.getInt("taxId");
-                String taxRate = resJson.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
+                int taxId = jsonPath.getInt("taxId");
+                String taxRate = jsonPath.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
                 prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
 
-                String taxName = resJson.getString("taxName");
+                String taxName = jsonPath.getString("taxName");
                 prdInfo.setTaxName(taxName);
             } catch (NullPointerException ignore) {
             }
@@ -346,7 +461,7 @@ public class ProductInformation {
      */
     public WholesaleProductInfo wholesaleProductInfo(ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
         /* get wholesale product raw data from API */
-        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productInfo.getProductID()), loginInfo.getAccessToken());
+        Response wholesaleProductInfo = api.get(GET_WHOLESALE_PRODUCT_DETAIL_PATH.formatted(productInfo.getProductId()), loginInfo.getAccessToken());
         wholesaleProductInfo.then().statusCode(200);
         // get sale barcode group list
         List<String> barcodeList = wholesaleProductInfo.jsonPath().getList("lstResult.itemModelIds");

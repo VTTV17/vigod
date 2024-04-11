@@ -40,7 +40,7 @@ public class BuyerHomePage extends BuyerHomeElement {
         wait.until(ExpectedConditions.presenceOfElementLocated(HEADER_SEARCH_ICON)).click();
         logger.info("Open search screen");
 
-        keywords = productInfo.getDefaultProductNameMap().get(language.equals("VIE") ? "vi" : "en");
+        keywords = productInfo.getMainProductNameMap().get(language.equals("VIE") ? "vi" : "en");
 
         // input search keywords
         wait.until(ExpectedConditions.presenceOfElementLocated(HEADER_SEARCH_BOX)).sendKeys(keywords);

@@ -17,8 +17,11 @@ import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
@@ -56,7 +59,7 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void openBulkActionsDropdown() {
-        if (commonAction.getListElement(loc_tblProductManagement_productRow).isEmpty())
+        if (commonAction.getListElement(loc_lblProductId).isEmpty())
             driver.navigate().refresh();
         if (!commonAction.isCheckedJS(loc_chkSelectAll)) {
             commonAction.clickJS(loc_chkSelectAll);
@@ -142,6 +145,24 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // complete update price
         commonAction.click(loc_dlgUpdatePrice_btnUpdate);
+    }
+
+    public List<String> getAllProductIdIn1stPage() {
+        // if page is not loaded, refresh page
+        if (commonAction.getListElement(loc_lblProductId).isEmpty()) {
+            driver.navigate().refresh();
+        }
+
+        // get number of products in 1st page
+        int bound = commonAction.getListElement(loc_lblProductId).size();
+
+        // return list productId
+        return IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_lblProductId, index)).toList();
+    }
+
+    // check bulk actions
+    void bulkActiveProduct () {
+
     }
 
     // check permission

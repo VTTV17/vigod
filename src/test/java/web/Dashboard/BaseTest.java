@@ -60,6 +60,6 @@ public class BaseTest {
 
     @AfterSuite
     void tearDown() {
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
 }
