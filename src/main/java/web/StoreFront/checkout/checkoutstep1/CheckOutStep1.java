@@ -37,8 +37,7 @@ public class CheckOutStep1 extends GeneralSF {
         String name = commonAction.getAttribute(checkOutStep1UI.loc_txtFullName, "value");
         logger.info("Retrieved full name: %s.".formatted(name));
         return name;
-    }      
-    
+    }
     public CheckOutStep1 verifyCountrySelectedValue(String expectedCountry) {
         String value = commonAction.getDropDownSelectedValue(checkOutStep1UI.loc_ddlCountry);
         Assert.assertEquals(value, expectedCountry);

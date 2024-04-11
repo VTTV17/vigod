@@ -11,6 +11,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.links.Links;
 
 public class CreateLoyaltyProgram {
 
@@ -122,6 +124,20 @@ public class CreateLoyaltyProgram {
 		clickSaveBtn();
 		clickCloseBtn();
 		return this;
-	}	
-	
+	}
+	public CreateLoyaltyProgram createRandomMembership(){
+		String random = new DataGenerator().generateString(10);
+		inputTierName("Membership "+random);
+		clickAddSegment();
+		new AddSegmentDialog(driver)
+				.selectCustomerSegment()
+				.clickOKBtn();
+		inputDescription("Description "+random);
+		return this;
+	}
+	public void navigateByUrl(){
+		String url = Links.DOMAIN + "/marketing/loyalty/create";
+		commonAction.navigateToURL(url);
+		logger.info("Navigate to url: "+url);
+	}
 }
