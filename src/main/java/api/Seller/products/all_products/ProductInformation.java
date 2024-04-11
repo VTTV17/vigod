@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.ProductInformation.ProductInformationEnum.*;
+
 public class ProductInformation {
     String GET_DASHBOARD_PRODUCT_LIST = "/itemservice/api/store/dashboard/storeID/items-v2?itemType=BUSINESS_PRODUCT&size=100&sort=lastModifiedDate%2Cdesc";
     String GET_PRODUCT_INFORMATION = "/itemservice/api/beehive-items/%s";
@@ -64,6 +66,10 @@ public class ProductInformation {
                 & res.jsonPath().getString("inventoryManageType").equals(manageInventoryType);
     }
 
+    public enum ProductInformationEnum {
+        name, description, attribute, SEO, price, variation, barcodes, stockQuantity, platform, others, status
+    }
+
     public Map<String, String> getMainProductNameMap(JsonPath jsonPath) {
         return IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].name".formatted(i)), (a, b) -> b));
     }
@@ -72,7 +78,7 @@ public class ProductInformation {
         return IntStream.range(0, jsonPath.getList("languages.language").size()).boxed().collect(Collectors.toMap(i -> jsonPath.getString("languages[%s].language".formatted(i)), i -> jsonPath.getString("languages[%s].description".formatted(i)), (a, b) -> b));
     }
 
-    public List<String> getAttributeGroups(JsonPath jsonPath) {
+    public List<String> getAttributeNames(JsonPath jsonPath) {
         return IntStream.range(0, jsonPath.getList("itemAttributes.attributeName").size()).mapToObj(attributeIndex -> jsonPath.getString("itemAttributes[%s].attributeName".formatted(attributeIndex))).toList();
     }
 
@@ -247,18 +253,13 @@ public class ProductInformation {
         return versionDescriptions.isEmpty() ? Map.of(modelList.get(0), mainDescription) : versionDescriptions;
     }
 
-    public Map<String, List<String>> getVariationAttributionGroupsMap(JsonPath jsonPath, List<String> modelList, List<String> attributionGroups) {
+    public Map<String, List<String>> getVariationAttributionNamesMap(JsonPath jsonPath, List<String> modelList, List<String> attributionGroups) {
         // init variation attribution groups map
         Map<String, List<String>> attributionGroupsMap = new HashMap<>();
 
         // get variation info
         for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
-            boolean reuseAttribute;
-            try {
-                reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
-            } catch (NullPointerException ignored) {
-                reuseAttribute = true;
-            }
+            boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
 
             // get variation attribute
             if (reuseAttribute) {
@@ -281,12 +282,7 @@ public class ProductInformation {
 
         // get variation info
         for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
-            boolean reuseAttribute;
-            try {
-                reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
-            } catch (NullPointerException ignored) {
-                reuseAttribute = true;
-            }
+            boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
 
             // get variation attribute
             if (reuseAttribute) {
@@ -311,13 +307,6 @@ public class ProductInformation {
             // get variation list map
             for (int languageIndex = 0; languageIndex < jsonPath.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
                 boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
-                System.out.println("reuseAttribute: " + reuseAttribute);
-//                try {
-//                    reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
-//                } catch (NullPointerException ignored) {
-//                    reuseAttribute = true;
-//                }
-//                if (reuseAttribute == null)
 
                 // get variation attribute
                 if (reuseAttribute) {
@@ -336,7 +325,11 @@ public class ProductInformation {
     }
 
 
-    public ProductInfo getInfo(int productId) {
+    public ProductInfo getInfo(int productId, ProductInformationEnum... enums) {
+        // get enum info
+        List<ProductInformationEnum> infoEnum = Arrays.stream(enums).toList();
+        if (infoEnum.isEmpty()) infoEnum = new ArrayList<>(Arrays.asList(ProductInformationEnum.values()));
+
         // get product response
         Response response = api.get(GET_PRODUCT_INFORMATION.formatted(productId), loginInfo.getAccessToken());
 
@@ -357,73 +350,95 @@ public class ProductInformation {
             // check response API 200
             response.then().statusCode(200);
 
-            // set product name
-            prdInfo.setMainProductNameMap(getMainProductNameMap(jsonPath));
-
-            // set product description
-            prdInfo.setMainProductDescriptionMap(getMainProductDescription(jsonPath));
-
-            // set product attribution
-            prdInfo.setAttributeGroups(getAttributeGroups(jsonPath));
-            prdInfo.setAttributeValues(getAttributeValues(jsonPath));
-            prdInfo.setIsDisplayAttributes(getIsDisplayAttributes(jsonPath));
-
-            // set SEO map
-            prdInfo.setSeoMap(getSEOMap(jsonPath));
-
-            // set hasModel
-            prdInfo.setHasModel(jsonPath.getBoolean("hasModel"));
-
-            // set SF/Buyer app config
-            prdInfo.setShowOutOfStock(isShowOutOfStock(jsonPath));
-            prdInfo.setHideStock(jsonPath.getBoolean("isHideStock"));
-            prdInfo.setEnabledListing(jsonPath.getBoolean("enabledListing"));
-
-            // set product platform
-            prdInfo.setOnApp(jsonPath.getBoolean("onApp"));
-            prdInfo.setOnWeb(jsonPath.getBoolean("onWeb"));
-            prdInfo.setInStore(jsonPath.getBoolean("inStore"));
-            prdInfo.setInGoSocial(jsonPath.getBoolean("inGosocial"));
-
-            // set product status
-            prdInfo.setBhStatus(jsonPath.getString("bhStatus"));
-
-            // manage inventory
-            prdInfo.setManageInventoryByIMEI(jsonPath.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
-
-            // set price
-            prdInfo.setProductListingPrice(getListingPrices(response));
-            prdInfo.setProductSellingPrice(getSellingPrices(response));
-            prdInfo.setProductCostPrice(getCostPrices(response));
-
             // set model list
             prdInfo.setVariationModelList(getVariationModelList(jsonPath, productId));
 
-            // set barcodes list
-            prdInfo.setBarcodeList(getListBarcodes(jsonPath));
+            if (infoEnum.contains(name)) {
+                // set product name
+                prdInfo.setMainProductNameMap(getMainProductNameMap(jsonPath));
 
-            // set variation group name map
-            prdInfo.setVariationGroupNameMap(getVariationGroupNamesMap(jsonPath));
-            
-            // set variation list map
-            prdInfo.setVariationValuesMap(getVariationValuesMap(jsonPath,  new ArrayList<>(prdInfo.getMainProductNameMap().keySet())));
+                // set variation product name map
+                prdInfo.setVersionNameMap(getVersionNamesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getMainProductNameMap()));
+            }
 
-            // set product quantity map
-            prdInfo.setProductStockQuantityMap(getProductQuantityMap(jsonPath, prdInfo.getVariationModelList()));
+            if (infoEnum.contains(description)) {
+                // set product description
+                prdInfo.setMainProductDescriptionMap(getMainProductDescription(jsonPath));
 
-            // set variation status list
-            prdInfo.setVariationStatus(getVariationStatues(jsonPath, prdInfo.getBhStatus()));
+                // set variation product description map
+                prdInfo.setVersionDescriptionMap(getVersionDescriptionsMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getMainProductDescriptionMap()));
+            }
 
-            // set variation product name map
-            prdInfo.setVersionNameMap(getVersionNamesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getMainProductNameMap()));
+            if (infoEnum.contains(attribute)) {
+                // set product attribution
+                prdInfo.setAttributeNames(getAttributeNames(jsonPath));
+                prdInfo.setAttributeValues(getAttributeValues(jsonPath));
+                prdInfo.setIsDisplayAttributes(getIsDisplayAttributes(jsonPath));
 
-            // set variation product description map
-            prdInfo.setVersionDescriptionMap(getVersionDescriptionsMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getMainProductDescriptionMap()));
+                // set variation attribution
+                prdInfo.setVariationAttributeNames(getVariationAttributionNamesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getAttributeNames()));
+                prdInfo.setVariationAttributeValues(getVariationAttributionValuesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getAttributeValues()));
+                prdInfo.setIsDisplayVariationAttributes(getIsDisplayVariationAttributeMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getIsDisplayAttributes()));
+            }
 
-            // set variation attribution
-            prdInfo.setVariationAttributeGroups(getVariationAttributionGroupsMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getAttributeGroups()));
-            prdInfo.setVariationAttributeValues(getVariationAttributionValuesMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getAttributeValues()));
-            prdInfo.setIsDisplayVariationAttributes(getIsDisplayVariationAttributeMap(jsonPath, prdInfo.getVariationModelList(), prdInfo.getIsDisplayAttributes()));
+            if (infoEnum.contains(SEO)) {
+                // set SEO map
+                prdInfo.setSeoMap(getSEOMap(jsonPath));
+            }
+
+
+            if (infoEnum.contains(others)) {
+                // set hasModel
+                prdInfo.setHasModel(jsonPath.getBoolean("hasModel"));
+
+                // set SF/Buyer app config
+                prdInfo.setShowOutOfStock(isShowOutOfStock(jsonPath));
+                prdInfo.setHideStock(jsonPath.getBoolean("isHideStock"));
+                prdInfo.setEnabledListing(jsonPath.getBoolean("enabledListing"));
+
+                // manage inventory
+                prdInfo.setManageInventoryByIMEI(jsonPath.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
+            }
+
+
+            if (infoEnum.contains(platform)) {
+                // set product platform
+                prdInfo.setOnApp(jsonPath.getBoolean("onApp"));
+                prdInfo.setOnWeb(jsonPath.getBoolean("onWeb"));
+                prdInfo.setInStore(jsonPath.getBoolean("inStore"));
+                prdInfo.setInGoSocial(jsonPath.getBoolean("inGosocial"));
+            }
+
+            if (infoEnum.contains(status)) {
+                // set product status
+                prdInfo.setBhStatus(jsonPath.getString("bhStatus"));
+
+                // set variation status list
+                prdInfo.setVariationStatus(getVariationStatues(jsonPath, prdInfo.getBhStatus()));
+            }
+
+            if (infoEnum.contains(price)) {
+                // set price
+                prdInfo.setProductListingPrice(getListingPrices(response));
+                prdInfo.setProductSellingPrice(getSellingPrices(response));
+                prdInfo.setProductCostPrice(getCostPrices(response));
+            }
+
+            if (infoEnum.contains(variation)) {
+                // set barcodes list
+                prdInfo.setBarcodeList(getListBarcodes(jsonPath));
+
+                // set variation group name map
+                prdInfo.setVariationGroupNameMap(getVariationGroupNamesMap(jsonPath));
+
+                // set variation list map
+                prdInfo.setVariationValuesMap(getVariationValuesMap(jsonPath, jsonPath.getList("languages.language")));
+            }
+
+            if (infoEnum.contains(stockQuantity)) {
+                // set product quantity map
+                prdInfo.setProductStockQuantityMap(getProductQuantityMap(jsonPath, prdInfo.getVariationModelList()));
+            }
 
 
             // s.out

@@ -707,7 +707,7 @@ public class ProductDetailPage extends ProductDetailElement {
                         wholesaleProductInfo.getPriceList().get(varIndex),
                         productInfo.getProductStockQuantityMap().get(modelCode),
                         productInfo.getIsDisplayVariationAttributes().get(modelCode),
-                        productInfo.getVariationAttributeGroups().get(modelCode),
+                        productInfo.getVariationAttributeNames().get(modelCode),
                         productInfo.getVariationAttributeValues().get(modelCode),
                         language,
                         variationValue);

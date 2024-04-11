@@ -37,10 +37,10 @@ public class ProductInfo {
     private Map<Integer, Map<String, String>> collectionNameMap;
     private double taxRate;
     private String taxName;
-    private List<String> attributeGroups;
+    private List<String> attributeNames;
     private List<String> attributeValues;
     private List<Boolean> isDisplayAttributes;
-    private Map<String, List<String>> variationAttributeGroups;
+    private Map<String, List<String>> variationAttributeNames;
     private Map<String, List<String>> variationAttributeValues;
     private Map<String, List<Boolean>> isDisplayVariationAttributes;
 }
