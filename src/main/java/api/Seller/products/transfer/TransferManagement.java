@@ -10,6 +10,9 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static api.Seller.products.transfer.TransferManagement.TransferStatus.*;
 
 public class TransferManagement {
     String getAllTransferPath = "/itemservice/api/transfers/store/%s?searchBy=id&transferType=BRANCH&page=%s&size=100&sort=id,desc";
@@ -21,13 +24,17 @@ public class TransferManagement {
         loginInfo = new Login().getInfo(loginInformation);
         this.loginInformation = loginInformation;
     }
+    
+    enum TransferStatus {
+        READY_FOR_TRANSPORT, DELIVERING, RECEIVED, CANCELLED
+    }
 
     @Data
     public static class TransferInfo {
         List<Integer> ids = new ArrayList<>();
         List<Integer> originBranchIds = new ArrayList<>();
         List<Integer> destinationBranchIds = new ArrayList<>();
-        List<String> statues = new ArrayList<>();
+        List<TransferStatus> statues = new ArrayList<>();
     }
 
     Response getTransferResponse(int page) {
@@ -72,9 +79,32 @@ public class TransferManagement {
         info.setDestinationBranchIds(destinationBranchIds);
 
         // set transfer status
-        info.setStatues(statues);
+        info.setStatues(statues.stream().map(TransferStatus::valueOf).toList());
 
         return info;
+    }
+
+    public List<Integer> getListProductIdInNotCompletedTransfer() {
+        TransferInfo info = getAllTransferInfo();
+        List<Integer> transferIds = info.getIds();
+        List<TransferStatus> statues = info.getStatues();
+
+        // get list in-complete transfer id
+        List<Integer> inCompleteTransferIds = transferIds.stream()
+                .filter(transferId -> !(Objects.equals(statues.get(transferIds.indexOf(transferId)), CANCELLED)
+                        || Objects.equals(statues.get(transferIds.indexOf(transferId)), RECEIVED)))
+                .toList();
+
+        System.out.println(inCompleteTransferIds);
+
+        // init transfer information api
+        TransferInformation transferInformation = new TransferInformation(loginInformation);
+
+        // get list itemId in in-complete transfer
+        return inCompleteTransferIds.stream()
+                .flatMap(transferId -> transferInformation.getItemIds(transferId).stream())
+                .distinct()
+                .toList();
     }
 
     public List<Integer> getListTransferId(List<Integer> assignedBranchIds, TransferInfo... transferInfo) {
@@ -116,8 +146,8 @@ public class TransferManagement {
         // => staff can not confirm ship goods
         List<Integer> transferIds = info.getIds();
         List<Integer> originBranchIds = info.getOriginBranchIds();
-        List<String> statues = info.getStatues();
-        return transferIds.stream().filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("READY_FOR_TRANSPORT")
+        List<TransferStatus> statues = info.getStatues();
+        return transferIds.stream().filter(transferId -> Objects.equals(statues.get(transferIds.indexOf(transferId)), READY_FOR_TRANSPORT)
                 && assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))).findFirst().orElse(0);
     }
 
@@ -129,9 +159,9 @@ public class TransferManagement {
         List<Integer> transferIds = info.getIds();
         List<Integer> originBranchIds = info.getOriginBranchIds();
         List<Integer> destinationBranchIds = info.getDestinationBranchIds();
-        List<String> statues = info.getStatues();
+        List<TransferStatus> statues = info.getStatues();
         return transferIds.stream().mapToInt(transferId -> transferId)
-                .filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("READY_FOR_TRANSPORT")
+                .filter(transferId -> Objects.equals(statues.get(transferIds.indexOf(transferId)), READY_FOR_TRANSPORT)
                         && !assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))
                         && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
                 .findFirst()
@@ -144,9 +174,9 @@ public class TransferManagement {
         // => staff can not confirm received goods
         List<Integer> transferIds = info.getIds();
         List<Integer> destinationBranchIds = info.getDestinationBranchIds();
-        List<String> statues = info.getStatues();
+        List<TransferStatus> statues = info.getStatues();
         return transferIds.stream().mapToInt(transferId -> transferId)
-                .filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("DELIVERING")
+                .filter(transferId -> Objects.equals(statues.get(transferIds.indexOf(transferId)), DELIVERING)
                         && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
                 .findFirst()
                 .orElse(0);
@@ -159,9 +189,9 @@ public class TransferManagement {
         List<Integer> transferIds = info.getIds();
         List<Integer> originBranchIds = info.getOriginBranchIds();
         List<Integer> destinationBranchIds = info.getDestinationBranchIds();
-        List<String> statues = info.getStatues();
+        List<TransferStatus> statues = info.getStatues();
         return transferIds.stream().mapToInt(transferId -> transferId)
-                .filter(transferId -> statues.get(transferIds.indexOf(transferId)).equals("DELIVERING")
+                .filter(transferId -> Objects.equals(statues.get(transferIds.indexOf(transferId)), DELIVERING)
                         && assignedBranchIds.contains(originBranchIds.get(transferIds.indexOf(transferId)))
                         && !assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
                 .findFirst()
@@ -174,10 +204,10 @@ public class TransferManagement {
         // => staff can not confirm received goods
         List<Integer> transferIds = info.getIds();
         List<Integer> destinationBranchIds = info.getDestinationBranchIds();
-        List<String> statues = info.getStatues();
+        List<TransferStatus> statues = info.getStatues();
         return transferIds.stream().mapToInt(transferId -> transferId)
-                .filter(transferId -> !(statues.get(transferIds.indexOf(transferId)).equals("CANCELLED")
-                        || statues.get(transferIds.indexOf(transferId)).equals("RECEIVED"))
+                .filter(transferId -> !(Objects.equals(statues.get(transferIds.indexOf(transferId)), CANCELLED)
+                        || Objects.equals(statues.get(transferIds.indexOf(transferId)), RECEIVED))
                         && assignedBranchIds.contains(destinationBranchIds.get(transferIds.indexOf(transferId))))
                 .findFirst()
                 .orElse(0);
