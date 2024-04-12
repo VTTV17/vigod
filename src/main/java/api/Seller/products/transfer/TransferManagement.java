@@ -95,8 +95,6 @@ public class TransferManagement {
                         || Objects.equals(statues.get(transferIds.indexOf(transferId)), RECEIVED)))
                 .toList();
 
-        System.out.println(inCompleteTransferIds);
-
         // init transfer information api
         TransferInformation transferInformation = new TransferInformation(loginInformation);
 

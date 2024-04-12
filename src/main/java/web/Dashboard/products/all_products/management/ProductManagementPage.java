@@ -1,8 +1,11 @@
 package web.Dashboard.products.all_products.management;
 
+import api.Seller.affiliate.dropship.PartnerTransferManagement;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.transfer.TransferManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -18,14 +21,18 @@ import utilities.utils.FileUtils;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
+import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
 import static utilities.links.Links.DOMAIN;
+import static web.Dashboard.products.all_products.management.ProductManagementPage.BulkActions.*;
+import static web.Dashboard.products.all_products.management.ProductManagementPage.PriceType.*;
 
 public class ProductManagementPage extends ProductManagementElement {
     Logger logger = LogManager.getLogger(ProductManagementPage.class);
@@ -52,10 +59,18 @@ public class ProductManagementPage extends ProductManagementElement {
         return this;
     }
 
-    void navigateToProductListPage() {
+    void navigateToProductManagementPage() {
         driver.get("%s/product/list".formatted(DOMAIN));
         driver.navigate().refresh();
         logger.info("Navigate to product management page.");
+    }
+
+    enum BulkActions {
+        clearStock, delete, deactivate, active, updateStock, updateTax, displayOutOfStock, updateSellingPlatform, updatePrice, setStockAlert, manageStockByLotDate;
+
+        static List<BulkActions> bulkActionsValues() {
+            return new ArrayList<>(Arrays.asList(values()));
+        }
     }
 
     void openBulkActionsDropdown() {
@@ -68,7 +83,7 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void exportAllProducts() {
-        navigateToProductListPage();
+        navigateToProductManagementPage();
         commonAction.clickJS(loc_btnExport);
         commonAction.clickJS(loc_ddlExportActions, 0);
         commonAction.clickJS(loc_dlgExportProductListingFile_btnExport);
@@ -76,7 +91,7 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     void exportWholesaleProducts() {
-        navigateToProductListPage();
+        navigateToProductManagementPage();
         commonAction.clickJS(loc_btnExport);
         if (!commonAction.getListElement(loc_ddlExportActions).isEmpty()) {
             commonAction.clickJS(loc_ddlExportActions, 1);
@@ -110,7 +125,7 @@ public class ProductManagementPage extends ProductManagementElement {
             commonAction.uploads(loc_dlgImport_btnDragAndDrop, new DataGenerator().getFilePath("import_product.xlsx"));
 
             // complete import product
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgImport_btnImport, loc_prgImportStatus),
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgImport_btnImport, loc_prgStatus),
                     "Can not import product.");
         }
     }
@@ -122,22 +137,31 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.click(loc_dlgUpdatePrice_btnApplyAll);
     }
 
+    enum PriceType {
+        listing, selling, cost;
+
+        static List<PriceType> getAllPriceTypes() {
+            return Arrays.stream(values()).toList();
+        }
+    }
+
     void bulkActionsUpdatePrice(long listingPrice, long sellingPrice, long costPrice) {
         // bulk actions
         openBulkActionsDropdown();
 
         // open update price popup
-        commonAction.openPopupJS(loc_ddlListActions, 8, loc_dlgUpdatePrice);
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice), loc_dlgUpdatePrice);
 
         // input listing price
-        applyAll(listingPrice, 0);
+
+        applyAll(listingPrice, getAllPriceTypes().indexOf(listing));
 
         // input selling price
-        applyAll(sellingPrice, 1);
+        applyAll(sellingPrice, getAllPriceTypes().indexOf(selling));
 
         // input cost price
         if (permissions.getProduct().getProductManagement().isViewProductCostPrice()) {
-            applyAll(costPrice, 2);
+            applyAll(costPrice, getAllPriceTypes().indexOf(cost));
         } else {
             // view cost price
             assertCustomize.assertTrue(commonAction.getValue(loc_dlgUpdatePrice_txtCostPrice, 0).equals("0"), "Product cost price still shows when staff does not have 'View product cost price' permission.");
@@ -147,7 +171,11 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.click(loc_dlgUpdatePrice_btnUpdate);
     }
 
-    public List<String> getAllProductIdIn1stPage() {
+    /* Check bulk actions */
+    List<String> getAllProductIdIn1stPage() {
+        // navigate to product management page
+        navigateToProductManagementPage();
+
         // if page is not loaded, refresh page
         if (commonAction.getListElement(loc_lblProductId).isEmpty()) {
             driver.navigate().refresh();
@@ -160,12 +188,245 @@ public class ProductManagementPage extends ProductManagementElement {
         return IntStream.range(0, bound).mapToObj(index -> commonAction.getText(loc_lblProductId, index)).toList();
     }
 
-    // check bulk actions
-    void bulkActiveProduct () {
-
+    void waitUpdated() {
+        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+            driver.navigate().refresh();
+            logger.info("Wait bulk update.");
+            waitUpdated();
+        }
     }
 
-    // check permission
+    // bulk clear stock
+    public void bulkClearStock() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm active popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(clearStock), loc_dlgClearStock);
+
+        // confirm clear stock
+        commonAction.click(loc_dlgClearStock_btnOK);
+
+        // wait updated
+        commonAction.sleepInMiliSecond(10000, "Wait stock updated.");
+
+        // reload to get new stock
+        driver.navigate().refresh();
+        logger.info("Refresh page to get new stock.");
+
+        // check product stock are updated in ES
+        APIAllProducts allProducts = new APIAllProducts(sellerLoginInformation);
+        assertCustomize.assertEquals(allProducts.getListProductStockQuantityAfterClearStock(productIds),
+                allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds),
+                "Product stock are not updated in ES.");
+        logger.info("Check product stock in ES after clearing stock.");
+
+        // check product stock are updated in item-service
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        assertCustomize.assertEquals(productInformation.getListProductStockQuantityAfterClearStock(productIds),
+                productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds),
+                "Product stock are not updated in item-service.");
+        logger.info("Check product stock in item-service after clearing stock.");
+
+        // log
+        logger.info("Check product status after bulk actions: CLEAR STOCK.");
+    }
+
+
+    // bulk delete
+    public List<Boolean> checkProductCanBeDeleted(List<String> productIds) {
+        List<Integer> listProductIdThatInInCompleteTransfer = new ArrayList<>();
+        listProductIdThatInInCompleteTransfer.addAll(new TransferManagement(sellerLoginInformation).getListProductIdInNotCompletedTransfer());
+        listProductIdThatInInCompleteTransfer.addAll(new PartnerTransferManagement(sellerLoginInformation).getListProductIdInNotCompletedTransfer());
+        return productIds.stream().map(productId -> !listProductIdThatInInCompleteTransfer.contains(Integer.parseInt(productId))).toList();
+    }
+
+    public void bulkDeleteProduct() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm active popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(delete), loc_dlgDeleteProduct);
+
+        // confirm active product
+        commonAction.click(loc_dlgDeleteProduct_btnDelete);
+
+        // check actions are completed or not
+        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+            // wait updated
+            waitUpdated();
+
+            // check product must be deleted in ES
+            List<Integer> currentProductIds = new APIAllProducts(sellerLoginInformation).getListProductId();
+            List<Boolean> checkProductCanBeDeleted = checkProductCanBeDeleted(productIds);
+            assertCustomize.assertTrue(IntStream.range(0, productIds.size())
+                            .noneMatch(index -> (currentProductIds.contains(Integer.parseInt(productIds.get(index))) && checkProductCanBeDeleted.get(index))
+                                    || (!currentProductIds.contains(Integer.parseInt(productIds.get(index))) && !checkProductCanBeDeleted.get(index))),
+                    "Product is not deleted in ES.");
+
+            // check product must be deleted in item-service
+            List<Boolean> isDeleted = new ProductInformation(sellerLoginInformation).isDeleted(productIds);
+            assertCustomize.assertEquals(checkProductCanBeDeleted, isDeleted, "Product is not deleted in item-service.");
+
+            // log
+            logger.info("Check product list after bulk actions: DELETE.");
+        } else logger.error("Can not bulk actions DELETE product.");
+    }
+
+    // bulk deactivate
+    public void bulkDeactivateProduct() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm deactivate popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(deactivate), loc_dlgDeactivateProduct);
+
+        // confirm active product
+        commonAction.click(loc_dlgDeactivateProduct_btnYes);
+
+        // check actions are completed or not
+        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+            // wait updated
+            waitUpdated();
+
+            // check product status after updating
+            assertCustomize.assertTrue(new ProductInformation(sellerLoginInformation)
+                            .getListProductStatus(productIds)
+                            .stream()
+                            .allMatch(status -> status.equals("INACTIVE")),
+                    "All selected products must be DEACTIVATE, but some product is not updated.");
+
+            // log
+            logger.info("Check product status after bulk actions: DEACTIVATE.");
+        } else logger.error("Can not bulk actions ACTIVE product.");
+    }
+
+    // bulk active
+    public void bulkActiveProduct() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm active popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(active), loc_dlgActiveProduct);
+
+        // confirm active product
+        commonAction.click(loc_dlgActiveProduct_btnYes);
+
+        // check actions are completed or not
+        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+            // wait updated
+            waitUpdated();
+
+            // check product in product management
+            assertCustomize.assertTrue(new ProductInformation(sellerLoginInformation)
+                            .getListProductStatus(productIds)
+                            .stream()
+                            .allMatch(status -> status.equals("ACTIVE")),
+                    "All selected products must be ACTIVE, but some product is not updated.");
+
+            // log
+            logger.info("Check product status after bulk actions: ACTIVE.");
+        } else logger.error("Can not bulk actions ACTIVE product.");
+    }
+
+    // bulk update stock
+    public void bulkUpdateStock() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm active popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updateStock), loc_dlgUpdateStock);
+
+        // select change actions
+        commonAction.click(loc_dlgUpdateStock_actionsChange);
+
+        // input stock value
+        int stock = nextInt(MAX_STOCK_QUANTITY);
+        commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stock));
+        logger.info("Input stock value: %,d.".formatted(stock));
+
+        // confirm update stock
+        commonAction.click(loc_dlgUpdateStock_btnUpdate);
+
+        // wait updated
+        commonAction.sleepInMiliSecond(10000, "Wait stock updated.");
+
+        // reload to get new stock
+        driver.navigate().refresh();
+        logger.info("Refresh page to get new stock.");
+
+        // check product stock are updated in ES
+        APIAllProducts allProducts = new APIAllProducts(sellerLoginInformation);
+        assertCustomize.assertEquals(allProducts.getListProductStockQuantityAfterClearStock(productIds),
+                allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds),
+                "Product stock are not updated in ES.");
+        logger.info("Check product stock in ES after clearing stock.");
+
+        // check product stock are updated in item-service
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        assertCustomize.assertEquals(productInformation.getListProductStockQuantityAfterClearStock(productIds),
+                productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds),
+                "Product stock are not updated in item-service.");
+        logger.info("Check product stock in item-service after clearing stock.");
+
+        // log
+        logger.info("Check product status after bulk actions: CLEAR STOCK.");
+    }
+
+
+    // bulk update tax
+    public void bulkUpdateTax() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open confirm deactivate popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updateTax), loc_dlgUpdateTax);
+
+        // get taxId
+        int bound = commonAction.getListElement(loc_dlgUpdateTax_ddlTaxOptions).size();
+        int taxIndex = nextInt(bound);
+        int newTaxId = Integer.parseInt(commonAction.getValue(loc_dlgUpdateTax_ddlTaxOptions, taxIndex));
+        commonAction.clickJS(loc_dlgUpdateTax_ddlTaxOptions, taxIndex);
+
+        // confirm active product
+        commonAction.click(loc_dlgUpdateTax_btnOK);
+
+        // check actions are completed or not
+        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+            // wait updated
+            waitUpdated();
+
+            // check product status after updating
+            assertCustomize.assertTrue(new ProductInformation(sellerLoginInformation)
+                            .getListProductTaxId(productIds)
+                            .stream()
+                            .allMatch(taxId -> taxId == newTaxId),
+                    "Tax of all selected products must be %s.".formatted(newTaxId));
+
+            // log
+            logger.info("Check product taxId after bulk actions: UPDATE TAX.");
+        } else logger.error("Can not bulk actions Update Tax product.");
+    }
+
+    /* Check permission */
     // ticket: https://mediastep.atlassian.net/browse/BH-13814
     public void checkProductManagementPermission(AllPermissions permissions) throws Exception {
         // get staff permission
@@ -230,7 +491,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkViewProductList(int createdProductId, int notCreatedProductId) {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // get list product ids
         List<Integer> dbProductList = new APIAllProducts(staffLoginInformation).getAllProductInformation().getProductIds();
@@ -258,7 +519,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkActivateProduct() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // bulk actions
         openBulkActionsDropdown();
@@ -273,7 +534,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkDeactivateProduct() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // bulk actions
         openBulkActionsDropdown();
@@ -288,7 +549,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkCreateProduct() throws Exception {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // check create product permission
         if (permissions.getProduct().getProductManagement().isCreateProduct()) {
@@ -317,7 +578,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkEditPrice() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // bulk action
         openBulkActionsDropdown();
@@ -333,7 +594,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkExportProduct() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         if (!permissions.getProduct().getProductManagement().isExportProducts()) {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnExport), "Restricted popup is not shown.");
@@ -352,7 +613,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkImportProduct() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         if (permissions.getProduct().getProductManagement().isImportProducts()) {
             // import product
@@ -369,7 +630,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkPrintBarcode() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         if (permissions.getProduct().getProductManagement().isPrintBarcode()) {
             commonAction.openPopupJS(loc_btnPrintBarcode, loc_dlgPrintBarcode);
@@ -412,7 +673,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkUpdateWholesalePrice() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // open list actions
         commonAction.clickJS(loc_btnImport);
@@ -433,7 +694,7 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Check permission: Product >> Inventory >> Clear stock.");
 
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // bulk actions
         openBulkActionsDropdown();
@@ -447,7 +708,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkDeleteProduct() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // bulk actions
         openBulkActionsDropdown();
@@ -488,7 +749,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkEnableProductLot() {
         // navigate to product list
-        navigateToProductListPage();
+        navigateToProductManagementPage();
 
         // open bulk actions dropdown
         openBulkActionsDropdown();

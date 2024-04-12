@@ -16,6 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.ProductInformation.ProductInformationEnum.inventory;
+import static api.Seller.products.all_products.ProductInformation.ProductInformationEnum.stockQuantity;
+
 public class APIAllProducts {
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -294,6 +297,7 @@ public class APIAllProducts {
         private List<Integer> productIds;
         private List<Integer> variationNumber;
         private List<String> productNames;
+        private List<Integer> remainingStocks;
     }
 
     Response getAllProductsResponse(int pageIndex, int... branchIds) {
@@ -312,6 +316,7 @@ public class APIAllProducts {
         List<Integer> variationNumber = new ArrayList<>();
         List<Integer> allProductIds = new ArrayList<>();
         List<String> allProductNames = new ArrayList<>();
+        List<Integer> remainingStocks = new ArrayList<>();
 
         // get total products
         int totalOfProducts = Integer.parseInt(getAllProductsResponse(0, branchIds).getHeader("X-Total-Count"));
@@ -325,10 +330,12 @@ public class APIAllProducts {
             variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
             allProductIds.addAll(allProducts.jsonPath().getList("id"));
             allProductNames.addAll(allProducts.jsonPath().getList("name"));
+            remainingStocks.addAll(allProducts.jsonPath().getList("remainingStock"));
         }
         info.setProductIds(allProductIds);
         info.setVariationNumber(variationNumber);
         info.setProductNames(allProductNames);
+        info.setRemainingStocks(remainingStocks);
         return info;
     }
 
@@ -343,6 +350,10 @@ public class APIAllProducts {
             return searchProductIdByName(name);
         }
         return 0;
+    }
+
+    public List<Integer> getListProductId() {
+        return getAllProductInformation().getProductIds();
     }
 
     List<Integer> getListProductId(boolean hasModel, int... branchIds) {
@@ -382,6 +393,23 @@ public class APIAllProducts {
 
     public int getProductIDWithVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
         return getProductIdMatchWithConditions(true, isManageByIMEI, true, isHideStock, isDisplayIfOutOfStock, branchIds);
+    }
+
+    public List<Integer> getListProductStockQuantityAfterClearStock(List<String> productIds) {
+        ProductManagementInfo info = getAllProductInformation();
+        List<Integer> ids = info.getProductIds();
+        List<Integer> remainingStock = info.getRemainingStocks();
+        return productIds.stream().map(productId -> remainingStock.get(ids.indexOf(Integer.parseInt(productId)))).toList();
+    }
+
+    public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds) {
+        ProductManagementInfo info = getAllProductInformation();
+        List<Integer> ids = info.getProductIds();
+        List<Integer> remainingStock = info.getRemainingStocks();
+        ProductInformation productInformation = new ProductInformation(loginInformation);
+        return productIds.stream().map(productId -> productInformation.getInfo(Integer.parseInt(productId), inventory).isLotAvailable()
+                        ? remainingStock.get(ids.indexOf(Integer.parseInt(productId)))
+                        : 0).toList();
     }
 
 }

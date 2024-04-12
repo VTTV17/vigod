@@ -14,6 +14,8 @@ public class ProductInfo {
     private List<Long> productSellingPrice;
     private List<Long> productCostPrice;
     private boolean hasModel;
+    private boolean lotAvailable;
+    private boolean expiredQuality;
     private boolean manageInventoryByIMEI;
     private List<String> variationModelList;
     private List<String> barcodeList;
@@ -37,6 +39,7 @@ public class ProductInfo {
     private Map<Integer, Map<String, String>> collectionNameMap;
     private double taxRate;
     private String taxName;
+    private int taxId;
     private List<String> attributeNames;
     private List<String> attributeValues;
     private List<Boolean> isDisplayAttributes;

@@ -67,7 +67,11 @@ public class ProductInformation {
     }
 
     public enum ProductInformationEnum {
-        name, description, attribute, SEO, price, variation, barcodes, stockQuantity, platform, others, status
+        name, description, attribute, SEO, price, variation, barcodes, inventory, stockQuantity, platform, status, tax, others;
+
+        static List<ProductInformationEnum> getAllValues() {
+            return new ArrayList<>(Arrays.asList(ProductInformationEnum.values()));
+        }
     }
 
     public Map<String, String> getMainProductNameMap(JsonPath jsonPath) {
@@ -328,7 +332,7 @@ public class ProductInformation {
     public ProductInfo getInfo(int productId, ProductInformationEnum... enums) {
         // get enum info
         List<ProductInformationEnum> infoEnum = Arrays.stream(enums).toList();
-        if (infoEnum.isEmpty()) infoEnum = new ArrayList<>(Arrays.asList(ProductInformationEnum.values()));
+        if (infoEnum.isEmpty()) infoEnum = ProductInformationEnum.getAllValues();
 
         // get product response
         Response response = api.get(GET_PRODUCT_INFORMATION.formatted(productId), loginInfo.getAccessToken());
@@ -346,9 +350,7 @@ public class ProductInformation {
         prdInfo.setDeleted((response.getStatusCode() == 404) && response.asPrettyString().contains("message"));
 
         // if product is not deleted, get product information
-        if ((!prdInfo.isDeleted())) {
-            // check response API 200
-            response.then().statusCode(200);
+        if (response.getStatusCode() == 200) {
 
             // set model list
             prdInfo.setVariationModelList(getVariationModelList(jsonPath, productId));
@@ -395,9 +397,20 @@ public class ProductInformation {
                 prdInfo.setShowOutOfStock(isShowOutOfStock(jsonPath));
                 prdInfo.setHideStock(jsonPath.getBoolean("isHideStock"));
                 prdInfo.setEnabledListing(jsonPath.getBoolean("enabledListing"));
+            }
 
+            if (infoEnum.contains(inventory)) {
                 // manage inventory
                 prdInfo.setManageInventoryByIMEI(jsonPath.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
+
+                // manage by lot date
+                try {
+                    prdInfo.setLotAvailable(jsonPath.getBoolean("lotAvailable"));
+                    prdInfo.setExpiredQuality(jsonPath.getBoolean("expiredQuality"));
+                } catch (NullPointerException ignored) {
+                    prdInfo.setLotAvailable(false);
+                    prdInfo.setExpiredQuality(false);
+                }
             }
 
 
@@ -440,16 +453,15 @@ public class ProductInformation {
                 prdInfo.setProductStockQuantityMap(getProductQuantityMap(jsonPath, prdInfo.getVariationModelList()));
             }
 
-
-            // s.out
-            try {
-                int taxId = jsonPath.getInt("taxId");
-                String taxRate = jsonPath.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
-                prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
-
-                String taxName = jsonPath.getString("taxName");
-                prdInfo.setTaxName(taxName);
-            } catch (NullPointerException ignore) {
+            if (infoEnum.contains(tax)) {
+                try {
+                    // s.out
+                    int taxId = jsonPath.getInt("taxId");
+                    String taxRate = jsonPath.getString("taxSettings.find {it.id == %s}.rate".formatted(taxId));
+                    prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
+                    prdInfo.setTaxName(jsonPath.getString("taxName"));
+                    prdInfo.setTaxId(jsonPath.getInt("taxId"));
+                } catch (NullPointerException ignored) {}
             }
 
             List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
@@ -597,4 +609,63 @@ public class ProductInformation {
                 .getList("code");
     }
 
+    public List<String> getListProductStatus(List<String> productIds) {
+        return productIds.stream().map(productId -> getInfo(Integer.parseInt(productId), status).getBhStatus()).toList();
+    }
+
+    public List<Integer> getListProductTaxId(List<String> productIds) {
+        return productIds.stream().map(productId -> getInfo(Integer.parseInt(productId), tax).getTaxId()).toList();
+    }
+
+    public List<Boolean> isDeleted(List<String> productIds) {
+        return productIds.stream().map(productId -> getInfo(Integer.parseInt(productId)).isDeleted()).toList();
+    }
+
+    public List<Integer> getListProductStockQuantityAfterClearStock(List<String> productIds) {
+        List<Integer> productStockQuantity = new ArrayList<>();
+        productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity).getProductStockQuantityMap())
+                .filter(Objects::nonNull)
+                .forEach(stockMap -> stockMap.values().forEach(productStockQuantity::addAll));
+        return productStockQuantity;
+    }
+
+    public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds) {
+        List<Integer> productStockQuantity = new ArrayList<>();
+        productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity, inventory))
+                .filter(productInfo -> productInfo.getProductStockQuantityMap() != null)
+                .forEach(productInfo -> productInfo.getProductStockQuantityMap()
+                        .values()
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .mapToInt(stock -> stock)
+                        .mapToObj(i -> productInfo.isLotAvailable() ? i : 0)
+                        .forEach(productStockQuantity::add));
+        return productStockQuantity;
+    }
+
+    public List<Integer> getListProductStockQuantityAfterUpdateStock(List<String> productIds) {
+        List<Integer> productStockQuantity = new ArrayList<>();
+        productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity).getProductStockQuantityMap())
+                .filter(Objects::nonNull)
+                .forEach(stockMap -> stockMap.values().forEach(productStockQuantity::addAll));
+        return productStockQuantity;
+    }
+
+    public List<Integer> getExpectedListProductStockQuantityAfterUpdateStock(List<String> productIds) {
+        List<Integer> productStockQuantity = new ArrayList<>();
+        productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity, inventory))
+                .filter(productInfo -> productInfo.getProductStockQuantityMap() != null)
+                .forEach(productInfo -> productInfo.getProductStockQuantityMap()
+                        .values()
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .mapToInt(stock -> stock)
+                        .mapToObj(i -> productInfo.isLotAvailable() ? i : 0)
+                        .forEach(productStockQuantity::add));
+        return productStockQuantity;
+    }
 }

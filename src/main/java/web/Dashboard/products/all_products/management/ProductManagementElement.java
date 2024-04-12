@@ -22,7 +22,7 @@ public class ProductManagementElement {
     By loc_dlgImport_btnDragAndDrop = By.cssSelector(".item-list-import-modal__drop-zone input");
     By loc_dlgImport_btnImport = By.cssSelector(".item-list-import-modal .gs-button__green");
     By loc_dlgImport_btnCancel = By.cssSelector(".item-list-import-modal .gs-button__white");
-    By loc_prgImportStatus = By.xpath("//*[contains(@class, 'uik-widget-table__wrapper')]/preceding-sibling::div[1]/span");
+    By loc_prgStatus = By.xpath("//*[contains(@class, 'uik-widget-table__wrapper')]/preceding-sibling::div[1]/span");
     By loc_btnPrintBarcode = By.cssSelector(".gs-button__green--outline");
     By loc_dlgPrintBarcode = By.cssSelector(".product-list-barcode-printer");
     By loc_dlgPrintBarcode_btnCancel = By.cssSelector(".product-list-barcode-printer .gs-button__gray--outline");
@@ -43,6 +43,21 @@ public class ProductManagementElement {
      * 10: Manage stock by Lot-date
      */
     By loc_ddlListActions = By.cssSelector(".actions > div");
+    By loc_dlgClearStock = By.cssSelector(".modalClearStock");
+    By loc_dlgClearStock_btnOK = By.cssSelector(".modalClearStock .gs-button__green");
+    By loc_dlgDeleteProduct = By.cssSelector(".modalDeleteProduct");
+    By loc_dlgDeleteProduct_btnDelete = By.cssSelector(".modalDeleteProduct .gs-button__red");
+    By loc_dlgActiveProduct = By.cssSelector(".modalActivateProduct");
+    By loc_dlgActiveProduct_btnYes = By.cssSelector(".modalActivateProduct .gs-button__green");
+    By loc_dlgDeactivateProduct = By.cssSelector(".modalActivateProduct");
+    By loc_dlgDeactivateProduct_btnYes = By.cssSelector(".modalActivateProduct .gs-button__green");
+    By loc_dlgUpdateStock = By.cssSelector(".product-multiple-stock_updater_modal");
+    By loc_dlgUpdateStock_actionsChange = By.cssSelector("[class *= 'gs-button__blue']:nth-child(2)");
+    By loc_dlgUpdateStock_txtStockValue = By.xpath("//*[@name='quantity']/parent::div/parent::div/preceding-sibling::input");
+    By loc_dlgUpdateStock_btnUpdate = By.cssSelector(".product-multiple-stock_updater_modal .gs-button__green");
+    By loc_dlgUpdateTax = By.cssSelector(".modalActivateProduct");
+    By loc_dlgUpdateTax_ddlTaxOptions = By.cssSelector("input[name='taxRadioGroup']");
+    By loc_dlgUpdateTax_btnOK = By.cssSelector(".modalActivateProduct .gs-button__green");
     By loc_dlgUpdatePrice = By.cssSelector("#multi-price .modal-content");
     By loc_dlgUpdatePrice_ddvSelectedPriceType = By.cssSelector(".modal-body .uik-select__arrowWrapper");
 
