@@ -6,6 +6,7 @@ import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
 import api.Seller.products.transfer.TransferManagement;
+import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -20,10 +21,7 @@ import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
 import web.Dashboard.products.all_products.crud.ProductPage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -201,6 +199,17 @@ public class ProductManagementPage extends ProductManagementElement {
         // get list product need to updated
         List<String> productIds = getAllProductIdIn1stPage();
 
+        // get before update stock in item-service
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        Map<String, List<Integer>> beforeUpdateStocksInItemService = productInformation.getCurrentProductStocksMap(productIds);
+
+        // get before update stock in ES
+        APIAllProducts allProducts = new APIAllProducts(sellerLoginInformation);
+        Map<String, Integer> beforeUpdateStocksInES = allProducts.getCurrentStocks(productIds);
+
+        // log
+        logger.info("Wait get product stock before clear stock.");
+
         // open bulk actions dropdown
         openBulkActionsDropdown();
 
@@ -210,26 +219,18 @@ public class ProductManagementPage extends ProductManagementElement {
         // confirm clear stock
         commonAction.click(loc_dlgClearStock_btnOK);
 
-        // wait updated
-        commonAction.sleepInMiliSecond(10000, "Wait stock updated.");
-
-        // reload to get new stock
-        driver.navigate().refresh();
-        logger.info("Refresh page to get new stock.");
-
-        // check product stock are updated in ES
-        APIAllProducts allProducts = new APIAllProducts(sellerLoginInformation);
-        assertCustomize.assertEquals(allProducts.getListProductStockQuantityAfterClearStock(productIds),
-                allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds),
-                "Product stock are not updated in ES.");
-        logger.info("Check product stock in ES after clearing stock.");
-
+        /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
         // check product stock are updated in item-service
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
-        assertCustomize.assertEquals(productInformation.getListProductStockQuantityAfterClearStock(productIds),
-                productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds),
+        assertCustomize.assertEquals(productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInItemService),
+                productInformation.getCurrentStockOfProducts(productIds),
                 "Product stock are not updated in item-service.");
         logger.info("Check product stock in item-service after clearing stock.");
+
+        // check product stock are updated in ES
+        assertCustomize.assertEquals(allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInES),
+                allProducts.getListProductStockQuantityAfterClearStock(productIds),
+                "Product stock are not updated in ES.");
+        logger.info("Check product stock in ES after clearing stock.");
 
         // log
         logger.info("Check product status after bulk actions: CLEAR STOCK.");
@@ -346,6 +347,18 @@ public class ProductManagementPage extends ProductManagementElement {
         // get list product need to updated
         List<String> productIds = getAllProductIdIn1stPage();
 
+        // get before update stock in item-service
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        Map<String, List<Integer>> beforeUpdateStocksInItemService = productInformation.getCurrentProductStocksMap(productIds);
+
+        // get before update stock in ES
+        APIAllProducts allProducts = new APIAllProducts(sellerLoginInformation);
+        int branchId = new BranchManagement(sellerLoginInformation).getInfo().getBranchID().get(0);
+        Map<String, Integer> beforeUpdateStocksInES = allProducts.getCurrentStocks(productIds, branchId);
+
+        // log
+        logger.info("Wait get product stock before clear stock.");
+
         // open bulk actions dropdown
         openBulkActionsDropdown();
 
@@ -363,29 +376,21 @@ public class ProductManagementPage extends ProductManagementElement {
         // confirm update stock
         commonAction.click(loc_dlgUpdateStock_btnUpdate);
 
-        // wait updated
-        commonAction.sleepInMiliSecond(10000, "Wait stock updated.");
-
-        // reload to get new stock
-        driver.navigate().refresh();
-        logger.info("Refresh page to get new stock.");
+        /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
+        // check product stock are updated in item-service
+        assertCustomize.assertEquals(productInformation.getExpectedListProductStockQuantityAfterUpdateStock(productIds, branchId, beforeUpdateStocksInItemService, stock),
+                productInformation.getCurrentStockOfProducts(productIds),
+                "Product stock are not updated in item-service.");
+        logger.info("Check product stock in item-service after updating stock.");
 
         // check product stock are updated in ES
-        APIAllProducts allProducts = new APIAllProducts(sellerLoginInformation);
-        assertCustomize.assertEquals(allProducts.getListProductStockQuantityAfterClearStock(productIds),
-                allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds),
+        assertCustomize.assertEquals(allProducts.getExpectedListProductStockQuantityAfterUpdateStock(productIds, beforeUpdateStocksInES, stock),
+                allProducts.getListProductStockQuantityAfterUpdateStock(productIds, branchId),
                 "Product stock are not updated in ES.");
-        logger.info("Check product stock in ES after clearing stock.");
-
-        // check product stock are updated in item-service
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
-        assertCustomize.assertEquals(productInformation.getListProductStockQuantityAfterClearStock(productIds),
-                productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds),
-                "Product stock are not updated in item-service.");
-        logger.info("Check product stock in item-service after clearing stock.");
+        logger.info("Check product stock in ES after updating stock.");
 
         // log
-        logger.info("Check product status after bulk actions: CLEAR STOCK.");
+        logger.info("Check product status after bulk actions: UPDATE STOCK.");
     }
 
 

@@ -6,6 +6,7 @@ import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.sort.SortData;
 
@@ -14,10 +15,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static api.Seller.products.all_products.ProductInformation.ProductInformationEnum.inventory;
-import static api.Seller.products.all_products.ProductInformation.ProductInformationEnum.stockQuantity;
 
 public class APIAllProducts {
     API api = new API();
@@ -395,21 +396,70 @@ public class APIAllProducts {
         return getProductIdMatchWithConditions(true, isManageByIMEI, true, isHideStock, isDisplayIfOutOfStock, branchIds);
     }
 
-    public List<Integer> getListProductStockQuantityAfterClearStock(List<String> productIds) {
+    public Map<String, Integer> getCurrentStocks(List<String> productIds) {
+        // get all products info
         ProductManagementInfo info = getAllProductInformation();
         List<Integer> ids = info.getProductIds();
         List<Integer> remainingStock = info.getRemainingStocks();
-        return productIds.stream().map(productId -> remainingStock.get(ids.indexOf(Integer.parseInt(productId)))).toList();
+        return productIds.stream().collect(Collectors.toMap(productId -> productId,
+                productId -> remainingStock.get(ids.indexOf(Integer.parseInt(productId))),
+                (a, b) -> b));
     }
 
-    public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds) {
-        ProductManagementInfo info = getAllProductInformation();
+    public Map<String, Integer> getCurrentStocks(List<String> productIds, int branchId) {
+        // get all products info
+        ProductManagementInfo info = getAllProductInformation(branchId);
         List<Integer> ids = info.getProductIds();
         List<Integer> remainingStock = info.getRemainingStocks();
+        return productIds.stream().collect(Collectors.toMap(productId -> productId,
+                productId -> remainingStock.get(ids.indexOf(Integer.parseInt(productId))),
+                (a, b) -> b));
+    }
+
+    public List<Integer> getListProductStockQuantityAfterClearStock(List<String> productIds) {
+        // get current product stock
+        Map<String, Integer> productStocks = getCurrentStocks(productIds);
+        return productStocks.values().stream().toList();
+    }
+
+    public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds, Map<String, Integer> beforeUpdateStocks) {
+        // get all products info
+        Map<String, Integer> productStocks = new HashMap<>(beforeUpdateStocks);
         ProductInformation productInformation = new ProductInformation(loginInformation);
-        return productIds.stream().map(productId -> productInformation.getInfo(Integer.parseInt(productId), inventory).isLotAvailable()
-                        ? remainingStock.get(ids.indexOf(Integer.parseInt(productId)))
-                        : 0).toList();
+        productIds.stream()
+                .filter(productId -> !productInformation.getInfo(Integer.parseInt(productId), inventory).isLotAvailable())
+                .forEach(productId -> productStocks.put(productId, 0));
+        return productStocks.values().stream().toList();
+    }
+
+    List<Integer> getVariationNumber(List<String> productIds) {
+        // get all products info
+        ProductManagementInfo info = getAllProductInformation();
+        List<Integer> ids = info.getProductIds();
+        List<Integer> variationNumbers = info.getVariationNumber();
+        return productIds.stream().map(productId -> variationNumbers.get(ids.indexOf(Integer.parseInt(productId)))).toList();
+    }
+
+    public List<Integer> getListProductStockQuantityAfterUpdateStock(List<String> productIds, int branchId) {
+        // get current product stock
+        Map<String, Integer> productStocks = getCurrentStocks(productIds, branchId);
+        return productStocks.values().stream().toList();
+    }
+
+    public List<Integer> getExpectedListProductStockQuantityAfterUpdateStock(List<String> productIds, Map<String, Integer> beforeUpdateStocks, int newStock) {
+        // get all products info
+        Map<String, Integer> productStocks = new HashMap<>(beforeUpdateStocks);
+        ProductInformation productInformation = new ProductInformation(loginInformation);
+        List<Integer> variationNumbers = getVariationNumber(productIds);
+        productIds.forEach(productId -> {
+            ProductInfo productInfo = productInformation.getInfo(Integer.parseInt(productId), inventory);
+            if (!productInfo.isLotAvailable() && !productInfo.isManageInventoryByIMEI()) {
+                int variationNumber = variationNumbers.get(productIds.indexOf(productId));
+                variationNumber = (variationNumber == 0) ? 1 : variationNumber;
+                productStocks.put(productId, newStock * (variationNumber));
+            }
+        });
+        return productStocks.values().stream().toList();
     }
 
 }

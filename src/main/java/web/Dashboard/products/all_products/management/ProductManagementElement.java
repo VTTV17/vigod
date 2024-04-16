@@ -52,6 +52,7 @@ public class ProductManagementElement {
     By loc_dlgDeactivateProduct = By.cssSelector(".modalActivateProduct");
     By loc_dlgDeactivateProduct_btnYes = By.cssSelector(".modalActivateProduct .gs-button__green");
     By loc_dlgUpdateStock = By.cssSelector(".product-multiple-stock_updater_modal");
+    By loc_dlgUpdateStock_ddvSelectedBranch = By.cssSelector(".product-multiple-stock_updater_modal .uik-select__valueWrapper");
     By loc_dlgUpdateStock_actionsChange = By.cssSelector("[class *= 'gs-button__blue']:nth-child(2)");
     By loc_dlgUpdateStock_txtStockValue = By.xpath("//*[@name='quantity']/parent::div/parent::div/preceding-sibling::input");
     By loc_dlgUpdateStock_btnUpdate = By.cssSelector(".product-multiple-stock_updater_modal .gs-button__green");

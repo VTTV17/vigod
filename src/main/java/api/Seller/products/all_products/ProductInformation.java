@@ -461,7 +461,8 @@ public class ProductInformation {
                     prdInfo.setTaxRate(taxRate == null ? 0 : Double.parseDouble(taxRate));
                     prdInfo.setTaxName(jsonPath.getString("taxName"));
                     prdInfo.setTaxId(jsonPath.getInt("taxId"));
-                } catch (NullPointerException ignored) {}
+                } catch (NullPointerException ignored) {
+                }
             }
 
             List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
@@ -610,62 +611,77 @@ public class ProductInformation {
     }
 
     public List<String> getListProductStatus(List<String> productIds) {
-        return productIds.stream().map(productId -> getInfo(Integer.parseInt(productId), status).getBhStatus()).toList();
+        return productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), status).getBhStatus())
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     public List<Integer> getListProductTaxId(List<String> productIds) {
-        return productIds.stream().map(productId -> getInfo(Integer.parseInt(productId), tax).getTaxId()).toList();
+        return productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), tax).getTaxId())
+                .toList();
     }
 
     public List<Boolean> isDeleted(List<String> productIds) {
-        return productIds.stream().map(productId -> getInfo(Integer.parseInt(productId)).isDeleted()).toList();
+        return productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId)).isDeleted())
+                .toList();
     }
 
-    public List<Integer> getListProductStockQuantityAfterClearStock(List<String> productIds) {
-        List<Integer> productStockQuantity = new ArrayList<>();
-        productIds.stream()
-                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity).getProductStockQuantityMap())
-                .filter(Objects::nonNull)
-                .forEach(stockMap -> stockMap.values().forEach(productStockQuantity::addAll));
-        return productStockQuantity;
+    public Map<String, List<Integer>> getCurrentProductStocksMap(List<String> productIds) {
+        Map<String, List<Integer>> productQuantityMap = new HashMap<>();
+        productIds.forEach(productId -> {
+            Map<String, List<Integer>> stockMap = getInfo(Integer.parseInt(productId), stockQuantity).getProductStockQuantityMap();
+            if (stockMap != null) {
+                productQuantityMap.put(productId, stockMap.values().stream().flatMap(Collection::stream).toList());
+            }
+        });
+        return productQuantityMap;
     }
 
-    public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds) {
-        List<Integer> productStockQuantity = new ArrayList<>();
-        productIds.stream()
-                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity, inventory))
-                .filter(productInfo -> productInfo.getProductStockQuantityMap() != null)
-                .forEach(productInfo -> productInfo.getProductStockQuantityMap()
-                        .values()
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .mapToInt(stock -> stock)
-                        .mapToObj(i -> productInfo.isLotAvailable() ? i : 0)
-                        .forEach(productStockQuantity::add));
-        return productStockQuantity;
+    public List<Integer> getCurrentStockOfProducts(List<String> productIds) {
+        Map<String, List<Integer>> productStocks = getCurrentProductStocksMap(productIds);
+        return productStocks.values().stream().flatMap(Collection::stream).toList();
     }
 
-    public List<Integer> getListProductStockQuantityAfterUpdateStock(List<String> productIds) {
-        List<Integer> productStockQuantity = new ArrayList<>();
-        productIds.stream()
-                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity).getProductStockQuantityMap())
-                .filter(Objects::nonNull)
-                .forEach(stockMap -> stockMap.values().forEach(productStockQuantity::addAll));
-        return productStockQuantity;
+    public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds, Map<String, List<Integer>> beforeUpdateStocks) {
+        Map<String, List<Integer>> productStocks = new HashMap<>(beforeUpdateStocks);
+        productIds.forEach(productId -> {
+            ProductInfo productInfo = getInfo(Integer.parseInt(productId), stockQuantity, inventory);
+            if (productInfo.getProductStockQuantityMap() != null) {
+                if (!productInfo.isLotAvailable()) {
+                    productStocks.put(productId,
+                            productInfo.getProductStockQuantityMap()
+                                    .keySet()
+                                    .stream()
+                                    .flatMap(key -> branchInfo.getBranchID()
+                                            .stream()
+                                            .map(i -> 0)
+                                            .toList()
+                                            .stream())
+                                    .toList());
+                }
+            }
+        });
+        return productStocks.values().stream().flatMap(Collection::stream).toList();
     }
 
-    public List<Integer> getExpectedListProductStockQuantityAfterUpdateStock(List<String> productIds) {
-        List<Integer> productStockQuantity = new ArrayList<>();
-        productIds.stream()
-                .map(productId -> getInfo(Integer.parseInt(productId), stockQuantity, inventory))
-                .filter(productInfo -> productInfo.getProductStockQuantityMap() != null)
-                .forEach(productInfo -> productInfo.getProductStockQuantityMap()
-                        .values()
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .mapToInt(stock -> stock)
-                        .mapToObj(i -> productInfo.isLotAvailable() ? i : 0)
-                        .forEach(productStockQuantity::add));
-        return productStockQuantity;
+    public List<Integer> getExpectedListProductStockQuantityAfterUpdateStock(List<String> productIds, int branchId, Map<String, List<Integer>> beforeUpdateStocks, int newStock) {
+        Map<String, List<Integer>> productStocks = new HashMap<>(beforeUpdateStocks);
+        for (String productId : productIds) {
+            ProductInfo productInfo = getInfo(Integer.parseInt(productId), stockQuantity, inventory);
+            if ((productInfo.getProductStockQuantityMap() != null)
+                    && !productInfo.isLotAvailable()
+                    && !productInfo.isManageInventoryByIMEI()) {
+                List<Integer> allStocks = new ArrayList<>();
+                productInfo.getProductStockQuantityMap().values().stream().map(ArrayList::new).forEach(varStocks -> {
+                    varStocks.set(branchInfo.getBranchID().indexOf(branchId), newStock);
+                    allStocks.addAll(varStocks);
+                });
+                productStocks.put(productId, allStocks);
+            }
+        }
+        return productStocks.values().stream().flatMap(Collection::stream).toList();
     }
 }
