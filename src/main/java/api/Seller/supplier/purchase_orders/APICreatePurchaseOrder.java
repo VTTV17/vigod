@@ -30,7 +30,7 @@ public class APICreatePurchaseOrder {
                 .getBranchID() // get list branch ID
                 .get(0); // get first branch in list
         int itemId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 1).getProductID();
-        String inventoryManageType = new ProductInformation(loginInformation).getInfo(itemId).isManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
+        String inventoryManageType = new ProductInformation(loginInformation).getInfo(itemId).getManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
         String body = """
                 {
                     "note": "",

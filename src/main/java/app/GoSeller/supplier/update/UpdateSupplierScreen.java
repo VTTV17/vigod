@@ -468,6 +468,9 @@ public class UpdateSupplierScreen extends UpdateSupplierElement {
         String description = commonMobile.moveAndGetElement(DESCRIPTION).getText();
         assertCustomize.assertEquals(description, supInfo.getDescription(), "[Failed][Supplier detail screen] should be %s, but found %s.".formatted(supInfo.getDescription(), description));
         logger.info("[Supplier detail] Check description.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
     public void deleteSupplier() {

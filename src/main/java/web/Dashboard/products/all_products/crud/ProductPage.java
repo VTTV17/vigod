@@ -1069,9 +1069,9 @@ public class ProductPage extends ProductPageElement {
         hasModel = false;
 
         // product name
-        name = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
+        name = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.getManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "));
         name += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        productInfo(name, productInfo.isManageInventoryByIMEI());
+        productInfo(name, productInfo.getManageInventoryByIMEI());
         inputWithoutVariationPrice();
         updateWithoutVariationStock(newBranchStock);
         updateWithoutVariationProductSKU();
@@ -1084,9 +1084,9 @@ public class ProductPage extends ProductPageElement {
         hasModel = true;
 
         // product name
-        name = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
+        name = "[%s] %s".formatted(storeInfo.getDefaultLanguage(), productInfo.getManageInventoryByIMEI() ? ("Auto - IMEI - Variation - ") : ("Auto - Normal - Variation - "));
         name += new DataGenerator().generateDateTime("dd/MM HH:mm:ss");
-        productInfo(name, productInfo.isManageInventoryByIMEI());
+        productInfo(name, productInfo.getManageInventoryByIMEI());
         addVariations();
         uploadVariationImage("img.jpg");
         inputVariationPrice();
@@ -1142,7 +1142,7 @@ public class ProductPage extends ProductPageElement {
             if (langIndex == 0) checkEditTranslationPopup();
 
             // input translate product name
-            name = "[%s] %s%s".formatted(language, productInfo.isManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
+            name = "[%s] %s%s".formatted(language, productInfo.getManageInventoryByIMEI() ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
             commonAction.sendKeys(loc_dlgEditTranslation_txtProductName, name);
             logger.info("Input translation for product name: %s.".formatted(name));
 

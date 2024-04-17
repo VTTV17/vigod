@@ -1,6 +1,8 @@
 package api.Seller.products.all_products;
 
+import api.Seller.affiliate.dropship.PartnerTransferManagement;
 import api.Seller.login.Login;
+import api.Seller.products.transfer.TransferManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -427,7 +429,7 @@ public class APIAllProducts {
         Map<String, Integer> productStocks = new HashMap<>(beforeUpdateStocks);
         ProductInformation productInformation = new ProductInformation(loginInformation);
         productIds.stream()
-                .filter(productId -> !productInformation.getInfo(Integer.parseInt(productId), inventory).isLotAvailable())
+                .filter(productId -> !productInformation.getInfo(Integer.parseInt(productId), inventory).getLotAvailable())
                 .forEach(productId -> productStocks.put(productId, 0));
         return productStocks.values().stream().toList();
     }
@@ -453,7 +455,7 @@ public class APIAllProducts {
         List<Integer> variationNumbers = getVariationNumber(productIds);
         productIds.forEach(productId -> {
             ProductInfo productInfo = productInformation.getInfo(Integer.parseInt(productId), inventory);
-            if (!productInfo.isLotAvailable() && !productInfo.isManageInventoryByIMEI()) {
+            if (!productInfo.getLotAvailable() && !productInfo.getManageInventoryByIMEI()) {
                 int variationNumber = variationNumbers.get(productIds.indexOf(productId));
                 variationNumber = (variationNumber == 0) ? 1 : variationNumber;
                 productStocks.put(productId, newStock * (variationNumber));
@@ -462,4 +464,10 @@ public class APIAllProducts {
         return productStocks.values().stream().toList();
     }
 
+    public List<Integer> getListProductIdThatInInCompleteTransfer() {
+        List<Integer> listProductIdThatInInCompleteTransfer = new ArrayList<>();
+        listProductIdThatInInCompleteTransfer.addAll(new TransferManagement(loginInformation).getListProductIdInNotCompletedTransfer());
+        listProductIdThatInInCompleteTransfer.addAll(new PartnerTransferManagement(loginInformation).getListProductIdInNotCompletedTransfer());
+        return listProductIdThatInInCompleteTransfer;
+    }
 }

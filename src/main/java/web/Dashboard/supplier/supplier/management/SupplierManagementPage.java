@@ -192,9 +192,8 @@ public class SupplierManagementPage extends SupplierManagementElement {
 
         // check UI
         checkUIProductManagementPage(language);
-
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        
+        AssertCustomize.verifyTest();
     }
 
     public void checkNavigateToAddSupplierPage() {
@@ -205,8 +204,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         assertCustomize.assertTrue(driver.getCurrentUrl().contains("/supplier/create"), "[Failed][Supplier Management] Can not navigate to Add supplier page, current url: %s.".formatted(driver.getCurrentUrl()));
         logger.info("Check Supplier Management - Navigate to Add supplier page.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkSearchWithInvalidSupplierCode() {
@@ -222,8 +220,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         assertCustomize.assertTrue(listAvailableSupplier.isEmpty(), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
         logger.info("Check Supplier Management - Search by invalid supplier code.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkSearchWithValidSupplierCode() {
@@ -248,8 +245,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         assertCustomize.assertTrue(listAvailableSupplier.stream().allMatch(supCode -> supCode.contains(keywords)), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
         logger.info("Check Supplier Management - Search by valid supplier code.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkSearchWithInvalidSupplierName() {
@@ -265,8 +261,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         assertCustomize.assertTrue(listAvailableSupplier.isEmpty(), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
         logger.info("Check Supplier Management - Search by invalid supplier name.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkSearchWithValidSupplierName() {
@@ -291,8 +286,7 @@ public class SupplierManagementPage extends SupplierManagementElement {
         assertCustomize.assertTrue(listAvailableSupplier.stream().allMatch(supName -> supName.contains(keywords)), "[Failed][Supplier Management] Search result: %s, keywords: %s".formatted(listAvailableSupplier, keywords));
         logger.info("Check Supplier Management - Search by valid supplier name.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     void checkHeader(String language) throws Exception {

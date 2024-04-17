@@ -58,7 +58,7 @@ public class SupplierTest extends BaseTest {
     }
 
     @Test
-    void SUP01_ScenarioForVNSupplier() throws IOException {
+    void SUP01_ScenarioForVNSupplier() {
         testCaseId = "SUP01";
         /* CREATE SUPPLIER */
         // Create new supplier
@@ -85,9 +85,6 @@ public class SupplierTest extends BaseTest {
 
         // check supplier information at supplier detail screen
         updateSupplierScreen.checkAllSupplierInformation(supInfo);
-
-        // complete test
-        supplierManagementScreen.completeTest();
     }
 
     @Test
@@ -118,9 +115,6 @@ public class SupplierTest extends BaseTest {
 
         // check supplier information at supplier detail screen
         updateSupplierScreen.checkAllSupplierInformation(supInfo);
-
-        // complete test
-        supplierManagementScreen.completeTest();
     }
 
     @Test
@@ -139,9 +133,6 @@ public class SupplierTest extends BaseTest {
 
         // delete supplier and verify supplier is deleted at supplier management screen
         supplierManagementScreen.deleteSupplier(supCode).verifySupplierIsDeleted(supCode);
-
-        // complete test
-        supplierManagementScreen.completeTest();
     }
 
     @Test
@@ -166,9 +157,6 @@ public class SupplierTest extends BaseTest {
 
         // verify supplier is deleted
         supplierManagementScreen.verifySupplierIsDeleted(supCode);
-
-        // complete test
-        supplierManagementScreen.completeTest();
     }
 
     @Test
@@ -176,9 +164,6 @@ public class SupplierTest extends BaseTest {
         testCaseId = "SUP05";
         // search and check result
         supplierManagementScreen.searchAndVerifySearchResult();
-
-        // complete test
-        supplierManagementScreen.completeTest();
     }
 
     @AfterMethod

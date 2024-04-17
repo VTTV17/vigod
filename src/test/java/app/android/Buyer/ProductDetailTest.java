@@ -1,7 +1,6 @@
 package app.android.Buyer;
 
 import api.Seller.customers.Customers;
-import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
@@ -9,13 +8,12 @@ import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.setting.BranchManagement;
-
+import app.Buyer.navigationbar.NavigationBar;
+import app.Buyer.productDetail.BuyerProductDetailPage;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
-import app.Buyer.navigationbar.NavigationBar;
-import app.Buyer.productDetail.BuyerProductDetailPage;
 import utilities.commons.UICommonMobile;
 import utilities.driver.InitAppiumDriver;
 import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
@@ -51,8 +49,7 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeClass
     void setup() throws MalformedURLException {
-//        tcsFileName = "android/Check product detail.xlsx".replace("/", File.separator);
-        loginInformation = new Login().setLoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG).getLoginInformation();
+        loginInformation = new LoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         flashSale = new FlashSale(loginInformation);
         discountCampaign = new ProductDiscountCampaign(loginInformation);
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
@@ -137,7 +134,7 @@ public class ProductDetailTest extends BaseTest {
 
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void Android_Buyer_G1_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void Android_Buyer_G1_Case1_1_FlashSaleIsInProgress() {
         testCaseId = "Android_Buyer_G1_Case1_1";
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
@@ -148,7 +145,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void Android_Buyer_G1_Case1_2_FlashSaleIsExpired() throws Exception {
+    void Android_Buyer_G1_Case1_2_FlashSaleIsExpired() {
         testCaseId = "Android_Buyer_G1_Case1_2";
 
         flashSale.endEarlyFlashSale();
@@ -158,7 +155,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void Android_Buyer_G1_Case1_3_FlashSaleIsSchedule() throws Exception {
+    void Android_Buyer_G1_Case1_3_FlashSaleIsSchedule() {
         testCaseId = "Android_Buyer_G1_Case1_3";
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
@@ -168,7 +165,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void Android_Buyer_G1_Case1_4_DiscountCampaignIsInProgress() throws Exception {
+    void Android_Buyer_G1_Case1_4_DiscountCampaignIsInProgress() {
         testCaseId = "Android_Buyer_G1_Case1_4";
 
         flashSale.endEarlyFlashSale();
@@ -178,7 +175,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void Android_Buyer_G1_Case1_5_DiscountCampaignIsExpired() throws Exception {
+    void Android_Buyer_G1_Case1_5_DiscountCampaignIsExpired() {
         testCaseId = "Android_Buyer_G1_Case1_5";
 
         flashSale.endEarlyFlashSale();
@@ -188,7 +185,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
-    void Android_Buyer_G1_Case1_6_DiscountCampaignIsSchedule() throws Exception {
+    void Android_Buyer_G1_Case1_6_DiscountCampaignIsSchedule() {
         testCaseId = "Android_Buyer_G1_Case1_6";
 
         flashSale.endEarlyFlashSale();
@@ -201,7 +198,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // stock quantity > 0
-    void Android_Buyer_G1_Case2_1_HideStockAndInStock() throws Exception {
+    void Android_Buyer_G1_Case2_1_HideStockAndInStock() {
         testCaseId = "Android_Buyer_G1_Case2_1";
         boolean isIMEIProduct = false;
         isHideStock = true;
@@ -218,7 +215,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // stock quantity > 0
-    void Android_Buyer_G1_Case2_2_ShowStockAndInStock() throws Exception {
+    void Android_Buyer_G1_Case2_2_ShowStockAndInStock() {
         testCaseId = "Android_Buyer_G1_Case2_2";
         boolean isIMEIProduct = false;
         isHideStock = false;
@@ -235,7 +232,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stockQuantity > 0
-    void Android_Buyer_G1_Case3_1_SettingDisplayAndProductInStock() throws Exception {
+    void Android_Buyer_G1_Case3_1_SettingDisplayAndProductInStock() {
         testCaseId = "Android_Buyer_G1_Case3_1";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -253,7 +250,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stock quantity = 0
-    void Android_Buyer_G1_Case3_2_SettingDisplayAndProductOutOfStock() throws Exception {
+    void Android_Buyer_G1_Case3_2_SettingDisplayAndProductOutOfStock() {
         testCaseId = "Android_Buyer_G1_Case3_2";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -261,9 +258,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        System.out.println(productId);
         productInfo = new ProductInformation(loginInformation).getInfo(productId);
-        System.out.println(productInfo.isShowOutOfStock());
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -273,7 +268,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity > 0
-    void Android_Buyer_G1_Case3_3_SettingHiddenAndProductInStock() throws Exception {
+    void Android_Buyer_G1_Case3_3_SettingHiddenAndProductInStock() {
         testCaseId = "Android_Buyer_G1_Case3_3";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -291,7 +286,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity = 0
-    void Android_Buyer_G1_Case3_4_SettingHiddenAndProductOutOfStock() throws Exception {
+    void Android_Buyer_G1_Case3_4_SettingHiddenAndProductOutOfStock() {
         testCaseId = "Android_Buyer_G1_Case3_4";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -311,7 +306,7 @@ public class ProductDetailTest extends BaseTest {
         // store only active 1 branch
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G1_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G1_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G1_Case4_1";
         boolean isIMEIProduct = false;
         int branchStock = 5;
@@ -336,7 +331,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G1_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G1_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G1_Case4_2";
         boolean isIMEIProduct = false;
         int branchStock = 5;
@@ -361,7 +356,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G1_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G1_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G1_Case4_3";
         boolean isIMEIProduct = false;
         int branchStock = 5;
@@ -382,7 +377,7 @@ public class ProductDetailTest extends BaseTest {
 
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void Android_Buyer_G2_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void Android_Buyer_G2_Case1_1_FlashSaleIsInProgress() {
         testCaseId = "Android_Buyer_G2_Case1_1";
 
 
@@ -395,7 +390,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void Android_Buyer_G2_Case1_2_FlashSaleIsExpired() throws Exception {
+    void Android_Buyer_G2_Case1_2_FlashSaleIsExpired() {
         testCaseId = "Android_Buyer_G2_Case1_2";
 
         flashSale.endEarlyFlashSale();
@@ -406,7 +401,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void Android_Buyer_G2_Case1_3_FlashSaleIsSchedule() throws Exception {
+    void Android_Buyer_G2_Case1_3_FlashSaleIsSchedule() {
         testCaseId = "Android_Buyer_G2_Case1_3";
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
@@ -417,7 +412,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void Android_Buyer_G2_Case1_4_DiscountCampaignIsInProgress() throws Exception {
+    void Android_Buyer_G2_Case1_4_DiscountCampaignIsInProgress() {
         testCaseId = "Android_Buyer_G2_Case1_4";
 
         flashSale.endEarlyFlashSale();
@@ -428,7 +423,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void Android_Buyer_G2_Case1_5_DiscountCampaignIsExpired() throws Exception {
+    void Android_Buyer_G2_Case1_5_DiscountCampaignIsExpired() {
         testCaseId = "Android_Buyer_G2_Case1_5";
 
         flashSale.endEarlyFlashSale();
@@ -439,7 +434,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
-    void Android_Buyer_G2_Case1_6_DiscountCampaignIsSchedule() throws Exception {
+    void Android_Buyer_G2_Case1_6_DiscountCampaignIsSchedule() {
         testCaseId = "Android_Buyer_G2_Case1_6";
 
 
@@ -454,7 +449,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // stock quantity > 0
-    void Android_Buyer_G2_Case2_1_HideStockAndInStock() throws Exception {
+    void Android_Buyer_G2_Case2_1_HideStockAndInStock() {
         testCaseId = "Android_Buyer_G2_Case2_1";
         boolean isIMEIProduct = true;
         isHideStock = true;
@@ -472,7 +467,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // stock quantity > 0
-    void Android_Buyer_G2_Case2_2_ShowStockAndInStock() throws Exception {
+    void Android_Buyer_G2_Case2_2_ShowStockAndInStock() {
         testCaseId = "Android_Buyer_G2_Case2_2";
         boolean isIMEIProduct = true;
         isHideStock = false;
@@ -490,7 +485,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stockQuantity > 0
-    void Android_Buyer_G2_Case3_1_SettingDisplayAndProductInStock() throws Exception {
+    void Android_Buyer_G2_Case3_1_SettingDisplayAndProductInStock() {
         testCaseId = "Android_Buyer_G2_Case3_1";
         boolean isIMEIProduct = true;
         isDisplayIfOutOfStock = true;
@@ -508,7 +503,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // stock quantity = 0
-    void Android_Buyer_G2_Case3_2_SettingDisplayAndProductOutOfStock() throws Exception {
+    void Android_Buyer_G2_Case3_2_SettingDisplayAndProductOutOfStock() {
         testCaseId = "Android_Buyer_G2_Case3_2";
         boolean isIMEIProduct = true;
         isDisplayIfOutOfStock = true;
@@ -526,7 +521,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity > 0
-    void Android_Buyer_G2_Case3_3_SettingHiddenAndProductInStock() throws Exception {
+    void Android_Buyer_G2_Case3_3_SettingHiddenAndProductInStock() {
         testCaseId = "Android_Buyer_G2_Case3_3";
         boolean isIMEIProduct = true;
         isDisplayIfOutOfStock = false;
@@ -544,7 +539,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // stock quantity = 0
-    void Android_Buyer_G2_Case3_4_SettingHiddenAndProductOutOfStock() throws Exception {
+    void Android_Buyer_G2_Case3_4_SettingHiddenAndProductOutOfStock() {
         testCaseId = "Android_Buyer_G2_Case3_4";
         boolean isIMEIProduct = true;
         isDisplayIfOutOfStock = false;
@@ -563,7 +558,7 @@ public class ProductDetailTest extends BaseTest {
         // store only active 1 branch
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G2_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G2_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G2_Case4_1";
         boolean isIMEIProduct = true;
         int branchStock = 5;
@@ -587,7 +582,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G2_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G2_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G2_Case4_2";
         boolean isIMEIProduct = true;
         int branchStock = 5;
@@ -611,7 +606,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G2_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G2_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G2_Case4_3";
         boolean isIMEIProduct = true;
         int branchStock = 5;
@@ -631,7 +626,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void Android_Buyer_G3_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void Android_Buyer_G3_Case1_1_FlashSaleIsInProgress() {
         testCaseId = "Android_Buyer_G3_Case1_1";
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
@@ -643,7 +638,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void Android_Buyer_G3_Case1_2_FlashSaleIsExpired() throws Exception {
+    void Android_Buyer_G3_Case1_2_FlashSaleIsExpired() {
         testCaseId = "Android_Buyer_G3_Case1_2";
 
         flashSale.endEarlyFlashSale();
@@ -654,7 +649,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void Android_Buyer_G3_Case1_3_FlashSaleIsSchedule() throws Exception {
+    void Android_Buyer_G3_Case1_3_FlashSaleIsSchedule() {
         testCaseId = "Android_Buyer_G3_Case1_3";
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
@@ -665,7 +660,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void Android_Buyer_G3_Case1_4_DiscountCampaignIsInProgress() throws Exception {
+    void Android_Buyer_G3_Case1_4_DiscountCampaignIsInProgress() {
         testCaseId = "Android_Buyer_G3_Case1_4";
 
         flashSale.endEarlyFlashSale();
@@ -676,7 +671,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void Android_Buyer_G3_Case1_5_DiscountCampaignIsExpired() throws Exception {
+    void Android_Buyer_G3_Case1_5_DiscountCampaignIsExpired() {
         testCaseId = "Android_Buyer_G3_Case1_5";
 
         flashSale.endEarlyFlashSale();
@@ -687,7 +682,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
-    void Android_Buyer_G3_Case1_6_DiscountCampaignIsSchedule() throws Exception {
+    void Android_Buyer_G3_Case1_6_DiscountCampaignIsSchedule() {
         testCaseId = "Android_Buyer_G3_Case1_6";
 
         flashSale.endEarlyFlashSale();
@@ -701,7 +696,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // all variation stock quantity > 0
-    void Android_Buyer_G3_Case2_1_HideStockAndInStock_AllVariations() throws Exception {
+    void Android_Buyer_G3_Case2_1_HideStockAndInStock_AllVariations() {
         testCaseId = "Android_Buyer_G3_Case2_1";
         boolean isIMEIProduct = false;
         isHideStock = true;
@@ -720,7 +715,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // some variations stock quantity > 0
-    void Android_Buyer_G3_Case2_2_HideStockAndInStock_SomeVariations() throws Exception {
+    void Android_Buyer_G3_Case2_2_HideStockAndInStock_SomeVariations() {
         testCaseId = "Android_Buyer_G3_Case2_2";
         boolean isIMEIProduct = false;
         isHideStock = true;
@@ -739,7 +734,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // all variations stock quantity > 0
-    void Android_Buyer_G3_Case2_3_ShowStockAndInStock_AllVariations() throws Exception {
+    void Android_Buyer_G3_Case2_3_ShowStockAndInStock_AllVariations() {
         testCaseId = "Android_Buyer_G3_Case2_3";
         boolean isIMEIProduct = false;
         isHideStock = false;
@@ -758,7 +753,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // some variations stock quantity > 0
-    void Android_Buyer_G3_Case2_4_ShowStockAndInStock_SomeVariations() throws Exception {
+    void Android_Buyer_G3_Case2_4_ShowStockAndInStock_SomeVariations() {
         testCaseId = "Android_Buyer_G3_Case2_4";
         boolean isIMEIProduct = false;
         isHideStock = false;
@@ -777,7 +772,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // all variations stock quantity > 0
-    void Android_Buyer_G3_Case3_1_SettingDisplayAndProductInStock() throws Exception {
+    void Android_Buyer_G3_Case3_1_SettingDisplayAndProductInStock() {
         testCaseId = "Android_Buyer_G3_Case3_1";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -796,7 +791,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // one of variation stock quantity = 0
-    void Android_Buyer_G3_Case3_2_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
+    void Android_Buyer_G3_Case3_2_SettingDisplayAndOneOfVariationOutOfStock() {
         testCaseId = "Android_Buyer_G3_Case3_2";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -815,7 +810,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // all variations stock quantity = 0
-    void Android_Buyer_G3_Case3_3_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
+    void Android_Buyer_G3_Case3_3_SettingDisplayAndAllVariationsOutOfStock() {
         testCaseId = "Android_Buyer_G3_Case3_3";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -834,7 +829,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity > 0
-    void Android_Buyer_G3_Case3_4_SettingHiddenAndAllVariationsInStock() throws Exception {
+    void Android_Buyer_G3_Case3_4_SettingHiddenAndAllVariationsInStock() {
         testCaseId = "Android_Buyer_G3_Case3_4";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -853,7 +848,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // one of variation stock quantity = 0
-    void Android_Buyer_G3_Case3_5_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
+    void Android_Buyer_G3_Case3_5_SettingHiddenAndOneOfVariationOutOfStock() {
         testCaseId = "Android_Buyer_G3_Case3_5";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -872,7 +867,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity = 0
-    void Android_Buyer_G3_Case3_6_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
+    void Android_Buyer_G3_Case3_6_SettingHiddenAndAllVariationsOutOfStock() {
         testCaseId = "Android_Buyer_G3_Case3_6";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -892,7 +887,7 @@ public class ProductDetailTest extends BaseTest {
         // store only active 1 branch
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G3_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G3_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G3_Case4_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -917,7 +912,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G3_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G3_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G3_Case4_2";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -942,7 +937,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G3_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G3_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G3_Case4_3";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -964,7 +959,7 @@ public class ProductDetailTest extends BaseTest {
 
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void Android_Buyer_G4_Case1_1_FlashSaleIsInProgress() throws Exception {
+    void Android_Buyer_G4_Case1_1_FlashSaleIsInProgress() {
         testCaseId = "Android_Buyer_G4_Case1_1";
 
         flashSale.createFlashSale(productInfo, startMin, endMin);
@@ -976,7 +971,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void Android_Buyer_G4_Case1_2_FlashSaleIsExpired() throws Exception {
+    void Android_Buyer_G4_Case1_2_FlashSaleIsExpired() {
         testCaseId = "Android_Buyer_G4_Case1_2";
 
         flashSale.endEarlyFlashSale();
@@ -987,7 +982,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void Android_Buyer_G4_Case1_3_FlashSaleIsSchedule() throws Exception {
+    void Android_Buyer_G4_Case1_3_FlashSaleIsSchedule() {
         testCaseId = "Android_Buyer_G4_Case1_3";
 
         flashSale.createFlashSale(productInfo, endMin - 1, endMin);
@@ -998,7 +993,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void Android_Buyer_G4_Case1_4_DiscountCampaignIsInProgress() throws Exception {
+    void Android_Buyer_G4_Case1_4_DiscountCampaignIsInProgress() {
         testCaseId = "Android_Buyer_G4_Case1_4";
 
         flashSale.endEarlyFlashSale();
@@ -1009,7 +1004,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void Android_Buyer_G4_Case1_5_DiscountCampaignIsExpired() throws Exception {
+    void Android_Buyer_G4_Case1_5_DiscountCampaignIsExpired() {
         testCaseId = "Android_Buyer_G4_Case1_5";
 
         flashSale.endEarlyFlashSale();
@@ -1020,7 +1015,7 @@ public class ProductDetailTest extends BaseTest {
     }
 
     @Test(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
-    void Android_Buyer_G4_Case1_6_DiscountCampaignIsSchedule() throws Exception {
+    void Android_Buyer_G4_Case1_6_DiscountCampaignIsSchedule() {
         testCaseId = "Android_Buyer_G4_Case1_6";
 
 
@@ -1035,7 +1030,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // all variation stock quantity > 0
-    void Android_Buyer_G4_Case2_1_HideStockAndInStock_AllVariations() throws Exception {
+    void Android_Buyer_G4_Case2_1_HideStockAndInStock_AllVariations() {
         testCaseId = "Android_Buyer_G4_Case2_1";
         boolean isIMEIProduct = true;
         isHideStock = true;
@@ -1054,7 +1049,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // some variations stock quantity > 0
-    void Android_Buyer_G4_Case2_2_HideStockAndInStock_SomeVariations() throws Exception {
+    void Android_Buyer_G4_Case2_2_HideStockAndInStock_SomeVariations() {
         testCaseId = "Android_Buyer_G4_Case2_2";
         boolean isIMEIProduct = true;
         isHideStock = true;
@@ -1073,7 +1068,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // all variations stock quantity > 0
-    void Android_Buyer_G4_Case2_3_ShowStockAndInStock_AllVariations() throws Exception {
+    void Android_Buyer_G4_Case2_3_ShowStockAndInStock_AllVariations() {
         testCaseId = "Android_Buyer_G4_Case2_3";
         boolean isIMEIProduct = true;
         isHideStock = false;
@@ -1092,7 +1087,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: Hide remaining stock on online store
         // some variations stock quantity > 0
-    void Android_Buyer_G4_Case2_4_ShowStockAndInStock_SomeVariations() throws Exception {
+    void Android_Buyer_G4_Case2_4_ShowStockAndInStock_SomeVariations() {
         testCaseId = "Android_Buyer_G4_Case2_4";
         boolean isIMEIProduct = true;
         isHideStock = false;
@@ -1111,7 +1106,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // all variations stock quantity > 0
-    void Android_Buyer_G4_Case3_1_SettingDisplayAndProductInStock() throws Exception {
+    void Android_Buyer_G4_Case3_1_SettingDisplayAndProductInStock() {
         testCaseId = "Android_Buyer_G4_Case3_1";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -1130,7 +1125,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // one of variation stock quantity = 0
-    void Android_Buyer_G4_Case3_2_SettingDisplayAndOneOfVariationOutOfStock() throws Exception {
+    void Android_Buyer_G4_Case3_2_SettingDisplayAndOneOfVariationOutOfStock() {
         testCaseId = "Android_Buyer_G4_Case3_2";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -1149,7 +1144,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: check Display if out of stock checkbox
         // all variations stock quantity = 0
-    void Android_Buyer_G4_Case3_3_SettingDisplayAndAllVariationsOutOfStock() throws Exception {
+    void Android_Buyer_G4_Case3_3_SettingDisplayAndAllVariationsOutOfStock() {
         testCaseId = "Android_Buyer_G4_Case3_3";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = true;
@@ -1168,7 +1163,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity > 0
-    void Android_Buyer_G4_Case3_4_SettingHiddenAndAllVariationsInStock() throws Exception {
+    void Android_Buyer_G4_Case3_4_SettingHiddenAndAllVariationsInStock() {
         testCaseId = "Android_Buyer_G4_Case3_4";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -1187,7 +1182,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // one of variation stock quantity = 0
-    void Android_Buyer_G4_Case3_5_SettingHiddenAndOneOfVariationOutOfStock() throws Exception {
+    void Android_Buyer_G4_Case3_5_SettingHiddenAndOneOfVariationOutOfStock() {
         testCaseId = "Android_Buyer_G4_Case3_5";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -1206,7 +1201,7 @@ public class ProductDetailTest extends BaseTest {
         // Pre-condition:
         // setting: uncheck Display if out of stock checkbox
         // all variations stock quantity = 0
-    void Android_Buyer_G4_Case3_6_SettingHiddenAndAllVariationsOutOfStock() throws Exception {
+    void Android_Buyer_G4_Case3_6_SettingHiddenAndAllVariationsOutOfStock() {
         testCaseId = "Android_Buyer_G4_Case3_6";
         boolean isIMEIProduct = false;
         isDisplayIfOutOfStock = false;
@@ -1226,7 +1221,7 @@ public class ProductDetailTest extends BaseTest {
         // store only active 1 branch
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G4_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G4_Case4_1_OneBranchActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G4_Case4_1";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -1251,7 +1246,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G4_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G4_Case4_2_AllBranchesActiveAndHideBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G4_Case4_2";
         boolean isIMEIProduct = false;
         int branchStock = 2;
@@ -1276,7 +1271,7 @@ public class ProductDetailTest extends BaseTest {
         // Active all branches
         // setting: Hide free branch on shop online
         // stock quantity > 0
-    void Android_Buyer_G4_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() throws Exception {
+    void Android_Buyer_G4_Case4_3_AllBranchesActiveAndShowBranchOnStoreFront() {
         testCaseId = "Android_Buyer_G4_Case4_3";
         boolean isIMEIProduct = false;
         int branchStock = 2;

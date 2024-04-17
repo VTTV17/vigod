@@ -32,7 +32,7 @@ public class UpdateProductTest extends BaseTest {
         loginInformation = new LoginInformation();
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);
+        new LoginPage(driver).loginDashboardByJs(loginInformation);
         customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         new web.StoreFront.login.LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
         tcsFileName = "Update product.xlsx";

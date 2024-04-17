@@ -273,8 +273,7 @@ public class SupplierPage extends SupplierElement {
         // check error when leave supplier name field blank
         checkErrorWhenLeaveRequiredFieldBlank(language);
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkErrorWhenInputDuplicateSupplierCode() throws Exception {
@@ -298,8 +297,7 @@ public class SupplierPage extends SupplierElement {
         // check error when input available supplier code
         checkErrorWhenInputDuplicateSupplierCode(language);
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkErrorWhenInputInvalidFormatSupplierCode() throws Exception {
@@ -318,8 +316,7 @@ public class SupplierPage extends SupplierElement {
         // check error when input available supplier code
         checkErrorWhenInputInvalidFormatSupplierCode(language);
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void createNewSupplier(boolean isVNSupplier) throws Exception {
@@ -398,8 +395,7 @@ public class SupplierPage extends SupplierElement {
         // check information after create supplier
         supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber);
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     void navigateSupplierDetailPage() {
@@ -493,8 +489,7 @@ public class SupplierPage extends SupplierElement {
         // check information after update supplier
         supplierManagementPage.checkSupplierInformationAfterCRU(supplierCode, supplierName, email, phoneNumber);
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkSupplierInformation() {
@@ -608,8 +603,7 @@ public class SupplierPage extends SupplierElement {
         assertCustomize.assertEquals(dbDescription, infoDescription, "[Failed][Supplier Information] Description should be %s, but found %s.".formatted(infoDescription, dbDescription));
         logger.info("Check Supplier Information - Description.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void checkOrderHistory() throws Exception {
@@ -653,8 +647,7 @@ public class SupplierPage extends SupplierElement {
         // check UI no search result
         checkNoOrderHistory(language);
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     public void deleteSupplier() throws Exception {
@@ -705,8 +698,7 @@ public class SupplierPage extends SupplierElement {
         assertCustomize.assertTrue(listResult.isEmpty(), "[Failed][Order history] Supplier is deleted but search supplier with keywords: %s, return list: %s".formatted(supplierName, listResult));
         logger.info("Check Supplier management - Search deleted supplier by supplier name.");
 
-        if (AssertCustomize.getCountFalse() > 0)
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
+        AssertCustomize.verifyTest();
     }
 
     void checkHeader(String language) throws Exception {

@@ -499,21 +499,19 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         }
 
         // check out of stock
-        if ((maxStock == 0 && !productInfo.isShowOutOfStock())) {
+        if ((maxStock == 0 && !productInfo.getShowOutOfStock())) {
             assertCustomize.assertFalse(isShowOnApp, "[Failed] Product still shows when stock is out and setting hides product out of stock.");
         }
 
         // check product is display or not
-        if (!productInfo.isDeleted() && productInfo.isOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
+        if (!productInfo.isDeleted() && productInfo.getOnApp() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.getShowOutOfStock())) {
             if (storeInfo.getSFLangList().contains(languageCode))
                 checkProductInformation(languageCode, customerId);
             else logger.info("'%s' language is not published, please publish it and try again.".formatted(language));
         }
 
         // complete verify
-        if (assertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-        }
+        AssertCustomize.verifyTest();
     }
 
     public BuyerShopCartPage buyNowProduct(int quantity) {

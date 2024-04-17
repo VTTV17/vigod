@@ -77,4 +77,16 @@ public class AssertCustomize {
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
     }
+
+    public static void verifyTest() {
+        // get current count false
+        int tempCount = countFalse;
+
+        // reset count false for next test
+        countFalse = 0;
+
+        // verify test
+        if (tempCount > 0) Assert.fail("Count fail: %d.".formatted(tempCount));
+
+    }
 }

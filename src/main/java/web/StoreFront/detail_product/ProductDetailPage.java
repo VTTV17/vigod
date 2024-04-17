@@ -740,7 +740,7 @@ public class ProductDetailPage extends ProductDetailElement {
         int maxStock = productInfo.isDeleted() ? 0 : Collections.max(productInfo.getProductStockQuantityMap().values().stream().map(Collections::max).toList());
 
         // check product is display or not
-        if (!productInfo.isDeleted() && productInfo.isOnWeb() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.isShowOutOfStock())) {
+        if (!productInfo.isDeleted() && productInfo.getOnWeb() && productInfo.getBhStatus().equals("ACTIVE") && (maxStock > 0 || productInfo.getShowOutOfStock())) {
             // in-case in stock or setting show product when out of stock
             // check language is published or not
             if (storeInfo.getSFLangList().contains(languageCode)) {
@@ -788,9 +788,7 @@ public class ProductDetailPage extends ProductDetailElement {
         }
 
         // complete verify
-        if (AssertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
-        }
+        AssertCustomize.verifyTest();
 
     }
 

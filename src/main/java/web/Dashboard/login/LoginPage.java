@@ -204,7 +204,7 @@ public class LoginPage {
     }
 
     /* get dashboard information */
-    public void loginDashboardByJsAndGetStoreInformation(LoginInformation loginInformation) {
+    public void loginDashboardByJs(LoginInformation loginInformation) {
         // access to dashboard to set cookie
         driver.get(DOMAIN);
 

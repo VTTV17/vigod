@@ -59,6 +59,15 @@ public class ProductManagementElement {
     By loc_dlgUpdateTax = By.cssSelector(".modalActivateProduct");
     By loc_dlgUpdateTax_ddlTaxOptions = By.cssSelector("input[name='taxRadioGroup']");
     By loc_dlgUpdateTax_btnOK = By.cssSelector(".modalActivateProduct .gs-button__green");
+    By loc_dlgDisplayOutOfStockProduct = By.cssSelector(".modalActivateProduct");
+    By loc_dlgDisplayOutOfStockProduct_listOptions = By.cssSelector("input[name='productRadioGroup']");
+    By loc_dlgDisplayOutOfStockProduct_btnYes = By.cssSelector(".modalActivateProduct .gs-button__green");
+    By loc_dlgUpdateSellingPlatform = By.cssSelector(".modalPlatformProduct");
+    By loc_dlgUpdateSellingPlatform_chkApp = By.cssSelector("#onApp");
+    By loc_dlgUpdateSellingPlatform_chkWeb = By.cssSelector("#onWeb");
+    By loc_dlgUpdateSellingPlatform_chkInStore = By.cssSelector("#inStore");
+    By loc_dlgUpdateSellingPlatform_chkGoSocial = By.cssSelector("#inGosocial");
+    By loc_dlgUpdateSellingPlatform_btnConfirm = By.cssSelector(".modalPlatformProduct .gs-button__green");
     By loc_dlgUpdatePrice = By.cssSelector("#multi-price .modal-content");
     By loc_dlgUpdatePrice_ddvSelectedPriceType = By.cssSelector(".modal-body .uik-select__arrowWrapper");
 
@@ -76,6 +85,7 @@ public class ProductManagementElement {
     By loc_dlgUpdatePrice_btnUpdate = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgUpdatePrice_btnClose = By.cssSelector(".modal-footer .gs-button__gray--outline");
     By loc_dlgConfirm_icnClose = By.cssSelector(".modal.fade.show .close");
-    By loc_dlgConfirmManageProductByLotDate = By.cssSelector(".bulk-update-lot-type-modal");
-    By loc_dlgConfirmManageProductByLotDate_btnYes = By.cssSelector(".bulk-update-lot-type-modal");
+    By loc_dlgManageProductByLotDate = By.cssSelector(".bulk-update-lot-type-modal");
+    By loc_dlgManageProductByLotDate_chkExcludeExpireQuantity = By.cssSelector("#expiredQuantity");
+    By loc_dlgManageProductByLotDate_btnYes = By.cssSelector(".bulk-update-lot-type-modal");
 }

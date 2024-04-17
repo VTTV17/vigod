@@ -129,10 +129,4 @@ public class SupplierManagementScreen extends SupplierManagementElement {
         assertCustomize.assertTrue(driver.findElements(SUPPLIER_CODE).isEmpty(), "[Failed][Supplier management screen] Supplier is deleted but it still shows on supplier management list, supplier code: %s.".formatted(supplierCode));
         logger.info("[Supplier management] Check deleted supplier.");
     }
-
-    public void completeTest() {
-        if (AssertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(AssertCustomize.getCountFalse()));
-        }
-    }
 }

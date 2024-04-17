@@ -1,11 +1,9 @@
 package web.Dashboard.products.all_products.management;
 
-import api.Seller.affiliate.dropship.PartnerTransferManagement;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.ProductInformation;
-import api.Seller.products.transfer.TransferManagement;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,11 +23,13 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
+import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
 import static utilities.links.Links.DOMAIN;
 import static web.Dashboard.products.all_products.management.ProductManagementPage.BulkActions.*;
+import static web.Dashboard.products.all_products.management.ProductManagementPage.DisplayOutOfStockActions.*;
 import static web.Dashboard.products.all_products.management.ProductManagementPage.PriceType.*;
 
 public class ProductManagementPage extends ProductManagementElement {
@@ -48,6 +48,11 @@ public class ProductManagementPage extends ProductManagementElement {
         checkPermission = new CheckPermission(driver);
         commonAction = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
+    }
+
+    public ProductManagementPage getLoginInformation(LoginInformation sellerLoginInformation) {
+        this.sellerLoginInformation = sellerLoginInformation;
+        return this;
     }
 
     public ProductManagementPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
@@ -220,28 +225,31 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.click(loc_dlgClearStock_btnOK);
 
         /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
-        // check product stock are updated in item-service
-        assertCustomize.assertEquals(productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInItemService),
-                productInformation.getCurrentStockOfProducts(productIds),
-                "Product stock are not updated in item-service.");
-        logger.info("Check product stock in item-service after clearing stock.");
+        // check product stock are updated on item-service
+        List<Integer> expectedStockOnItemService = productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInItemService);
+        List<Integer> actualStockOnItemService = productInformation.getCurrentStockOfProducts(productIds);
+        assertCustomize.assertEquals(expectedStockOnItemService, actualStockOnItemService,
+                "Product stock are not updated on item-service, , stock must be %s, but found %s.".formatted(actualStockOnItemService.toString(), expectedStockOnItemService.toString()));
+        logger.info("Check product stock on item-service after clearing stock.");
 
-        // check product stock are updated in ES
-        assertCustomize.assertEquals(allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInES),
-                allProducts.getListProductStockQuantityAfterClearStock(productIds),
-                "Product stock are not updated in ES.");
-        logger.info("Check product stock in ES after clearing stock.");
+        // check product stock are updated on ES
+        List<Integer> expectedStockOnES = allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInES);
+        List<Integer> actualStockOnES = allProducts.getListProductStockQuantityAfterClearStock(productIds);
+        assertCustomize.assertEquals(expectedStockOnES, actualStockOnES,
+                "Product stock are not updated on ES, stock must be %s, but found %s.".formatted(actualStockOnES.toString(), expectedStockOnES.toString()));
+        logger.info("Check product stock on ES after clearing stock.");
 
         // log
         logger.info("Check product status after bulk actions: CLEAR STOCK.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
 
     // bulk delete
     public List<Boolean> checkProductCanBeDeleted(List<String> productIds) {
-        List<Integer> listProductIdThatInInCompleteTransfer = new ArrayList<>();
-        listProductIdThatInInCompleteTransfer.addAll(new TransferManagement(sellerLoginInformation).getListProductIdInNotCompletedTransfer());
-        listProductIdThatInInCompleteTransfer.addAll(new PartnerTransferManagement(sellerLoginInformation).getListProductIdInNotCompletedTransfer());
+        List<Integer> listProductIdThatInInCompleteTransfer = new APIAllProducts(sellerLoginInformation).getListProductIdThatInInCompleteTransfer();
         return productIds.stream().map(productId -> !listProductIdThatInInCompleteTransfer.contains(Integer.parseInt(productId))).toList();
     }
 
@@ -278,6 +286,9 @@ public class ProductManagementPage extends ProductManagementElement {
             // log
             logger.info("Check product list after bulk actions: DELETE.");
         } else logger.error("Can not bulk actions DELETE product.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
     // bulk deactivate
@@ -309,10 +320,13 @@ public class ProductManagementPage extends ProductManagementElement {
             // log
             logger.info("Check product status after bulk actions: DEACTIVATE.");
         } else logger.error("Can not bulk actions ACTIVE product.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
     // bulk active
-    public void bulkActiveProduct() {
+    public void bulkActivateProduct() {
         // get list product need to updated
         List<String> productIds = getAllProductIdIn1stPage();
 
@@ -338,8 +352,11 @@ public class ProductManagementPage extends ProductManagementElement {
                     "All selected products must be ACTIVE, but some product is not updated.");
 
             // log
-            logger.info("Check product status after bulk actions: ACTIVE.");
-        } else logger.error("Can not bulk actions ACTIVE product.");
+            logger.info("Check product status after bulk actions: ACTIVATE.");
+        } else logger.error("Can not bulk actions ACTIVATE product.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
     // bulk update stock
@@ -377,20 +394,25 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.click(loc_dlgUpdateStock_btnUpdate);
 
         /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
-        // check product stock are updated in item-service
-        assertCustomize.assertEquals(productInformation.getExpectedListProductStockQuantityAfterUpdateStock(productIds, branchId, beforeUpdateStocksInItemService, stock),
-                productInformation.getCurrentStockOfProducts(productIds),
-                "Product stock are not updated in item-service.");
-        logger.info("Check product stock in item-service after updating stock.");
+        // check product stock are updated on item-service
+        List<Integer> expectedStockOnItemService = productInformation.getExpectedListProductStockQuantityAfterUpdateStock(productIds, branchId, beforeUpdateStocksInItemService, stock);
+        List<Integer> actualStockOnItemService = productInformation.getCurrentStockOfProducts(productIds);
+        assertCustomize.assertEquals(expectedStockOnItemService, actualStockOnItemService,
+                "Product stock are not updated on item-service, , stock must be %s, but found %s.".formatted(actualStockOnItemService.toString(), expectedStockOnItemService.toString()));
+        logger.info("Check product stock on item-service after updating stock.");
 
-        // check product stock are updated in ES
-        assertCustomize.assertEquals(allProducts.getExpectedListProductStockQuantityAfterUpdateStock(productIds, beforeUpdateStocksInES, stock),
-                allProducts.getListProductStockQuantityAfterUpdateStock(productIds, branchId),
-                "Product stock are not updated in ES.");
-        logger.info("Check product stock in ES after updating stock.");
+        // check product stock are updated on ES
+        List<Integer> expectedStockOnES = allProducts.getExpectedListProductStockQuantityAfterUpdateStock(productIds, beforeUpdateStocksInES, stock);
+        List<Integer> actualStockOnES = allProducts.getListProductStockQuantityAfterUpdateStock(productIds, branchId);
+        assertCustomize.assertEquals(expectedStockOnES, actualStockOnES,
+                "Product stock are not updated on ES, stock must be %s, but found %s.".formatted(actualStockOnES.toString(), expectedStockOnES.toString()));
+        logger.info("Check product stock on ES after updating stock.");
 
         // log
         logger.info("Check product status after bulk actions: UPDATE STOCK.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
 
@@ -410,6 +432,7 @@ public class ProductManagementPage extends ProductManagementElement {
         int taxIndex = nextInt(bound);
         int newTaxId = Integer.parseInt(commonAction.getValue(loc_dlgUpdateTax_ddlTaxOptions, taxIndex));
         commonAction.clickJS(loc_dlgUpdateTax_ddlTaxOptions, taxIndex);
+        logger.info("Bulk actions update tax: %d.".formatted(newTaxId));
 
         // confirm active product
         commonAction.click(loc_dlgUpdateTax_btnOK);
@@ -420,19 +443,250 @@ public class ProductManagementPage extends ProductManagementElement {
             waitUpdated();
 
             // check product status after updating
-            assertCustomize.assertTrue(new ProductInformation(sellerLoginInformation)
-                            .getListProductTaxId(productIds)
-                            .stream()
-                            .allMatch(taxId -> taxId == newTaxId),
-                    "Tax of all selected products must be %s.".formatted(newTaxId));
+            ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+            List<Integer> taxList = productInformation.getListProductTaxId(productIds);
+            assertCustomize.assertTrue(IntStream.range(0, taxList.size())
+                            .allMatch(index -> taxList.get(index) == newTaxId),
+                    "Tax of all selected products must be %s.".formatted(taxList.toString()));
 
             // log
             logger.info("Check product taxId after bulk actions: UPDATE TAX.");
         } else logger.error("Can not bulk actions Update Tax product.");
+
+        // verify test
+        AssertCustomize.verifyTest();
+    }
+
+    enum DisplayOutOfStockActions {
+        displayWhenOutOfStock, doNotDisplayWhenOutOfStock;
+
+        static List<DisplayOutOfStockActions> displayOutOfStockActions() {
+            return new ArrayList<>(Arrays.asList(values()));
+        }
+    }
+
+    void bulkDisplayOutOfStock(DisplayOutOfStockActions displayOutOfStockActions) {
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open display out of stock popup
+        commonAction.openPopupJS(loc_ddlListActions,
+                bulkActionsValues().indexOf(displayOutOfStock),
+                loc_dlgDisplayOutOfStockProduct);
+
+        // select option
+        commonAction.clickJS(loc_dlgDisplayOutOfStockProduct_listOptions,
+                displayOutOfStockActions().indexOf(displayOutOfStockActions));
+
+        // confirm bulk display when out of stock product
+        commonAction.click(loc_dlgDisplayOutOfStockProduct_btnYes);
+    }
+
+    public void bulkDisplayOutOfStockProduct() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // bulk do not display when out of stock
+        bulkDisplayOutOfStock(doNotDisplayWhenOutOfStock);
+
+        // wait updated
+        waitUpdated();
+
+        // check product display after updating
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        List<Boolean> showOutOfStock = productInformation.getDisplayWhenOutOfStock(productIds);
+        assertCustomize.assertTrue(IntStream.range(0, showOutOfStock.size())
+                        .noneMatch(showOutOfStock::get),
+                "Display when out of selected products must be %s.".formatted(showOutOfStock.toString()));
+
+        // log
+        logger.info("Check product taxId after bulk actions: DO NOT DISPLAY OUT OF STOCK PRODUCT.");
+
+        // bulk display when out of stock
+        bulkDisplayOutOfStock(displayWhenOutOfStock);
+
+        // wait updated
+        waitUpdated();
+
+        // check product display after updating
+        showOutOfStock = productInformation.getDisplayWhenOutOfStock(productIds);
+        assertCustomize.assertTrue(IntStream.range(0, showOutOfStock.size())
+                        .allMatch(showOutOfStock::get),
+                "Display when out of selected products must be %s.".formatted(showOutOfStock.toString()));
+        // log
+        logger.info("Check product taxId after bulk actions: DISPLAY OUT OF STOCK PRODUCT.");
+
+        // verify test
+        AssertCustomize.verifyTest();
+    }
+
+    public void bulkUpdateSellingPlatform() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // get new selling platform config
+        boolean onApp = nextBoolean();
+        logger.info("onApp: %s.".formatted(onApp));
+
+        boolean onWeb = nextBoolean();
+        logger.info("onWeb: %s.".formatted(onWeb));
+
+        boolean inStore = nextBoolean();
+        logger.info("inStore: %s.".formatted(inStore));
+
+        boolean inGoSocial = nextBoolean();
+        logger.info("inGoSocial: %s.".formatted(inGoSocial));
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open display out of stock popup
+        commonAction.openPopupJS(loc_ddlListActions,
+                bulkActionsValues().indexOf(updateSellingPlatform),
+                loc_dlgUpdateSellingPlatform);
+
+        // update selling platform
+        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkApp) != onApp)
+            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkApp);
+
+        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkWeb) != onWeb)
+            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkWeb);
+
+        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkInStore) != inStore)
+            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkInStore);
+
+        if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkGoSocial) != inGoSocial)
+            commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkGoSocial);
+
+        // confirm bulk update selling platforms
+        commonAction.click(loc_dlgUpdateSellingPlatform_btnConfirm);
+
+        // wait updated
+        waitUpdated();
+
+        // check product display after updating
+        Map<String, List<Boolean>> sellingPlatforms = new ProductInformation(sellerLoginInformation).getMapOfListSellingPlatform(productIds);
+        assertCustomize.assertTrue(new ArrayList<>(sellingPlatforms.get("onWeb")).stream()
+                        .allMatch(webPlatform -> webPlatform == onWeb),
+                "Web platform of selected products must be %s, but found %s.".formatted(onWeb, sellingPlatforms.get("onWeb")));
+
+        assertCustomize.assertTrue(new ArrayList<>(sellingPlatforms.get("onApp")).stream()
+                        .allMatch(appPlatform -> appPlatform == onApp),
+                "App platform of selected products must be %s, but found %s.".formatted(onApp, sellingPlatforms.get("onApp")));
+
+        assertCustomize.assertTrue(new ArrayList<>(sellingPlatforms.get("inStore")).stream()
+                        .allMatch(inStorePlatform -> inStorePlatform == inStore),
+                "In store platform of selected products must be %s, but found %s.".formatted(inStore, sellingPlatforms.get("inStore")));
+
+        assertCustomize.assertTrue(new ArrayList<>(sellingPlatforms.get("inGoSocial")).stream()
+                        .allMatch(inGoSocialPlatform -> inGoSocialPlatform == inGoSocial),
+                "GoSocial platform of selected products must be %s, but found %s.".formatted(inGoSocial, sellingPlatforms.get("inGoSocial")));
+
+        // log
+        logger.info("Check product selling platform after bulk actions: UPDATE SELLING PLATFORM.");
+
+        // verify test
+        AssertCustomize.verifyTest();
+    }
+
+    public void bulkUpdatePrice() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // bulk actions
+        openBulkActionsDropdown();
+
+        // open update price popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice), loc_dlgUpdatePrice);
+
+        // get map of products price
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        Map<String, List<Long>> mapOfProductsPrice = productInformation.getMapOfCurrentProductsPrice(productIds);
+
+        // input listing price
+        long maxListingPrice = Collections.max(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
+        long listingPrice = maxListingPrice + nextLong(MAX_PRICE - maxListingPrice);
+        applyAll(listingPrice, getAllPriceTypes().indexOf(listing));
+        logger.info("Input listing price: %,d.".formatted(listingPrice));
+
+        // input selling price
+        long maxSellingPrice = Collections.max(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
+        long sellingPrice = maxSellingPrice + nextLong(listingPrice - maxSellingPrice);
+        applyAll(sellingPrice, getAllPriceTypes().indexOf(selling));
+        logger.info("Input selling price: %,d.".formatted(sellingPrice));
+
+        // input cost price
+        long minCostPrice = Collections.min(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
+        long costPrice = nextLong(minCostPrice);
+        applyAll(costPrice, getAllPriceTypes().indexOf(cost));
+        logger.info("Input cost price: %,d.".formatted(costPrice));
+
+        // complete update price
+        commonAction.click(loc_dlgUpdatePrice_btnUpdate);
+
+        // wait updated
+        waitUpdated();
+
+        // check product display after updating
+        Map<String, List<Long>> mapOfActualPrice = productInformation.getMapOfCurrentProductsPrice(productIds);
+        Map<String, List<Long>> mapOfExpectedPrice = productInformation.getMapOfExpectedProductsPrice(productIds, listingPrice, sellingPrice, costPrice);
+        assertCustomize.assertEquals(mapOfActualPrice, mapOfExpectedPrice,
+                "Product price after updating must be %s, but found %s.".formatted(mapOfExpectedPrice, mapOfActualPrice));
+
+        // log
+        logger.info("Check product price after bulk actions: UPDATE PRICE.");
+
+        // verify test
+        AssertCustomize.verifyTest();
+    }
+
+
+    public void bulkSetStockAlert() {
+        // verify test
+        AssertCustomize.verifyTest();
+    }
+
+    public void bulkManageStockByLotDate() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // get current product lot date
+        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        Map<String, List<Boolean>> beforeUpdateLotDate = productInformation.getMapOfCurrentManageByLotDate(productIds);
+
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open display out of stock popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(manageStockByLotDate), loc_dlgManageProductByLotDate);
+
+        // set expire
+        boolean expiredQuality = nextBoolean();
+        if (commonAction.isCheckedJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity) != expiredQuality)
+            commonAction.clickJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity);
+        logger.info("Exclude expired quantity from remaining stock: %s.".formatted(expiredQuality));
+
+        // confirm bulk update selling platforms
+        commonAction.click(loc_dlgManageProductByLotDate_btnYes);
+
+        // wait updated
+        waitUpdated();
+
+        // check product display after updating
+        Map<String, List<Boolean>> expectedMap = productInformation.getMapOfExpectedManageByLotDate(productIds, beforeUpdateLotDate, expiredQuality);
+        Map<String, List<Boolean>> actualMap = productInformation.getMapOfCurrentManageByLotDate(productIds);
+        System.out.println(expectedMap);
+        System.out.println(actualMap);
+        assertCustomize.assertEquals(expectedMap, actualMap,
+                "Web platform of selected products must be %s, but found %s.");
+
+        // verify test
+        AssertCustomize.verifyTest();
     }
 
     /* Check permission */
-    // ticket: https://mediastep.atlassian.net/browse/BH-13814
+// ticket: https://mediastep.atlassian.net/browse/BH-13814
     public void checkProductManagementPermission(AllPermissions permissions) throws Exception {
         // get staff permission
         this.permissions = permissions;
@@ -760,12 +1014,12 @@ public class ProductManagementPage extends ProductManagementElement {
         openBulkActionsDropdown();
         if (permissions.getProduct().getLotDate().isEnableProductLot()) {
             // manage selected product by lot date
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_ddlListActions, 10, loc_dlgConfirmManageProductByLotDate),
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_ddlListActions, 10, loc_dlgManageProductByLotDate),
                     "Can not open confirm manage product by lot-date popup.");
 
             // close confirm popup
-            if (!commonAction.getListElement(loc_dlgConfirmManageProductByLotDate).isEmpty()) {
-                commonAction.click(loc_dlgConfirmManageProductByLotDate_btnYes);
+            if (!commonAction.getListElement(loc_dlgManageProductByLotDate).isEmpty()) {
+                commonAction.click(loc_dlgManageProductByLotDate_btnYes);
             }
 
         } else {

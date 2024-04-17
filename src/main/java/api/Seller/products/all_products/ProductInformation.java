@@ -67,7 +67,7 @@ public class ProductInformation {
     }
 
     public enum ProductInformationEnum {
-        name, description, attribute, SEO, price, variation, barcodes, inventory, stockQuantity, platform, status, tax, others;
+        name, description, attribute, SEO, price, variation, barcodes, inventory, stockQuantity, platform, status, tax, collection, onlineShopConfig;
 
         static List<ProductInformationEnum> getAllValues() {
             return new ArrayList<>(Arrays.asList(ProductInformationEnum.values()));
@@ -355,6 +355,9 @@ public class ProductInformation {
             // set model list
             prdInfo.setVariationModelList(getVariationModelList(jsonPath, productId));
 
+            // set hasModel
+            prdInfo.setHasModel(jsonPath.getBoolean("hasModel"));
+
             if (infoEnum.contains(name)) {
                 // set product name
                 prdInfo.setMainProductNameMap(getMainProductNameMap(jsonPath));
@@ -389,10 +392,7 @@ public class ProductInformation {
             }
 
 
-            if (infoEnum.contains(others)) {
-                // set hasModel
-                prdInfo.setHasModel(jsonPath.getBoolean("hasModel"));
-
+            if (infoEnum.contains(onlineShopConfig)) {
                 // set SF/Buyer app config
                 prdInfo.setShowOutOfStock(isShowOutOfStock(jsonPath));
                 prdInfo.setHideStock(jsonPath.getBoolean("isHideStock"));
@@ -401,7 +401,11 @@ public class ProductInformation {
 
             if (infoEnum.contains(inventory)) {
                 // manage inventory
-                prdInfo.setManageInventoryByIMEI(jsonPath.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
+                try {
+                    prdInfo.setManageInventoryByIMEI(jsonPath.getString("inventoryManageType").equals("IMEI_SERIAL_NUMBER"));
+                } catch (NullPointerException ignored) {
+                    prdInfo.setManageInventoryByIMEI(null);
+                }
 
                 // manage by lot date
                 try {
@@ -465,21 +469,23 @@ public class ProductInformation {
                 }
             }
 
-            List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
-            prdInfo.setCollectionIdList(collectionIDList);
+            if (infoEnum.contains(collection)) {
+                List<Integer> collectionIDList = new APIProductCollection(loginInformation).getProductListCollectionIds(productId);
+                prdInfo.setCollectionIdList(collectionIDList);
 
-            Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();
-            if (!collectionIDList.isEmpty()) {
-                for (int colID : collectionIDList) {
-                    Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), loginInfo.getAccessToken());
-                    collectionLanguage.then().statusCode(200);
-                    JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
-                    collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
+                Map<Integer, Map<String, String>> collectionNameMap = new HashMap<>();
+                if (!collectionIDList.isEmpty()) {
+                    for (int colID : collectionIDList) {
+                        Response collectionLanguage = api.get(GET_COLLECTION_LANGUAGE.formatted(colID), loginInfo.getAccessToken());
+                        collectionLanguage.then().statusCode(200);
+                        JsonPath collectionLanguageJson = collectionLanguage.jsonPath();
+                        collectionNameMap.put(colID, IntStream.range(0, collectionLanguageJson.getList("id").size()).boxed().collect(Collectors.toMap(langID -> String.valueOf(collectionLanguageJson.getList("language").get(langID)), langID -> String.valueOf(collectionLanguageJson.getList("name").get(langID)), (a, b) -> b)));
+                    }
                 }
-            }
 
-            // set collection name map
-            prdInfo.setCollectionNameMap(collectionNameMap);
+                // set collection name map
+                prdInfo.setCollectionNameMap(collectionNameMap);
+            }
         }
         return prdInfo;
     }
@@ -620,6 +626,7 @@ public class ProductInformation {
     public List<Integer> getListProductTaxId(List<String> productIds) {
         return productIds.stream()
                 .map(productId -> getInfo(Integer.parseInt(productId), tax).getTaxId())
+                .filter(taxId -> taxId != 0)
                 .toList();
     }
 
@@ -650,7 +657,7 @@ public class ProductInformation {
         productIds.forEach(productId -> {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), stockQuantity, inventory);
             if (productInfo.getProductStockQuantityMap() != null) {
-                if (!productInfo.isLotAvailable()) {
+                if (!productInfo.getLotAvailable()) {
                     productStocks.put(productId,
                             productInfo.getProductStockQuantityMap()
                                     .keySet()
@@ -672,8 +679,8 @@ public class ProductInformation {
         for (String productId : productIds) {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), stockQuantity, inventory);
             if ((productInfo.getProductStockQuantityMap() != null)
-                    && !productInfo.isLotAvailable()
-                    && !productInfo.isManageInventoryByIMEI()) {
+                    && !productInfo.getLotAvailable()
+                    && !productInfo.getManageInventoryByIMEI()) {
                 List<Integer> allStocks = new ArrayList<>();
                 productInfo.getProductStockQuantityMap().values().stream().map(ArrayList::new).forEach(varStocks -> {
                     varStocks.set(branchInfo.getBranchID().indexOf(branchId), newStock);
@@ -683,5 +690,96 @@ public class ProductInformation {
             }
         }
         return productStocks.values().stream().flatMap(Collection::stream).toList();
+    }
+
+    public List<Boolean> getDisplayWhenOutOfStock(List<String> productIds) {
+        return productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), onlineShopConfig).getShowOutOfStock())
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public Map<String, List<Boolean>> getMapOfListSellingPlatform(List<String> productIds) {
+        // init temp arr
+        List<Boolean> onApp = new ArrayList<>();
+        List<Boolean> onWeb = new ArrayList<>();
+        List<Boolean> inStore = new ArrayList<>();
+        List<Boolean> inGoSocial = new ArrayList<>();
+        productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), platform))
+                .filter(productInfo -> productInfo.getOnWeb() != null)
+                .forEach(productInfo -> {
+                    onWeb.add(productInfo.getOnWeb());
+                    onApp.add(productInfo.getOnApp());
+                    inStore.add(productInfo.getInStore());
+                    inGoSocial.add(productInfo.getInGoSocial());
+                });
+        return Map.of("onWeb", onWeb, "onApp", onApp, "inStore", inStore, "inGoSocial", inGoSocial);
+    }
+
+    public Map<String, List<Long>> getMapOfCurrentProductsPrice(List<String> productIds) {
+        // init temp arr
+        List<Long> listingPrice = new ArrayList<>();
+        List<Long> sellingPrice = new ArrayList<>();
+        List<Long> costPrice = new ArrayList<>();
+
+        productIds.stream().map(productId -> getInfo(Integer.parseInt(productId), price))
+                .filter(productInfo -> productInfo.getProductListingPrice() != null)
+                .forEach(productInfo -> {
+                    listingPrice.addAll(productInfo.getProductListingPrice());
+                    sellingPrice.addAll(productInfo.getProductSellingPrice());
+                    costPrice.addAll(productInfo.getProductCostPrice());
+                });
+        return Map.of("listingPrice", listingPrice, "sellingPrice", sellingPrice, "costPrice", costPrice);
+    }
+
+    public Map<String, List<Long>> getMapOfExpectedProductsPrice(List<String> productIds, long newListingPrice, long newSellingPrice, long newCostPrice) {
+        // init temp arr
+        List<Long> listingPrice = new ArrayList<>();
+        List<Long> sellingPrice = new ArrayList<>();
+        List<Long> costPrice = new ArrayList<>();
+
+        productIds.stream().map(productId -> getInfo(Integer.parseInt(productId), price))
+                .filter(productInfo -> productInfo.getProductListingPrice() != null)
+                .forEach(productInfo -> {
+                    listingPrice.addAll(IntStream.range(0, productInfo.getProductListingPrice().size()).mapToObj(index -> newListingPrice).toList());
+                    sellingPrice.addAll(IntStream.range(0, productInfo.getProductSellingPrice().size()).mapToObj(index -> newSellingPrice).toList());
+                    costPrice.addAll(IntStream.range(0, productInfo.getProductCostPrice().size()).mapToObj(index -> newCostPrice).toList());
+                });
+        return Map.of("listingPrice", listingPrice, "sellingPrice", sellingPrice, "costPrice", costPrice);
+    }
+
+    public Map<String, List<Boolean>> getMapOfCurrentManageByLotDate(List<String> productIds) {
+        // init temp arr
+        List<Boolean> lotAvailable = new ArrayList<>();
+        List<Boolean> expiredQuality = new ArrayList<>();
+
+        productIds.stream()
+                .map(productId -> getInfo(Integer.parseInt(productId), inventory))
+                .filter(productInfo -> productInfo.getManageInventoryByIMEI() != null).forEach(productInfo -> {
+                    lotAvailable.add(productInfo.getLotAvailable());
+                    expiredQuality.add(productInfo.getExpiredQuality());
+                });
+        return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);
+    }
+
+    public Map<String, List<Boolean>> getMapOfExpectedManageByLotDate(List<String> productIds,
+                                                                      Map<String, List<Boolean>> beforeUpdateManageByLotDate,
+                                                                      boolean isExpiredQuality) {
+        // init temp arr
+        List<Boolean> lotAvailable = new ArrayList<>(beforeUpdateManageByLotDate.get("lotAvailable"));
+        List<Boolean> expiredQuality = new ArrayList<>(beforeUpdateManageByLotDate.get("expiredQuality"));
+        List<Integer> listProductIdThatInInCompleteTransfer = new APIAllProducts(loginInformation).getListProductIdThatInInCompleteTransfer();
+
+        IntStream.range(0, productIds.size()).forEach(index -> {
+            ProductInfo productInfo = getInfo(Integer.parseInt(productIds.get(index)), inventory);
+            if (productInfo.getManageInventoryByIMEI() != null) {
+                System.out.println(Integer.parseInt(productIds.get(index)));
+                System.out.println(!productInfo.getManageInventoryByIMEI() && !listProductIdThatInInCompleteTransfer.contains(Integer.parseInt(productIds.get(index))));
+                lotAvailable.set(index, !productInfo.getManageInventoryByIMEI() && !listProductIdThatInInCompleteTransfer.contains(Integer.parseInt(productIds.get(index))));
+                expiredQuality.set(index, !productInfo.getManageInventoryByIMEI() && (expiredQuality.get(index) || isExpiredQuality));
+            }
+        });
+        return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);
     }
 }

@@ -19,7 +19,7 @@ public class UpdateSupplierTest extends BaseTest {
         loginInformation = new LoginInformation();
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
-        new LoginPage(driver).loginDashboardByJsAndGetStoreInformation(loginInformation);
+        new LoginPage(driver).loginDashboardByJs(loginInformation);
         tcsFileName = "Update supplier.xlsx";
     }
 
