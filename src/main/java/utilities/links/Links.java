@@ -28,7 +28,8 @@ public class Links {
 //    public final static String SF_DOMAIN = ".gosell.vn";
 
     // STG config
-    public static String URI = PropertiesUtil.getEnvironmentData("urlApi");
+	public static String URI = PropertiesUtil.getEnvironmentData("urlApi");
+    public final static String KIBANA_URI = PropertiesUtil.getEnvironmentData("kibanaAPIURI");
     public final static String SF_DOMAIN = PropertiesUtil.getEnvironmentData("sfDomain");
     public final static String PAGE_404_PATH = "404-page.html";
 }
