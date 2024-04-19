@@ -63,6 +63,18 @@ public class API {
                 .when()
                 .post(path);
     }
+    
+    //Temporarily here. Will be rearranged
+    public Response postKibana(String path, String body) {
+    	return given()
+    			.auth()
+    			.oauth2("tokennotneeded")
+    			.header("kbn-version", "6.4.1")
+    			.contentType(ContentType.JSON)
+    			.body(body)
+    			.when()
+    			.post(path);
+    }
 
     public Response put(String path, String token, String body) {
         return given()
