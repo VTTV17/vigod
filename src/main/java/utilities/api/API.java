@@ -8,6 +8,7 @@ import utilities.data.DataGenerator;
 import utilities.links.Links;
 
 import java.io.File;
+import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
@@ -64,18 +65,18 @@ public class API {
                 .post(path);
     }
     
-    //Temporarily here. Will be rearranged
-    public Response postKibana(String path, String body) {
+    public Response post(String path, String token, Map<String, String> headerMap, String... body) {
     	return given()
     			.auth()
-    			.oauth2("tokennotneeded")
-    			.header("kbn-version", "6.4.1")
+    			.oauth2(token)
+    			.header("Staffpermissions-Token", staffPermissionToken)
+    			.headers(headerMap)
     			.contentType(ContentType.JSON)
-    			.body(body)
-    			.when()
+    			.body(body.length > 0 ? body[0] : "")
+    			.when().log().ifValidationFails()
     			.post(path);
     }
-
+    
     public Response put(String path, String token, String body) {
         return given()
                 .auth()
@@ -88,15 +89,26 @@ public class API {
     }
 
     public Response delete(String path, String token) {
+    	return given()
+    			.auth()
+    			.oauth2(token)
+    			.header("Staffpermissions-Token", staffPermissionToken)
+    			.contentType(ContentType.JSON)
+    			.when()
+    			.delete(path);
+    }
+
+    public Response delete(String path, String token, Map<String, String> headerMap) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headerMap)
                 .contentType(ContentType.JSON)
-                .when()
+                .when().log().ifValidationFails()
                 .delete(path);
-    }
-
+    }    
+    
     public Response put(String path, String token) {
         return given()
                 .auth()
