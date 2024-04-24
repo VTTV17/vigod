@@ -7,6 +7,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import utilities.model.dashboard.storefront.AddressInfo;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.home.HomePage;
 import web.StoreFront.checkout.checkoutOneStep.Checkout;
@@ -119,7 +120,7 @@ public class UserProfileSFTest extends BaseTest {
         shopDomain = SF_ShopVi;
         shopDomainB = SF_COFFEE;
         fullName_UpdateAddress = PropertiesUtil.getEnvironmentData("buyerName3");
-        MAX_PRICE = 9999999L;
+        MAX_PRICE = 999999L;
         loginInformation = new Login().setLoginInformation("+84",userNameDb_ShopVi,passWordDashboard).getLoginInformation();
         productIDToBuyNow = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
         loginInformation = new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB).getLoginInformation();
@@ -132,29 +133,29 @@ public class UserProfileSFTest extends BaseTest {
         taxCode_Edit = "1058896666";
         tcsFileName = FileNameAndPath.FILE_USER_PROFILE_TCS;
         birthday_Edit = "20/10/1999";
-        addressCheckout = "so 1 update";
-        cityProvinceCheckout = "Bắc Ninh";
-        districtCheckout = "Huyện Quế Võ";
-        wardCheckout = "Bồng Lai";
-        countryCheckout = "Andorra";
-        address2Checkout = "address 2 update";
-        cityInputCheckout = "city in non VN checkout";
-        zipCodeCheckout = "5656565";
-        stateCheckout = "Canillo";
-        addressProfile = "so 9900";
-        cityProfile = "Hồ Chí Minh";
-        districtProfile = "Quận 1";
-        wardProfile = "Bến Nghé";
-        address_Edit = "update address 22";
-        cityProvince_Edit = "Bạc Liêu";
-        district_Edit = "Huyện Hòa Bình";
-        ward_Edit = "Minh Diệu";
-        country_Edit = "Angola";
-        state_Edit = "Cuanza Sul";
-        addressNonVN_Edit = "street address non VN";
-        address2_Edit = "address 2 update non VN";
-        cityInput_Edit = "city in non VN checkout";
-        zipCode_Edit = "74747474";
+//        addressCheckout = "so 1 update";
+//        cityProvinceCheckout = "Bắc Ninh";
+//        districtCheckout = "Huyện Quế Võ";
+//        wardCheckout = "Bồng Lai";
+//        countryCheckout = "Andorra";
+//        address2Checkout = "address 2 update";
+//        cityInputCheckout = "city in non VN checkout";
+//        zipCodeCheckout = "5656565";
+//        stateCheckout = "Canillo";
+//        addressProfile = "so 9900";
+//        cityProfile = "Hồ Chí Minh";
+//        districtProfile = "Quận 1";
+//        wardProfile = "Bến Nghé";
+//        address_Edit = "update address 22";
+//        cityProvince_Edit = "Bạc Liêu";
+//        district_Edit = "Huyện Hòa Bình";
+//        ward_Edit = "Minh Diệu";
+//        country_Edit = "Angola";
+//        state_Edit = "Cuanza Sul";
+//        addressNonVN_Edit = "street address non VN";
+//        address2_Edit = "address 2 update non VN";
+//        cityInput_Edit = "city in non VN checkout";
+//        zipCode_Edit = "74747474";
         generate = new DataGenerator();
     }
     @BeforeMethod
@@ -165,7 +166,7 @@ public class UserProfileSFTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
 
     public UserProfileInfo loginAndGoToUserProfile(String userName) {
@@ -200,15 +201,15 @@ public class UserProfileSFTest extends BaseTest {
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN(countryExpected, addressExpected, cityExpected, districtExpected, wardExpected)
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .completeEditAddress()
+                .verifyAddressInfo_VN("", addressExpected, cityExpected, districtExpected, wardExpected)
+                .inputAddressInfo_VN();
+        new Checkout(driver).completeEditAddress()
                 .clickOnCompleteBtn()
                 .clickOnBackToMarket();
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_VN(countryExpected, addressExpected, cityExpected, districtExpected, wardExpected)
+                .verifyAddressInfo_VN("", addressExpected, cityExpected, districtExpected, wardExpected)
                 .clickUserInfoIcon().clickLogout();
     }
 
@@ -227,8 +228,8 @@ public class UserProfileSFTest extends BaseTest {
                 .clickOnContinue()
                 .goToEditMyAddress()
                 .verifyAddressInfo_NonVN(countryExpected, addressExpected, address2Expected, stateExpected, cityExpected, zipCodeExpected)
-                .inputAddressInfo_NonVN(countryCheckout, addressCheckout, address2Checkout, stateCheckout, cityInputCheckout, zipCodeCheckout)
-                .completeEditAddress()
+                .inputAddressInfo_NonVN();
+         new Checkout(driver).completeEditAddress()
                 .clickOnCompleteBtn()
                 .clickOnBackToMarket();
         headerSF = new HeaderSF(driver);
@@ -247,26 +248,27 @@ public class UserProfileSFTest extends BaseTest {
         signupSF.navigateToSignUp(shopDomain).signUpWithEmail("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().clickLogout();
-        loginAndGoToUserProfile(buyerAccount_Signup)
+        AddressInfo addressInfo = new AddressInfo();
+        addressInfo = loginAndGoToUserProfile(buyerAccount_Signup)
                 .clickMyAddressSection()
-                .inputAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
-                .clickOnSave()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+                .inputAddressInfo_VN();
+             new MyAddress(driver).clickOnSave()
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .inputPhoneNumber(phoneNumber)
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .completeEditAddress()
+                .inputAddressInfo_VN();
+              new Checkout(driver).completeEditAddress()
                 .clickOnCompleteBtn()
                 .clickOnBackToMarket();
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .clickUserInfoIcon().clickLogout();
     }
 
@@ -286,82 +288,75 @@ public class UserProfileSFTest extends BaseTest {
         myAddress = loginAndGoToUserProfile(userName_UpdateAddress)
                 .clickMyAddressSection();
         //Update valid address in VietNam
-        myAddress.inputAddress(address_Edit_Invalid)
+        AddressInfo addressInfo = new AddressInfo();
+        addressInfo = myAddress.inputAddress(address_Edit_Invalid)
                 .verifyAddressDisplayMaximumCharacter(MAX_CHAR_ADDRESS)
-                .inputAddressInfo_VN("Vietnam", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
-                .clickOnSave()
-                .verifyAddressInfo_VN("Vietnam", address_Edit, cityProvince_Edit, district_Edit, ward_Edit);
+                .inputAddressInfo_VN();
+          new MyAddress(driver).clickOnSave()
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit);
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         homePage = new HomePage(driver);
         homePage.waitTillSpinnerDisappear1().selectLanguage(languageDb);
         allCustomers = new AllCustomers(driver);
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
-                .verifyAddressInfo_VN("", address_Edit, cityProvince_Edit, district_Edit, ward_Edit)
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .clickLogout();
         //Update valid address in outside VietNam
-        myAddress = goToUserProfile()
+        AddressInfo addressInfoNonVN = new AddressInfo();
+        addressInfoNonVN = goToUserProfile()
                 .clickMyAddressSection()
-                .inputAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit)
-                .clickOnSave()
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
+                .inputAddressInfo_NonVN();
+          new MyAddress(driver).clickOnSave()
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, state_Edit, cityInput_Edit, zipCode_Edit);
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
         homePage.waitTillSpinnerDisappear1();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, state_Edit, cityInput_Edit, zipCode_Edit)
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode())
                 .clickLogout();
         //Buyer access SF B to verify address
         loginSF = new LoginPage(driver);
         loginSF.navigate(shopDomainB)
                 .performLogin(userName_UpdateAddress, passWordSF);
         headerSF = new HeaderSF(driver);
-        headerSF.navigateToUserProfile()
+        AddressInfo addressInfoVN = new AddressInfo();
+        addressInfoVN = headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressInfo_VN("", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .clickOnSave()
-                .verifyAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout);
+                .inputAddressInfo_VN();
+          new MyAddress(driver).clickOnSave()
+                .verifyAddressInfo_VN(addressInfoVN.getCountry(), addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard());
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomainB, productIDToBuyNowShopB)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout);
+                .verifyAddressInfo_VN(addressInfoVN.getCountry(), addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
         homePage = new HomePage(driver);
         homePage.waitTillSpinnerDisappear1();
         allCustomers = new AllCustomers(driver);
         allCustomers.navigate().searchAndGoToCustomerDetailByName(fullName_UpdateAddress)
-                .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .verifyAddressInfo_VN(addressInfoVN.getCountry(), addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard())
                 .clickLogout();
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
-        myAddress.clickUserInfoIcon().clickLogout();
-//        Update addres in shop B as before
-        loginSF = new LoginPage(driver);
-        loginSF.navigate(shopDomainB);
-        headerSF = new HeaderSF(driver);
-        headerSF.navigateToUserProfile()
-                .clickMyAddressSection();
-        myAddress.inputAddressInfo_VN("Vietnam", addressCurrent, cityCurrent, districtCurrent, wardCurrent)
-                .clickOnSave()
-                .clickUserInfoIcon().clickLogout();
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
     }
 
     public void CheckUserUpdateAddress_NewAccount() throws SQLException {
@@ -375,69 +370,73 @@ public class UserProfileSFTest extends BaseTest {
         myAddress = goToUserProfile()
                 .clickMyAddressSection();
         //Update valid address in VietNam
-        myAddress.inputAddress(address_Edit_Invalid)
+        AddressInfo addressInfoVN = new AddressInfo();
+        addressInfoVN = myAddress.inputAddress(address_Edit_Invalid)
                 .verifyAddressDisplayMaximumCharacter(MAX_CHAR_ADDRESS)
-                .inputAddressInfo_VN("Vietnam", addressProfile, cityProfile, districtProfile, wardProfile)
-                .clickOnSave()
-                .verifyAddressInfo_VN("Vietnam", addressProfile, cityProfile, districtProfile, wardProfile);
+                .inputAddressInfo_VN();
+         new MyAddress(driver).clickOnSave()
+                .verifyAddressInfo_VN(addressInfoVN.getCountry(), addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard());
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+                .verifyAddressInfo_VN(addressInfoVN.getCountry(), addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
         homePage.waitTillSpinnerDisappear1().selectLanguage(languageDb).waitTillSpinnerDisappear1();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
+                .verifyAddressInfo_VN(addressInfoVN.getCountry(), addressInfoVN.getAddress(), addressInfoVN.getCityProvince(), addressInfoVN.getDistrict(), addressInfoVN.getWard())
                 .clickLogout();
         //Update valid address in outside VietNam
-        myAddress = goToUserProfile()
+        AddressInfo addressInfoNonVN = new AddressInfo();
+        addressInfoNonVN = goToUserProfile()
                 .clickMyAddressSection()
-                .inputAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit)
-                .clickOnSave()
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
+                .inputAddressInfo_NonVN();
+         new MyAddress(driver).clickOnSave()
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, state_Edit, cityInput_Edit, zipCode_Edit);
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopVi, passWordDashboard);
         allCustomers = new AllCustomers(driver);
         homePage.waitTillSpinnerDisappear1();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, state_Edit, cityInput_Edit, zipCode_Edit)
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode())
                 .clickLogout();
         //Buyer access SF B to verify address
         loginSF = new LoginPage(driver);
         loginSF.navigate(shopDomainB)
                 .performLogin(buyerAccount_Signup, passWordSF);
         headerSF = new HeaderSF(driver);
-        headerSF.navigateToUserProfile()
+        AddressInfo addressInfo = new AddressInfo();
+        addressInfo = headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
                 .verifyAddressEmpty()
-                .inputAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .clickOnSave();
+                .inputAddressInfo_VN();
+             new MyAddress(driver).clickOnSave();
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomainB, productIDToBuyNowShopB)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout);
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         loginDb = new web.Dashboard.login.LoginPage(driver);
         loginDb.navigate().performLogin(userNameDb_ShopB, passWordDashboardShopB);
         allCustomers = new AllCustomers(driver);
         homePage.waitTillSpinnerDisappear1();
         allCustomers.navigate().searchAndGoToCustomerDetailByName(buyerDisplayName_Signup)
-                .verifyAddressInfo_VN("Vietnam", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .clickLogout();
+        //Check again on SF A
         myAddress = goToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_NonVN(country_Edit, addressNonVN_Edit, address2_Edit, cityInput_Edit, state_Edit, zipCode_Edit);
+                .verifyAddressInfo_NonVN(addressInfoNonVN.getCountry(), addressInfoNonVN.getStreetAddress(), addressInfoNonVN.getAddress2(), addressInfoNonVN.getCity(), addressInfoNonVN.getStateRegionProvince(), addressInfoNonVN.getZipCode());
         myAddress.clickUserInfoIcon().clickLogout();
     }
 
@@ -452,7 +451,7 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyAvatarDisplay();
     }
 
-//    @Test
+    @Test
     public void UP02_UpdateMyAccountAndVerifyOnSF_NoBirthdayBefore_EmailAccount() throws Exception {
         testCaseId = "UP02";
         String generateName = generate.generateString(10);
@@ -511,7 +510,7 @@ public class UserProfileSFTest extends BaseTest {
                 .verifyTaxCode(taxCode_Edit);
     }
 
-//    @Test
+    @Test
     public void UP04_UpdateUserProfile_NoBirthdayBefore_PhoneAccount() throws Exception {
         testCaseId = "UP04";
         String generateName = generate.generateString(10);
@@ -573,10 +572,10 @@ public class UserProfileSFTest extends BaseTest {
         testCaseId = "UP06";
         CheckUserHasAddressBefore_ExistedAccount_VietNam();
         CheckUserHasAddressBefore_ExistedAccount_NonVietNam();
-//        CheckUserHasAddressBefore_NewAccount();
+        CheckUserHasAddressBefore_NewAccount();
     }
 
-//    @Test
+    @Test
     public void UP07_CheckAddressWhenUserHasNoAddressThenCheckout() throws Exception {
         testCaseId = "UP07";
         //SignUp
@@ -590,43 +589,44 @@ public class UserProfileSFTest extends BaseTest {
         headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
         // first checkout
         productDetailSF = new ProductDetailPage(driver);
-        productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
+        AddressInfo addressInfo = new AddressInfo();
+        addressInfo = productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
                 .inputPhoneNumber(phoneNumber)
-                .inputAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
-                .completeEditAddress()
+                .inputAddressInfo_VN();
+             new Checkout(driver).completeEditAddress()
                 .clickOnCompleteBtn()
                 .clickOnBackToMarket();
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection();
         new UserProfileInfo(driver).clickMyAddressSection()
-                  .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+                  .verifyAddressInfo_VN("", addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
         // second checkout
         productDetailSF = new ProductDetailPage(driver);
         productDetailSF.accessToProductDetailPageByURL(shopDomain, productIDToBuyNow)
                 .clickOnBuyNow()
                 .clickOnContinue()
                 .goToEditMyAddress()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile)
+                .verifyAddressInfo_VN(addressInfo.getCountry(), addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard())
                 .inputPhoneNumber(phoneNumber)
-                .inputAddressInfo_VN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .completeEditAddress()
+                .inputAddressInfo_VN();
+         new Checkout(driver).completeEditAddress()
                 .clickOnCompleteBtn()
                 .clickOnBackToMarket();
         headerSF = new HeaderSF(driver);
         headerSF.navigateToUserProfile()
                 .clickMyAddressSection()
-                .verifyAddressInfo_VN("", addressProfile, cityProfile, districtProfile, wardProfile);
+                .verifyAddressInfo_VN("", addressInfo.getAddress(), addressInfo.getCityProvince(), addressInfo.getDistrict(), addressInfo.getWard());
     }
 
     @Test
     public void UP08_CheckUserUpdateAddress() throws Exception {
         testCaseId = "UP08";
         CheckUserUpdateAddress_ExistedAccount();
-//        CheckUserUpdateAddress_NewAccount();
+        CheckUserUpdateAddress_NewAccount();
     }
     @Test
     public void UP09_CheckAddInvalidOtherPhoneOtherEmail() throws Exception {

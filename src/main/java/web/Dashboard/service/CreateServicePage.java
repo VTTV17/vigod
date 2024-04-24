@@ -440,11 +440,13 @@ public class CreateServicePage extends HomePage{
         return this;
     }
     public CreateServicePage verifyServiceStatusActive() throws Exception {
+        commons.sleepInMiliSecond(1000);
         Assert.assertEquals(commons.getText(createServiceUI.loc_lblStatus),PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus"));
         logger.info("Verify service status show active");
         return this;
     }
     public CreateServicePage verifyServiceStatusInactive() throws Exception {
+        commons.sleepInMiliSecond(1000);
         Assert.assertEquals(commons.getText(createServiceUI.loc_lblStatus),PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus"));
         logger.info("Verify service status show inactive");
         return this;

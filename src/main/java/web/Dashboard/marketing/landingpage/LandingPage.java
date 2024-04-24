@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import utilities.assert_customize.AssertCustomize;
+import utilities.data.DataGenerator;
 import utilities.links.Links;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
@@ -189,6 +190,7 @@ public class LandingPage extends LandingPageElement {
 	}
 	public void checkPermissionViewLandingPageList() {
 		navigateUrl();
+		commonAction.waitForListLoaded(loc_lst_lblName,3);
 		List<WebElement> landingPageNames = commonAction.getElements(loc_lst_lblName);
 		if (hasViewLandingPageListPers()) {
 			assertCustomize.assertTrue(landingPageNames.size() > 0, "[Failed]Landing page list should be shown");
@@ -215,10 +217,13 @@ public class LandingPage extends LandingPageElement {
 					"[Failed]Restricted page should be shown when click Create landing page.");
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(Links.DOMAIN + "/marketing/landing-page/create"),
 					"[Failed]Restricted page should be shown when click navigate to create landing page url.");
-			navigateUrl();
-			commonAction.click(loc_icnShowMoreAction);
-			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_ddvAction, 2),
-					"[Failed]Restricted page should be shown when click Clone landing page.");
+			if(hasViewLandingPageListPers()) {
+				navigateUrl();
+				commonAction.click(loc_icnShowMoreAction);
+				commonAction.click(loc_ddvAction, 2);
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),
+						"[Failed]Restricted page should be shown when click Clone landing page.");
+			}
 		}
 		logger.info("Complete check Create landing page permission.");
 	}
@@ -244,7 +249,7 @@ public class LandingPage extends LandingPageElement {
 		logger.info("Complete check View product commission.");
 	}
 
-	public void checkPermissionEditLandingPage(String productNameOfShopOwner, String productNameOfStaff,int landingPageId) {
+	public void checkPermissionEditLandingPage(int landingPageId) {
 		String editUrl = Links.DOMAIN + "/marketing/landing-page/edit/" + landingPageId;
 		if (hasViewDetailLandingPagePers()) {
 			if (hasViewLandingPageListPers()) {
@@ -306,9 +311,11 @@ public class LandingPage extends LandingPageElement {
 	}
 	public void checkPermissionPublishLandingPage(int landingPageDraftId){
 		String editUrl = Links.DOMAIN + "/marketing/landing-page/edit/" + landingPageDraftId;
+		//check publish on landing page detail
 		if(hasViewDetailLandingPagePers()){
 			if(hasPublishLandingPagePers()){
 				commonAction.navigateToURL(editUrl);
+				createLandingPage.inputSubDomain(new DataGenerator().generateString(10));
 				createLandingPage.clickOnPublishBtn();
 				String messageContent = new ConfirmationDialog(driver).getPopUpContent();
 				try {
@@ -321,13 +328,20 @@ public class LandingPage extends LandingPageElement {
 				// click OK button on Confirmation pupop to publish
 				new ConfirmationDialog(driver).clickOKBtn();
 				commonAction.sleepInMiliSecond(1000);
-				String toastMessage = new ConfirmationDialog(driver).getPopUpTitle();
-				try {
-					assertCustomize.assertTrue(toastMessage.contains(PropertiesUtil.getPropertiesValueByDBLang("marketing.landingPage.detail.publish.successMessage")),
-							"[Failed] The website published success message should be shown, but '%s' is shown".formatted(toastMessage));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+				if(hasEditLandingPagePers()){
+					String message = new ConfirmationDialog(driver).getPopUpTitle();
+					try {
+						assertCustomize.assertTrue(message.contains(PropertiesUtil.getPropertiesValueByDBLang("marketing.landingPage.detail.publish.successMessage")),
+								"[Failed] The website published success message should be shown, but '%s' is shown".formatted(message));
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}else {
+					// don't have edit landing page permission, the can't publish on detail page, because staff can edit landing when they publish
+					String toastMessage = new HomePage(driver).getToastMessage();
+					assertCustomize.assertTrue(toastMessage.contains("Oops")||toastMessage.contains("Có lỗi"),"Error should be shown, but '%s' is shown.".formatted(toastMessage));
 				}
+
 			}else {
 				commonAction.navigateToURL(editUrl);
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createLandingPage.loc_btnPublish),
@@ -461,7 +475,8 @@ public class LandingPage extends LandingPageElement {
 							"[Failed] Restricted page not show when click on clone button on list.");
 				}
 			}else{
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_ddvAction, 2),
+				commonAction.click(loc_ddvAction, 2);
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),
 						"[Failed]Restricted page should be shown when click Clone landing page.");
 				logger.info("Don't has Create landing page permission, so staff don't have Clone permission.");
 			}
@@ -503,10 +518,11 @@ public class LandingPage extends LandingPageElement {
 	}
 	public LandingPage verifyLandingPagePermission(AllPermissions allPermissions, int landingPageDraftId, int landingPagePublishedId, String productNameCreatedShopOwner, String productNameCreatedStaff ){
 		this.allPermissions = allPermissions;
+		logger.info("Landing page Permission: "+ allPermissions.getMarketing().getLandingPage());
 		checkPermissionViewLandingPageList();
 		checkPermissionViewLandingPageDetail(landingPageDraftId);
 		checkPermissionCreateLandingPage(productNameCreatedShopOwner,productNameCreatedStaff);
-		checkPermissionEditLandingPage(productNameCreatedShopOwner,productNameCreatedStaff,landingPageDraftId);
+		checkPermissionEditLandingPage(landingPageDraftId);
 		checkPermissionPublishLandingPage(landingPageDraftId);
 		checkPermissionUnpublishLandingPage(landingPagePublishedId);
 		checkPermissionCloneLandingPage();

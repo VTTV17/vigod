@@ -12,7 +12,7 @@ public class OrderCompleteElement {
     }
     By loc_btnBackToHome = By.cssSelector(".checkout-right button");
     By loc_lst_lblProductName = By.cssSelector(".prod-name");
-    By loc_lblDiscountAmount = By.cssSelector(".payment-info .payment-info__value--discount span");
-    By loc_lblShippingFee = By.cssSelector(".payment-info .text-right");
+    By loc_lblDiscountAmount = By.cssSelector(".payment-info .payment-info__value--discount");
+    By loc_lblShippingFee = By.xpath("//div[contains(@rv-text,'models.shippingFeeAmount')]");
 
 }

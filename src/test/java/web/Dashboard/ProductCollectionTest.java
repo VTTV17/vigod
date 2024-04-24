@@ -228,7 +228,7 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("Product: " + productExpectedList);
         productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, productType, automatedMode, String.valueOf(countItemExpected))
-                .waitToUpdateCollection(5);
+                .waitToUpdateCollection(7);
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);

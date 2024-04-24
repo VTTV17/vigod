@@ -28,4 +28,6 @@ public class CheckoutElement {
     By loc_lblDiscountAmount= By.cssSelector(".payment-info .payment-info__value--discount");
     By loc_btnComplete = By.cssSelector(".btn-checkout--desktop");
     By loc_lstProductName = By.cssSelector(".prod-name");
+    By loc_lblShippingFee = By.xpath("//div[contains(@rv-text,'models.shippingFeeAmount')]");
+
 }

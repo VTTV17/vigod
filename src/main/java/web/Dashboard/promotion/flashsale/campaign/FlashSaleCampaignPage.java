@@ -8,6 +8,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.links.Links;
 import web.Dashboard.promotion.flashsale.FlashSalePage;
 import web.Dashboard.promotion.flashsale.time.TimeManagementPage;
@@ -32,7 +33,7 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
     public String campaignDate;
 
     public static Map<String, List<String>> flashSaleProductNameAndVariation;
-    public static List<Integer> flashSalePrice;
+    public static List<Long> flashSalePrice;
     public static List<Integer> flashSaleStock;
     public static List<Integer> flashSaleMaxPurchaseLimit;
 
@@ -273,7 +274,7 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
     /**
      * Setting flash sale price for each product
      */
-    public FlashSaleCampaignPage inputFlashSalePrice(int... price) {
+    public FlashSaleCampaignPage inputFlashSalePrice(long... price) {
         // init flash sale price list
         flashSalePrice = new ArrayList<>();
 
@@ -286,10 +287,10 @@ public class FlashSaleCampaignPage extends FlashSaleCampaignElement {
         for (int i = 0; i < LIST_FLASH_SALE_PRICE.size(); i++) {
 
             // get selling price
-            int sellingPrice = Integer.parseInt(LIST_PRICE.get(i).getText().replace(",", "").replace(STORE_CURRENCY, ""));
+            long sellingPrice = Long.parseLong(LIST_PRICE.get(i).getText().replaceAll(",", "").replace(STORE_CURRENCY, ""));
 
             // get flash sale price
-            int productPrice = isProvidedPrice ? price[0] : RandomUtils.nextInt(sellingPrice);
+            long productPrice = isProvidedPrice ? price[0] : new DataGenerator().generateLongNumber(sellingPrice);
 
             // flash sale always < selling price
             LIST_FLASH_SALE_PRICE.get(i).sendKeys(String.valueOf(productPrice));

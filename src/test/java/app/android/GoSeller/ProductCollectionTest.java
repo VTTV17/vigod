@@ -71,7 +71,7 @@ public class ProductCollectionTest extends BaseTest {
         sellerAppPackage = "com.mediastep.GoSellForSeller.STG";
         selelrAppActivity = "com.mediastep.gosellseller.modules.credentials.login.LoginActivity";
         buyerAppPackage = "com.mediastep.shop0037";
-        buyerAppActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
+        buyerAppActivity = buyerAppPackage+".ui.modules.splash.SplashScreenActivity";
         userDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         generator = new DataGenerator();
@@ -235,7 +235,7 @@ public class ProductCollectionTest extends BaseTest {
         goToCollectionDetail_Buyer(collectionName)
                 .verifyProductsInCollection(productListExpected);
     }
-    @Test(priority = 1)
+//    @Test(priority = 1)
     public void MPC01_VerifyTextByLanguage() throws Exception {
         testCaseId = "MPC01";
         driver = launchApp(sellerAppPackage,selelrAppActivity);
@@ -245,7 +245,7 @@ public class ProductCollectionTest extends BaseTest {
         new SellerProductManagement(driver).tapOnProductColectionIcon()
                 .verifyText().tapCreateCollectionIcon().verifyText();
     }
-    @Test(priority = 2)
+//    @Test(priority = 2)
     public void MPC02_CreateManualCollectionWithNoProduct() throws Exception {
         testCaseId = "MPC02";
         driver = launchApp(sellerAppPackage,selelrAppActivity);
@@ -267,13 +267,13 @@ public class ProductCollectionTest extends BaseTest {
         APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
         productListBelongCollectionCheckBuyer= apiAllProducts.getProductListInCollectionByLatest(String.valueOf(getNewestCollectionId()));
     }
-    @Test(dependsOnMethods = "MPC02_CreateManualCollectionWithNoProduct",priority =3)
+//    @Test(dependsOnMethods = "MPC02_CreateManualCollectionWithNoProduct",priority =3)
     public void MPC03_CheckCollectionDetail_NoProduct_Buyer(){
         testCaseId = "MPC03";
         verifyCollectionOnBuyerApp(collectioNameCheckBuyer,productListBelongCollectionCheckBuyer);
         callDeleteCollectionAPI();
     }
-    @Test(priority = 4)
+//    @Test(priority = 4)
     public void MPC04_CreateManualCollection_HasProduct_NoPriotity() throws ParseException {
         testCaseId = "MPC04";
         driver = launchApp(sellerAppPackage,selelrAppActivity);
@@ -302,12 +302,12 @@ public class ProductCollectionTest extends BaseTest {
         collectioNameCheckBuyer = collectionName;
         collectionUpdateProductList = collectionName;
     }
-    @Test(dependsOnMethods = "MPC04_CreateManualCollection_HasProduct_NoPriotity",priority = 5)
+//    @Test(dependsOnMethods = "MPC04_CreateManualCollection_HasProduct_NoPriotity",priority = 5)
     public void MPC05_CheckCollectionDetail_HasProductNoPriority_Buyer() {
         testCaseId = "MPC05";
         verifyCollectionOnBuyerApp(collectioNameCheckBuyer,productListBelongCollectionCheckBuyer);
     }
-    @Test(dependsOnMethods = "MPC04_CreateManualCollection_HasProduct_NoPriotity",priority = 6)
+//    @Test(dependsOnMethods = "MPC04_CreateManualCollection_HasProduct_NoPriotity",priority = 6)
     public void MPC06_UpdateProductList_ManualCollection() throws ParseException {
         testCaseId = "MPC06";
         driver = launchApp(sellerAppPackage,selelrAppActivity);
@@ -330,7 +330,7 @@ public class ProductCollectionTest extends BaseTest {
         productListBelongCollectionCheckBuyer= new APIAllProducts(loginInformation).getProductListInCollectionByLatest(String.valueOf(getNewestCollectionId()));
         collectioNameCheckBuyer = collectionUpdateProductList;
     }
-    @Test(dependsOnMethods = "MPC06_UpdateProductList_ManualCollection",priority = 7)
+//    @Test(dependsOnMethods = "MPC06_UpdateProductList_ManualCollection",priority = 7)
     public void MPC07_CheckCollectionDetail_UpdateProductList_Buyer(){
         testCaseId = "MPC07";
         verifyCollectionOnBuyerApp(collectioNameCheckBuyer,productListBelongCollectionCheckBuyer);

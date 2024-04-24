@@ -42,9 +42,7 @@ public class QuicklyCheckout extends QuicklyCheckoutElement{
         return this;
     }
     public QuicklyCheckout verifyNoProductShow() {
-        if (PRODUCT_NAME_LIST.size() == 0) {
-            Assert.assertTrue(true);
-        } else Assert.assertTrue(false);
+        Assert.assertTrue(PRODUCT_NAME_LIST.size()>0);
         logger.info("Verify product list not show.");
         return this;
     }
