@@ -23,7 +23,7 @@ public class CreateBookingPOS {
         loginInfo = new Login().getInfo(loginInformation);
     }
     public String getBookingCartItemInfo(List<Integer> itemIds){
-        String futureDate = new DataGenerator().getFutureDate("yyyy-MM-dd",1);
+        String futureDate = new DataGenerator().generateDateTime("yyyy-MM-dd",1);
         String body = """
                 "bookingCartItemVMs": [
                 """;

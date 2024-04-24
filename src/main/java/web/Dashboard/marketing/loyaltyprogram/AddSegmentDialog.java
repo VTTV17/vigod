@@ -37,17 +37,21 @@ public class AddSegmentDialog {
 	public AddSegmentDialog selectCustomerSegment(String...customerSegment) {
 		String retrievedText;
 		boolean clicked = false;
-		if(customerSegment.length ==0 )
-		for (WebElement el : commonAction.getListElement(loc_lblSegments)) {
-			retrievedText = commonAction.getText(el).trim();
-			if (retrievedText.contentEquals(customerSegment[0])) {
-				clicked = true;
-				commonAction.clickElement(el);
-				logger.info("Selected Customer Segment: " + customerSegment);
-				break;
+		if(customerSegment.length !=0 ) {
+			for (WebElement el : commonAction.getListElement(loc_lblSegments)) {
+				retrievedText = commonAction.getText(el).trim();
+				if (retrievedText.contentEquals(customerSegment[0])) {
+					clicked = true;
+					commonAction.clickElement(el);
+					logger.info("Selected Customer Segment: " + customerSegment);
+					break;
+				}
 			}
+			Assert.assertTrue(clicked, "Customer Segment '%s' ".formatted(customerSegment) + "is not found");
+		}else {
+			commonAction.click(loc_lblSegments,0);
 		}
-		Assert.assertTrue(clicked, "Customer Segment '%s' ".formatted(customerSegment) + "is not found");
+
 		return this;
 	}
 

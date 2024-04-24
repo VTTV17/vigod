@@ -192,7 +192,7 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
     }
 
     public void waitToUpdateCollection(int second) {
-        commonAction.sleepInMiliSecond(1000L * second);
+        commonAction.sleepInMiliSecond(1000 * second);
     }
 
     public void clickLogout() {

@@ -7,6 +7,8 @@ import api.Seller.promotion.CreatePromotion;
 import api.Seller.promotion.DiscountCode;
 import api.Seller.promotion.PromotionList;
 import api.Seller.setting.PermissionAPI;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.constant.Constant;
@@ -46,6 +48,7 @@ public class MarketingPermissionTest extends BaseTest {
     String productCreatedByStaff = "Ao thun staff tao";
     List<Integer> productIds = new ArrayList<>();
     List<Integer> pushNotiCampaignIds = new ArrayList<>();
+    final static Logger logger = LogManager.getLogger(MarketingPermissionTest.class);
     @BeforeClass
     public void beforeClass() {
         sellerUserName = ADMIN_SHOP_VI_USERNAME;
@@ -107,11 +110,11 @@ public class MarketingPermissionTest extends BaseTest {
     }
     @DataProvider
     public Object[][] LandingPagePermissionModel() {
-        return new Object[][]{
+        Object[][] result = new Object[][]{
 //                {"1","1"},
-//                {"10","1"}, //bug: no permission View list landing page >> actual: show restricted page.
-//                {"11","1"},  //bug: has permission Create landing page >> actual show restricted popup
-//                {"100","1"},
+//                {"10","1"}, //bug: no permission View list landing page >> actual: show restricted page. > fixed
+//                {"11","1"},  //bug: has permission Create landing page >> actual show restricted popup >fixed
+//                {"100","1"},    //Bug: has permission edit, don't has permission View detail >> actual: detail page still show (wrong Edit and View detail permission) >>fixed
 //                {"101","1"},
 //                {"110","1"},
 //                {"111","1"},
@@ -236,7 +239,7 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"1111110","1"},
 //                {"1111111","1"},
 //                {"10000000","1"},
-//                {"10000001","1"}, //bug: no permission Create, has permision Clone >> still can clone
+//                {"10000001","1"}, //bug: no permission Create, has permision Clone >> still can clone >> fixed
 //                {"10000010","1"},
 //                {"10000011","1"},
 //                {"10000100","1"},
@@ -362,13 +365,20 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"11111100","1"},
 //                {"11111101","1"},
 //                {"11111110","1"},
-                {"11111111","1"},
+//                {"11111111","1"},
 //                {"11111111","0"},
         };
+//        Object[][] randomResult = new Object[50][];
+//        for (int index = 0; index < 50; index++) {
+//            randomResult[index] = result[(int) (result.length * Math.random())];
+//        }
+//        return randomResult;
+        return result;
     }
     /* https://mediastep.atlassian.net/browse/BH-25137 */
     @Test(dataProvider = "LandingPagePermissionModel")
     public void checkLandingPagePermission(String landingPagePersBinary,String productListPersBinary){
+        logger.info("Binary of landing page permission: "+landingPagePersBinary);
         int publishedLandingId = callAPIGetPublishedLandingPageId();
         int draftLandingId  = callAPIGetDraftLandingPageId();
         System.out.println("draftLandingId: "+draftLandingId);
@@ -407,20 +417,20 @@ public class MarketingPermissionTest extends BaseTest {
     @DataProvider
     public Object[][] BuyLinkPermissionModel() {
         return new Object[][]{
-//                {"1","1"},
-//                {"10","1"}, //Bug: show restricted page when don't have View list permission
-//                {"11","1"},
-//                {"100","1"},
-//                {"101","1"},
-//                {"110","1"},
-//                {"111","1"},
-//                {"1000","1"},
-//                {"1001","1"},
-//                {"1010","1"},
-//                {"1011","1"},
-//                {"1100","1"},
-//                {"1101","1"},
-//                {"1110","1"},
+                {"1","1"},
+                {"10","1"}, //Bug: show restricted page when don't have View list permission > fixed
+                {"11","1"},
+                {"100","1"},
+                {"101","1"},
+                {"110","1"},
+                {"111","1"},
+                {"1000","1"},
+                {"1001","1"},
+                {"1010","1"},
+                {"1011","1"},
+                {"1100","1"},
+                {"1101","1"},
+                {"1110","1"},
                 {"1111","1"}
         };
     }
@@ -514,36 +524,36 @@ public class MarketingPermissionTest extends BaseTest {
     public Object[][] PushNotificationPermissionModel() {
         return new Object[][]{
                 {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"}, //Bug: Ko co quyen view detail, vo edit bị 403 >> Expected: co the vo edit page mien la co quyen edit
-//                {"1001"},   //Bug nhu tren
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},   //Bug nhu tren
-//                {"1101"},   //Bug nhu tren
-//                {"1110"},
-//                {"1111"},
-//                {"10000"},
-//                {"10001"},
-//                {"10010"},
-//                {"10011"},
-//                {"10100"},
-//                {"10101"},
-//                {"10110"},
-//                {"10111"},
-//                {"11000"},
-//                {"11001" }, //Bug nhu tren
-//                {"11010"},
-//                {"11011"},
-//                {"11100"},  //Bug nhu tren
-//                {"11101"},  //Bug nhu tren
-//                {"11110"},
-//                {"11111"}
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
+                {"1101"},
+                {"1110"},
+                {"1111"},
+                {"10000"},
+                {"10001"},
+                {"10010"},
+                {"10011"},
+                {"10100"},
+                {"10101"},
+                {"10110"},
+                {"10111"},
+                {"11000"},
+                {"11001" },
+                {"11010"},
+                {"11011"},
+                {"11100"},
+                {"11101"},
+                {"11110"},
+                {"11111"}
         };
     }
     //https://mediastep.atlassian.net/browse/BH-25139
@@ -589,8 +599,8 @@ public class MarketingPermissionTest extends BaseTest {
     @DataProvider
     public Object[][] LoyaltyProgramPermissionModel() {
         return new Object[][]{
-                {"1"},
-//                {"10"},
+//                {"1"},
+//                {"10"}, //Bug has Create permission, but Restricted popup show when click on Save
 //                {"11"},
 //                {"100"},
 //                {"101"},
@@ -654,6 +664,7 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"111111"},
         };
     }
+    //Chua run
     @Test(dataProvider = "LoyaltyProgramPermissionModel")
     public void checkLoyaltyProgramPermission(String permissionBinary){
         //Ensure that has a loyalty program.
@@ -674,31 +685,32 @@ public class MarketingPermissionTest extends BaseTest {
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Push Notification");
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Loyalty Program");
         new web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram(driver)
                 .checkLoyaltyProgramPermission(allPermissions,membershipId);
     }
+    //Chua run
     @DataProvider
-    public Object[][] LoyaltyPoinntPermissionModel() {
+    public Object[][] LoyaltyPointPermissionModel() {
         return new Object[][]{
                 {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"},
-//                {"1001"},
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},
-//                {"1101"},
-//                {"1110"},
-//                {"1111"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
+                {"1101"},
+                {"1110"},
+                {"1111"},
         };
     }
-    @Test
+    @Test (dataProvider = "LoyaltyPoinntPermissionModel")
     public void checkLoyaltyPointPermission(String binary){
         //Set permission
         CreatePermission model = new CreatePermission();

@@ -62,6 +62,7 @@ public class BuyLinkManagement extends HomePage{
 	By loc_tltDeleteLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]");
 	By loc_dlgConfirmation_btnDelete = By.xpath("//div[@class='modal-footer']/button[2]");
 	public BuyLinkManagement clickExploreNow() {
+		commonAction.sleepInMiliSecond(500);
     	commonAction.click(loc_btnExploreNow);
     	logger.info("Clicked on 'Explore Now' button.");
     	return this;

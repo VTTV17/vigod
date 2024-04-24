@@ -123,22 +123,7 @@ public class FlashSalePage extends FlashSaleElement {
         return this;
     }
     public FlashSalePage clickOnEditFirstFlashSale(){
-//        List<WebElement> flashSaleName = commonAction.getElements(loc_lst_lblFlashSaleCampaignName);
-//        boolean isClicked = false;
-//        for(int i=0;i<flashSaleName.size();i++){
-//            String name = commonAction.getText(loc_lst_lblFlashSaleCampaignName,i);
-//            if(name.equalsIgnoreCase(flashSaleCampaignName)){
-//                commonAction.click(loc_lst_lblFlashSaleCampaignName,i);
-//                isClicked = true;
-//            }
-//        }
-//        if(!isClicked){
-//            try {
-//                throw new Exception("Flash sale name = '%s' not found.".formatted(flashSaleCampaignName));
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
+        commonAction.waitForListLoaded(loc_icnEdit,2);
         commonAction.click(loc_icnEdit,0);
         logger.info("Click on edit icon.");
         return this;

@@ -148,7 +148,7 @@ public class LoyaltyProgram {
 			clickCreateMembershipBtn();
 			checkPermissionViewSegmentList();
 			createLoyaltyProgram.navigateByUrl();
-			createLoyaltyProgram.createRandomMembership();
+			createLoyaltyProgram.createRandomMembership().clickSaveBtn();
 			String message = new ConfirmationDialog(driver).getPopUpContent();
 			try {
 				assertCustomize.assertEquals(message, PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyProgram.create.successMessage"),

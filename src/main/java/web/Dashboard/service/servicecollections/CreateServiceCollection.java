@@ -75,7 +75,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
     }
     public CreateServiceCollection navigate(String languageDashboard) throws Exception {
         HomePage home = new HomePage(driver);
-        home.waitTillSpinnerDisappear();
+        home.waitTillSpinnerDisappear1();
         home.navigateToPage("Services", "Service Collections");
         home.selectLanguage(languageDashboard);
         home.hideFacebookBubble();
@@ -128,7 +128,8 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         new HomePage(driver).waitTillLoadingDotsDisappear();
         for (String serviceName : keywords) {
             new CreateServiceCollection(driver).inputSearchKeyword(serviceName);
-            new HomePage(driver).waitTillSpinnerDisappear();
+            commonAction.sleepInMiliSecond(500);
+            new HomePage(driver).waitTillSpinnerDisappear1();
             new CreateServiceCollection(driver).selectAllProductInCurrentPage();
         }
         clickOnOKBTN();

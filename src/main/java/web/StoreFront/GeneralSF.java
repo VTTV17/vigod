@@ -74,6 +74,7 @@ public class GeneralSF {
 	public GeneralSF navigateToURL(String URL){
 		commons.navigateToURL(URL);
 		logger.info("Navigate to: "+URL);
+		new GeneralSF(driver).waitTillLoaderDisappear();
 		return this;
 	}
 	public GeneralSF checkPageNotFound(String domain){

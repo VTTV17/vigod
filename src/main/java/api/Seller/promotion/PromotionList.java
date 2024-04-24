@@ -12,6 +12,7 @@ import java.util.List;
 
 public class PromotionList {
     String DISCOUNT_CAMPAIGN_LIST_PATH = "/orderservices2/api/gs-discount-campaigns?storeId=%s&type=%s&status=%s&sort=lastModifiedDate,desc";
+    String DELETE_DISCOUNT_CAMPAIGN_PATH = "/orderservices2/api/gs-discount-campaigns/";
 
     API api = new API();
     Logger logger = LogManager.getLogger(PromotionList.class);
@@ -25,7 +26,6 @@ public class PromotionList {
     public Response getPromotionListRes(String discountType, String status){
         String typeParam;
         switch (discountType){
-            case "All Types" -> typeParam = "";
             case "Product Discount Code" -> typeParam = "COUPON";
             case "Service Discount Code" -> typeParam = "COUPON_SERVICE";
             case "Product Discount Campaign" -> typeParam = "WHOLE_SALE";
@@ -34,7 +34,6 @@ public class PromotionList {
         }
         String statusParam;
         switch (status){
-            case "All Status" -> statusParam = "";
             case "Scheduled" -> statusParam = "SCHEDULED";
             case "Expired" -> statusParam = "EXPIRED";
             case "In Progress" -> statusParam = "IN_PROGRESS";
@@ -50,5 +49,12 @@ public class PromotionList {
     public List<Integer> getDiscountIdList(String discountType, String status){
     	Response response = getPromotionListRes(discountType,status);
     	return response.then().statusCode(200).extract().jsonPath().getList("id");
+    }
+    public void endEarlyInprogressDiscountCampaign() {
+        // get list in-progress discount campaign
+        List<Integer> inProgressList = getPromotionListRes("","In Progress").jsonPath().getList("id");
+
+        // end in-progress service campaign
+        inProgressList.forEach(campaignID -> api.delete(DELETE_DISCOUNT_CAMPAIGN_PATH + campaignID, loginInfo.getAccessToken()).then().statusCode(200));
     }
 }

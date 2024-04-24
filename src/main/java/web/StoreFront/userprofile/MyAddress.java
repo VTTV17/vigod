@@ -10,6 +10,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+import utilities.data.DataGenerator;
+import utilities.model.dashboard.storefront.AddressInfo;
 import web.StoreFront.header.HeaderSF;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
@@ -127,10 +129,13 @@ public class MyAddress extends HeaderSF {
         logger.info("Verify zipcode show correctly");
         return this;
     }
-    public MyAddress selectCountry(String country){
-        commonAction.selectByVisibleText(myAddressUI.loc_ddlCountry,country);
-        logger.info("Input country: %s".formatted(country));
-        return this;
+    public String selectCountry(String country) {
+        if(country.isEmpty()){
+            commonAction.selectByIndex(myAddressUI.loc_ddlCountry, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlCountry)).size()));
+            country =  commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlCountry);
+        }else commonAction.selectByVisibleText(myAddressUI.loc_ddlCountry, country);
+        logger.info("Select country: %s".formatted(country));
+        return country;
     }
     public MyAddress inputAddress(String address){
         commonAction.inputText(myAddressUI.loc_txtAddress,address);
@@ -147,28 +152,46 @@ public class MyAddress extends HeaderSF {
         logger.info("Input address: %s".formatted(city));
         return this;
     }
-    public MyAddress selectCityProvince(String city){
-        commonAction.selectByVisibleText(myAddressUI.loc_ddlCity,city);
-        logger.info("Select city: %s".formatted(city));
-        return this;
+    public String selectCityProvince(String city) {
+        if(city.isEmpty()){
+            commonAction.selectByIndex(myAddressUI.loc_ddlCity, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlCity)).size()));
+            city =  commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlCity);
+        }else {
+            commonAction.selectByVisibleText(myAddressUI.loc_ddlCity, city);
+        }
+        logger.info("Select city/province: %s".formatted(city));
+        return city;
     }
-    public MyAddress selectDistrict(String district){
-        commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(myAddressUI.loc_ddlDistrict,district);
+    public String selectDistrict(String district) {
+        commonAction.sleepInMiliSecond(1000);
+        if(district.isEmpty()){
+            commonAction.selectByIndex(myAddressUI.loc_ddlDistrict, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlDistrict)).size()));
+            district = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlDistrict);
+        }else {
+            commonAction.selectByVisibleText(myAddressUI.loc_ddlDistrict, district);
+        }
         logger.info("Select district: %s".formatted(district));
-        return this;
+        return district;
     }
-    public MyAddress selectWard(String ward){
+    public String selectWard(String ward) {
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(myAddressUI.loc_ddlWard,ward);
+        if(ward.isEmpty()){
+            commonAction.selectByIndex(myAddressUI.loc_ddlWard, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlWard)).size()));
+            ward = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlWard);
+        }else {
+            commonAction.selectByVisibleText(myAddressUI.loc_ddlWard, ward);
+        }
         logger.info("Select ward: %s".formatted(ward));
-        return this;
+        return ward;
     }
-    public MyAddress selectState(String state){
+    public String selectState(String state) {
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(myAddressUI.loc_ddlState,state);
-        logger.info("Select ward: %s".formatted(state));
-        return this;
+        if(state.isEmpty()){
+            commonAction.selectByIndex(myAddressUI.loc_ddlState, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlState)).size()));
+            state = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlState);
+        }else commonAction.selectByVisibleText(myAddressUI.loc_ddlState, state);
+        logger.info("Select state/region/province: %s".formatted(state));
+        return state;
     }
     public MyAddress inputZipCode(String zipCode){
         commonAction.inputText(myAddressUI.loc_txtZipCode,zipCode);
@@ -192,6 +215,25 @@ public class MyAddress extends HeaderSF {
         selectWard(ward);
         return this;
     }
+    public AddressInfo inputAddressInfo_VN() {
+        AddressInfo addressInfo = new AddressInfo();
+        String currentCountry = getCountry();
+        if ( currentCountry!= "Vietnam") {
+            try {
+                selectCountry("Vietnam");
+                addressInfo.setCountry("Vietnam");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String address = "address "+ new DataGenerator().generateString(10);
+        inputAddress(address);
+        addressInfo.setCityProvince(selectCityProvince(""));
+        addressInfo.setDistrict(selectDistrict(""));
+        addressInfo.setWard(selectWard(""));
+
+        return addressInfo;
+    }
     public  MyAddress inputAddressInfo_NonVN(String country, String address, String address2, String city, String state, String zipCode){
         selectCountry(country);
         inputAddress(address);
@@ -200,6 +242,26 @@ public class MyAddress extends HeaderSF {
         inputCity(city);
         inputZipCode(zipCode);
         return this;
+    }
+    public AddressInfo inputAddressInfo_NonVN() {
+        AddressInfo addressInfo = new AddressInfo();
+        String country = selectCountry("");
+        String address = "address "+ new DataGenerator().generateString(10);
+        inputAddress(address);
+        String address2 = "address s "+ new DataGenerator().generateString(10);
+        inputAddress2(address2);
+        String state  = selectState("");
+        String city = "city "+ new DataGenerator().generateString(5);
+        inputCity(city);
+        String zipCode = new DataGenerator().generateNumber(5);
+        inputZipCode(zipCode);
+        addressInfo.setCountry(country);
+        addressInfo.setStreetAddress(address);
+        addressInfo.setAddress2(address2);
+        addressInfo.setStateRegionProvince(state);
+        addressInfo.setCity(city);
+        addressInfo.setZipCode(zipCode);
+        return addressInfo;
     }
     public MyAddress verifyAddressInfo_VN(String country, String address, String city, String district, String ward){
         commonAction.sleepInMiliSecond(2000);

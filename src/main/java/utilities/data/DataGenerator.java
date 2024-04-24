@@ -27,6 +27,10 @@ public class DataGenerator {
     public String generateNumber(int length) {
         return RandomStringUtils.random(length, false, true);
     }
+    public long generateLongNumber(long max) {
+        Random rand = new Random();
+        return rand.nextLong(max);
+    }
 
     public int generatNumberInBound(int start, int end) {
         Random rand = new Random();
@@ -275,12 +279,6 @@ public class DataGenerator {
     public String getCurrentDate(String format){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         LocalDateTime now = LocalDateTime.now();
-        return dtf.format(now);
-    }
-    public String getFutureDate(String format, long xDayFromCurrentDate){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
-        LocalDateTime now = LocalDateTime.now();
-        now = now.plusDays(xDayFromCurrentDate);
         return dtf.format(now);
     }
 

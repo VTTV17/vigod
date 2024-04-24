@@ -181,6 +181,7 @@ public class ReservationManagement {
 			String detailUrl = Links.DOMAIN + "/reservation/detail/" + reservationId;
 			commonAction.navigateToURL(detailUrl);
 			new HomePage(driver).waitTillSpinnerDisappear1();
+			commonAction.click(reservationDetailUI.loc_btnCancel);
 			if(hasPermissionCancelReservation) {
 				try {
 					String confirmCancelMessageExpected = PropertiesUtil.getPropertiesValueByDBLang("reservations.detail.confirmCancelMessage");
