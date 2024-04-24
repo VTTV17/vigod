@@ -29,7 +29,7 @@ public class SellerGeneral {
     By SELECT_IMAGE_BTN = By.xpath("//*[ends-with(@resource-id,'rlSelectImages')]");
     By SELECT_IMAGE_ICON = By.xpath("//*[ends-with(@resource-id,'tvSelectIndex')]");
     By SAVE_ICON_SELECT_IMAGE = By.xpath("//*[ends-with(@resource-id,'fragment_choose_photo_dialog_btn_choose')]");
-    By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
+    By TOASTMESSAGE = By.xpath("//*[ends-with(@resource-id,'tvContent')]");
     By LOADING_ICON = By.xpath("//*[ends-with(@class,'ProgressBar')]");
     By POPUP_MESSAGE = By.xpath("//*[ends-with(@resource-id,'tvDescription')]");
     By POPUP_LEFT_BTN = By.xpath("//*[ends-with(@resource-id,'tvLeftButton')]");

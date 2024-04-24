@@ -52,7 +52,7 @@ public class Collection {
             Collections.sort(toExpectedSort);
             Collections.sort(productNamesActualToLowerCase);
         }
-        Assert.assertEquals(productNamesActualToLowerCase,toExpectedSort);
+        Assert.assertEquals(productNamesActualToLowerCase,toExpectedSort,"Actual list: %s \nExpected list: %s".formatted(productNamesActualToLowerCase,toExpectedSort));
         logger.info("Verify products in collection.");
         return this;
     }

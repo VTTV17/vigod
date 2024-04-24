@@ -36,17 +36,17 @@ public class OrderComplete {
         return this;
     }
     public OrderComplete verifyDiscountAmount(String expected){
-        Assert.assertEquals(String.join("",commonAction.getText(orderCompleteUI.loc_lblDiscountAmount).split(",")),expected);
+        Assert.assertEquals(commonAction.getText(orderCompleteUI.loc_lblDiscountAmount).replaceAll("[^\\dđ]", ""),expected);
         logger.info("Verify discount amount.");
         return this;
     }
-    public String getShippingFeeAfterDiscount(){
-        String shippingFee = commonAction.getText(orderCompleteUI.loc_lblShippingFee);
-        logger.info("Get Shipping fee after discount: "+shippingFee);
+    public String getShippingFee(){
+        String shippingFee = commonAction.getText(orderCompleteUI.loc_lblShippingFee).replaceAll("[^\\dđ]", "");
+        logger.info("Shipping free: "+shippingFee);
         return shippingFee;
     }
-    public OrderComplete verifyShippingFeeAfterDiscount(String expected){
-        Assert.assertEquals(getShippingFeeAfterDiscount(),expected,"Expected shipping fee after discount is %s, but display %s".formatted(expected,getShippingFeeAfterDiscount()));
+    public OrderComplete verifyShippingFee(String expected){
+        Assert.assertEquals(getShippingFee(),expected,"Expected shipping fee after discount is %s, but display %s".formatted(expected,getShippingFee()));
         logger.info("Verify shipping fee after discount");
         return this;
     }

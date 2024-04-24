@@ -40,8 +40,7 @@ public class LoginPage {
     By USERNAME = By.xpath("//*[ends-with(@resource-id,'edtUsername')]");
     By PASSWORD = By.xpath("//*[ends-with(@resource-id,'edtPassword')]");
     By TERM_CHECKBOX = By.xpath("//*[ends-with(@resource-id,'cbxTermAndPrivacy')]");
-    By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'btnLogin')]");
-
+    By LOGIN_BTN = By.xpath("//*[ends-with(@resource-id,'tvLogin')]");
     By FORGOTPASS_LINK = By.xpath("//*[ends-with(@resource-id,'tvForgetPassword')]");
     By NEWPASSWORD = By.xpath("//*[ends-with(@resource-id,'edtNewPassword')]");
     By SEND_BTN = By.xpath("//*[ends-with(@resource-id,'rlSent')]");
