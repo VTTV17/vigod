@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static utilities.character_limit.CharacterLimit.*;
+import static utilities.file.FileNameAndPath.getDirectorySlash;
+import static utilities.file.FileNameAndPath.projectLocation;
 
 public class DataGenerator {
     public String generateString(int length) {
@@ -33,11 +35,11 @@ public class DataGenerator {
     }
 
     /**
-     * Returns a list of all the countries in the phoneCodes.json file as Strings.
-     * @return a List of all the countries in the phoneCodes.json file
+     * Returns a list of all the countries in the CountryCodes.json file as Strings.
+     * @return a List of all the countries in the CountryCodes.json file
      */
     public List<String> getCountryList() {
-        JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json");
+        JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json");
         Iterator<String> it = data.fieldNames();
         List<String> countries = new ArrayList<>();
         while (it.hasNext()) {
@@ -60,7 +62,7 @@ public class DataGenerator {
      * @return the phone code for the given country, or null if it is not found
      */
     public String getPhoneCode(String country) {
-        JsonNode data = jsonFileUtility.readJsonFile("phoneCodes.json").findValue(country);
+        JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("phoneCode");
         return data.asText();
     }
 
@@ -70,7 +72,7 @@ public class DataGenerator {
      * @return the country code for the given country, or null if it is not found
      */
     public String getCountryCode(String country) {
-        JsonNode data = jsonFileUtility.readJsonFile("countryCodes.json").findValue(country);
+        JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("countryCode");
         return data.asText();
     }
 
