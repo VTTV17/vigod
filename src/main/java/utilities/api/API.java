@@ -8,6 +8,7 @@ import utilities.data.DataGenerator;
 import utilities.links.Links;
 
 import java.io.File;
+import java.util.Map;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
@@ -24,21 +25,25 @@ public class API {
         baseURI = URI;
     }
 
-    public Response get(String path, String token) {
+    @SafeVarargs
+    public final Response get(String path, String token, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
                 .when()
                 .get(path);
     }
 
-    public Response search(String path, String token, String body) {
+    @SafeVarargs
+    public final Response search(String path, String token, String body, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
                 .body(body)
                 .when()
@@ -53,53 +58,75 @@ public class API {
                 .post(path);
     }
 
-    public Response post(String path, String token, String... body) {
+    @SafeVarargs
+    public final Response post(String path, String token, String body, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
-                .body(body.length > 0 ? body[0] : "")
+                .body(body)
                 .when()
                 .post(path);
     }
 
-    public Response put(String path, String token, String body) {
+    @SafeVarargs
+    public final Response post(String path, String token, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
+                .contentType(ContentType.JSON)
+                .when()
+                .post(path);
+    }
+
+    @SafeVarargs
+    public final Response put(String path, String token, String body, Map<String, ?>... headers) {
+        return given()
+                .auth()
+                .oauth2(token)
+                .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
                 .body(body)
                 .when()
                 .put(path);
     }
 
-    public Response delete(String path, String token) {
+    @SafeVarargs
+    public final Response delete(String path, String token, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
                 .when()
                 .delete(path);
     }
 
-    public Response put(String path, String token) {
+    @SafeVarargs
+    public final Response put(String path, String token, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
                 .when()
                 .put(path);
     }
 
-    public Response deleteRequest(String path, String token, String body) {
+    @SafeVarargs
+    public final Response deleteRequest(String path, String token, String body, Map<String, ?>... headers) {
         return given()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
+                .headers(headers.length == 0 ? Map.of() : headers[0])
                 .contentType(ContentType.JSON)
                 .body(body)
                 .when()
@@ -107,8 +134,6 @@ public class API {
     }
 
     public Response importFile(String path, String token, String fileName, String... additionParams) {
-        int bound = ((additionParams.length % 2) == 0) ? (additionParams.length - 1) : (additionParams.length - 2);
-
         return getMultiPartAdditionParams(additionParams)
                 .auth()
                 .oauth2(token)
@@ -116,7 +141,6 @@ public class API {
                 .multiPart(new File(new DataGenerator().getFilePath(fileName)))
                 .when()
                 .post(path);
-
     }
 
     public RequestSpecification getMultiPartAdditionParams(String... additionParams) {
@@ -124,8 +148,8 @@ public class API {
                 ? (additionParams.length - 1)
                 : (additionParams.length - 2);
         RequestSpecification requestSpecification = given();
-        for (int index = 0; index < bound; index++) {
-            requestSpecification = requestSpecification.multiPart( additionParams[0], additionParams[1]);
+        for (int index = 0; index < bound; index += 2) {
+            requestSpecification = requestSpecification.multiPart(additionParams[index], additionParams[index + 1]);
         }
         return requestSpecification;
     }
