@@ -101,4 +101,9 @@ public class LoyaltyProgram {
         if(ids.isEmpty()) return 0;
         return ids.get(0);
     }
+    public List<Integer> getMembershipList(){
+        List<Integer> ids = getAllMembershipJsonPath().getList("id");
+        logger.info("Mebership list: "+ids);
+        return ids;
+    }
 }

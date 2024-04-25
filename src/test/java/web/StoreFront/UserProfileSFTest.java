@@ -66,37 +66,14 @@ public class UserProfileSFTest extends BaseTest {
     String birthday_Edit;
     String productIDToBuyNow;
     String productIDToBuyNowShopB;
-    String addressCheckout;
-    String cityProvinceCheckout;
-    String districtCheckout;
-    String wardCheckout;
     String userName_NonVN;
-    String countryCheckout;
-    String address2Checkout;
-    String cityInputCheckout;
-    String zipCodeCheckout;
-    String stateCheckout;
-    String addressProfile;
-    String cityProfile;
-    String districtProfile;
-    String wardProfile;
     String phoneNumber = "";
     String userName_ChangeAddress;
     String address_Edit_Invalid;
-    String address_Edit;
-    String cityProvince_Edit;
-    String district_Edit;
-    String ward_Edit;
     String userNameDb_ShopVi;
     String userNameDb_ShopB;
     String userName_UpdateAddress;
     String fullName_UpdateAddress;
-    String country_Edit;
-    String state_Edit;
-    String addressNonVN_Edit;
-    String address2_Edit;
-    String cityInput_Edit;
-    String zipCode_Edit;
     String languageDb;
     String languageSF;
     String userName_PhoneAccount_EditInfo_HasBirthday;
@@ -133,29 +110,6 @@ public class UserProfileSFTest extends BaseTest {
         taxCode_Edit = "1058896666";
         tcsFileName = FileNameAndPath.FILE_USER_PROFILE_TCS;
         birthday_Edit = "20/10/1999";
-//        addressCheckout = "so 1 update";
-//        cityProvinceCheckout = "Bắc Ninh";
-//        districtCheckout = "Huyện Quế Võ";
-//        wardCheckout = "Bồng Lai";
-//        countryCheckout = "Andorra";
-//        address2Checkout = "address 2 update";
-//        cityInputCheckout = "city in non VN checkout";
-//        zipCodeCheckout = "5656565";
-//        stateCheckout = "Canillo";
-//        addressProfile = "so 9900";
-//        cityProfile = "Hồ Chí Minh";
-//        districtProfile = "Quận 1";
-//        wardProfile = "Bến Nghé";
-//        address_Edit = "update address 22";
-//        cityProvince_Edit = "Bạc Liêu";
-//        district_Edit = "Huyện Hòa Bình";
-//        ward_Edit = "Minh Diệu";
-//        country_Edit = "Angola";
-//        state_Edit = "Cuanza Sul";
-//        addressNonVN_Edit = "street address non VN";
-//        address2_Edit = "address 2 update non VN";
-//        cityInput_Edit = "city in non VN checkout";
-//        zipCode_Edit = "74747474";
         generate = new DataGenerator();
     }
     @BeforeMethod
@@ -166,7 +120,7 @@ public class UserProfileSFTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
 
     public UserProfileInfo loginAndGoToUserProfile(String userName) {
