@@ -164,7 +164,7 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
         if (permission.contentEquals("A")) {
             new ProductCollectionManagement(driver).clickOnCreateCollection().inputCollectionName("Test Permission");
             commonAction.navigateBack();
-            new ConfirmationDialog(driver).clickOKBtn();
+            new ConfirmationDialog(driver).clickOKBtn_V2();
         } else if (permission.contentEquals("D")) {
             // Not reproducible
         } else {

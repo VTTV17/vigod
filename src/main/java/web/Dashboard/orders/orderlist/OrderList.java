@@ -23,7 +23,7 @@ public class OrderList {
 	}
 	
 	By loc_tmpRecords = By.cssSelector(".transaction-row");
-	By loc_btnExport = By.cssSelector(".order-page button.gs-button__green");
+	By loc_btnExport = By.cssSelector(".order-list-management .button-v2");
 	By loc_btnExportOrder = By.xpath("(//div[contains(@class,'uik-menuDrop__list')]//button)[1]");
 	By loc_btnExportOrderByProduct = By.xpath("(//div[contains(@class,'uik-menuDrop__list')]//button)[2]");
 	By loc_btnExportHistory = By.xpath("(//div[contains(@class,'uik-menuDrop__list')]//button)[last()]");
@@ -129,7 +129,7 @@ public class OrderList {
     public void verifyPermissionToExportOrder(String permission) {
 		if (permission.contentEquals("A")) {
 			clickExport().clickExportOrder();
-			new ConfirmationDialog(driver).clickCancelBtn();
+			new ConfirmationDialog(driver).clickCancelBtn_V2();
 		} else if (permission.contentEquals("D")) {
 			clickExport().clickExportOrder();
 			boolean flag = new ConfirmationDialog(driver).isConfirmationDialogDisplayed();
