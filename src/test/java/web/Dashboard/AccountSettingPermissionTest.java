@@ -34,12 +34,12 @@ public class AccountSettingPermissionTest extends BaseTest {
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		
-		permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
+		permissionGroupId = 4896;
 	}
 
 	@AfterClass
 	void deletePermissionGroup() {
-		permissionAPI.deleteGroupPermission(permissionGroupId);
+//		permissionAPI.deleteGroupPermission(permissionGroupId);
 		driver.quit();
 	}
 

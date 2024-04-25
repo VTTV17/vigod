@@ -38,7 +38,8 @@ public class LoginPage {
     By loc_lnkEnglish = By.cssSelector(".login-widget__changeLanguage-english");
     By loc_lnkVietnamese = By.cssSelector(".login-widget__changeLanguage:nth-of-type(2)");
 
-    By loc_ddlCountry = By.cssSelector(".phone-code div.uik-select__valueRenderedWrapper");
+    By loc_ddlCountry = By.cssSelector(".select-country-wrapper .select-country__input-container");
+    String loc_ddvCountry = "//*[contains(@class, 'select-country__option')]//div[@class='label' and text()=\"%s\"]";
 
     By loc_frmLogin = By.xpath("//div[contains(@class,'login-widget__formBody') and not(@hidden)]");
     By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']")); 
@@ -64,7 +65,7 @@ public class LoginPage {
 
     public LoginPage selectCountry(String country) {
     	commonAction.click(loc_ddlCountry);
-    	commonAction.click(By.xpath("//div[@class='phone-option']/div[text()='%s']".formatted(country)));
+    	commonAction.click(By.xpath(loc_ddvCountry.formatted(country)));
     	logger.info("Selected country: " + country);
         return this;
     }

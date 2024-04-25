@@ -29,10 +29,10 @@ public class InventoryPage extends InventoryElement {
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
         commons = new UICommonAction(driver);
+        homePage = new HomePage(driver);
     }
 
     public InventoryPage navigate() {
-        homePage = new HomePage(driver);
         homePage.navigateToPage("Products", "Inventory");
         return this;
     }

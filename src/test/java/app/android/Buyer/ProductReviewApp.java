@@ -154,7 +154,7 @@ public class ProductReviewApp extends BaseTest {
 		
 		new ProductDetailPage(driverWeb).clickOnBuyNow()
 		.clickOnContinue()
-		.getFullName();
+		.getFullNameInDeliveryInfoSection();
 		new CheckOutStep1(driverWeb).selectPaymentMethod("COD")
 		.clickOnNextButton()
 		.selectShippingMethod("Self delivery")

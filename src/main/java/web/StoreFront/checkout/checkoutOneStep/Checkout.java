@@ -1,27 +1,23 @@
 package web.StoreFront.checkout.checkoutOneStep;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.units.qual.C;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.storefront.AddressInfo;
 import utilities.utils.PropertiesUtil;
 import web.StoreFront.GeneralSF;
-import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
-import web.StoreFront.checkout.checkoutstep1.CheckOutStep1Element;
 import web.StoreFront.checkout.ordercomplete.OrderComplete;
-
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 public class Checkout extends CheckoutElement {
     final static Logger logger = LogManager.getLogger(Checkout.class);
@@ -44,10 +40,10 @@ public class Checkout extends CheckoutElement {
         logger.info("Click on Update button on My Address tab.");
         return this;
     }
-    public String getFullName() {
-        commonAction.waitVisibilityOfElementLocated(loc_dlgUpdateAddress_txtFullName);
-        String name = commonAction.getAttribute(loc_dlgUpdateAddress_txtFullName, "value");
-        logger.info("Retrieved full name: %s.".formatted(name));
+    
+    public String getFullNameInDeliveryInfoSection() {
+    	String name = commonAction.getText(loc_lblFullName);
+        logger.info("Retrieved full name in delivery info section: %s.".formatted(name));
         return name;
     }
     public String getCountry(){
