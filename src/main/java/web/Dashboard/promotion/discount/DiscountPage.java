@@ -264,7 +264,7 @@ public class DiscountPage extends DiscountElement {
 
 		if (!originalURL.contentEquals(URL1)) {
 			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
+			new ConfirmationDialog(driver).clickOKBtn_V2();
 		} else {
 			clickDiscountCode();
 		}
@@ -296,7 +296,7 @@ public class DiscountPage extends DiscountElement {
 
 		if (!originalURL.contentEquals(URL1)) {
 			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
+			new ConfirmationDialog(driver).clickOKBtn_V2();
 		} else {
 			clickDiscountCode();
 		}
@@ -329,7 +329,7 @@ public class DiscountPage extends DiscountElement {
 
 		if (!originalURL.contentEquals(URL1)) {
 			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
+			new ConfirmationDialog(driver).clickOKBtn_V2();
 		} else {
 			clickDiscountCode();
 		}
@@ -361,7 +361,7 @@ public class DiscountPage extends DiscountElement {
 
 		if (!originalURL.contentEquals(URL1)) {
 			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
+			new ConfirmationDialog(driver).clickOKBtn_V2();
 		} else {
 			clickDiscountCode();
 		}
@@ -402,7 +402,7 @@ public class DiscountPage extends DiscountElement {
 
 		if (!originalURL.contentEquals(URL1)) {
 			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
+			new ConfirmationDialog(driver).clickOKBtn_V2();
 		} else {
 			clickDiscountCampaign();
 		}
@@ -443,7 +443,7 @@ public class DiscountPage extends DiscountElement {
 
 		if (!originalURL.contentEquals(URL1)) {
 			commonAction.navigateBack();
-			new ConfirmationDialog(driver).clickOKBtn();
+			new ConfirmationDialog(driver).clickOKBtn_V2();
 		} else {
 			clickDiscountCampaign();
 		}
@@ -855,7 +855,7 @@ public class DiscountPage extends DiscountElement {
 			commonAction.click(productDiscountCampaignEl.loc_btnEndEarly);
 			
 			if (permissionToEndProductDiscountCode(staffPermission)) {
-				new ConfirmationDialog(driver).clickOKBtn();
+				new ConfirmationDialog(driver).clickOKBtn_V2();
 //				Assert.assertTrue(commonAction.getCurrentURL().contains("/home"));
 			} else {
 				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
@@ -891,7 +891,7 @@ public class DiscountPage extends DiscountElement {
 			commonAction.click(productDiscountCampaignEl.loc_btnEndEarly);
 			
 			if (permissionToEndServiceDiscountCode(staffPermission)) {
-				new ConfirmationDialog(driver).clickOKBtn();
+				new ConfirmationDialog(driver).clickOKBtn_V2();
 //				Assert.assertTrue(commonAction.getCurrentURL().contains("/home"));
 			} else {
 				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
@@ -1334,7 +1334,7 @@ public class DiscountPage extends DiscountElement {
 	}
 	public DiscountPage endFirstCampaign(){
 		commonAction.click(loc_lst_icnEnd,0);
-		new ConfirmationDialog(driver).clickOKBtn();
+		new ConfirmationDialog(driver).clickOKBtn_V2();
 		commonAction.sleepInMiliSecond(500, "Wait in endFirstCampaign");
 		return this;
 	}

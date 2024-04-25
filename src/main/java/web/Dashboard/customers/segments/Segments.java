@@ -104,7 +104,7 @@ public class Segments {
     }
 
     public Segments clickOKBtn() {
-        new ConfirmationDialog(driver).clickGreenBtn();
+        new ConfirmationDialog(driver).clickOKBtn_V2();
         logger.info("Clicked on 'OK' button to confirm customer segment deletion.");
         return this;
     }
@@ -145,7 +145,7 @@ public class Segments {
 		.selectDataCondition(dataCondition)
 		.getSelectedtDataCondition();
 		commonAction.navigateBack();
-		new ConfirmationDialog(driver).clickOKBtn();
+		new ConfirmationDialog(driver).clickOKBtn_V2();
     	
     	if (permission.contentEquals("A")) {
     		Assert.assertEquals(selectedption, dataCondition);
@@ -167,7 +167,7 @@ public class Segments {
     		.selectDataGroupCondition(dataGroup)
     		.selectDataCondition(dataCondition);
     		commonAction.navigateBack();
-    		new ConfirmationDialog(driver).clickOKBtn();
+    		new ConfirmationDialog(driver).clickOKBtn_V2();
     	} else if (permission.contentEquals("D")) {
     		// Not done
     	} else {
@@ -187,7 +187,7 @@ public class Segments {
     		clickCreateSegmentBtn().inputSegmentName("Test Permission")
     		.selectDataGroupCondition(dataGroup);
     		commonAction.navigateBack();
-    		new ConfirmationDialog(driver).clickOKBtn();
+    		new ConfirmationDialog(driver).clickOKBtn_V2();
     	} else if (permission.contentEquals("D")) {
     		// Not done
     	} else {

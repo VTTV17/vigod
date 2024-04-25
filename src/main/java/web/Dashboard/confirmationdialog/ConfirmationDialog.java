@@ -27,6 +27,11 @@ public class ConfirmationDialog {
 	By loc_cntMessage = By.cssSelector(".modal-body");
 	By loc_ctnTitle = By.cssSelector(".modal-title");
 	By loc_btnRed = By.cssSelector(".gs-button__red");
+	
+	//Temporary locator
+	By loc_btnCancel_V2 = By.cssSelector(".modal-footer button:nth-child(1)");
+	By loc_btnOK_V2 = By.cssSelector(".modal-footer button:nth-child(2)");
+	
 	public void clickGrayBtn() {
 		commonAction.click(loc_btnCancel);
 	}
@@ -51,9 +56,23 @@ public class ConfirmationDialog {
 		logger.info("Clicked on 'Cancel' button on Comfirmation Dialog.");
 		return this;
 	}
+	
+	public ConfirmationDialog clickCancelBtn_V2() {
+		commonAction.click(loc_btnCancel_V2);
+		logger.info("Clicked on 'Cancel' button on Comfirmation Dialog.");
+		return this;
+	}
 
 	public ConfirmationDialog clickOKBtn() {
 		clickGreenBtn();
+		logger.info("Clicked on 'OK' button on Comfirmation Dialog");
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		return this;
+	}
+	
+	//Temporary function
+	public ConfirmationDialog clickOKBtn_V2() {
+		commonAction.click(loc_btnOK_V2);
 		logger.info("Clicked on 'OK' button on Comfirmation Dialog");
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
