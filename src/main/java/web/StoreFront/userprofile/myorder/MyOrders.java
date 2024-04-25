@@ -1,4 +1,4 @@
-package web.StoreFront.userprofile;
+package web.StoreFront.userprofile.myorder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,31 +10,26 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import web.StoreFront.detail_product.ProductDetailPage;
-import web.StoreFront.header.HeaderSF;
 import utilities.commons.UICommonAction;
+import web.StoreFront.detail_product.ProductDetailPage;
 
-public class MyOrders extends HeaderSF {
+public class MyOrders {
 	
 	final static Logger logger = LogManager.getLogger(MyOrders.class);
 	
     WebDriver driver;
     UICommonAction commonAction;
+    MyOrderElement elements;
     
     public MyOrders (WebDriver driver) {
-        super(driver);
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+        elements = new MyOrderElement();
     }
-	
-    By loc_tmpOrders = By.cssSelector(".my-order-container .group-order");
-    By loc_lnkReview = By.cssSelector(".order-item__review");
-	
-	String WRITE_REVIEW_LINKTEXT = "//div[@class='group-order__header__order-id' and contains(.,': #%s')]//ancestor::div[@class='group-order']//*[@class='order-item__review']";
     
 	public List<List<String>> getOrderData() {
 		List<List<String>> table = new ArrayList<>();
-		for (WebElement eachOrder : commonAction.getElements(loc_tmpOrders)) {
+		for (WebElement eachOrder : commonAction.getElements(elements.loc_blkOrders)) {
 			List<String> orderData = new ArrayList<>();
 			Collections.addAll(orderData, commonAction.getText(eachOrder).split("\n"));
 			table.add(orderData);
@@ -44,21 +39,20 @@ public class MyOrders extends HeaderSF {
 
     public boolean isWriteReviewDisplayed(){
     	commonAction.sleepInMiliSecond(1000);
-    	boolean isDisplayed = (commonAction.getElements(loc_lnkReview).size() > 0) ? true : false;
+    	boolean isDisplayed = commonAction.getElements(elements.loc_lnkReview).size() > 0;
     	logger.info("Is Write Review displayed: " + isDisplayed);
     	return isDisplayed;
     }
     
     public boolean isWriteReviewDisplayed(String orderId){
     	commonAction.sleepInMiliSecond(1000);
-    	List<WebElement> el = driver.findElements(By.xpath(WRITE_REVIEW_LINKTEXT.formatted(orderId)));
-    	boolean isDisplayed = (el.size() > 0) ? true : false;
+    	boolean isDisplayed = driver.findElements(By.xpath(elements.loc_lnkSpecificReview.formatted(orderId))).size() > 0;
     	logger.info("Is Write Review displayed: " + isDisplayed);
     	return isDisplayed;
     }	
 	
     public ProductDetailPage clickWriteReview(String orderId){
-    	WebElement el = driver.findElement(By.xpath(WRITE_REVIEW_LINKTEXT.formatted(orderId)));
+    	WebElement el = driver.findElement(By.xpath(elements.loc_lnkSpecificReview.formatted(orderId)));
     	commonAction.clickElement(el);
     	logger.info("Click on Write Review for order: " + orderId);
     	return new ProductDetailPage(driver);
