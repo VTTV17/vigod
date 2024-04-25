@@ -69,8 +69,8 @@ public class Cashbook {
 	By loc_tblCashbookRecord = By.xpath("//div[contains(@class,'cashbook-list')]//table/tbody/tr");
 	By loc_tblTableTitle = By.xpath("//div[contains(@class,'cashbook-list')]//table/thead/tr");
 	By loc_txtSearchRecord = By.cssSelector(".uik-input__input");
-	By loc_btnCreateReceipt = By.cssSelector(".gs-content-header-right-el .gs-button__green:nth-of-type(1)");
-	By loc_btnCreatePayment = By.cssSelector(".gs-content-header-right-el .gs-button__green:nth-of-type(2)");
+	By loc_btnCreateReceipt = By.cssSelector(".gs-content-header-right-el .gs-button__green:nth-of-type(2)");
+	By loc_btnCreatePayment = By.cssSelector(".gs-content-header-right-el .gs-button__green:nth-of-type(3)");
 	By loc_dtpPrincipleTimeRange = By.cssSelector(".date-ranger-picker");
 	By loc_btnResetDatePicker = By.cssSelector(".daterangepicker .btn-default");
 	By loc_btnFilter = By.cssSelector(".btn-filter-action");
