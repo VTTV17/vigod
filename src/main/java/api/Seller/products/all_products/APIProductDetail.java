@@ -684,18 +684,19 @@ public class APIProductDetail {
                                                                       Map<String, List<Boolean>> beforeUpdateManageByLotDate,
                                                                       boolean isExpiredQuality) {
         // init temp arr
-        List<Boolean> lotAvailable = new ArrayList<>(beforeUpdateManageByLotDate.get("lotAvailable"));
-        List<Boolean> expiredQuality = new ArrayList<>(beforeUpdateManageByLotDate.get("expiredQuality"));
+        List<Boolean> beforeLot = new ArrayList<>(beforeUpdateManageByLotDate.get("lotAvailable"));
+        List<Boolean> beforeExpiry = new ArrayList<>(beforeUpdateManageByLotDate.get("expiredQuality"));
+        List<Boolean> lotAvailable = new ArrayList<>();
+        List<Boolean> expiredQuality = new ArrayList<>();
         List<Integer> listProductIdThatIsCanNotManageByLotDate = new APIInventoryHistory(loginInformation).listOfCanNotManagedByLotDateProductIds(productIds);
-        int currentIndex = 0;
-        for (int index = 0; index < productIds.size(); index++) {
-            ProductInfo productInfo = getInfo(Integer.parseInt(productIds.get(index)), inventory);
+
+        productIds.forEach(productId -> {
+            ProductInfo productInfo = getInfo(Integer.parseInt(productId), inventory);
             if (productInfo.getManageInventoryByIMEI() != null) {
-                lotAvailable.set(currentIndex, !productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productIds.get(index))));
-                expiredQuality.set(currentIndex, lotAvailable.get(currentIndex) && !productInfo.getManageInventoryByIMEI() && (expiredQuality.get(index) || isExpiredQuality));
-                currentIndex++;
+                lotAvailable.add(!productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productId)));
+                expiredQuality.add(beforeLot.get(expiredQuality.size()) && !productInfo.getManageInventoryByIMEI() && (beforeExpiry.get(expiredQuality.size()) || isExpiredQuality));
             }
-        }
+        });
         return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);
     }
 

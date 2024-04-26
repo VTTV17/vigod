@@ -3,7 +3,6 @@ package api.Seller.products.inventory;
 import api.Seller.affiliate.dropship.APIPartnerTransferDetail;
 import api.Seller.affiliate.dropship.PartnerTransferManagement.PartnerTransferStatus;
 import api.Seller.login.Login;
-import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.orders.order_management.APIOrderDetail;
 import api.Seller.orders.return_order.APIAllReturnOrder;
@@ -41,7 +40,7 @@ public class APIInventoryHistory {
     }
 
     enum InventoryActionType {
-        FROM_CREATE_AT_ITEM_SCREEN, FROM_LOCK, FROM_PURCHASE_ORDER, FROM_RESET_STOCK, FROM_RETURN_ORDER, FROM_SOLD, FROM_TRANSFER_AFFILIATE_OUT, FROM_TRANSFER_IN, FROM_TRANSFER_OUT, FROM_TRANSFER_RESTOCK, FROM_UNLOCK, FROM_EDIT_ORDER
+        AUTO_SYNC_STOCK, FROM_CREATE_AT_ITEM_SCREEN, FROM_DELETE_LOT, FROM_EDIT_ORDER, FROM_EXCLUDE_STOCK_LOT_DATE, FROM_IMPORT, FROM_ITEM_LIST, FROM_LAZADA, FROM_LOCK, FROM_LOT_DATE_RESTOCK, FROM_PURCHASE_ORDER, FROM_RESET_STOCK, FROM_RETURN_ORDER, FROM_SHOPEE, FROM_SOLD, FROM_TIKI, FROM_TIKTOK, FROM_TRANSFER_AFFILIATE_IN, FROM_TRANSFER_AFFILIATE_OUT, FROM_TRANSFER_AFFILIATE_RESTOCK, FROM_TRANSFER_IN, FROM_TRANSFER_OUT, FROM_TRANSFER_RESTOCK, FROM_UNLOCK, FROM_UPDATE_AT_INSTORE_PURCHASE, FROM_UPDATE_AT_ITEM_SCREEN, FROM_UPDATE_AT_VARIATION_DETAIL, FROM_UPDATE_STOCK_IN_LOT
     }
 
     @Data
