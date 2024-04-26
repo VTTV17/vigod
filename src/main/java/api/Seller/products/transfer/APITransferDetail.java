@@ -1,6 +1,7 @@
 package api.Seller.products.transfer;
 
 import api.Seller.login.Login;
+import api.Seller.products.transfer.TransferManagement.TransferStatus;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,5 +34,9 @@ public class APITransferDetail {
 
     public List<Integer> getItemIds(int transferId) {
         return getTransferDetailResponse(transferId).jsonPath().getList("items.itemId");
+    }
+
+    public TransferStatus getTransferStatus(int transferId) {
+        return TransferStatus.valueOf(getTransferDetailResponse(transferId).jsonPath().getString("status"));
     }
 }

@@ -36,7 +36,7 @@ public class APIAllPurchaseOrders {
         List<String> staffCreated;
     }
 
-    enum PurchaseOrderStatus {
+    public enum PurchaseOrderStatus {
         ORDER, IN_PROGRESS, COMPLETED, CANCELLED
     }
 

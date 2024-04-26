@@ -25,7 +25,7 @@ public class TransferManagement {
         this.loginInformation = loginInformation;
     }
     
-    enum TransferStatus {
+    public enum TransferStatus {
         READY_FOR_TRANSPORT, DELIVERING, RECEIVED, CANCELLED
     }
 

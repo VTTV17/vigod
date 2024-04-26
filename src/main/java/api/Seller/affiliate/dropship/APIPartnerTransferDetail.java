@@ -1,5 +1,6 @@
 package api.Seller.affiliate.dropship;
 
+import api.Seller.affiliate.dropship.PartnerTransferManagement.PartnerTransferStatus;
 import api.Seller.login.Login;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
@@ -11,13 +12,13 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 
-public class PartnerTransferInformation {
+public class APIPartnerTransferDetail {
     Logger logger = LogManager.getLogger(T.class);
 
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    public PartnerTransferInformation (LoginInformation loginInformation) {
+    public APIPartnerTransferDetail(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
     	loginInfo = new Login().getInfo(loginInformation);
     }
@@ -34,5 +35,9 @@ public class PartnerTransferInformation {
 
     public List<Integer> getItemIds(int transferId) {
         return getTransferDetailResponse(transferId).jsonPath().getList("items.itemId");
+    }
+
+    public PartnerTransferStatus getTransferStatus(int transferId) {
+        return PartnerTransferStatus.valueOf(getTransferDetailResponse(transferId).jsonPath().getString("status"));
     }
 }

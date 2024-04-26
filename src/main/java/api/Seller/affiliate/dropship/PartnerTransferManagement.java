@@ -1,7 +1,6 @@
 package api.Seller.affiliate.dropship;
 
 import api.Seller.login.Login;
-import api.Seller.products.transfer.APITransferDetail;
 import io.restassured.response.Response;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +48,7 @@ public class PartnerTransferManagement {
                 .response();
     }
 
-    enum PartnerTransferStatus {
+    public enum PartnerTransferStatus {
         READY_FOR_TRANSPORT, DELIVERING, RECEIVED, CANCELLED
     }
 
@@ -102,7 +101,7 @@ public class PartnerTransferManagement {
                 .toList();
 
         // init transfer information api
-        APITransferDetail transferInformation = new APITransferDetail(loginInformation);
+        APIPartnerTransferDetail transferInformation = new APIPartnerTransferDetail(loginInformation);
 
         // get list itemId in in-complete transfer
         return inCompleteTransferIds.stream()

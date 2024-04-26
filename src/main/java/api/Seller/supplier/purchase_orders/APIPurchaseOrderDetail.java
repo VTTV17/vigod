@@ -1,6 +1,7 @@
 package api.Seller.supplier.purchase_orders;
 
 import api.Seller.login.Login;
+import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders.PurchaseOrderStatus;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -65,5 +66,9 @@ public class APIPurchaseOrderDetail {
     }
     public List<Integer> getItemIds(int purchaseOrderId) {
         return getDetailOfPurchaseOrderResponse(purchaseOrderId).jsonPath().getList("purchaseOrderItems.itemId");
+    }
+
+    public PurchaseOrderStatus getPurchaseOrderStatus(int purchaseOrderId) {
+        return PurchaseOrderStatus.valueOf(getDetailOfPurchaseOrderResponse(purchaseOrderId).jsonPath().getString("status"));
     }
 }

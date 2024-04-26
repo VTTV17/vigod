@@ -4,6 +4,7 @@ import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.inventory.APIInventoryHistory;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -249,7 +250,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     // bulk delete
     public List<Boolean> checkProductCanBeDeleted(List<String> productIds) {
-        List<Integer> listProductIdThatInInCompleteTransfer = new APIAllProducts(sellerLoginInformation).getListProductIdThatInInCompleteTransfer();
+        List<Integer> listProductIdThatInInCompleteTransfer = new APIInventoryHistory(sellerLoginInformation).listOfCanNotBeDeletedProductIds(productIds);
         return productIds.stream().map(productId -> !listProductIdThatInInCompleteTransfer.contains(Integer.parseInt(productId))).toList();
     }
 
@@ -696,7 +697,7 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(manageStockByLotDate), loc_dlgManageProductByLotDate);
 
         // set expire
-        boolean expiredQuality = true;//nextBoolean();
+        boolean expiredQuality = nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity) != expiredQuality)
             commonAction.clickJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity);
         logger.info("Exclude expired quantity from remaining stock: %s.".formatted(expiredQuality));
@@ -710,10 +711,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // check product display after updating
         Map<String, List<Boolean>> expectedMap = productInformation.getMapOfExpectedManageByLotDate(productIds, beforeUpdateLotDate, expiredQuality);
         Map<String, List<Boolean>> actualMap = productInformation.getMapOfCurrentManageByLotDate(productIds);
-        System.out.println(expectedMap.get("expiredQuality"));
-        System.out.println(actualMap.get("expiredQuality"));
         assertCustomize.assertEquals(expectedMap, actualMap,
-                "Web platform of selected products must be %s, but found %s.");
+                "Map of managed by lot date of selected products must be %s, but found %s.".formatted(expectedMap, actualMap));
 
         // verify test
         AssertCustomize.verifyTest();

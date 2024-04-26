@@ -11,6 +11,8 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.List;
 import java.util.Map;
 
+import static api.Seller.orders.order_management.APIAllOrders.*;
+
 public class APIOrderDetail {
     Logger logger = LogManager.getLogger(APIOrderDetail.class);
 
@@ -39,5 +41,9 @@ public class APIOrderDetail {
                 if (count == 2) break;
             }
         return response.jsonPath().getList("items.itemId");
+    }
+
+    public OrderStatus getOrderStatus(int orderId) {
+        return OrderStatus.valueOf(getDetailOfOrderResponse(orderId).jsonPath().getString("orderInfo.status"));
     }
 }

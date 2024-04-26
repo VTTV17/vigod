@@ -1,6 +1,7 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
+import api.Seller.products.inventory.APIInventoryHistory;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
@@ -683,21 +684,18 @@ public class APIProductDetail {
                                                                       Map<String, List<Boolean>> beforeUpdateManageByLotDate,
                                                                       boolean isExpiredQuality) {
         // init temp arr
-        List<String> ids = new ArrayList<>();
         List<Boolean> lotAvailable = new ArrayList<>(beforeUpdateManageByLotDate.get("lotAvailable"));
         List<Boolean> expiredQuality = new ArrayList<>(beforeUpdateManageByLotDate.get("expiredQuality"));
-        List<Integer> listProductIdThatIsCanNotManageByLotDate = new APIAllProducts(loginInformation).getListProductIdThatIsCanNotManageByLotDate();
+        List<Integer> listProductIdThatIsCanNotManageByLotDate = new APIInventoryHistory(loginInformation).listOfCanNotManagedByLotDateProductIds(productIds);
         int currentIndex = 0;
         for (int index = 0; index < productIds.size(); index++) {
             ProductInfo productInfo = getInfo(Integer.parseInt(productIds.get(index)), inventory);
             if (productInfo.getManageInventoryByIMEI() != null) {
-                ids.add(productIds.get(index));
                 lotAvailable.set(currentIndex, !productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productIds.get(index))));
                 expiredQuality.set(currentIndex, lotAvailable.get(currentIndex) && !productInfo.getManageInventoryByIMEI() && (expiredQuality.get(index) || isExpiredQuality));
                 currentIndex++;
             }
         }
-        System.out.println(ids);
         return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);
     }
 
