@@ -15,10 +15,11 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.orders.orderlist.OrderList;
 import web.Dashboard.products.productreviews.ProductReviews;
+import web.StoreFront.checkout.checkoutOneStep.Checkout;
 import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
 import web.StoreFront.detail_product.ProductDetailPage;
 import web.StoreFront.header.HeaderSF;
-import web.StoreFront.userprofile.MyOrders;
+import web.StoreFront.userprofile.myorder.MyOrders;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
@@ -205,13 +206,9 @@ public class ProductReviewTest extends BaseTest {
 		
 		sfProductDetailPage.clickOnBuyNow()
 		.clickOnContinue()
-		.getFullName();
-		checkOutStep1.selectPaymentMethod("COD")
-		.clickOnNextButton()
-		.selectShippingMethod("Self delivery")
-		.clickOnNextButton()
-		.clickOnNextButton()
-		.clickOnBackToMarket();
+		.getFullNameInDeliveryInfoSection();
+		
+		new Checkout(driver).clickOnCompleteBtn().clickOnBackToMarket();
 
 		/* See order details */
 		List<List<String>> orderData = sfHeader.clickUserInfoIcon()
@@ -238,7 +235,7 @@ public class ProductReviewTest extends BaseTest {
 		
 		sfProductDetailPage.clickOnBuyNow()
 		.clickOnContinue()
-		.getFullName();
+		.getFullNameInDeliveryInfoSection();
 		checkOutStep1.selectPaymentMethod("COD")
 		.clickOnNextButton()
 		.selectShippingMethod("Self delivery")

@@ -238,7 +238,7 @@ public class SignupPage extends GeneralSF {
         inputEmail(displayName+"@mailnesia.com").clickCompleteBtn();
     }
     public SignupPage onlyFillOutSignupForm(String country, String user, String password, String displayName, String birthday) {
-        inputBirthday(birthday);
+        if(!birthday.isEmpty()) inputBirthday(birthday);
         selectCountry(country);
         inputMailOrPhoneNumber(user);
         inputPassword(password);

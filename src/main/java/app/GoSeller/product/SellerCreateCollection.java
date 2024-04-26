@@ -139,7 +139,7 @@ public class SellerCreateCollection {
     public SellerProductCollection tapSaveIcon(){
         new SellerGeneral(driver).tapHeaderRightIcon();
         logger.info("Tap on Save icon.");
-        common.sleepInMiliSecond(1000);
+        common.sleepInMiliSecond(500);
         return new SellerProductCollection(driver);
     }
     public SellerCreateCollection tapAddProduct(){
@@ -155,8 +155,8 @@ public class SellerCreateCollection {
         }
         common.sleepInMiliSecond(1000);
         for (int i=0;i<keywords.length;i++){
-            common.sleepInMiliSecond(1000);
             inputSearchKeyword(keywords[i]);
+            common.sleepInMiliSecond(500);
             selectAllProductDisplay();
         }
         new SellerGeneral(driver).tapHeaderRightIcon();

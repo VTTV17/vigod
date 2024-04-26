@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 
 public class CheckoutElement {
     By loc_lblAddress = By.cssSelector(".checkout-right [rv-text='models.deliveryInfo.fullShippingAddress']");
+    By loc_lblFullName = By.cssSelector(".shipping-info__container--desktop [rv-text*='contactName']");
     By loc_icnEditShippingInfo = By.cssSelector(".edit-shipping-info--desktop");
     By loc_dlgShippingAddress_btnUpdate = By.cssSelector("#customer-address-wrapper .text-primary");
     By loc_dlgUpdateAddress_txtAddress = By.cssSelector("#address");
@@ -28,4 +29,6 @@ public class CheckoutElement {
     By loc_lblDiscountAmount= By.cssSelector(".payment-info .payment-info__value--discount");
     By loc_btnComplete = By.cssSelector(".btn-checkout--desktop");
     By loc_lstProductName = By.cssSelector(".prod-name");
+    By loc_lblShippingFee = By.xpath("//div[contains(@rv-text,'models.shippingFeeAmount')]");
+
 }

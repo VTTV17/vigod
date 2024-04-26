@@ -9,6 +9,7 @@ import api.Seller.promotion.FlashSale;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -49,7 +50,7 @@ public class FlashSalePermissionTest extends BaseTest{
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product
-        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
         productCreatedByShopOwner = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
 
@@ -57,7 +58,7 @@ public class FlashSalePermissionTest extends BaseTest{
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 
         //Staff create product
-        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
         productCreatedByStaff = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
     }
@@ -68,8 +69,13 @@ public class FlashSalePermissionTest extends BaseTest{
             new APIEditProduct(ownerCredentials).deleteProduct(productId);
         }
     }
+    @BeforeMethod
+    public void beforeMethod() {
+        driver = new InitWebdriver().getDriver(browser, "false");
+    }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
+        new FlashSale(ownerCredentials).endEarlyFlashSale();
         super.writeResult(result);
         driver.quit();
     }
@@ -105,7 +111,7 @@ public class FlashSalePermissionTest extends BaseTest{
 //                {"10001"},
 //                {"10010"},
 //                {"10011"},
-//                {"10100"}, //Bug create flashsale BH-32840
+//                {"10100"},
 //                {"10101"},
 //                {"10110"},
 //                {"10111"},
@@ -119,7 +125,7 @@ public class FlashSalePermissionTest extends BaseTest{
 //                {"11111"},
 //                {"100000"},
 //                {"100001"},
-//                {"100010"}, //Bug BH-32851 show toast message when no permission View flash sale time
+//                {"100010"},
 //                {"100011"},
 //                {"100100"},
 //                {"100101"},
@@ -182,36 +188,36 @@ public class FlashSalePermissionTest extends BaseTest{
 //                {"1011110"},
 //                {"1011111"},
 //                {"1100000"},
-//                {"1100001"},
-//                {"1100010"},
-//                {"1100011"},
-//                {"1100100"},
-//                {"1100101"},
-//                {"1100110"},
-//                {"1100111"},
-//                {"1101000"},
-//                {"1101001"},
-//                {"1101010"},
-//                {"1101011"},
-//                {"1101100"},
-//                {"1101101"},
-//                {"1101110"},
-//                {"1101111"},
-//                {"1110000"},
-//                {"1110001"},
-//                {"1110010"},
-//                {"1110011"},
-//                {"1110100"},
-//                {"1110101"},
-//                {"1110110"},
-//                {"1110111"},
-//                {"1111000"},
-//                {"1111001"},
-//                {"1111010"},
-//                {"1111011"},
-//                {"1111100"},
-//                {"1111101"},
-//                {"1111110"},
+                {"1100001"},
+                {"1100010"},
+                {"1100011"},
+                {"1100100"},
+                {"1100101"},
+                {"1100110"},
+                {"1100111"},
+                {"1101000"},
+                {"1101001"},
+                {"1101010"},
+                {"1101011"},
+                {"1101100"},
+                {"1101101"},
+                {"1101110"},
+                {"1101111"},
+                {"1110000"},
+                {"1110001"},
+                {"1110010"},
+                {"1110011"},
+                {"1110100"},
+                {"1110101"},
+                {"1110110"},
+                {"1110111"},
+                {"1111000"},
+                {"1111001"},
+                {"1111010"},
+                {"1111011"},
+                {"1111100"},
+                {"1111101"},
+                {"1111110"},
                 {"1111111"}
         };
     }

@@ -144,7 +144,7 @@ public class SellerProductCollection {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        logger.info("Verify create successfully message show.");
+        logger.info("Verify update successfully message show.");
         return this;
     }
     public SellerProductCollection deleteCollectionAndVerify(String collectionName){

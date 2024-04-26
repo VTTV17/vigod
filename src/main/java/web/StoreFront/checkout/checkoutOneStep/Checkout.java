@@ -1,23 +1,23 @@
 package web.StoreFront.checkout.checkoutOneStep;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.units.qual.C;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-import utilities.commons.UICommonAction;
-import web.StoreFront.GeneralSF;
-import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
-import web.StoreFront.checkout.checkoutstep1.CheckOutStep1Element;
-import web.StoreFront.checkout.ordercomplete.OrderComplete;
-
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.model.dashboard.storefront.AddressInfo;
+import utilities.utils.PropertiesUtil;
+import web.StoreFront.GeneralSF;
+import web.StoreFront.checkout.ordercomplete.OrderComplete;
 
 public class Checkout extends CheckoutElement {
     final static Logger logger = LogManager.getLogger(Checkout.class);
@@ -40,11 +40,14 @@ public class Checkout extends CheckoutElement {
         logger.info("Click on Update button on My Address tab.");
         return this;
     }
-    public String getFullName() {
-        commonAction.waitVisibilityOfElementLocated(loc_dlgUpdateAddress_txtFullName);
-        String name = commonAction.getAttribute(loc_dlgUpdateAddress_txtFullName, "value");
-        logger.info("Retrieved full name: %s.".formatted(name));
+    
+    public String getFullNameInDeliveryInfoSection() {
+    	String name = commonAction.getText(loc_lblFullName);
+        logger.info("Retrieved full name in delivery info section: %s.".formatted(name));
         return name;
+    }
+    public String getCountry(){
+        return commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlCountry);
     }
 
     public Checkout verifyCountrySelectedValue(String expectedCountry) {
@@ -109,36 +112,54 @@ public class Checkout extends CheckoutElement {
         logger.info("Verify State/Region/Provice: %s display".formatted(state));
         return this;
     }
-    public Checkout inputAddres(String address) {
+    public Checkout inputAddress(String address) {
         commonAction.inputText(loc_dlgUpdateAddress_txtAddress, address);
         logger.info("Input address: %s".formatted(address));
         return this;
     }
 
-    public Checkout selectCountry(String country) {
-        commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlCountry, country);
+    public String selectCountry(String country) {
+        if(country.isEmpty()){
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlCountry, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlCountry)).size()));
+            country =  commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlCountry);
+        }else commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlCountry, country);
         logger.info("Select country: %s".formatted(country));
-        return this;
+        return country;
     }
 
-    public Checkout selectCityProvince(String city) {
-        commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlCityProvince, city);
+    public String selectCityProvince(String city) {
+        if(city.isEmpty()){
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlCityProvince, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlCityProvince)).size()));
+            city =  commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlCityProvince);
+        }else {
+            commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlCityProvince, city);
+        }
         logger.info("Select city/province: %s".formatted(city));
-        return this;
+        return city;
     }
 
-    public Checkout selectDistrict(String district) {
+    public String selectDistrict(String district) {
         commonAction.sleepInMiliSecond(1000);
-        commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlDistrict, district);
+        if(district.isEmpty()){
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlDistrict, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlDistrict)).size()));
+            district = commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlDistrict);
+        }else {
+            commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlDistrict, district);
+        }
         logger.info("Select district: %s".formatted(district));
-        return this;
+        return district;
     }
 
-    public Checkout selectWard(String ward) {
+    public String selectWard(String ward) {
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlWardTown, ward);
+        if(ward.isEmpty()){
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlWardTown, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlWardTown)).size()));
+            ward = commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlWardTown);
+        }else {
+            commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlWardTown, ward);
+        }
         logger.info("Select ward: %s".formatted(ward));
-        return this;
+        return ward;
     }
 
     public Checkout inputAddress2(String address2) {
@@ -153,11 +174,14 @@ public class Checkout extends CheckoutElement {
         return this;
     }
 
-    public Checkout selectState(String state) {
+    public String selectState(String state) {
         commonAction.sleepInMiliSecond(500);
-        commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlState, state);
+        if(state.isEmpty()){
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlState, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlWardTown)).size()));
+            state = commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlState);
+        }else commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlState, state);
         logger.info("Select state/region/province: %s".formatted(state));
-        return this;
+        return state;
     }
 
     public Checkout inputZipCode(String zipCode) {
@@ -173,25 +197,64 @@ public class Checkout extends CheckoutElement {
         return this;
     }
     public Checkout inputAddressInfo_VN(String country, String address, String city, String district, String ward) {
-        if (country != "") {
+        if (country!= "") {
             selectCountry(country);
         }
-        inputAddres(address);
+        inputAddress(address);
         selectCityProvince(city);
         selectDistrict(district);
         selectWard(ward);
 
         return this;
     }
+    public AddressInfo inputAddressInfo_VN() {
+        AddressInfo addressInfo = new AddressInfo();
+        String currentCountry = getCountry();
+        if ( currentCountry!= "Vietnam"|| currentCountry != "Việt Nam") {
+            try {
+                String selectedCountry = PropertiesUtil.getPropertiesValueBySFLang("country.vietNam");
+                selectCountry(selectedCountry);
+                addressInfo.setCountry(selectedCountry);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String address = "address "+ new DataGenerator().generateString(10);
+        inputAddress(address);
+        addressInfo.setCityProvince(selectCityProvince(""));
+        addressInfo.setDistrict(selectDistrict(""));
+        addressInfo.setWard(selectWard(""));
 
+        return addressInfo;
+    }
     public Checkout inputAddressInfo_NonVN(String country, String address, String address2, String state, String city, String zipCode) {
         selectCountry(country);
-        inputAddres(address);
+        inputAddress(address);
         inputAddress2(address2);
         selectState(state);
         inputCity(city);
         inputZipCode(zipCode);
         return this;
+    }
+    public AddressInfo inputAddressInfo_NonVN() {
+        AddressInfo addressInfo = new AddressInfo();
+        String country = selectCountry("");
+        String address = "address "+ new DataGenerator().generateString(10);
+        inputAddress(address);
+        String address2 = "address s "+ new DataGenerator().generateString(10);
+        inputAddress2(address2);
+        String state  = selectState("");
+        String city = "city "+ new DataGenerator().generateString(5);
+        inputCity(city);
+        String zipCode = new DataGenerator().generateNumber(5);
+        inputZipCode(zipCode);
+        addressInfo.setCountry(country);
+        addressInfo.setStreetAddress(address);
+        addressInfo.setAddress2(address2);
+        addressInfo.setStateRegionProvince(state);
+        addressInfo.setCity(city);
+        addressInfo.setZipCode(zipCode);
+        return addressInfo;
     }
 
     public Checkout verifyAddressInfo_VN(String country, String address, String city, String district, String ward) {
@@ -258,7 +321,8 @@ public class Checkout extends CheckoutElement {
         return this;
     }
     public Checkout verifyDicountAmount(String expected){
-        Assert.assertEquals(String.join("",commonAction.getText(loc_lblDiscountAmount).split(",|-\s")),expected);
+        System.out.println("Discount: "+commonAction.getText(loc_lblDiscountAmount));
+        Assert.assertEquals(commonAction.getText(loc_lblDiscountAmount).replaceAll("[^\\dđ]", ""),expected);
         logger.info("Verify discount amount.");
         return this;
     }
@@ -300,5 +364,10 @@ public class Checkout extends CheckoutElement {
         clickOnConfirmButtonOnUpdateAddresModal();
         clickOnConfirmbuttonOnShippingAddressModal();
         return this;
+    }
+    public int getShippingFee(){
+        int shippingFee = Integer.parseInt(commonAction.getText(loc_lblShippingFee).replaceAll("[^\\d]",""));
+        logger.info("Shipping free: "+shippingFee);
+        return shippingFee;
     }
 }

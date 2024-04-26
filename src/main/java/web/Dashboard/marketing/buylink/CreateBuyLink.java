@@ -64,9 +64,9 @@ public class CreateBuyLink extends HomePage {
     public CreateBuyLink searchAndSelectProduct(String... productNames){
         for (String productName : productNames) {
             commonAction.sendKeys(loc_txtSearch, productName);
-            commonAction.sleepInMiliSecond(1000);
+            commonAction.sleepInMiliSecond(500);
             waitTillLoadingDotsDisappear();
-            commonAction.sleepInMiliSecond(2000);
+            commonAction.sleepInMiliSecond(500);
             if (commonAction.getText(loc_lst_lblProductNameSuggestion,0).equalsIgnoreCase(productName)) {
                 commonAction.click(loc_lst_lblProductNameSuggestion,0);
             } else {
@@ -83,6 +83,7 @@ public class CreateBuyLink extends HomePage {
     public CreateBuyLink searchAndSelectPromotion(String promotionName) throws Exception {
         commonAction.sendKeys(loc_txtSearch, promotionName);
         boolean isSelected = false;
+        commonAction.waitForListLoaded(loc_lst_lblCouponName,2);
         List<WebElement> couponNameElements = commonAction.getElements(loc_lst_lblCouponName);
         for (WebElement el : couponNameElements) {
             if (commonAction.getText(el).equalsIgnoreCase(promotionName)) {
@@ -143,8 +144,8 @@ public class CreateBuyLink extends HomePage {
     }
     public boolean isProductShowWhenSearch(String productName){
         commonAction.inputText(loc_txtSearch,productName);
-        new HomePage(driver).waitTillLoadingDotsDisappear();
         commonAction.sleepInMiliSecond(1000);
+        new HomePage(driver).waitTillLoadingDotsDisappear();
         List<WebElement> productNames = new ArrayList<>();
         for (int j=0;j<5;j++){
             productNames = commonAction.getElements(loc_lst_lblProductNameSuggestion);

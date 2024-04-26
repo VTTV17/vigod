@@ -10,7 +10,7 @@ import org.testng.asserts.SoftAssert;
 import web.StoreFront.header.HeaderSF;
 import web.StoreFront.userprofile.MembershipInfo;
 import web.StoreFront.userprofile.MyAddress;
-import web.StoreFront.userprofile.MyOrders;
+import web.StoreFront.userprofile.myorder.MyOrders;
 import utilities.commons.UICommonAction;
 import java.time.Duration;
 

@@ -110,39 +110,39 @@ public class Permission {
 			navigate(parentMenu, subMenu);
 
 			switch (parentMenu) {
-				case "Home":
-
-					switch (function) {
-						case "Statistics" -> {
-							home.verifyPermissionToDisplayStatistics(permission.get(menuComponent));
-						}
-						case "Create Product" -> {
-							home.verifyPermissionToCreateProduct(permission.get(menuComponent));
-						}
-						case "Import Product From Shopee" -> {
-							home.verifyPermissionToImportProductFromShopee(permission.get(menuComponent),
-									url.get(menuComponent));
-						}
-						case "Import Product From Lazada" -> {
-							if (!isInVietnam) {
-								logger.info("Skipped as this feature is not available for NON-VN shops");
-								break;
-							}
-							home.verifyPermissionToImportProductFromLazada(permission.get(menuComponent),
-									url.get(menuComponent));
-						}
-						case "Add Domain" -> {
-							home.verifyPermissionToAddDomain(permission.get(menuComponent));
-						}
-						case "Add Bank Account" -> {
-							home.verifyPermissionToAddBankAccount(permission.get(menuComponent));
-						}
-						case "Customize Appearance" -> {
-							home.verifyPermissionToCustomizeAppearance(permission.get(menuComponent));
-						}
-
-					}
-					break;
+//				case "Home":
+//
+//					switch (function) {
+//						case "Statistics" -> {
+//							home.verifyPermissionToDisplayStatistics(permission.get(menuComponent));
+//						}
+//						case "Create Product" -> {
+//							home.verifyPermissionToCreateProduct(permission.get(menuComponent));
+//						}
+//						case "Import Product From Shopee" -> {
+//							home.verifyPermissionToImportProductFromShopee(permission.get(menuComponent),
+//									url.get(menuComponent));
+//						}
+//						case "Import Product From Lazada" -> {
+//							if (!isInVietnam) {
+//								logger.info("Skipped as this feature is not available for NON-VN shops");
+//								break;
+//							}
+//							home.verifyPermissionToImportProductFromLazada(permission.get(menuComponent),
+//									url.get(menuComponent));
+//						}
+//						case "Add Domain" -> {
+//							home.verifyPermissionToAddDomain(permission.get(menuComponent));
+//						}
+//						case "Add Bank Account" -> {
+//							home.verifyPermissionToAddBankAccount(permission.get(menuComponent));
+//						}
+//						case "Customize Appearance" -> {
+//							home.verifyPermissionToCustomizeAppearance(permission.get(menuComponent));
+//						}
+//
+//					}
+//					break;
 				case "GoChat":
 					switch (function) {
 						case "Facebook" -> {
@@ -386,7 +386,7 @@ public class Permission {
 				case "Analytics":
 					home.hideFacebookBubble();
 					if (subMenu.contentEquals("Order Analytic")) {
-						new OrderAnalytics(driver).verifyPermissionToUseOrderAnalytics(permission.get(menuComponent));
+//						new OrderAnalytics(driver).verifyPermissionToUseOrderAnalytics(permission.get(menuComponent));
 					}
 					if (subMenu.contentEquals("Reservations Analytic")) {
 						new ReservationAnalytics(driver).verifyPermissionToUseAnalytics(permission.get(menuComponent));

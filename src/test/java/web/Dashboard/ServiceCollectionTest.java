@@ -85,7 +85,7 @@ public class ServiceCollectionTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
     @AfterClass
     public void callAPIDeleteData(){
@@ -107,6 +107,7 @@ public class ServiceCollectionTest extends BaseTest {
     public CreateServiceCollection loginAndNavigateToCreateServiceCollection() throws Exception {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userNameDb, passwordDb);
+        new HomePage(driver).selectLanguage(languageDashboard);
         createServiceCollection = new CreateServiceCollection(driver);
         return createServiceCollection.navigate(languageDashboard);
     }
@@ -237,6 +238,7 @@ public class ServiceCollectionTest extends BaseTest {
     public void checkPlanPermission(String userName, boolean hasPermission) throws Exception {
         loginDashboard = new LoginPage(driver);
         loginDashboard.navigate().performLogin(userName, passwordCheckPermission);
+        new HomePage(driver).selectLanguage(languageDashboard);
         ServiceCollectionManagement serviceCollectionManagement = new ServiceCollectionManagement(driver);
         serviceCollectionManagement.navigate();
         if(hasPermission){

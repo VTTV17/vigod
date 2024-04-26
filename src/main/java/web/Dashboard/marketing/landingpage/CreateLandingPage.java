@@ -151,6 +151,7 @@ public class CreateLandingPage {
 	}
 	public boolean isProductShowWhenSearch(String productName){
 		commonAction.inputText(loc_txtSearchProduct,productName);
+		commonAction.sleepInMiliSecond(100);
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		List<WebElement> productNames = new ArrayList<>();
 		for (int j=0;j<5;j++){

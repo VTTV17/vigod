@@ -72,6 +72,7 @@ public class ShippingAndPayment {
     		if (!commonAction.getElements(elements.loc_imgPaypal).isEmpty()) break;
     		commonAction.sleepInMiliSecond(500);
     	}
+    	commonAction.sleepInMiliSecond(1000, "Wait a little after navigation");
 		return this;
 	}		
 	
@@ -94,7 +95,6 @@ public class ShippingAndPayment {
 	}	
 
 	public String getGoogleAPIKey() {
-		commonAction.sleepInMiliSecond(500, "Wait in getGoogleAPIKey");
 		String value = commonAction.getAttribute(elements.loc_txtGoogleAPIKey, "value");
 		logger.info("Retrieved Google API Key: " + value);
 		return value;
@@ -107,70 +107,60 @@ public class ShippingAndPayment {
 	}
 	
 	boolean isGHTKTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkGHTK, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is GHTK turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 	
 	boolean isGHNTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkGHN, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is GHN turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 	
 	boolean isAhamoveTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkAhamove, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Ahamove turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 	
 	boolean isVNPostTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkVnPost, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is VNPost turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}
 
 	boolean isSelfDeliveryTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_blkSelfDelivery, elements.loc_btnToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Self-Delivery turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isLocalATMTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnATMToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Local ATM turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isCreditCardTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCreditCardToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Credit Card turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isCODTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCODToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Cash On Delivery turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isCashTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnCashToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Cash turned on: " + isTurnedOn);
 		return isTurnedOn;
 	}	
 	
 	boolean isDebtTurnedOn() {
-		commonAction.sleepInMiliSecond(500, "Wait a little before getting toggle status");
 		boolean isTurnedOn = commonAction.getElement(new ByChained(elements.loc_btnDebtToggle, elements.loc_tmpInput)).isSelected();
 		logger.info("Is Debt turned on: " + isTurnedOn);
 		return isTurnedOn;
@@ -267,6 +257,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnATMToggle);
 		logger.info("Clicked on Local ATM toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 	
@@ -277,6 +268,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnCreditCardToggle);
 		logger.info("Clicked on Credit Card toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 	
@@ -287,6 +279,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnCODToggle);
 		logger.info("Clicked on Cash On Delivery toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 	
@@ -297,6 +290,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnCashToggle);
 		logger.info("Clicked on Cash toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 	
@@ -307,6 +301,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnDebtToggle);
 		logger.info("Clicked on Debt toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 	
@@ -321,6 +316,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnPaypalToggle);
 		logger.info("Clicked on Paypal toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 	
@@ -331,6 +327,7 @@ public class ShippingAndPayment {
 		}
 		commonAction.click(elements.loc_btnBankTransferToggle);
 		logger.info("Clicked on Bank-Transfer toggle button.");
+		commonAction.sleepInMiliSecond(500, "Wait a little after click on toggles");
 		return this;
 	}
 
@@ -593,6 +590,11 @@ public class ShippingAndPayment {
     	}
     }
 
+    void confirmToSwitchOffToggles() {
+    	new ConfirmationDialog(driver).clickOKBtn();
+    	commonAction.sleepInMiliSecond(500, "Wait a little after clicking on OK button in confirmation dialog");
+    }
+    
 	void checkPermissionToEnableDisableShippingPayment(AllPermissions staffPermission) {
 		boolean originalStatus;
 		
@@ -600,7 +602,7 @@ public class ShippingAndPayment {
 		originalStatus = isGHTKTurnedOn();
 		clickGHTKToggle();
 		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
-			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			if (originalStatus) confirmToSwitchOffToggles();
 			clickShippingProviderSaveBtn();
 			if (originalStatus) {
 				if (isGHNTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
@@ -621,7 +623,7 @@ public class ShippingAndPayment {
 		originalStatus = isGHNTurnedOn();
 		clickGHNToggle();
 		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
-			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			if (originalStatus) confirmToSwitchOffToggles();
 			clickShippingProviderSaveBtn();
 			if (originalStatus) {
 				if (isGHTKTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
@@ -642,7 +644,7 @@ public class ShippingAndPayment {
 		originalStatus = isAhamoveTurnedOn();
 		clickAhamoveToggle();
 		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
-			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			if (originalStatus) confirmToSwitchOffToggles();
 			clickShippingProviderSaveBtn();
 			if (originalStatus) {
 				if (isGHTKTurnedOn()|isGHNTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
@@ -663,7 +665,7 @@ public class ShippingAndPayment {
 		originalStatus = isVNPostTurnedOn();
 		clickVNPostToggle();
 		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
-			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			if (originalStatus) confirmToSwitchOffToggles();
 			clickShippingProviderSaveBtn();
 			if (originalStatus) {
 				if (isGHTKTurnedOn()|isGHNTurnedOn()|isAhamoveTurnedOn()|isSelfDeliveryTurnedOn()) {
@@ -683,7 +685,7 @@ public class ShippingAndPayment {
 		navigateToDetailScreenByURL();
 		originalStatus = isSelfDeliveryTurnedOn();
 		clickSelfDeliveryToggle();
-		if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+		if (originalStatus) confirmToSwitchOffToggles();
 		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisableSelfDeliveryMethod()) {
 			clickShippingProviderSaveBtn();
 			if (originalStatus) {
@@ -704,6 +706,123 @@ public class ShippingAndPayment {
 		//Re-enable SelfDelivery so that it facilitate testing of other permissions
 		enableSelfDelivery();
 		clickShippingProviderSaveBtn();
+		commonAction.sleepInMiliSecond(2000, "Wait a little after clicking on Save button to save delivery configuration");
+		
+		logger.info("Finished checkPermissionToEnableDisableShippingPayment");
+	}
+	
+	void checkPermissionToEnableDisableShippingPayment1(AllPermissions staffPermission) {
+		boolean originalStatus;
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isGHTKTurnedOn();
+		clickGHTKToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) confirmToSwitchOffToggles();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHNTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isGHTKTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isGHTKTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isGHNTurnedOn();
+		clickGHNToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) confirmToSwitchOffToggles();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isGHNTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isGHNTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}		
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isAhamoveTurnedOn();
+		clickAhamoveToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) confirmToSwitchOffToggles();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isGHNTurnedOn()|isVNPostTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isAhamoveTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isAhamoveTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isVNPostTurnedOn();
+		clickVNPostToggle();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisable3rdShippingMethod()) {
+			if (originalStatus) confirmToSwitchOffToggles();
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isGHNTurnedOn()|isAhamoveTurnedOn()|isSelfDeliveryTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isVNPostTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isVNPostTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		navigateToDetailScreenByURL();
+		originalStatus = isSelfDeliveryTurnedOn();
+		clickSelfDeliveryToggle();
+		if (originalStatus) confirmToSwitchOffToggles();
+		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisableSelfDeliveryMethod()) {
+			clickShippingProviderSaveBtn();
+			if (originalStatus) {
+				if (isGHTKTurnedOn()|isGHNTurnedOn()|isAhamoveTurnedOn()|isVNPostTurnedOn()) {
+					Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+					Assert.assertNotEquals(isSelfDeliveryTurnedOn(), originalStatus);
+				} else {
+					new ConfirmationDialog(driver).clickYellowBtn();
+				}
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+				Assert.assertNotEquals(isSelfDeliveryTurnedOn(), originalStatus);
+			}
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}		
+		
+		//Re-enable SelfDelivery so that it facilitate testing of other permissions
+		enableSelfDelivery();
+		clickShippingProviderSaveBtn();
+		commonAction.sleepInMiliSecond(2000, "Wait a little after clicking on Save button to save delivery configuration");
 		
 		logger.info("Finished checkPermissionToEnableDisableShippingPayment");
 	}
@@ -745,7 +864,7 @@ public class ShippingAndPayment {
 		originalStatus = isLocalATMTurnedOn();
 		clickLocalATMToggle();
 		if (staffPermission.getSetting().getShippingAndPayment().isEnableDisablePaymentMethod()) {
-			if (originalStatus) new ConfirmationDialog(driver).clickOKBtn();
+			if (originalStatus) confirmToSwitchOffToggles();
 			Assert.assertNotEquals(isLocalATMTurnedOn(), originalStatus);
 		} else {
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());

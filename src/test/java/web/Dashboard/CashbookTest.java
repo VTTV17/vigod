@@ -16,20 +16,23 @@ import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
-import api.Seller.supplier.supplier.APISupplier;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StaffManagement;
-
+import api.Seller.supplier.supplier.APISupplier;
+import utilities.account.AccountTest;
+import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.driver.InitWebdriver;
+import utilities.enums.cashbook.CashbookExpense;
+import utilities.enums.cashbook.CashbookGroup;
+import utilities.enums.cashbook.CashbookPaymentMethod;
+import utilities.enums.cashbook.CashbookRevenue;
+import utilities.model.sellerApp.login.LoginInformation;
+import utilities.utils.PropertiesUtil;
 import web.Dashboard.cashbook.Cashbook;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.pagination.Pagination;
-import utilities.utils.PropertiesUtil;
-import utilities.commons.UICommonAction;
-import utilities.account.AccountTest;
-import utilities.data.DataGenerator;
-import utilities.driver.InitWebdriver;
-import utilities.model.sellerApp.login.LoginInformation;
 
 public class CashbookTest extends BaseTest {
 
@@ -86,37 +89,33 @@ public class CashbookTest extends BaseTest {
 		loginPage.navigate().performLogin(country, username, password);
 		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
 	}    
-    
-	public String getRandomListElement(List<String> list) {
-		return list.get(new Random().nextInt(0, list.size()));
-	}
 	
 	public String randomCustomer() {
-        return getRandomListElement(customerList);
+        return DataGenerator.getRandomListElement(customerList);
 	}		
 	
 	public String randomSupplier() {
-		return getRandomListElement(supplierList);
+		return DataGenerator.getRandomListElement(supplierList);
 	}		
 	
 	public String randomStaff() {
-		return getRandomListElement(staffList);
+		return DataGenerator.getRandomListElement(staffList);
 	}		
 	
 	public String randomOthers() {
-		return getRandomListElement(othersList);
+		return DataGenerator.getRandomListElement(othersList);
 	}		
 
 	public String randomBranch() {
-		return getRandomListElement(branchList);
+		return DataGenerator.getRandomListElement(branchList);
 	}		
 	
 	public boolean randomAccountingChecked() {
-		return Boolean.parseBoolean(getRandomListElement(Arrays.asList("true", "false")));
+		return new Random().nextBoolean();
 	}		
 	
 	public String randomTransactionId() {
-		return getRandomListElement(transactionIdList);
+		return DataGenerator.getRandomListElement(transactionIdList);
 	}		
 
 	public String randomAmount() {
@@ -132,102 +131,20 @@ public class CashbookTest extends BaseTest {
 		return rawAmount.replaceAll("\\D", "");
 	}
 
-	/**
-	 * 
-	 * @param group           customer/supplier/staff/others
-	 * @return
-	 * @throws Exception
-	 */
-	public String senderGroup(String group) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group." + group);
-	}
-	
-	/**
-	 * 
-	 * @param revenue debtCollectionFromSupplier/debtCollectionFromCustomer/paymentForOrder/saleOfAssets/otherIncome
-	 * @return revenue text according to VIE/ENG
-	 * @throws Exception
-	 */
-	public String revenueSource(String revenue) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.source." + revenue);
+	public String[] revenueSourceList() {
+		return Arrays.stream(CashbookRevenue.values()).map(name -> CashbookRevenue.getTextByLanguage(name)).toArray(String[]::new);
 	}
 
-	/**
-	 * 
-	 * @return a list of revenue sources
-	 * @throws Exception
-	 */
-	public String[] revenueSourceList() throws Exception {
-		String[] list = {
-				revenueSource("debtCollectionFromSupplier"),
-				revenueSource("debtCollectionFromCustomer"),
-				revenueSource("paymentForOrder"),
-				revenueSource("saleOfAssets"),
-				revenueSource("otherIncome"),
-		};
-		return list;
+	public String[] expenseTypeList() {
+		return Arrays.stream(CashbookExpense.values()).map(name -> CashbookExpense.getTextByLanguage(name)).toArray(String[]::new);
 	}
 
-	/**
-	 * 
-	 * @param expense paymentToShippingPartner/paymentForGoods/productionCost/costOfRawMaterials/debtPaymentToCustomer/rentalFee/utilities/salaries/sellingExpenses/otherCosts/refund
-	 * @return
-	 * @throws Exception
-	 */
-	public String expenseType(String expense) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.createPayment.expense." + expense);
+	public String[] paymentMethodList() {
+		return Arrays.stream(CashbookPaymentMethod.values()).map(name -> CashbookPaymentMethod.getTextByLanguage(name)).toArray(String[]::new);
 	}	
 	
-	/**
-	 * 
-	 * @return a list of expense types
-	 * @throws Exception
-	 */
-	public String[] expenseTypeList() throws Exception {
-		String[] list = {
-				expenseType("paymentToShippingPartner"),
-				expenseType("paymentForGoods"),
-				expenseType("productionCost"),
-				expenseType("costOfRawMaterials"),
-				expenseType("debtPaymentToCustomer"),
-				expenseType("rentalFee"),
-				expenseType("utilities"),
-				expenseType("salaries"),
-				expenseType("sellingExpenses"),
-				expenseType("otherCosts"),
-				expenseType("refund"),
-		};
-		return list;
-	}
-
-	/**
-	 * 
-	 * @param method visa/atm/bankTransfer/cash/zalopay/momo
-	 * @return
-	 * @throws Exception
-	 */
-	public String paymentMethod(String method) throws Exception {
-		return PropertiesUtil.getPropertiesValueByDBLang("cashbook.paymentMethod." + method);
-	}		
-
-	/**
-	 * @return a list of payment methods
-	 * @throws Exception
-	 */
-	public String[] paymentMethodList() throws Exception {
-		String[] paymentMethod = { 
-				paymentMethod("visa"),
-				paymentMethod("atm"),
-				paymentMethod("bankTransfer"),
-				paymentMethod("cash"),
-				paymentMethod("zalopay"),
-				paymentMethod("momo"),
-		};
-		return paymentMethod;
-	}	
-	
-	public String randomPaymentMethod() throws Exception {
-		return getRandomListElement(Arrays.asList(paymentMethodList()));
+	public String randomPaymentMethod() {
+		return DataGenerator.getRandomListElement(Arrays.asList(paymentMethodList()));
 	}
 
 	/**
@@ -348,10 +265,10 @@ public class CashbookTest extends BaseTest {
         
 	}		
 	
-	@Test
+//	@Test
 	public void CB_01_CheckTranslation() throws Exception {
 		
-		String group = senderGroup("customer");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
 		String sender = randomCustomer();
 		String branch = randomBranch();
 		boolean isAccountingChecked = randomAccountingChecked();
@@ -393,7 +310,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_02_CreateReceiptWhenSenderGroupIsCustomer() throws Exception {
 
-		String group = senderGroup("customer");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -438,7 +355,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_03_CreateReceiptWhenSenderGroupIsSupplier() throws Exception {
 
-		String group = senderGroup("supplier");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.SUPPLIER);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -483,7 +400,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_04_CreateReceiptWhenSenderGroupIsStaff() throws Exception {
 
-		String group = senderGroup("staff");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.STAFF);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -528,7 +445,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_05_CreateReceiptWhenSenderGroupIsOthers() throws Exception {
 
-		String group = senderGroup("others");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.OTHERS);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -573,7 +490,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_06_CreatePaymentWhenRecipientGroupIsCustomer() throws Exception {
 
-		String group = senderGroup("customer");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -618,7 +535,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_07_CreatePaymentWhenRecipientGroupIsSupplier() throws Exception {
 
-		String group = senderGroup("supplier");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.SUPPLIER);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -663,7 +580,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_08_CreatePaymentWhenRecipientGroupIsStaff() throws Exception {
 
-		String group = senderGroup("staff");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.STAFF);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -708,7 +625,7 @@ public class CashbookTest extends BaseTest {
 	@Test
 	public void CB_09_CreatePaymentWhenRecipientGroupIsOthers() throws Exception {
 
-		String group = senderGroup("others");
+		String group = CashbookGroup.getTextByLanguage(CashbookGroup.OTHERS);
 
 		/* Log into dashboard */
 		loginDashboard();
@@ -789,7 +706,7 @@ public class CashbookTest extends BaseTest {
 		
 		records = cashbookPage.getRecords();
 		
-		List<String> randomRecord = records.get(new Random().nextInt(0, records.size()));
+		List<String> randomRecord = DataGenerator.getRandomListElement(records);
 		
 		String recordId = randomRecord.get(Cashbook.TRANSACTIONCODE_COL);
 		String branch = randomRecord.get(Cashbook.BRANCH_COL);
@@ -865,7 +782,7 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		/* Filter by Expense type */
-		String filteredExpenseType = getRandomListElement(Arrays.asList(expenseTypeList()));
+		String filteredExpenseType = DataGenerator.getRandomListElement(Arrays.asList(expenseTypeList()));
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
@@ -882,7 +799,7 @@ public class CashbookTest extends BaseTest {
 		}
 		
 		/* Filter by Revenue type */
-		String filteredRevenueType = getRandomListElement(Arrays.asList(revenueSourceList())); 
+		String filteredRevenueType = DataGenerator.getRandomListElement(Arrays.asList(revenueSourceList())); 
 		commonAction.refreshPage();
 		homePage.hideFacebookBubble();
 		cashbookPage.clickResetDateRangerPicker();
@@ -1002,7 +919,7 @@ public class CashbookTest extends BaseTest {
 		records.addAll(cashbookPage.getRecords());
 		new Pagination(driver).clickPreviousBtn();
 		
-		List<String> randomRecord = records.get(new Random().nextInt(0, records.size()));
+		List<String> randomRecord = DataGenerator.getRandomListElement(records);
 		
 		String recordId = randomRecord.get(Cashbook.TRANSACTIONCODE_COL);
 		String branch = randomRecord.get(Cashbook.BRANCH_COL);

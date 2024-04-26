@@ -121,7 +121,7 @@ public class EmailCampaignManagement {
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnCreateEmailCampaign),
 					"[Failed] Restricted page not show when click on Create Email campaign button.");
 			navigateUrl();
-			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_icnClone),
+			if(hasViewCampaignListPers()) assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_icnClone),
 					"[Failed] Restricted page not show when click on Clone email campaign.");
 		}
 	}
@@ -138,40 +138,35 @@ public class EmailCampaignManagement {
 	}
 	public void checkPermissionEditCampaign(int draftId){
 		String editUrl = Links.DOMAIN + "/marketing/email/edit/"+draftId;
+		logger.info("editUrl: "+editUrl);
 		navigateUrl();
 		filterByStatus("Draft");
-		if(hasViewCampaignListPers()) {
 			if (hasEditCampaignPers()) {
-				commonAction.click(loc_icnEdit, 0);
-				checkPermissionViewSegment();
-				navigateUrl();
-				commonAction.click(loc_icnEdit, 0);
-				createEmailCampaign.clickOnSaveBtn();
-				String toastMessage = new HomePage(driver).getToastMessage();
-				try {
-					assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("marketing.emailCampaign.update.successMessage"),
-							"[Failed] Updated successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+				if(hasViewCampaignListPers()){
+					commonAction.click(loc_icnEdit, 0);
+					checkPermissionViewSegment();
+					navigateUrl();
+					filterByStatus("Draft");
+					commonAction.click(loc_icnEdit, 0);
+					createEmailCampaign.clickOnSaveBtn();
+					String toastMessage = new HomePage(driver).getToastMessage();
+					try {
+						assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("marketing.emailCampaign.update.successMessage"),
+								"[Failed] Updated successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}else {
+					// Don't have View campaign list, so edit page 404
+					commonAction.navigateToURL(editUrl);
+					commonAction.sleepInMiliSecond(1000);
+					new HomePage(driver).waitTillSpinnerDisappear1();
+					String currentUrl = commonAction.getCurrentURL();
+					assertCustomize.assertTrue(currentUrl.contains("/404"),"[Failed] 404 page not show when navigate to edit url: %s\nCurrent Url: %s ".formatted(editUrl,currentUrl));
 				}
-			} else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_icnEdit, 0),
-					"[Failed] Restricted page not show when click on Edit Email campaign button.");
-		}else {
-			if (hasEditCampaignPers()) {
-				commonAction.navigateToURL(editUrl);
-				checkPermissionViewSegment();
-				commonAction.navigateToURL(editUrl);
-				createEmailCampaign.clickOnSaveBtn();
-				String toastMessage = new HomePage(driver).getToastMessage();
-				try {
-					assertCustomize.assertEquals(toastMessage, PropertiesUtil.getPropertiesValueByDBLang("marketing.emailCampaign.update.successMessage"),
-							"[Failed] Updated successfully message should be shown, but '%s' is shown.".formatted(toastMessage));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+
 			} else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
 					"[Failed] Restricted page not show when click on Edit Email campaign button.");
-		}
 	}
 	public void checkPermissionDeleteCampaign(){
 		navigateUrl();

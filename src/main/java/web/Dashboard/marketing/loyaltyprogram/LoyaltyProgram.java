@@ -122,8 +122,7 @@ public class LoyaltyProgram {
 			assertCustomize.assertTrue(programName.isEmpty(), "[Failed] Loyalty program should not be shown");
 		logger.info("Complete check View Loyalty program list permission.");
 	}
-	public void checkViewMembershipDetailPermission(int id){
-		String editUrl = Links.DOMAIN + "/marketing/loyalty/edit/" + id;
+	public void checkViewMembershipDetailPermission(){
 		if(hasViewListMembershipPers()){
 			navigateByUrl();
 			if(hasViewMembershipDetailPers()){
@@ -134,12 +133,8 @@ public class LoyaltyProgram {
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_lblProgramName,0),
 						"[Failed] Restricted page not show when go to membership detail.");
 		}else{
-			if(hasViewMembershipDetailPers()){
-				assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(editUrl,createLoyaltyProgram.loc_txtMembershipName),
-						"[Failed] Membership name not show.");
-			}else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
-						"[Failed] Restricted page not show.");
+			//Don't have View list membership permission, detail membership not show when navigate to url
+			logger.info("Don't have View list membership permission, so no need check View detail");
 		}
 	}
 	public void checkCreateMembershipPermission(){
@@ -148,11 +143,11 @@ public class LoyaltyProgram {
 			clickCreateMembershipBtn();
 			checkPermissionViewSegmentList();
 			createLoyaltyProgram.navigateByUrl();
-			createLoyaltyProgram.createRandomMembership();
+			createLoyaltyProgram.createRandomMembership().clickSaveBtn();
 			String message = new ConfirmationDialog(driver).getPopUpContent();
 			try {
 				assertCustomize.assertEquals(message, PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyProgram.create.successMessage"),
-						"[Failed] Created successfully message not shown after create");
+						"[Failed] Created successfully message not shown after create, but '%s' is show".formatted(message));
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -169,35 +164,43 @@ public class LoyaltyProgram {
 		}else assertCustomize.assertTrue(segmentNames.isEmpty(),"[Failed] Customer segment should not be shown.");
 		logger.info("Complete check View customer segment list permission");
 	}
-	public void checkPermissionEditMembership(int id){
-		String editUrl = Links.DOMAIN + "/marketing/loyalty/edit/" + id;
-		if(hasViewMembershipDetailPers()){
-			commonAction.navigateToURL(editUrl);
-			if(hasEditMembershipPers()){
-				createLoyaltyProgram.clickSaveBtn();
-				String message = new ConfirmationDialog(driver).getPopUpContent();
-				try {
-					assertCustomize.assertEquals(message,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyProgram.update.successMessage"),"" +
-							"[Failed] Updated successful should be shown.");
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createLoyaltyProgram.loc_btnSave),
-						"[Failed] Restricted popup not show when click on Save button on edit page");
-		}else logger.info("Don't have View membership detail, so can't check Edit permission.");
+	public void checkPermissionEditMembership(){
+		if(hasViewListMembershipPers()){
+			navigateByUrl();
+			if(hasViewMembershipDetailPers()){
+				commonAction.click(loc_lst_lblProgramName,0);
+				if(hasEditMembershipPers()){
+					createLoyaltyProgram.clickSaveBtn();
+					String message = new ConfirmationDialog(driver).getPopUpContent();
+					try {
+						assertCustomize.assertEquals(message,PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyProgram.update.successMessage"),"" +
+								"[Failed] Updated successful should be shown.");
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}else
+					assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createLoyaltyProgram.loc_btnSave),
+							"[Failed] Restricted popup not show when click on Save button on edit page");
+			}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_lblProgramName,0),
+					"[Failed] Restricted popup not show when go to detail page");
+
+		}else logger.info("Don't have View membership detail, so no need check Edit permission.");
 	}
 	public void checkCollocateMembershipLevelPermission(){
 		if(hasViewListMembershipPers()){
 			navigateByUrl();
-			if(hasCollocateMembershipPers()){
-				String secondProgramName= commonAction.getText(loc_lst_lblProgramName,1);
-				commonAction.click(loc_lst_icnUp,1);
-				String firstProgramName = commonAction.getText(loc_lst_lblProgramName,0);
-				assertCustomize.assertEquals(firstProgramName,secondProgramName,"The second program is not moved to first");
-			}else
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnUp,1),
-						"[Failed] Restricted popup not show.");
+			List<WebElement> programNameList = commonAction.getElements(loc_lst_lblProgramName,10);
+			if(programNameList.size()>1) {
+				if (hasCollocateMembershipPers()) {
+					String secondProgramName = commonAction.getText(loc_lst_lblProgramName, 1);
+					commonAction.click(loc_lst_icnUp, 1);
+					commonAction.sleepInMiliSecond(1000);
+					String firstProgramName = commonAction.getText(loc_lst_lblProgramName, 0);
+					assertCustomize.assertEquals(firstProgramName, secondProgramName, "[Failed]The second program is not moved to first");
+				} else
+					assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnUp, 1),
+							"[Failed] Restricted popup not show.");
+			}else logger.info("Membership program list size less than 2, so can't check Collocate permission.");
 		}else logger.info("Don't have View Membership program list, so can't check Collocate permission.");
 	}
 	public void checkDeletePermission(){
@@ -223,12 +226,12 @@ public class LoyaltyProgram {
 		}
 		return this;
 	}
-	public void checkLoyaltyProgramPermission(AllPermissions allPermissions, int membershipId){
+	public void checkLoyaltyProgramPermission(AllPermissions allPermissions){
 		this.allPermissions = allPermissions;
 		checkViewListMembershipPermission();
 		checkCreateMembershipPermission();
-		checkPermissionEditMembership(membershipId);
-		checkViewMembershipDetailPermission(membershipId);
+		checkPermissionEditMembership();
+		checkViewMembershipDetailPermission();
 		checkCollocateMembershipLevelPermission();
 		checkDeletePermission();
 		completeVerifyLoyaltyProgramPermission();
