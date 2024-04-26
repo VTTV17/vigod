@@ -1,7 +1,7 @@
 package web.Dashboard.orders.pos;
 
 import api.Seller.customers.Customers;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.promotion.ProductDiscountCampaign.BranchDiscountCampaignInfo;
 import api.Seller.setting.BranchManagement;
@@ -206,7 +206,7 @@ public class POSPage extends POSElement {
         discountCampaignInfo = new ProductDiscountCampaign(loginInformation).getAllDiscountCampaignInfo(productInfo, listSegmentOfCustomer);
 
         // get wholesale product information
-        wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
+        wholesaleProductInfo = new WholesaleProduct(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // get customer information
         CustomerInfo customerInfo = new Customers(loginInformation).getInfo(customerId);

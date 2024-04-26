@@ -3,9 +3,9 @@ package web.Dashboard.supplier.purchaseorders.crud;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APISuggestionProduct.AllSuggestionProductsInfo;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders;
-import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders.PurchaseOrderInformation;
+import api.Seller.supplier.purchase_orders.APIPurchaseOrderDetail;
 import api.Seller.supplier.supplier.APISupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -447,14 +447,14 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
     void checkViewProductCostPrice(int purchaseId) {
         // get purchase info
-        PurchaseOrderInformation purchaseInfo = new APIAllPurchaseOrders(sellerLoginInformation).getPurchaseOrderInformation(purchaseId);
+        APIPurchaseOrderDetail.PurchaseOrderInformation purchaseInfo = new APIPurchaseOrderDetail(sellerLoginInformation).getPurchaseOrderInformation(purchaseId);
         long importQuantity = purchaseInfo.getPurchaseOrderItems_quantity().get(0);
         long importPrice = purchaseInfo.getPurchaseOrderItems_importPrice().get(0);
         int itemId = purchaseInfo.getPurchaseOderItems_itemId().get(0);
         Integer modelId = purchaseInfo.getPurchaseOderItems_modelId().get(0);
 
         // get first product information
-        ProductInfo productInfo = new ProductInformation(sellerLoginInformation).getInfo(itemId);
+        ProductInfo productInfo = new APIProductDetail(sellerLoginInformation).getInfo(itemId);
         String model = "%s%s".formatted(itemId, modelId == null ? "" : "-%s".formatted(modelId));
         long remainingStock = productInfo.getProductStockQuantityMap().get(model).stream().mapToInt(stock -> stock).asLongStream().sum();
         long costPrice = productInfo.getProductCostPrice().get(productInfo.getVariationModelList().indexOf(model));

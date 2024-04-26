@@ -46,4 +46,5 @@ public class ProductInfo {
     private Map<String, List<String>> variationAttributeNames;
     private Map<String, List<String>> variationAttributeValues;
     private Map<String, List<Boolean>> isDisplayVariationAttributes;
+    private List<Integer> stockAlert;
 }

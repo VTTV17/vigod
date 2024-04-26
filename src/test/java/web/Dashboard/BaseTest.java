@@ -41,9 +41,6 @@ public class BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
 //        new Screenshot().takeScreenshot(driver);
-
-        // reset count false
-        AssertCustomize.setCountFalse(0);
     }
 
     public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {

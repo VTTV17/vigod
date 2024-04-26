@@ -2,7 +2,7 @@ package app.Buyer.productDetail;
 
 import api.Seller.customers.Customers;
 import api.Seller.onlineshop.Preferences;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.FlashSale.FlashSaleInfo;
 import api.Seller.promotion.ProductDiscountCampaign;
@@ -16,7 +16,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
 import app.Buyer.buyergeneral.BuyerGeneral;
 import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.shopcart.BuyerShopCartPage;
@@ -414,7 +413,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
         List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
 
         // get wholesale config
-        if (!productInfo.isDeleted()) wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
+        if (!productInfo.isDeleted()) wholesaleProductInfo = new WholesaleProduct(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // get flash sale, discount campaign information
         flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());

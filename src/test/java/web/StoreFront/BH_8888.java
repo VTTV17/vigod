@@ -4,7 +4,7 @@ import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
@@ -56,7 +56,7 @@ public class BH_8888 extends BaseTest {
             productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -71,7 +71,7 @@ public class BH_8888 extends BaseTest {
             productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -87,7 +87,7 @@ public class BH_8888 extends BaseTest {
             productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -103,7 +103,7 @@ public class BH_8888 extends BaseTest {
             productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);

@@ -2,7 +2,7 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import org.testng.Assert;
@@ -222,7 +222,7 @@ public class ProductTransfer extends BaseTest {
 		
 		int quantity = Math.round(generate.generatNumberInBound(1, 5));
 		
-		ProductInfo productInfo = new ProductInformation(loginInformation).getInfo(productId);
+		ProductInfo productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 		
 		
 		String productBarcodeModel = productInfo.getVariationModelList().get(0);
@@ -421,7 +421,7 @@ public class ProductTransfer extends BaseTest {
 		
 		int quantity = Math.round(generate.generatNumberInBound(1, 20));
 		
-		ProductInfo productInfo = new ProductInformation(loginInformation).getInfo(productId);
+		ProductInfo productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 		
 		
 		String productBarcodeModel = productInfo.getVariationModelList().get(0);
@@ -539,7 +539,7 @@ public class ProductTransfer extends BaseTest {
 		int quantity = Math.round(generate.generatNumberInBound(1, 99));
 		
 		
-		ProductInfo productInfo = new ProductInformation(loginInformation).getInfo(productId);
+		ProductInfo productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 		
 		
 //		String productBarcodeModel = productInfo.getVariationModelList().get(0);

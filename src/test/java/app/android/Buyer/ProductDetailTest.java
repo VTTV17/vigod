@@ -3,7 +3,7 @@ package app.android.Buyer;
 import api.Seller.customers.Customers;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
@@ -77,7 +77,7 @@ public class ProductDetailTest extends BaseTest {
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -92,7 +92,7 @@ public class ProductDetailTest extends BaseTest {
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -108,7 +108,7 @@ public class ProductDetailTest extends BaseTest {
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -126,7 +126,7 @@ public class ProductDetailTest extends BaseTest {
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
                     .getProductID();
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // add wholesale product config
         new WholesaleProduct(loginInformation).addWholesalePriceProduct(productInfo);
@@ -206,7 +206,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -223,7 +223,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -240,7 +240,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -258,7 +258,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -276,7 +276,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -294,7 +294,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -315,7 +315,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
@@ -340,7 +340,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -365,7 +365,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
@@ -457,7 +457,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -475,7 +475,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -493,7 +493,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -511,7 +511,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -529,7 +529,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -547,7 +547,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -567,7 +567,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
@@ -591,7 +591,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
@@ -615,7 +615,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
@@ -705,7 +705,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -724,7 +724,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -743,7 +743,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -762,7 +762,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -781,7 +781,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -800,7 +800,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -819,7 +819,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -838,7 +838,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -857,7 +857,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -876,7 +876,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -897,7 +897,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
@@ -922,7 +922,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
@@ -947,7 +947,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
@@ -1039,7 +1039,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1058,7 +1058,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1077,7 +1077,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1096,7 +1096,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setHideStock(isHideStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1115,7 +1115,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1134,7 +1134,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1153,7 +1153,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1172,7 +1172,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1191,7 +1191,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1210,7 +1210,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).setShowOutOfStock(isDisplayIfOutOfStock).createVariationProduct(isIMEIProduct, increaseNum, branchStock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailPage
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1231,7 +1231,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
@@ -1256,7 +1256,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
@@ -1281,7 +1281,7 @@ public class ProductDetailTest extends BaseTest {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, stock).getProductID();
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 

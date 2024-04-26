@@ -3,7 +3,7 @@ package web.StoreFront.detail_product;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import api.Seller.onlineshop.Preferences;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.products.product_reviews.APIProductReviews;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.FlashSale.FlashSaleInfo;
@@ -656,7 +656,7 @@ public class ProductDetailPage extends ProductDetailElement {
 
         // get wholesale config
         if (!productInfo.isDeleted())
-            wholesaleProductInfo = new ProductInformation(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
+            wholesaleProductInfo = new WholesaleProduct(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);
 
         // verify on each variation
         for (String variationValue : productInfo.getVariationValuesMap().get(language)) {

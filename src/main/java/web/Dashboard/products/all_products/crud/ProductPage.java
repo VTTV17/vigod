@@ -1,7 +1,7 @@
 package web.Dashboard.products.all_products.crud;
 
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
@@ -313,7 +313,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("Product id: %s".formatted(productID));
 
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // navigate to product detail page by URL
         driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productID)));
@@ -926,7 +926,7 @@ public class ProductPage extends ProductPageElement {
     /* Active/Deactivate product */
     public ProductPage changeProductStatus(String status, int productID) {
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         if (!status.equals(productInfo.getBhStatus())) {
             // log
@@ -948,7 +948,7 @@ public class ProductPage extends ProductPageElement {
 
     public void deleteProduct(int productID) throws Exception {
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         if (!productInfo.isDeleted()) {
             // log
@@ -1100,7 +1100,7 @@ public class ProductPage extends ProductPageElement {
     public void changeVariationStatus(int productID) {
         // update variation product name and description
         // get current product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // update variation status
         for (String barcode : productInfo.getVariationModelList())
@@ -1110,7 +1110,7 @@ public class ProductPage extends ProductPageElement {
     public void editVariationTranslation(int productID) throws Exception {
         // update variation product name and description
         // get current product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         for (String barcode : productInfo.getVariationModelList())
             new VariationDetailPage(driver, barcode, productInfo, loginInformation).updateVariationProductNameAndDescription(productInfo.getVariationStatus().get(productInfo.getVariationModelList().indexOf(barcode)));
@@ -1208,7 +1208,7 @@ public class ProductPage extends ProductPageElement {
         logger.info("List languages are not translated: %s.".formatted(langCodeList.toString()));
 
         // get product information
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
 
         // add translation
         for (int langIndex = 0; langIndex < langCodeList.size(); langIndex++) {
@@ -2599,7 +2599,7 @@ public class ProductPage extends ProductPageElement {
         // check view product detail permission
         if (permissions.getProduct().getProductManagement().isViewProductDetail()) {
             // get product information
-            productInfo = new ProductInformation(loginInformation).getInfo(productId);
+            productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
             // navigate to product detail page
             navigateToProductDetailById(productId);
@@ -2804,7 +2804,7 @@ public class ProductPage extends ProductPageElement {
         navigateToProductDetailById(productId);
 
         // get current productInfo
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // check permission
         if (!permissions.getProduct().getProductManagement().isActivateProduct() && productInfo.getBhStatus().equals("INACTIVE")) {
@@ -2821,7 +2821,7 @@ public class ProductPage extends ProductPageElement {
         navigateToProductDetailById(productId);
 
         // get current product info
-        productInfo = new ProductInformation(loginInformation).getInfo(productId);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // check permission
         if (!permissions.getProduct().getProductManagement().isDeactivateProduct() && productInfo.getBhStatus().equals("ACTIVE")) {

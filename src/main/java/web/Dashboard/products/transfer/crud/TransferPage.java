@@ -2,7 +2,7 @@ package web.Dashboard.products.transfer.crud;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APISuggestionProduct;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.transfer.TransferManagement;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
@@ -338,7 +338,7 @@ public class TransferPage extends TransferElement {
                                 .formatted(originBranchName, destinationBranch));
 
                 if (manageTypes.equals("IMEI_SERIAL_NUMBER")) {
-                    List<String> listIMEI = new ProductInformation(loginInformation).getListIMEI(itemId, modelId, originBranchId);
+                    List<String> listIMEI = new APIProductDetail(loginInformation).getListIMEI(itemId, modelId, originBranchId);
                     this.selectIMEI(listIMEI.subList(0, (int) transferredQuantity).toArray(new String[0]));
                 }
             } else throw new Exception("Must have at least 2 branches to create a new transfer.");

@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -60,8 +60,8 @@ public class CreateQuotationTest extends BaseTest {
         loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
         customerList = new Customers(loginInformation).getAllAccountCustomer();
         productList = new APIAllProducts(loginInformation).getAllProductNames();
-        productIDList = new ProductInformation(loginInformation).getProductList();
-        convUnitProductList = new ProductInformation(loginInformation).getIdAndNameOfProductWithConversionUnits();
+        productIDList = new APIProductDetail(loginInformation).getProductList();
+        convUnitProductList = new APIProductDetail(loginInformation).getIdAndNameOfProductWithConversionUnits();
 	}		
 	
 	public void instantiatePageObjects() {

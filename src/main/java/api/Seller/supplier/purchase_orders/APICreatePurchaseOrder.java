@@ -2,7 +2,7 @@ package api.Seller.supplier.purchase_orders;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.setting.BranchManagement;
 import api.Seller.supplier.supplier.APISupplier;
 import io.restassured.path.json.JsonPath;
@@ -30,7 +30,7 @@ public class APICreatePurchaseOrder {
                 .getBranchID() // get list branch ID
                 .get(0); // get first branch in list
         int itemId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 1).getProductID();
-        String inventoryManageType = new ProductInformation(loginInformation).getInfo(itemId).getManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
+        String inventoryManageType = new APIProductDetail(loginInformation).getInfo(itemId).getManageInventoryByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
         String body = """
                 {
                     "note": "",

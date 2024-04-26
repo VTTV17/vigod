@@ -2,7 +2,7 @@ package api.Seller.products.transfer;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APISuggestionProduct;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.setting.BranchManagement;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -48,7 +48,7 @@ public class CreateTransfer {
         String modelId = info.getModelIds().get(0);
         long transferredQuantity = nextLong(info.getRemainingStocks().get(0)) + 1;
         String costList = manageTypes.equals("IMEI_SERIAL_NUMBER")
-                ? getCostList(itemId, modelId, originBranchId, new ProductInformation(loginInformation).getListIMEI(itemId, modelId, originBranchId), transferredQuantity).toString()
+                ? getCostList(itemId, modelId, originBranchId, new APIProductDetail(loginInformation).getListIMEI(itemId, modelId, originBranchId), transferredQuantity).toString()
                 : "[]";
         return """
                 {

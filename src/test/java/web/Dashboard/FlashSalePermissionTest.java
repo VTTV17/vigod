@@ -4,7 +4,7 @@ import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.promotion.FlashSale;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
@@ -77,7 +77,7 @@ public class FlashSalePermissionTest extends BaseTest{
         int flashSaleId = new FlashSale(ownerCredentials).getAFlashSaleScheduled();
         if(flashSaleId==0){
             int productId = new APIAllProducts(ownerCredentials).getProductIDWithoutVariationAndInStock(false, false, true);
-            ProductInfo productInfo = new ProductInformation(ownerCredentials).getInfo(productId);
+            ProductInfo productInfo = new APIProductDetail(ownerCredentials).getInfo(productId);
             new FlashSale(ownerCredentials).createFlashSale(productInfo);
             flashSaleId = new FlashSale(ownerCredentials).getAFlashSaleScheduled();
         }

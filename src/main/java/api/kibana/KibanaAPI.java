@@ -41,7 +41,7 @@ public class KibanaAPI {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("kbn-version", "6.4.1");
         
-		Response results = api.post(searchPath, "noTokenNeeded", headerMap, body1.formatted(username, startTimestamp, endTimestamp, username, startTimestamp, endTimestamp));
+		Response results = api.post(searchPath, "noTokenNeeded", body1.formatted(username, startTimestamp, endTimestamp, username, startTimestamp, endTimestamp), headerMap);
 		
 		return results.then().statusCode(200).extract().jsonPath();
 	}

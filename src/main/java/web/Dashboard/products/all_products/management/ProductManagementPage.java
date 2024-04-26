@@ -2,8 +2,8 @@ package web.Dashboard.products.all_products.management;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.products.all_products.ProductInformation;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -205,7 +205,7 @@ public class ProductManagementPage extends ProductManagementElement {
         List<String> productIds = getAllProductIdIn1stPage();
 
         // get before update stock in item-service
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
         Map<String, List<Integer>> beforeUpdateStocksInItemService = productInformation.getCurrentProductStocksMap(productIds);
 
         // get before update stock in ES
@@ -280,7 +280,7 @@ public class ProductManagementPage extends ProductManagementElement {
                     "Product is not deleted in ES.");
 
             // check product must be deleted in item-service
-            List<Boolean> isDeleted = new ProductInformation(sellerLoginInformation).isDeleted(productIds);
+            List<Boolean> isDeleted = new APIProductDetail(sellerLoginInformation).isDeleted(productIds);
             assertCustomize.assertEquals(checkProductCanBeDeleted, isDeleted, "Product is not deleted in item-service.");
 
             // log
@@ -311,7 +311,7 @@ public class ProductManagementPage extends ProductManagementElement {
             waitUpdated();
 
             // check product status after updating
-            assertCustomize.assertTrue(new ProductInformation(sellerLoginInformation)
+            assertCustomize.assertTrue(new APIProductDetail(sellerLoginInformation)
                             .getListProductStatus(productIds)
                             .stream()
                             .allMatch(status -> status.equals("INACTIVE")),
@@ -345,7 +345,7 @@ public class ProductManagementPage extends ProductManagementElement {
             waitUpdated();
 
             // check product in product management
-            assertCustomize.assertTrue(new ProductInformation(sellerLoginInformation)
+            assertCustomize.assertTrue(new APIProductDetail(sellerLoginInformation)
                             .getListProductStatus(productIds)
                             .stream()
                             .allMatch(status -> status.equals("ACTIVE")),
@@ -365,7 +365,7 @@ public class ProductManagementPage extends ProductManagementElement {
         List<String> productIds = getAllProductIdIn1stPage();
 
         // get before update stock in item-service
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
         Map<String, List<Integer>> beforeUpdateStocksInItemService = productInformation.getCurrentProductStocksMap(productIds);
 
         // get before update stock in ES
@@ -443,11 +443,11 @@ public class ProductManagementPage extends ProductManagementElement {
             waitUpdated();
 
             // check product status after updating
-            ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+            APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
             List<Integer> taxList = productInformation.getListProductTaxId(productIds);
             assertCustomize.assertTrue(IntStream.range(0, taxList.size())
                             .allMatch(index -> taxList.get(index) == newTaxId),
-                    "Tax of all selected products must be %s.".formatted(taxList.toString()));
+                    "Tax of selected products must be %s.".formatted(taxList.toString()));
 
             // log
             logger.info("Check product taxId after bulk actions: UPDATE TAX.");
@@ -493,7 +493,7 @@ public class ProductManagementPage extends ProductManagementElement {
         waitUpdated();
 
         // check product display after updating
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
         List<Boolean> showOutOfStock = productInformation.getDisplayWhenOutOfStock(productIds);
         assertCustomize.assertTrue(IntStream.range(0, showOutOfStock.size())
                         .noneMatch(showOutOfStock::get),
@@ -565,7 +565,7 @@ public class ProductManagementPage extends ProductManagementElement {
         waitUpdated();
 
         // check product display after updating
-        Map<String, List<Boolean>> sellingPlatforms = new ProductInformation(sellerLoginInformation).getMapOfListSellingPlatform(productIds);
+        Map<String, List<Boolean>> sellingPlatforms = new APIProductDetail(sellerLoginInformation).getMapOfListSellingPlatform(productIds);
         assertCustomize.assertTrue(new ArrayList<>(sellingPlatforms.get("onWeb")).stream()
                         .allMatch(webPlatform -> webPlatform == onWeb),
                 "Web platform of selected products must be %s, but found %s.".formatted(onWeb, sellingPlatforms.get("onWeb")));
@@ -600,18 +600,18 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(updatePrice), loc_dlgUpdatePrice);
 
         // get map of products price
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
         Map<String, List<Long>> mapOfProductsPrice = productInformation.getMapOfCurrentProductsPrice(productIds);
 
         // input listing price
         long maxListingPrice = Collections.max(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
-        long listingPrice = maxListingPrice + nextLong(MAX_PRICE - maxListingPrice);
+        long listingPrice = maxListingPrice + nextLong(Math.max(MAX_PRICE - maxListingPrice, 1));
         applyAll(listingPrice, getAllPriceTypes().indexOf(listing));
         logger.info("Input listing price: %,d.".formatted(listingPrice));
 
         // input selling price
         long maxSellingPrice = Collections.max(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
-        long sellingPrice = maxSellingPrice + nextLong(listingPrice - maxSellingPrice);
+        long sellingPrice = maxSellingPrice + nextLong(Math.max(listingPrice - maxSellingPrice, 1));
         applyAll(sellingPrice, getAllPriceTypes().indexOf(selling));
         logger.info("Input selling price: %,d.".formatted(sellingPrice));
 
@@ -642,6 +642,40 @@ public class ProductManagementPage extends ProductManagementElement {
 
 
     public void bulkSetStockAlert() {
+        // get list product need to updated
+        List<String> productIds = getAllProductIdIn1stPage();
+
+        // open bulk actions dropdown
+        openBulkActionsDropdown();
+
+        // open set stock alert popup
+        commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(setStockAlert), loc_dlgSetStockAlert);
+
+        // set new stock alert number
+        int stockAlertValue = nextInt(MAX_STOCK_QUANTITY);
+        commonAction.sendKeys(loc_dlgSetStockAlert_txtStockAlertValueForAllProducts, String.valueOf(stockAlertValue));
+        commonAction.click(loc_dlgSetStockAlert_btnApply);
+        logger.info("Bulk actions set stock alert: %d.".formatted(stockAlertValue));
+
+        // confirm update new stock alert value
+        commonAction.click(loc_dlgSetStockAlert_btnUpdate);
+
+        // check actions are completed or not
+        if (!commonAction.getListElement(loc_prgStatus).isEmpty()) {
+            // wait updated
+            waitUpdated();
+
+            // check product stock alert value after updating
+            APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
+            List<Integer> stockAlert = productInformation.getListOfProductStockAlert(productIds);
+            assertCustomize.assertTrue(IntStream.range(0, stockAlert.size())
+                            .allMatch(index -> stockAlert.get(index) == stockAlertValue),
+                    "Stock alert value of selected products must be %s.".formatted(stockAlert.toString()));
+
+            // log
+            logger.info("Check product stock alert value after bulk actions: SET STOCK ALERT.");
+        } else logger.error("Can not bulk actions set stock alert.");
+
         // verify test
         AssertCustomize.verifyTest();
     }
@@ -651,7 +685,7 @@ public class ProductManagementPage extends ProductManagementElement {
         List<String> productIds = getAllProductIdIn1stPage();
 
         // get current product lot date
-        ProductInformation productInformation = new ProductInformation(sellerLoginInformation);
+        APIProductDetail productInformation = new APIProductDetail(sellerLoginInformation);
         Map<String, List<Boolean>> beforeUpdateLotDate = productInformation.getMapOfCurrentManageByLotDate(productIds);
 
 
@@ -662,7 +696,7 @@ public class ProductManagementPage extends ProductManagementElement {
         commonAction.openPopupJS(loc_ddlListActions, bulkActionsValues().indexOf(manageStockByLotDate), loc_dlgManageProductByLotDate);
 
         // set expire
-        boolean expiredQuality = nextBoolean();
+        boolean expiredQuality = true;//nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity) != expiredQuality)
             commonAction.clickJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity);
         logger.info("Exclude expired quantity from remaining stock: %s.".formatted(expiredQuality));
@@ -676,8 +710,8 @@ public class ProductManagementPage extends ProductManagementElement {
         // check product display after updating
         Map<String, List<Boolean>> expectedMap = productInformation.getMapOfExpectedManageByLotDate(productIds, beforeUpdateLotDate, expiredQuality);
         Map<String, List<Boolean>> actualMap = productInformation.getMapOfCurrentManageByLotDate(productIds);
-        System.out.println(expectedMap);
-        System.out.println(actualMap);
+        System.out.println(expectedMap.get("expiredQuality"));
+        System.out.println(actualMap.get("expiredQuality"));
         assertCustomize.assertEquals(expectedMap, actualMap,
                 "Web platform of selected products must be %s, but found %s.");
 
@@ -686,7 +720,7 @@ public class ProductManagementPage extends ProductManagementElement {
     }
 
     /* Check permission */
-// ticket: https://mediastep.atlassian.net/browse/BH-13814
+    // ticket: https://mediastep.atlassian.net/browse/BH-13814
     public void checkProductManagementPermission(AllPermissions permissions) throws Exception {
         // get staff permission
         this.permissions = permissions;

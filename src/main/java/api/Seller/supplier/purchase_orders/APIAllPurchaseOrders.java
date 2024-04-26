@@ -10,8 +10,10 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static api.Seller.supplier.purchase_orders.APIAllPurchaseOrders.PurchaseOrderStatus.*;
 
 public class APIAllPurchaseOrders {
     API api = new API();
@@ -22,15 +24,20 @@ public class APIAllPurchaseOrders {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
+
     @Data
     public static class AllPurchaseOrdersInformation {
         List<Integer> ids;
         List<String> purchaseIds;
         List<String> supplierNames;
         List<String> branchNames;
-        List<String> statues;
+        List<PurchaseOrderStatus> statues;
         List<Long> amounts;
         List<String> staffCreated;
+    }
+
+    enum PurchaseOrderStatus {
+        ORDER, IN_PROGRESS, COMPLETED, CANCELLED
     }
 
     String getListPurchaseOrderPath = "/itemservice/api/purchase-orders/store-id/%s?keyword=&page=%s&size=100%s";
@@ -87,7 +94,7 @@ public class APIAllPurchaseOrders {
         info.setSupplierNames(supplierNames);
         info.setBranchNames(branchNames);
         info.setAmounts(amounts);
-        info.setStatues(statues);
+        info.setStatues(statues.stream().map(PurchaseOrderStatus::valueOf).toList());
         info.setStaffCreated(staffCreated);
 
         // return model
@@ -120,9 +127,9 @@ public class APIAllPurchaseOrders {
         AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
         List<Integer> ids = info.getIds();
         List<String> branchNames = info.getBranchNames();
-        List<String> statues = info.getStatues();
+        List<PurchaseOrderStatus> statues = info.getStatues();
         return ids.stream()
-                .filter(id -> statues.get(ids.indexOf(id)).equals("ORDER")
+                .filter(id -> Objects.equals(statues.get(ids.indexOf(id)), ORDER)
                         && assignedBranchNames.contains(branchNames.get(ids.indexOf(id))))
                 .findFirst()
                 .orElse(0);
@@ -132,51 +139,32 @@ public class APIAllPurchaseOrders {
         AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
         List<Integer> ids = info.getIds();
         List<String> branchNames = info.getBranchNames();
-        List<String> statues = info.getStatues();
+        List<PurchaseOrderStatus> statues = info.getStatues();
         return ids.stream()
-                .filter(id -> statues.get(ids.indexOf(id)).equals("IN_PROGRESS")
+                .filter(id -> Objects.equals(statues.get(ids.indexOf(id)), IN_PROGRESS)
                         && assignedBranchNames.contains(branchNames.get(ids.indexOf(id))))
                 .findFirst()
                 .orElse(0);
     }
 
-    @Data
-    public static class PurchaseOrderInformation {
-        int branchId;
-        List<Integer> purchaseOderItems_itemId;
-        List<Integer> purchaseOderItems_modelId;
-        List<Integer> purchaseOrderItems_quantity;
-        List<Long> purchaseOrderItems_importPrice;
-    }
+    public List<Integer> getListProductIdInNotCompletedPurchaseOrder() {
+        AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
+        List<Integer> purchaseOrderIds = info.getIds();
+        List<PurchaseOrderStatus> statues = info.getStatues();
 
-    String purchaseOrderDetailPath = "/itemservice/api/purchase-orders/%s";
+        // get list in-complete purchase order id
+        List<Integer> inCompletePurchaseIds = purchaseOrderIds.stream()
+                .filter(transferId -> !(Objects.equals(statues.get(purchaseOrderIds.indexOf(transferId)), CANCELLED)
+                        || Objects.equals(statues.get(purchaseOrderIds.indexOf(transferId)), COMPLETED)))
+                .toList();
 
-    Response getDetailOfPurchaseOrderResponse(int purchaseId) {
-        return api.get(purchaseOrderDetailPath.formatted(purchaseId), loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract().response();
-    }
+        // init purchase order api
+        APIPurchaseOrderDetail purchaseOrderDetail = new APIPurchaseOrderDetail(loginInformation);
 
-    public PurchaseOrderInformation getPurchaseOrderInformation(int purchaseId) {
-        // init model
-        PurchaseOrderInformation info = new PurchaseOrderInformation();
-
-        // get jsonPath
-        Response response = getDetailOfPurchaseOrderResponse(purchaseId);
-        JsonPath jsonPath = response.jsonPath();
-
-        // get purchase order info
-        info.setBranchId(jsonPath.getInt("branchId"));
-        info.setPurchaseOderItems_itemId(jsonPath.getList("purchaseOrderItems.itemId"));
-        info.setPurchaseOderItems_modelId(jsonPath.getList("purchaseOrderItems.modelId"));
-        info.setPurchaseOrderItems_quantity(jsonPath.getList("purchaseOrderItems.quantity"));
-        info.setPurchaseOrderItems_importPrice(Pattern.compile("importPrice\":\\s*\"*(\\d+\\w+)").matcher(response.asPrettyString())
-                .results()
-                .map(matchResult -> Long.valueOf(matchResult.group(1)))
-                .toList());
-
-        // return model
-        return info;
+        // get list itemId in in-complete purchase order
+        return inCompletePurchaseIds.stream()
+                .flatMap(purchaseId -> purchaseOrderDetail.getItemIds(purchaseId).stream())
+                .distinct()
+                .toList();
     }
 }

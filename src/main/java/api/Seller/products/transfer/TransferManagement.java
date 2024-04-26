@@ -96,7 +96,7 @@ public class TransferManagement {
                 .toList();
 
         // init transfer information api
-        TransferInformation transferInformation = new TransferInformation(loginInformation);
+        APITransferDetail transferInformation = new APITransferDetail(loginInformation);
 
         // get list itemId in in-complete transfer
         return inCompleteTransferIds.stream()

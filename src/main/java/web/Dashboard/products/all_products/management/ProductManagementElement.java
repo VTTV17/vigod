@@ -79,13 +79,15 @@ public class ProductManagementElement {
     By loc_dlgUpdatePrice_ddlPriceType = By.cssSelector(".modal-body .uik-select__optionList > .uik-select__option");
     By loc_dlgUpdatePrice_txtApplyAll = By.xpath("//*[@id='apply-all']/parent::div/parent::div//preceding-sibling::input");
     By loc_dlgUpdatePrice_btnApplyAll = By.cssSelector(".modal-body .gs-button__blue");
-    By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//*[contains(@name,'orgPrice')]//parent::div//parent::div//preceding-sibling::input");
-    By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//*[contains(@name,'newPrice')]//parent::div//parent::div//preceding-sibling::input");
     By loc_dlgUpdatePrice_txtCostPrice = By.xpath("//*[contains(@name,'costPrice')]//parent::div//parent::div//preceding-sibling::input");
     By loc_dlgUpdatePrice_btnUpdate = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgUpdatePrice_btnClose = By.cssSelector(".modal-footer .gs-button__gray--outline");
+    By loc_dlgSetStockAlert = By.cssSelector(".product-multiple-stock_alert_updater_modal");
+    By loc_dlgSetStockAlert_txtStockAlertValueForAllProducts = By.cssSelector("#stock-alert-all");
+    By loc_dlgSetStockAlert_btnApply = By.cssSelector(".product-multiple-stock_alert_updater_modal .gs-button__blue");
+    By loc_dlgSetStockAlert_btnUpdate = By.cssSelector(".product-multiple-stock_alert_updater_modal .gs-button__green");
     By loc_dlgConfirm_icnClose = By.cssSelector(".modal.fade.show .close");
     By loc_dlgManageProductByLotDate = By.cssSelector(".bulk-update-lot-type-modal");
     By loc_dlgManageProductByLotDate_chkExcludeExpireQuantity = By.cssSelector("#expiredQuantity");
-    By loc_dlgManageProductByLotDate_btnYes = By.cssSelector(".bulk-update-lot-type-modal");
+    By loc_dlgManageProductByLotDate_btnYes = By.cssSelector(".bulk-update-lot-type-modal .gs-button__green");
 }

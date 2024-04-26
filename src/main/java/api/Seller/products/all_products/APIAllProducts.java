@@ -2,7 +2,10 @@ package api.Seller.products.all_products;
 
 import api.Seller.affiliate.dropship.PartnerTransferManagement;
 import api.Seller.login.Login;
+import api.Seller.orders.order_management.APIAllOrders;
+import api.Seller.orders.return_order.APIAllReturnOrder;
 import api.Seller.products.transfer.TransferManagement;
+import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -20,7 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static api.Seller.products.all_products.ProductInformation.ProductInformationEnum.inventory;
+import static api.Seller.products.all_products.APIProductDetail.ProductInformationEnum.inventory;
 
 public class APIAllProducts {
     API api = new API();
@@ -369,7 +372,7 @@ public class APIAllProducts {
 
     public int getProductIdMatchWithConditions(boolean hasModel, boolean isManageByIMEI, boolean inStock, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
         List<Integer> listProductId = getListProductId(hasModel, branchIds);
-        ProductInformation productInfo = new ProductInformation(loginInformation);
+        APIProductDetail productInfo = new APIProductDetail(loginInformation);
         return listProductId.stream()
                 .mapToInt(productId -> productId)
                 .filter(productId -> productInfo.checkProductInfo(productId,
@@ -427,7 +430,7 @@ public class APIAllProducts {
     public List<Integer> getExpectedListProductStockQuantityAfterClearStock(List<String> productIds, Map<String, Integer> beforeUpdateStocks) {
         // get all products info
         Map<String, Integer> productStocks = new HashMap<>(beforeUpdateStocks);
-        ProductInformation productInformation = new ProductInformation(loginInformation);
+        APIProductDetail productInformation = new APIProductDetail(loginInformation);
         productIds.stream()
                 .filter(productId -> !productInformation.getInfo(Integer.parseInt(productId), inventory).getLotAvailable())
                 .forEach(productId -> productStocks.put(productId, 0));
@@ -451,7 +454,7 @@ public class APIAllProducts {
     public List<Integer> getExpectedListProductStockQuantityAfterUpdateStock(List<String> productIds, Map<String, Integer> beforeUpdateStocks, int newStock) {
         // get all products info
         Map<String, Integer> productStocks = new HashMap<>(beforeUpdateStocks);
-        ProductInformation productInformation = new ProductInformation(loginInformation);
+        APIProductDetail productInformation = new APIProductDetail(loginInformation);
         List<Integer> variationNumbers = getVariationNumber(productIds);
         productIds.forEach(productId -> {
             ProductInfo productInfo = productInformation.getInfo(Integer.parseInt(productId), inventory);
@@ -469,5 +472,15 @@ public class APIAllProducts {
         listProductIdThatInInCompleteTransfer.addAll(new TransferManagement(loginInformation).getListProductIdInNotCompletedTransfer());
         listProductIdThatInInCompleteTransfer.addAll(new PartnerTransferManagement(loginInformation).getListProductIdInNotCompletedTransfer());
         return listProductIdThatInInCompleteTransfer;
+    }
+
+    public List<Integer> getListProductIdThatIsCanNotManageByLotDate() {
+        List<Integer> listProductIdThatIsCanNotManageByLotDate = new ArrayList<>();
+        listProductIdThatIsCanNotManageByLotDate.addAll(getListProductIdThatInInCompleteTransfer());
+        listProductIdThatIsCanNotManageByLotDate.addAll(new APIAllPurchaseOrders(loginInformation).getListProductIdInNotCompletedPurchaseOrder());
+        listProductIdThatIsCanNotManageByLotDate.addAll(new APIAllReturnOrder(loginInformation).getListProductIdInNotCompletedReturnOrder());
+        listProductIdThatIsCanNotManageByLotDate.addAll(new APIAllOrders(loginInformation).getListProductIdInNotCompletedOrder());
+        return listProductIdThatIsCanNotManageByLotDate;
+
     }
 }

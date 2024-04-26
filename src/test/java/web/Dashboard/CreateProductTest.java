@@ -1,7 +1,7 @@
 package web.Dashboard;
 
 import api.Seller.customers.Customers;
-import api.Seller.products.all_products.ProductInformation;
+import api.Seller.products.all_products.APIProductDetail;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -51,7 +51,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -72,7 +72,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -93,7 +93,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -114,7 +114,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -136,7 +136,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -157,7 +157,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -178,7 +178,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -199,7 +199,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -222,7 +222,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -244,7 +244,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -266,7 +266,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -288,7 +288,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -310,7 +310,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -332,7 +332,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -355,7 +355,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -377,7 +377,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -399,7 +399,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -421,7 +421,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -443,7 +443,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
@@ -465,7 +465,7 @@ public class CreateProductTest extends BaseTest {
 //                .configConversionUnit()
                 .configWholesaleProduct();
         productID = ProductPage.getProductId();
-        productInfo = new ProductInformation(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
         new ProductDetailPage(driver)
                 .accessToProductDetailPageByProductIDAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }

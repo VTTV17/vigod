@@ -10,15 +10,15 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
 
-public class TransferInformation {
+public class APITransferDetail {
     String getTransferDetailPath = "/itemservice/api/transfers/detail/%s/%s";
-    Logger logger = LogManager.getLogger(TransferInformation.class);
+    Logger logger = LogManager.getLogger(APITransferDetail.class);
 
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
 
-    public TransferInformation(LoginInformation loginInformation) {
+    public APITransferDetail(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
