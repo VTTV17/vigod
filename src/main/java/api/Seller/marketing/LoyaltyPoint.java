@@ -61,6 +61,7 @@ public class LoyaltyPoint {
         response.then().statusCode(200);
         LoyaltyPointInfo info = new LoyaltyPointInfo();
         info.setId(response.jsonPath().getInt("id"));
+        info.setStoreId(response.jsonPath().getInt("storeId"));
         info.setEnabled(response.jsonPath().getBoolean("enabled"));
         info.setEnableExpiryDate(response.jsonPath().getBoolean("enableExpiryDate"));
         info.setExchangeAmount(response.jsonPath().getLong("exchangeAmount"));
@@ -72,37 +73,45 @@ public class LoyaltyPoint {
         info.setRatePoint(response.jsonPath().getInt("ratePoint"));
         info.setPurchased(response.jsonPath().getBoolean("purchased"));
         info.setShowPoint(response.jsonPath().getBoolean("showPoint"));
-        info.setExpirySince(response.jsonPath().getInt("expirySince"));
+        boolean containExpirySince = response.body().asString().toUpperCase().contains("expirysince");
+        if(containExpirySince)
+            info.setExpirySince(response.jsonPath().getInt("expirySince"));
+        else info.setExpirySince(0);
         return info;
     }
     public void enableOrDisableProgram(boolean isEnable){
         LoyaltyPointInfo info = getLoyaltyPointSetting();
         if(info.isEnabled() == isEnable) {
-            logger.info("Point program is %s, so no need call api to set up.".formatted(info.isEnabled()));
+            logger.info("Enable Point program is %s, so no need call api to set up.".formatted(info.isEnabled()));
             return;
         }
+        String expirySinceInBody = info.getExpirySince() ==0?"": String.valueOf(info.getExpirySince());
         String body = """
                 {
-                    "id": %s,
-                    "storeId": %s,
-                    "enabled": %s,
-                    "expirySince": %s,
-                    "showPoint": %s,
-                    "purchased": %s,
-                    "ratePoint": %s,
-                    "rateAmount": %s,
-                    "refered": %s,
-                    "introduced": %s,
-                    "checkouted": %s,
-                    "exchangePoint": %s,
-                    "exchangeAmount": %s,
-                    "enableExpiryDate": %s
+                    "clearPoint": false,
+                    "settingData":{
+                        "id": %s,
+                        "storeId": %s,
+                        "enabled": %s,
+                        "expirySince": "%s",
+                        "showPoint": %s,
+                        "purchased": %s,
+                        "ratePoint": %s,
+                        "rateAmount": %s,
+                        "refered": %s,
+                        "introduced": %s,
+                        "checkouted": %s,
+                        "exchangePoint": %s,
+                        "exchangeAmount": %s,
+                        "enableExpiryDate": %s
+                    }
                 }
-                """.formatted(info.getId(),info.getStoreId(),isEnable,info.getExpirySince(),info.isShowPoint(),
+                """.formatted(info.getId(),info.getStoreId(),isEnable,expirySinceInBody,info.isShowPoint(),
                 info.isPurchased(),info.getRatePoint(),info.getRateAmount(),info.isRefered(),info.isIntroduced(),
                 info.isCheckout(),info.getExchangePoint(),info.getExchangeAmount(),info.isEnableExpiryDate());
         Response response = new API().put(LOYALTY_POINT_PATH + loginInfo.getStoreID(),loginInfo.getAccessToken(),body);
         response.then().statusCode(200);
+        logger.info("Set up enable point program = "+isEnable);
 
     }
 }
