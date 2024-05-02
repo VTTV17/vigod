@@ -711,9 +711,9 @@ public class AllPermissions {
         // parse Marketing - Loyalty point
         String loyaltyPointPermission = getBinaryPermissionString(payloadJson, "staffPermissions[\"marketing-loyaltyPoint\"]");
         marketing.getLoyaltyPoint().setViewPointProgramInformation(checkPermission(loyaltyPointPermission, 0));
-        marketing.getLoyaltyPoint().setEnableProgram(checkPermission(loyaltyPointPermission, 0));
-        marketing.getLoyaltyPoint().setDisableProgram(checkPermission(loyaltyPointPermission, 0));
-        marketing.getLoyaltyPoint().setEditProgram(checkPermission(loyaltyPointPermission, 0));
+        marketing.getLoyaltyPoint().setEnableProgram(checkPermission(loyaltyPointPermission, 1));
+        marketing.getLoyaltyPoint().setDisableProgram(checkPermission(loyaltyPointPermission, 2));
+        marketing.getLoyaltyPoint().setEditProgram(checkPermission(loyaltyPointPermission, 3));
     }
 
     void setAnalytics(String payloadJson) {

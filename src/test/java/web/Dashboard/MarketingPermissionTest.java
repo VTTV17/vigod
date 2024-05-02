@@ -95,7 +95,7 @@ public class MarketingPermissionTest extends BaseTest {
             new LoyaltyProgram(ownerCredentials).deleteMembership(membershipProgramList.get(i));
         }
         super.writeResult(result);
-        driver.quit();
+//        driver.quit();
     }
     public int callAPIGetPublishedLandingPageId(){
         int publishedLandingId = new APILandingPage(ownerCredentials).getAPublishLandingPageId();
@@ -668,7 +668,6 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"111111"},
         };
     }
-    //Chua run
     //https://mediastep.atlassian.net/browse/BH-25140
     @Test(dataProvider = "LoyaltyProgramPermissionModel")
     public void checkLoyaltyProgramPermission(String permissionBinary){
@@ -715,7 +714,7 @@ public class MarketingPermissionTest extends BaseTest {
                 {"1111"},
         };
     }
-    @Test (dataProvider = "LoyaltyPoinntPermissionModel")
+    @Test (dataProvider = "LoyaltyPointPermissionModel")
     public void checkLoyaltyPointPermission(String binary){
         //Set permission
         CreatePermission model = new CreatePermission();
@@ -731,7 +730,7 @@ public class MarketingPermissionTest extends BaseTest {
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Push Notification");
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Loyalty Point");
         new LoyaltyPoint(driver).getLoginInformation(ownerCredentials)
                 .checkLoyaltyPointPermission(allPermissions);
     }

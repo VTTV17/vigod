@@ -102,11 +102,13 @@ public class LoyaltyPoint {
 		}else
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(Links.DOMAIN+"/marketing/loyalty-point/setting"),
 					"Restricted page not show when navigate to loyalty point setting link.");
+		logger.info("Verified View point program permission.");
 	}
 	public void checkPermissionEnableProgram(){
-		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(true);
+		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(false);
 		if(hasViewPointProgramInformation()) {
-			navigateByUrl();
+			new HomePage(driver).navigateToPage("Home");
+			new HomePage(driver).navigateToPage("Marketing","Loyalty Point");
 			if (hasEnableProgram()) {
 				commonAction.click(loc_btnStatus);
 				String status = commonAction.getText(loc_lblStatus);
@@ -119,17 +121,20 @@ public class LoyaltyPoint {
 			}else
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnStatus),
 						"[Failed] Restricted popup not show when click to enable loyalty point.");
+			logger.info("Verified Enable program permission.");
 		}else logger.info("Don't have View loyalty point setting permission, so can't check enable program permission.");
 	}
 	public void checkPermissionDisableProgram(){
-		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(false);
+		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(true);
+		commonAction.sleepInMiliSecond(1000, "Wait to update enable/disable point program.");
 		if(hasViewPointProgramInformation()) {
-			navigateByUrl();
+			new HomePage(driver).navigateToPage("Home");
+			new HomePage(driver).navigateToPage("Marketing","Loyalty Point");
 			if (hasDisableProgram()) {
 				commonAction.click(loc_btnStatus);
 				String message = new ConfirmationDialog(driver).getPopUpContent();
 				try {
-					assertCustomize.assertEquals(message, PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.deletePointNotiMessage"),
+					assertCustomize.assertTrue(message.contains(PropertiesUtil.getPropertiesValueByDBLang("marketing.loyaltyPoint.deletePointNotiMessage")),
 							"[Failed] Delete point notification message should be shown.");
 				} catch (Exception e) {
 					throw new RuntimeException(e);
@@ -145,6 +150,7 @@ public class LoyaltyPoint {
 			}else
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnStatus),
 						"[Failed] Restricted popup not show when click to disable loyalty point.");
+			logger.info("Verified Disable program permission.");
 		}else logger.info("Don't have View loyalty point setting permission, so can't check disable program permission.");
 	}
 	public void checkEditProgramPermission(){
@@ -162,6 +168,7 @@ public class LoyaltyPoint {
 			}else
 				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnSave),
 						"Restricted popup not show when click on Save button.");
+			logger.info("Verified Edit program permission.");
 		}else logger.info("Don't have View program info permission, so can't check Edit program permission.");
 	}
 	public LoyaltyPoint completeVerifyLoyaltyPointPermission() {

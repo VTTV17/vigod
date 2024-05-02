@@ -205,10 +205,12 @@ public class POSCreateReservation extends POSReservationElement{
         inputPhoneNumber(phoneRandom);
         if(allPermissions.getCustomer().getCustomerManagement().isAddCustomer()){
             logger.info("Check staff has Add customer permission.");
-            new CheckPermission(driver).checkAccessedSuccessfully(loc_dlgCreateCustomer_btnAdd,homePageEl.loc_lblToastMessage);
+            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_dlgCreateCustomer_btnAdd,homePageEl.loc_lblToastMessage),
+                    "[Failed] Toast message should be shown");
         }else {
             logger.info("Check staff has not Add customer permission.");
-            new CheckPermission(driver).checkAccessRestricted(loc_dlgCreateCustomer_btnAdd);
+            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_dlgCreateCustomer_btnAdd),
+                    "Restricted popup should be shown when click on Add customer");
         }
         return this;
     }
@@ -221,7 +223,7 @@ public class POSCreateReservation extends POSReservationElement{
         commons.click(loc_ddlDiscountType);
         commons.click(loc_ddvDiscountCode);
         commons.inputText(loc_txtDiscountCode,discount);
-        logger.info("Input discount code.");
+        logger.info("Input discount code: "+discount);
         return this;
     }
     public POSCreateReservation inputDiscountAmount(String discount){
@@ -282,9 +284,9 @@ public class POSCreateReservation extends POSReservationElement{
             //check permission discount code
             inputDiscountCode("test");
             if(allPermissions.getReservation().getPOSService().isApplyDiscountCode())
-                new CheckPermission(driver).checkAccessedSuccessfully(loc_btnApply, loc_lblError);
+               assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_btnApply, loc_lblError),"[Failed] Discount Invalid Error should be shown");
             else
-                new CheckPermission(driver).checkAccessRestricted(loc_btnApply);
+                assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_btnApply),"[Failed] Restricted popup should be shown when click on Apply button") ;
             logger.info("Verified Add discount code permission.");
         }else
             logger.info("Don't has permission Create Booking and view service list, so no need check add discount code permission.");
