@@ -1,15 +1,24 @@
 package api.Buyer.signup;
 
+import api.CapchaPayloadBuilder;
+import api.JsonObjectBuilder;
+import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
+import api.kibana.KibanaAPI;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONObject;
 
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
@@ -113,4 +122,43 @@ public class SignUp {
 
         new API().login("https://%s%s%s".formatted(new StoreInformation(loginInformation).getInfo().getStoreURL(), SF_DOMAIN, ACTIVE_PATH), activeBody).then().statusCode(200);
     }
+
+    public void signUpByPhoneNumber(String phoneCode, String phone, String locationCode, String langKey, String displayName, String password) {
+        getGuestToken();
+        
+        LoginDashboardInfo dashboardModel = new Login().getInfo(loginInformation);
+        String storeName = dashboardModel.getStoreName();
+        String storeId = String.valueOf(dashboardModel.getStoreID());
+        String storeURL = new StoreInformation(loginInformation).getInfo().getStoreURL();
+        
+    	JSONObject capchaPayload = new CapchaPayloadBuilder().givenCaptchaResponse("").givenGReCaptchaResponse("").givenImageBase64("").build();
+    	JSONObject registerPayload = new RegisterPayloadBuilder().givenDisplayName(displayName).givenPassword(password).givenLocationCode(locationCode)
+    			.givenLangKey(langKey).givenDomain("gosell").givenGoSellShopUrl("https://%s%s".formatted(storeURL, SF_DOMAIN)).givenGoSellShopName(storeName)
+    			.givenMobile(phoneCode, phone).build();
+    	String body = JsonObjectBuilder.mergeJSONObjects(capchaPayload, registerPayload).toString();
+        
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("Host", "api.beecow.info");
+        headerMap.put("x-request-origin", "STOREFRONT");
+        headerMap.put("platform", "WEB");
+        headerMap.put("storeid", storeId);
+        
+        Response signUpResponse = new API().post(SIGN_UP_PHONE_PATH, guestToken, body, headerMap);
+        signUpResponse.then().log().ifValidationFails().statusCode(200);
+
+        String loginText = signUpResponse.jsonPath().getString("login");
+        int userID = signUpResponse.jsonPath().getInt("id");
+
+        String activeCode = new KibanaAPI().getKeyFromKibana(loginText, "activationKey");
+
+        String activeBody = """
+                {
+                    "code": "%s",
+                    "userId": %s
+                }""".formatted(activeCode, userID);
+
+        new API().post("https://%s%s%s".formatted(storeURL, SF_DOMAIN, ACTIVE_PATH), "noTokenNeeded", activeBody).then().log().ifValidationFails().statusCode(200);
+    }    
+
+    
 }
