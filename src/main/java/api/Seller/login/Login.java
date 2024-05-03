@@ -1,5 +1,8 @@
 package api.Seller.login;
 
+import api.CapchaPayloadBuilder;
+import api.JsonObjectBuilder;
+import api.Buyer.login.ResetPasswordPayloadBuilder;
 import api.Seller.setting.BranchManagement;
 import com.google.common.collect.Iterables;
 import io.restassured.path.json.JsonPath;
@@ -9,7 +12,11 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.json.JSONObject;
 
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
@@ -185,11 +192,29 @@ public class Login {
                 "rememberMe":true
                 }""".formatted(phoneCode, phoneNumber, password);
         Response loginResponse = api.login(DASHBOARD_LOGIN_PHONE_PATH, body);
-        loginResponse.then().statusCode(200);
+        loginResponse.then().log().ifValidationFails().statusCode(200);
         return loginResponse;
     }
 
     public LoginInformation getLoginInformation() {
         return loginInfo;
     }
+    
+    public Response resetPhonePassword(String phoneNumber, String phoneCode) {
+    	JSONObject capchaPayload = new CapchaPayloadBuilder().givenCaptchaResponse("").givenGReCaptchaResponse("").givenImageBase64("").build();
+    	JSONObject resetPayload = new ResetPasswordPayloadBuilder().givenCountryCode(phoneCode).givenPhoneNumber(phoneNumber).build();
+    	String body = JsonObjectBuilder.mergeJSONObjects(capchaPayload, resetPayload).toString();
+        
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("Host", "api.beecow.info");
+        headerMap.put("x-request-origin", "DASHBOARD");
+        headerMap.put("isinternational", "false");
+        headerMap.put("platform", "WEB");
+        
+        Response resetResponse = new API().post("/api/account/reset_password/mobile/gosell", "noTokenNeeded", body, headerMap);
+        resetResponse.then().log().ifValidationFails().statusCode(200);
+
+        return resetResponse;
+    }        
+    
 }
