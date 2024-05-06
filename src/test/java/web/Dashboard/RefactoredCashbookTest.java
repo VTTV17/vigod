@@ -272,9 +272,9 @@ public class RefactoredCashbookTest extends BaseTest {
 	@DataProvider
 	public Object[][] groups() {
 		return new Object[][] { 
-//			{CashbookGroup.CUSTOMER},
-//			{CashbookGroup.SUPPLIER},
-//			{CashbookGroup.STAFF},
+			{CashbookGroup.CUSTOMER},
+			{CashbookGroup.SUPPLIER},
+			{CashbookGroup.STAFF},
 			{CashbookGroup.OTHERS},
 		};
 	}	
