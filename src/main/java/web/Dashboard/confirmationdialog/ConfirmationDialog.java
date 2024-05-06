@@ -13,7 +13,7 @@ public class ConfirmationDialog {
 	final static Logger logger = LogManager.getLogger(ConfirmationDialog.class);
 
 	WebDriver driver;
-	UICommonAction commonAction;
+	protected UICommonAction commonAction;
 
 	public ConfirmationDialog(WebDriver driver) {
 		this.driver = driver;
