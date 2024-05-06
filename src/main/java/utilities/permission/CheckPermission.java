@@ -1,12 +1,16 @@
 package utilities.permission;
 
 import api.Seller.login.Login;
+
+import java.util.LinkedHashMap;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import utilities.commons.UICommonAction;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
 import web.Dashboard.home.HomePage;
 
 public class CheckPermission {
@@ -145,7 +149,7 @@ public class CheckPermission {
         String value = commonAction.getValue(locatorInput);
         return !value.isEmpty();
     }
-    public void waitUntilPermissionUpdated(String staffPermissionTokenOld, LoginInformation  staffCredentials){
+    public void waitUntilPermissionUpdated1(String staffPermissionTokenOld, LoginInformation  staffCredentials){
         String newToken;
         int i=0;
         do {
@@ -162,6 +166,27 @@ public class CheckPermission {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+    }
+    
+    public String waitUntilPermissionUpdated(String oldPermissionToken, LoginInformation loginCredentials){
+    	LinkedHashMap<String, Integer> oldPermissions = new AllPermissions().getStaffPermissionFromToken(oldPermissionToken);
+    	System.out.println(oldPermissions);
+    	
+    	LinkedHashMap<String, Integer> newPermissions = null;
+    	
+    	String newPermissionToken = "";
+    	
+    	for (int i=0; i<15; i++) {
+    		
+    		newPermissionToken = new Login().getInfo(loginCredentials).getStaffPermissionToken();
+    		
+    		newPermissions = new AllPermissions().getStaffPermissionFromToken(new Login().getInfo(loginCredentials).getStaffPermissionToken());
+    		if(!newPermissions.equals(oldPermissions)) break;
+    		commonAction.sleepInMiliSecond(1000, "Wait until permissions have changed");
+    	}
+    	System.out.println(newPermissions);
+    	
+    	return newPermissionToken;
     }
 
 }
