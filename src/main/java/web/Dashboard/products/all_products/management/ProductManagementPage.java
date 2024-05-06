@@ -227,15 +227,19 @@ public class ProductManagementPage extends ProductManagementElement {
 
         /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
         // check product stock are updated on item-service
-        List<Integer> expectedStockOnItemService = productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInItemService);
-        List<Integer> actualStockOnItemService = productInformation.getCurrentStockOfProducts(productIds);
+        List<Integer> expectedStockOnItemService = new ArrayList<>(productInformation.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInItemService));
+        Collections.sort(expectedStockOnItemService);
+        List<Integer> actualStockOnItemService = new ArrayList<>(productInformation.getCurrentStockOfProducts(productIds));
+        Collections.sort(actualStockOnItemService);
         assertCustomize.assertEquals(expectedStockOnItemService, actualStockOnItemService,
                 "Product stock are not updated on item-service, , stock must be %s, but found %s.".formatted(actualStockOnItemService.toString(), expectedStockOnItemService.toString()));
         logger.info("Check product stock on item-service after clearing stock.");
 
         // check product stock are updated on ES
-        List<Integer> expectedStockOnES = allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInES);
-        List<Integer> actualStockOnES = allProducts.getListProductStockQuantityAfterClearStock(productIds);
+        List<Integer> expectedStockOnES = new ArrayList<>(allProducts.getExpectedListProductStockQuantityAfterClearStock(productIds, beforeUpdateStocksInES));
+        Collections.sort(expectedStockOnES);
+        List<Integer> actualStockOnES = new ArrayList<>(allProducts.getListProductStockQuantityAfterClearStock(productIds));
+        Collections.sort(actualStockOnES);
         assertCustomize.assertEquals(expectedStockOnES, actualStockOnES,
                 "Product stock are not updated on ES, stock must be %s, but found %s.".formatted(actualStockOnES.toString(), expectedStockOnES.toString()));
         logger.info("Check product stock on ES after clearing stock.");
@@ -396,15 +400,19 @@ public class ProductManagementPage extends ProductManagementElement {
 
         /* Do not need to wait product updated because calculate function needs ~ 2 minutes, that time is enough for product to be updated.*/
         // check product stock are updated on item-service
-        List<Integer> expectedStockOnItemService = productInformation.getExpectedListProductStockQuantityAfterUpdateStock(productIds, branchId, beforeUpdateStocksInItemService, stock);
-        List<Integer> actualStockOnItemService = productInformation.getCurrentStockOfProducts(productIds);
+        List<Integer> expectedStockOnItemService = new ArrayList<>(productInformation.getExpectedListProductStockQuantityAfterUpdateStock(productIds, branchId, beforeUpdateStocksInItemService, stock));
+        Collections.sort(expectedStockOnItemService);
+        List<Integer> actualStockOnItemService = new ArrayList<>(productInformation.getCurrentStockOfProducts(productIds));
+        Collections.sort(actualStockOnItemService);
         assertCustomize.assertEquals(expectedStockOnItemService, actualStockOnItemService,
                 "Product stock are not updated on item-service, , stock must be %s, but found %s.".formatted(actualStockOnItemService.toString(), expectedStockOnItemService.toString()));
         logger.info("Check product stock on item-service after updating stock.");
 
         // check product stock are updated on ES
-        List<Integer> expectedStockOnES = allProducts.getExpectedListProductStockQuantityAfterUpdateStock(productIds, beforeUpdateStocksInES, stock);
-        List<Integer> actualStockOnES = allProducts.getListProductStockQuantityAfterUpdateStock(productIds, branchId);
+        List<Integer> expectedStockOnES = new ArrayList<>(allProducts.getExpectedListProductStockQuantityAfterUpdateStock(productIds, beforeUpdateStocksInES, stock));
+        Collections.sort(expectedStockOnES);
+        List<Integer> actualStockOnES = new ArrayList<>(allProducts.getListProductStockQuantityAfterUpdateStock(productIds, branchId));
+        Collections.sort(actualStockOnES);
         assertCustomize.assertEquals(expectedStockOnES, actualStockOnES,
                 "Product stock are not updated on ES, stock must be %s, but found %s.".formatted(actualStockOnES.toString(), expectedStockOnES.toString()));
         logger.info("Check product stock on ES after updating stock.");
@@ -525,19 +533,6 @@ public class ProductManagementPage extends ProductManagementElement {
         // get list product need to updated
         List<String> productIds = getAllProductIdIn1stPage();
 
-        // get new selling platform config
-        boolean onApp = nextBoolean();
-        logger.info("onApp: %s.".formatted(onApp));
-
-        boolean onWeb = nextBoolean();
-        logger.info("onWeb: %s.".formatted(onWeb));
-
-        boolean inStore = nextBoolean();
-        logger.info("inStore: %s.".formatted(inStore));
-
-        boolean inGoSocial = nextBoolean();
-        logger.info("inGoSocial: %s.".formatted(inGoSocial));
-
         // open bulk actions dropdown
         openBulkActionsDropdown();
 
@@ -547,17 +542,25 @@ public class ProductManagementPage extends ProductManagementElement {
                 loc_dlgUpdateSellingPlatform);
 
         // update selling platform
+        boolean onApp = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkApp) && nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkApp) != onApp)
             commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkApp);
+        logger.info("onApp: %s.".formatted(onApp));
 
+        boolean onWeb = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkWeb) && nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkWeb) != onWeb)
             commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkWeb);
+        logger.info("onWeb: %s.".formatted(onWeb));
 
+        boolean inStore = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkInStore) && nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkInStore) != inStore)
             commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkInStore);
+        logger.info("inStore: %s.".formatted(inStore));
 
+        boolean inGoSocial = !commonAction.isDisabledJS(loc_dlgUpdateSellingPlatform_chkGoSocial) && nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgUpdateSellingPlatform_chkGoSocial) != inGoSocial)
             commonAction.clickJS(loc_dlgUpdateSellingPlatform_chkGoSocial);
+        logger.info("inGoSocial: %s.".formatted(inGoSocial));
 
         // confirm bulk update selling platforms
         commonAction.click(loc_dlgUpdateSellingPlatform_btnConfirm);
@@ -618,7 +621,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // input cost price
         long minCostPrice = Collections.min(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
-        long costPrice = nextLong(minCostPrice);
+        long costPrice = nextLong(Math.max(minCostPrice, 1));
         applyAll(costPrice, getAllPriceTypes().indexOf(cost));
         logger.info("Input cost price: %,d.".formatted(costPrice));
 

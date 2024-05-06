@@ -56,7 +56,7 @@ public class ProductManagementTest extends BaseTest {
     }
 
     @Test
-    void MN_PRODUCT_08_CheckBulkActionClearUpdateSellingPlatform() {
+    void MN_PRODUCT_08_CheckBulkActionUpdateSellingPlatform() {
         productManagementPage.bulkUpdateSellingPlatform();
     }
 

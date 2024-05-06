@@ -12,7 +12,7 @@
                     <include name="MN_PRODUCT_05_CheckBulkActionUpdateStock"/>
                     <include name="MN_PRODUCT_06_CheckBulkActionUpdateTax"/>
                     <include name="MN_PRODUCT_07_CheckBulkActionDisplayOutOfStockProduct"/>
-                    <include name="MN_PRODUCT_08_CheckBulkActionClearUpdateSellingPlatform"/>
+                    <include name="MN_PRODUCT_08_CheckBulkActionUpdateSellingPlatform"/>
                     <include name="MN_PRODUCT_09_CheckBulkActionUpdatePrice"/>
                     <include name="MN_PRODUCT_10_CheckBulkActionSetStockAlert"/>
                     <include name="MN_PRODUCT_11_CheckBulkActionManageStockByLotDate"/>

@@ -431,9 +431,12 @@ public class APIAllProducts {
         // get all products info
         Map<String, Integer> productStocks = new HashMap<>(beforeUpdateStocks);
         APIProductDetail productInformation = new APIProductDetail(loginInformation);
-        productIds.stream()
-                .filter(productId -> !productInformation.getInfo(Integer.parseInt(productId), inventory).getLotAvailable())
-                .forEach(productId -> productStocks.put(productId, 0));
+        productIds.forEach(productId -> {
+            ProductInfo productInfo = productInformation.getInfo(Integer.parseInt(productId), inventory);
+            if (productInfo.getLotAvailable() == null || !productInfo.getLotAvailable()) {
+                productStocks.put(productId, 0);
+            }
+        });
         return productStocks.values().stream().toList();
     }
 
@@ -458,7 +461,7 @@ public class APIAllProducts {
         List<Integer> variationNumbers = getVariationNumber(productIds);
         productIds.forEach(productId -> {
             ProductInfo productInfo = productInformation.getInfo(Integer.parseInt(productId), inventory);
-            if (!productInfo.getLotAvailable() && !productInfo.getManageInventoryByIMEI()) {
+            if ((productInfo.getLotAvailable() == null || !productInfo.getLotAvailable()) && !productInfo.getManageInventoryByIMEI()) {
                 int variationNumber = variationNumbers.get(productIds.indexOf(productId));
                 variationNumber = (variationNumber == 0) ? 1 : variationNumber;
                 productStocks.put(productId, newStock * (variationNumber));
