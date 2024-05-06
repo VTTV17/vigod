@@ -684,6 +684,7 @@ public class APIProductDetail {
                                                                       Map<String, List<Boolean>> beforeUpdateManageByLotDate,
                                                                       boolean isExpiredQuality) {
         // init temp arr
+        List<Boolean> beforeLot = new ArrayList<>(beforeUpdateManageByLotDate.get("lotAvailable"));
         List<Boolean> beforeExpiry = new ArrayList<>(beforeUpdateManageByLotDate.get("expiredQuality"));
         List<Boolean> lotAvailable = new ArrayList<>();
         List<Boolean> expiredQuality = new ArrayList<>();
@@ -693,7 +694,7 @@ public class APIProductDetail {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), inventory);
             if (productInfo.getManageInventoryByIMEI() != null) {
                 lotAvailable.add(!productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productId)));
-                expiredQuality.add(lotAvailable.get(expiredQuality.size()) && (beforeExpiry.get(expiredQuality.size()) || isExpiredQuality));
+                expiredQuality.add(!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && (beforeExpiry.get(expiredQuality.size()) || isExpiredQuality));
             }
         });
         return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);
