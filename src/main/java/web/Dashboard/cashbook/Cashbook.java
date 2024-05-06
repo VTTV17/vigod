@@ -2,6 +2,7 @@ package web.Dashboard.cashbook;
 
 import static utilities.links.Links.DOMAIN;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,6 +19,7 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
+import utilities.enums.cashbook.CashbookGroup;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
@@ -45,22 +47,9 @@ public class Cashbook {
 	public static final int CREATEDBY_COL = 6;
 	public static final int AMOUNT_COL = 7;
 	
-	String otherVIE = null;
-	String otherENG = null;
-	
-	public void translateOthers() {
-		try {
-			otherVIE = PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group.others", "VIE");
-			otherENG = PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group.others", "ENG");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public Cashbook(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
-		translateOthers();
 	}
 
 	By loc_lblPageTitle = By.cssSelector(".gs-page-title");
@@ -94,16 +83,6 @@ public class Cashbook {
 	String searchResultXpath = "//div[contains(@class,'search-item') %s]";
 	String conditionFilterDropdownXpath = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']";
 
-	public String translateGroup(String group) {
-		String translatedGroup = null;
-		try {
-			translatedGroup = PropertiesUtil.getPropertiesValueByDBLang("cashbook.createReceipt.group.%s".formatted(group));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return translatedGroup;
-	}	
-	
 	public Cashbook navigate() {
 		new HomePage(driver).navigateToPage("Cashbook");
 		commonAction.sleepInMiliSecond(3000);
@@ -130,6 +109,15 @@ public class Cashbook {
 			summary.add(Long.parseLong(String.join("", sub)));
 		}
 		System.out.println(summary.toString());
+		return summary;
+	}
+	
+	public List<BigDecimal> getCashbookSummaryBig() {
+		List<BigDecimal> summary = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			String rawAmount = commonAction.getText(loc_lblCashbookSummary, i);
+			summary.add(new BigDecimal(rawAmount.replaceAll("[^\\d+\\.]","")));
+		}
 		return summary;
 	}
 
@@ -177,14 +165,12 @@ public class Cashbook {
 
 	public Cashbook clickCreateReceiptBtn() {
 		commonAction.click(loc_btnCreateReceipt);
-		commonAction.sleepInMiliSecond(1000, "After clicking Create Receipt button");
 		logger.info("Clicked on Create Receipt button.");
 		return this;
 	}
 
 	public Cashbook clickCreatePaymentBtn() {
 		commonAction.click(loc_btnCreatePayment);
-		commonAction.sleepInMiliSecond(1000 , "After clicking Create Payment button");
 		logger.info("Clicked on Create Payment button.");
 		return this;
 	}	
@@ -208,11 +194,11 @@ public class Cashbook {
 		commonAction.click(loc_ddlSenderName);
 		// Open dropdown if necessary
 	    if (inputSearchTerm) {
-	    	commonAction.sleepInMiliSecond(500, "Wait a little before inputing text or ElementNotInteractableException occurs");
+//	    	commonAction.sleepInMiliSecond(500, "Wait a little before inputing text or ElementNotInteractableException occurs");
 			commonAction.inputText(loc_txtSearchSenderName, name);
 			new HomePage(driver).waitTillSpinnerDisappear1();
 	    }
-		By customerLocator = By.xpath(searchResultXpath.formatted("and text()='%s'".formatted(name)));
+		By customerLocator = By.xpath(searchResultXpath.formatted("and text()=\"%s\"".formatted(name)));
 		commonAction.waitVisibilityOfElementLocated(customerLocator);
 		commonAction.sleepInMiliSecond(500); //There's something wrong here. Without this delay, names are not selected
 		//The element will go stale after the delay, so we fetch the element again
@@ -316,7 +302,7 @@ public class Cashbook {
 		selectRevenueExpense(revenue);
 		selectBranch(branch);
 		selectPaymentMethod(payment);
-		if (senderGroup.contentEquals(otherENG) || senderGroup.contentEquals(otherVIE)) {
+		if (senderGroup.contentEquals(CashbookGroup.getTextByLanguage(CashbookGroup.OTHERS))) {
 			selectName(senderName, false);
 		} else {
 			selectName(senderName, true);
@@ -790,7 +776,7 @@ public class Cashbook {
     		}
     		
         	if (flag) {
-        		String group = translateGroup("customer");
+        		String group = CashbookGroup.getTextByLanguage(CashbookGroup.CUSTOMER);
         		if (staffPermission.getCustomer().getCustomerManagement().isViewAllCustomerList() && staffPermission.getCustomer().getCustomerManagement().isViewAssignedCustomerList()) {
         			selectGroup(group);
         			selectName(nonAssignedCustomer, true);
@@ -809,7 +795,7 @@ public class Cashbook {
         			By customerLocator = By.xpath(searchResultXpath.formatted(""));
         			Assert.assertEquals(commonAction.getListElement(customerLocator).size(), 0);
         		}
-        		group = translateGroup("supplier");
+        		group = CashbookGroup.getTextByLanguage(CashbookGroup.SUPPLIER);
         		if (staffPermission.getSuppliers().getSupplier().isViewSupplierList()) {
         			selectGroup(group);
         			selectName(supplier, true);
@@ -821,7 +807,7 @@ public class Cashbook {
         			By supplierLocator = By.xpath(searchResultXpath.formatted(""));
         			Assert.assertEquals(commonAction.getListElement(supplierLocator).size(), 0);
         		}
-        		group = translateGroup("staff");
+        		group = CashbookGroup.getTextByLanguage(CashbookGroup.STAFF);
         		if (staffPermission.getSetting().getStaffManagement().isViewStaffList()) {
         			commonAction.sleepInMiliSecond(1000, "This is weird!!!");
         			selectGroup(group);
