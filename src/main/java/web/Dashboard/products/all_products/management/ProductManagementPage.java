@@ -620,7 +620,7 @@ public class ProductManagementPage extends ProductManagementElement {
         logger.info("Input selling price: %,d.".formatted(sellingPrice));
 
         // input cost price
-        long minCostPrice = Collections.min(new ArrayList<>(mapOfProductsPrice.get("listingPrice")));
+        long minCostPrice = Collections.min(new ArrayList<>(mapOfProductsPrice.get("costPrice")));
         long costPrice = nextLong(Math.max(minCostPrice, 1));
         applyAll(costPrice, getAllPriceTypes().indexOf(cost));
         logger.info("Input cost price: %,d.".formatted(costPrice));
