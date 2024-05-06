@@ -693,7 +693,7 @@ public class APIProductDetail {
         productIds.forEach(productId -> {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), inventory);
             if (productInfo.getManageInventoryByIMEI() != null) {
-                lotAvailable.add(!productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productId)));
+                lotAvailable.add(beforeLot.get(lotAvailable.size()) || !productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productId)));
                 expiredQuality.add(!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && (beforeExpiry.get(expiredQuality.size()) || isExpiredQuality));
             }
         });

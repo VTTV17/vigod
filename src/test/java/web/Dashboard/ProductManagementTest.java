@@ -16,7 +16,7 @@ public class ProductManagementTest extends BaseTest {
     @BeforeClass
     void setup() {
         driver = new InitWebdriver().getDriver(browser, headless);
-        loginInformation = new LoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+        loginInformation = new LoginInformation("stgaboned@nbobd.com", ADMIN_PASSWORD_THANG);
         new LoginPage(driver).loginDashboardByJs(loginInformation);
         productManagementPage = new ProductManagementPage(driver).getLoginInformation(loginInformation);
     }
