@@ -24,6 +24,7 @@ import utilities.model.staffPermission.Supplier.Suppliers;
 import utilities.model.staffPermission.Tiktok.Tiktok;
 
 import java.util.Base64;
+import java.util.LinkedHashMap;
 
 import static java.lang.Integer.toBinaryString;
 
@@ -854,5 +855,11 @@ public class AllPermissions {
         setTiktok(payloadJson);
         setSetting(payloadJson);
         setReservation(payloadJson);
+    }
+    
+    public LinkedHashMap<String, Integer> getStaffPermissionFromToken(String staffPermissionToken) {
+    	String payloadJson = new String(Base64.getUrlDecoder().decode(staffPermissionToken.split("\\.")[1]));
+    	JsonPath json = new JsonPath(payloadJson);
+    	return json.getJsonObject("staffPermissions");
     }
 }
