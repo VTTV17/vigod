@@ -170,13 +170,11 @@ public class CheckPermission {
     
     public String waitUntilPermissionUpdated(String oldPermissionToken, LoginInformation loginCredentials){
     	LinkedHashMap<String, Integer> oldPermissions = new AllPermissions().getStaffPermissionFromToken(oldPermissionToken);
-    	System.out.println(oldPermissions);
-    	
     	LinkedHashMap<String, Integer> newPermissions = null;
     	
     	String newPermissionToken = "";
     	
-    	for (int i=0; i<15; i++) {
+    	for (int i=0; i<5; i++) {
     		
     		newPermissionToken = new Login().getInfo(loginCredentials).getStaffPermissionToken();
     		
@@ -184,8 +182,6 @@ public class CheckPermission {
     		if(!newPermissions.equals(oldPermissions)) break;
     		commonAction.sleepInMiliSecond(1000, "Wait until permissions have changed");
     	}
-    	System.out.println(newPermissions);
-    	
     	return newPermissionToken;
     }
 

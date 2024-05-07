@@ -4,24 +4,34 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import utilities.data.DataGenerator;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
+import static utilities.links.Links.DOMAIN;
 
 public class StaffPage extends StaffVerify {
     Logger logger = LogManager.getLogger(StaffPage.class);
     public static String staffMail;
     static boolean isNull = false;
-
+    
+    HomePage homePage;
+    
     public StaffPage(WebDriver driver) {
         super(driver);
+        homePage = new HomePage(driver);
     }
 
     public StaffPage setFileName(String fileName) {
@@ -80,20 +90,26 @@ public class StaffPage extends StaffVerify {
     }
 
     public StaffPage clickOnTheEditIcon() {
-        wait.until(ExpectedConditions.elementToBeClickable(EDIT_ICON)).click();
+        commons.click(loc_btnEditIcon);
         logger.info("Click on the Edit icon to open the Edit staff popup");
         return this;
     }
 
     public StaffPage clickOnTheDeleteIcon() throws IOException {
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(DELETE_ICON)).click();
+        	clickDeleteIcon();
         } catch (TimeoutException ex) {
             new Screenshot().takeScreenshot(driver);
             logger.error("Store no have staff");
             isNull = true;
         }
         return this;
+    }
+    
+    public StaffPage clickDeleteIcon() {
+    	commons.click(loc_btnDeleteIcon);
+    	logger.info("Clicked Delete icon");
+    	return this;
     }
 
     public StaffPage clickOnTheOKBtn() throws IOException {
@@ -178,10 +194,9 @@ public class StaffPage extends StaffVerify {
         return this;
     }
 
-    public StaffPage clickDoneBtn() throws IOException {
+    public StaffPage clickDoneBtn() {
         wait.until(ExpectedConditions.elementToBeClickable(DONE_BTN)).click();
         logger.info("Click on the Done button to complete create new staff");
-        new Screenshot().takeScreenshot(driver);
         return this;
     }
 
@@ -205,9 +220,216 @@ public class StaffPage extends StaffVerify {
 		} else if (permission.contentEquals("D")) {
 			// Not reproducible
 		} else {
-			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+			Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
 		}
     }
     /*-------------------------------------*/       
+
+    StaffPage navigateByURL(String url) {
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commons.removeFbBubble();
+		homePage.waitTillSpinnerDisappear1();
+		return this;
+	}		
+
+	public StaffPage navigateToDetailScreenByURL() {
+		navigateByURL(DOMAIN + "/setting?tabId=7");
+//    	commons.sleepInMiliSecond(500, "Wait a little after navigation");
+		return this;
+	}
+
+	//Temporary function, will think of a better way to do this
+    public StaffPage selectAllGroups() {
+    	commons.click(loc_ddlSelectGroupForm);
+    	commons.click(loc_ddvSelectFirstGroupForm);
+    	logger.info("Select Permission: All Groups");
+    	return this;
+    }
     
+    public boolean isStaffActivated() {
+    	return commons.getElement(new ByChained(loc_btnActivateStaffToggle, loc_tmpInputTag)).isSelected();
+    }    
+
+    //Temporary function, will think of a better way to do this
+    public StaffPage clickActivateStaffToggle() {
+    	commons.click(loc_btnActivateStaffToggle);
+    	logger.info("Clicked Activate Staff toggle");
+    	return this;
+    }     
+    
+    //Temporary function, will think of a better way to do this
+    public StaffPage activateStaff() {
+    	if (isStaffActivated()) {
+    		logger.info("Staff has already been activated");
+    		return this;
+    	}
+    	clickActivateStaffToggle();
+    	logger.info("Activated staff member: The first one");
+    	return this;
+    }  
+    //Temporary function, will think of a better way to do this
+    public StaffPage deactivateStaff() {
+    	if (!isStaffActivated()) {
+    		logger.info("Staff has already been deactivated");
+    		return this;
+    	}
+    	clickActivateStaffToggle();
+    	logger.info("Deactivated staff member: The first one");
+    	return this;
+    }  
+	
+	boolean isViewStaffListPermissionGranted(AllPermissions staffPermission) {
+		return staffPermission.getSetting().getStaffManagement().isViewStaffList();
+	}
+	boolean isAddStaffPermissionGranted(AllPermissions staffPermission) {
+		return staffPermission.getSetting().getStaffManagement().isAddStaff();
+	}
+	boolean isEditStaffPermissionGranted(AllPermissions staffPermission) {
+		return staffPermission.getSetting().getStaffManagement().isEditStaff();
+	}
+	boolean isActivateStaffPermissionGranted(AllPermissions staffPermission) {
+		return staffPermission.getSetting().getStaffManagement().isActiveDeactivateStaff();
+	}
+	boolean isDeleteStaffPermissionGranted(AllPermissions staffPermission) {
+		return staffPermission.getSetting().getStaffManagement().isDeleteStaff();
+	}
+	boolean isStaffManagementPermissionProhibited(AllPermissions staffPermission) {
+		boolean[] allStaffManagementPermisison = {
+				isViewStaffListPermissionGranted(staffPermission),
+				isAddStaffPermissionGranted(staffPermission),
+				isEditStaffPermissionGranted(staffPermission),
+				isActivateStaffPermissionGranted(staffPermission),
+				isDeleteStaffPermissionGranted(staffPermission),
+		};
+	    for(boolean individualPermission : allStaffManagementPermisison) if (individualPermission) return false;
+	    return true;
+	}
+	
+    void checkPermissionToViewStaffList(AllPermissions staffPermission) {
+    	navigateToDetailScreenByURL(); 
+    	if (isStaffManagementPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have Staff Management permission. Skipping checkPermissionToViewStaffList");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	if (isViewStaffListPermissionGranted(staffPermission)) {
+			Assert.assertTrue(commons.getElements(loc_lblStaffEmailTable).size()>0, "Number of staff email elements > 0");
+		} else {
+			Assert.assertFalse(commons.getElements(loc_lblStaffEmailTable).size()>0, "Number of staff email elements > 0");
+		}
+    	logger.info("Finished checkPermissionToViewStaffList");
+    }    
+    
+    void checkPermissionToAddStaff(AllPermissions staffPermission) {
+    	navigateToDetailScreenByURL(); 
+    	
+    	if (isStaffManagementPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have Staff Management permission. Skipping checkPermissionToAddStaff");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(5);
+    	String name = "Luke Auto " + randomNumber;
+    	String mail = "lukeauto" + randomNumber + "@mailnesia.com";
+    	
+    	clickOnTheAddStaffBtn();
+    	
+    	if (isAddStaffPermissionGranted(staffPermission)) {
+//    		inputStaffName(name).inputStaffMail(mail).selectAllGroups().selectBranch(Arrays.asList(0)).clickDoneBtn();
+//    		homePage.getToastMessage();
+    		clickCancelBtn();
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    	}
+    	logger.info("Finished checkPermissionToAddStaff");
+    }   
+    
+    void checkPermissionToEditStaff(AllPermissions staffPermission) {
+    	navigateToDetailScreenByURL(); 
+    	
+    	if (isStaffManagementPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have Staff Management permission. Skipping checkPermissionToEditStaff");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	if (!isViewStaffListPermissionGranted(staffPermission)) {
+    		logger.info("Staff does not have view staff list permission. Skipping checkPermissionToEditStaff");
+    		return;
+    	}
+    	
+    	String randomNumber = new DataGenerator().randomNumberGeneratedFromEpochTime(5);
+    	String name = "Luke Auto " + randomNumber;
+    	
+    	clickOnTheEditIcon();
+    	
+    	if (isEditStaffPermissionGranted(staffPermission)) {
+    		inputStaffName(name).clickDoneBtn();
+    		homePage.getToastMessage();
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    	}
+    	logger.info("Finished checkPermissionToEditStaff");
+    }    
+    
+    void checkPermissionToActivateStaff(AllPermissions staffPermission) {
+    	navigateToDetailScreenByURL(); 
+    	
+    	if (isStaffManagementPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have Staff Management permission. Skipping checkPermissionToActivateStaff");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	if (!isViewStaffListPermissionGranted(staffPermission)) {
+    		logger.info("Staff does not have view staff list permission. Skipping checkPermissionToActivateStaff");
+    		return;
+    	}
+    	
+    	clickActivateStaffToggle();
+    	
+    	if (isActivateStaffPermissionGranted(staffPermission)) {
+    		//Bug: Toggle is still switched
+    		System.out.println();
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    	}
+    	logger.info("Finished checkPermissionToActivateStaff");
+    }    
+    
+    void checkPermissionToDeleteStaff(AllPermissions staffPermission) {
+    	navigateToDetailScreenByURL(); 
+    	
+    	if (isStaffManagementPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have Staff Management permission. Skipping checkPermissionToDeleteStaff");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	if (!isViewStaffListPermissionGranted(staffPermission)) {
+    		logger.info("Staff does not have view staff list permission. Skipping checkPermissionToDeleteStaff");
+    		return;
+    	}
+    	
+    	clickDeleteIcon();
+    	
+    	if (isDeleteStaffPermissionGranted(staffPermission)) {
+//    		new ConfirmationDialog(driver).clickOKBtn();
+//    		homePage.getToastMessage();
+    		Assert.assertTrue(new ConfirmationDialog(driver).isConfirmationDialogDisplayed(), "Confirmation dialog appears");
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    	}
+    	logger.info("Finished checkPermissionToDeleteStaff");
+    }    
+    
+    public void checkStaffManagementPermission(AllPermissions staffPermission, String adminPassword) {
+    	checkPermissionToViewStaffList(staffPermission);
+    	checkPermissionToAddStaff(staffPermission);
+    	checkPermissionToEditStaff(staffPermission);
+    	checkPermissionToActivateStaff(staffPermission);
+    	checkPermissionToDeleteStaff(staffPermission);
+    } 	
 }
