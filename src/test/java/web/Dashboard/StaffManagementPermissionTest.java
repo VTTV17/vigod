@@ -19,16 +19,20 @@ import utilities.model.staffPermission.CreatePermission;
 import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.settings.bankaccountinformation.BankAccountInformation;
+import web.Dashboard.settings.staff_management.StaffPage;
 
-public class BankInfoPermissionTest extends BaseTest {
+/**
+ *<p>Preconditions: There exists at least one staff member and a permission group</p>
+ */
+
+public class StaffManagementPermissionTest extends BaseTest {
 
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
 	
 	LoginPage loginPage;
-	BankAccountInformation bankinfoPage;
+	StaffPage staffPage;
 	HomePage homePage;
 	
 	int permissionGroupId;
@@ -45,7 +49,7 @@ public class BankInfoPermissionTest extends BaseTest {
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
-		bankinfoPage = new BankAccountInformation(driver);
+		staffPage = new StaffPage(driver);
 		
 		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
 		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
@@ -65,22 +69,50 @@ public class BankInfoPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		model.setSetting_bankAccount(permissionBinary);
+		model.setSetting_staffManagement(permissionBinary);
 		return model;
 	}
 
 	@DataProvider
-	public Object[][] bankinfoPermission() {
+	public Object[][] staffManagementPermissionBinary() {
 		return new Object[][] { 
-			{"00"},
-			{"01"},
-//			{"10"}, //Bug https://mediastep.atlassian.net/browse/BH-35715
-			{"11"},
+			{"00000"},
+			{"00001"},
+			{"00010"},
+			{"00011"},
+			{"00100"},
+			{"00101"},
+			{"00110"},
+			{"00111"},
+			{"01000"},
+			{"01001"},
+			{"01010"},
+			{"01011"},
+			{"01100"},
+			{"01101"},
+			{"01110"},
+			{"01111"},
+			{"10000"},
+			{"10001"},
+			{"10010"},
+			{"10011"},
+			{"10100"},
+			{"10101"},
+			{"10110"},
+			{"10111"},
+			{"11000"},
+			{"11001"},
+			{"11010"},
+			{"11011"},
+			{"11100"},
+			{"11101"},
+			{"11110"},
+			{"11111"}
 		};
 	}		
 	
-	@Test(dataProvider = "bankinfoPermission")
-	public void CheckBankInfoPermission(String permissionBinary) {
+	@Test(dataProvider = "staffManagementPermissionBinary")
+	public void CheckStaffManagementPermission(String permissionBinary) {
 		
 		String staffOldPermissionToken = new Login().getInfo(staffCredentials).getStaffPermissionToken();
 		
@@ -91,11 +123,11 @@ public class BankInfoPermissionTest extends BaseTest {
 		
 		AllPermissions allPermissionDTO = new AllPermissions(staffNewPermissionToken);
 		
-		System.out.println(allPermissionDTO.getSetting().getBankAccount());
+		System.out.println(allPermissionDTO.getSetting().getStaffManagement());
 		
 		commonAction.refreshPage();
-		commonAction.sleepInMiliSecond(3000, "Wait a little for Dashboard to get new permissionToken"); //Devs have been informed of this abnormal behavior
+		commonAction.sleepInMiliSecond(2000, "OMG");
 		
-		bankinfoPage.checkBankAccountPermission(allPermissionDTO, ownerCredentials.getPassword());
+		staffPage.checkStaffManagementPermission(allPermissionDTO, ownerCredentials.getPassword());
 	}		
 }
