@@ -587,7 +587,9 @@ public class UICommonAction {
     }
     public List<WebElement> getElements(By by, int secondTimeout) {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(secondTimeout));
-        return driver.findElements(by);
+        List<WebElement> elements = driver.findElements(by);
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
+        return elements;
     }
 
     public WebElement getElement(By by) {
