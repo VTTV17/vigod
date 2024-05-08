@@ -18,21 +18,21 @@ import utilities.model.staffPermission.CreatePermission;
 import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.settings.staff_management.StaffPage;
+import web.Dashboard.settings.storeinformation.StoreInformation;
 
 /**
- *<p>Preconditions: There exists at least one staff member and a permission group</p>
+ *<p>Preconditions: There exists at least one staff member</p>
  */
 
-public class StaffManagementPermissionTest extends BaseTest {
+public class StoreInfoPermissionTest extends BaseTest {
 
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
 	
 	LoginPage loginPage;
-	StaffPage staffPage;
 	HomePage homePage;
+	StoreInformation storeInfoPage;
 	
 	int permissionGroupId;
 	
@@ -48,7 +48,7 @@ public class StaffManagementPermissionTest extends BaseTest {
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
 		commonAction = new UICommonAction(driver);
-		staffPage = new StaffPage(driver);
+		storeInfoPage = new StoreInformation(driver);
 		
 		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
 		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
@@ -68,12 +68,12 @@ public class StaffManagementPermissionTest extends BaseTest {
 	CreatePermission setPermissionModel(String permissionBinary) {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
-		model.setSetting_staffManagement(permissionBinary);
+		model.setSetting_storeInformation(permissionBinary);
 		return model;
 	}
 	
-	@Test(dataProvider = "staffManagementPermission", dataProviderClass = PermissionDataProvider.class)
-	public void CheckStaffManagementPermission(String permissionBinary) {
+	@Test(dataProvider = "storeInfoSettingPermission", dataProviderClass = PermissionDataProvider.class)
+	public void CheckAccountSettingPermission(String permissionBinary) {
 		
 		String staffOldPermissionToken = new Login().getInfo(staffCredentials).getStaffPermissionToken();
 		
@@ -84,11 +84,11 @@ public class StaffManagementPermissionTest extends BaseTest {
 		
 		AllPermissions allPermissionDTO = new AllPermissions(staffNewPermissionToken);
 		
-		System.out.println(allPermissionDTO.getSetting().getStaffManagement());
+		System.out.println(allPermissionDTO.getSetting().getStoreInformation());
 		
 		commonAction.refreshPage();
 		commonAction.sleepInMiliSecond(2000, "OMG");
 		
-		staffPage.checkStaffManagementPermission(allPermissionDTO, ownerCredentials.getPassword());
+		storeInfoPage.checkStoreInfoSettingPermission(allPermissionDTO);
 	}		
 }
