@@ -21,6 +21,10 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.bankaccountinformation.BankAccountInformation;
 
+/**
+ *<p>Ticket: https://mediastep.atlassian.net/browse/BH-25475</p>
+ */
+
 public class BankInfoPermissionTest extends BaseTest {
 
 	LoginInformation ownerCredentials;

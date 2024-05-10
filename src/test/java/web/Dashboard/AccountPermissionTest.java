@@ -21,7 +21,7 @@ import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.account.AccountPage;
 
 /**
- *<p>Preconditions: There exists at least one staff member</p>
+ * Ticket: https://mediastep.atlassian.net/browse/BH-25472
  */
 
 public class AccountPermissionTest extends BaseTest {

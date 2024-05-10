@@ -62,10 +62,13 @@ public class BuyXGetYPage {
 
 	public BuyXGetYPage navigateToListScreenByURL() {
 		navigateByURL(DOMAIN + "/buy-x-get-y");
-		for (int i=0; i<10; i++) {
-			if (!commons.getElements(elements.loc_btnCreatePromotion).isEmpty()) break;
-			commons.sleepInMiliSecond(500, "Waiting for Create Promotion button to appear");
-		}
+		
+		//A new ticket has been added - https://mediastep.atlassian.net/browse/BH-31632, so the block of code below is commented out for now
+//		for (int i=0; i<10; i++) {
+//			if (!commons.getElements(elements.loc_btnCreatePromotion).isEmpty()) break;
+//			commons.sleepInMiliSecond(500, "Waiting for Create Promotion button to appear");
+//		}
+
 		return this;
 	}		
 
@@ -240,8 +243,27 @@ public class BuyXGetYPage {
 		return title;
 	}	
 
+	boolean isBuyXGetYPermissionProhibited(AllPermissions staffPermission) {
+		boolean[] allStaffManagementPermisison = {
+				staffPermission.getPromotion().getBxGy().isViewBuyXGetYList(),
+				staffPermission.getPromotion().getBxGy().isViewBuyXGetYDetail(),
+				staffPermission.getPromotion().getBxGy().isCreateBuyXGetY(),
+				staffPermission.getPromotion().getBxGy().isEndBuyXGetY(),
+				staffPermission.getPromotion().getBxGy().isEditBuyXGetY()
+		};
+	    for(boolean individualPermission : allStaffManagementPermisison) if (individualPermission) return false;
+	    return true;
+	}	
+	
 	void checkPermissionToViewBuyXGetYList(AllPermissions staffPermission) {
 		navigateToListScreenByURL(); 
+		
+    	if (isBuyXGetYPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have BuyXGetY permission. Skipping checkPermissionToViewBuyXGetYList");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+		
 		List<List<String>> records = getPromotionTable();
 
 		if (staffPermission.getPromotion().getBxGy().isViewBuyXGetYList()) {
@@ -255,6 +277,12 @@ public class BuyXGetYPage {
 	void checkPermissionToViewBuyXGetYDetail(AllPermissions staffPermission, int programId) {
 		navigateToDetailScreenByURL(programId);
 
+    	if (isBuyXGetYPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have BuyXGetY permission. Skipping checkPermissionToViewBuyXGetYDetail");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+		
 		if (staffPermission.getPromotion().getBxGy().isViewBuyXGetYDetail()) {
 			Assert.assertNotEquals(getProgramNameInDetailScreen(), "");
 		} else {
@@ -266,6 +294,12 @@ public class BuyXGetYPage {
 	void checkPermissionToCreateBuyXGetYProgram(AllPermissions staffPermission, String productNotCreatedByStaff, String productCreatedByStaff) {
 		navigateToCreateScreenByURL();
 
+    	if (isBuyXGetYPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have BuyXGetY permission. Skipping checkPermissionToCreateBuyXGetYProgram");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+		
 		if(staffPermission.getPromotion().getBxGy().isCreateBuyXGetY()) {
 			selectSegment(1);
 			clickAddSegmentLink();
@@ -365,6 +399,13 @@ public class BuyXGetYPage {
 	void checkPermissionToEndBuyXGetYProgram(AllPermissions staffPermission, int programId) {
 		if (staffPermission.getPromotion().getBxGy().isViewBuyXGetYDetail()) {
 			navigateToDetailScreenByURL(programId);
+			
+	    	if (isBuyXGetYPermissionProhibited(staffPermission)) {
+	    		logger.info("Staff does not have BuyXGetY permission. Skipping checkPermissionToEndBuyXGetYProgram");
+	    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+	    		return;
+	    	}
+			
 			clickMarkExpiredBtn();
 			if (staffPermission.getPromotion().getBxGy().isEndBuyXGetY()) {
 				new ConfirmationDialog(driver).clickOKBtn();
@@ -394,6 +435,12 @@ public class BuyXGetYPage {
 	void checkPermissionToEditBuyXGetYProgram(AllPermissions staffPermission, int programId, String productNotCreatedByStaff, String productCreatedByStaff) {
 		navigateToEditScreenByURL(programId);
 
+    	if (isBuyXGetYPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have BuyXGetY permission. Skipping checkPermissionToEditBuyXGetYProgram");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+		
 		if (staffPermission.getPromotion().getBxGy().isViewBuyXGetYDetail()) {
 			selectSegment(1);
 			clickAddSegmentLink();
@@ -494,14 +541,6 @@ public class BuyXGetYPage {
 				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 			}
 		} else {
-			//When BH-32911 is resolved, delete the 4 lines below
-			if (staffPermission.getPromotion().getBxGy().isEditBuyXGetY()) {
-				logger.debug("There's a bug in this scenario, skipping editing operation for now!");
-				return;
-			}
-			
-			getPageTitle();
-			clickSaveBtn();
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 		}
 		logger.info("Finished checkPermissionToEditBuyXGetYProgram");

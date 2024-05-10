@@ -21,6 +21,7 @@ import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.staff_management.StaffPage;
 
 /**
+ *<p>Ticket: https://mediastep.atlassian.net/browse/BH-25476</p>
  *<p>Preconditions: There exists at least one staff member and a permission group</p>
  */
 
