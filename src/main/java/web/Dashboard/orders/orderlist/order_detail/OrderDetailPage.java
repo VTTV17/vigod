@@ -1,6 +1,7 @@
 package web.Dashboard.orders.orderlist.order_detail;
 
 import api.Seller.orders.delivery.APIPartialDeliveryOrders;
+import api.Seller.orders.order_management.APIAllOrderTags;
 import api.Seller.orders.order_management.APIAllOrders;
 import api.Seller.products.location_receipt.APILocationReceipt;
 import org.apache.logging.log4j.LogManager;
@@ -13,9 +14,11 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.orders.orderlist.edit_order.EditOrderPage;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
-import static api.Seller.orders.order_management.APIAllOrders.*;
+import static api.Seller.orders.order_management.APIAllOrders.Channel;
 import static api.Seller.orders.order_management.APIAllOrders.Channel.*;
 import static utilities.links.Links.DOMAIN;
 
@@ -97,6 +100,14 @@ public class OrderDetailPage extends OrderDetailElement {
                     new EditOrderPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
                             .checkEditOrder(channel);
                     checkDeliveredOrders(channel);
+                    checkPrintOrderSlip(channel, orderId);
+                    checkPrintOrderReceipt(channel, orderId);
+                    checkCreateOrderTag(channel, orderId);
+                    checkAddTagToOrder(channel);
+                    checkRemoveTagFromOrder(channel);
+                    checkViewTagList(channel, orderId);
+                    checkDeleteTag(channel, orderId);
+                    checkConfirmPayment(channel);
                 }
 
                 // check confirm order
@@ -195,7 +206,7 @@ public class OrderDetailPage extends OrderDetailElement {
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, "/order/arrange-shipment/"),
                             "[%s] Can not access to Arrange Shipment page.".formatted(channel));
                 } else {
-                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, loc_dlgToast),
+                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, loc_dlgToastSuccess),
                             "[%s] Can not confirm order.".formatted(channel));
                 }
             } else
@@ -243,13 +254,13 @@ public class OrderDetailPage extends OrderDetailElement {
             // check cancel order permission
             if (permission) {
                 // check can open confirm cancel order popup
-                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnCancelOrder, loc_dlgConfirmCancelOrder),
-                            "[%s] Can not open Confirm Cancel Order popup.".formatted(channel));
-                    if (!commonAction.getListElement(loc_dlgConfirmCancelOrder).isEmpty()) {
-                        commonAction.sendKeys(loc_dlgConfirmCancelOrder_txtReason, "Cancel reason %s.".formatted(orderId));
-                        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmCancelOrder_btnConfirm, loc_dlgToast),
-                                "[%s] Can not cancel order.".formatted(channel));
-                    }
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnCancelOrder, loc_dlgConfirmCancelOrder),
+                        "[%s] Can not open Confirm Cancel Order popup.".formatted(channel));
+                if (!commonAction.getListElement(loc_dlgConfirmCancelOrder).isEmpty()) {
+                    commonAction.sendKeys(loc_dlgConfirmCancelOrder_txtReason, "Cancel reason %s.".formatted(orderId));
+                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmCancelOrder_btnConfirm, loc_dlgToastSuccess),
+                            "[%s] Can not cancel order.".formatted(channel));
+                }
             } else
                 // if staff don’t have permission “Cancel order”
                 // => show restricted popup
@@ -280,7 +291,7 @@ public class OrderDetailPage extends OrderDetailElement {
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnDeliveredOrder, loc_dlgConfirmDeliveredOrder),
                         "[%s] Can not open Confirm Delivered Order popup.".formatted(channel));
                 if (!commonAction.getListElement(loc_dlgConfirmCancelOrder).isEmpty()) {
-                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmDeliveredOrder_btnConfirm, loc_dlgToast),
+                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmDeliveredOrder_btnConfirm, loc_dlgToastSuccess),
                             "[%s] Can not delivered order.".formatted(channel));
                 }
             } else
@@ -292,35 +303,214 @@ public class OrderDetailPage extends OrderDetailElement {
         }
     }
 
-    void checkPrintOrderSlip() {
+    void checkPrintOrderSlip(Channel channel, long orderId) {
+        // navigate to order detail page
+        navigateToOrderDetailPageByURL(channel, orderId);
 
+        // print shipping label
+        commonAction.clickJS(loc_btnPrintShippingLabel);
+
+        // check print order slip permission
+        if (permissions.getOrders().getOrderManagement().isPrintOrderSlip()) {
+            if (commonAction.getAllWindowHandles().size() > 1) {
+                // switch to print tab
+                commonAction.switchToWindow(1);
+
+                // check print shipping label tab is shown
+                assertCustomize.assertTrue(driver.getCurrentUrl().contains("/order/print/"),
+                        "[%s] Can not print shipping label.".formatted(channel));
+
+                // close print tab
+                driver.close();
+            }
+
+            // back to order detail tab
+            commonAction.switchToWindow(0);
+        } else {
+            // if staff don’t have permission “Print order slip”
+            // => show restricted popup
+            // when click on [Print order slip] button in GoSELL order detail page
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                    "[%s] Restricted popup is not shown.".formatted(channel));
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> Print order slip.".formatted(channel));
     }
 
-    void checkPrintOrderReceipt() {
+    void checkPrintOrderReceipt(Channel channel, long orderId) {
+        // navigate to order detail page
+        navigateToOrderDetailPageByURL(channel, orderId);
 
+        // print shipping label
+        commonAction.clickJS(loc_btnPrintOrderReceipt);
+
+        // check permission
+        if (permissions.getOrders().getOrderManagement().isPrintOrderReceipt()) {
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgPrintOrderReceipt).isEmpty(),
+                    "[%s] Can not print order receipt.".formatted(channel));
+        } else {
+            // if staff don’t have permission “Print order receipt”
+            // => show restricted popup
+            // when click on [Print order receipt] button in GoSELL order detail page
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                    "[%s] Restricted popup is not shown.".formatted(channel));
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> Print order receipt.".formatted(channel));
     }
 
-    void checkCreateOrderTag() {
+    void checkCreateOrderTag(Channel channel, long orderId) {
+        // navigate to order detail page
+        navigateToOrderDetailPageByURL(channel, orderId);
 
+        // check add new tag on order detail page
+        commonAction.sendKeys(loc_txtTag, String.valueOf(Instant.now().toEpochMilli()));
+        commonAction.click(loc_lnkCreateNewTag);
+        if (permissions.getOrders().getOrderManagement().isCreateOrderTag()) {
+            if (permissions.getOrders().getOrderManagement().isAddTagToOrder()) {
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                        "[%s] Can add new tag on order detail page.".formatted(channel));
+                assertCustomize.assertTrue(commonAction.getListElement(loc_dlgToastError).isEmpty(),
+                        "[%s] Tag is not added to order although staff have 'Add tag to order' permission.".formatted(channel));
+            } else {
+                // if staff don’t have permission “Add tag to order”
+                // => show restricted popup
+                //  when user create and add to order in order detail
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastError).isEmpty(),
+                        "[%s] Tag is added to order although staff do not have 'Add tag to order' permission.".formatted(channel));
+            }
+        } else {
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                    "[%s] Restricted popup is not shown.".formatted(channel));
+        }
+
+        // check add new tag on Tag management overview popup
+        commonAction.click(loc_lnkManageAllTags);
+        commonAction.sendKeys(loc_dlgTagManagementOverview_txtTag, String.valueOf(Instant.now().toEpochMilli()));
+        commonAction.click(loc_dlgTagManagementOverview_btnCreateNewTag);
+        if (permissions.getOrders().getOrderManagement().isCreateOrderTag()) {
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                    "[%s] Can add new Tag management overview popup.".formatted(channel));
+        } else {
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                    "[%s] Restricted popup is not shown.".formatted(channel));
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> Create order tag.".formatted(channel));
     }
 
-    void checkAddTagToOrder() {
+    void checkAddTagToOrder(Channel channel) {
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForAddTagsToOrder(channel);
+        // navigate to order detail page
+        navigateToOrderDetailPageByURL(channel, orderId);
 
+        // open tag dropdown
+        commonAction.click(loc_txtTag);
+
+        // select tag
+        commonAction.click(loc_ddlTagOptions, 0);
+        if (permissions.getOrders().getOrderManagement().isAddTagToOrder()) {
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                    "[%s] Can not add tag to order.".formatted(channel));
+        } else {
+            // if staff don’t have permission “Add tag to order”
+            // => show restricted popup
+            //  when user add to order in order detail
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                    "[%s] Restricted popup is not shown.".formatted(channel));
+        }
+
+        logger.info("[%s] Check permission: Order >> Order management >> Add tag to order.".formatted(channel));
     }
 
-    void checkRemoveTagFromOrder() {
+    void checkRemoveTagFromOrder(Channel channel) {
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForRemoveTagsFromOrder(channel);
+        if (orderId != 0) {
+            // navigate to order detail page
+            navigateToOrderDetailPageByURL(channel, orderId);
 
+            // remove tag
+            commonAction.clickJS(loc_icnRemoveSelectedTag, 0);
+
+            // check remove tag from order permission
+            if (permissions.getOrders().getOrderManagement().isRemoveTagFromOrder()) {
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                        "[%s] Can not remove tag from order.".formatted(channel));
+            } else {
+                // if staff don’t have permission “Add tag to order”
+                // => show restricted popup
+                //  when user click to remove a tag in order detail
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                        "[%s] Restricted popup is not shown.".formatted(channel));
+            }
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> Remove tag from order.".formatted(channel));
     }
 
-    void checkViewTagList() {
+    void checkViewTagList(Channel channel, long orderId) {
+        // navigate to order detail page
+        navigateToOrderDetailPageByURL(channel, orderId);
 
+        // check add new tag on Tag management overview popup
+        List<Integer> tagListWithStaffToken = new APIAllOrderTags(staffLoginInformation).getAllOrderTagsInformation().getTagIds();
+        if (permissions.getOrders().getOrderManagement().isViewTagList()) {
+            List<Integer> tagListWithSellerToken = new APIAllOrderTags(sellerLoginInformation).getAllOrderTagsInformation().getTagIds();
+            assertCustomize.assertEquals(tagListWithStaffToken, tagListWithSellerToken,
+                    "[%s] Order tags list must be %s, but found %s.".formatted(channel, tagListWithSellerToken, tagListWithStaffToken));
+        } else {
+            // if staff don’t have permission “View tag list”
+            // => they will not see any tag when search a tag in order detail, or popup multi action >> add tag
+            assertCustomize.assertTrue(tagListWithStaffToken.isEmpty(),
+                    "[%s] Order tag list must be empty, but found %s.".formatted(channel, staffLoginInformation));
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> View tag list.".formatted(channel));
     }
 
-    void checkDeleteTag() {
+    void checkDeleteTag(Channel channel, long orderId) {
+        // navigate to order detail page
+        navigateToOrderDetailPageByURL(channel, orderId);
 
+        // get number of tags that staff can view
+        int numOfTagInStore = permissions.getOrders().getOrderManagement().isViewTagList()
+                ? 0
+                : new APIAllOrderTags(staffLoginInformation).getAllOrderTagsInformation().getTagIds().size();
+        if (numOfTagInStore != 0) {
+            commonAction.clickJS(loc_lnkManageAllTags);
+            commonAction.clickJS(loc_dlgTagManagementOverview_icnDeleteTag);
+
+            if (permissions.getOrders().getOrderManagement().isDeleteTag()) {
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                        "[%s] Can not delete tag.".formatted(channel));
+            } else {
+                // if staff don’t have permission “Delete tag”
+                // => show restricted popup
+                // when user click [Delete] icon on popup Tag management
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                        "[%s] Restricted popup is not shown.".formatted(channel));
+            }
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> Delete tag.".formatted(channel));
     }
 
-    void checkConfirmPayment() {
+    void checkConfirmPayment(Channel channel) {
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForConfirmPayment(channel);
+        if (orderId != 0) {
+            // navigate to order detail page
+            navigateToOrderDetailPageByURL(channel, orderId);
 
+            // check confirm payment permission
+            if (permissions.getOrders().getOrderManagement().isConfirmPayment()) {
+                // check can open confirm payment popup
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmPayment, loc_dlgConfirmPayment),
+                        "[%s] Can not open Confirm Payment popup.".formatted(channel));
+                if (!commonAction.getListElement(loc_dlgConfirmPayment_btnAdd).isEmpty()) {
+                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmPayment_btnAdd, loc_dlgToastSuccess),
+                            "[%s] Can not confirm payment.".formatted(channel));
+                }
+            } else
+                // if staff don’t have permission “Confirm payment”
+                // => show restricted popup
+                // when user click [Confirm payment] button in order detail page
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnConfirmPayment),
+                        "[%s] Restricted popup is not shown.".formatted(channel));
+        }
+        logger.info("[%s] Check permission: Order >> Order management >> Confirm payment.".formatted(channel));
     }
 }

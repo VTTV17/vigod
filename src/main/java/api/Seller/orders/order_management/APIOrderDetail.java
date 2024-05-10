@@ -1,7 +1,10 @@
 package api.Seller.orders.order_management;
 
 import api.Seller.login.Login;
+import api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -25,25 +28,45 @@ public class APIOrderDetail {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
+    @Data
+    public static class OrderInformation {
+        long orderId;
+        PaymentMethod paymentMethod;
+        int itemsCount;
+        int totalQuantity;
+        ShippingMethod shippingMethod;
+        OrderStatus status;
+        OrderTags orderTags;
+    }
+
     String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true";
 
     Response getDetailOfOrderResponse(long orderId) {
         return api.get(getOrderDetailPath.formatted(orderId), loginInfo.getAccessToken(), Map.of("langkey", "en"));
     }
 
-    public List<Integer> getItemIds(long orderId) {
-            Response response = getDetailOfOrderResponse(orderId);
-            int count = 0;
-            while (response.statusCode() == 500) {
-                logger.info(response.getBody().asString());
-                response = getDetailOfOrderResponse(orderId);
-                count ++;
-                if (count == 2) break;
-            }
-        return response.jsonPath().getList("items.itemId");
-    }
-
     public OrderStatus getOrderStatus(int orderId) {
         return OrderStatus.valueOf(getDetailOfOrderResponse(orderId).jsonPath().getString("orderInfo.status"));
+    }
+
+    public OrderInformation getOrderInformation(long orderId) {
+        OrderInformation info = new OrderInformation();
+        Response response = getDetailOfOrderResponse(orderId);
+
+        if (response.statusCode() == 403) return info;
+        JsonPath jsonPath = response.jsonPath();
+
+
+        // get order information
+        info.setOrderId(orderId);
+        info.setPaymentMethod(PaymentMethod.valueOf(jsonPath.getString("orderInfo.paymentMethod")));
+        info.setItemsCount(jsonPath.getInt("orderInfo.itemsCount"));
+        info.setTotalQuantity(jsonPath.getInt("orderInfo.totalQuantity"));
+        info.setShippingMethod(ShippingMethod.valueOf(jsonPath.getString("orderInfo.deliveryName")));
+        info.setStatus(OrderStatus.valueOf(jsonPath.getString("orderInfo.status")));
+        info.setOrderTags(new OrderTags(jsonPath.getList("orderTagInfos.tagId"), jsonPath.getList("orderTagInfos.name")));
+
+        // return model
+        return info;
     }
 }

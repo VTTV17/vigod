@@ -15,7 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import static api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
 import static api.Seller.orders.order_management.APIAllOrders.Channel.BEECOW;
 import static api.Seller.orders.order_management.APIAllOrders.Channel.GOSELL;
 import static api.Seller.orders.order_management.APIAllOrders.InStore.FALSE;
@@ -50,11 +52,6 @@ public class APIAllOrders {
         List<ShippingMethod> shippingMethods = new ArrayList<>();
         List<InStore> inStores = new ArrayList<>();
         List<PayType> payTypes = new ArrayList<>();
-    }
-
-    @Data
-    public static class OrderTags {
-        List<Integer> tagId;
     }
 
     public enum OrderStatus {
@@ -150,17 +147,8 @@ public class APIAllOrders {
         info.setStatues(statues.stream().map(OrderStatus::valueOf).toList());
         info.setCustomerIds(customerIds);
         info.setBranchIds(branchIds);
-        List<OrderTags> tagsList = new ArrayList<>();
-
-        orderTags.forEach(tags -> {
-            OrderTags tag = new OrderTags();
-            tag.setTagId(Pattern.compile("tagId=(\\d+)").matcher(tags.toString())
-                    .results()
-                    .map(matchResult -> Integer.valueOf(matchResult.group(1)))
-                    .toList());
-            tagsList.add(tag);
-        });
-        info.setOrderTags(tagsList);
+        info.setOrderTags(orderTags.stream().map(tags -> new OrderTags(Pattern.compile("tagId=(\\d+)").matcher(tags.toString()).results().map(matchResult -> Integer.valueOf(matchResult.group(1))).toList(),
+                Pattern.compile("name=(\\w+)").matcher(tags.toString()).results().map(matchResult -> String.valueOf(matchResult.group(1))).toList())).toList());
         info.setMadeBy(madeBy);
         info.setPaymentMethods(paymentMethods.stream().map(PaymentMethod::valueOf).toList());
         info.setShippingMethods(shippingMethods.stream().map(shippingMethod -> ((shippingMethod == null) || shippingMethod.isEmpty()) ? selfdelivery : ShippingMethod.valueOf(shippingMethod)).toList());
@@ -264,6 +252,33 @@ public class APIAllOrders {
                 .mapToLong(id -> id)
                 .filter(id -> (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
                         && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED)))
+                .findFirst()
+                .orElse(0L);
+    }
+
+    public long getOrderIdForAddTagsToOrder(Channel channel) {
+        AllOrdersInformation info = getAllOrderInformation(channel);
+        // init temp arr
+        List<Long> ids = new ArrayList<>(info.getIds());
+        List<OrderTags> orderTags = new ArrayList<>(info.getOrderTags());
+        int numberOfTagsInOrder = new APIAllOrderTags(loginInformation).getAllOrderTagsInformation().getTagIds().size();
+
+        return numberOfTagsInOrder == 0 ? 0 : ids.stream()
+                .mapToLong(id -> id)
+                .filter(id -> numberOfTagsInOrder > orderTags.get(ids.indexOf(id)).getTagIds().size())
+                .findFirst()
+                .orElse(0L);
+    }
+
+    public long getOrderIdForRemoveTagsFromOrder(Channel channel) {
+        AllOrdersInformation info = getAllOrderInformation(channel);
+        // init temp arr
+        List<Long> ids = new ArrayList<>(info.getIds());
+        List<OrderTags> orderTags = new ArrayList<>(info.getOrderTags());
+
+        return ids.stream()
+                .mapToLong(id -> id)
+                .filter(id -> !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
                 .findFirst()
                 .orElse(0L);
     }
