@@ -146,25 +146,4 @@ public class APIAllPurchaseOrders {
                 .findFirst()
                 .orElse(0);
     }
-
-    public List<Integer> getListProductIdInNotCompletedPurchaseOrder() {
-        AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
-        List<Integer> purchaseOrderIds = info.getIds();
-        List<PurchaseOrderStatus> statues = info.getStatues();
-
-        // get list in-complete purchase order id
-        List<Integer> inCompletePurchaseIds = purchaseOrderIds.stream()
-                .filter(transferId -> !(Objects.equals(statues.get(purchaseOrderIds.indexOf(transferId)), CANCELLED)
-                        || Objects.equals(statues.get(purchaseOrderIds.indexOf(transferId)), COMPLETED)))
-                .toList();
-
-        // init purchase order api
-        APIPurchaseOrderDetail purchaseOrderDetail = new APIPurchaseOrderDetail(loginInformation);
-
-        // get list itemId in in-complete purchase order
-        return inCompletePurchaseIds.stream()
-                .flatMap(purchaseId -> purchaseOrderDetail.getItemIds(purchaseId).stream())
-                .distinct()
-                .toList();
-    }
 }

@@ -379,7 +379,7 @@ public class ProductManagementPage extends ProductManagementElement {
         Map<String, Integer> beforeUpdateStocksInES = allProducts.getCurrentStocks(productIds, branchId);
 
         // log
-        logger.info("Wait get product stock before clear stock.");
+        logger.info("Wait get product stock before update stock.");
 
         // open bulk actions dropdown
         openBulkActionsDropdown();

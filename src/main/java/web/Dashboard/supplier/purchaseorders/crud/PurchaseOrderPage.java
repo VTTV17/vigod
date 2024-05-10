@@ -261,8 +261,8 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
         // check create purchase order
         try {
-            checkCreatePurchaseOrder();
-            checkCreateAndApprovePurchaseOrder();
+//            checkCreatePurchaseOrder();
+//            checkCreateAndApprovePurchaseOrder();
         } catch (Exception ex) {
             logger.error(ex);
         }

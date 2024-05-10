@@ -492,7 +492,7 @@ public class AllPermissions {
         lazada.setSyncOrders(checkPermission(lazadaPermission, 5));
         lazada.setViewOrderList(checkPermission(lazadaPermission, 6));
         lazada.setViewOrderDetail(checkPermission(lazadaPermission, 7));
-        lazada.setConfirmOrders(checkPermission(lazadaPermission, 8));
+        lazada.setConfirmOrder(checkPermission(lazadaPermission, 8));
         lazada.setCancelOrder(checkPermission(lazadaPermission, 9));
         lazada.setExportOrder(checkPermission(lazadaPermission, 10));
 

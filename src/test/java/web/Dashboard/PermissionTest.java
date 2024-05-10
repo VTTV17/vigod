@@ -2,7 +2,6 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.setting.PermissionAPI;
-import org.openqa.selenium.WebDriver;
 import org.testng.annotations.Test;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;

@@ -1,6 +1,7 @@
 package api.Seller.products.location_receipt;
 
 import api.Seller.login.Login;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
@@ -9,7 +10,10 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
+
+import static api.Seller.products.location_receipt.APILocationReceipt.LocationReceiptStatus.DRAFT;
 
 public class APILocationReceipt {
     LoginInformation loginInformation;
@@ -21,6 +25,10 @@ public class APILocationReceipt {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
+    enum LocationReceiptStatus {
+        DRAFT, COMPLETED
+    }
+
     @Data
     public static class AllLocationReceiptInfo {
         List<Integer> ids = new ArrayList<>();
@@ -29,7 +37,7 @@ public class APILocationReceipt {
         List<Integer> totalProducts = new ArrayList<>();
         List<Integer> totalQuantity = new ArrayList<>();
         List<Integer> totalLocations = new ArrayList<>();
-        List<String> statues = new ArrayList<>();
+        List<LocationReceiptStatus> statues = new ArrayList<>();
     }
 
     String getAllLocationReceiptPath = "/itemservice/api/location-receipt/search/store/%s?page=%s&size=100";
@@ -80,7 +88,7 @@ public class APILocationReceipt {
         info.setTotalProducts(totalProducts);
         info.setTotalLocations(totalLocations);
         info.setTotalQuantity(totalQuantity);
-        info.setStatues(statues);
+        info.setStatues(statues.stream().map(LocationReceiptStatus::valueOf).toList());
 
         return info;
     }
@@ -140,12 +148,12 @@ public class APILocationReceipt {
         List<Integer> ids = info.getIds();
         List<String> branchNames = info.getBranchNames();
         List<String> locationReceiptIds = info.getLocationReceiptIds();
-        List<String> locationStatues = info.getStatues();
+        List<LocationReceiptStatus> locationStatues = info.getStatues();
 
         return ids.stream()
                 .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
                         && locationReceiptIds.get(ids.indexOf(id)).contains("ADD")
-                        && locationStatues.get(ids.indexOf(id)).equals("DRAFT"))
+                        && Objects.equals(locationStatues.get(ids.indexOf(id)), DRAFT))
                 .findFirst()
                 .orElse(0);
     }
@@ -159,14 +167,68 @@ public class APILocationReceipt {
         List<Integer> ids = info.getIds();
         List<String> branchNames = info.getBranchNames();
         List<String> locationReceiptIds = info.getLocationReceiptIds();
-        List<String> locationStatues = info.getStatues();
+        List<LocationReceiptStatus> locationStatues = info.getStatues();
 
         return ids.stream()
                 .filter(id -> assignedBranchNames.contains(branchNames.get(ids.indexOf(id)))
                         && locationReceiptIds.get(ids.indexOf(id)).contains("GET")
-                        && locationStatues.get(ids.indexOf(id)).equals("DRAFT"))
+                        && Objects.equals(locationStatues.get(ids.indexOf(id)), DRAFT))
                 .findFirst()
                 .orElse(0);
+    }
+
+    String getLocationReceiptInOrderPath = "/itemservice/api/location-receipt/get-in-order-detail?storeId=%s&referenceId=%s&referenceType=ORDER";
+
+    Response getLocationReceiptInOrderResponse(long orderId) {
+        return api.get(getLocationReceiptInOrderPath.formatted(loginInfo.getStoreID(), orderId), loginInfo.getAccessToken());
+    }
+
+    AllLocationReceiptInfo getLocationReceiptInOrderInfo(long orderId) {
+        // init model
+        AllLocationReceiptInfo info = new AllLocationReceiptInfo();
+
+        // get all location receipt
+        JsonPath jsonPath = getLocationReceiptInOrderResponse(orderId)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath();
+        List<Integer> ids = new ArrayList<>(jsonPath.getList("id"));
+        List<String> locationReceiptIds = new ArrayList<>(jsonPath.getList("locationReceiptId"));
+        List<String> branchNames = new ArrayList<>(jsonPath.getList("content.branchName"));
+        List<Integer> totalProducts = new ArrayList<>(jsonPath.getList("products"));
+        List<Integer> totalQuantity = new ArrayList<>(jsonPath.getList("quantities"));
+        List<String> statues = new ArrayList<>(jsonPath.getList("locationReceiptStatus"));
+
+        // get all location receipt info
+        info.setIds(ids);
+        info.setLocationReceiptIds(locationReceiptIds);
+        info.setBranchNames(branchNames);
+        info.setTotalProducts(totalProducts);
+        info.setTotalQuantity(totalQuantity);
+        info.setStatues(statues.stream().map(LocationReceiptStatus::valueOf).toList());
+
+        return info;
+    }
+
+    public int getNumberOfGetReceiptInOrder(long orderId) {
+        // get receipt ids
+        List<String> locationReceiptIds =  getLocationReceiptInOrderInfo(orderId).getLocationReceiptIds();
+
+        return locationReceiptIds.stream()
+                .filter(locationReceiptId -> locationReceiptId.contains("GET"))
+                .toList()
+                .size();
+    }
+
+    public int getNumberOfAddReceiptInOrder(long orderId) {
+        // get receipt ids
+        List<String> locationReceiptIds =  getLocationReceiptInOrderInfo(orderId).getLocationReceiptIds();
+
+        return locationReceiptIds.stream()
+                .filter(locationReceiptId -> locationReceiptId.contains("ADD"))
+                .toList()
+                .size();
     }
 
     String importLotOrLocationPath = "/itemservice/api/items/import-lot-location/%s";

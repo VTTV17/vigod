@@ -1,5 +1,6 @@
 package utilities.api;
 
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -18,6 +19,7 @@ public class API {
     public static String staffPermissionToken = "";
 
     public API() {
+        RestAssured.proxy("localhost", 8888);
         baseURI = Links.URI;
     }
 
@@ -27,7 +29,7 @@ public class API {
 
     @SafeVarargs
     public final Response get(String path, String token, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -39,7 +41,7 @@ public class API {
 
     @SafeVarargs
     public final Response search(String path, String token, String body, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -51,7 +53,7 @@ public class API {
     }
 
     public Response login(String path, String body) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .contentType(ContentType.JSON)
                 .body(body)
                 .when()
@@ -60,7 +62,7 @@ public class API {
 
     @SafeVarargs
     public final Response post(String path, String token, String body, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -73,7 +75,7 @@ public class API {
 
     @SafeVarargs
     public final Response post(String path, String token, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -85,7 +87,7 @@ public class API {
 
     @SafeVarargs
     public final Response put(String path, String token, String body, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -98,7 +100,7 @@ public class API {
 
     @SafeVarargs
     public final Response delete(String path, String token, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -110,7 +112,7 @@ public class API {
 
     @SafeVarargs
     public final Response put(String path, String token, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -122,7 +124,7 @@ public class API {
 
     @SafeVarargs
     public final Response deleteRequest(String path, String token, String body, Map<String, ?>... headers) {
-        return given()
+        return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
@@ -147,7 +149,7 @@ public class API {
         int bound = ((additionParams.length % 2) == 0)
                 ? (additionParams.length - 1)
                 : (additionParams.length - 2);
-        RequestSpecification requestSpecification = given();
+        RequestSpecification requestSpecification = given().relaxedHTTPSValidation();
         for (int index = 0; index < bound; index += 2) {
             requestSpecification = requestSpecification.multiPart(additionParams[index], additionParams[index + 1]);
         }

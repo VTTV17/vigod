@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.orders.orderlist.OrderList;
+import web.Dashboard.orders.orderlist.OrderManagementPage;
 import web.Dashboard.products.productreviews.ProductReviews;
 import web.StoreFront.checkout.checkoutOneStep.Checkout;
 import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;
@@ -39,7 +39,7 @@ public class ProductReviewTest extends BaseTest {
 	LoginPage dbLoginPage;
 	HomePage homePage;
 	ProductReviews productReviewPage;
-	OrderList orderList;
+	OrderManagementPage orderList;
 	web.StoreFront.login.LoginPage sfLoginPage;
 	HeaderSF sfHeader;
 	ProductDetailPage sfProductDetailPage;

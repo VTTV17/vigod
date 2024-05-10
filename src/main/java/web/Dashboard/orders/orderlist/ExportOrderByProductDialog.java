@@ -37,7 +37,7 @@ public class ExportOrderByProductDialog {
 
 	public boolean isSelectProductDialogDisplayed() {
 		commonAction.sleepInMiliSecond(1000);
-		return commonAction.getElements(loc_btnExportOrderByProduct).size() >0;
+		return !commonAction.getElements(loc_btnExportOrderByProduct).isEmpty();
 	}	
 	
 }

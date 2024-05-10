@@ -11,7 +11,7 @@ public class Lazada{
 	private boolean cancelOrder;
 	private boolean viewOrderList;
 	private boolean viewOrderDetail;
-	private boolean confirmOrders;
+	private boolean confirmOrder;
 	private boolean exportOrder;
 	private boolean disconnectAccount;
 }

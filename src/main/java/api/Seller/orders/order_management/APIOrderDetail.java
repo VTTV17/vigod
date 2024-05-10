@@ -27,11 +27,11 @@ public class APIOrderDetail {
 
     String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true";
 
-    Response getDetailOfOrderResponse(int orderId) {
+    Response getDetailOfOrderResponse(long orderId) {
         return api.get(getOrderDetailPath.formatted(orderId), loginInfo.getAccessToken(), Map.of("langkey", "en"));
     }
 
-    public List<Integer> getItemIds(int orderId) {
+    public List<Integer> getItemIds(long orderId) {
             Response response = getDetailOfOrderResponse(orderId);
             int count = 0;
             while (response.statusCode() == 500) {

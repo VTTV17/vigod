@@ -10,7 +10,6 @@ import utilities.commons.UICommonAction;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
 import utilities.utils.PropertiesUtil;
-import web.Dashboard.analytics.OrderAnalytics;
 import web.Dashboard.analytics.ReservationAnalytics;
 import web.Dashboard.customers.allcustomers.AllCustomers;
 import web.Dashboard.customers.segments.Segments;
@@ -29,7 +28,7 @@ import web.Dashboard.onlineshop.menus.MenuManagement;
 import web.Dashboard.onlineshop.pages.PageManagement;
 import web.Dashboard.onlineshop.preferences.Configuration;
 import web.Dashboard.orders.createquotation.CreateQuotation;
-import web.Dashboard.orders.orderlist.OrderList;
+import web.Dashboard.orders.orderlist.OrderManagementPage;
 import web.Dashboard.orders.pos.POSPage;
 import web.Dashboard.orders.returnorders.ReturnOrders;
 import web.Dashboard.products.all_products.crud.ProductPage;
@@ -222,13 +221,13 @@ public class Permission {
 					home.hideFacebookBubble();
 					if (subMenu.contentEquals("Order List")) {
 						if (function.contentEquals("Export Order")) {
-							new OrderList(driver).verifyPermissionToExportOrder(permission.get(menuComponent));
+							new OrderManagementPage(driver).verifyPermissionToExportOrder(permission.get(menuComponent));
 						}
 						if (function.contentEquals("Export Order By Product")) {
-							new OrderList(driver).verifyPermissionToExportOrderByProduct(permission.get(menuComponent));
+							new OrderManagementPage(driver).verifyPermissionToExportOrderByProduct(permission.get(menuComponent));
 						}
 						if (function.contentEquals("Export History")) {
-							new OrderList(driver).verifyPermissionToExportHistory(permission.get(menuComponent), url.get(menuComponent));
+							new OrderManagementPage(driver).verifyPermissionToExportHistory(permission.get(menuComponent), url.get(menuComponent));
 						}
 					}
 					if (subMenu.contentEquals("Return Orders")) {

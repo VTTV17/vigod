@@ -1,11 +1,6 @@
 package api.Seller.products.all_products;
 
-import api.Seller.affiliate.dropship.PartnerTransferManagement;
 import api.Seller.login.Login;
-import api.Seller.orders.order_management.APIAllOrders;
-import api.Seller.orders.return_order.APIAllReturnOrder;
-import api.Seller.products.transfer.TransferManagement;
-import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -468,22 +463,5 @@ public class APIAllProducts {
             }
         });
         return productStocks.values().stream().toList();
-    }
-
-    public List<Integer> getListProductIdThatInInCompleteTransfer() {
-        List<Integer> listProductIdThatInInCompleteTransfer = new ArrayList<>();
-        listProductIdThatInInCompleteTransfer.addAll(new TransferManagement(loginInformation).getListProductIdInNotCompletedTransfer());
-        listProductIdThatInInCompleteTransfer.addAll(new PartnerTransferManagement(loginInformation).getListProductIdInNotCompletedTransfer());
-        return listProductIdThatInInCompleteTransfer;
-    }
-
-    public List<Integer> getListProductIdThatIsCanNotManageByLotDate() {
-        List<Integer> listProductIdThatIsCanNotManageByLotDate = new ArrayList<>();
-        listProductIdThatIsCanNotManageByLotDate.addAll(getListProductIdThatInInCompleteTransfer());
-        listProductIdThatIsCanNotManageByLotDate.addAll(new APIAllPurchaseOrders(loginInformation).getListProductIdInNotCompletedPurchaseOrder());
-        listProductIdThatIsCanNotManageByLotDate.addAll(new APIAllReturnOrder(loginInformation).getListProductIdInNotCompletedReturnOrder());
-        listProductIdThatIsCanNotManageByLotDate.addAll(new APIAllOrders(loginInformation).getListProductIdInNotCompletedOrder());
-        return listProductIdThatIsCanNotManageByLotDate;
-
     }
 }
