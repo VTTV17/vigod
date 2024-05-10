@@ -600,6 +600,7 @@ public class MarketingPermissionTest extends BaseTest {
         }
         return id;
     }
+    //https://mediastep.atlassian.net/browse/BH-25140
     @DataProvider
     public Object[][] LoyaltyProgramPermissionModel() {
         return new Object[][]{

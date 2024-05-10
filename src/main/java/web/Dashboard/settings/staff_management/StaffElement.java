@@ -1,5 +1,6 @@
 package web.Dashboard.settings.staff_management;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -54,9 +55,6 @@ public class StaffElement {
     @FindBy (css = "div.header-right__ele-right > a[href='/logout']")
     WebElement LOGOUT_BTN;
 
-    @FindBy (css = "tr:nth-child(2) > td.gsa-white-space--nowrap > div > i:nth-child(1)")
-    WebElement EDIT_ICON;
-
     @FindBy (css = "tr:nth-child(2) > td.gsa-white-space--nowrap > div > i:nth-child(2)")
     WebElement DELETE_ICON;
 
@@ -80,4 +78,16 @@ public class StaffElement {
 
     @FindBy (css = "")
     WebElement STAFF_MANAGEMENT_FOOTER;
+    
+    //It'll take some time to convert all the WebElements above into By locators so we'll leave them unchanged for now.
+    By loc_lblStaffEmailTable = By.cssSelector(".staff-list-desktop .staff__email");
+    
+    By loc_ddlSelectGroupForm = By.cssSelector("[name='permissionGroupIds']");
+    By loc_ddvSelectFirstGroupForm = By.xpath("//div[starts-with(@id, 'react-select-') and contains(@id, 'option-0')]");
+    
+    By loc_btnEditIcon = By.xpath("//div[contains(@class,'staff-list-desktop')]//i[contains(@style, 'icon-edit')]");
+    By loc_btnDeleteIcon = By.xpath("//div[contains(@class,'staff-list-desktop')]//i[contains(@style, 'icon-delete')]");
+    
+    By loc_btnActivateStaffToggle = By.cssSelector(".staff-list-desktop .btn-enable-staff .uik-checkbox__toggle");
+    By loc_tmpInputTag = By.xpath("./input");
 }
