@@ -17,7 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class PermissionAPI {
+	final static Logger logger = LogManager.getLogger(PermissionAPI.class);
+	
     String CREATE_GROUP_PERMISSION_PATH = "/storeservice/api/authorized-group-permissions/store/%s";
     String EDIT_GROUP_PERMISSION_PATH = CREATE_GROUP_PERMISSION_PATH + "/group/%s";
     String GRANT_GROUP_PERMISSION_TO_STAFF_PATH = "/storeservice/api/store_staffs/add-staff-to-permission-group/%s";
@@ -132,6 +137,7 @@ public class PermissionAPI {
     public void deleteGroupPermission(int groupID) {
         Response response = api.delete(EDIT_GROUP_PERMISSION_PATH.formatted(loginInfo.getStoreID(), groupID), loginInfo.getAccessToken());
         response.then().statusCode(204);
+        logger.info("Deleted permission group: " + groupID);
     }
     public void deleteGroupPermission(List<Integer>groupIds){
         for (int groupId:groupIds) {
@@ -151,6 +157,7 @@ public class PermissionAPI {
                       }""".formatted(staffID);
         Response response = api.post(GRANT_GROUP_PERMISSION_TO_STAFF_PATH.formatted(groupID), loginInfo.getAccessToken(), body);
         response.then().statusCode(200);
+        logger.info("Granted permission group '%s' to staff '%s'".formatted(groupID, staffID));
     }
 
     /**
@@ -161,6 +168,7 @@ public class PermissionAPI {
     public void removeGroupPermissionFromStaff(int staffID, int groupID) {
         Response response = api.delete(REMOVE_GROUP_PERMISSION_FROM_STAFF_PATH.formatted(groupID, staffID), loginInfo.getAccessToken());
         response.then().statusCode(200);
+        logger.info("Revoked permission group '%s' from staff '%s'".formatted(groupID, staffID));
     }
 
     /**
@@ -236,7 +244,7 @@ public class PermissionAPI {
     }
 
     @Data
-    static class PermissionInformation {
+    public static class PermissionInformation {
         List<Integer> permissionIds;
         List<Integer> numberOfAssigned;
     }
@@ -251,7 +259,7 @@ public class PermissionAPI {
                 .response();
     }
 
-    PermissionInformation getAllPermissionGroupInformation() {
+    public PermissionInformation getAllPermissionGroupInformation() {
         // init suggestion model
         PermissionInformation info = new PermissionInformation();
 
