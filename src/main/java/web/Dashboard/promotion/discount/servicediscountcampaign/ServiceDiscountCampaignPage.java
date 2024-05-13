@@ -49,19 +49,18 @@ public class ServiceDiscountCampaignPage {
 	public By loc_chkAppliesTo = By.cssSelector("fieldset[name ='conditionAppliesTo'] label");
 
 	public ServiceDiscountCampaignPage tickAppliesTo(int optionIndex) {
-		commonAction.waitForListLoaded(loc_chkAppliesTo,3);
 		if (optionIndex ==0) {
-			commonAction.click(loc_chkAppliesTo,optionIndex);
+			commonAction.getElements(loc_chkAppliesTo,3).get(optionIndex).click();
 			logger.info("Ticked 'All Services' radio button.");
 		} else if (optionIndex ==1) {
-			commonAction.click(loc_chkAppliesTo,optionIndex);
+			commonAction.getElements(loc_chkAppliesTo,3).get(optionIndex).click();
 			logger.info("Ticked 'Specific Service Collections' radio button.");
 		} else if (optionIndex ==2) {
-			commonAction.click(loc_chkAppliesTo,optionIndex);
+			commonAction.getElements(loc_chkAppliesTo,3).get(optionIndex).click();
 			logger.info("Ticked 'Specific Services' radio button.");
 		} else {
 			logger.info("Input value is not in range (0:2). By default, 'All Service' radio button is ticked.");
-			commonAction.click(loc_chkAppliesTo,0);
+			commonAction.getElements(loc_chkAppliesTo,3).get(0).click();
 		}
 		return this;
 	}

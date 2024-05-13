@@ -123,8 +123,7 @@ public class FlashSalePage extends FlashSaleElement {
         return this;
     }
     public FlashSalePage clickOnEditFirstFlashSale(){
-        commonAction.waitForListLoaded(loc_icnEdit,2);
-        commonAction.click(loc_icnEdit,0);
+        commonAction.getElements(loc_icnEdit,3).get(0).click();
         logger.info("Click on edit icon.");
         return this;
     }
@@ -160,8 +159,7 @@ public class FlashSalePage extends FlashSaleElement {
     }
 
     public FlashSalePage verifyPermissionViewFlashSaleList(){
-        commonAction.waitForListLoaded(loc_lst_lblFlashSaleCampaignName,3);
-        List<WebElement> flashSaleList = commonAction.getElements(loc_lst_lblFlashSaleCampaignName);
+        List<WebElement> flashSaleList = commonAction.getElements(loc_lst_lblFlashSaleCampaignName,3);
         if(allPermission.getPromotion().getFlashSale().isViewFlashSaleList()){
             assertCustomize.assertTrue(!flashSaleList.isEmpty(),
                     "[Failed] Flash sale list should be shown, but list have size = %s".formatted(flashSaleList.size()));
@@ -200,8 +198,7 @@ public class FlashSalePage extends FlashSaleElement {
     public FlashSalePage verifyPermissionViewFlashSaleTime(){
         navigateUrl();
         clickOnManageFlashSaleTime();
-        commonAction.waitForListLoaded(timeManagementEl.loc_lst_lblStartTime,5);
-        List<WebElement> startTimeList = commonAction.getElements(timeManagementEl.loc_lst_lblStartTime);
+        List<WebElement> startTimeList = commonAction.getElements(timeManagementEl.loc_lst_lblStartTime,3);
         if(allPermission.getPromotion().getFlashSale().isViewFlashSaleTime()){
             assertCustomize.assertTrue(!startTimeList.isEmpty(),
                     "[Failed] Manage time list should be shown, but list have size = %s".formatted(startTimeList.size()));

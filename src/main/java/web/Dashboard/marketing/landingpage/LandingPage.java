@@ -190,8 +190,7 @@ public class LandingPage extends LandingPageElement {
 	}
 	public void checkPermissionViewLandingPageList() {
 		navigateUrl();
-		commonAction.waitForListLoaded(loc_lst_lblName,3);
-		List<WebElement> landingPageNames = commonAction.getElements(loc_lst_lblName);
+		List<WebElement> landingPageNames = commonAction.getElements(loc_lst_lblName,3);
 		if (hasViewLandingPageListPers()) {
 			assertCustomize.assertTrue(landingPageNames.size() > 0, "[Failed]Landing page list should be shown");
 		} else

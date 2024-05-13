@@ -51,8 +51,7 @@ public class CreateEmailCampaign {
 		return this;
 	}
 	public CreateEmailCampaign selectATemplate(int index){
-		commonAction.waitForListLoaded(loc_lstEmailTemplate,3);
-		commonAction.click(loc_lstEmailTemplate,index);
+		commonAction.getElements(loc_lstEmailTemplate,3).get(index).click();
 		logger.info("Select email template: "+index);
 		return this;
 	}

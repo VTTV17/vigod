@@ -114,8 +114,7 @@ public class LoyaltyProgram {
 	}
 	/* Check staff permission */
 	public void checkViewListMembershipPermission(){
-		commonAction.waitForListLoaded(loc_lst_lblProgramName,2);
-		List<WebElement> programName = commonAction.getElements(loc_lst_lblProgramName);
+		List<WebElement> programName = commonAction.getElements(loc_lst_lblProgramName,3);
 		if (hasViewListMembershipPers()) {
 			assertCustomize.assertTrue(programName.size() > 0, "[Failed] Loyalty program list should be shown");
 		} else
@@ -126,7 +125,7 @@ public class LoyaltyProgram {
 		if(hasViewListMembershipPers()){
 			navigateByUrl();
 			if(hasViewMembershipDetailPers()){
-				commonAction.waitForListLoaded(loc_lst_lblProgramName,4);
+				commonAction.getElements(loc_lst_lblProgramName,3);
 				assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(loc_lst_lblProgramName,0,createLoyaltyProgram.loc_txtMembershipName),
 						"[Failed] Membership name not show.");
 			}else
@@ -157,8 +156,7 @@ public class LoyaltyProgram {
 	}
 	public void checkPermissionViewSegmentList(){
 		createLoyaltyProgram.clickAddSegment();
-		commonAction.waitForListLoaded(new AddSegmentDialog(driver).loc_lblSegments,3);
-		List<WebElement> segmentNames = commonAction.getElements(new AddSegmentDialog(driver).loc_lblSegments);
+		List<WebElement> segmentNames = commonAction.getElements(new AddSegmentDialog(driver).loc_lblSegments,3);
 		if(hasViewSegmentListPers()){
 			assertCustomize.assertTrue(segmentNames.size()>0,"[Failed] Customer segment should be shown");
 		}else assertCustomize.assertTrue(segmentNames.isEmpty(),"[Failed] Customer segment should not be shown.");

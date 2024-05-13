@@ -83,8 +83,7 @@ public class CreateBuyLink extends HomePage {
     public CreateBuyLink searchAndSelectPromotion(String promotionName) throws Exception {
         commonAction.sendKeys(loc_txtSearch, promotionName);
         boolean isSelected = false;
-        commonAction.waitForListLoaded(loc_lst_lblCouponName,2);
-        List<WebElement> couponNameElements = commonAction.getElements(loc_lst_lblCouponName);
+        List<WebElement> couponNameElements = commonAction.getElements(loc_lst_lblCouponName,3);
         for (WebElement el : couponNameElements) {
             if (commonAction.getText(el).equalsIgnoreCase(promotionName)) {
                 commonAction.clickElement(el);
