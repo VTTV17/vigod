@@ -1105,18 +1105,6 @@ public class UICommonAction {
         select.selectByIndex(index);
     }
 
-    public void waitForListLoaded(By locator, int repeatTimes) {
-        List<WebElement> elements = new ArrayList<>();
-        for (int i = 0; i < repeatTimes; i++) {
-            elements = getElements(locator);
-            if (!elements.isEmpty()) break;
-            else sleepInMiliSecond(3000);
-        }
-        if (elements.isEmpty()) {
-            logger.info("List element still empty after wait %s times".formatted(repeatTimes));
-        }
-    }
-
     String getSelectedValue(By ddvSelectedLocator) {
         return (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].value", getElement(ddvSelectedLocator));
     }
@@ -1140,6 +1128,14 @@ public class UICommonAction {
             if (!getSelectedValue(ddvSelectedLocator).equals(value)) {
                 selectDropdownOptionByValue(ddvSelectedLocator, value);
             }
+        }
+    }
+    public void selectDropdownOptionByValue(By ddvSelectedLocator,int index, String value) {
+        try {
+            new Select(getElement(ddvSelectedLocator,index)).selectByValue(value);
+        } catch (NoSuchElementException | StaleElementReferenceException ex) {
+            logger.info(ex);
+            selectDropdownOptionByValue(ddvSelectedLocator,index, value);
         }
     }
 }

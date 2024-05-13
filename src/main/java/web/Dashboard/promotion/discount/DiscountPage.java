@@ -1099,7 +1099,7 @@ public class DiscountPage extends DiscountElement {
 			String newProductCampaignName = new ProductDiscountCampaignPage(driver).createDefaultCampaign();
 			if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
 				navigateUrl();
-				commonAction.waitForListLoaded(loc_lstPromotionName,5);
+				commonAction.getElements(loc_lstPromotionName,5);
 				String currentUrl = commonAction.getCurrentURL();
 				assertCustomize.assertTrue(currentUrl.contains("discounts/list"),
 						"[Failed]Promotion list should be shown after create product campaign");
@@ -1204,8 +1204,7 @@ public class DiscountPage extends DiscountElement {
 		new ServiceDiscountCampaignPage(driver)
 				.tickAppliesTo(1)
 				.clickOnAddServiceCollection();
-		commonAction.waitForListLoaded(new ServiceDiscountCampaignPage(driver).loc_lst_lblCollectionName,4);
-		List<WebElement> collectionList = commonAction.getElements(new ServiceDiscountCampaignPage(driver).loc_lst_lblCollectionName);
+		List<WebElement> collectionList = commonAction.getElements(new ServiceDiscountCampaignPage(driver).loc_lst_lblCollectionName,3);
 		if(allPermissions.getService().getServiceCollection().isViewCollectionList())
 			assertCustomize.assertTrue(!collectionList.isEmpty(),"[Failed]Service collection list should be shown");
 		else
@@ -1245,7 +1244,7 @@ public class DiscountPage extends DiscountElement {
 			String newServiceCampaignName = new ProductDiscountCampaignPage(driver).createDefaultCampaign();
 			if(allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignList()){
 				navigateUrl();
-				commonAction.waitForListLoaded(loc_lstPromotionName,5);
+				commonAction.getElements(loc_lstPromotionName,3);
 				String currentUrl = commonAction.getCurrentURL();
 				assertCustomize.assertTrue(currentUrl.contains("discounts/list"),
 						"[Failed]Promotion list should be shown after create service campaign");
@@ -1292,7 +1291,7 @@ public class DiscountPage extends DiscountElement {
 			if (allPermissions.getPromotion().getDiscountCampaign().isEditProductDiscountCampaign()) {
 				commonAction.navigateToURL(editUrl);
 				commonAction.click(productDiscountCampaignEl.loc_btnSave);
-				commonAction.waitForListLoaded(loc_lstPromotionName,5);
+				commonAction.getElements(loc_lstPromotionName,3);
 				String currentUrl = commonAction.getCurrentURL();
 				assertCustomize.assertTrue(currentUrl.contains("discounts/list"),
 						"[Failed]Promotion management page should be shown after edit product successfully.");
@@ -1320,7 +1319,7 @@ public class DiscountPage extends DiscountElement {
 			if (allPermissions.getPromotion().getDiscountCampaign().isEditServiceDiscountCampaign()) {
 				commonAction.navigateToURL(editUrl);
 				commonAction.click(serviceCampaignPage.loc_btnSave);
-				commonAction.waitForListLoaded(loc_lstPromotionName,5);
+				commonAction.getElements(loc_lstPromotionName,3);
 				String currentUrl = commonAction.getCurrentURL();
 				assertCustomize.assertTrue(currentUrl.contains("discounts/list"),
 						"[Failed]Promotion management page should be shown after edit service campaign successfully.");
