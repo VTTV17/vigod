@@ -198,7 +198,7 @@ public class PermissionAPI {
         int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
         //Remove all permission groups from the staff
         removeAllGroupPermissionsFromStaff(staffId);
-        int groupPermissionId = createGroupPermissionAndGetID("Permission %s".formatted(System.currentTimeMillis()), "Description %s".formatted(System.currentTimeMillis()), model);
+        int groupPermissionId = createGroupPermissionAndGetID("Permission %s for %s".formatted(System.currentTimeMillis(), staffCredentials.getEmail().split("@")[0]), "Description %s".formatted(System.currentTimeMillis()), model);
         //Grant the permission to the staff
         grantGroupPermissionToStaff(staffId, groupPermissionId);
 
@@ -229,7 +229,7 @@ public class PermissionAPI {
         removeAllGroupPermissionsFromStaff(staffId);
 
         // update permission group
-        int groupPermissionId = editGroupPermissionAndGetID(groupId, "Permission %s".formatted(System.currentTimeMillis()), "Description %s".formatted(System.currentTimeMillis()), model);
+        int groupPermissionId = editGroupPermissionAndGetID(groupId, "Permission %s for %s".formatted(System.currentTimeMillis(), staffCredentials.getEmail().split("@")[0]), "Description %s".formatted(System.currentTimeMillis()), model);
 
         //Grant the permission to the staff
         grantGroupPermissionToStaff(staffId, groupPermissionId);

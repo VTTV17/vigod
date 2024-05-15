@@ -6,7 +6,7 @@ public class OrderDetailElement {
     By loc_btnPrintReceipt = By.cssSelector("#dropdownPrintButton");
     By loc_btnConfirmOrder = By.id("btn-readyToShip");
     public static By loc_btnEditOrder = By.cssSelector("#btn-edit");
-    By loc_btnDeliveredOrder = By.xpath("//*[@id = 'btn-cancelOrder']/preceding-sibling::button[1]");
+    By loc_btnDeliveredOrder = By.cssSelector("[class='gs-button  gs-button__white gs-button--undefined ']:not(#btn-cancelOrder)");
     By loc_btnCancelOrder = By.cssSelector("#btn-cancelOrder");
     By loc_btnShipmentOK = By.cssSelector(".ready-to-ship-confirm__btn-wrapper .gs-button__green");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");

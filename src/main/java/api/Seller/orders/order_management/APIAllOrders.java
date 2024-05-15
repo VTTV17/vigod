@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
 import static api.Seller.orders.order_management.APIAllOrders.Channel.BEECOW;
@@ -55,7 +54,7 @@ public class APIAllOrders {
     }
 
     public enum OrderStatus {
-        CANCELLED, CANCEL_COMPLETED, CANCEL_PENDING, CANCEL_REJECTED, COMPLETED, DELIVERED, FAILED, IN_CANCEL, PARTIALLY_SHIPPING, PENDING, PICKED, REJECTED, RETURNED, SHIPPED, TO_CONFIRM, TO_SHIP, UNKNOWN, WAITING_FOR_PICKUP
+        CANCELLED, CANCEL_COMPLETED, CANCEL_PENDING, CANCEL_REJECTED, COMPLETED, DELIVERED, FAILED, IN_CANCEL, PARTIALLY_SHIPPING, PENDING, PICKED, REJECTED, RETURNED, SHIPPED, TO_SHIP, UNKNOWN, WAITING_FOR_PICKUP
     }
 
     public enum Channel {
@@ -71,7 +70,7 @@ public class APIAllOrders {
     }
 
     enum ShippingMethod {
-        giaohangnhanh, giaohangtietkiem, ahamove_bike, selfdelivery, ahamove_truck
+        giaohangnhanh, giaohangtietkiem, ahamove_bike, selfdelivery, ahamove_truck, ahamove
     }
 
     enum PayType {
@@ -183,37 +182,46 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && madeBy.get(branchIds.get(ids.indexOf(id))).equals(staffName))
+                        && madeBy.get(ids.indexOf(id)).equals(staffName))
                 .boxed()
                 .toList();
     }
 
-    public long getOrderIdForViewDetail(Channel channel) {
+    public long getOrderIdForViewDetail(Channel channel, List<Integer> assignedBranchIds) {
         AllOrdersInformation info = getAllOrderInformation(channel);
-        return info.getIds().isEmpty() ? 0 : info.getIds().get(0);
-    }
-
-    public long getOrderIdForConfirmOrder(Channel channel) {
-        AllOrdersInformation info = getAllOrderInformation(channel);
-        // init temp arr
         List<Long> ids = new ArrayList<>(info.getIds());
-        List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
         return ids.stream()
-                .mapToLong(id -> id).filter(id -> Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_CONFIRM))
+                .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id))))
                 .findFirst()
                 .orElse(0L);
     }
 
-    public long getOrderIdForEditOrder(Channel channel) {
+    public long getOrderIdForConfirmOrder(Channel channel, List<Integer> assignedBranchIds) {
         AllOrdersInformation info = getAllOrderInformation(channel);
         // init temp arr
         List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
+        List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
+        return ids.stream()
+                .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP))
+                .findFirst()
+                .orElse(0L);
+    }
+
+    public long getOrderIdForEditOrder(Channel channel, List<Integer> assignedBranchIds) {
+        AllOrdersInformation info = getAllOrderInformation(channel);
+        // init temp arr
+        List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
         List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
         List<PaymentMethod> paymentMethods = new ArrayList<>(info.getPaymentMethods());
         List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
         return ids.stream()
-                .mapToLong(id -> id).filter(id -> Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_CONFIRM)
+                .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
                         && !Objects.equals(paymentMethods.get(ids.indexOf(id)), ONLINE_BANKING)
                         && !Objects.equals(paymentMethods.get(ids.indexOf(id)), CREDIT_DEBIT_CARD)
                         && !Objects.equals(paymentMethods.get(ids.indexOf(id)), MPOS))
@@ -221,15 +229,17 @@ public class APIAllOrders {
                 .orElse(0L);
     }
 
-    public long getOrderIdForCancelOrder(Channel channel) {
+    public long getOrderIdForCancelOrder(Channel channel, List<Integer> assignedBranchIds) {
         AllOrdersInformation info = getAllOrderInformation(channel);
         // init temp arr
         List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
         List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
         List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
         return ids.stream()
                 .mapToLong(id -> id)
-                .filter(id -> Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_CONFIRM)
+                .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && (Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
                         || (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
                         && (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW))
                         && !Objects.equals(orderStatuses.get(ids.indexOf(id)), CANCELLED)
@@ -237,56 +247,47 @@ public class APIAllOrders {
                         && !Objects.equals(orderStatuses.get(ids.indexOf(id)), FAILED)
                         && !Objects.equals(orderStatuses.get(ids.indexOf(id)), COMPLETED)
                         && !Objects.equals(orderStatuses.get(ids.indexOf(id)), RETURNED)
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), PENDING)))
+                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), PENDING))))
                 .findFirst()
                 .orElse(0L);
     }
 
-    public long getOrderIdForDeliveredOrder(Channel channel) {
+    public long getOrderIdForDeliveredOrder(Channel channel, List<Integer> assignedBranchIds) {
         AllOrdersInformation info = getAllOrderInformation(channel);
         // init temp arr
         List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
         List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
         List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
         return ids.stream()
                 .mapToLong(id -> id)
-                .filter(id -> (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
                         && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED)))
                 .findFirst()
                 .orElse(0L);
     }
 
-    public long getOrderIdForAddTagsToOrder(Channel channel) {
+    public long getOrderIdForRemoveTagsFromOrder(Channel channel, List<Integer> assignedBranchIds) {
         AllOrdersInformation info = getAllOrderInformation(channel);
         // init temp arr
         List<Long> ids = new ArrayList<>(info.getIds());
-        List<OrderTags> orderTags = new ArrayList<>(info.getOrderTags());
-        int numberOfTagsInOrder = new APIAllOrderTags(loginInformation).getAllOrderTagsInformation().getTagIds().size();
-
-        return numberOfTagsInOrder == 0 ? 0 : ids.stream()
-                .mapToLong(id -> id)
-                .filter(id -> numberOfTagsInOrder > orderTags.get(ids.indexOf(id)).getTagIds().size())
-                .findFirst()
-                .orElse(0L);
-    }
-
-    public long getOrderIdForRemoveTagsFromOrder(Channel channel) {
-        AllOrdersInformation info = getAllOrderInformation(channel);
-        // init temp arr
-        List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
         List<OrderTags> orderTags = new ArrayList<>(info.getOrderTags());
 
         return ids.stream()
                 .mapToLong(id -> id)
-                .filter(id -> !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
+                .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
                 .findFirst()
                 .orElse(0L);
     }
 
-    public long getOrderIdForConfirmPayment(Channel channel) {
+    public long getOrderIdForConfirmPayment(Channel channel, List<Integer> assignedBranchIds) {
         AllOrdersInformation info = getAllOrderInformation(channel);
         // init temp arr
         List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
         List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
         List<PaymentMethod> paymentMethods = new ArrayList<>(info.getPaymentMethods());
         List<InStore> inStores = new ArrayList<>(info.getInStores());
@@ -294,7 +295,8 @@ public class APIAllOrders {
 
         return ids.stream()
                 .mapToLong(id -> id)
-                .filter(id -> (isShowConfirmPayment(orderStatuses.get(ids.indexOf(id)),
+                .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && isShowConfirmPayment(orderStatuses.get(ids.indexOf(id)),
                         paymentMethods.get(ids.indexOf(id)),
                         payTypes.get(ids.indexOf(id)),
                         inStores.get(ids.indexOf(id))))
@@ -308,7 +310,20 @@ public class APIAllOrders {
                                  PayType payType,
                                  InStore inStore) {
         List<PaymentMethod> paymentMethodList = List.of(COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD);
-        return (!Objects.equals(inStore, InStore.GO_SOCIAL) && ((Objects.equals(status, DELIVERED)) && !Objects.equals(payType, PAID)))
-                || (!Objects.equals(status, DELIVERED) && (Objects.equals(paymentMethod, DEBT) || (!Objects.equals(payType, UNPAID) && !paymentMethodList.contains(paymentMethod))));
+        return !(Objects.equals(inStore, InStore.GO_SOCIAL) || // ignore GoSocial order
+                paymentMethodList.contains(paymentMethod) ||
+                (Objects.equals(status, DELIVERED) || Objects.equals(status, RETURNED)) && Objects.equals(payType, PAID) || // order with payType PAID and status in (DELIVERED, RETURNED) or
+                Objects.equals(payType, UNPAID) && (Objects.equals(status, CANCELLED)) || // or order with payType UNPAID and paymentMethod in (COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD) or status CANCELLED
+                Objects.equals(paymentMethod, DEBT) && (Objects.equals(status, DELIVERED) || Objects.equals(status, CANCELLED))); // or order with paymentMethod DEBT and status in (DELIVERED, CANCELLED) are not count debt
+    }
+
+    public boolean isPrintOrder() {
+        String getPrintSettingPath = "/storeservice/api/store-settings/store/%s";
+        return api.get(getPrintSettingPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getBoolean("isPrintOrders");
     }
 }

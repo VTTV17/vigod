@@ -1,14 +1,17 @@
 package web.Dashboard.orders.orderlist.order_detail;
 
+import api.Seller.login.Login;
 import api.Seller.orders.delivery.APIPartialDeliveryOrders;
 import api.Seller.orders.order_management.APIAllOrderTags;
 import api.Seller.orders.order_management.APIAllOrders;
+import api.Seller.orders.order_management.APIOrderDetail;
 import api.Seller.products.location_receipt.APILocationReceipt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -34,7 +37,7 @@ public class OrderDetailPage extends OrderDetailElement {
         commonAction = new UICommonAction(driver);
     }
 
-    void navigateToOrderDetailPageByURL(Channel channel, Long orderId) {
+    public void navigateToOrderDetailPageByURL(Channel channel, Long orderId) {
         driver.get("%s/order/detail/%s/%s".formatted(DOMAIN, channel, orderId));
         driver.navigate().refresh();
         logger.info("[%s] Navigate to order detail page, orderId: %s.".formatted(channel, orderId));
@@ -48,6 +51,7 @@ public class OrderDetailPage extends OrderDetailElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
     APIAllOrders apiAllOrdersWithSellerToken;
+    LoginDashboardInfo staffLoginInfo;
 
     public OrderDetailPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -61,6 +65,7 @@ public class OrderDetailPage extends OrderDetailElement {
         this.sellerLoginInformation = sellerLoginInformation;
         this.staffLoginInformation = staffLoginInformation;
         apiAllOrdersWithSellerToken = new APIAllOrders(sellerLoginInformation);
+        staffLoginInfo = new Login().getInfo(staffLoginInformation);
         return this;
     }
 
@@ -84,7 +89,7 @@ public class OrderDetailPage extends OrderDetailElement {
                 yield permissions.getTiktok().isViewOrderDetail();
             }
         };
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForViewDetail(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForViewDetail(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // check view order detail permission
             if (permission) {
@@ -103,7 +108,7 @@ public class OrderDetailPage extends OrderDetailElement {
                     checkPrintOrderSlip(channel, orderId);
                     checkPrintOrderReceipt(channel, orderId);
                     checkCreateOrderTag(channel, orderId);
-                    checkAddTagToOrder(channel);
+                    checkAddTagToOrder(channel, orderId);
                     checkRemoveTagFromOrder(channel);
                     checkViewTagList(channel, orderId);
                     checkDeleteTag(channel, orderId);
@@ -129,7 +134,7 @@ public class OrderDetailPage extends OrderDetailElement {
     }
 
     void checkViewDeliveryPackageList(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForDeliveredOrder(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForDeliveredOrder(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // navigate to order detail page
             navigateToOrderDetailPageByURL(channel, orderId);
@@ -194,7 +199,7 @@ public class OrderDetailPage extends OrderDetailElement {
                 yield permissions.getTiktok().isConfirmOrder();
             }
         };
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForConfirmOrder(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForConfirmOrder(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // navigate to order detail page
             navigateToOrderDetailPageByURL(channel, orderId);
@@ -246,7 +251,7 @@ public class OrderDetailPage extends OrderDetailElement {
                 yield permissions.getTiktok().isCancelOrder();
             }
         };
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForCancelOrder(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForCancelOrder(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // navigate to order detail page
             navigateToOrderDetailPageByURL(channel, orderId);
@@ -280,7 +285,7 @@ public class OrderDetailPage extends OrderDetailElement {
     }
 
     void checkDeliveredOrders(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForDeliveredOrder(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForDeliveredOrder(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // navigate to order detail page
             navigateToOrderDetailPageByURL(channel, orderId);
@@ -290,7 +295,7 @@ public class OrderDetailPage extends OrderDetailElement {
                 // check can open confirm delivered order popup
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnDeliveredOrder, loc_dlgConfirmDeliveredOrder),
                         "[%s] Can not open Confirm Delivered Order popup.".formatted(channel));
-                if (!commonAction.getListElement(loc_dlgConfirmCancelOrder).isEmpty()) {
+                if (!commonAction.getListElement(loc_dlgConfirmDeliveredOrder).isEmpty()) {
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmDeliveredOrder_btnConfirm, loc_dlgToastSuccess),
                             "[%s] Can not delivered order.".formatted(channel));
                 }
@@ -396,32 +401,35 @@ public class OrderDetailPage extends OrderDetailElement {
         logger.info("[%s] Check permission: Order >> Order management >> Create order tag.".formatted(channel));
     }
 
-    void checkAddTagToOrder(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForAddTagsToOrder(channel);
+    void checkAddTagToOrder(Channel channel, long orderId) {
         // navigate to order detail page
         navigateToOrderDetailPageByURL(channel, orderId);
 
-        // open tag dropdown
-        commonAction.click(loc_txtTag);
+        // check add new tag on order detail page
+        int numberOfTagsInStore = new APIAllOrderTags(staffLoginInformation).getAllOrderTagsInformation().getTagIds().size();
+        int numberOfTagsInOder = new APIOrderDetail(staffLoginInformation).getOrderInformation(orderId).getOrderTags().getTagIds().size();
+        if (numberOfTagsInStore > numberOfTagsInOder) {
+            // open tag dropdown
+            commonAction.click(loc_txtTag);
 
-        // select tag
-        commonAction.click(loc_ddlTagOptions, 0);
-        if (permissions.getOrders().getOrderManagement().isAddTagToOrder()) {
-            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
-                    "[%s] Can not add tag to order.".formatted(channel));
-        } else {
-            // if staff don’t have permission “Add tag to order”
-            // => show restricted popup
-            //  when user add to order in order detail
-            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
-                    "[%s] Restricted popup is not shown.".formatted(channel));
+            // select tag
+            commonAction.click(loc_ddlTagOptions, 0);
+            if (permissions.getOrders().getOrderManagement().isAddTagToOrder()) {
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                        "[%s] Can not add tag to order.".formatted(channel));
+            } else {
+                // if staff don’t have permission “Add tag to order”
+                // => show restricted popup
+                //  when user add to order in order detail
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
+                        "[%s] Restricted popup is not shown.".formatted(channel));
+            }
         }
-
         logger.info("[%s] Check permission: Order >> Order management >> Add tag to order.".formatted(channel));
     }
 
     void checkRemoveTagFromOrder(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForRemoveTagsFromOrder(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForRemoveTagsFromOrder(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // navigate to order detail page
             navigateToOrderDetailPageByURL(channel, orderId);
@@ -490,7 +498,7 @@ public class OrderDetailPage extends OrderDetailElement {
     }
 
     void checkConfirmPayment(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForConfirmPayment(channel);
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForConfirmPayment(channel, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
             // navigate to order detail page
             navigateToOrderDetailPageByURL(channel, orderId);

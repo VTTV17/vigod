@@ -11,9 +11,9 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.List;
 import java.util.Map;
 
+import static api.Seller.orders.order_management.APIAllOrderCosts.*;
 import static api.Seller.orders.order_management.APIAllOrders.*;
 
 public class APIOrderDetail {
@@ -37,6 +37,7 @@ public class APIOrderDetail {
         ShippingMethod shippingMethod;
         OrderStatus status;
         OrderTags orderTags;
+        OrderCosts orderCosts;
     }
 
     String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true";
@@ -56,7 +57,6 @@ public class APIOrderDetail {
         if (response.statusCode() == 403) return info;
         JsonPath jsonPath = response.jsonPath();
 
-
         // get order information
         info.setOrderId(orderId);
         info.setPaymentMethod(PaymentMethod.valueOf(jsonPath.getString("orderInfo.paymentMethod")));
@@ -65,6 +65,7 @@ public class APIOrderDetail {
         info.setShippingMethod(ShippingMethod.valueOf(jsonPath.getString("orderInfo.deliveryName")));
         info.setStatus(OrderStatus.valueOf(jsonPath.getString("orderInfo.status")));
         info.setOrderTags(new OrderTags(jsonPath.getList("orderTagInfos.tagId"), jsonPath.getList("orderTagInfos.name")));
+        info.setOrderCosts((jsonPath.getList("orderInfo.orderCosts.id") != null) ? new OrderCosts(jsonPath.getList("orderInfo.orderCosts.id"), jsonPath.getList("orderInfo.orderCosts.id"), jsonPath.getList("orderInfo.orderCosts.id")) : new OrderCosts());
 
         // return model
         return info;
