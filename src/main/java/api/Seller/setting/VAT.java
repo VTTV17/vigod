@@ -1,16 +1,26 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.CreatePermission;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class VAT {
+	final static Logger logger = LogManager.getLogger(VAT.class);
+	
+	String generalTaxPath = "/storeservice/api/tax-settings";
+	
+	API api = new API();
     LoginDashboardInfo loginInfo;
 
     LoginInformation loginInformation;
@@ -44,4 +54,30 @@ public class VAT {
         info.setTaxName(taxName);
         return info;
     }
+    
+    public Response createTax(String name, String description, int taxRate, String taxType, boolean isDefault) {
+        String body = """
+                {
+					"description": "%s",
+					"name": "%s",
+					"rate": %s,
+					"storeId": %s,
+					"taxType": "%s",
+					"useDefault": %s
+                 }""".formatted(description, name, taxRate, loginInfo.getStoreID(), taxType, isDefault);
+
+        return api.post(generalTaxPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(201).extract().response();
+    }    
+   
+    public int createSellingTax(String name, String description, int taxRate, boolean isDefault) {
+    	return createTax(name, description, taxRate, "SELL", isDefault).jsonPath().getInt("id");
+    }
+
+    public void deleteTax(int taxID) {
+        Response response = api.delete(generalTaxPath + "/" + taxID , loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        logger.info("Deleted taxId: " + taxID);
+    }    
+    
+    
 }
