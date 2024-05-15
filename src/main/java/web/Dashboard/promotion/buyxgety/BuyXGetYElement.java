@@ -21,19 +21,21 @@ public class BuyXGetYElement {
 
 	//0: All customers
 	//1: Specific segment
-	By loc_rdoSegmentOptions = By.cssSelector("input[name='segment']");
+	By loc_rdoSegmentOptions = By.xpath("(//div[contains(@class,'condition-group')])[1]//input");
 	By loc_lnkAddSegment = By.xpath("(//div[contains(@class,'condition-group')])[1]//span[starts-with(@class,'gs-fake-link')]");
 
 	//0: Combo
 	//1: Any items on a list
-	By loc_rdoApplyToOptions = By.cssSelector("input[name='appliesTo']");
-	By loc_rdoApplyToAnyItemOptions = By.cssSelector("input[name='appliesToProducts']");
+	By loc_rdoApplyToOptions = By.xpath("(//div[contains(@class,'condition-group')])[2]//label//input");
 	By loc_btnAddProductForCombo = By.className("btn-add-product");
+	
+	By loc_rdoApplyToAnyItemOptions = By.xpath("((//div[contains(@class,'condition-group')])[2]//div[contains(@class,'radio-field-form-control')]/preceding-sibling::b)[2]/following-sibling::*//input");
+	
 	By loc_lnkAddCollectionOrSpecificProduct = By.xpath("(//div[contains(@class,'condition-group')])[2]//span[starts-with(@class,'gs-fake-link')]");
 
 	//0: Collections
 	//1: Products
-	By loc_rdoGiftOptions = By.cssSelector("input[name='giveawayProduct']");
+	By loc_rdoGiftOptions = By.xpath("(//div[contains(@class,'condition-group')])[3]//label//input");
 	By loc_lnkAddCollectionOrSpecificProductAsGift = By.xpath("(//div[contains(@class,'condition-group')])[3]//span[starts-with(@class,'gs-fake-link')]");
 	
 	By loc_btnSave = By.cssSelector(".gs-button__green--outline");

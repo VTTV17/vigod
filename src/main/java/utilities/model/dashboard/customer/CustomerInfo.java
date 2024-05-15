@@ -10,4 +10,5 @@ public class CustomerInfo {
     private String mainPhoneCode;
     private String mainPhoneNumber;
     private String mainPhoneName;
+    private String userId;
 }

@@ -26,6 +26,7 @@ public class Customers {
     String GET_200_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=0&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
     String ASSIGN_STAFF_TO_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/bulk-assign-customer-to-a-staff/%s";
     String EXPORT_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/export/%s/v2?keyword=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=vi";
+    String ASSIGN_PARTNER_TO_CUSTOMER = "/beehiveservices/api/customer-profiles/update-partner/%s";
     private String customerTag;
     private static String segmentName;
     private static int segmentID;
@@ -194,6 +195,9 @@ public class Customers {
     public List<String> getAllAccountCustomer() {
         return getAllCustomerJsonPath().getList("findAll { it.guest == false }.fullName");
     }
+    public List<Integer> getAllAccountCustomerId() {
+        return getAllCustomerJsonPath().getList("findAll { it.guest == false }.id");
+    }
 
     /**
      * Assigns a specific staff member to a designated customer within the current store.
@@ -225,7 +229,7 @@ public class Customers {
             customerInfo.setMainEmailName(getCustomerInfo.jsonPath().getString("emails[0].emailName"));
             customerInfo.setMainPhoneNumber(getCustomerInfo.jsonPath().getString("phones[0].phoneNumber"));
             customerInfo.setMainPhoneName(getCustomerInfo.jsonPath().getString("phones[0].phoneName"));
-
+            customerInfo.setUserId(getCustomerInfo.jsonPath().getString("userId"));
             return customerInfo;
         } else return new CustomerInfo();
     }
@@ -234,5 +238,14 @@ public class Customers {
     	Response response = api.get(EXPORT_CUSTOMER_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
     	response.then().statusCode(200);
     }    
-    
+    public void assignCustomerToPartner(int customerId, int partnerId){
+        String body = """
+                {
+                    "customerIds": "%s",
+                    "partnerId": %s
+                }
+                """.formatted(customerId,partnerId);
+        Response response = api.put(ASSIGN_PARTNER_TO_CUSTOMER.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
+        response.then().statusCode(200);
+    }
 }

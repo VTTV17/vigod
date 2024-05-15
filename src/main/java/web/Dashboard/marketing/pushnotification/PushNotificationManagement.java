@@ -136,8 +136,7 @@ public class PushNotificationManagement {
 		logger.info("Navigate to url: "+url);
 	}
 	public void checkPermissionViewCampaignList(){
-		commonAction.waitForListLoaded(loc_lst_lblCampaignName,2);
-		List<WebElement> campaignNames = commonAction.getElements(loc_lst_lblCampaignName);
+		List<WebElement> campaignNames = commonAction.getElements(loc_lst_lblCampaignName,3);
 		if (hasViewCampaignListPers()) {
 			assertCustomize.assertTrue(campaignNames.size() > 0, "[Failed] Notification campaign list should be shown");
 		} else
@@ -162,8 +161,7 @@ public class PushNotificationManagement {
 	}
 	public void checkPermissionViewSegmentList(){
 		createPushNotification.clickOnAddSegment();
-		commonAction.waitForListLoaded(createPushNotification.log_dlgAddSegment_lstSegmentName,3);
-		List<WebElement> segmentNames = commonAction.getElements(createPushNotification.log_dlgAddSegment_lstSegmentName);
+		List<WebElement> segmentNames = commonAction.getElements(createPushNotification.log_dlgAddSegment_lstSegmentName,3);
 		if(hasViewCustomerSegmentListPers()){
 			assertCustomize.assertTrue(segmentNames.size()>0,"[Failed] Customer segment should be shown");
 		}else assertCustomize.assertTrue(segmentNames.isEmpty(),"[Failed] Customer segment should not be shown.");
@@ -183,8 +181,7 @@ public class PushNotificationManagement {
 		createPushNotification.selectLinkToType(3);
 		commonAction.click(createPushNotification.loc_lnkChooseAProductService);
 		new HomePage(driver).waitTillLoadingDotsDisappear();
-		commonAction.waitForListLoaded(createPushNotification.loc_dlgProductSelection_lstProductName,4);
-		List<WebElement> productNames = commonAction.getElements(createPushNotification.loc_dlgProductSelection_lstProductName);
+		List<WebElement> productNames = commonAction.getElements(createPushNotification.loc_dlgProductSelection_lstProductName,3);
 		if (hasViewProductListPers()||hasViewCreatedProductListPers()){
 			assertCustomize.assertTrue(productNames.size()>0,"[Failed] Product list should be shown");
 		}else assertCustomize.assertTrue(productNames.isEmpty(),"[Failed] Product list should not be shown.");
@@ -194,8 +191,7 @@ public class PushNotificationManagement {
 		createPushNotification.selectLinkToType(4);
 		commonAction.click(createPushNotification.loc_lnkChooseAProductService);
 		new HomePage(driver).waitTillLoadingDotsDisappear();
-		commonAction.waitForListLoaded(createPushNotification.loc_dlgProductSelection_lstProductName,4);
-		List<WebElement> serviceNames = commonAction.getElements(createPushNotification.loc_dlgProductSelection_lstProductName);
+		List<WebElement> serviceNames = commonAction.getElements(createPushNotification.loc_dlgProductSelection_lstProductName,3);
 		if (hasViewServiceListPers()||hasViewCreatedServiceListPers()){
 			assertCustomize.assertTrue(serviceNames.size()>0,"[Failed] Service list should be shown");
 		}else assertCustomize.assertTrue(serviceNames.isEmpty(),"[Failed] Service list should not be shown.");

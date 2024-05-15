@@ -1,26 +1,29 @@
 package web.Dashboard;
 
+import api.Seller.affiliate.commission.APICommissionManagement;
+import api.Seller.affiliate.commission.APICreateEditCommission;
 import api.Seller.affiliate.partner.APICreateEditPartner;
 import api.Seller.affiliate.partner.APIPartnerManagement;
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.services.CreateServiceAPI;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.dashboard.services.ServiceInfo;
+import utilities.model.dashboard.marketing.affiliate.CommissionInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.marketing.affiliate.commission.CommissionPage;
 import web.Dashboard.marketing.affiliate.information.Information;
 import web.Dashboard.marketing.affiliate.partner.PartnerPage;
-import web.Dashboard.promotion.discount.DiscountPage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static utilities.account.AccountTest.*;
@@ -36,6 +39,9 @@ public class AffiliatePermissionTest extends BaseTest{
     LoginInformation staffCredentials;
     int groupPermissionId;
     LoginDashboardInfo staffLoginInfo;
+    String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
+    String productCreatedByStaff = "Ao thun staff tao";
+    List<Integer> productIds = new ArrayList<>();
 
     @BeforeClass
     public void beforeClass() {
@@ -46,11 +52,18 @@ public class AffiliatePermissionTest extends BaseTest{
         languageDB = language;
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
-        // Shop owner create partner if any
+        // Shop owner create product
+        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productCreatedByShopOwner = productInfo.getProductName();
+        productIds.add(productInfo.getProductID());
 
         //Create full permission for staff
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-    }
+
+//        //Staff create product
+        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productCreatedByStaff = productInfo.getProductName();
+        productIds.add(productInfo.getProductID()); }
     @BeforeMethod
     public void beforeMethod() {
         driver = new InitWebdriver().getDriver(browser, "false");
@@ -60,7 +73,19 @@ public class AffiliatePermissionTest extends BaseTest{
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
         super.writeResult(result);
-        driver.quit();
+//        driver.quit();
+    }
+    @AfterClass
+    public void afterClass(){
+        //delete product
+        for (int productId:productIds) {
+            new APIEditProduct(ownerCredentials).deleteProduct(productId);
+        }
+        //delete  commission
+        List<Integer> commissionIds = new APICommissionManagement(ownerCredentials).getCommissionIdList();
+        for(int i=0; i<commissionIds.size()-4;i++){
+            new APICommissionManagement(ownerCredentials).deleteCommission(commissionIds.get(i));
+        }
     }
     @DataProvider
     public Object[] ViewInfomationData(){
@@ -239,5 +264,54 @@ public class AffiliatePermissionTest extends BaseTest{
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new PartnerPage(driver).getLoginInfo(ownerCredentials).verifyPartnerPermission(allPermissions,resellerId,false);
+    }
+    public int callAPIGetCommissionId(){
+        List<Integer> ids = new APICommissionManagement(ownerCredentials).getCommissionIdList();
+        int id;
+        if(ids.isEmpty()){
+            id = new APICreateEditCommission(ownerCredentials).createProductCommisionForAll(new CommissionInfo()).getId();
+        }else id = ids.get(0);
+        return id;
+    }
+    @DataProvider
+    public Object[] CommissionData(){
+        return new Object[][]{
+//                {"1"},
+//                {"10"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
+//                {"110"},
+//                {"111"},
+//                {"1000"},
+//                {"1001"},
+//                {"1010"},
+//                {"1011"},
+//                {"1100"},
+//                {"1101"},
+//                {"1110"},
+//                {"1111"},
+        };
+    }
+    @Test(dataProvider = "CommissionData")
+    public void checkCommissionPermisison(String dataBinary){
+        //Set permission model
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("1");
+        model.setProduct_productManagement("1");
+        model.setProduct_collection("1");
+        model.setAffiliate_commission(dataBinary);
+        //Get resellerId
+        int commissionId = callAPIGetCommissionId();
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new CommissionPage(driver).verifyCommissionPagePermission(allPermissions,commissionId,productCreatedByShopOwner,productCreatedByStaff);
     }
 }

@@ -84,9 +84,8 @@ public class ServiceCollectionManagement {
 	}
 	/*-------------------------------------*/
 	public EditServiceCollection goToEditServiceCollection(String collectionName) throws Exception {
-		commonAction.waitForListLoaded(loc_lst_lblServiceCollectionName,2);
 		boolean clicked = false;
-		for (int i=0;i< commonAction.getElements(loc_lst_lblServiceCollectionName).size();i++) {
+		for (int i=0;i< commonAction.getElements(loc_lst_lblServiceCollectionName,3).size();i++) {
 			if (commonAction.getText(loc_lst_lblServiceCollectionName,i).equalsIgnoreCase(collectionName)){
 				commonAction.click(loc_lst_icnEdit,i);
 				clicked = true;

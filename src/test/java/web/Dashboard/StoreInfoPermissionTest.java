@@ -21,6 +21,7 @@ import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.storeinformation.StoreInformation;
 
 /**
+ *<p>Ticket: https://mediastep.atlassian.net/browse/BH-25473</p>
  *<p>Preconditions: There exists at least one staff member</p>
  */
 
