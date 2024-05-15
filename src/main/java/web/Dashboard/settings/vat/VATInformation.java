@@ -1,13 +1,20 @@
 package web.Dashboard.settings.vat;
 
+import static utilities.links.Links.DOMAIN;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
-import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import utilities.utils.PropertiesUtil;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.home.HomePage;
 
 public class VATInformation {
 
@@ -15,51 +22,152 @@ public class VATInformation {
 
 	WebDriver driver;
 	UICommonAction commonAction;
+	HomePage homePage;
+	VATPageElement elements;
 
 	public VATInformation(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
+		homePage = new HomePage(driver);
+		elements = new VATPageElement();
 	}
 
-	By loc_tabVAT = By.cssSelector("li:nth-child(8) > a.nav-link");
-	By loc_btnAddVATInfo = By.cssSelector(".VAT .gs-button__green");
-	By loc_txtVAT = By.id("name");
-	By loc_btnCancel = By.cssSelector(".VATmodal .gs-button__white");
-	By loc_dlgAddVAT = By.cssSelector(".modal-dialog.VATmodal");
-
 	public VATInformation navigate() {
-		commonAction.click(loc_tabVAT);
+		commonAction.click(elements.loc_tabVAT);
 		logger.info("Clicked on VAT tab.");
-    	new HomePage(driver).waitTillSpinnerDisappear1();
+		homePage.waitTillSpinnerDisappear1();
     	commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 
+	VATInformation navigateByURL(String url) {
+		driver.get(url);
+		logger.info("Navigated to: " + url);
+		commonAction.removeFbBubble();
+		homePage.waitTillSpinnerDisappear1();
+		return this;
+	}		
+
+	public VATInformation navigateToManagementScreenByURL() {
+		navigateByURL(DOMAIN + "/setting?tabId=9");
+    	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
+		return this;
+	}	
+
+    /**
+     * A temporary function that helps get rid of the annoying try catch block when reading text from property file
+     * @param propertyKey
+     */
+    public String translateText(String propertyKey) {
+    	String translatedText = null;
+    	try {
+    		translatedText = PropertiesUtil.getPropertiesValueByDBLang(propertyKey);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    	return translatedText;
+    }	
+	
 	public VATInformation clickAddTaxInformation() {
-		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(loc_btnAddVATInfo).findElement(By.xpath("./parent::*/parent::*")))) {
-			Assert.assertFalse(new HomePage(driver).isMenuClicked(commonAction.getElement(loc_btnAddVATInfo)));
+		if (commonAction.isElementVisiblyDisabled(commonAction.getElement(elements.loc_btnAddVATInfo).findElement(By.xpath("./parent::*/parent::*")))) {
+			Assert.assertFalse(homePage.isElementClicked(elements.loc_btnAddVATInfo));
 			return this;
 		}
-		commonAction.click(loc_btnAddVATInfo);
+		commonAction.click(elements.loc_btnAddVATInfo);
 		logger.info("Clicked on 'Add Tax Information' button.");
 		return this;
 	}
-
+	
+	public boolean isAddTaxInfomationDialogDisplayed() {
+		commonAction.sleepInMiliSecond(500);
+		return !commonAction.getElements(elements.loc_dlgAddVAT).isEmpty();
+	}		
+	
 	public VATInformation inputTaxName(String taxName) {
-		commonAction.inputText(loc_txtVAT, taxName);
-		logger.info("Input '" + taxName + "' into Tax Name field.");
+		commonAction.inputText(elements.loc_txtVAT, taxName);
+		logger.info("Input Tax name: " + taxName);
+		return this;
+	}
+	
+	public VATInformation inputTaxRate(String taxRate) {
+		commonAction.inputText(elements.loc_txtVATRate, taxRate);
+		logger.info("Input Tax rate: " + taxRate);
+		return this;
+	}
+	
+	public VATInformation inputDescription(String taxDescription) {
+		commonAction.inputText(elements.loc_txtVATDescription, taxDescription);
+		logger.info("Input Tax description: " + taxDescription);
+		return this;
+	}
+	
+	public VATInformation selectTaxType(int taxType) {
+		switch (taxType) {
+		case 0: {
+			commonAction.click(elements.loc_rdoSellingVATType);
+			logger.info("Selected Tax type: Sell");
+			break;
+		}
+		case 1: {
+			commonAction.click(elements.loc_rdoImportGoodsVATType);
+			logger.info("Selected Tax type: Import Goods");
+			break;
+		}
+		default:
+			logger.info("Input Tax type is not allowed. Tax type 'Sell' is automatically selected");
+			break;
+		}
+		return this;
+	}
+	
+	public VATInformation clickAddBtn() {
+		new ConfirmationDialog(driver).clickGreenBtn();
+		logger.info("Clicked on 'Add' button in 'Add tax information' dialog.");
 		return this;
 	}
 	
 	public VATInformation clickCancelBtn() {
-		commonAction.click(loc_btnCancel);
+		new ConfirmationDialog(driver).clickGreenBtn();
 		logger.info("Clicked on 'Cancel' button in 'Add tax information' dialog.");
 		return this;
 	}
 
-	public boolean isAddTaxInfomationDialogDisplayed() {
-		commonAction.sleepInMiliSecond(500);
-		return !commonAction.isElementNotDisplay(loc_dlgAddVAT);
+	public VATInformation clickShowTaxInWebAppCheckbox() {
+		commonAction.click(elements.loc_chkShowInWebApp);
+		logger.info("Clicked 'Show TAX in web/app' checkbox");
+		return this;
+	}	
+	
+	public String getDefaultTax() {
+		String value = commonAction.getText(elements.loc_ddlDefaultVAT);
+		logger.info("Retrieved default tax: " + value);
+		return value;
+	}	
+	
+	public boolean isDefaultTaxFieldDisabled() {
+		boolean isEnabled = !commonAction.getElement(elements.loc_ddlDefaultVAT).isEnabled();
+		logger.info("Is Default Tax field disabled: " + isEnabled);
+		return isEnabled;
+	}	
+	
+	public VATInformation selectDefaultTax(String taxName) {
+		commonAction.click(elements.loc_ddlDefaultVAT);
+		commonAction.click(By.xpath(elements.ddvDefaultVATLocator.formatted(taxName)));
+		logger.info("Selected default tax: " + taxName);
+		return this;
+	}	
+	
+	public VATInformation clickApplyTaxAfterDiscountCheckbox() {
+		commonAction.click(elements.loc_chkApplyAfterDiscount);
+		logger.info("Clicked 'Apply TAX to product price after promotion' checkbox");
+		return this;
+	}	
+	
+	public VATInformation deleteTax(String taxName) {
+		logger.info("Deleting tax: " + taxName);
+		commonAction.click(By.xpath(elements.specificVATDeleteIconLocator.formatted("and text()='%s'".formatted(taxName))));
+		new ConfirmationDialog(driver).clickOnRedBtn();
+		return this;
 	}	
 	
     /*Verify permission for certain feature*/
@@ -73,8 +181,159 @@ public class VATInformation {
 		} else if (permission.contentEquals("D")) {
 			Assert.assertFalse(flag);
 		} else {
-			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
+			Assert.assertEquals(homePage.verifySalePitchPopupDisplay(), 0);
 		}
     }
     /*-------------------------------------*/ 
+	boolean isPermissionProhibited(AllPermissions staffPermission) {
+		boolean[] allStaffManagementPermisison = {
+				staffPermission.getSetting().getTAX().isViewTAXList(),
+				staffPermission.getSetting().getTAX().isCreateSellingTAX(),
+				staffPermission.getSetting().getTAX().isCreateImportingTAX(),
+				staffPermission.getSetting().getTAX().isUpdateTAXConfiguration(),
+				staffPermission.getSetting().getTAX().isDeleteTAX()
+		};
+	    for(boolean individualPermission : allStaffManagementPermisison) if (individualPermission) return false;
+	    return true;
+	}	    
+    
+    public void checkPermissionToViewVATList(AllPermissions staffPermission) {
+    	navigateToManagementScreenByURL(); 
+    	if (isPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToViewVATList");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	boolean flag = commonAction.getElements(elements.loc_tblVATRows).isEmpty();
+    	String error = "VAT list is empty";
+    	
+    	if (staffPermission.getSetting().getTAX().isViewTAXList()) {
+    		Assert.assertFalse(flag, error);
+    	} else {
+    		Assert.assertTrue(flag, error);
+    	}
+    	logger.info("Finished checkPermissionToViewVATList");
+    }    
+    
+    
+    //Will merge the two functions below shortly
+    public void checkPermissionToCreateSellingTax(AllPermissions staffPermission) {
+    	navigateToManagementScreenByURL(); 
+    	if (isPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToCreateSellingTax");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	DataGenerator randomData = new DataGenerator();
+    	
+    	String taxName = "Auto Tax " + randomData.randomNumberGeneratedFromEpochTime(5);
+    	String taxRate = String.valueOf(randomData.generatNumberInBound(0, 101));
+    	clickAddTaxInformation().inputTaxName(taxName).inputTaxRate(taxRate).selectTaxType(0).clickAddBtn();
+    	
+    	if (staffPermission.getSetting().getTAX().isCreateSellingTAX()) {
+    		Assert.assertEquals(homePage.getToastMessage(), translateText("affiliate.partner.create.successMessage"));
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(), "Restricted action popup appears");
+    	}
+    	logger.info("Finished checkPermissionToCreateSellingTax");
+    }    
+    public void checkPermissionToCreateImportingTax(AllPermissions staffPermission) {
+    	navigateToManagementScreenByURL(); 
+    	if (isPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToCreateImportingTax");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	DataGenerator randomData = new DataGenerator();
+    	
+    	String taxName = "Auto Tax " + randomData.randomNumberGeneratedFromEpochTime(5);
+    	String taxRate = String.valueOf(randomData.generatNumberInBound(0, 101));
+    	clickAddTaxInformation().inputTaxName(taxName).inputTaxRate(taxRate).selectTaxType(1).clickAddBtn();
+    	
+    	if (staffPermission.getSetting().getTAX().isCreateImportingTAX()) {
+    		Assert.assertEquals(homePage.getToastMessage(), translateText("affiliate.partner.create.successMessage"));
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(), "Restricted action popup appears");
+    	}
+    	logger.info("Finished checkPermissionToCreateImportingTax");
+    }    
+  
+    public void checkPermissionToConfigureTax(AllPermissions staffPermission) {
+    	navigateToManagementScreenByURL(); 
+    	if (isPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToConfigureTax");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	
+    	clickShowTaxInWebAppCheckbox();
+    	if (staffPermission.getSetting().getTAX().isUpdateTAXConfiguration()) {
+    		Assert.assertEquals(homePage.getToastMessage(), translateText("affiliate.partner.update.successMessage"));
+    		clickShowTaxInWebAppCheckbox();
+    		homePage.getToastMessage();
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(), "Restricted action popup appears");
+    	}
+    	
+    	if (staffPermission.getSetting().getTAX().isViewTAXList()) {
+        	String originalDefaultTax = getDefaultTax();
+        	selectDefaultTax(originalDefaultTax);
+        	if (staffPermission.getSetting().getTAX().isUpdateTAXConfiguration()) {
+        		Assert.assertEquals(homePage.getToastMessage(), translateText("affiliate.partner.update.successMessage"));
+        	} else {
+        		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(), "Restricted action popup appears");
+        	}
+    	} else {
+    		Assert.assertTrue(isDefaultTaxFieldDisabled(), "Is Default Tax field disabled");
+    	}
+    	
+    	clickApplyTaxAfterDiscountCheckbox();
+    	if (staffPermission.getSetting().getTAX().isUpdateTAXConfiguration()) {
+    		//No changes to capture
+    		clickApplyTaxAfterDiscountCheckbox();
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(), "Restricted action popup appears");
+    	}
+    	
+    	logger.info("Finished checkPermissionToConfigureTax");
+    }     
+    
+    public void checkPermissionToDeleteTax(AllPermissions staffPermission, String deletedTax) {
+    	navigateToManagementScreenByURL(); 
+    	if (isPermissionProhibited(staffPermission)) {
+    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToDeleteTax");
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+    		return;
+    	}
+    	if (!staffPermission.getSetting().getTAX().isViewTAXList()) {
+    		logger.info("Staff does not have view VAT list. Skipping checkPermissionToDeleteTax");
+    		return;
+    	}
+
+    	if (commonAction.getElements(elements.loc_tblVATRows).size()==1) {
+    		logger.info("There exists only one default tax. Skipping checkPermissionToDeleteTax");
+    		return;
+    	}
+    	
+    	deleteTax(deletedTax);
+    	if (staffPermission.getSetting().getTAX().isDeleteTAX()) {
+    		Assert.assertEquals(homePage.getToastMessage(), translateText("affiliate.commission.delete.successMessage"));
+    	} else {
+    		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent(), "Restricted action popup appears");
+    	}
+    	
+    	logger.info("Finished checkPermissionToDeleteTax");
+    }     
+    
+    public void checkVATPermission(AllPermissions staffPermission, String deletedTax) {
+    	checkPermissionToViewVATList(staffPermission);
+    	checkPermissionToCreateSellingTax(staffPermission);
+    	checkPermissionToCreateImportingTax(staffPermission);
+    	checkPermissionToConfigureTax(staffPermission);
+    	checkPermissionToDeleteTax(staffPermission, deletedTax);
+    }     
+    
 }
