@@ -11,12 +11,11 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.CANCELLED;
 import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.COMPLETED;
+import static utilities.data.DataGenerator.getFirstString;
 
 public class APIAllReturnOrder {
     Logger logger = LogManager.getLogger(T.class);
@@ -30,7 +29,7 @@ public class APIAllReturnOrder {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    enum ReturnOrderStatus {
+    public enum ReturnOrderStatus {
         IN_PROGRESS, COMPLETED, CANCELLED
     }
 
@@ -49,21 +48,21 @@ public class APIAllReturnOrder {
         List<Integer> returnBranchIds;
     }
 
-    String getAllReturnOrdersPath = "/orderservices2/api/return-order/%s?page=%s&size=100&searchKeyword=&searchType=ORDER_ID&branchId=%s&restock=&status=&refundStatus=&staffName=";
+    String getAllReturnOrdersPath = "/orderservices2/api/return-order/%s?page=%s&size=100&searchKeyword=%s&searchType=ORDER_ID&branchId=%s&restock=&status=&refundStatus=&staffName=";
 
     String getBranchQueryParams() {
         return loginInfo.getAssignedBranchesIds().toString().replaceAll("[\\[\\]]", "");
     }
 
-    Response getAllReturnOrderResponse(int pageIndex) {
-        return api.get(getAllReturnOrdersPath.formatted(loginInfo.getStoreID(), pageIndex, getBranchQueryParams()), loginInfo.getAccessToken())
+    Response getAllReturnOrderResponse(int pageIndex, String... searchKeyword) {
+        return api.get(getAllReturnOrdersPath.formatted(loginInfo.getStoreID(), pageIndex, getFirstString(searchKeyword), getBranchQueryParams()), loginInfo.getAccessToken())
                 .then()
                 .statusCode(200)
                 .extract()
                 .response();
     }
 
-    public AllReturnOrderInformation getAllReturnOrdersInformation() {
+    public AllReturnOrderInformation getAllReturnOrdersInformation(String... searchKeyword) {
         // init suggestion model
         AllReturnOrderInformation info = new AllReturnOrderInformation();
 
@@ -78,14 +77,14 @@ public class APIAllReturnOrder {
 
 
         // get total return orders
-        int totalOfReturnOrders = Integer.parseInt(getAllReturnOrderResponse(0).getHeader("X-Total-Count"));
+        int totalOfReturnOrders = Integer.parseInt(getAllReturnOrderResponse(0, searchKeyword).getHeader("X-Total-Count"));
 
         // get number of pages
         int numberOfPages = totalOfReturnOrders / 100;
 
         // get other page data
         for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllReturnOrderResponse(pageIndex).jsonPath();
+            JsonPath jsonPath = getAllReturnOrderResponse(pageIndex,searchKeyword).jsonPath();
             ids.addAll(jsonPath.getList("id"));
             returnOrderIds.addAll(jsonPath.getList("returnOrderId"));
             bcOrderIds.addAll(jsonPath.getList("bcOrderId"));
@@ -107,27 +106,4 @@ public class APIAllReturnOrder {
         // return model
         return info;
     }
-
-    public List<Integer> getListProductIdInNotCompletedReturnOrder() {
-        AllReturnOrderInformation info = getAllReturnOrdersInformation();
-        List<Integer> returnOrderIds = info.getIds();
-        List<ReturnOrderStatus> statues = info.getStatues();
-
-        // get list in-complete return order id
-        List<Integer> inCompleteReturnOrderIds = returnOrderIds.stream()
-                .filter(returnOrderId -> !(Objects.equals(statues.get(returnOrderIds.indexOf(returnOrderId)), CANCELLED)
-                        || Objects.equals(statues.get(returnOrderIds.indexOf(returnOrderId)), COMPLETED)))
-                .toList();
-
-        // init return order api
-        APIReturnOrderDetail returnOrderDetail = new APIReturnOrderDetail(loginInformation);
-
-        // get list itemId in in-complete return order
-        return inCompleteReturnOrderIds.stream()
-                .flatMap(returnOrderId -> returnOrderDetail.getItemIds(returnOrderId).stream())
-                .distinct()
-                .toList();
-    }
-
-
 }

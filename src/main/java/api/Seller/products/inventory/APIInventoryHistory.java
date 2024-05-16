@@ -6,6 +6,7 @@ import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrders.OrderStatus;
 import api.Seller.orders.order_management.APIOrderDetail;
 import api.Seller.orders.return_order.APIAllReturnOrder;
+import api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus;
 import api.Seller.products.transfer.APITransferDetail;
 import api.Seller.products.transfer.TransferManagement.TransferStatus;
 import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders.PurchaseOrderStatus;
@@ -25,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.CANCELLED;
+import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.COMPLETED;
 import static api.Seller.products.inventory.APIInventoryHistory.InventoryActionType.*;
 
 public class APIInventoryHistory {
@@ -170,14 +173,18 @@ public class APIInventoryHistory {
                             || Objects.equals(status, OrderStatus.CANCELLED))
                             || Objects.equals(status, OrderStatus.REJECTED)
                             || Objects.equals(status, OrderStatus.FAILED)) {
+
+                        break;
+                    }
+                } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_SOLD)) {
+                    List<ReturnOrderStatus> statuses = new APIAllReturnOrder(loginInformation).getAllReturnOrdersInformation(info.getOrderIds().get(historyIndex)).getStatues();
+                    if (statuses.stream().noneMatch(status -> Objects.equals(status, CANCELLED) || Objects.equals(status, COMPLETED))) {
                         itemIds.add(Integer.parseInt(productId));
                         break;
                     }
                 }
             }
         }
-        List<Integer> notCompleteOrderProductIds = apiAllReturnOrder.getListProductIdInNotCompletedReturnOrder();
-        itemIds.addAll(productIds.stream().filter(productId -> notCompleteOrderProductIds.contains(Integer.parseInt(productId))).map(Integer::parseInt).toList());
         return itemIds.stream().distinct().toList();
     }
 }

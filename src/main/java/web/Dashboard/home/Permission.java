@@ -30,7 +30,7 @@ import web.Dashboard.onlineshop.preferences.Configuration;
 import web.Dashboard.orders.createquotation.CreateQuotation;
 import web.Dashboard.orders.orderlist.OrderManagementPage;
 import web.Dashboard.orders.pos.POSPage;
-import web.Dashboard.orders.returnorders.ReturnOrders;
+import web.Dashboard.orders.return_orders.ReturnOrdersManagementPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.inventory.InventoryPage;
 import web.Dashboard.products.productcollection.productcollectionmanagement.ProductCollectionManagement;
@@ -232,13 +232,13 @@ public class Permission {
 					}
 					if (subMenu.contentEquals("Return Orders")) {
 						if (function.contentEquals("Create Return Order")) {
-							new ReturnOrders(driver).verifyPermissionToCreateReturnedOrder(permission.get(menuComponent), url.get(menuComponent));
+							new ReturnOrdersManagementPage(driver).verifyPermissionToCreateReturnedOrder(permission.get(menuComponent), url.get(menuComponent));
 						}
 						if (function.contentEquals("Export Return Order")) {
-							new ReturnOrders(driver).verifyPermissionToExportReturnedOrder(permission.get(menuComponent), url.get(menuComponent));
+							new ReturnOrdersManagementPage(driver).verifyPermissionToExportReturnedOrder(permission.get(menuComponent), url.get(menuComponent));
 						}
 						if (function.contentEquals("Export History")) {
-							new ReturnOrders(driver).verifyPermissionToExportHistory(permission.get(menuComponent), url.get(menuComponent));
+							new ReturnOrdersManagementPage(driver).verifyPermissionToExportHistory(permission.get(menuComponent), url.get(menuComponent));
 						}
 					}
 					if (subMenu.contentEquals("Create Quotation")) {

@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static utilities.character_limit.CharacterLimit.*;
-import static utilities.file.FileNameAndPath.getDirectorySlash;
-import static utilities.file.FileNameAndPath.projectLocation;
 
 public class DataGenerator {
     public String generateString(int length) {
@@ -291,5 +289,9 @@ public class DataGenerator {
                 .findFirst()
                 .map(File::getAbsolutePath)
                 .orElse("");
+    }
+
+    public static String getFirstString(String... strings) {
+        return Optional.ofNullable(strings).filter(stringArr -> stringArr.length > 0).map(stringArr -> stringArr[0]).orElse("");
     }
 }
