@@ -10,10 +10,7 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
@@ -182,6 +179,7 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && Optional.ofNullable(madeBy.get(ids.indexOf(id))).isPresent()
                         && madeBy.get(ids.indexOf(id)).equals(staffName))
                 .boxed()
                 .toList();
