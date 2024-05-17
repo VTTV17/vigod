@@ -3,9 +3,7 @@ package web.Dashboard;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
-import api.Seller.supplier.supplier.APISupplier;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -18,13 +16,15 @@ import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
+import api.Seller.supplier.supplier.APISupplier;
+import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-
+import utilities.permission.CheckPermission;
 import web.Dashboard.cashbook.Cashbook;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -39,6 +39,10 @@ public class CashbookPermissionTest extends BaseTest {
 	BranchManagement branchManagmentAPI;
 	APISupplier supplierAPI;
 	StaffManagement staffManagementAPI;
+	
+	LoginPage loginPage;
+	HomePage homePage;
+	Cashbook cashbookPage;
 	
 	int permissionGroupId;
 	String assignedCustomerName;
@@ -59,17 +63,27 @@ public class CashbookPermissionTest extends BaseTest {
 		staffManagementAPI = new StaffManagement(ownerCredentials);
 		
 		preConditionSetup();
+		
+		driver = new InitWebdriver().getDriver(browser, headless);
+		loginPage = new LoginPage(driver);
+		homePage = new HomePage(driver);
+		commonAction = new UICommonAction(driver);
+		cashbookPage = new Cashbook(driver);
+		
+		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
+		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		
 	}	
 
 	@AfterClass
 	void deletePermissionGroup() {
 		permissionAPI.deleteGroupPermission(permissionGroupId);
+		driver.quit();
 	}		
 	
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        driver.quit();
     }	
 
     void preConditionSetup() {
@@ -93,16 +107,12 @@ public class CashbookPermissionTest extends BaseTest {
 		cashbookAPI.createPayment(branchId, branchName, "UTILITIES", unassignedCustomerId, unassignedCustomerName);
     }
     
-	String getRandomListElement(List<String> list) {
-		return list.get(new Random().nextInt(0, list.size()));
-	}
-	
 	String randomSupplier(APISupplier supplierAPI) {
-		return getRandomListElement(supplierAPI.getAllSupplierNames());
+		return DataGenerator.getRandomListElement(supplierAPI.getAllSupplierNames());
 	}		
 	
 	String randomStaff(StaffManagement staffAPI) {
-		return getRandomListElement(staffAPI.getAllStaffNames());
+		return DataGenerator.getRandomListElement(staffAPI.getAllStaffNames());
 	}		
 	
 	int getStaffUserId(LoginInformation staffCredentials) {
@@ -146,8 +156,8 @@ public class CashbookPermissionTest extends BaseTest {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
 		model.setSetting_staffManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
-//		model.setSupplier_supplier(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"}))); //Bug case 1 https://mediastep.atlassian.net/browse/BH-33078
-		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "11"}))); //Bug "10" https://mediastep.atlassian.net/browse/BH-33085
+		model.setSupplier_supplier(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"1", "0"})));
+		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"00", "01", "10", "11"})));
 		model.setCashbook_none(cashbookPermissionBinary);
 		return model;
 	}
@@ -155,21 +165,24 @@ public class CashbookPermissionTest extends BaseTest {
 	@Test(dataProvider = "cashbookPermission", dataProviderClass = PermissionDataProvider.class)
 	public void CB_01_CheckCashbookPermission(String permissionBinary) {
 		
-		driver = new InitWebdriver().getDriver(browser, headless);
-		LoginPage loginPage = new LoginPage(driver);
-		Cashbook cashbookPage = new Cashbook(driver);
-		HomePage homePage = new HomePage(driver);
-
+		String staffOldPermissionToken = new Login().getInfo(staffCredentials).getStaffPermissionToken();
+		
 		//Edit a permisison
 		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description Tien's Permission", setPermissionModel(permissionBinary));		
 		
-		//Check permission
-		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
-		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		String staffNewPermissionToken = new CheckPermission(driver).waitUntilPermissionUpdated(staffOldPermissionToken, staffCredentials);
 		
-		AllPermissions allPermissionDTO = new AllPermissions(new Login().getInfo(staffCredentials).getStaffPermissionToken());
+		//Check permission
+		AllPermissions allPermissionDTO = new AllPermissions(staffNewPermissionToken);
+		
+		System.out.println(allPermissionDTO.getSetting().getAccount());
+		
 		if (allPermissionDTO.getCashbook().isDeleteReceiptTransaction()) cashbookAPI.createReceipt(branchId, branchName, "SALE_OF_ASSETS", unassignedCustomerId, unassignedCustomerName);
 		if (allPermissionDTO.getCashbook().isDeletePaymentTransaction()) cashbookAPI.createPayment(branchId, branchName, "UTILITIES", unassignedCustomerId, unassignedCustomerName);
+		
+		commonAction.refreshPage();
+		commonAction.sleepInMiliSecond(2000, "OMG");
+		
 		cashbookPage.checkCashbookPermission(allPermissionDTO, unassignedCustomerName, assignedCustomerName, randomSupplier(supplierAPI), randomStaff(staffManagementAPI));
 	}		
 }
