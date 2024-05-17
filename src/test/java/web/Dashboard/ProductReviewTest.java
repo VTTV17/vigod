@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.orders.orderlist.OrderManagementPage;
+import web.Dashboard.orders.orderlist.order_list.OrderManagementPage;
 import web.Dashboard.products.productreviews.ProductReviews;
 import web.StoreFront.checkout.checkoutOneStep.Checkout;
 import web.StoreFront.checkout.checkoutstep1.CheckOutStep1;

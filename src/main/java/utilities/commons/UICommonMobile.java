@@ -84,9 +84,9 @@ public class UICommonMobile extends UICommonAction {
 		return driver.findElement(by);
 	}
 
-	public WebElement getElement(By by, int inSeconds) {
+	public WebElement getElement(By locator, int inSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
-		return wait.until(ExpectedConditions.presenceOfElementLocated(by));
+		return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
 
 	/**

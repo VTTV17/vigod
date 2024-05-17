@@ -11,10 +11,13 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static api.Seller.orders.order_management.APIAllOrderCosts.*;
 import static api.Seller.orders.order_management.APIAllOrders.*;
+import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.*;
 
 public class APIOrderDetail {
     Logger logger = LogManager.getLogger(APIOrderDetail.class);
@@ -38,6 +41,8 @@ public class APIOrderDetail {
         OrderStatus status;
         OrderTags orderTags;
         OrderCosts orderCosts;
+        List<Integer> itemIds;
+        List<Integer> itemQuantity;
     }
 
     String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true";
@@ -62,10 +67,13 @@ public class APIOrderDetail {
         info.setPaymentMethod(PaymentMethod.valueOf(jsonPath.getString("orderInfo.paymentMethod")));
         info.setItemsCount(jsonPath.getInt("orderInfo.itemsCount"));
         info.setTotalQuantity(jsonPath.getInt("orderInfo.totalQuantity"));
-        info.setShippingMethod(ShippingMethod.valueOf(jsonPath.getString("orderInfo.deliveryName")));
+        String shippingMethod = jsonPath.getString("orderInfo.deliveryName");
+        info.setShippingMethod(Optional.ofNullable(shippingMethod).map(method -> valueOf(shippingMethod)).orElse(selfdelivery));
         info.setStatus(OrderStatus.valueOf(jsonPath.getString("orderInfo.status")));
         info.setOrderTags(new OrderTags(jsonPath.getList("orderTagInfos.tagId"), jsonPath.getList("orderTagInfos.name")));
         info.setOrderCosts((jsonPath.getList("orderInfo.orderCosts.id") != null) ? new OrderCosts(jsonPath.getList("orderInfo.orderCosts.id"), jsonPath.getList("orderInfo.orderCosts.id"), jsonPath.getList("orderInfo.orderCosts.id")) : new OrderCosts());
+        info.setItemIds(jsonPath.getList("items.itemId"));
+        info.setItemQuantity(jsonPath.getList("items.totalQuantity"));
 
         // return model
         return info;

@@ -1,4 +1,4 @@
-package web.Dashboard.orders.orderlist;
+package web.Dashboard.orders.orderlist.order_list;
 
 import org.openqa.selenium.By;
 
@@ -43,4 +43,6 @@ public class OrderManagementElement {
     By loc_dlgExportOrderByProduct_btnExportByProduct = By.cssSelector(".select-product-modal .gs-button__green");
     By loc_dlgExportOrderByProduct_btnCancel = By.cssSelector(".select-product-modal .gs-button__gray--outline");
     By loc_icnDownloadExportFile = By.xpath("//*[contains(@class, 'd-desktop-flex')]//*[contains(text(), 'EXPORT_ORDER')]//following-sibling::div/div/img[@alt='download-file-blue']");
+    By loc_btnCancel = By.cssSelector(".modal-body button.gs-button__gray--outline");
+    By loc_btnExportByProduct = By.cssSelector(".modal-body button.gs-button__green");
 }

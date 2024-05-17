@@ -26,8 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.CANCELLED;
-import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.COMPLETED;
+import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus.IN_PROGRESS;
 import static api.Seller.products.inventory.APIInventoryHistory.InventoryActionType.*;
 
 public class APIInventoryHistory {
@@ -135,7 +134,6 @@ public class APIInventoryHistory {
         APITransferDetail apiTransferDetail = new APITransferDetail(loginInformation);
         APIPartnerTransferDetail apiPartnerTransferDetail = new APIPartnerTransferDetail(loginInformation);
         APIPurchaseOrderDetail apiPurchaseOrderDetail = new APIPurchaseOrderDetail(loginInformation);
-        APIAllReturnOrder apiAllReturnOrder = new APIAllReturnOrder(loginInformation);
         APIOrderDetail apiOrderDetail = new APIOrderDetail(loginInformation);
         List<Integer> itemIds = new ArrayList<>();
         for (String productId : productIds) {
@@ -178,7 +176,7 @@ public class APIInventoryHistory {
                     }
                 } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_SOLD)) {
                     List<ReturnOrderStatus> statuses = new APIAllReturnOrder(loginInformation).getAllReturnOrdersInformation(info.getOrderIds().get(historyIndex)).getStatues();
-                    if (statuses.stream().noneMatch(status -> Objects.equals(status, CANCELLED) || Objects.equals(status, COMPLETED))) {
+                    if (statuses.stream().anyMatch(status -> Objects.equals(status, IN_PROGRESS))) {
                         itemIds.add(Integer.parseInt(productId));
                         break;
                     }

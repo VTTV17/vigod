@@ -1,7 +1,9 @@
-package web.Dashboard.orders.return_orders;
+package web.Dashboard.orders.return_orders.return_order_management;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrders;
+import api.Seller.orders.return_order.APIAllReturnOrder;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -15,6 +17,11 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.orders.return_orders.create_return_order.CreateReturnOrderPage;
+
+import java.util.List;
+
+import static utilities.links.Links.DOMAIN;
 
 public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
 
@@ -26,6 +33,16 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
     public ReturnOrdersManagementPage(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+    }
+
+    public boolean isDialogDisplayed() {
+        commonAction.sleepInMiliSecond(1000);
+        return !commonAction.getElements(loc_dlgSelectOrderToReturn).isEmpty();
+    }
+
+    public void closeDialog() {
+        commonAction.click(loc_btnCloseDialog);
+        logger.info("Closed Dialog.");
     }
 
     public void clickCreateReturnOrder() {
@@ -61,8 +78,8 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
     public void verifyPermissionToCreateReturnedOrder(String permission, String url) {
         if (permission.contentEquals("A")) {
             clickExport().clickCreateReturnOrder();
-            boolean flag = new SelectOrderToReturnDialog(driver).isDialogDisplayed();
-            new SelectOrderToReturnDialog(driver).closeDialog();
+            boolean flag = isDialogDisplayed();
+            closeDialog();
             Assert.assertTrue(flag);
         } else if (permission.contentEquals("D")) {
             Assert.assertFalse(commonAction.getCurrentURL().contains(url));
@@ -94,6 +111,13 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
         }
     }
 
+    void navigateToReturnOrderManagementPage() {
+        driver.get("%s/order/return-order/list".formatted(DOMAIN));
+        driver.navigate().refresh();
+
+        logger.info("Navigate to return order management page by URL.");
+    }
+
     /*-------------------------------------*/
     /* Check permission */
     // ticket: https://mediastep.atlassian.net/issues/BH-24812
@@ -103,8 +127,8 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
     AllPermissions permissions;
     CheckPermission checkPermission;
     AssertCustomize assertCustomize;
-    APIAllOrders apiAllOrdersWithSellerToken;
-    APIAllOrders apiAllOrdersWithStaffToken;
+    APIAllReturnOrder apiAllReturnOrdersWithSellerToken;
+    APIAllReturnOrder apiAllReturnOrdersWithStaffToken;
 
     public ReturnOrdersManagementPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -121,38 +145,75 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
         return this;
     }
 
-    public void checkReturnOrdersPermission(AllPermissions permissions) {
+    public void checkReturnOrdersPermission() {
+        // init api get all return order with seller token
+        apiAllReturnOrdersWithSellerToken = new APIAllReturnOrder(sellerLoginInformation);
+
+        // init api get all return order with staff token
+        apiAllReturnOrdersWithStaffToken = new APIAllReturnOrder(staffLoginInformation);
+
+        // check view return order list
+        checkViewReturnOrderList();
     }
 
     void checkViewReturnOrderList() {
+        List<Integer> listOfReturnOrderIdWithStaffToken = apiAllReturnOrdersWithStaffToken.getAllReturnOrdersInformation().getIds();
+        if (permissions.getOrders().getReturnOrder().isViewOrderReturnList()) {
+            List<Integer> listOfReturnOrderIdWithSellerToken = apiAllReturnOrdersWithSellerToken.getListReturnOrderIdAfterFilterByAssignedBranch(staffLoginInfo.getAssignedBranchesIds());
+            assertCustomize.assertTrue(CollectionUtils.isEqualCollection(listOfReturnOrderIdWithStaffToken, listOfReturnOrderIdWithSellerToken),
+                    "List return order must be %s, but found %s.".formatted(listOfReturnOrderIdWithSellerToken, listOfReturnOrderIdWithStaffToken));
 
-    }
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/order/return-order/list".formatted(DOMAIN), "/order/return-order/list"),
+                    "Return order management page must be shown, but found %s.".formatted(driver.getCurrentUrl()));
 
-    void checkViewReturnOrderDetail() {
+            // check create return order
+            checkCreateReturnOrder();
+        } else {
+            assertCustomize.assertTrue(listOfReturnOrderIdWithStaffToken.isEmpty(),
+                    "List return order must be empty, but found %s.".formatted(listOfReturnOrderIdWithStaffToken));
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/order/return-order/list".formatted(DOMAIN)),
+                    "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+        }
 
+        logger.info("Check permission: Orders >> Order management >> Check view return order list.");
     }
 
     void checkCreateReturnOrder() {
+        // navigate to return order management page
+        navigateToReturnOrderManagementPage();
 
-    }
+        // click create return order button
+        commonAction.click(loc_btnCreateReturnOrder);
 
-    void checkEditReturnOrder() {
+        // check create return order permission
+        if (permissions.getOrders().getReturnOrder().isCreateReturnOrder()) {
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgSelectOrderToReturn).isEmpty(),
+                    "Can not open Select order to return popup.");
 
-    }
+            if (!commonAction.getListElement(loc_dlgSelectOrderToReturn).isEmpty()) {
+                // open list search type
+                commonAction.clickJS(loc_dlgSelectOrderToReturn_ddvSelectedSearchType);
 
-    void checkRestockGoods() {
+                // select "Order number" search type
+                commonAction.clickJS(loc_dlgSelectOrderToReturn_ddvOrderNumberSearchType);
 
-    }
+                // get orderId to create new return order
+                long orderId = new APIAllOrders(sellerLoginInformation).getOrderIdForReturnOrder(staffLoginInfo.getAssignedBranchesIds());
 
-    void checkCompleteReturnOrder() {
+                if (orderId != 0) {
+                    // search order
+                    commonAction.sendKeys(loc_dlgSelectOrderToReturn_txtSearch, String.valueOf(orderId));
+                    logger.info("OrderID: %s.".formatted(orderId));
 
-    }
+                    // select order
+                    commonAction.click(By.xpath(str_tblOrder_orderId.formatted(orderId)));
 
-    void checkCancelReturnOrder() {
+                    // create new return order
+                    new CreateReturnOrderPage(driver, permissions).createReturnOrder();
+                } else logger.error("Can not find any order that can make a new return order.");
+            }
+        }
 
-    }
-
-    void checkConfirmPayment() {
-
+        logger.info("Check permission: Orders >> Order management >> Create return order.");
     }
 }

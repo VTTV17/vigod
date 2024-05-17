@@ -1,4 +1,4 @@
-package web.Dashboard.orders.orderlist;
+package web.Dashboard.orders.orderlist.order_list;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrders;
@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import static api.Seller.orders.order_management.APIAllOrders.Channel.*;
 import static utilities.links.Links.DOMAIN;
-import static web.Dashboard.orders.orderlist.OrderManagementElement.BulkActions.*;
+import static web.Dashboard.orders.orderlist.order_list.OrderManagementElement.BulkActions.*;
 
 public class OrderManagementPage extends OrderManagementElement {
 
@@ -43,6 +43,16 @@ public class OrderManagementPage extends OrderManagementElement {
         new HomePage(driver).navigateToPage("Orders");
         new HomePage(driver).hideFacebookBubble();
         return this;
+    }
+
+    public void clickCancel() {
+        commonAction.clickJS(loc_btnCancel);
+        logger.info("Clicked on 'Cancel' button.");
+    }
+
+    public boolean isSelectProductDialogDisplayed() {
+        commonAction.sleepInMiliSecond(1000);
+        return !commonAction.getElements(loc_btnExportOrderByProduct).isEmpty();
     }
 
     public OrderManagementPage clickExport() {
@@ -149,14 +159,14 @@ public class OrderManagementPage extends OrderManagementElement {
         if (permission.contentEquals("A")) {
             clickExport().clickExportOrderByProduct();
             try {
-                new ExportOrderByProductDialog(driver).clickCancel();
+               clickCancel();
             } catch (Exception e) {
                 commonAction.navigateBack();
             }
 
         } else if (permission.contentEquals("D")) {
             clickExport().clickExportOrderByProduct();
-            boolean flag = new ExportOrderByProductDialog(driver).isSelectProductDialogDisplayed();
+            boolean flag = isSelectProductDialogDisplayed();
             clickExport();
             Assert.assertFalse(flag);
         } else {

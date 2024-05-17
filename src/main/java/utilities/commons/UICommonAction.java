@@ -592,19 +592,35 @@ public class UICommonAction {
         return elements;
     }
 
-    public WebElement getElement(By by) {
+    public WebElement getElement(By locator) {
         try {
-            return wait.until(presenceOfElementLocated(by));
+            return wait.until(presenceOfElementLocated(locator));
         } catch (StaleElementReferenceException ex) {
-            return wait.until(presenceOfElementLocated(by));
+            return wait.until(presenceOfElementLocated(locator));
         }
     }
 
-    public WebElement getElement(By by, int index) {
+    public WebElement getElement(By locator1, By locator2) {
         try {
-            return wait.until(presenceOfAllElementsLocatedBy(by)).get(index);
+            return wait.until(presenceOfNestedElementLocatedBy(getElement(locator1), locator2));
         } catch (StaleElementReferenceException ex) {
-            return wait.until(presenceOfAllElementsLocatedBy(by)).get(index);
+            return wait.until(presenceOfNestedElementLocatedBy(getElement(locator1), locator2));
+        }
+    }
+
+    public WebElement getElement(By locator, int index) {
+        try {
+            return wait.until(presenceOfAllElementsLocatedBy(locator)).get(index);
+        } catch (StaleElementReferenceException ex) {
+            return wait.until(presenceOfAllElementsLocatedBy(locator)).get(index);
+        }
+    }
+
+    public WebElement getElement(By locator1, int index1, By locator2) {
+        try {
+            return wait.until(presenceOfNestedElementLocatedBy(getElement(locator1, index1), locator2));
+        } catch (StaleElementReferenceException ex) {
+            return wait.until(presenceOfNestedElementLocatedBy(getElement(locator1, index1), locator2));
         }
     }
 

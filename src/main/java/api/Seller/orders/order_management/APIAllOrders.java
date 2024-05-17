@@ -1,6 +1,7 @@
 package api.Seller.orders.order_management;
 
 import api.Seller.login.Login;
+import api.Seller.orders.return_order.APIGetListReturnOrderByOrderId;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -79,10 +80,12 @@ public class APIAllOrders {
 
     }
 
-    String getAllOrderPath = "/beehiveservices/api/orders/gosell-store/v2/%s?page=%s&size=100&%s&channel=%s&view=COMPACT";
+    String getAllOrderPath = "/beehiveservices/api/orders/gosell-store/v2/%s?page=%s&size=100&%s&channel=%s&status=%s&view=COMPACT";
+    OrderStatus orderStatus;
 
     Response getAllOrderResponse(int pageIndex, String branchQuery, Channel channel) {
-        return api.get(getAllOrderPath.formatted(loginInfo.getStoreID(), pageIndex, branchQuery, channel), loginInfo.getAccessToken());
+        String status = Optional.ofNullable(orderStatus).map(Enum::toString).orElse("");
+        return api.get(getAllOrderPath.formatted(loginInfo.getStoreID(), pageIndex, branchQuery, channel, status), loginInfo.getAccessToken());
     }
 
     public AllOrdersInformation getAllOrderInformation(Channel channel) {
@@ -323,5 +326,30 @@ public class APIAllOrders {
                 .extract()
                 .jsonPath()
                 .getBoolean("isPrintOrders");
+    }
+
+    public long getOrderIdForReturnOrder(List<Integer> assignedBranchIds) {
+        orderStatus = DELIVERED;
+        AllOrdersInformation info = getAllOrderInformation(GOSELL);
+
+        // init temp arr
+        List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
+        List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
+
+        return ids.stream()
+                .mapToLong(id -> id)
+                .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                        && canReturnOrder(id))
+                .findFirst()
+                .orElse(0L);
+    }
+
+    boolean canReturnOrder(long orderId) {
+        int totalQuantityInOrder = new ArrayList<>(new APIOrderDetail(loginInformation).getOrderInformation(orderId).getItemQuantity()).stream().mapToInt(q -> q).sum();
+        int totalQuantityInReturn = new APIGetListReturnOrderByOrderId(loginInformation).getItemReturnInformation(orderId).getQuantity().stream().mapToInt(q -> q).sum();
+
+        return totalQuantityInOrder > totalQuantityInReturn;
     }
 }
