@@ -84,7 +84,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
             // log
             logger.info("Select supplier: %s.".formatted(supplierName));
-        } else logger.error("Can not find any supplier.");
+        } else logger.warn("Can not find any supplier.");
     }
 
     long importPrice;
@@ -140,7 +140,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
                 commonAction.closePopup(loc_dlgAddIMEI_btnSave);
                 logger.info("Close add IMEI popup.");
             }
-        } else logger.error("Can not find any products.");
+        } else logger.warn("Can not find any products.");
     }
 
     void inputPaymentAmount() {

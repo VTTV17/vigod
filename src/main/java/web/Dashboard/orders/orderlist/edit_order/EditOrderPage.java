@@ -108,7 +108,7 @@ public class EditOrderPage extends EditOrderElement {
 
                 // save changes
                 commonAction.click(loc_btnSave);
-            } else logger.error("[%s] Can not open Discount popup.".formatted(channel));
+            } else logger.warn("[%s] Can not open Discount popup.".formatted(channel));
         } else {
             assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "[%s] Restricted popup is not shown.".formatted(channel));
         }
@@ -139,7 +139,7 @@ public class EditOrderPage extends EditOrderElement {
                 } else {
                     assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "[%s] Restricted popup is not shown.".formatted(channel));
                 }
-            } else logger.error("[%s] Block by 'View order cost list' permission.".formatted(channel));
+            } else logger.warn("[%s] Block by 'View order cost list' permission.".formatted(channel));
         }
 
         // log

@@ -191,7 +191,7 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
         navigateToReturnOrderManagementPage();
 
         // click create return order button
-        commonAction.click(loc_btnCreateReturnOrder);
+        commonAction.clickJS(loc_btnCreateReturnOrder);
 
         // check create return order permission
         if (permissions.getOrders().getReturnOrder().isCreateReturnOrder()) {
@@ -218,7 +218,7 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
 
                     // create new return order
                     new CreateReturnOrderPage(driver, permissions).createReturnOrder();
-                } else logger.error("Can not find any order that can make a new return order.");
+                } else logger.warn("Can not find any order that can make a new return order.");
             }
         }
 

@@ -283,7 +283,7 @@ public class TransferPage extends TransferElement {
         }
     }
 
-    private void inputTransferInfo(LoginInformation loginInformation) throws Exception {
+    private void inputTransferInfo(LoginInformation loginInformation) {
         // get login information
         LoginDashboardInfo loginInfo = new Login().getInfo(loginInformation);
 
@@ -341,11 +341,11 @@ public class TransferPage extends TransferElement {
                     List<String> listIMEI = new APIProductDetail(loginInformation).getListIMEI(itemId, modelId, originBranchId);
                     this.selectIMEI(listIMEI.subList(0, (int) transferredQuantity).toArray(new String[0]));
                 }
-            } else throw new Exception("Must have at least 2 branches to create a new transfer.");
-        } else throw new Exception("All products are out of stock, so can not create a new transfer.");
+            } else logger.warn("Must have at least 2 branches to create a new transfer.");
+        } else logger.warn("All products are out of stock, so can not create a new transfer.");
     }
 
-    public void createTransfer() throws Exception {
+    public void createTransfer() {
         // navigate to create transfer page
         navigateToCreateTransferPage();
 
@@ -356,7 +356,7 @@ public class TransferPage extends TransferElement {
         clickSaveBtn();
     }
 
-    public void editTransfer(int transferId) throws Exception {
+    public void editTransfer(int transferId) {
         // navigate to update transfer page
         navigateToEditTransferPage(transferId);
 
