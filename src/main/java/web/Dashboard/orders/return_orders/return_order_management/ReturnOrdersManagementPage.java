@@ -18,6 +18,7 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.orders.return_orders.create_return_order.CreateReturnOrderPage;
+import web.Dashboard.orders.return_orders.return_order_detail.ReturnOrderDetailPage;
 
 import java.util.List;
 
@@ -154,6 +155,10 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
 
         // check view return order list
         checkViewReturnOrderList();
+
+        // check others permission
+        new ReturnOrderDetailPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
+                .checkReturnOrdersPermission();
     }
 
     void checkViewReturnOrderList() {

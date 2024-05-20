@@ -7,11 +7,11 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
-import web.Dashboard.orders.return_orders.create_return_order.CreateReturnOrderPage;
 
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.links.Links.DOMAIN;
 
 public class EditReturnOrderPage extends EditReturnOrderElement {
     WebDriver driver;
@@ -23,6 +23,13 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
+    }
+
+    void navigateToEditReturnOrderPage(int returnOrderId) {
+        driver.get("%s/order/return-order/edit/%s".formatted(DOMAIN, returnOrderId));
+        driver.navigate().refresh();
+
+        logger.info("Navigate to edit return order page by URL, returnOrderId: %s.".formatted(returnOrderId));
     }
 
     /*-------------------------------------*/
@@ -78,7 +85,7 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
         }
     }
 
-    void restockGoods() {
+    void checkRestockGoods() {
         if (isRestockGoods != null) {
             if (isRestockGoods) {
                 if (!commonAction.isCheckedJS(loc_chkReceivedGoods)) {
@@ -100,28 +107,24 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
                 "Can not create new return order.");
     }
 
-    void checkViewReturnOrderDetail() {
-        if (permissions.getOrders().getReturnOrder().isViewOrderReturnDetail()) {
+    public void checkEditReturnOrder(int returnOrderId) {
+        if (returnOrderId != 0) {
+            // navigate to edit return order page
+            navigateToEditReturnOrderPage(returnOrderId);
 
-        } else {
+            // check edit return order permission
+            if (permissions.getOrders().getReturnOrder().isEditReturnOrder()) {
+                assertCustomize.assertTrue(driver.getCurrentUrl().contains("/order/return-order/edit/"), "Can not access to edit return order page.");
 
+                checkRestockGoods();
+
+                // save changes
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnSave, loc_dlgToastSuccess),
+                        "Can not edit return order.");
+            } else {
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
+            }
         }
-    }
-
-    void checkEditReturnOrder() {
-
-    }
-
-    void checkRestockGoods() {
-
-    }
-
-    void checkCompleteReturnOrder() {
-
-    }
-
-
-    void checkConfirmPayment() {
-
+        logger.info("Check permission: Orders >> Order management >> Check edit return order.");
     }
 }

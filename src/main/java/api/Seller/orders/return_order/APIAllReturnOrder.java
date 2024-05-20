@@ -41,16 +41,16 @@ public class APIAllReturnOrder {
 
     @Data
     public static class AllReturnOrderInformation {
-        List<Integer> ids;
-        List<String> returnOrderIds;
-        List<Integer> bcOrderIds;
-        List<Integer> customerIds;
-        List<ReturnOrderStatus> statues;
-        List<RefundStatus> refundStatues;
-        List<Integer> returnBranchIds;
-        List<Boolean> restocks;
-        List<Long> refundAmounts;
-        List<Long> totalRefunds;
+        List<Integer> ids = new ArrayList<>();
+        List<String> returnOrderIds = new ArrayList<>();
+        List<Integer> bcOrderIds = new ArrayList<>();
+        List<Integer> customerIds = new ArrayList<>();
+        List<ReturnOrderStatus> statues = new ArrayList<>();
+        List<RefundStatus> refundStatues = new ArrayList<>();
+        List<Integer> returnBranchIds = new ArrayList<>();
+        List<Boolean> restocks = new ArrayList<>();
+        List<Long> refundAmounts = new ArrayList<>();
+        List<Long> totalRefunds = new ArrayList<>();
     }
 
     String getAllReturnOrdersPath = "/orderservices2/api/return-order/%s?page=%s&size=100&searchKeyword=%s&searchType=ORDER_ID&branchId=%s&restock=&status=&refundStatus=&staffName=";
@@ -60,16 +60,17 @@ public class APIAllReturnOrder {
     }
 
     Response getAllReturnOrderResponse(int pageIndex, String... searchKeyword) {
-        return api.get(getAllReturnOrdersPath.formatted(loginInfo.getStoreID(), pageIndex, getFirstString(searchKeyword), getBranchQueryParams()), loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+        return api.get(getAllReturnOrdersPath.formatted(loginInfo.getStoreID(), pageIndex, getFirstString(searchKeyword), getBranchQueryParams()), loginInfo.getAccessToken());
     }
 
     public AllReturnOrderInformation getAllReturnOrdersInformation(String... searchKeyword) {
         // init suggestion model
         AllReturnOrderInformation info = new AllReturnOrderInformation();
+
+        // get page 0 response
+        Response response = getAllReturnOrderResponse(0, searchKeyword);
+
+        if (response.getStatusCode() == 403) return info;
 
         // init temp array
         List<String> ids = new ArrayList<>();
@@ -83,16 +84,19 @@ public class APIAllReturnOrder {
         List<Long> refundAmounts = new ArrayList<>();
         List<Long> totalRefunds = new ArrayList<>();
 
-
         // get total return orders
-        int totalOfReturnOrders = Integer.parseInt(getAllReturnOrderResponse(0, searchKeyword).getHeader("X-Total-Count"));
+        int totalOfReturnOrders = Integer.parseInt(response.getHeader("X-Total-Count"));
 
         // get number of pages
         int numberOfPages = totalOfReturnOrders / 100;
 
         // get other page data
         for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllReturnOrderResponse(pageIndex, searchKeyword).jsonPath();
+            JsonPath jsonPath = getAllReturnOrderResponse(pageIndex, searchKeyword)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .jsonPath();
             ids.addAll(jsonPath.getList("id"));
             returnOrderIds.addAll(jsonPath.getList("returnOrderId"));
             bcOrderIds.addAll(jsonPath.getList("bcOrderId"));
@@ -153,6 +157,19 @@ public class APIAllReturnOrder {
                 .filter(id -> assignedBranchIds.contains(returnBranchIds.get(ids.indexOf(id)))
                         && Objects.equals(statuses.get(ids.indexOf(id)), IN_PROGRESS)
                         && !restocks.get(ids.indexOf(id)))
+                .findFirst()
+                .orElse(0);
+    }
+
+    public int getReturnOrderIdForCompleted(List<Integer> assignedBranchIds, String... searchKeyword) {
+        AllReturnOrderInformation info = getAllReturnOrdersInformation(searchKeyword);
+        List<Integer> ids = new ArrayList<>(info.getIds());
+        List<Integer> returnBranchIds = new ArrayList<>(info.getReturnBranchIds());
+        List<ReturnOrderStatus> statuses = new ArrayList<>(info.getStatues());
+
+        return ids.stream()
+                .filter(id -> assignedBranchIds.contains(returnBranchIds.get(ids.indexOf(id)))
+                        && Objects.equals(statuses.get(ids.indexOf(id)), IN_PROGRESS))
                 .findFirst()
                 .orElse(0);
     }
