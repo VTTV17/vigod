@@ -3,8 +3,8 @@ package web.Dashboard.orders.return_orders.return_order_management;
 import org.openqa.selenium.By;
 
 public class ReturnOrdersManagementElement {
-    By loc_btnCreateReturnOrder = By.xpath("(//div[contains(@class,'gs-page-container-max return-order-list')]//button[contains(@class,'gs-button__green')])[1]");
-    By loc_btnExport = By.xpath("(//div[contains(@class,'gs-page-container-max return-order-list')]//button[contains(@class,'gs-button__green')])[2]");
+    By loc_btnCreateReturnOrder = By.cssSelector(".return-order-list .gs-content-header-right-el > .gs-button__green");
+    By loc_btnExport = By.cssSelector(".return-order-list .gs-content-header-right-el > div> .gs-button__green");
     By loc_btnExportReturnOrder = By.xpath("(//div[contains(@class,'uik-menuDrop__list')]//button)[1]");
     By loc_btnExportHistory = By.xpath("(//div[contains(@class,'uik-menuDrop__list')]//button)[2]");
     By loc_dlgSelectOrderToReturn = By.cssSelector(".create-return-order-modal");

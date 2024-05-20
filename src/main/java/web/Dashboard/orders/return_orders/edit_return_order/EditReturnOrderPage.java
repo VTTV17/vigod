@@ -97,7 +97,7 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkReceivedGoods),
                         "Restricted popup is not shown.");
             }
-            logger.info("Check permission: Orders >> Order management >> Restock goods.");
+            logger.info("Check permission: Orders >> Return order >> Restock goods.");
         }
     }
 
@@ -125,6 +125,6 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
                 assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
             }
         }
-        logger.info("Check permission: Orders >> Order management >> Check edit return order.");
+        logger.info("Check permission: Orders >> Return order >> Check edit return order.");
     }
 }

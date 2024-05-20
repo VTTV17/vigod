@@ -48,12 +48,8 @@ public class CheckPermission {
     }
     public boolean checkAccessRestricted(String url) {
         driver.get(url);
-        try {
-            commonAction.waitURLShouldBeContains("/restricted", 2000);
-            return true;
-        } catch (TimeoutException ex) {
-            return false;
-        }
+        commonAction.waitUrlLoaded();
+        return driver.getCurrentUrl().contains("/restricted");
     }
 
     public boolean checkAccessedSuccessfully(By locator, By destinationLocator) {
@@ -78,32 +74,20 @@ public class CheckPermission {
 
     public boolean checkAccessedSuccessfully(By locator, String url) {
         commonAction.clickJS(locator);
-        try {
-            commonAction.waitURLShouldBeContains(url, 5000);
-            return true;
-        } catch (TimeoutException ex) {
-            return false;
-        }
+        commonAction.waitUrlLoaded();
+        return driver.getCurrentUrl().contains(url);
     }
 
     public boolean checkAccessedSuccessfully(By locator, int index, String url) {
         commonAction.click(locator, index);
-        try {
-            commonAction.waitURLShouldBeContains(url, 5000);
-            return true;
-        } catch (TimeoutException ex) {
-            return false;
-        }
+        commonAction.waitUrlLoaded();
+        return driver.getCurrentUrl().contains(url);
     }
 
     public boolean checkAccessedSuccessfully(String url, String destinationURL) {
         driver.get(url);
-        try {
-            commonAction.waitURLShouldBeContains(destinationURL, 5000);
-            return true;
-        } catch (TimeoutException ex) {
-            return false;
-        }
+        commonAction.waitUrlLoaded();
+        return driver.getCurrentUrl().contains(destinationURL);
     }
     public boolean checkAccessedSuccessfully(String url, By destinationLocator) {
         driver.get(url);

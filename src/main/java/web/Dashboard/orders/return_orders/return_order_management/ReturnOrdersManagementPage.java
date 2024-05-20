@@ -168,19 +168,22 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
             assertCustomize.assertTrue(CollectionUtils.isEqualCollection(listOfReturnOrderIdWithStaffToken, listOfReturnOrderIdWithSellerToken),
                     "List return order must be %s, but found %s.".formatted(listOfReturnOrderIdWithSellerToken, listOfReturnOrderIdWithStaffToken));
 
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/order/return-order/list".formatted(DOMAIN), "/order/return-order/list"),
-                    "Return order management page must be shown, but found %s.".formatted(driver.getCurrentUrl()));
-
             // check create return order
             checkCreateReturnOrder();
         } else {
             assertCustomize.assertTrue(listOfReturnOrderIdWithStaffToken.isEmpty(),
                     "List return order must be empty, but found %s.".formatted(listOfReturnOrderIdWithStaffToken));
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/order/return-order/list".formatted(DOMAIN)),
-                    "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
         }
 
-        logger.info("Check permission: Orders >> Order management >> Check view return order list.");
+        if (!permissions.getOrders().getReturnOrder().toString().contains("true")) {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/order/return-order/list".formatted(DOMAIN)),
+                    "Restricted page must be shown instead of %s.".formatted(driver.getCurrentUrl()));
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/order/return-order/list".formatted(DOMAIN), "/order/return-order/list"),
+                    "Return order management page must be shown, but found %s.".formatted(driver.getCurrentUrl()));
+        }
+
+        logger.info("Check permission: Orders >> Return order >> Check view return order list.");
     }
 
     void checkCreateReturnOrder() {
@@ -203,7 +206,7 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
                 commonAction.clickJS(loc_dlgSelectOrderToReturn_ddvOrderNumberSearchType);
 
                 // get orderId to create new return order
-                long orderId = new APIAllOrders(sellerLoginInformation).getOrderIdForReturnOrder(staffLoginInfo.getAssignedBranchesIds());
+                long orderId = new APIAllOrders(staffLoginInformation).getOrderIdForReturnOrder(staffLoginInfo.getAssignedBranchesIds());
 
                 if (orderId != 0) {
                     // search order
@@ -219,6 +222,6 @@ public class ReturnOrdersManagementPage extends ReturnOrdersManagementElement {
             }
         }
 
-        logger.info("Check permission: Orders >> Order management >> Create return order.");
+        logger.info("Check permission: Orders >> Return order >> Create return order.");
     }
 }

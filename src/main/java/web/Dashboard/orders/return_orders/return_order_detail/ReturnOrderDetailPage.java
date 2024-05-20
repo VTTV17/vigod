@@ -90,7 +90,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
                 assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
             }
         }
-        logger.info("Check permission: Orders >> Order management >> Check view return order detail.");
+        logger.info("Check permission: Orders >> Return order >> Check view return order detail.");
     }
 
     void checkCompleteReturnOrder() {
@@ -109,7 +109,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
                         "Restricted popup is not shown.");
             }
         }
-        logger.info("Check permission: Orders >> Order management >> Check completed return order.");
+        logger.info("Check permission: Orders >> Return order >> Check completed return order.");
     }
 
     void checkCancelReturnOrder() {
@@ -132,7 +132,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
             }
         }
 
-        logger.info("Check permission: Orders >> Order management >> Check cancel return order.");
+        logger.info("Check permission: Orders >> Return order >> Check cancel return order.");
     }
 
     void checkConfirmPayment() {
@@ -156,7 +156,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
                         "Restricted popup is not shown.");
             }
         }
-        logger.info("Check permission: Orders >> Order management >> Check confirm payment.");
+        logger.info("Check permission: Orders >> Return order >> Check confirm payment.");
     }
 
     void checkEditReturnOrder() {
@@ -181,6 +181,6 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
             // check permission when access by URL
             new EditReturnOrderPage(driver, permissions).checkEditReturnOrder(returnOrderId);
         }
-        logger.info("Check permission: Orders >> Order management >> Check edit return order.");
+        logger.info("Check permission: Orders >> Return order >> Check edit return order.");
     }
 }
