@@ -1,9 +1,9 @@
 package web.Dashboard.supplier.purchaseorders.crud;
 
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APISuggestionProduct.AllSuggestionProductsInfo;
-import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.supplier.purchase_orders.APIAllPurchaseOrders;
 import api.Seller.supplier.purchase_orders.APIPurchaseOrderDetail;
 import api.Seller.supplier.supplier.APISupplier;
@@ -77,13 +77,14 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
             // search supplier by name
             commonAction.sendKeys(loc_txtSupplierSearchBox, supplierName);
+            commonAction.click(loc_txtSupplierSearchBox);
 
             // select supplier
-            commonAction.click(By.xpath(str_ddvSupplier.formatted(supplierName)));
+            commonAction.clickJS(By.xpath(str_ddvSupplier.formatted((supplierName.length() > 20) ? supplierName.substring(0, 20) : supplierName)));
 
             // log
             logger.info("Select supplier: %s.".formatted(supplierName));
-        } else throw new Exception("Can not find any supplier.");
+        } else logger.error("Can not find any supplier.");
     }
 
     long importPrice;
@@ -99,9 +100,10 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
             }
             // search product by name
             commonAction.sendKeys(loc_txtProductSearchBox, productsInfo.getItemNames().get(0));
+            commonAction.click(loc_txtProductSearchBox);
 
             // select product by barcode
-            commonAction.click(By.xpath(str_ddvProduct.formatted(productsInfo.getBarcodes().get(0).replace("-", " - "))));
+            commonAction.clickJS(By.xpath(str_ddvProduct.formatted(productsInfo.getBarcodes().get(0).replace("-", " - "))));
             logger.info("Select product with name: %s and barcode: %s.".formatted(productsInfo.getItemNames().get(0),
                     productsInfo.getBarcodes().get(0)));
 
@@ -138,7 +140,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
                 commonAction.closePopup(loc_dlgAddIMEI_btnSave);
                 logger.info("Close add IMEI popup.");
             }
-        } else throw new Exception("Can not find any products.");
+        } else logger.error("Can not find any products.");
     }
 
     void inputPaymentAmount() {
@@ -238,7 +240,7 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
         return this;
     }
 
-    public void checkPurchaseOrderPermission(AllPermissions permissions) {
+    public void checkPurchaseOrderPermission(AllPermissions permissions) throws Exception {
         // get staff permission
         this.permissions = permissions;
 
@@ -260,12 +262,12 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
 
 
         // check create purchase order
-        try {
-//            checkCreatePurchaseOrder();
-//            checkCreateAndApprovePurchaseOrder();
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
+//        try {
+        checkCreatePurchaseOrder();
+        checkCreateAndApprovePurchaseOrder();
+//        } catch (Exception ex) {
+//            logger.error(ex);
+//        }
 
         // check view purchase order detail
         checkViewPurchaseOrderDetail(viewDetailPurchaseId, orderPurchaseId, inProgressPurchaseId);
@@ -314,21 +316,21 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
         // navigate to create purchase order page by url
         navigateToCreatePurchaseOrderPageByURL();
 
-        // input purchase order info
-        inputPurchaseOrderInfo();
-
-        // create order
-        createPurchaseOrder();
-
         // check permission
         if (permissions.getSuppliers().getPurchaseOrder().isCreatePurchaseOrder()) {
+            // input purchase order info
+            inputPurchaseOrderInfo();
+
+            // create order
+            createPurchaseOrder();
+
             // check purchase order is created
             assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not create new purchase order.");
         } else {
             // if staff don’t have permission “Create purchase order”
             // => show restricted popup
             // when click on [Create order] button in when create purchase order
-            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
         }
 
         // log
@@ -336,29 +338,30 @@ public class PurchaseOrderPage extends PurchaseOrderElement {
     }
 
     void checkCreateAndApprovePurchaseOrder() throws Exception {
-        // navigate to create purchase order page by url
-        navigateToCreatePurchaseOrderPageByURL();
-
-        // input purchase order info
-        inputPurchaseOrderInfo();
-
-        // create order
-        createAndApprovedPurchaseOrder();
-
         // check permission
-        if (permissions.getSuppliers().getPurchaseOrder().isCreatePurchaseOrder()
-                && permissions.getSuppliers().getPurchaseOrder().isApprovePurchaseOrder()) {
-            // check purchase order is created
-            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not create and approve new purchase order.");
-        } else {
-            // if staff don’t have permission “Create purchase order”
-            // => show restricted popup
-            // when click on [Create and Approve] button in when create purchase order
-            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+        if (permissions.getSuppliers().getPurchaseOrder().isCreatePurchaseOrder()) {
+            // navigate to create purchase order page by url
+            navigateToCreatePurchaseOrderPageByURL();
+
+            // input purchase order info
+            inputPurchaseOrderInfo();
+
+            // create order
+            createAndApprovedPurchaseOrder();
+
+            if (permissions.getSuppliers().getPurchaseOrder().isApprovePurchaseOrder()) {
+                // check purchase order is created
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not create and approve new purchase order.");
+            } else {
+                // if staff don’t have permission “Create purchase order”
+                // => show restricted popup
+                // when click on [Create and Approve] button in when create purchase order
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+            }
         }
 
         // log
-        logger.info("Check permission: Supplier >> Purchase order >> Create purchase order.");
+        logger.info("Check permission: Supplier >> Purchase order >> Create purchase order and Approve purchase order.");
     }
 
     void checkEditPurchaseOrder(int purchaseId) {

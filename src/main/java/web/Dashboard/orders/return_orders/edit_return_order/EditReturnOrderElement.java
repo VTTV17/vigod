@@ -13,4 +13,5 @@ public class EditReturnOrderElement {
     By loc_dlgSelectIMEI_lstIMEI = By.cssSelector(".code p");
     By loc_dlgSelectIMEI_btnSave = By.cssSelector(".managed-inventory-POS-modal .gs-button__green");
     By loc_chkReceivedGoods = By.cssSelector("[name= 'receivedGoods']");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

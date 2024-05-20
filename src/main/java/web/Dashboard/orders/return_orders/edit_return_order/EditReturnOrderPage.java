@@ -1,18 +1,23 @@
 package web.Dashboard.orders.return_orders.edit_return_order;
 
-import api.Seller.login.Login;
-import api.Seller.orders.return_order.APIAllReturnOrder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import web.Dashboard.orders.return_orders.create_return_order.CreateReturnOrderPage;
 
-public class EditReturnOrderPage extends EditReturnOrderElement{
+import java.util.stream.IntStream;
+
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+
+public class EditReturnOrderPage extends EditReturnOrderElement {
     WebDriver driver;
     UICommonAction commonAction;
+    AssertCustomize assertCustomize;
+    Logger logger = LogManager.getLogger(EditReturnOrderPage.class);
 
     public EditReturnOrderPage(WebDriver driver) {
         this.driver = driver;
@@ -23,14 +28,9 @@ public class EditReturnOrderPage extends EditReturnOrderElement{
     /*-------------------------------------*/
     /* Check permission */
     // ticket: https://mediastep.atlassian.net/issues/BH-24812
-    LoginInformation staffLoginInformation;
-    LoginInformation sellerLoginInformation;
-    LoginDashboardInfo staffLoginInfo;
     AllPermissions permissions;
     CheckPermission checkPermission;
-    AssertCustomize assertCustomize;
-    APIAllReturnOrder apiAllReturnOrdersWithSellerToken;
-    APIAllReturnOrder apiAllReturnOrdersWithStaffToken;
+    Boolean isRestockGoods;
 
     public EditReturnOrderPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -38,25 +38,74 @@ public class EditReturnOrderPage extends EditReturnOrderElement{
         commonAction = new UICommonAction(driver);
         this.permissions = permissions;
         checkPermission = new CheckPermission(driver);
+        isRestockGoods = permissions.getOrders().getReturnOrder().isRestockGoods();
     }
 
-    public EditReturnOrderPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
-        this.sellerLoginInformation = sellerLoginInformation;
-        this.staffLoginInformation = staffLoginInformation;
-        staffLoginInfo = new Login().getInfo(staffLoginInformation);
-        return this;
+    void inputReturnStock() {
+        int bound = commonAction.getListElement(loc_txtQuantity).size();
+
+        for (int index = 0; index < bound; index++) {
+            int remainingQuantity = Integer.parseInt(commonAction.getText(loc_lblRemainingQuantity, index).replaceAll("\\D+", ""));
+            if (remainingQuantity > 0) {
+                // input quantity
+                int quantity = Math.max(nextInt(remainingQuantity), 1);
+                commonAction.sendKeys(loc_txtQuantity, index, String.valueOf(quantity));
+                logger.info("Input quantity: %s.".formatted(quantity));
+
+                // select IMEI if any
+                if (!commonAction.getListElement(loc_imgSelectIMEI).isEmpty()) {
+                    commonAction.clickJS(loc_imgSelectIMEI);
+
+                    if (!commonAction.getListElement(loc_dlgSelectIMEI).isEmpty()) {
+                        // remove IMEI
+                        if (!commonAction.getListElement(loc_dlgSelectIMEI_icnRemoveSelectedIMEI).isEmpty()) {
+                            int removeBound = commonAction.getListElement(loc_dlgSelectIMEI_icnRemoveSelectedIMEI).size();
+                            IntStream.iterate(removeBound - 1, removeIndex -> removeIndex >= 0, removeIndex -> removeIndex - 1)
+                                    .forEachOrdered(removeIndex -> commonAction.clickJS(loc_dlgSelectIMEI_icnRemoveSelectedIMEI, removeIndex));
+                        }
+
+
+                        // select IMEI
+                        int maxQuantityCanSelect = Integer.parseInt(commonAction.getText(loc_dlgSelectIMEI_lblSelectedMax).replaceAll("\\D+", ""));
+                        IntStream.range(0, maxQuantityCanSelect).forEachOrdered(selectIndex -> commonAction.clickJS(loc_dlgSelectIMEI_lstIMEI, maxQuantityCanSelect - selectIndex - 1));
+
+                        // save changes
+                        commonAction.click(loc_dlgSelectIMEI_btnSave);
+                    } else logger.error("Can not open Select IMEI/Serial number popup.");
+                }
+                break;
+            }
+        }
     }
 
-    public void checkReturnOrdersPermission() {
-        // init api get all return order with seller token
-        apiAllReturnOrdersWithSellerToken = new APIAllReturnOrder(sellerLoginInformation);
+    void restockGoods() {
+        if (isRestockGoods != null) {
+            if (isRestockGoods) {
+                if (!commonAction.isCheckedJS(loc_chkReceivedGoods)) {
+                    commonAction.clickJS(loc_chkReceivedGoods);
+                }
+                assertCustomize.assertTrue(commonAction.isCheckedJS(loc_chkReceivedGoods),
+                        "Can not restock goods.");
+            } else {
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_chkReceivedGoods),
+                        "Restricted popup is not shown.");
+            }
+            logger.info("Check permission: Orders >> Order management >> Restock goods.");
+        }
+    }
 
-        // init api get all return order with staff token
-        apiAllReturnOrdersWithStaffToken = new APIAllReturnOrder(staffLoginInformation);
+    void completedEditReturnOrder() {
+        commonAction.click(loc_btnSave);
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(),
+                "Can not create new return order.");
     }
 
     void checkViewReturnOrderDetail() {
+        if (permissions.getOrders().getReturnOrder().isViewOrderReturnDetail()) {
 
+        } else {
+
+        }
     }
 
     void checkEditReturnOrder() {

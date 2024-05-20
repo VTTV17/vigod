@@ -112,8 +112,6 @@ public class APIAllPurchaseOrders {
 
     public List<Integer> getListPurchaseOrderMatchWithCondition(List<String> assignedBranchNames, String staffName) {
         AllPurchaseOrdersInformation info = getAllPurchaseOrdersInformation();
-        System.out.println(info);
-        System.out.println(staffName);
         List<Integer> ids = info.getIds();
         List<String> branchNames = info.getBranchNames();
         List<String> staffCreated = info.getStaffCreated();

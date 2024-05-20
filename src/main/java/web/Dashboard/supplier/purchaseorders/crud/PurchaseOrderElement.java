@@ -5,7 +5,7 @@ import org.openqa.selenium.By;
 public class PurchaseOrderElement {
     By loc_icnRemoveSupplier = By.cssSelector(".d-desktop-flex [alt='remove supplier']");
     By loc_txtSupplierSearchBox = By.xpath("(//*[@class = 'search-box']//input)[1]");
-    String str_ddvSupplier = "//*[text() = '%s']";
+    String str_ddvSupplier = "//*[contains(text(), '%s')]";
     By loc_icnRemoveProduct = By.cssSelector("[alt='remove product']");
     By loc_txtProductSearchBox = By.cssSelector(".clearfix .product-list-wrapper input[placeholder]");
     String str_ddvProduct = "//*[text() = '%s']";

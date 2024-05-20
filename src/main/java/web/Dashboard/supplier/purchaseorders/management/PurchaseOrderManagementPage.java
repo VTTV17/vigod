@@ -69,7 +69,7 @@ public class PurchaseOrderManagementPage extends PurchaseOrderManagementElement 
         return this;
     }
 
-    public void checkPurchaseOrderPermission(AllPermissions permissions) {
+    public void checkPurchaseOrderPermission(AllPermissions permissions) throws Exception {
         // get staff permission
         this.permissions = permissions;
 
