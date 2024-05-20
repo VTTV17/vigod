@@ -21,6 +21,7 @@ public class BranchManagement {
     String UPDATE_BRANCH_INFORMATION_PATH = "/storeservice/api/store-branch/%s";
     String changeBranchStatusPath = "/storeservice/api/store-branch/setting-status/%s/%s?status=%s";
     String getDestinationBranchesPath = "/storeservice/api/store/branches/%s";
+    String GET_BRANCH_FREE = "/storeservice/api/store-branch/list/%s?page=0&size=20&branchType=FREE";
     LoginInformation loginInformation;
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
@@ -214,5 +215,10 @@ public class BranchManagement {
         }
         Collections.sort(branchNames);
         return branchNames;
+    }
+    public int getFreeBranch(){
+        Response response = api.get(GET_BRANCH_FREE.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        return (int)response.jsonPath().getList("id").get(0);
     }
 }

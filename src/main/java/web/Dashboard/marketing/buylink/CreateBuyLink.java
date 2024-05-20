@@ -2,6 +2,7 @@ package web.Dashboard.marketing.buylink;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -51,6 +52,8 @@ public class CreateBuyLink extends HomePage {
     By loc_lst_lblCouponName = By.cssSelector(".buy-link-created-modal__coupon-row h6");
     By loc_lst_btnDeleteProduct = By.cssSelector(".buy-link-created-modal__selected-product .gs-action-button");
     By loc_dlgProductSelection = By.cssSelector(".buy-link-created-modal");
+    By loc_ddlBranch = By.cssSelector(".branch__product button");
+    By loc_lst_lblBranchName = By.cssSelector(".branch__product .uik-select__label");
     public boolean isProductSelectionDialogDisplayed() {
         commonAction.sleepInMiliSecond(1000);
         return !commonAction.isElementNotDisplay(driver.findElements(loc_dlgProductSelection));
@@ -165,5 +168,19 @@ public class CreateBuyLink extends HomePage {
                 .clickOnNextBtn()
                 .clickOnFinishBTN();
         return this;
+    }
+    public CreateBuyLink clickOnBranchDropdown(){
+        commonAction.click(loc_ddlBranch);
+        logger.info("Click on Branch");
+        return this;
+    }
+    public List<String> getBranchList(){
+        List<WebElement> branchNamesEls = commonAction.getElements(loc_lst_lblBranchName);
+        List<String> branchNames = new ArrayList<>();
+        for (int i=0;i<branchNamesEls.size();i++) {
+            branchNames.add(commonAction.getText(loc_lst_lblBranchName,i));
+        }
+        Collections.sort(branchNames);
+        return branchNames;
     }
 }

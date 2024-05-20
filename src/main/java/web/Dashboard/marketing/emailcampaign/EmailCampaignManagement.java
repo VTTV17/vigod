@@ -96,7 +96,7 @@ public class EmailCampaignManagement {
 	}
 	public void checkPermissionViewCampaignList(){
 		navigateUrl();
-		List<WebElement> emailCampaignNames = commonAction.getElements(loc_lst_lblCampaignName);
+		List<WebElement> emailCampaignNames = commonAction.getElements(loc_lst_lblCampaignName,3);
 		if (hasViewCampaignListPers()) {
 			assertCustomize.assertTrue(emailCampaignNames.size() > 0, "[Failed] Email campaign list should be shown");
 		} else
@@ -128,8 +128,7 @@ public class EmailCampaignManagement {
 	public void checkPermissionViewSegment(){
 		createEmailCampaign.selectSendTo(1)
 				.clickOnSelectSegment();
-		commonAction.sleepInMiliSecond(1000);
-		List<WebElement> segmentNames = commonAction.getElements(createEmailCampaign.loc_dlgAddSegment_lstSegmentName);
+		List<WebElement> segmentNames = commonAction.getElements(createEmailCampaign.loc_dlgAddSegment_lstSegmentName,2);
 		if(hasViewSegment()){
 			assertCustomize.assertTrue(segmentNames.size() > 0, "[Failed] Segment list should be shown");
 		} else
@@ -199,7 +198,7 @@ public class EmailCampaignManagement {
 		checkPermissionCreateEmailCampaign();
 		checkPermissionEditCampaign(draftId);
 		checkPermissionDeleteCampaign();
-		completeVerifyEmailCampaignPermission();
+		AssertCustomize.verifyTest();
 		return this;
 	}
 	public EmailCampaignManagement completeVerifyEmailCampaignPermission() {

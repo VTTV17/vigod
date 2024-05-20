@@ -1084,7 +1084,11 @@ public class UICommonAction {
             click(locAction);
         }
     }
-
+    public void uncheckTheCheckboxOrRadio(By locValue, By locAction, int index) {
+        if (getElement(locValue,index).isSelected()) {
+            click(locAction,index);
+        }
+    }
     public void selectByVisibleText(By locator, String visibleText) {
         WebElement element = getElement(locator);
         waitTillSelectDropdownHasData(element);

@@ -79,6 +79,7 @@ public class CreateCommissionPage extends CreateCommissionElement{
     }
     public boolean isProductShowOnSelectProductList(String productName){
         common.inputText(loc_txtSearch,productName);
+        common.sleepInMiliSecond(500);
         new HomePage(driver).waitTillSpinnerDisappear1();
         List<WebElement> productNames = common.getElements(loc_lst_lblProductName,5);
         if (productNames.isEmpty()) return false;

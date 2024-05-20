@@ -52,6 +52,7 @@ public class CreateLandingPage {
 	public CreateLandingPage inputSubDomain(String domain) {
 		commonAction.sendKeys(loc_txtSubDomain, domain);
 		logger.info("Input '" + domain + "' into Sub-domain field.");
+		commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 
@@ -127,24 +128,29 @@ public class CreateLandingPage {
 		logger.info("Click on Select template button.");
 		return this;
 	}
-	/*
-	0: page 1
-	Maximun 4 page
-	 */
-	public CreateLandingPage selectPageTemplate(int pageNumber){
-		commonAction.click(loc_dlgSelectTemplate_lstPageNumber,pageNumber);
-		logger.info("Select page %s on Select Template dialog.");
-		return this;
-	}
 	public CreateLandingPage selectToUseTemplate(String templateName){
-		By loc = By.xpath(xpathUseBtnByName.formatted(templateName));
-		commonAction.click(loc);
-		logger.info("Select template: "+templateName);
+		List<WebElement> pageList = commonAction.getElements(loc_dlgSelectTemplate_lstPageNumber,3);
+		for (int i=0;i<pageList.size();i++){
+			By loc = By.xpath(xpathUseBtnByName.formatted(templateName));
+			if(commonAction.getElements(loc,1).size()>0){
+				commonAction.click(loc);
+				logger.info("Select template: "+templateName);
+				return this;
+			}else {
+				if(!commonAction.getAttribute(loc_dlgSelectTemplate_lstPageNumber,pageList.size()-1,"class").contains("active")){
+					commonAction.click(loc_dlgSelectTemplate_lstPageNumber,pageList.size()-1);
+					logger.info("Click page: %s".formatted(i+1));
+				}else try {
+					throw new Exception("Template '%s' not found".formatted(templateName));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 		return this;
 	}
 	public CreateLandingPage selectCheckoutTemplate(){
 		clickOnSelectTemplate();
-		selectPageTemplate(3);
 		selectToUseTemplate("Page Checkout 01");
 		new HomePage(driver).waitTillLoadingDotsDisappear();
 		return this;
