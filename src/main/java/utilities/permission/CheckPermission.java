@@ -149,25 +149,6 @@ public class CheckPermission {
         String value = commonAction.getValue(locatorInput);
         return !value.isEmpty();
     }
-    public void waitUntilPermissionUpdated1(String staffPermissionTokenOld, LoginInformation  staffCredentials){
-        String newToken;
-        int i=0;
-        do {
-            LoginDashboardInfo info = new Login().getInfo(staffCredentials);
-            newToken = info.getStaffPermissionToken();
-            System.out.println("info: "+info);
-            System.out.println("newToken: "+newToken);
-            System.out.println("Wait to update staff permission...");
-            i++;
-        }while (newToken.equals(staffPermissionTokenOld) && i<20);
-        if(newToken.equals(staffPermissionTokenOld))
-            try {
-                throw new Exception("Staff permission token is not updated.");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-    }
-    
     public String waitUntilPermissionUpdated(String oldPermissionToken, LoginInformation loginCredentials){
     	LinkedHashMap<String, Integer> oldPermissions = new AllPermissions().getStaffPermissionFromToken(oldPermissionToken);
     	LinkedHashMap<String, Integer> newPermissions = null;

@@ -13,9 +13,7 @@ import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.marketing.affiliate.partner.PartnerPage;
-import web.Dashboard.promotion.discount.DiscountPage;
-import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
+
 
 import java.util.List;
 
@@ -57,6 +55,7 @@ public class CommissionPage extends CommissionElement{
         String url = Links.DOMAIN + "/affiliate/commission";
         common.navigateToURL(url);
         logger.info("Navigate to url: "+url);
+        common.sleepInMiliSecond(500);
     }
     public void clickOnAddCommissionBtn(){
         common.click(loc_btnAddCommission);
@@ -177,10 +176,11 @@ public class CommissionPage extends CommissionElement{
         }else logger.info("Don't have View commission list, so no need check Delete commission permission.");
     }
     public CommissionPage completeVerifyStaffPermissionCommissionPage() {
-        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-        if (assertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-        }
+//        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
+//        if (assertCustomize.getCountFalse() > 0) {
+//            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+//        }
+        AssertCustomize.verifyTest();
         return this;
     }
     public void verifyCommissionPagePermission(AllPermissions allPermissions, int commissionId, String productOfSeller, String productOfStaff){

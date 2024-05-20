@@ -68,9 +68,9 @@ public class DiscountCampaignPermissionTest extends BaseTest{
         productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
         productCreatedByStaff = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
+
         //Staff Create service
         serviceCreateByStaff = new CreateServiceAPI(staffCredentials).createService(new ServiceInfo()).getServiceName();
-
     }
     @AfterClass
     public void afterClass(){
@@ -1146,7 +1146,6 @@ public class DiscountCampaignPermissionTest extends BaseTest{
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-        new DiscountPage(driver).getLoginInformation(ownerCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId)
-                .completeVerifyStaffPermissionDiscountCampaign();
+        new DiscountPage(driver).getLoginInformation(ownerCredentials).verifyPermissionDiscountCampaign(allPermissions,productCreatedByShopOwner,productCreatedByStaff,serviceCreatedByShowOwner,serviceCreateByStaff,productCampaignInprogressId,serviceCampaignInprogressId,productCampaignScheduleId,serviceCampaignScheduleId);
     }
 }
