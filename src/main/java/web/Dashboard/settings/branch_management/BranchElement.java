@@ -1,5 +1,6 @@
 package web.Dashboard.settings.branch_management;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -28,4 +29,16 @@ public class BranchElement {
 
     @FindBy (css = ".branch-management  tbody > tr > td:nth-child(3)")
     List<WebElement> BRANCH_ADDRESS_LIST;
+    
+    By loc_btnEdit = By.cssSelector("[data-testid='edit-branch-button']");
+    
+    By loc_lblBranchCodeInDialog = By.id("name");
+    By loc_chkShowBranchOnSF = By.xpath("//input[@id='checkbox-hideOnStoreFrontGroup-undefined']/following-sibling::label");
+    By loc_btnUpdate = By.cssSelector(".branch-modal__footer button.gs-button__green");
+    
+    By loc_btnRenewExpiredBranch = By.xpath("(//div[contains(@class,'uik-widget-title__wrapper')])[2]//button");
+    
+    By loc_blkExpiredBranch = By.cssSelector(".bg-expired-branch");
+    
+    By loc_btnActivateBranchToggle = By.xpath("(//input[@class='uik-checkbox__checkbox'])[2]/parent::*");
 }

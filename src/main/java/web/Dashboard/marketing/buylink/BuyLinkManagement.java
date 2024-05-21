@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
+import api.Seller.login.Login;
+import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -17,6 +19,7 @@ import org.testng.asserts.SoftAssert;
 
 import utilities.assert_customize.AssertCustomize;
 import utilities.links.Links;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -24,6 +27,7 @@ import web.Dashboard.home.HomePage;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import web.Dashboard.marketing.landingpage.LandingPage;
+import web.Dashboard.promotion.discount.product_discount_campaign.ProductDiscountCampaignPage;
 
 public class BuyLinkManagement extends HomePage{
 
@@ -37,6 +41,7 @@ public class BuyLinkManagement extends HomePage{
 	AssertCustomize assertCustomize;
 	AllPermissions allPermissions;
 	CreateBuyLink createBuyLink;
+	LoginInformation loginInformation;
 	public BuyLinkManagement(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
@@ -61,6 +66,11 @@ public class BuyLinkManagement extends HomePage{
 	By loc_tltEditLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[2]");
 	By loc_tltDeleteLink = By.xpath("(//div[contains(@class,'gs-table-body-item action')])[1]/div[3]");
 	By loc_dlgConfirmation_btnDelete = By.xpath("//div[@class='modal-footer']/button[2]");
+
+	public BuyLinkManagement getLoginInfo(LoginInformation loginInformation){
+		this.loginInformation = loginInformation;
+		return this;
+	}
 	public BuyLinkManagement clickExploreNow() {
 		commonAction.sleepInMiliSecond(500);
     	commonAction.click(loc_btnExploreNow);
@@ -71,6 +81,7 @@ public class BuyLinkManagement extends HomePage{
     public CreateBuyLink clickCreateBuyLink() {
     	commonAction.click(loc_btnCreateBuyLink);
     	logger.info("Clicked on 'Create Buy Link' button.");
+		commonAction.sleepInMiliSecond(500,"Wait popup show.");
     	return new CreateBuyLink(driver);
     }    	
 
@@ -189,6 +200,16 @@ public class BuyLinkManagement extends HomePage{
 			assertCustomize.assertTrue(buyLinkList.isEmpty(), "[Failed] Buy link list should not be shown");
 		logger.info("Complete check View buy link list permission.");
 	}
+	public BuyLinkManagement checkViewBranchPermission(){
+		List<Integer> branchIds = new Login().getInfo(loginInformation).getAssignedBranchesIds();
+		List<String> branchNamesAssigned = new BranchManagement(loginInformation).getBranchNameById(branchIds);
+		createBuyLink.clickOnBranchDropdown();
+		List<String> branchListActual = new CreateBuyLink(driver).getBranchList();
+		assertCustomize.assertEquals(branchListActual,branchNamesAssigned,
+				"[Failed] Branch list expected: %s \nBranch list actual: %s".formatted(branchNamesAssigned,branchListActual));
+		logger.info("Verified View Branch list permission.");
+		return this;
+	}
 	public void checkPermissionCreateBuyLink(String productNameOfShopOwner, String productNameOfStaff){
 		navigateUrl();
 		if(hasCreateBuyLinkPers()){
@@ -197,6 +218,7 @@ public class BuyLinkManagement extends HomePage{
 					"[Failed] Select product dialog not show when click on Create buy link button.");
 			navigateUrl();
 			clickCreateBuyLink();
+			checkViewBranchPermission();
 			checkPermissionViewProductList(productNameOfShopOwner,productNameOfStaff);
 			navigateUrl();
 			clickCreateBuyLink();
@@ -308,14 +330,7 @@ public class BuyLinkManagement extends HomePage{
 		checkPermissionCreateBuyLink(productNameOfShopOwner, productNameOfStaff);
 		checkPermissionEditBuyLink(productNameOfShopOwner, productNameOfStaff);
 		checkPermissionDelete();
-		completeVerifyLandingPagePermission();
-		return this;
-	}
-	public BuyLinkManagement completeVerifyLandingPagePermission() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();;
 		return this;
 	}
 }

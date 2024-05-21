@@ -1431,13 +1431,7 @@ public class DiscountPage extends DiscountElement {
 		verifyPermissionEditServiceDiscountCampaign(serviceCampaignScheduleId,serviceNameCreatedByShopOwner,serviceNameCreatedByStaff);
 		verifyPermissionEndProductDiscountCampaign(productCampaignInprogressId);
 		verifyPermissionEndServiceDiscountCampaign(serviceCampaignInprogessId);
-		return this;
-	}
-	public DiscountPage completeVerifyStaffPermissionDiscountCampaign() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();
 		return this;
 	}
 }

@@ -57,6 +57,7 @@ public class LandingPage extends LandingPageElement {
 	public CreateLandingPage clickCreateLandingPage() {
 		commonAction.clickElement(landingPageUI.CREATE_PAGE_LANDING_BTN);
 		logger.info("Clicked on 'Create New Landing Page' button");
+		commonAction.sleepInMiliSecond(500);
 		return new CreateLandingPage(driver);
 	}
 
@@ -219,8 +220,7 @@ public class LandingPage extends LandingPageElement {
 			if(hasViewLandingPageListPers()) {
 				navigateUrl();
 				commonAction.click(loc_icnShowMoreAction);
-				commonAction.click(loc_ddvAction, 2);
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_ddvAction, 2),
 						"[Failed]Restricted page should be shown when click Clone landing page.");
 			}
 		}
@@ -270,8 +270,8 @@ public class LandingPage extends LandingPageElement {
 							"[Failed] Restricted page should be shown when click on edit landing page.");
 				}
 			} else {
+				commonAction.navigateToURL(editUrl);
 				if (hasEditLandingPagePers()) {
-					commonAction.navigateToURL(editUrl);
 					commonAction.click(createLandingPage.loc_btnSave);
 					String toastMessage = new HomePage(driver).getToastMessage();
 					try {
@@ -280,8 +280,8 @@ public class LandingPage extends LandingPageElement {
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
-				} else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
-						"[Failed] Restricted page should be shown when navigate ti edit url: " + editUrl);
+				} else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(createLandingPage.loc_btnSave),
+						"[Failed] Restricted page should be shown when navigate to edit url %s , then click Save".formatted(editUrl));
 			}
 
 		} else logger.info("Don't have View detail permission, so no need check Edit permission.");
@@ -474,8 +474,7 @@ public class LandingPage extends LandingPageElement {
 							"[Failed] Restricted page not show when click on clone button on list.");
 				}
 			}else{
-				commonAction.click(loc_ddvAction, 2);
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_ddvAction, 2),
 						"[Failed]Restricted page should be shown when click Clone landing page.");
 				logger.info("Don't has Create landing page permission, so staff don't have Clone permission.");
 			}
@@ -526,13 +525,7 @@ public class LandingPage extends LandingPageElement {
 		checkPermissionUnpublishLandingPage(landingPagePublishedId);
 		checkPermissionCloneLandingPage();
 		checkPermissionDeleteLandingPage();
-		return this;
-	}
-	public LandingPage completeVerifyLandingPagePermission() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();
 		return this;
 	}
 }

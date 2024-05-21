@@ -238,14 +238,14 @@ public class Customers {
     	Response response = api.get(EXPORT_CUSTOMER_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
     	response.then().statusCode(200);
     }    
-    public void assignCustomerToPartner(int customerId, int partnerId){
+    public void assignPartnerToCustomer(int customerId, int partnerId){
         String body = """
                 {
                     "customerIds": "%s",
                     "partnerId": %s
                 }
                 """.formatted(customerId,partnerId);
-        Response response = api.put(ASSIGN_PARTNER_TO_CUSTOMER.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
+        Response response = api.put(ASSIGN_PARTNER_TO_CUSTOMER.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),body);
         response.then().statusCode(200);
     }
 }

@@ -2,24 +2,30 @@ package web.Dashboard;
 
 import api.Seller.affiliate.commission.APICommissionManagement;
 import api.Seller.affiliate.commission.APICreateEditCommission;
+import api.Seller.affiliate.order.APIPartnerOrders;
 import api.Seller.affiliate.partner.APICreateEditPartner;
 import api.Seller.affiliate.partner.APIPartnerManagement;
+import api.Seller.customers.Customers;
 import api.Seller.login.Login;
+import api.Seller.orders.pos.APICreateOrderPOS;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.driver.InitWebdriver;
+import utilities.enums.ApproveStatus;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.affiliate.CommissionInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
+import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.affiliate.commission.CommissionPage;
 import web.Dashboard.marketing.affiliate.information.Information;
+import web.Dashboard.marketing.affiliate.order.PartnerOrdersPage;
 import web.Dashboard.marketing.affiliate.partner.PartnerPage;
 
 import java.io.IOException;
@@ -28,6 +34,7 @@ import java.util.List;
 
 import static utilities.account.AccountTest.*;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class AffiliatePermissionTest extends BaseTest{
     String sellerUserName;
@@ -53,6 +60,7 @@ public class AffiliatePermissionTest extends BaseTest{
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product
+        MAX_PRICE = 999999L;
         CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
         productCreatedByShopOwner = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
@@ -63,7 +71,8 @@ public class AffiliatePermissionTest extends BaseTest{
 //        //Staff create product
         productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
         productCreatedByStaff = productInfo.getProductName();
-        productIds.add(productInfo.getProductID()); }
+        productIds.add(productInfo.getProductID());
+    }
     @BeforeMethod
     public void beforeMethod() {
         driver = new InitWebdriver().getDriver(browser, "false");
@@ -73,7 +82,7 @@ public class AffiliatePermissionTest extends BaseTest{
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
         super.writeResult(result);
-//        driver.quit();
+        driver.quit();
     }
     @AfterClass
     public void afterClass(){
@@ -180,31 +189,31 @@ public class AffiliatePermissionTest extends BaseTest{
 //                {"100100"},
 //                {"100101"},
 //                {"100110"},
-//                {"100111"},
-//                {"101000"},
-//                {"101001"},
-//                {"101010"},
-//                {"101011"},
-//                {"101100"},
-//                {"101101"},
-//                {"101110"},
-//                {"101111"},
-//                {"110000"},
-//                {"110001"},
-//                {"110010"},
-//                {"110011"},
-//                {"110100"},
-//                {"110101"},
-//                {"110110"},
-//                {"110111"},
-//                {"111000"},
-//                {"111001"},
-//                {"111010"},
-//                {"111011"},
-//                {"111100"},
-//                {"111101"},
-//                {"111110"},
-//                {"111111"}
+                {"100111"},
+                {"101000"},
+                {"101001"},
+                {"101010"},
+                {"101011"},
+                {"101100"},
+                {"101101"},
+                {"101110"},
+                {"101111"},
+                {"110000"},
+                {"110001"},
+                {"110010"},
+                {"110011"},
+                {"110100"},
+                {"110101"},
+                {"110110"},
+                {"110111"},
+                {"111000"},
+                {"111001"},
+                {"111010"},
+                {"111011"},
+                {"111100"},
+                {"111101"},
+                {"111110"},
+                {"111111"}
         };
     }
     @Test(dataProvider = "DropshipPartnerData")
@@ -276,21 +285,21 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] CommissionData(){
         return new Object[][]{
-//                {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"},
-//                {"1001"},
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},
-//                {"1101"},
-//                {"1110"},
-//                {"1111"},
+                {"1"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
+                {"1101"},
+                {"1110"},
+                {"1111"},
         };
     }
     @Test(dataProvider = "CommissionData")
@@ -301,17 +310,83 @@ public class AffiliatePermissionTest extends BaseTest{
         model.setProduct_productManagement("1");
         model.setProduct_collection("1");
         model.setAffiliate_commission(dataBinary);
+
         //Get resellerId
         int commissionId = callAPIGetCommissionId();
+
         //edit permisison
         new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+
         //Get info of the staff after being granted the permission
         staffLoginInfo = new Login().getInfo(staffCredentials);
+
         //Get permission
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new CommissionPage(driver).verifyCommissionPagePermission(allPermissions,commissionId,productCreatedByShopOwner,productCreatedByStaff);
+    }
+
+    //create order if order list has less than 2 PENDING order.
+    public void callAPICreatePartnerOrderIfAny(boolean isProductCommission){
+        int orderProductListSize;
+        if(isProductCommission){
+                orderProductListSize = new APIPartnerOrders(ownerCredentials).getOrderProductCommissionByApproveStatus(ApproveStatus.PENDING).size();
+        }else orderProductListSize = new APIPartnerOrders(ownerCredentials).getOrderRevenueCommissionByApproveStatus(ApproveStatus.PENDING).size();
+        for(int i=0; i< 2 - orderProductListSize; i++){
+            //Get customer
+            int customer = new Customers(ownerCredentials).getAllAccountCustomerId().get(0);
+            if (i == 0) {
+                //Get Partner has commission by product
+                int partner = isProductCommission ? new APIPartnerManagement(ownerCredentials).getPartnerHasCommissionByProduct().get(0) : new APIPartnerManagement(ownerCredentials).getPartnerHasCommissionByRevenue().get(0);
+                //Assign partner to customer
+                new Customers(ownerCredentials).assignPartnerToCustomer(customer, partner);
+                //Create order
+                new APICreateOrderPOS(ownerCredentials).CreatePOSOrder(customer,productIds.get(0));
+            } else {
+                //Create order
+                new APICreateOrderPOS(ownerCredentials).CreatePOSOrder(customer,productIds.get(0));
+            }
+        }
+    }
+    @DataProvider
+    public Object[] DropshipOrderData(){
+        return new Object[][]{
+                {"1"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"}
+        };
+    }
+    @Test(dataProvider = "DropshipOrderData")
+    public void checkDropshipOrderPermission(String dataBinary){
+        //Set permission model
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("1");
+        model.setAffiliate_dropshipOrders(dataBinary);
+
+        // Create Order for Commission by Product tab
+        callAPICreatePartnerOrderIfAny(true);
+
+        //Create Order for Commission by Revenue tab
+        callAPICreatePartnerOrderIfAny(false);
+
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new PartnerOrdersPage(driver).checkDropshipOrderPermission(allPermissions);
     }
 }

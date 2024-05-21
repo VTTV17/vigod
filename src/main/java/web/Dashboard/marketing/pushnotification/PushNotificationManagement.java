@@ -146,16 +146,11 @@ public class PushNotificationManagement {
 
 	public void checkPermissionViewCampaignDetail(int notificationId){
 		String detailUrl = Links.DOMAIN + "/marketing/notification/detail/"+notificationId;
-		String editUrl = Links.DOMAIN +"/marketing/notification/push/edit/"+notificationId;
 		if (hasViewCampaignDetailPers()) {
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(detailUrl,detailUrl),"Detail page not show");
-//			assertCustomize.assertTrue(new CheckPermission(driver).checkValueShow(editUrl, createPushNotification.loc_txtCampaignName),
-//						"[Failed] Campaign name should be shown value, but '%s' is shown".formatted(commonAction.getText(createPushNotification.loc_txtCampaignName)));
 		} else {
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(detailUrl),
 					"[Failed] Restricted page should be shown when go to detail page");
-//			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
-//					"[Failed] Restricted page should be shown when go to edit page");
 		}
 		logger.info("Complete check View Campaign detail permission.");
 	}
@@ -170,8 +165,7 @@ public class PushNotificationManagement {
 	public void checkPermissionViewCollectionList(){
 		createPushNotification.selectLinkToType(2);
 		commonAction.click(createPushNotification.loc_ddlLinkValue);
-		commonAction.sleepInMiliSecond(1000);
-		List<WebElement> collectionNames = commonAction.getElements(createPushNotification.loc_ddvLinkValue);
+		List<WebElement> collectionNames = commonAction.getElements(createPushNotification.loc_ddvLinkValue,2);
 		if(hasViewProductCollectionListPers()||hasViewServiceCollectionListPers()){
 			assertCustomize.assertTrue(collectionNames.size()>0,"[Failed] Collection list should be shown");
 		}else assertCustomize.assertTrue(collectionNames.isEmpty(),"[Failed] Collection list should not be shown.");
@@ -200,8 +194,7 @@ public class PushNotificationManagement {
 	public void checkPermissionViewPageList(){
 		createPushNotification.selectLinkToType(1);
 		commonAction.click(createPushNotification.loc_ddlLinkValue);
-		commonAction.sleepInMiliSecond(1000);
-		List<WebElement> pages = commonAction.getElements(createPushNotification.loc_ddvLinkValue);
+		List<WebElement> pages = commonAction.getElements(createPushNotification.loc_ddvLinkValue,2);
 		if(hasViewPageListPers()){
 			assertCustomize.assertTrue(pages.size()>0,"[Failed] Page list should be shown");
 		}else assertCustomize.assertTrue(pages.isEmpty(),"[Failed] Page list should not be shown.");
@@ -235,7 +228,6 @@ public class PushNotificationManagement {
 	}
 	public void checPermissionEditCampaign(int campaignId){
 		String editUrl = Links.DOMAIN +"/marketing/notification/push/edit/"+campaignId;
-//		if(hasViewCampaignDetailPers()) {
 			if (hasEditCampaignPers()) {
 				if(hasViewCampaignListPers()){
 					navigateByUrl();
@@ -267,8 +259,7 @@ public class PushNotificationManagement {
 				}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
 						"[Failed] Restricted page not show when navigate to edit page");
 			}
-//		}else logger.info("Don't have View detail permission, so can't check Edit permission.");
-	}
+ 	}
 	public void checkPermissionDeleteCampaign(){
 		if(hasViewCampaignListPers()){
 			navigateByUrl();
@@ -300,14 +291,7 @@ public class PushNotificationManagement {
 		checkPermissionCreatePushNotiCampaign();
 		checPermissionEditCampaign(campaignId);
 		checkPermissionDeleteCampaign();
-		completeVerifyPushNotificationPermission();
-		return this;
-	}
-	public PushNotificationManagement completeVerifyPushNotificationPermission() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();
 		return this;
 	}
 }

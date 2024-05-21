@@ -80,11 +80,7 @@ public class PAYPAL {
 	}
 
 	public PAYPAL completePayment() {
-		inputUsername(PAYPAL_USERNAME);
-		clickNext();
-		inputPassword(PAYPAL_PASSWORD);
-		clickLogin();
-		clickCompletePurchase();
+		completePayment(PAYPAL_USERNAME, PAYPAL_PASSWORD);
 		return this;
 	}
 	

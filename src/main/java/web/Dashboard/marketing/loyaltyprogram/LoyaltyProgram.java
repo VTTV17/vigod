@@ -217,13 +217,6 @@ public class LoyaltyProgram {
 					"[Failed] Restricted popup not show.");
 		}else logger.info("Don't have View list membership permission, so can't check Delete permission");
 	}
-	public LoyaltyProgram completeVerifyLoyaltyProgramPermission() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
-		return this;
-	}
 	public void checkLoyaltyProgramPermission(AllPermissions allPermissions){
 		this.allPermissions = allPermissions;
 		checkViewListMembershipPermission();
@@ -232,6 +225,6 @@ public class LoyaltyProgram {
 		checkViewMembershipDetailPermission();
 		checkCollocateMembershipLevelPermission();
 		checkDeletePermission();
-		completeVerifyLoyaltyProgramPermission();
+		AssertCustomize.verifyTest();
 	}
 }
