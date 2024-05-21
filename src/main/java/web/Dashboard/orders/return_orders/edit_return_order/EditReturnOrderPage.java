@@ -85,8 +85,12 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
         }
     }
 
-    void checkRestockGoods() {
-        if (isRestockGoods != null) {
+    void checkRestockGoods(int returnOrderId) {
+        if (isRestockGoods != null && returnOrderId != 0) {
+            // navigate to edit return order page
+            navigateToEditReturnOrderPage(returnOrderId);
+
+            // check restock goods permission
             if (isRestockGoods) {
                 if (!commonAction.isCheckedJS(loc_chkReceivedGoods)) {
                     commonAction.clickJS(loc_chkReceivedGoods);
@@ -116,11 +120,12 @@ public class EditReturnOrderPage extends EditReturnOrderElement {
             if (permissions.getOrders().getReturnOrder().isEditReturnOrder()) {
                 assertCustomize.assertTrue(driver.getCurrentUrl().contains("/order/return-order/edit/"), "Can not access to edit return order page.");
 
-                checkRestockGoods();
-
                 // save changes
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnSave, loc_dlgToastSuccess),
                         "Can not edit return order.");
+
+                // check restock goods
+                checkRestockGoods(returnOrderId);
             } else {
                 assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
             }

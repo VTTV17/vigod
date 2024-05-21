@@ -347,7 +347,7 @@ public class APIAllOrders {
     }
 
     boolean canReturnOrder(long orderId) {
-        int totalQuantityInOrder = new ArrayList<>(new APIOrderDetail(loginInformation).getOrderInformation(orderId).getItemQuantity()).stream().mapToInt(q -> q).sum();
+        int totalQuantityInOrder = new ArrayList<>(Optional.ofNullable(new APIOrderDetail(loginInformation).getOrderInformation(orderId).getItemQuantity()).orElse(List.of())).stream().mapToInt(q -> q).sum();
         int totalQuantityInReturn = new APIGetListReturnOrderByOrderId(loginInformation).getItemReturnInformation(orderId).getQuantity().stream().mapToInt(q -> q).sum();
 
         return totalQuantityInOrder > totalQuantityInReturn;

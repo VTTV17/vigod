@@ -7,8 +7,11 @@ public class ReturnOrderDetailElement {
     By loc_ddvEditActions = By.cssSelector(".gs-dropdown-action .actions div:nth-child(1)");
     By loc_ddvCancelActions = By.cssSelector(".gs-dropdown-action .actions div:last-child");
     By loc_btnComplete = By.cssSelector(".gss-content-header .gs-button__green");
+    By loc_dlgConfirmComplete = By.cssSelector(".complete-return-order-modal");
+    By loc_dlgConfirmComplete_btnOK = By.cssSelector(".complete-return-order-modal .gs-button__green");
     By btnConfirmPayment = By.cssSelector(".payment-method .gs-button__green");
     By loc_dlgConfirmPayment = By.cssSelector(".confirmation-payment-modal");
     By loc_dlgConfirmPayment_btnAdd = By.cssSelector(".confirmation-payment-modal .gs-button__green");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
+    By loc_dlgToastError = By.cssSelector(".Toastify__toast--error");
 }

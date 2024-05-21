@@ -102,8 +102,22 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
 
             // check completed return order permission
             if (permissions.getOrders().getReturnOrder().isCompleteReturnOrder()) {
-                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnComplete, loc_dlgToastSuccess),
-                        "Can not complete return order.");
+                commonAction.click(loc_btnComplete);
+
+                if (commonAction.getListElement(loc_dlgToastSuccess).isEmpty()) {
+                    assertCustomize.assertFalse(commonAction.getListElement(loc_dlgConfirmComplete).isEmpty(),
+                            "Can not open Confirm complete return order popup.");
+
+                    if (!commonAction.getListElement(loc_dlgConfirmComplete).isEmpty()) {
+                        if (permissions.getOrders().getOrderManagement().isViewOrderDetail()) {
+                            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmComplete_btnOK, loc_dlgToastSuccess),
+                                    "Can not complete return order.");
+                        } else {
+                            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmComplete_btnOK, loc_dlgToastError),
+                                    "Error toast does not shown.");
+                        }
+                    }
+                }
             } else {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnComplete),
                         "Restricted popup is not shown.");
@@ -120,7 +134,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
             navigateToReturnOrderDetailPage(returnOrderId);
 
             // open list actions
-            commonAction.click(loc_lnkSelectActions);
+            commonAction.clickJS(loc_lnkSelectActions);
 
             // check cancel return order permission
             if (permissions.getOrders().getReturnOrder().isCancelReturnOrder()) {
@@ -143,7 +157,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
             navigateToReturnOrderDetailPage(returnOrderId);
 
             // check confirm payment permission
-            if (permissions.getOrders().getReturnOrder().isCompleteReturnOrder()) {
+            if (permissions.getOrders().getReturnOrder().isConfirmPayment()) {
                 assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(btnConfirmPayment, loc_dlgConfirmPayment),
                         "Can not open Confirm payment popup.");
 
@@ -160,7 +174,7 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
     }
 
     void checkEditReturnOrder() {
-        int returnOrderId = apiAllReturnOrdersWithSellerToken.getReturnOrderIdForCancel(staffLoginInfo.getAssignedBranchesIds());
+        int returnOrderId = apiAllReturnOrdersWithSellerToken.getReturnOrderIdForEdit(staffLoginInfo.getAssignedBranchesIds());
 
         if (returnOrderId != 0) {
             // navigate to edit return order page
