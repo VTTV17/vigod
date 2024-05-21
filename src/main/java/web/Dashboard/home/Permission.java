@@ -27,7 +27,7 @@ import web.Dashboard.onlineshop.blog.BlogManagement;
 import web.Dashboard.onlineshop.menus.MenuManagement;
 import web.Dashboard.onlineshop.pages.PageManagement;
 import web.Dashboard.onlineshop.preferences.Configuration;
-import web.Dashboard.orders.createquotation.CreateQuotation;
+import web.Dashboard.orders.quotation.QuotationPage;
 import web.Dashboard.orders.orderlist.order_list.OrderManagementPage;
 import web.Dashboard.orders.pos.POSPage;
 import web.Dashboard.orders.return_orders.return_order_management.ReturnOrdersManagementPage;
@@ -242,7 +242,7 @@ public class Permission {
 						}
 					}
 					if (subMenu.contentEquals("Create Quotation")) {
-						new CreateQuotation(driver).verifyPermissionToCreateQuotation(permission.get(menuComponent), url.get(menuComponent));
+						new QuotationPage(driver).verifyPermissionToCreateQuotation(permission.get(menuComponent), url.get(menuComponent));
 					}
 					if (subMenu.contentEquals("POS")) {
 						new POSPage(driver).verifyPermissionToUsePOS(permission.get(menuComponent));

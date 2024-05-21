@@ -109,7 +109,9 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
                             "Can not open Confirm complete return order popup.");
 
                     if (!commonAction.getListElement(loc_dlgConfirmComplete).isEmpty()) {
-                        if (permissions.getOrders().getOrderManagement().isViewOrderDetail()) {
+                        if (permissions.getOrders().getOrderManagement().isViewOrderDetail()
+                                || permissions.getOrders().getOrderManagement().isEditOrder()
+                                || permissions.getOrders().getPOSInstorePurchase().isCreateOrder()) {
                             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmComplete_btnOK, loc_dlgToastSuccess),
                                     "Can not complete return order.");
                         } else {
@@ -138,8 +140,21 @@ public class ReturnOrderDetailPage extends ReturnOrderDetailElement {
 
             // check cancel return order permission
             if (permissions.getOrders().getReturnOrder().isCancelReturnOrder()) {
-                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_ddvCancelActions, loc_dlgToastSuccess),
-                        "Can not cancel return order.");
+                commonAction.click(loc_ddvCancelActions);
+                assertCustomize.assertFalse(commonAction.getListElement(loc_dlgConfirmCancel).isEmpty(),
+                        "Can not open Confirm cancel return order popup.");
+
+                if (!commonAction.getListElement(loc_dlgConfirmCancel).isEmpty()) {
+                    if (permissions.getOrders().getOrderManagement().isViewOrderDetail()
+                            || permissions.getOrders().getOrderManagement().isEditOrder()
+                            || permissions.getOrders().getPOSInstorePurchase().isCreateOrder()) {
+                        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmCancel_btnOK, loc_dlgToastSuccess),
+                                "Can not cancel return order.");
+                    } else {
+                        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirmCancel_btnOK, loc_dlgToastError),
+                                "Error toast does not shown.");
+                    }
+                }
             } else {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_ddvCancelActions),
                         "Restricted popup is not shown.");

@@ -20,7 +20,7 @@ import api.Seller.products.all_products.APIProductDetail;
 
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.orders.createquotation.CreateQuotation;
+import web.Dashboard.orders.quotation.QuotationPage;
 import web.Dashboard.settings.storeinformation.StoreInformation;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
@@ -32,7 +32,7 @@ public class CreateQuotationTest extends BaseTest {
 
 	LoginPage dbLoginPage;
 	HomePage homePage;
-	CreateQuotation createQuotationPage;
+	QuotationPage createQuotationPage;
 	
 	String username;
 	String password;
@@ -68,7 +68,7 @@ public class CreateQuotationTest extends BaseTest {
 		driver = new InitWebdriver().getDriver(browser, headless);
 		dbLoginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
-		createQuotationPage = new CreateQuotation(driver);
+		createQuotationPage = new QuotationPage(driver);
 		commonAction = new UICommonAction(driver);
 	}
 	
