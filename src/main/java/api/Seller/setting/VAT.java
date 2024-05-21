@@ -1,13 +1,11 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.model.staffPermission.CreatePermission;
 
 import java.util.List;
 import java.util.stream.IntStream;
