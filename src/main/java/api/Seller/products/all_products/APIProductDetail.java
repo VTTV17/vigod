@@ -524,7 +524,7 @@ public class APIProductDetail {
 
     String getListIMEIPath = "/itemservice/api/item-model-codes/store/%s/search?itemId=%s&modelId=%s&branchId=%s&status=AVAILABLE&page=0&size=100";
 
-    public List<String> getListIMEI(String itemId, String modelId, int branchId) {
+    public List<String> getListIMEI(int itemId, int modelId, int branchId) {
         return api.get(getListIMEIPath.formatted(loginInfo.getStoreID(), itemId, modelId, branchId), loginInfo.getAccessToken())
                 .then()
                 .statusCode(200)

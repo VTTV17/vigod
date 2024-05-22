@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.APIProductDetail.ProductInformationEnum.platform;
+
 public class APISuggestionProduct {
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -27,8 +29,8 @@ public class APISuggestionProduct {
 
     @Data
     public static class AllSuggestionProductsInfo {
-        private List<String> itemIds;
-        private List<String> modelIds;
+        private List<Integer> itemIds;
+        private List<Integer> modelIds;
         private List<String> itemNames;
         private List<String> modelNames;
         private List<String> barcodes;
@@ -42,8 +44,9 @@ public class APISuggestionProduct {
 
     @Data
     public static class SuggestionProductsInfo {
-        private String itemId;
-        private String modelId;
+        private int branchId;
+        private int itemId;
+        private int modelId;
         private String itemName;
         private String modelName;
         private String barcode;
@@ -109,8 +112,8 @@ public class APISuggestionProduct {
         }
 
         // set suggestion info
-        info.setItemIds(itemIds);
-        info.setModelIds(modelIds);
+        info.setItemIds(itemIds.stream().mapToInt(Integer::parseInt).boxed().toList());
+        info.setModelIds(modelIds.stream().mapToInt(model -> model.isEmpty() ? 0 : Integer.parseInt(model)).boxed().toList());
         info.setItemNames(itemNames);
         info.setModelNames(modelNames);
         info.setBarcodes(barcodes);
@@ -133,8 +136,8 @@ public class APISuggestionProduct {
         AllSuggestionProductsInfo info = new AllSuggestionProductsInfo();
 
         // init temp array
-        List<String> itemIds = new ArrayList<>();
-        List<String> modelIds = new ArrayList<>();
+        List<Integer> itemIds = new ArrayList<>();
+        List<Integer> modelIds = new ArrayList<>();
         List<String> itemNames = new ArrayList<>();
         List<String> modelNames = new ArrayList<>();
         List<String> barcodes = new ArrayList<>();
@@ -175,8 +178,8 @@ public class APISuggestionProduct {
         AllSuggestionProductsInfo info = new AllSuggestionProductsInfo();
 
         // init temp array
-        List<String> itemIds = new ArrayList<>();
-        List<String> modelIds = new ArrayList<>();
+        List<Integer> itemIds = new ArrayList<>();
+        List<Integer> modelIds = new ArrayList<>();
         List<String> itemNames = new ArrayList<>();
         List<String> modelNames = new ArrayList<>();
         List<String> barcodes = new ArrayList<>();
@@ -289,13 +292,13 @@ public class APISuggestionProduct {
         return info;
     }
 
-    public SuggestionProductsInfo findProductInformationWithItemIdAndModelId(int branchId, String itemId, String modelId) {
+    public SuggestionProductsInfo findProductInformationWithItemIdAndModelId(int branchId, int itemId, int modelId) {
         // conditions: product must be managed inventory by Product and has location
         AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
-            if (suggestionInfo.getItemIds().get(index).equals(itemId)
-                    && suggestionInfo.getModelIds().get(index).equals(modelId)) {
+            if (suggestionInfo.getItemIds().get(index) == itemId
+                    && suggestionInfo.getModelIds().get(index) == modelId) {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
@@ -312,4 +315,58 @@ public class APISuggestionProduct {
         return info;
     }
 
+    public SuggestionProductsInfo findProductInformationForCreatePOSOrder() {
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        APIProductDetail productDetail = new APIProductDetail(loginInformation);
+
+        for (Integer branchId : loginInfo.getAssignedBranchesIds()) {
+            // get all suggestions information
+            AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
+
+            // filter by in-stock conditions
+            for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+                if (suggestionInfo.getRemainingStocks().get(index) > 0) {
+                    if (productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore()) {
+                        info.setBranchId(branchId);
+                        info.setItemId(suggestionInfo.getItemIds().get(index));
+                        info.setItemName(suggestionInfo.getItemNames().get(index));
+                        info.setModelName(suggestionInfo.getModelNames().get(index));
+                        info.setModelId(suggestionInfo.getModelIds().get(index));
+                        info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                        info.setRemainingStock(suggestionInfo.getRemainingStocks().get(index));
+                        info.setInventoryManageType(suggestionInfo.getInventoryManageTypes().get(index));
+                        break;
+                    }
+                }
+            }
+            if (info.getBranchId() != 0) break;
+        }
+        return info;
+    }
+
+    public SuggestionProductsInfo findProductInformationForAddStockOnPOS() {
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+
+        for (Integer branchId : loginInfo.getAssignedBranchesIds()) {
+            // get all suggestions information
+            AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
+
+            // filter by in-stock conditions
+            for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+                if (suggestionInfo.getRemainingStocks().get(index) > 0) {
+                    info.setBranchId(branchId);
+                    info.setItemId(suggestionInfo.getItemIds().get(index));
+                    info.setItemName(suggestionInfo.getItemNames().get(index));
+                    info.setModelName(suggestionInfo.getModelNames().get(index));
+                    info.setModelId(suggestionInfo.getModelIds().get(index));
+                    info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                    info.setRemainingStock(suggestionInfo.getRemainingStocks().get(index));
+                    info.setInventoryManageType(suggestionInfo.getInventoryManageTypes().get(index));
+                    break;
+                }
+            }
+            if (info.getBranchId() != 0) break;
+        }
+        return info;
+    }
 }

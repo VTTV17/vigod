@@ -2,14 +2,23 @@ package web.Dashboard.orders.pos;
 
 import org.openqa.selenium.By;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class POSElement {
-    By CURRENT_BRANCH = By.cssSelector(".pos-selector .uik-select__valueWrapper");
-    By BRANCH_DROPDOWN = By.cssSelector(".pos-selector");
-    By BRANCH_LIST = By.cssSelector(".uik-select__option");
-    By CONFIRM_CHANGE_BRANCH_BTN = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_ddvSelectedBranch = By.cssSelector(".pos-selector .uik-select__valueWrapper");
+    By loc_ddlBranches = By.cssSelector(".uik-select__option");
+    By loc_dlgConfirmChangeBranch = By.cssSelector(".confirm-modal");
+    By loc_dlgConfirmChangeBranch_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By SEARCH_PRODUCT_BOX = By.cssSelector("#dropdownSuggestionProduct input");
-    By SEARCH_TYPE = By.cssSelector("#dropdownSuggestionProduct +* .uik-select__valueRendered");
-    By LIST_SEARCH_TYPE = By.cssSelector(".uik-select__option");
+    By loc_ddvSelectedSearchType = By.cssSelector("#dropdownSuggestionProduct +* .uik-select__valueRendered");
+    enum SearchType {
+        product, sku, barcode;
+        static List<SearchType> getAllSearchType() {
+            return Arrays.asList(SearchType.values());
+        }
+    }
+    By ddlSearchType = By.cssSelector(".uik-select__option");
     By CART_PRODUCT_VARIATION = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name+span");
     By CART_PRODUCT_PRICE = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__stock-input')]/parent::td/preceding-sibling::td[1]");
     By CART_PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");

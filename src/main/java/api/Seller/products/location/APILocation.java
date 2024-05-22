@@ -123,18 +123,18 @@ public class APILocation {
 
     String productLocationPath = "/itemservice/api/locations/store/%s/search-receipt?page=%s&size=100";
 
-    Response getProductLocationResponse(int pageIndex, String itemId, String modelId, int branchId, String locationReceiptType) {
+    Response getProductLocationResponse(int pageIndex, int itemId, int modelId, int branchId, String locationReceiptType) {
         String body = """
                 {
                     "itemId": %s,
                     "modelId": %s,
                     "branchId": "%s",
                     "locationReceiptType": "%s"
-                }""".formatted(itemId, modelId, branchId, locationReceiptType);
+                }""".formatted(itemId, (modelId == 0) ? "" : modelId, branchId, locationReceiptType);
         return api.post(productLocationPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken(), body);
     }
 
-    public AllProductLocationInfo getAllProductLocationInfo(String itemId, String modelId, int branchId, String locationReceiptType) {
+    public AllProductLocationInfo getAllProductLocationInfo(int itemId, int modelId, int branchId, String locationReceiptType) {
         // init model
         AllProductLocationInfo info = new AllProductLocationInfo();
 
@@ -178,7 +178,7 @@ public class APILocation {
         return info;
     }
 
-    public ProductLocationInfo getLocation(String itemId, String modelId, int branchId, String locationReceiptType) {
+    public ProductLocationInfo getLocation(int itemId, int modelId, int branchId, String locationReceiptType) {
         AllProductLocationInfo searchInfo = getAllProductLocationInfo(itemId, modelId, branchId, locationReceiptType);
         ProductLocationInfo info = new ProductLocationInfo();
 
@@ -194,7 +194,7 @@ public class APILocation {
         return info;
     }
 
-    public ProductLocationInfo getLocationInStock(String itemId, String modelId, int branchId, String locationReceiptType) {
+    public ProductLocationInfo getLocationInStock(int itemId, int modelId, int branchId, String locationReceiptType) {
         AllProductLocationInfo searchInfo = getAllProductLocationInfo(itemId, modelId, branchId, locationReceiptType);
         ProductLocationInfo info = new ProductLocationInfo();
         for (int index = 0; index < searchInfo.getIds().size(); index++) {

@@ -23,7 +23,7 @@ public class CreateTransfer {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    String getCost(String itemId, String modelId, int branchId, String code) {
+    String getCost(int itemId, int modelId, int branchId, String code) {
         return """
                 {
                 	"itemId": "%s",
@@ -31,10 +31,10 @@ public class CreateTransfer {
                 	"branchId": %s,
                 	"code": "%s",
                 	"status": "AVAILABLE"
-                }""".formatted(itemId, modelId, branchId, code);
+                }""".formatted(itemId, (modelId == 0) ? "" : modelId, branchId, code);
     }
 
-    List<String> getCostList(String itemId, String modelId, int branchId, List<String> imeiList, long transferredQuantity) {
+    List<String> getCostList(int itemId, int modelId, int branchId, List<String> imeiList, long transferredQuantity) {
         return IntStream.iterate(0, index -> index < transferredQuantity, index -> index + 1)
                 .mapToObj(index -> getCost(itemId, modelId, branchId, imeiList.get(index)))
                 .toList();
@@ -44,8 +44,8 @@ public class CreateTransfer {
         APISuggestionProduct.AllSuggestionProductsInfo info = apiSuggestionProduct.getAllSuggestProductIdInStock(originBranchId);
 
         String manageTypes = info.getInventoryManageTypes().get(0);
-        String itemId = info.getItemIds().get(0);
-        String modelId = info.getModelIds().get(0);
+        int itemId = info.getItemIds().get(0);
+        int modelId = info.getModelIds().get(0);
         long transferredQuantity = nextLong(info.getRemainingStocks().get(0)) + 1;
         String costList = manageTypes.equals("IMEI_SERIAL_NUMBER")
                 ? getCostList(itemId, modelId, originBranchId, new APIProductDetail(loginInformation).getListIMEI(itemId, modelId, originBranchId), transferredQuantity).toString()

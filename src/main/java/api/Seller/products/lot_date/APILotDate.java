@@ -110,7 +110,7 @@ public class APILotDate {
 
     String productLotPath = "/itemservice/api/lot-dates/store/%s/search-receipt?page=%s&size=100";
 
-    Response getProductLotResponse(int pageIndex, String itemId, String modelId, int branchId, String locationReceiptType) {
+    Response getProductLotResponse(int pageIndex, int itemId, int modelId, int branchId, String locationReceiptType) {
         String body = """
                 {
                     "itemId": %s,
@@ -119,11 +119,11 @@ public class APILotDate {
                     "searchKeyword": "",
                     "hideExpire": false,
                     "locationReceiptType": "%s"
-                }""".formatted(itemId, modelId, branchId, locationReceiptType);
+                }""".formatted(itemId, (modelId == 0) ? "" : modelId, branchId, locationReceiptType);
         return api.post(productLotPath.formatted(loginInfo.getStoreID(), pageIndex), loginInfo.getAccessToken(), body);
     }
 
-    public AllProductLotInfo getAllProductLotInfo(String itemId, String modelId, int branchId, String locationReceiptType) {
+    public AllProductLotInfo getAllProductLotInfo(int itemId, int modelId, int branchId, String locationReceiptType) {
         // init model
         AllProductLotInfo info = new AllProductLotInfo();
 
@@ -162,7 +162,7 @@ public class APILotDate {
     }
 
 
-    public ProductLotInfo getLotInStock(String itemId, String modelId, int branchId, String locationReceiptType) {
+    public ProductLotInfo getLotInStock(int itemId, int modelId, int branchId, String locationReceiptType) {
         AllProductLotInfo searchInfo = getAllProductLotInfo(itemId, modelId, branchId, locationReceiptType);
         ProductLotInfo info = new ProductLotInfo();
 

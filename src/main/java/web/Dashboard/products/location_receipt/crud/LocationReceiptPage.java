@@ -83,7 +83,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
         return assignedBranchIds.stream()
                 .mapToInt(branchId -> branchId)
                 .filter(branchId -> suggestionProductsAPIWithSellerToken.findProductInformationMatchesWithAddLocationReceipt(branchId)
-                        .getItemId() != null)
+                        .getItemId() != 0)
                 .findFirst()
                 .orElse(0);
     }
@@ -94,7 +94,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
         return assignedBranchIds.stream()
                 .mapToInt(branchId -> branchId)
                 .filter(branchId -> suggestionProductsAPIWithSellerToken.findProductInformationMatchesWithGetLocationReceipt(branchId)
-                        .getItemId() != null)
+                        .getItemId() != 0)
                 .findFirst()
                 .orElse(0);
     }
@@ -115,7 +115,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
         // get lot
         return (branchId == 0) ? new ProductLotInfo()
                 : new APILotDate(staffLoginInformation).getLotInStock(productsInfo.getItemId(),
-                productsInfo.getModelId().isEmpty() ? "\"\"" : productsInfo.getModelId(),
+                productsInfo.getModelId(),
                 branchId,
                 "ADD_PRODUCT_TO_LOCATION");
     }
@@ -124,7 +124,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
         // get lot
         return (branchId == 0) ? new ProductLotInfo()
                 : new APILotDate(staffLoginInformation).getLotInStock(productsInfo.getItemId(),
-                productsInfo.getModelId().isEmpty() ? "\"\"" : productsInfo.getModelId(),
+                productsInfo.getModelId(),
                 branchId,
                 "GET_PRODUCT_FROM_LOCATION");
     }
@@ -133,7 +133,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
         // get location
         return (branchId == 0) ? new ProductLocationInfo()
                 : new APILocation(staffLoginInformation).getLocation(productsInfo.getItemId(),
-                productsInfo.getModelId().isEmpty() ? "\"\"" : productsInfo.getModelId(),
+                productsInfo.getModelId(),
                 branchId,
                 "ADD_PRODUCT_TO_LOCATION");
     }
@@ -142,7 +142,7 @@ public class LocationReceiptPage extends LocationReceiptElement {
         // get location
         return (branchId == 0) ? new ProductLocationInfo()
                 : new APILocation(staffLoginInformation).getLocationInStock(productsInfo.getItemId(),
-                productsInfo.getModelId().isEmpty() ? "\"\"" : productsInfo.getModelId(),
+                productsInfo.getModelId(),
                 branchId,
                 "GET_PRODUCT_FROM_LOCATION");
     }

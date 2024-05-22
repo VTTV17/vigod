@@ -28,5 +28,6 @@ public class EditOrderElement {
     By loc_dlgCost_txtCostName = By.cssSelector("[name *= 'input-search']");
     By loc_dlgCost_txtCostValue = By.cssSelector("[name *= 'price']");
     By loc_dlgCost_btnSave = By.cssSelector(".modal-cost .gs-button__green");
+    By loc_chkNotApplyEarningPoint = By.cssSelector(".group-apply-point-go-social input");
 
 }

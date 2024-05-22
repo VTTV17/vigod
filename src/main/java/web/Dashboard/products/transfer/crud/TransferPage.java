@@ -323,9 +323,9 @@ public class TransferPage extends TransferElement {
                 APISuggestionProduct.AllSuggestionProductsInfo info = suggestionProduct.getAllSuggestProductIdInStock(originBranchId);
                 String manageTypes = info.getInventoryManageTypes().get(0);
                 String itemName = info.getItemNames().get(0);
-                String itemId = info.getItemIds().get(0);
-                String modelId = info.getModelIds().get(0);
-                String barcode = modelId.isEmpty() ? "%s".formatted(itemId) : "%s - %s".formatted(itemId, modelId);
+                int itemId = info.getItemIds().get(0);
+                int modelId = info.getModelIds().get(0);
+                String barcode = modelId == 0 ? "%s".formatted(itemId) : "%s - %s".formatted(itemId, modelId);
                 long transferredQuantity = nextLong(info.getRemainingStocks().get(0)) + 1;
 
                 // create transfer

@@ -164,8 +164,8 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         excel.writeCellValue(fileName, 0, 1, excel.getCellIndexByCellValue(fileName, 0, 0, "Location Code"), locationCode);
     }
 
-    String getProductId(String itemId, String modelId) {
-        return modelId == null ? itemId : "%s-%s".formatted(itemId, modelId);
+    String getProductId(int itemId, int modelId) {
+        return modelId == 0 ? String.valueOf(itemId) : "%s-%s".formatted(itemId, modelId);
     }
 
     void checkImportProductToLocation() throws IOException {

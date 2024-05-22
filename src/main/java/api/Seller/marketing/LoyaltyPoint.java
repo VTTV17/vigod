@@ -9,7 +9,6 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-import web.Dashboard.confirmationdialog.ConfirmationDialog;
 
 import java.util.Collections;
 
@@ -113,5 +112,10 @@ public class LoyaltyPoint {
         response.then().statusCode(200);
         logger.info("Set up enable point program = "+isEnable);
 
+    }
+
+    public boolean isEnableLoyaltyPoint(){
+        Response response = new API().get(LOYALTY_POINT_PATH + loginInfo.getStoreID(),loginInfo.getAccessToken());
+        return (response.getStatusCode() != 403) && response.then().statusCode(200).extract().jsonPath().getBoolean("enabled");
     }
 }

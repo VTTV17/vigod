@@ -1,6 +1,7 @@
 package web.Dashboard.orders.orderlist.edit_order;
 
 import api.Seller.login.Login;
+import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.orders.order_management.APIAllOrderCosts;
 import api.Seller.orders.order_management.APIAllOrders;
 import org.apache.logging.log4j.LogManager;
@@ -84,6 +85,7 @@ public class EditOrderPage extends EditOrderElement {
                 checkApplyDiscount(channel, orderId);
                 checkCreateOrderCost(channel, orderId);
                 checkViewOrderCostList(channel, orderId);
+                checkNotApplyEarningPoint(channel, orderId);
             } else {
                 // if staff don’t have permission “Edit order”
                 // => show restricted popup
@@ -164,5 +166,18 @@ public class EditOrderPage extends EditOrderElement {
 
         // log
         logger.info("[%s] Check permission: Orders >> Order management >> View order cost list.".formatted(channel));
+    }
+
+    void checkNotApplyEarningPoint(Channel channel, long orderId) {
+        navigateToEditOrderPageByURL(orderId);
+        boolean isEnableLoyaltyPoint = new LoyaltyPoint(staffLoginInformation).isEnableLoyaltyPoint();
+        if (isEnableLoyaltyPoint) {
+            if (permissions.getMarketing().getLoyaltyPoint().isViewPointProgramInformation()) {
+                assertCustomize.assertFalse(commonAction.isDisabledJS(loc_chkNotApplyEarningPoint), "[%s] Not apply earning point checkbox is disabled.".formatted(channel));
+            } else {
+                assertCustomize.assertTrue(commonAction.isDisabledJS(loc_chkNotApplyEarningPoint), "[%s] Not apply earning point checkbox is not disabled.".formatted(channel));
+            }
+        }
+        logger.info("[%s] Check permission: Order >> POS >> Not apply earning point.".formatted(channel));
     }
 }
