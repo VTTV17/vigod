@@ -11,6 +11,7 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.languages.AdditionalLanguages;
+import utilities.model.dashboard.setting.languages.CreatedLanguage;
 import utilities.model.dashboard.setting.languages.DefaultLanguage;
 import utilities.model.dashboard.setting.languages.LanguageCatalog;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -74,7 +75,9 @@ public class StoreLanguageAPI {
         		"langIcon": "%s"
         		}""".formatted(loginInfo.getStoreID(), langCode, langName, langIcon);
         
-		return api.post(addLanguagePath.formatted(defaultLangKey), loginInfo.getAccessToken(), body).then().statusCode(200).extract().response();
+        Response response = api.post(addLanguagePath.formatted(defaultLangKey), loginInfo.getAccessToken(), body).then().statusCode(200).extract().response();
+        logger.info("Added language %s : %s".formatted(langName, response.jsonPath().getInt("id")));
+		return response;
 	} 
 	
 	String publishBody = """
@@ -91,10 +94,13 @@ public class StoreLanguageAPI {
 		String body = publishBody.formatted(loginInfo.getStoreID(), storeLangId, false);
 		return api.put(publishLanguagePath, loginInfo.getAccessToken(), body).then().statusCode(204).extract().response();
 	} 
-
+	
+	public CreatedLanguage addLanguageThenReturnClass(String langName, String langCode, String langIcon, String defaultLangKey) {
+		return addLanguageResponse(langName, langCode, langIcon, defaultLangKey).as(CreatedLanguage.class);
+	} 
+	
 	public int addLanguage(String langName, String langCode, String langIcon, String defaultLangKey) {
 		int addedLanguageId = addLanguageResponse(langName, langCode, langIcon, defaultLangKey).jsonPath().getInt("id");
-		logger.info("Added language %s : %s".formatted(langName, addedLanguageId));
 		return addedLanguageId;
 	} 	
 
@@ -107,10 +113,20 @@ public class StoreLanguageAPI {
 		publishLanguageResponse(storeLangId);
 		logger.info("Unpublished storeLangId: " + storeLangId);
 	} 	
+
+	Response selectDefaultLanguageResponse(int storeLangId) {
+		Response response = api.put(defaultLanguagePath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), String.valueOf(storeLangId)).then().statusCode(204).extract().response();
+		logger.info("Selected default language: " + storeLangId);
+		return response;
+	} 	
 	
 	public void removeLanguage(int storeLangId) {
 		Response response = api.delete(removeLanguagePath.formatted(loginInfo.getStoreID(), storeLangId), loginInfo.getAccessToken());
 		response.then().statusCode(204);
 		logger.info("Deleted storeLangId: " + storeLangId);
+	} 	
+	
+	public void selectDefaultLanguage(int storeLangId) {
+		selectDefaultLanguageResponse(storeLangId);
 	} 	
 }

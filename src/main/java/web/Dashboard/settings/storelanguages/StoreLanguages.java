@@ -67,6 +67,7 @@ public class StoreLanguages {
 	}	
 	
 	public StoreLanguages clickRemoveLanguageBtn(String language) {
+		homePage.hideFacebookBubble();
 		commonAction.click(By.xpath(elements.removeBtnByLanguage.formatted(language)));
 		logger.info("Clicked 'Remove' icon of %s".formatted(language));
 		return this;
@@ -74,14 +75,17 @@ public class StoreLanguages {
 	
 	//Temporary function. Will think of a better way to handle this
 	public StoreLanguages clickTranslationBtn() {
+		homePage.hideFacebookBubble();
 		commonAction.click(elements.loc_btnTranslation);
 		logger.info("Clicked first 'Translation' button");
+		waitTillLoadingIconDisappear();
 		return this;
 	}	
 	
 	public StoreLanguages clickSaveTranslationBtn() {
 		commonAction.click(elements.loc_btnSaveTranslation);
 		logger.info("Clicked 'Save' button to save adjusted translation");
+		waitTillLoadingIconDisappear();
 		return this;
 	}	
 	
@@ -95,6 +99,7 @@ public class StoreLanguages {
 	public StoreLanguages clickOkBtnInAddLanguagesDialog() {
 		new ConfirmationDialog(driver).clickGreenBtn();
 		logger.info("Clicked OK button to complete adding language");
+		waitTillLoadingIconDisappear();
 		return this;
 	}		
 
@@ -108,6 +113,12 @@ public class StoreLanguages {
 		commonAction.click(elements.loc_btnChangeLanguage);
 		logger.info("Clicked 'Change Language' button.");
 		return this;
+	}	
+	
+	public void waitTillLoadingIconDisappear() {
+		commonAction.sleepInMiliSecond(500);
+		commonAction.waitInvisibilityOfElementLocated(elements.loc_icnLoading);
+		logger.info("Loading icon has disappeared");
 	}	
 	
     /*Verify permission for certain feature*/

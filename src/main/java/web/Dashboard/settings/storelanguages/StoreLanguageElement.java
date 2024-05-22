@@ -28,4 +28,6 @@ public class StoreLanguageElement {
 	By loc_btnChangeLanguage = By.cssSelector(".languages-setting button.gs-button__white");
 	
 	By ddvSelectDefaultLanguage = By.xpath("//*[@class='uik-select__optionContent']/div[@class='uik-select__label']");
+	
+	By loc_icnLoading = By.cssSelector(".loading-screen .loading .lds-dual-ring-white");
 }
