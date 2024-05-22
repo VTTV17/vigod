@@ -61,5 +61,6 @@ public class HomePageElement {
     public By loc_lblToastMessage = By.cssSelector(".Toastify__toast-body");
     By loc_toastMessage_btnClose = By.cssSelector(".Toastify__close-button");
     By loc_imgFacebookBubble = By.id("fb-root");
+    By loc_imgFacebookActionBubble = By.id("fb-open-app-action");
     By loc_stnStatistics = By.cssSelector(".statistic");
 }

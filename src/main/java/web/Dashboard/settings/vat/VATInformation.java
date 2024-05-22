@@ -200,7 +200,7 @@ public class VATInformation {
     public void checkPermissionToViewVATList(AllPermissions staffPermission) {
     	navigateToManagementScreenByURL(); 
     	if (isPermissionProhibited(staffPermission)) {
-    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToViewVATList");
+    		logger.info("VAT permission not granted. Skipping checkPermissionToViewVATList");
     		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
     		return;
     	}
@@ -221,7 +221,7 @@ public class VATInformation {
     public void checkPermissionToCreateSellingTax(AllPermissions staffPermission) {
     	navigateToManagementScreenByURL(); 
     	if (isPermissionProhibited(staffPermission)) {
-    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToCreateSellingTax");
+    		logger.info("VAT permission not granted. Skipping checkPermissionToCreateSellingTax");
     		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
     		return;
     	}
@@ -242,7 +242,7 @@ public class VATInformation {
     public void checkPermissionToCreateImportingTax(AllPermissions staffPermission) {
     	navigateToManagementScreenByURL(); 
     	if (isPermissionProhibited(staffPermission)) {
-    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToCreateImportingTax");
+    		logger.info("VAT permission not granted. Skipping checkPermissionToCreateImportingTax");
     		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
     		return;
     	}
@@ -264,7 +264,7 @@ public class VATInformation {
     public void checkPermissionToConfigureTax(AllPermissions staffPermission) {
     	navigateToManagementScreenByURL(); 
     	if (isPermissionProhibited(staffPermission)) {
-    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToConfigureTax");
+    		logger.info("VAT permission not granted. Skipping checkPermissionToConfigureTax");
     		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
     		return;
     	}
@@ -304,17 +304,17 @@ public class VATInformation {
     public void checkPermissionToDeleteTax(AllPermissions staffPermission, String deletedTax) {
     	navigateToManagementScreenByURL(); 
     	if (isPermissionProhibited(staffPermission)) {
-    		logger.info("Staff does not have VAT permission. Skipping checkPermissionToDeleteTax");
+    		logger.info("VAT permission not granted. Skipping checkPermissionToDeleteTax");
     		Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
     		return;
     	}
     	if (!staffPermission.getSetting().getTAX().isViewTAXList()) {
-    		logger.info("Staff does not have view VAT list. Skipping checkPermissionToDeleteTax");
+    		logger.info("View VAT permission not granted. Skipping checkPermissionToDeleteTax");
     		return;
     	}
 
     	if (commonAction.getElements(elements.loc_tblVATRows).size()==1) {
-    		logger.info("There exists only one default tax. Skipping checkPermissionToDeleteTax");
+    		logger.info("Only default tax shown. Skipping checkPermissionToDeleteTax");
     		return;
     	}
     	
