@@ -5,6 +5,7 @@ import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
+import utilities.model.dashboard.setting.Tax.TaxEntity;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
@@ -67,10 +68,17 @@ public class VAT {
         return api.post(generalTaxPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(201).extract().response();
     }    
    
-    public int createSellingTax(String name, String description, int taxRate, boolean isDefault) {
-    	return createTax(name, description, taxRate, "SELL", isDefault).jsonPath().getInt("id");
+    public TaxEntity createSellingTax(String name, String description, int taxRate, boolean isDefault) {
+    	TaxEntity tax = createTax(name, description, taxRate, "SELL", isDefault).as(TaxEntity.class);
+    	logger.info("Created Tax %s : %s".formatted(name, tax.getId()));
+    	return tax;
     }
 
+    public TaxEntity[] getVATList() {
+        Response taxResponse = new API().get(generalTaxPath + "/store/%s".formatted(loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+    	return taxResponse.as(TaxEntity[].class);
+    }
+    
     public void deleteTax(int taxID) {
         Response response = api.delete(generalTaxPath + "/" + taxID , loginInfo.getAccessToken());
         response.then().statusCode(200);
