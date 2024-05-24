@@ -22,13 +22,14 @@ public class POSElement {
 
     By loc_ddlSearchType = By.cssSelector(".uik-select__option");
     By loc_ddlSearchResult = By.cssSelector(".product-item-row__product-summary");
+    By loc_txtItemQuantity = By.cssSelector(".order-in-store-purchase-cart-product-list__group-stock-input input");
     By loc_icnAddStock = By.cssSelector(".err-out-of-stock i");
     By loc_dlgAddStock = By.cssSelector(".order-in-store-purchase-complete__quantity-modal");
     By loc_dlgAddStock_txtStock = By.cssSelector(".order-in-store-purchase-complete__quantity-modal .order-in-store-purchase-complete__input-stock > input");
     By loc_dlgAddStock_btnApply = By.cssSelector(".order-in-store-purchase-complete__quantity-modal .gs-button__green");
-    By loc_dlgAddIMEI = By.cssSelector("");
-    By loc_dlgAddIMEI_txtIMEI = By.cssSelector("");
-    By loc_dlgAddIMEI_btnApply = By.cssSelector("");
+    By loc_dlgAddIMEI = By.cssSelector(".managed-inventory-modal");
+    By loc_dlgAddIMEI_txtIMEI = By.cssSelector(".managed-inventory-modal [name='serial']");
+    By loc_dlgAddIMEI_btnSave = By.cssSelector(".managed-inventory-modal .gs-button__green");
     By loc_tblCart_lnkSelectLot = By.cssSelector(".order-in-store-purchase-cart-product-list__product-row +* .gs-fake-link");
     By loc_dlgSelectLot = By.cssSelector(".modal-lot-select");
     By loc_dlgSelectLot_lblAvailableQuantity = By.xpath("//*[@class = 'get-quantity']/preceding-sibling::td[1]");
@@ -53,4 +54,15 @@ public class POSElement {
     By loc_dlgDiscount_tabDiscountAmount_btnApply = By.cssSelector(".order-instore-purchase-discount-modal .color--gradient-blue");
     By loc_dlgDiscount_tabDiscountPercent_txtPercent = By.cssSelector(".order-instore-purchase-discount-modal input[name='percentage']");
     By loc_dlgDiscount_tabDiscountPercent_btnApply = By.cssSelector(".order-instore-purchase-discount-modal .color--gradient-blue");
+    By loc_icnAddCustomer = By.cssSelector("[alt='add customer']");
+    By loc_dlgAddCustomer = By.cssSelector(".create-customer-modal");
+    By loc_dlgAddCustomer_txtFullName = By.cssSelector(".create-customer-modal [name='fullName']");
+    By loc_dlgAddCustomer_txtPhoneNumber = By.cssSelector(".create-customer-modal [name='phone']");
+    By loc_dlgAddCustomer_btnAdd = By.cssSelector(".create-customer-modal .gs-button__green");
+    By loc_lblTotalAmount = By.cssSelector(".value-total");
+    By loc_txtReceivedAmount = By.cssSelector(".order-pos__received-input");
+    By loc_btnComplete = By.cssSelector(".color--gradient-blue");
+    By loc_dlgReceivedNotEnough = By.cssSelector(".modal-dialog");
+    By loc_dlgReceivedNotEnough_btnApply = By.cssSelector(".modal-dialog .gs-button__green");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

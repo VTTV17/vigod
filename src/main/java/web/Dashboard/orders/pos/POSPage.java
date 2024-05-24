@@ -3,6 +3,7 @@ package web.Dashboard.orders.pos;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APISuggestionProduct.SuggestionProductsInfo;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -18,10 +19,15 @@ import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
+import static web.Dashboard.orders.pos.POSElement.DiscountType.*;
 import static web.Dashboard.orders.pos.POSElement.SearchType.barcode;
 import static web.Dashboard.orders.pos.POSElement.SearchType.getAllSearchType;
 
@@ -90,7 +96,7 @@ public class POSPage extends POSElement {
         logger.info("Select branch: %s.".formatted(productsInfo.getBranchName()));
     }
 
-    void addProductToCart(SuggestionProductsInfo productsInfo) {
+    void searchAndSelectProduct(SuggestionProductsInfo productsInfo) {
         // open search type list
         commonAction.clickJS(loc_ddvSelectedSearchType);
 
@@ -106,9 +112,15 @@ public class POSPage extends POSElement {
 
         // select product
         commonAction.click(loc_ddlSearchResult, 0);
+    }
+
+    void addProductToCart(SuggestionProductsInfo productsInfo) {
+        // search and select product
+        searchAndSelectProduct(productsInfo);
 
         // input quantity
         long quantity = nextLong(Math.max(Optional.ofNullable(productsInfo.getRemainingStock()).orElse(0L), 1L)) + 1L;
+        commonAction.sendKeys(loc_txtItemQuantity, String.valueOf(quantity));
         logger.info("Input cart quantity: %,d.".formatted(quantity));
 
         // select lot if any
@@ -135,29 +147,6 @@ public class POSPage extends POSElement {
                     // save changes
                     commonAction.click(loc_dlgSelectLot_btnConfirm);
                 } else logger.warn("Can not found lot.");
-            }
-        }
-    }
-
-    void checkAddStock() {
-        // navigate to POS page
-        navigateToInStorePurchasePage();
-
-        // get product for add stock on POS
-        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddStockOnPOS();
-
-        if (productsInfo.getItemId() != 0) {
-            // add product to cart
-            addProductToCart(productsInfo);
-
-            // check icon add stock show or not
-            assertCustomize.assertFalse(commonAction.getListElement(loc_icnAddStock).isEmpty(), "Product out of stock, but add stock label does not show.");
-
-            // check permission
-            if (!commonAction.getListElement(loc_icnAddStock).isEmpty()) {
-                if (permissions.getProduct().getInventory().isUpdateStock()) {
-                    
-                }
             }
         }
     }
@@ -197,8 +186,9 @@ public class POSPage extends POSElement {
             assertCustomize.assertTrue(driver.getCurrentUrl().contains("/order/instore-purchase"), "Can not access to POS page.");
 
             // check others permission
-            checkAddDirectDiscount();
-            checkApplyDiscountCode();
+            checkAddStock();
+            checkAddCustomer();
+            checkApplyDiscount();
             checkCreateDebtOrder();
             checkNotApplyEarningPoint();
         } else {
@@ -206,25 +196,177 @@ public class POSPage extends POSElement {
         }
     }
 
-    void checkAddDirectDiscount() {
-        // navigate to POS page by URL
+    void checkAddStock() {
+        // navigate to POS page
         navigateToInStorePurchasePage();
 
-        // check permission
-        if (permissions.getOrders().getPOSInstorePurchase().isAddDirectDiscount()) {
+        // get product for add stock on POS
+        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddStockOnPOS();
 
-        } else {
+        if (productsInfo.getItemId() != 0) {
+            // add product to cart
+            addProductToCart(productsInfo);
+
+            // check icon add stock show or not
+            assertCustomize.assertFalse(commonAction.getListElement(loc_icnAddStock).isEmpty(), "Product out of stock, but add stock label does not show.");
+
+            // check permission
+            if (!commonAction.getListElement(loc_icnAddStock).isEmpty()) {
+                if (permissions.getProduct().getInventory().isUpdateStock()) {
+                    // get current quantity
+                    long quantity = Long.parseLong(commonAction.getValue(loc_txtItemQuantity));
+
+                    // open add stock/imei popup
+                    commonAction.clickJS(loc_icnAddStock);
+
+                    // add stock
+                    if (!commonAction.getListElement(loc_dlgAddStock).isEmpty()) {
+                        commonAction.sendKeys(loc_dlgAddStock_txtStock, String.valueOf(quantity));
+                        logger.info("Add stock quantity: %,d.".formatted(quantity));
+                        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgAddStock_btnApply, loc_dlgToastSuccess),
+                                "Can not add stock.");
+                    }
+
+                    // add imei
+                    if (!commonAction.getListElement(loc_dlgAddIMEI).isEmpty()) {
+                        IntStream.iterate(0, index -> index < quantity, index -> index + 1)
+                                .mapToObj(index -> "%s\n".formatted(Instant.now().toEpochMilli()))
+                                .forEach(imei -> {
+                                    commonAction.sendKeys(loc_dlgAddIMEI_txtIMEI, imei);
+                                    logger.info("Add imei: %s.".formatted(imei.replace("\n", "")));
+                                });
+                        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgAddIMEI_btnSave, loc_dlgToastSuccess),
+                                "Can not add imei.");
+                    }
+                } else {
+                    assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnAddStock),
+                            "Restricted popup is not shown.");
+                }
+            }
         }
     }
 
-    void checkApplyDiscountCode() {
+    void checkAddCustomer() {
+        // open add customer popup
+        commonAction.clickJS(loc_icnAddCustomer);
+
+        // check add customer popup is shown or not
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgAddCustomer).isEmpty(),
+                "Can not open add customer popup.");
+        if (!commonAction.getListElement(loc_dlgAddCustomer).isEmpty()) {
+            commonAction.sendKeys(loc_dlgAddCustomer_txtFullName, RandomStringUtils.randomAlphabetic(5));
+            commonAction.sendKeys(loc_dlgAddCustomer_txtPhoneNumber, String.valueOf(Instant.now().toEpochMilli()));
+            commonAction.click(loc_dlgAddCustomer_btnAdd);
+
+            if (permissions.getCustomer().getCustomerManagement().isAddCustomer()) {
+                assertCustomize.assertTrue(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not create customer.");
+            } else {
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+            }
+        }
+    }
+
+    void applyDiscount(DiscountType discountType) {
+        // open discount popup
+        commonAction.clickJS(loc_btnPromotion);
+
+        // check discount popup is shown or not
+        if (!commonAction.getListElement(loc_dlgDiscount).isEmpty()) {
+            // switch to tab
+            commonAction.click(loc_dlgDiscount_tabDiscountType, getAllDiscountType().indexOf(discountType));
+
+            // input discount value
+            switch (discountType) {
+                case discountCode -> {
+                    String discountValue = commonAction.getText(loc_dlgDiscount_tabDiscountCode_lblDiscountCode);
+                    commonAction.sendKeys(loc_dlgDiscount_tabDiscountCode_txtEnterCouponCode, discountValue);
+                    commonAction.click(loc_dlgDiscount_tabDiscountCode_btnApply);
+                    commonAction.clickJS(loc_dlgDiscount_tabDiscountCode_btnSave);
+                }
+                case discountAmount -> {
+                    String discountValue = String.valueOf(nextLong(MAX_PRICE));
+                    commonAction.sendKeys(loc_dlgDiscount_tabDiscountAmount_txtAmount, discountValue);
+                    commonAction.click(loc_dlgDiscount_tabDiscountAmount_btnApply);
+                }
+                case discountPercent -> {
+                    String discountValue = String.valueOf(nextInt(100));
+                    commonAction.sendKeys(loc_dlgDiscount_tabDiscountAmount_txtAmount, discountValue);
+                    commonAction.click(loc_dlgDiscount_tabDiscountAmount_btnApply);
+                }
+            }
+        }
+    }
+
+    void checkApplyDiscount() {
         // navigate to POS page by URL
         navigateToInStorePurchasePage();
 
+        // get item for create pos
+        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddToCartInPOS();
+
+        // add product to cart
+        searchAndSelectProduct(productsInfo);
+
+        // check permission
+        if (permissions.getOrders().getOrderManagement().isApplyDiscount()) {
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnPromotion, loc_dlgDiscount), "Can not open discount popup.");
+            checkAddDiscountAmount(productsInfo);
+            checkAddDiscountPercent(productsInfo);
+            checkApplyDiscountCode(productsInfo);
+        } else {
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPromotion), "Restricted popup is not shown.");
+        }
+    }
+
+    void checkAddDiscountAmount(SuggestionProductsInfo productsInfo) {
+        // navigate to POS page by URL
+        navigateToInStorePurchasePage();
+
+        // add product to cart
+        searchAndSelectProduct(productsInfo);
+
+        // apply discount
+        applyDiscount(discountAmount);
+
+        if (permissions.getOrders().getPOSInstorePurchase().isAddDirectDiscount()) {
+            assertCustomize.assertFalse(checkPermission.isAccessRestrictedPresent(), "Can not apply discount amount.");
+        } else {
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+        }
+    }
+
+    void checkAddDiscountPercent(SuggestionProductsInfo productsInfo) {
+        // navigate to POS page by URL
+        navigateToInStorePurchasePage();
+
+        // add product to cart
+        searchAndSelectProduct(productsInfo);
+
+        // apply discount
+        applyDiscount(discountPercent);
+
+        if (permissions.getOrders().getPOSInstorePurchase().isAddDirectDiscount()) {
+            assertCustomize.assertFalse(checkPermission.isAccessRestrictedPresent(), "Can not apply discount percent.");
+        } else {
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+        }
+    }
+
+    void checkApplyDiscountCode(SuggestionProductsInfo productsInfo) {
+        // navigate to POS page by URL
+        navigateToInStorePurchasePage();
+
+        // add product to cart
+        searchAndSelectProduct(productsInfo);
+
+        // apply discount
+        applyDiscount(discountCode);
+
         // check permission
         if (permissions.getOrders().getPOSInstorePurchase().isApplyDiscountCode()) {
-
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not apply discount code.");
         } else {
+            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
         }
     }
 
@@ -232,11 +374,47 @@ public class POSPage extends POSElement {
         // navigate to POS page by URL
         navigateToInStorePurchasePage();
 
-        // check permission
-        if (permissions.getOrders().getPOSInstorePurchase().isCreateDebtOrder()) {
+        // get item for create pos
+        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForCreatePOSOrder();
 
-        } else {
-        }
+        // check product
+        if (productsInfo.getItemId() != 0) {
+            // select branch
+            selectBranch(productsInfo);
+
+            // add product to cart
+            addProductToCart(productsInfo);
+
+            // get total amount
+            long totalAmount = Long.parseLong(commonAction.getText(loc_lblTotalAmount).replaceAll("\\D+", ""));
+            logger.info("Total amount: %,d.".formatted(totalAmount));
+
+            // input received amount
+            long receivedAmount = nextLong(totalAmount);
+            commonAction.sendKeys(loc_txtReceivedAmount, String.valueOf(receivedAmount));
+            logger.info("Input received amount: %,d.".formatted(receivedAmount));
+
+            // complete order
+            commonAction.click(loc_btnComplete);
+
+            // check received not enough popup is shown or not
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgReceivedNotEnough).isEmpty(),
+                    "The received amount is not enough popup is not shown.");
+
+            if (!commonAction.getListElement(loc_dlgReceivedNotEnough).isEmpty()) {
+                // click apply
+                commonAction.click(loc_dlgReceivedNotEnough_btnApply);
+
+                // check permission
+                if (permissions.getOrders().getPOSInstorePurchase().isCreateDebtOrder()) {
+                    assertCustomize.assertFalse(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not complete order.");
+                } else {
+                    assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+                }
+            }
+        } else logger.warn("Can not find product.");
+
+
     }
 
     void checkNotApplyEarningPoint() {

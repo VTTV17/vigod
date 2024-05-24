@@ -234,7 +234,7 @@ public class APISuggestionProduct {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
             if (suggestionInfo.getInventoryManageTypes().get(index).equals("PRODUCT")
-                    && (suggestionInfo.getHasLots().get(index) == hasLot)) {
+                && (suggestionInfo.getHasLots().get(index) == hasLot)) {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
@@ -288,8 +288,8 @@ public class APISuggestionProduct {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
             if (suggestionInfo.getInventoryManageTypes().get(index).equals("PRODUCT")
-                    && (suggestionInfo.getRemainingStocks().get(index) > 0)
-                    && (suggestionInfo.getHasLocations().get(index))) {
+                && (suggestionInfo.getRemainingStocks().get(index) > 0)
+                && (suggestionInfo.getHasLocations().get(index))) {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
@@ -309,7 +309,7 @@ public class APISuggestionProduct {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
             if (suggestionInfo.getItemIds().get(index) == itemId
-                    && suggestionInfo.getModelIds().get(index) == modelId) {
+                && suggestionInfo.getModelIds().get(index) == modelId) {
                 info.setItemId(suggestionInfo.getItemIds().get(index));
                 info.setModelId(suggestionInfo.getModelIds().get(index));
                 info.setItemName(suggestionInfo.getItemNames().get(index));
@@ -326,6 +326,33 @@ public class APISuggestionProduct {
         return info;
     }
 
+    public SuggestionProductsInfo findProductInformationForAddToCartInPOS() {
+        SuggestionProductsInfo info = new SuggestionProductsInfo();
+        APIProductDetail productDetail = new APIProductDetail(loginInformation);
+
+        // get all suggestions information
+        AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(loginInfo.getAssignedBranchesIds().get(0));
+
+        // filter by in-stock conditions
+        for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
+            boolean isInStore = Optional.ofNullable(productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore())
+                    .orElse(false);
+            if (isInStore) {
+                info.setBranchId(loginInfo.getAssignedBranchesIds().get(0));
+                info.setBranchName(loginInfo.getAssignedBranchesNames().get(loginInfo.getAssignedBranchesIds().indexOf(loginInfo.getAssignedBranchesIds().get(0))));
+                info.setItemId(suggestionInfo.getItemIds().get(index));
+                info.setItemName(suggestionInfo.getItemNames().get(index));
+                info.setModelName(suggestionInfo.getModelNames().get(index));
+                info.setModelId(suggestionInfo.getModelIds().get(index));
+                info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                info.setRemainingStock(suggestionInfo.getRemainingStocks().get(index));
+                info.setInventoryManageType(suggestionInfo.getInventoryManageTypes().get(index));
+                break;
+            }
+        }
+        return info;
+    }
+
     public SuggestionProductsInfo findProductInformationForCreatePOSOrder() {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         APIProductDetail productDetail = new APIProductDetail(loginInformation);
@@ -336,7 +363,7 @@ public class APISuggestionProduct {
 
             // filter by in-stock conditions
             for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
-                if (suggestionInfo.getRemainingStocks().get(index) > 0) {
+                if (suggestionInfo.getRemainingStocks().get(index) > 0 && suggestionInfo.getPrice().get(index) > 0) {
                     boolean isInStore = Optional.ofNullable(productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore())
                             .orElse(false);
                     if (isInStore) {
