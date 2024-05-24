@@ -1,7 +1,9 @@
 package web.Dashboard;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
@@ -15,6 +17,7 @@ import api.Seller.setting.VAT;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.setting.Tax.TaxEntity;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
@@ -36,6 +39,8 @@ public class VATPermissionTest extends BaseTest {
 	PermissionAPI permissionAPI;
 	VAT vatAPI;
 	
+	TaxEntity originalTax;
+	
 	DataGenerator randomData;
 	
 	LoginPage loginPage;
@@ -48,7 +53,7 @@ public class VATPermissionTest extends BaseTest {
 	String latestTaxName;
 	
 	@BeforeClass
-	void loadTestData() {
+	void precondition() {
 		ownerCredentials = new Login().setLoginInformation("+84", "automation0-shop74053@mailnesia.com", "fortesting!1").getLoginInformation();
 		staffCredentials = new Login().setLoginInformation("+84", "staff74053@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
@@ -56,11 +61,9 @@ public class VATPermissionTest extends BaseTest {
 		
 		randomData = new DataGenerator();
 		
-		createSellingVAT();
-		
-		List<Integer> originalTaxIds = vatAPI.getInfo().getTaxID();
-		latestTaxId = originalTaxIds.get(originalTaxIds.size()-1);
-		latestTaxName = vatAPI.getInfo().getTaxName().get(originalTaxIds.size()-1);
+		originalTax = createSellingVAT();
+		latestTaxId = originalTax.getId();
+		latestTaxName = originalTax.getName();
 		
     	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
     	
@@ -75,9 +78,9 @@ public class VATPermissionTest extends BaseTest {
 	}	
 
 	@AfterClass
-	void deletePermissionGroup() {
+	void rollback() {
 		permissionAPI.deleteGroupPermission(permissionGroupId);
-		vatAPI.getInfo().getTaxID().stream().filter(id-> id > latestTaxId).forEach(id-> vatAPI.deleteTax(id));
+		getExistingVATIds().stream().filter(id-> id >= latestTaxId).forEach(id-> vatAPI.deleteTax(id));
 		driver.quit();
 	}		
 	
@@ -85,11 +88,14 @@ public class VATPermissionTest extends BaseTest {
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
     }	
-
-    String createSellingVAT() {
+    
+    List<Integer> getExistingVATIds() {
+    	return Arrays.asList(vatAPI.getVATList()).stream().map(e -> e.getId()).collect(Collectors.toList());
+    }    
+    
+    TaxEntity createSellingVAT() {
     	String name = "Auto Tax " + randomData.randomNumberGeneratedFromEpochTime(5);
-    	vatAPI.createSellingTax(name, "Test Permission", 50, false);
-    	return name;
+    	return vatAPI.createSellingTax(name, "Test Permission", 50, false);
     }
     
 	CreatePermission setPermissionModel(String permissionBinary) {
@@ -116,7 +122,7 @@ public class VATPermissionTest extends BaseTest {
 		commonAction.refreshPage();
 		commonAction.sleepInMiliSecond(2000, "OMG");
 		
-		String deletedTax = (allPermissionDTO.getSetting().getTAX().isDeleteTAX()) ? createSellingVAT() : latestTaxName;
+		String deletedTax = (allPermissionDTO.getSetting().getTAX().isDeleteTAX()) ? createSellingVAT().getName() : latestTaxName;
 		
 		vatPage.checkVATPermission(allPermissionDTO, deletedTax);
 	}		

@@ -3,25 +3,23 @@ package api.Seller.setting;
 import api.Seller.login.Login;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.setting.Tax.TaxEntity;
 import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.sellerApp.login.LoginInformation;
-import utilities.model.staffPermission.CreatePermission;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class VAT {
 	final static Logger logger = LogManager.getLogger(VAT.class);
-
+	
 	String generalTaxPath = "/storeservice/api/tax-settings";
-
+	
 	API api = new API();
     LoginDashboardInfo loginInfo;
     private final static Cache<LoginInformation, TaxInfo> taxCache = CacheBuilder.newBuilder().build();
@@ -77,10 +75,17 @@ public class VAT {
                  }""".formatted(description, name, taxRate, loginInfo.getStoreID(), taxType, isDefault);
 
         return api.post(generalTaxPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(201).extract().response();
+    }    
+   
+    public TaxEntity createSellingTax(String name, String description, int taxRate, boolean isDefault) {
+    	TaxEntity tax = createTax(name, description, taxRate, "SELL", isDefault).as(TaxEntity.class);
+    	logger.info("Created Tax %s : %s".formatted(name, tax.getId()));
+    	return tax;
     }
 
-    public int createSellingTax(String name, String description, int taxRate, boolean isDefault) {
-    	return createTax(name, description, taxRate, "SELL", isDefault).jsonPath().getInt("id");
+    public TaxEntity[] getVATList() {
+        Response taxResponse = new API().get(generalTaxPath + "/store/%s".formatted(loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+    	return taxResponse.as(TaxEntity[].class);
     }
 
     public void deleteTax(int taxID) {
@@ -88,6 +93,4 @@ public class VAT {
         response.then().statusCode(200);
         logger.info("Deleted taxId: " + taxID);
     }
-
-
 }

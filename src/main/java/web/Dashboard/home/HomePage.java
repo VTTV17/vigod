@@ -509,7 +509,8 @@ public class HomePage extends HomePageElement {
     }
 
     public HomePage hideFacebookBubble() {
-        commons.hideElement(commons.getElement(loc_imgFacebookBubble));
+        commons.removeElement(loc_imgFacebookBubble);
+        commons.removeElement(loc_imgFacebookActionBubble);
         logger.info("Hid Facebook bubble.");
         return this;
     }
