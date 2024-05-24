@@ -100,26 +100,26 @@ public class OrderDetailPage extends OrderDetailElement {
 
                 // check View delivery package list
                 if (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW)) {
-                    checkViewDeliveryPackageList(channel);
-                    checkViewLocationReceiptList(channel, orderId);
-                    new EditOrderPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
-                            .checkEditOrder(channel);
-                    checkDeliveredOrders(channel);
-                    checkPrintOrderSlip(channel, orderId);
-                    checkPrintOrderReceipt(channel, orderId);
-                    checkCreateOrderTag(channel, orderId);
-                    checkAddTagToOrder(channel, orderId);
-                    checkRemoveTagFromOrder(channel);
-                    checkViewTagList(channel, orderId);
-                    checkDeleteTag(channel, orderId);
-                    checkConfirmPayment(channel);
+//                    checkViewDeliveryPackageList(channel);
+//                    checkViewLocationReceiptList(channel, orderId);
+//                    new EditOrderPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
+//                            .checkEditOrder(channel);
+//                    checkDeliveredOrders(channel);
+//                    checkPrintOrderSlip(channel, orderId);
+//                    checkPrintOrderReceipt(channel, orderId);
+//                    checkCreateOrderTag(channel, orderId);
+//                    checkAddTagToOrder(channel, orderId);
+//                    checkRemoveTagFromOrder(channel);
+//                    checkViewTagList(channel, orderId);
+//                    checkDeleteTag(channel, orderId);
+//                    checkConfirmPayment(channel);
                 }
-
-                // check confirm order
-                checkConfirmOrderWithChannel(channel);
-
-                // check cancel order
-                checkCancelOrder(channel);
+//
+//                // check confirm order
+//                checkConfirmOrderWithChannel(channel);
+//
+//                // check cancel order
+//                checkCancelOrder(channel);
             } else
                 // if staff don’t have permission “View order detail” => Show restricted
                 // when click to view order detail

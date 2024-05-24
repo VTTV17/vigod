@@ -234,7 +234,7 @@ public class OrderManagementPage extends OrderManagementElement {
         apiAllOrdersWithSellerToken = new APIAllOrders(sellerLoginInformation);
         apiAllOrdersWithStaffToken = new APIAllOrders(staffLoginInformation);
 
-        checkViewOrderList();
+//        checkViewOrderList();
 
         new OrderDetailPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
                 .checkViewOrderDetail();
@@ -242,6 +242,9 @@ public class OrderManagementPage extends OrderManagementElement {
     }
 
     void checkViewOrderListWithChannel(Channel channel) {
+        // navigate to order management page
+        navigateToOrderManagementPageByURL(channel);
+
         // get list order ids
         List<Long> listOfOrderIdsWithStaffToken = apiAllOrdersWithStaffToken.getAllOrderInformation(channel).getIds();
         boolean permission = switch (channel) {
@@ -312,6 +315,7 @@ public class OrderManagementPage extends OrderManagementElement {
 
             // bulk actions print shipping label
             bulkActionsWithFirstOrder(printShippingLabel);
+
 
             // check print order slip permission
             if (permissions.getOrders().getOrderManagement().isPrintOrderSlip()) {

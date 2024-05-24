@@ -7,56 +7,50 @@ import java.util.List;
 
 public class POSElement {
     By loc_ddvSelectedBranch = By.cssSelector(".pos-selector .uik-select__valueWrapper");
-    By loc_ddlBranches = By.cssSelector(".uik-select__option");
+    String str_ddvBranches = "//*[contains(text(),'%s')]";
     By loc_dlgConfirmChangeBranch = By.cssSelector(".confirm-modal");
     By loc_dlgConfirmChangeBranch_btnOK = By.cssSelector(".modal-footer .gs-button__green");
-    By SEARCH_PRODUCT_BOX = By.cssSelector("#dropdownSuggestionProduct input");
+    By loc_txtSearchProduct = By.cssSelector("#dropdownSuggestionProduct input");
     By loc_ddvSelectedSearchType = By.cssSelector("#dropdownSuggestionProduct +* .uik-select__valueRendered");
+
     enum SearchType {
         product, sku, barcode;
-        static List<SearchType> getAllSearchType() {
+        public static List<SearchType> getAllSearchType() {
             return Arrays.asList(SearchType.values());
         }
     }
-    By ddlSearchType = By.cssSelector(".uik-select__option");
-    By CART_PRODUCT_VARIATION = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name+span");
-    By CART_PRODUCT_PRICE = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__stock-input')]/parent::td/preceding-sibling::td[1]");
-    By CART_PRODUCT_QUANTITY = By.cssSelector(".order-in-store-purchase-cart-product-list__stock-input");
-    By CART_PRICE_TOTAL = By.xpath("//*[contains(@class, 'order-in-store-purchase-cart-product-list__td-action')]//preceding-sibling::td[1]");
-    By ADD_STOCK_ICON = By.cssSelector(".err-out-of-stock i");
-    By INSUFFICIENT_STOCK_QUANTITY_POPUP_STOCK = By.cssSelector(".order-in-store-purchase-complete__input-stock > input");
-    By INSUFFICIENT_STOCK_QUANTITY_POPUP_ADD_IMEI = By.cssSelector("[name = 'serial']");
-    By INSUFFICIENT_STOCK_QUANTITY_POPUP_APPLY_BTN = By.cssSelector(".modal-footer .gs-button__green");
-    By SELECT_IMEI = By.cssSelector(".action-select-IMEI");
-    By SELECT_IMEI_POPUP_LIST_AVAILABLE_IMEI = By.cssSelector("[class= 'content ']");
-    By SELECT_IMEI_POPUP_SAVE_BTN = By.cssSelector(".modal-footer .gs-button__green");
-    By SEARCH_CUSTOMER_BOX = By.cssSelector("#dropdownSuggestionCustomer input");
-    By SUB_TOTAL = By.xpath("//*[@class = 'align-self-baseline' and not(child::*)]");
-    By VAT_TOTAL = By.xpath("//*[@class = 'align-self-baseline' and not(child::*)]/parent::div/following-sibling::div[1]/span[2]");
-    By DISCOUNT = By.xpath("//*[contains(@class, 'delivery-group-info')]/preceding-sibling::div[1]/span[1]/span[1]");
-    By DISCOUNT_POPUP_DISCOUNT_DROPDOWN = By.cssSelector(".discount-options .dropdown-box");
-    By DISCOUNT_POPUP_DISCOUNT_TYPE = By.cssSelector(".discount-options .uik-select__option");
-    By DISCOUNT_POPUP_DISCOUNT_VALUE = By.cssSelector("#discount");
-    By DISCOUNT_POPUP_APPLY_BTN = By.cssSelector(".modal-body .gs-button__green");
-    By DELIVERY_CHECKBOX = By.cssSelector(".delivery-group-info input");
-    By DELIVERY_POPUP_CUSTOMER_NAME = By.cssSelector("#customer_name");
-    By DELIVERY_POPUP_PHONE = By.cssSelector("#customer_phone");
-    By DELIVERY_POPUP_EMAIL = By.cssSelector("#email");
-    By DELIVERY_POPUP_COUNTRY_DROPDOWN = By.cssSelector("#countryCode");
-    By DELIVERY_POPUP_VN_ADDRESS = By.cssSelector("#address");
-    By DELIVERY_POPUP_VN_CITY = By.cssSelector("#city");
-    By DELIVERY_POPUP_VN_DISTRICT = By.cssSelector("#district");
-    By DELIVERY_POPUP_VN_WARD = By.cssSelector("#ward");
-    By DELIVERY_POPUP_OUTSIDE_VN_STREET_ADDRESS = By.cssSelector("#address");
-    By DELIVERY_POPUP_OUTSIDE_VN_ADDRESS2 = By.cssSelector("#address2");
-    By DELIVERY_POPUP_OUTSIDE_VN_STATE = By.cssSelector("#city");
-    By DELIVERY_POPUP_OUTSIDE_VN_CITY = By.cssSelector("#cityName");
-    By DELIVERY_POPUP_OUTSIDE_VN_ZIPCODE = By.cssSelector("#zipCode");
-    By DELIVERY_POPUP_SHIPPING_FEE = By.cssSelector("#selfDeliveryFee");
-    By DELIVERY_POPUP_SAVE_BTN = By.cssSelector(".modal-footer .gs-button__green");
-    By RECEIVED_AMOUNT = By.cssSelector(".order-pos__received-input");
-    By PAYMENT_METHOD = By.cssSelector(".order-pos__payment-select");
-    By POS_RECEIPT_CODE = By.cssSelector(".order-pos__input-mpos-code");
-    By POS_NOTE = By.cssSelector(".order-pos__note-input");
-    By COMPLETE_BTN = By.cssSelector(".order-pos__btn-create-order");
+
+    By loc_ddlSearchType = By.cssSelector(".uik-select__option");
+    By loc_ddlSearchResult = By.cssSelector(".product-item-row__product-summary");
+    By loc_icnAddStock = By.cssSelector(".err-out-of-stock i");
+    By loc_dlgAddStock = By.cssSelector(".order-in-store-purchase-complete__quantity-modal");
+    By loc_dlgAddStock_txtStock = By.cssSelector(".order-in-store-purchase-complete__quantity-modal .order-in-store-purchase-complete__input-stock > input");
+    By loc_dlgAddStock_btnApply = By.cssSelector(".order-in-store-purchase-complete__quantity-modal .gs-button__green");
+    By loc_dlgAddIMEI = By.cssSelector("");
+    By loc_dlgAddIMEI_txtIMEI = By.cssSelector("");
+    By loc_dlgAddIMEI_btnApply = By.cssSelector("");
+    By loc_tblCart_lnkSelectLot = By.cssSelector(".order-in-store-purchase-cart-product-list__product-row +* .gs-fake-link");
+    By loc_dlgSelectLot = By.cssSelector(".modal-lot-select");
+    By loc_dlgSelectLot_lblAvailableQuantity = By.xpath("//*[@class = 'get-quantity']/preceding-sibling::td[1]");
+    By loc_dlgSelectLot_txtConfirmQuantity = By.cssSelector("td.get-quantity");
+    By loc_dlgSelectLot_btnConfirm = By.cssSelector(".modal-lot-select .gs-button__green");
+    By loc_btnPromotion = By.cssSelector(".title-promotion");
+    By loc_dlgDiscount = By.cssSelector(".order-instore-purchase-discount-modal");
+
+    enum DiscountType {
+        discountCode, discountAmount, discountPercent;
+        public static List<DiscountType> getAllDiscountType() {
+            return Arrays.asList(DiscountType.values());
+        }
+    }
+
+    By loc_dlgDiscount_tabDiscountType = By.cssSelector(".box-promotion-title");
+    By loc_dlgDiscount_tabDiscountCode_lblDiscountCode = By.cssSelector(".order-instore-purchase-discount-modal .discount-code-type");
+    By loc_dlgDiscount_tabDiscountCode_txtEnterCouponCode = By.cssSelector(".order-instore-purchase-discount-modal .search-input-keyword");
+    By loc_dlgDiscount_tabDiscountCode_btnApply = By.cssSelector(".order-instore-purchase-discount-modal .color--inherit");
+    By loc_dlgDiscount_tabDiscountCode_btnSave = By.cssSelector(".order-instore-purchase-discount-modal .color--gradient-blue");
+    By loc_dlgDiscount_tabDiscountAmount_txtAmount = By.cssSelector(".order-instore-purchase-discount-modal input[name='fixAmount']");
+    By loc_dlgDiscount_tabDiscountAmount_btnApply = By.cssSelector(".order-instore-purchase-discount-modal .color--gradient-blue");
+    By loc_dlgDiscount_tabDiscountPercent_txtPercent = By.cssSelector(".order-instore-purchase-discount-modal input[name='percentage']");
+    By loc_dlgDiscount_tabDiscountPercent_btnApply = By.cssSelector(".order-instore-purchase-discount-modal .color--gradient-blue");
 }

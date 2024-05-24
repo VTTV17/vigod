@@ -294,4 +294,17 @@ public class DataGenerator {
     public static String getFirstString(String... strings) {
         return Optional.ofNullable(strings).filter(stringArr -> stringArr.length > 0).map(stringArr -> stringArr[0]).orElse("");
     }
+
+    public static String getStringByRegex(String inputString, String regex) {
+        return Pattern.compile(regex).matcher(inputString)
+                .results()
+                .map(matchResult -> matchResult.group(1)).findFirst().orElse(null);
+    }
+
+    public static List<String> getListStringByRegex(String inputString, String regex) {
+        return Pattern.compile(regex).matcher(inputString)
+                .results()
+                .map(matchResult -> matchResult.group(1))
+                .toList();
+    }
 }

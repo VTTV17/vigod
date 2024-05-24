@@ -48,8 +48,12 @@ public class CheckPermission {
     }
     public boolean checkAccessRestricted(String url) {
         driver.get(url);
-        commonAction.waitUrlLoaded();
-        return driver.getCurrentUrl().contains("/restricted");
+        try {
+            commonAction.waitURLShouldBeContains("/restricted", 2000);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
     }
 
     public boolean checkAccessedSuccessfully(By locator, By destinationLocator) {
@@ -74,21 +78,34 @@ public class CheckPermission {
 
     public boolean checkAccessedSuccessfully(By locator, String url) {
         commonAction.clickJS(locator);
-        commonAction.waitUrlLoaded();
-        return driver.getCurrentUrl().contains(url);
+        try {
+            commonAction.waitURLShouldBeContains(url, 5000);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
     }
 
     public boolean checkAccessedSuccessfully(By locator, int index, String url) {
         commonAction.click(locator, index);
-        commonAction.waitUrlLoaded();
-        return driver.getCurrentUrl().contains(url);
+        try {
+            commonAction.waitURLShouldBeContains(url, 5000);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
     }
 
     public boolean checkAccessedSuccessfully(String url, String destinationURL) {
         driver.get(url);
-        commonAction.waitUrlLoaded();
-        return driver.getCurrentUrl().contains(destinationURL);
+        try {
+            commonAction.waitURLShouldBeContains(destinationURL, 5000);
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
     }
+
     public boolean checkAccessedSuccessfully(String url, By destinationLocator) {
         driver.get(url);
         new HomePage(driver).waitTillSpinnerDisappear1();

@@ -1,7 +1,5 @@
 package web.Dashboard.orders.quotation;
 
-import api.Seller.login.Login;
-import api.Seller.orders.order_management.APIAllOrders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -21,7 +19,6 @@ import utilities.utils.FileUtils;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.orders.orderlist.order_detail.OrderDetailPage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -445,12 +442,11 @@ public class QuotationPage extends QuotationElement {
 
     public void checkQuotationPermission() {
         driver.get("%s/order/instore-quotation".formatted(DOMAIN));
-        commonAction.waitUrlLoaded();
         if (permissions.getOrders().getQuotation().isCreateQuotation()) {
-            assertCustomize.assertTrue(driver.getCurrentUrl().contains( "/order/instore-quotation"),
+            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully("%s/order/instore-quotation".formatted(DOMAIN), "instore-quotation"),
                     "Quotation page must be shown, but found %s.".formatted(driver.getCurrentUrl()));
         } else {
-            assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted("%s/order/instore-quotation".formatted(DOMAIN)), "Restricted page is not shown.");
         }
         logger.info("Check permission: Orders >> Quotation >> Check create quotation.");
     }

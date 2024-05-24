@@ -978,13 +978,8 @@ public class UICommonAction {
         }
     }
 
-    public void waitUrlLoaded() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("body")));
-    }
-
     public void waitURLShouldBeContains(String path, int... miliSeconds) {
         // wait page is loaded
-        waitUrlLoaded();
         ((miliSeconds.length == 0) ? wait : getWait(miliSeconds[0])).until((ExpectedCondition<Boolean>) driver -> {
             assert driver != null;
             return driver.getCurrentUrl().contains(path);
