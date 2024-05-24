@@ -1,6 +1,8 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +15,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class BranchManagement {
@@ -26,6 +29,7 @@ public class BranchManagement {
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
     Logger logger = LogManager.getLogger(BranchManagement.class);
+    private static final Cache<LoginInformation, BranchInfo> branchCache = CacheBuilder.newBuilder().build();
     API api = new API();
 
     public BranchManagement(LoginInformation loginInformation, LoginDashboardInfo... loginInfo) {
@@ -46,57 +50,63 @@ public class BranchManagement {
 
     public BranchInfo getInfo() {
         // init branch info model
-        BranchInfo brInfo = new BranchInfo();
+        BranchInfo brInfo = branchCache.getIfPresent(loginInformation);
 
-        // using API to get branch information
-        JsonPath resPath = getBranchInfoResponseJsonPath();
+        if (brInfo == null) {
+            // init branch info model
+            brInfo = new BranchInfo();
 
-        // set branch index
-        brInfo.setBranchID(resPath.getList("id"));
+            // using API to get branch information
+            JsonPath resPath = getBranchInfoResponseJsonPath();
 
-        // set branch name
-        brInfo.setBranchName(resPath.getList("name"));
+            // set branch index
+            brInfo.setBranchID(resPath.getList("id"));
 
-        // set branch code
-        brInfo.setBranchCode(resPath.getList("code"));
+            // set branch name
+            brInfo.setBranchName(resPath.getList("name"));
 
-        // set branch address
-        brInfo.setBranchAddress(resPath.getList("address"));
+            // set branch code
+            brInfo.setBranchCode(resPath.getList("code"));
 
-        // set branch ward
-        brInfo.setWardCode(resPath.getList("ward"));
+            // set branch address
+            brInfo.setBranchAddress(resPath.getList("address"));
 
-        // set branch district
-        brInfo.setDistrictCode(resPath.getList("district"));
+            // set branch ward
+            brInfo.setWardCode(resPath.getList("ward"));
 
-        // set branch city
-        brInfo.setCityCode(resPath.getList("city"));
+            // set branch district
+            brInfo.setDistrictCode(resPath.getList("district"));
 
-        // set branch country
-        brInfo.setCountryCode(resPath.getList("countryCode"));
+            // set branch city
+            brInfo.setCityCode(resPath.getList("city"));
 
-        // set branch phone
-        brInfo.setPhoneNumberFirst(resPath.getList("phoneNumberFirst"));
+            // set branch country
+            brInfo.setCountryCode(resPath.getList("countryCode"));
 
-        // set branch name default
-        brInfo.setIsDefaultBranch(resPath.getList("default"));
+            // set branch phone
+            brInfo.setPhoneNumberFirst(resPath.getList("phoneNumberFirst"));
 
-        // init temp hide branch on SF setting
-        List<Boolean> isHideOnSF = resPath.getList("hideOnStoreFront");
-        // convert temp to boolean
-        IntStream.range(0, isHideOnSF.size()).filter(i -> isHideOnSF.get(i) == null).forEachOrdered(i -> isHideOnSF.set(i, false));
-        // set hide branch
-        brInfo.setIsHideOnStoreFront(isHideOnSF);
+            // set branch name default
+            brInfo.setIsDefaultBranch(resPath.getList("default"));
 
-        // set all branches status
-        brInfo.setAllBranchStatus(resPath.getList("branchStatus"));
+            // init temp hide branch on SF setting
+            List<Boolean> isHideOnSF = resPath.getList("hideOnStoreFront");
+            // set hide branch
+            brInfo.setIsHideOnStoreFront(isHideOnSF.stream().map(hideOnSF -> Optional.ofNullable(hideOnSF).orElse(false)).toList());
 
-        // init temp active branch
-        List<String> activeBranches = new ArrayList<>();
-        // get temp active branch
-        IntStream.range(0, brInfo.getAllBranchStatus().size()).filter(i -> brInfo.getAllBranchStatus().get(i).equals("ACTIVE")).forEach(i -> activeBranches.add(brInfo.getBranchName().get(i)));
-        // set active branches list
-        brInfo.setActiveBranches(activeBranches);
+            // set all branches status
+            brInfo.setAllBranchStatus(resPath.getList("branchStatus"));
+
+            // init temp arr
+            List<String> brNames = brInfo.getBranchName();
+            List<String> brStatus = brInfo.getAllBranchStatus();
+
+            // set active branches list
+            brInfo.setActiveBranches(brNames.stream().filter(brName -> brStatus.get(brNames.indexOf(brName)).equals("ACTIVE")).toList());
+
+            // save cache
+            branchCache.put(loginInformation, brInfo);
+        }
 
         // return branch info
         return brInfo;
@@ -144,6 +154,9 @@ public class BranchManagement {
 
         api.put(changeBranchStatusPath.formatted(loginInfo.getStoreID(), brID, branchStatus), loginInfo.getAccessToken());
         logger.info("[API]Change '%s' status: %s.".formatted(branchName, branchStatus));
+
+        // clear cache to get new info
+        branchCache.invalidateAll();
 
         // get latest branch info
         brInfo = getInfo();
@@ -206,19 +219,21 @@ public class BranchManagement {
         // return branch info
         return brInfo;
     }
-    public List<String> getBranchNameById(List<Integer> branchIds){
+
+    public List<String> getBranchNameById(List<Integer> branchIds) {
         JsonPath resPath = getBranchInfoResponseJsonPath();
         List<String> branchNames = new ArrayList<>();
-        for (int branchId:branchIds) {
-          String branchName =  resPath.getString("find {it.id == %s}.name".formatted(branchId));
-          branchNames.add(branchName);
+        for (int branchId : branchIds) {
+            String branchName = resPath.getString("find {it.id == %s}.name".formatted(branchId));
+            branchNames.add(branchName);
         }
         Collections.sort(branchNames);
         return branchNames;
     }
-    public int getFreeBranch(){
-        Response response = api.get(GET_BRANCH_FREE.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
+
+    public int getFreeBranch() {
+        Response response = api.get(GET_BRANCH_FREE.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         response.then().statusCode(200);
-        return (int)response.jsonPath().getList("id").get(0);
+        return (int) response.jsonPath().getList("id").get(0);
     }
 }

@@ -1,6 +1,8 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -291,6 +293,10 @@ public class APIAllProducts {
         return getAllProductJsonPath().getList("name");
     }
 
+    private record CacheQuery(LoginInformation loginInformation, int... branchIds) {
+    }
+
+    private final static Cache<CacheQuery, ProductManagementInfo> allProductCache = CacheBuilder.newBuilder().build();
     String allProductListPath = "/itemservice/api/store/dashboard/%s/items-v2?page=%s&size=100&bhStatus=&itemType=BUSINESS_PRODUCT&sort=lastModifiedDate,desc&branchIds=%s";
 
     @Data
@@ -311,32 +317,38 @@ public class APIAllProducts {
     }
 
     public ProductManagementInfo getAllProductInformation(int... branchIds) {
+        CacheQuery query = new CacheQuery(loginInformation, branchIds);
+        ProductManagementInfo info = allProductCache.getIfPresent(query);
+        if (info == null) {
+            info = new ProductManagementInfo();
+            // get page 0 data
+            List<Integer> variationNumber = new ArrayList<>();
+            List<Integer> allProductIds = new ArrayList<>();
+            List<String> allProductNames = new ArrayList<>();
+            List<Integer> remainingStocks = new ArrayList<>();
 
-        ProductManagementInfo info = new ProductManagementInfo();
-        // get page 0 data
-        List<Integer> variationNumber = new ArrayList<>();
-        List<Integer> allProductIds = new ArrayList<>();
-        List<String> allProductNames = new ArrayList<>();
-        List<Integer> remainingStocks = new ArrayList<>();
+            // get total products
+            int totalOfProducts = Integer.parseInt(getAllProductsResponse(0, branchIds).getHeader("X-Total-Count"));
 
-        // get total products
-        int totalOfProducts = Integer.parseInt(getAllProductsResponse(0, branchIds).getHeader("X-Total-Count"));
+            // get number of pages
+            int numberOfPages = totalOfProducts / 100;
 
-        // get number of pages
-        int numberOfPages = totalOfProducts / 100;
+            // get other page data
+            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+                Response allProducts = getAllProductsResponse(pageIndex, branchIds);
+                variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
+                allProductIds.addAll(allProducts.jsonPath().getList("id"));
+                allProductNames.addAll(allProducts.jsonPath().getList("name"));
+                remainingStocks.addAll(allProducts.jsonPath().getList("remainingStock"));
+            }
+            info.setProductIds(allProductIds);
+            info.setVariationNumber(variationNumber);
+            info.setProductNames(allProductNames);
+            info.setRemainingStocks(remainingStocks);
 
-        // get other page data
-        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            Response allProducts = getAllProductsResponse(pageIndex, branchIds);
-            variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
-            allProductIds.addAll(allProducts.jsonPath().getList("id"));
-            allProductNames.addAll(allProducts.jsonPath().getList("name"));
-            remainingStocks.addAll(allProducts.jsonPath().getList("remainingStock"));
+            // save cache
+            allProductCache.put(query, info);
         }
-        info.setProductIds(allProductIds);
-        info.setVariationNumber(variationNumber);
-        info.setProductNames(allProductNames);
-        info.setRemainingStocks(remainingStocks);
         return info;
     }
 

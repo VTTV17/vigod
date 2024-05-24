@@ -1,6 +1,8 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.api.API;
@@ -19,43 +21,52 @@ public class StoreInformation {
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
 
+    private final static Cache<LoginInformation, StoreInfo> storeInfoCache = CacheBuilder.newBuilder().build();
+
     public StoreInformation(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
 
     public StoreInfo getInfo() {
-        // init store info model
-        StoreInfo storeInfo = new StoreInfo();
-        // get storeURL
-        Response storeRes = new API().get(API_STORE_INFO_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
-        storeRes.then().statusCode(200);
+        StoreInfo storeInfo = storeInfoCache.getIfPresent(loginInformation);
 
-        // set store url
-        storeInfo.setStoreURL(storeRes.jsonPath().getString("url"));
+        if (storeInfo == null) {
+            // init store info model
+            storeInfo = new StoreInfo();
+            // get storeURL
+            Response storeRes = new API().get(API_STORE_INFO_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
+            storeRes.then().statusCode(200);
 
-        // set store logo
-        storeInfo.setStoreLogo(storeRes.jsonPath().getString("storeImage.fullUrl"));
+            // set store url
+            storeInfo.setStoreURL(storeRes.jsonPath().getString("url"));
 
-        // set store default language
-        storeInfo.setDefaultLanguage(storeRes.jsonPath().getString("countryCode").equals("VN") ? "vi" : "en");
+            // set store logo
+            storeInfo.setStoreLogo(storeRes.jsonPath().getString("storeImage.fullUrl"));
 
-        // get store language list
-        JsonPath jsonPath = new API().get(API_STORE_LANGUAGE_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract().jsonPath();
-        List<Boolean> publishLangList = jsonPath.getList("published");
+            // set store default language
+            storeInfo.setDefaultLanguage(storeRes.jsonPath().getString("countryCode").equals("VN") ? "vi" : "en");
 
-        // set all store languages code.
-        List<String> langCodeList = jsonPath.getList("langCode");
-        storeInfo.setStoreLanguageList(langCodeList);
+            // get store language list
+            JsonPath jsonPath = new API().get(API_STORE_LANGUAGE_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+                    .then()
+                    .statusCode(200)
+                    .extract().jsonPath();
+            List<Boolean> publishLangList = jsonPath.getList("published");
 
-        List<String> langNameList = jsonPath.getList("langName");
-        storeInfo.setStoreLanguageName(langNameList);
+            // set all store languages code.
+            List<String> langCodeList = jsonPath.getList("langCode");
+            storeInfo.setStoreLanguageList(langCodeList);
 
-        // set published language
-        storeInfo.setSFLangList(IntStream.range(0, publishLangList.size()).filter(publishLangList::get).mapToObj(storeInfo.getStoreLanguageList()::get).toList());
+            List<String> langNameList = jsonPath.getList("langName");
+            storeInfo.setStoreLanguageName(langNameList);
+
+            // set published language
+            storeInfo.setSFLangList(IntStream.range(0, publishLangList.size()).filter(publishLangList::get).mapToObj(storeInfo.getStoreLanguageList()::get).toList());
+
+            // save cache
+            storeInfoCache.put(loginInformation, storeInfo);
+        }
 
         // return store information
         return storeInfo;

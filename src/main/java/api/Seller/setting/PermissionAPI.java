@@ -212,6 +212,10 @@ public class PermissionAPI {
 
         // delete all permission group that are not assigned to staff
         deleteNoAssignedPermissionGroup();
+
+        // clear loginCache login
+        Login.getLoginCache().invalidateAll();
+
         return groupPermissionId;
     } 
     
@@ -241,6 +245,9 @@ public class PermissionAPI {
 
         //Grant the permission to the staff
         grantGroupPermissionToStaff(staffId, groupPermissionId);
+
+        // clear loginCache login
+        Login.getLoginCache().invalidateAll();
     }
 
     @Data

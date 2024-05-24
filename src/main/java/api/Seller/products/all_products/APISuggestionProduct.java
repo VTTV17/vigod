@@ -2,6 +2,8 @@ package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
 import api.Seller.products.location.APILocation;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
@@ -10,6 +12,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -19,13 +22,16 @@ public class APISuggestionProduct {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+    private static final Cache<Integer, AllSuggestionProductsInfo> cache = CacheBuilder.newBuilder()
+            .build();
 
     public APISuggestionProduct(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true&includeConversion=true";
+    //&includeConversion=true
+    private String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true";
 
     @Data
     public static class AllSuggestionProductsInfo {
@@ -45,6 +51,7 @@ public class APISuggestionProduct {
     @Data
     public static class SuggestionProductsInfo {
         private int branchId;
+        private String branchName;
         private int itemId;
         private int modelId;
         private String itemName;
@@ -67,64 +74,68 @@ public class APISuggestionProduct {
     }
 
     public AllSuggestionProductsInfo getListSuggestionProduct(int branchId) {
-        // init suggestion model
-        AllSuggestionProductsInfo info = new AllSuggestionProductsInfo();
+        AllSuggestionProductsInfo info = cache.getIfPresent(branchId);
+        if (info == null) {
+            // init suggestion model
+            info = new AllSuggestionProductsInfo();
 
-        // init temp array
-        List<String> itemIds = new ArrayList<>();
-        List<String> modelIds = new ArrayList<>();
-        List<String> itemNames = new ArrayList<>();
-        List<String> modelNames = new ArrayList<>();
-        List<String> barcodes = new ArrayList<>();
-        List<String> remainingStocks = new ArrayList<>();
-        List<String> inventoryManageTypes = new ArrayList<>();
-        List<Boolean> hasLots = new ArrayList<>();
-        List<Boolean> hasLocations = new ArrayList<>();
-        List<Long> price = new ArrayList<>();
-        List<Long> costPrice = new ArrayList<>();
+            // init temp array
+            List<String> itemIds = new ArrayList<>();
+            List<String> modelIds = new ArrayList<>();
+            List<String> itemNames = new ArrayList<>();
+            List<String> modelNames = new ArrayList<>();
+            List<String> barcodes = new ArrayList<>();
+            List<String> remainingStocks = new ArrayList<>();
+            List<String> inventoryManageTypes = new ArrayList<>();
+            List<Boolean> hasLots = new ArrayList<>();
+            List<Boolean> hasLocations = new ArrayList<>();
+            List<Long> price = new ArrayList<>();
+            List<Long> costPrice = new ArrayList<>();
 
-        // get total products
-        int totalOfProducts = Integer.parseInt(getSuggestionResponse(0, branchId).getHeader("X-Total-Count"));
+            // get total products
+            int totalOfProducts = Integer.parseInt(getSuggestionResponse(0, branchId).getHeader("X-Total-Count"));
 
-        // get number of pages
-        int numberOfPages = totalOfProducts / 100;
+            // get number of pages
+            int numberOfPages = totalOfProducts / 100;
 
-        // get other page data
-        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            Response response = getSuggestionResponse(pageIndex, branchId);
-            itemIds.addAll(response.jsonPath().getList("itemId"));
-            modelIds.addAll(response.jsonPath().getList("modelId"));
-            itemNames.addAll(response.jsonPath().getList("itemName"));
-            modelNames.addAll(response.jsonPath().getList("modelName"));
-            barcodes.addAll(response.jsonPath().getList("barcode"));
-            remainingStocks.addAll(response.jsonPath().getList("modelStock"));
-            inventoryManageTypes.addAll(response.jsonPath().getList("inventoryManageType"));
-            hasLots.addAll(response.jsonPath().getList("hasLot"));
-            hasLocations.addAll(response.jsonPath().getList("hasLocation"));
-            price.addAll(Pattern.compile("price.{4}(\\d+)").matcher(response.asPrettyString())
-                    .results()
-                    .map(matchResult -> Long.valueOf(matchResult.group(1)))
-                    .toList());
-            costPrice.addAll(Pattern.compile("costPrice.{4}(\\d+)").matcher(response.asPrettyString())
-                    .results()
-                    .map(matchResult -> Long.valueOf(matchResult.group(1)))
-                    .toList());
+            // get other page data
+            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+                Response response = getSuggestionResponse(pageIndex, branchId);
+                itemIds.addAll(response.jsonPath().getList("itemId"));
+                modelIds.addAll(response.jsonPath().getList("modelId"));
+                itemNames.addAll(response.jsonPath().getList("itemName"));
+                modelNames.addAll(response.jsonPath().getList("modelName"));
+                barcodes.addAll(response.jsonPath().getList("barcode"));
+                remainingStocks.addAll(response.jsonPath().getList("modelStock"));
+                inventoryManageTypes.addAll(response.jsonPath().getList("inventoryManageType"));
+                hasLots.addAll(response.jsonPath().getList("hasLot"));
+                hasLocations.addAll(response.jsonPath().getList("hasLocation"));
+                price.addAll(Pattern.compile("price.{4}(\\d+)").matcher(response.asPrettyString())
+                        .results()
+                        .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                        .toList());
+                costPrice.addAll(Pattern.compile("costPrice.{4}(\\d+)").matcher(response.asPrettyString())
+                        .results()
+                        .map(matchResult -> Long.valueOf(matchResult.group(1)))
+                        .toList());
+            }
+
+            // set suggestion info
+            info.setItemIds(itemIds.stream().mapToInt(Integer::parseInt).boxed().toList());
+            info.setModelIds(modelIds.stream().mapToInt(model -> model.isEmpty() ? 0 : Integer.parseInt(model)).boxed().toList());
+            info.setItemNames(itemNames);
+            info.setModelNames(modelNames);
+            info.setBarcodes(barcodes);
+            info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
+            info.setInventoryManageTypes(inventoryManageTypes);
+            info.setHasLots(hasLots);
+            info.setHasLocations(hasLocations);
+            info.setPrice(price);
+            info.setCostPrice(costPrice);
+
+            // return suggestion model
+            cache.put(branchId, info);
         }
-
-        // set suggestion info
-        info.setItemIds(itemIds.stream().mapToInt(Integer::parseInt).boxed().toList());
-        info.setModelIds(modelIds.stream().mapToInt(model -> model.isEmpty() ? 0 : Integer.parseInt(model)).boxed().toList());
-        info.setItemNames(itemNames);
-        info.setModelNames(modelNames);
-        info.setBarcodes(barcodes);
-        info.setRemainingStocks(remainingStocks.stream().map(Long::parseLong).toList());
-        info.setInventoryManageTypes(inventoryManageTypes);
-        info.setHasLots(hasLots);
-        info.setHasLocations(hasLocations);
-        info.setPrice(price);
-        info.setCostPrice(costPrice);
-
-        // return suggestion model
         return info;
     }
 
@@ -326,8 +337,11 @@ public class APISuggestionProduct {
             // filter by in-stock conditions
             for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
                 if (suggestionInfo.getRemainingStocks().get(index) > 0) {
-                    if (productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore()) {
+                    boolean isInStore = Optional.ofNullable(productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore())
+                            .orElse(false);
+                    if (isInStore) {
                         info.setBranchId(branchId);
+                        info.setBranchName(loginInfo.getAssignedBranchesNames().get(loginInfo.getAssignedBranchesIds().indexOf(branchId)));
                         info.setItemId(suggestionInfo.getItemIds().get(index));
                         info.setItemName(suggestionInfo.getItemNames().get(index));
                         info.setModelName(suggestionInfo.getModelNames().get(index));
@@ -346,23 +360,30 @@ public class APISuggestionProduct {
 
     public SuggestionProductsInfo findProductInformationForAddStockOnPOS() {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
+        APIProductDetail productDetail = new APIProductDetail(loginInformation);
 
         for (Integer branchId : loginInfo.getAssignedBranchesIds()) {
             // get all suggestions information
+            suggestProductPath = suggestProductPath.replace("&ignoreOutOfStock=true", "");
             AllSuggestionProductsInfo suggestionInfo = getListSuggestionProduct(branchId);
 
             // filter by in-stock conditions
             for (int index = 0; index < suggestionInfo.getItemIds().size(); index++) {
-                if (suggestionInfo.getRemainingStocks().get(index) > 0) {
-                    info.setBranchId(branchId);
-                    info.setItemId(suggestionInfo.getItemIds().get(index));
-                    info.setItemName(suggestionInfo.getItemNames().get(index));
-                    info.setModelName(suggestionInfo.getModelNames().get(index));
-                    info.setModelId(suggestionInfo.getModelIds().get(index));
-                    info.setBarcode(suggestionInfo.getBarcodes().get(index));
-                    info.setRemainingStock(suggestionInfo.getRemainingStocks().get(index));
-                    info.setInventoryManageType(suggestionInfo.getInventoryManageTypes().get(index));
-                    break;
+                if ((suggestionInfo.getRemainingStocks().get(index) == 0) && !suggestionInfo.getHasLots().get(index)) {
+                    boolean isInStore = Optional.ofNullable(productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore())
+                            .orElse(false);
+                    if (isInStore) {
+                        info.setBranchId(branchId);
+                        info.setBranchName(loginInfo.getAssignedBranchesNames().get(loginInfo.getAssignedBranchesIds().indexOf(branchId)));
+                        info.setItemId(suggestionInfo.getItemIds().get(index));
+                        info.setItemName(suggestionInfo.getItemNames().get(index));
+                        info.setModelName(suggestionInfo.getModelNames().get(index));
+                        info.setModelId(suggestionInfo.getModelIds().get(index));
+                        info.setBarcode(suggestionInfo.getBarcodes().get(index));
+                        info.setRemainingStock(suggestionInfo.getRemainingStocks().get(index));
+                        info.setInventoryManageType(suggestionInfo.getInventoryManageTypes().get(index));
+                        break;
+                    }
                 }
             }
             if (info.getBranchId() != 0) break;

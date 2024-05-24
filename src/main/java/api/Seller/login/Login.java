@@ -1,12 +1,16 @@
 package api.Seller.login;
 
+import api.Buyer.login.ResetPasswordPayloadBuilder;
 import api.CapchaPayloadBuilder;
 import api.JsonObjectBuilder;
-import api.Buyer.login.ResetPasswordPayloadBuilder;
 import api.Seller.setting.BranchManagement;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Iterables;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Getter;
+import org.json.JSONObject;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -16,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
-
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
     public String DASHBOARD_LOGIN_PHONE_PATH = "api/authenticate/store/phone/gosell";
@@ -25,6 +27,10 @@ public class Login {
     String storeStaff = "/storeservice/api/store-staffs/user/%s";
     API api = new API();
     private static LoginInformation loginInfo = new LoginInformation();
+    @Getter
+    private static final Cache<LoginInformation, LoginDashboardInfo> loginCache = CacheBuilder.newBuilder()
+            .build();
+
 
     Response getLoginResponse(String account, String password) {
         String body = """
@@ -70,55 +76,61 @@ public class Login {
     }
 
     public LoginDashboardInfo getInfo(LoginInformation loginInformation) {
-        // init login dashboard info model
-        LoginDashboardInfo info = new LoginDashboardInfo();
+        LoginDashboardInfo info = loginCache.getIfPresent(loginInformation);
+        if (info == null) {
+            // init login dashboard info model
+            info = new LoginDashboardInfo();
 
-        // get login response
-        Response res;
+            // get login response
+            Response res;
 
-        if (loginInformation.getEmail() != null)
-            res = getLoginResponse(loginInformation.getEmail(), loginInformation.getPassword()); //if account is email
-        else
-            res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
+            if (loginInformation.getEmail() != null)
+                res = getLoginResponse(loginInformation.getEmail(), loginInformation.getPassword()); //if account is email
+            else
+                res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
 
-        // get jsonPath
-        JsonPath jPath = res.jsonPath();
+            // get jsonPath
+            JsonPath jPath = res.jsonPath();
 
-        // set accessToken
-        info.setAccessToken(jPath.getString("accessToken"));
+            // set accessToken
+            info.setAccessToken(jPath.getString("accessToken"));
 
-        // set refreshToken
-        info.setRefreshToken(jPath.getString("refreshToken"));
+            // set refreshToken
+            info.setRefreshToken(jPath.getString("refreshToken"));
 
-        // set userId
-        info.setUserId(jPath.getInt("id"));
+            // set userId
+            info.setUserId(jPath.getInt("id"));
 
-        // set ownerId
-        info.setOwnerId(jPath.getInt("id"));
+            // set ownerId
+            info.setOwnerId(jPath.getInt("id"));
 
-        try {
-            // set storeID
-            info.setStoreID(jPath.getInt("store.id"));
+            try {
+                // set storeID
+                info.setStoreID(jPath.getInt("store.id"));
 
-            // set storeName
-            info.setStoreName(jPath.getString("store.name"));
-        } catch (NullPointerException ignore) {
+                // set storeName
+                info.setStoreName(jPath.getString("store.name"));
+            } catch (NullPointerException ignore) {
+            }
+
+            // if login by staff => login and get staff information
+            if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
+
+            // set staffToken
+            API.setStaffPermissionToken(info.getStaffPermissionToken() != null ? info.getStaffPermissionToken() : "");
+
+            // get branch info
+            BranchInfo branchInfo = new BranchManagement(loginInformation, info).getInfo();
+
+            // get assigned branch ids
+            info.setAssignedBranchesIds(branchInfo.getBranchID());
+
+            // get assigned branch names
+            info.setAssignedBranchesNames(branchInfo.getBranchName());
+
+            // save loginCache
+            loginCache.put(loginInformation, info);
         }
-
-        // if login by staff => login and get staff information
-        if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
-
-        // set staffToken
-        API.setStaffPermissionToken(info.getStaffPermissionToken() != null ? info.getStaffPermissionToken() : "");
-
-        // get branch info
-        BranchInfo branchInfo = new BranchManagement(loginInformation, info).getInfo();
-
-        // get assigned branch ids
-        info.setAssignedBranchesIds(branchInfo.getBranchID());
-
-        // get assigned branch names
-        info.setAssignedBranchesNames(branchInfo.getBranchName());
 
         // return login dashboard info
         return info;
@@ -202,22 +214,22 @@ public class Login {
     public LoginInformation getLoginInformation() {
         return loginInfo;
     }
-    
+
     public Response resetPhonePassword(String phoneNumber, String phoneCode) {
-    	JSONObject capchaPayload = new CapchaPayloadBuilder().givenCaptchaResponse("").givenGReCaptchaResponse("").givenImageBase64("").build();
-    	JSONObject resetPayload = new ResetPasswordPayloadBuilder().givenCountryCode(phoneCode).givenPhoneNumber(phoneNumber).build();
-    	String body = JsonObjectBuilder.mergeJSONObjects(capchaPayload, resetPayload).toString();
-        
+        JSONObject capchaPayload = new CapchaPayloadBuilder().givenCaptchaResponse("").givenGReCaptchaResponse("").givenImageBase64("").build();
+        JSONObject resetPayload = new ResetPasswordPayloadBuilder().givenCountryCode(phoneCode).givenPhoneNumber(phoneNumber).build();
+        String body = JsonObjectBuilder.mergeJSONObjects(capchaPayload, resetPayload).toString();
+
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("Host", "api.beecow.info");
         headerMap.put("x-request-origin", "DASHBOARD");
         headerMap.put("isinternational", "false");
         headerMap.put("platform", "WEB");
-        
+
         Response resetResponse = new API().post("/api/account/reset_password/mobile/gosell", "noTokenNeeded", body, headerMap);
         resetResponse.then().log().ifValidationFails().statusCode(200);
 
         return resetResponse;
-    }        
-    
+    }
+
 }
