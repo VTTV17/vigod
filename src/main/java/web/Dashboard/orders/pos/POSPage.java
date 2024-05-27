@@ -1,6 +1,5 @@
 package web.Dashboard.orders.pos;
 
-import api.Seller.login.Login;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APISuggestionProduct.SuggestionProductsInfo;
 import org.apache.commons.lang.RandomStringUtils;
@@ -12,7 +11,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -111,7 +109,7 @@ public class POSPage extends POSElement {
         logger.info("Search keyword: %s.".formatted(keyword));
 
         // select product
-        commonAction.click(loc_ddlSearchResult, 0);
+        commonAction.clickJS(By.xpath(str_ddlSearchResult.formatted(keyword)));
     }
 
     void addProductToCart(SuggestionProductsInfo productsInfo) {
@@ -156,10 +154,8 @@ public class POSPage extends POSElement {
     /* Check permission */
     // ticket: https://mediastep.atlassian.net/browse/BH-24814
     LoginInformation staffLoginInformation;
-    LoginInformation sellerLoginInformation;
     AllPermissions permissions;
     CheckPermission checkPermission;
-    LoginDashboardInfo staffLoginInfo;
 
     public POSPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -169,14 +165,12 @@ public class POSPage extends POSElement {
         checkPermission = new CheckPermission(driver);
     }
 
-    public POSPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
-        this.sellerLoginInformation = sellerLoginInformation;
+    public POSPage getLoginInformation(LoginInformation staffLoginInformation) {
         this.staffLoginInformation = staffLoginInformation;
-        staffLoginInfo = new Login().getInfo(staffLoginInformation);
         return this;
     }
 
-    void checkCreateOrder() {
+    public void checkPOSPermission() {
         // navigate to POS page by URL
         navigateToInStorePurchasePage();
 
@@ -197,9 +191,6 @@ public class POSPage extends POSElement {
     }
 
     void checkAddStock() {
-        // navigate to POS page
-        navigateToInStorePurchasePage();
-
         // get product for add stock on POS
         SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddStockOnPOS();
 
@@ -247,21 +238,21 @@ public class POSPage extends POSElement {
     }
 
     void checkAddCustomer() {
-        // open add customer popup
-        commonAction.clickJS(loc_icnAddCustomer);
+        if (permissions.getCustomer().getCustomerManagement().isAddCustomer()) {
+            // open add customer popup
+            commonAction.clickJS(loc_icnAddCustomer);
 
-        // check add customer popup is shown or not
-        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgAddCustomer).isEmpty(),
-                "Can not open add customer popup.");
-        if (!commonAction.getListElement(loc_dlgAddCustomer).isEmpty()) {
-            commonAction.sendKeys(loc_dlgAddCustomer_txtFullName, RandomStringUtils.randomAlphabetic(5));
-            commonAction.sendKeys(loc_dlgAddCustomer_txtPhoneNumber, String.valueOf(Instant.now().toEpochMilli()));
-            commonAction.click(loc_dlgAddCustomer_btnAdd);
+            // check add customer popup is shown or not
+            assertCustomize.assertFalse(commonAction.getListElement(loc_dlgAddCustomer).isEmpty(),
+                    "Can not open add customer popup.");
+            if (!commonAction.getListElement(loc_dlgAddCustomer).isEmpty()) {
+                commonAction.sendKeys(loc_dlgAddCustomer_txtFullName, RandomStringUtils.randomAlphabetic(5));
+                commonAction.sendKeys(loc_dlgAddCustomer_txtPhoneNumber, String.valueOf(Instant.now().toEpochMilli()));
+                commonAction.click(loc_dlgAddCustomer_btnAdd);
 
-            if (permissions.getCustomer().getCustomerManagement().isAddCustomer()) {
                 assertCustomize.assertTrue(commonAction.getListElement(loc_dlgToastSuccess).isEmpty(), "Can not create customer.");
             } else {
-                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnAddCustomer), "Restricted popup is not shown.");
             }
         }
     }
@@ -290,8 +281,8 @@ public class POSPage extends POSElement {
                 }
                 case discountPercent -> {
                     String discountValue = String.valueOf(nextInt(100));
-                    commonAction.sendKeys(loc_dlgDiscount_tabDiscountAmount_txtAmount, discountValue);
-                    commonAction.click(loc_dlgDiscount_tabDiscountAmount_btnApply);
+                    commonAction.sendKeys(loc_dlgDiscount_tabDiscountPercent_txtPercent, discountValue);
+                    commonAction.click(loc_dlgDiscount_tabDiscountPercent_btnApply);
                 }
             }
         }

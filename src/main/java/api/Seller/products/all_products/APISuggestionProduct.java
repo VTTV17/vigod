@@ -30,8 +30,7 @@ public class APISuggestionProduct {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
-    //&includeConversion=true
-    private String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true";
+    private String suggestProductPath = "/itemservice/api/store/%s/item-model/suggestion?page=%s&size=100&ignoreDeposit=true&branchId=%s&ignoreOutOfStock=true&includeConversion=true";
 
     @Data
     public static class AllSuggestionProductsInfo {
@@ -356,6 +355,7 @@ public class APISuggestionProduct {
     public SuggestionProductsInfo findProductInformationForCreatePOSOrder() {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         APIProductDetail productDetail = new APIProductDetail(loginInformation);
+        APICheckItemModel checkItemModel = new APICheckItemModel(loginInformation);
 
         for (Integer branchId : loginInfo.getAssignedBranchesIds()) {
             // get all suggestions information
@@ -366,7 +366,11 @@ public class APISuggestionProduct {
                 if (suggestionInfo.getRemainingStocks().get(index) > 0 && suggestionInfo.getPrice().get(index) > 0) {
                     boolean isInStore = Optional.ofNullable(productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore())
                             .orElse(false);
-                    if (isInStore) {
+                    String modelCode = (suggestionInfo.getModelIds().get(index) != 0)
+                            ? "%s-%s".formatted(suggestionInfo.getItemIds().get(index), suggestionInfo.getModelIds().get(index))
+                            : "%s".formatted(suggestionInfo.getItemIds().get(index));
+                    boolean isAvailable = checkItemModel.itemModelAvailable(modelCode);
+                    if (isInStore && isAvailable) {
                         info.setBranchId(branchId);
                         info.setBranchName(loginInfo.getAssignedBranchesNames().get(loginInfo.getAssignedBranchesIds().indexOf(branchId)));
                         info.setItemId(suggestionInfo.getItemIds().get(index));
@@ -388,6 +392,7 @@ public class APISuggestionProduct {
     public SuggestionProductsInfo findProductInformationForAddStockOnPOS() {
         SuggestionProductsInfo info = new SuggestionProductsInfo();
         APIProductDetail productDetail = new APIProductDetail(loginInformation);
+        APICheckItemModel checkItemModel = new APICheckItemModel(loginInformation);
 
         for (Integer branchId : loginInfo.getAssignedBranchesIds()) {
             // get all suggestions information
@@ -399,7 +404,11 @@ public class APISuggestionProduct {
                 if ((suggestionInfo.getRemainingStocks().get(index) == 0) && !suggestionInfo.getHasLots().get(index)) {
                     boolean isInStore = Optional.ofNullable(productDetail.getInfo(suggestionInfo.getItemIds().get(index), platform).getInStore())
                             .orElse(false);
-                    if (isInStore) {
+                    String modelCode = (suggestionInfo.getModelIds().get(index) != 0)
+                            ? "%s-%s".formatted(suggestionInfo.getItemIds().get(index), suggestionInfo.getModelIds().get(index))
+                            : "%s".formatted(suggestionInfo.getItemIds().get(index));
+                    boolean isAvailable = checkItemModel.itemModelAvailable(modelCode);
+                    if (isInStore && isAvailable) {
                         info.setBranchId(branchId);
                         info.setBranchName(loginInfo.getAssignedBranchesNames().get(loginInfo.getAssignedBranchesIds().indexOf(branchId)));
                         info.setItemId(suggestionInfo.getItemIds().get(index));

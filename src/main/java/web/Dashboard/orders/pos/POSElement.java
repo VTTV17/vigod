@@ -15,13 +15,14 @@ public class POSElement {
 
     enum SearchType {
         product, sku, barcode;
+
         public static List<SearchType> getAllSearchType() {
             return Arrays.asList(SearchType.values());
         }
     }
 
     By loc_ddlSearchType = By.cssSelector(".uik-select__option");
-    By loc_ddlSearchResult = By.cssSelector(".product-item-row__product-summary");
+    String str_ddlSearchResult = "//*[text() = '%s']";
     By loc_txtItemQuantity = By.cssSelector(".order-in-store-purchase-cart-product-list__group-stock-input input");
     By loc_icnAddStock = By.cssSelector(".err-out-of-stock i");
     By loc_dlgAddStock = By.cssSelector(".order-in-store-purchase-complete__quantity-modal");
@@ -35,11 +36,12 @@ public class POSElement {
     By loc_dlgSelectLot_lblAvailableQuantity = By.xpath("//*[@class = 'get-quantity']/preceding-sibling::td[1]");
     By loc_dlgSelectLot_txtConfirmQuantity = By.cssSelector("td.get-quantity");
     By loc_dlgSelectLot_btnConfirm = By.cssSelector(".modal-lot-select .gs-button__green");
-    By loc_btnPromotion = By.cssSelector(".title-promotion");
+    By loc_btnPromotion = By.cssSelector(".title-promotion span");
     By loc_dlgDiscount = By.cssSelector(".order-instore-purchase-discount-modal");
 
     enum DiscountType {
         discountCode, discountAmount, discountPercent;
+
         public static List<DiscountType> getAllDiscountType() {
             return Arrays.asList(DiscountType.values());
         }
