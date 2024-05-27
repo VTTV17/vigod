@@ -1,5 +1,6 @@
 package web.Dashboard.orders.pos;
 
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APISuggestionProduct;
 import api.Seller.products.all_products.APISuggestionProduct.SuggestionProductsInfo;
 import org.apache.commons.lang.RandomStringUtils;
@@ -11,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -109,7 +111,7 @@ public class POSPage extends POSElement {
         logger.info("Search keyword: %s.".formatted(keyword));
 
         // select product
-        commonAction.clickJS(By.xpath(str_ddlSearchResult.formatted(keyword)));
+        commonAction.clickJS(By.xpath(str_ddvProduct.formatted(keyword)));
     }
 
     void addProductToCart(SuggestionProductsInfo productsInfo) {
@@ -147,6 +149,12 @@ public class POSPage extends POSElement {
                 } else logger.warn("Can not found lot.");
             }
         }
+    }
+
+    void selectCustomer(CustomerInfo customerInfo) {
+        commonAction.sendKeys(txtSearchCustomer, customerInfo.getMainEmailName());
+        logger.info("Input keywords: %s.".formatted(customerInfo.getMainEmailName()));
+        commonAction.clickJS(By.cssSelector(str_ddvCustomer.formatted(customerInfo.getUserId())));
     }
 
 
@@ -188,6 +196,9 @@ public class POSPage extends POSElement {
         } else {
             assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted page is not shown.");
         }
+
+        // log
+        logger.info("Check permission: Orders >> POS >> Create order.");
     }
 
     void checkAddStock() {
@@ -195,6 +206,9 @@ public class POSPage extends POSElement {
         SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddStockOnPOS();
 
         if (productsInfo.getItemId() != 0) {
+            // select branch
+            selectBranch(productsInfo);
+
             // add product to cart
             addProductToCart(productsInfo);
 
@@ -235,6 +249,9 @@ public class POSPage extends POSElement {
                 }
             }
         }
+
+        // log
+        logger.info("Check permission: Product >> Inventory >> Update stock.");
     }
 
     void checkAddCustomer() {
@@ -255,6 +272,9 @@ public class POSPage extends POSElement {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_icnAddCustomer), "Restricted popup is not shown.");
             }
         }
+
+        // log
+        logger.info("Check permission: Customer >> Customer management >> Add customer.");
     }
 
     void applyDiscount(DiscountType discountType) {
@@ -307,6 +327,9 @@ public class POSPage extends POSElement {
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPromotion), "Restricted popup is not shown.");
         }
+
+        // log
+        logger.info("Check permission: Orders >> Order management >> Apply discount.");
     }
 
     void checkAddDiscountAmount(SuggestionProductsInfo productsInfo) {
@@ -324,6 +347,9 @@ public class POSPage extends POSElement {
         } else {
             assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
         }
+
+        // log
+        logger.info("Check permission: Orders >> POS >> Apply direct discount (amount).");
     }
 
     void checkAddDiscountPercent(SuggestionProductsInfo productsInfo) {
@@ -341,6 +367,9 @@ public class POSPage extends POSElement {
         } else {
             assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
         }
+
+        // log
+        logger.info("Check permission: Orders >> POS >> Apply direct discount (percentage).");
     }
 
     void checkApplyDiscountCode(SuggestionProductsInfo productsInfo) {
@@ -359,6 +388,9 @@ public class POSPage extends POSElement {
         } else {
             assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
         }
+
+        // log
+        logger.info("Check permission: Orders >> POS >> Apply discount code.");
     }
 
     void checkCreateDebtOrder() {
@@ -403,20 +435,46 @@ public class POSPage extends POSElement {
                     assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(), "Restricted popup is not shown.");
                 }
             }
-        } else logger.warn("Can not find product.");
+        } else logger.warn("Can not find product for create debt order.");
 
-
+        // log
+        logger.info("Check permission: Orders >> POS >> Create debt order.");
     }
 
     void checkNotApplyEarningPoint() {
         // navigate to POS page by URL
         navigateToInStorePurchasePage();
 
-        // check permission
-        if (permissions.getOrders().getPOSInstorePurchase().isNotApplyEarningPoint()) {
+        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForCreatePOSOrder();
+        if (productsInfo.getItemId() != 0) {
+            CustomerInfo customerInfo = new APIAllCustomers(staffLoginInformation).getAccountCustomerForCreatePOS();
+            if (Optional.ofNullable(customerInfo.getUserId()).isPresent()) {
+                if (permissions.getMarketing().getLoyaltyPoint().isViewPointProgramInformation()) {
+                    // select branch
+                    selectBranch(productsInfo);
 
-        } else {
-        }
+                    // add product to cart
+                    addProductToCart(productsInfo);
 
+                    // select customer
+                    selectCustomer(customerInfo);
+
+                    // check not apply earning point checkbox is shown or not
+                    assertCustomize.assertFalse(commonAction.getListElement(loc_chkNotApplyEarningPoint).isEmpty(), "Not apply earning point is not shown.");
+
+                    if (!commonAction.getListElement(loc_chkNotApplyEarningPoint).isEmpty()) {
+                        // check permission
+                        if (permissions.getOrders().getPOSInstorePurchase().isNotApplyEarningPoint()) {
+                            assertCustomize.assertFalse(commonAction.isDisabledJS(loc_chkNotApplyEarningPoint), "Not apply earning point is disabled.");
+                        } else {
+                            assertCustomize.assertTrue(commonAction.isDisabledJS(loc_chkNotApplyEarningPoint), "Not apply earning point is enabled.");
+                        }
+                    }
+                } else logger.info("Not apply earning point is hidden, ignored.");
+            } else logger.warn("Can not find customer for check not apply earning point.");
+        } else logger.warn("Can not find product for check not apply earning point.");
+
+        // log
+        logger.info("Check permission: Orders >> POS >> Not apply earning point.");
     }
 }

@@ -1,12 +1,12 @@
 package api.Seller.customers;
 
-import api.Buyer.login.LoginSF;
 import api.Seller.login.Login;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
-import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -14,8 +14,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static java.lang.Thread.sleep;
 
 public class APIAllCustomers {
 
@@ -29,6 +27,7 @@ public class APIAllCustomers {
     LoginDashboardInfo loginInfo;
     API api = new API();
     LoginInformation loginInformation;
+    private final static Cache<LoginInformation, CustomerManagementInfo> customerCache = CacheBuilder.newBuilder().build();
 
     public APIAllCustomers(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -48,41 +47,47 @@ public class APIAllCustomers {
     }
 
     public CustomerManagementInfo getCustomerManagementInfo() {
-        CustomerManagementInfo info = new CustomerManagementInfo();
-        int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
+        CustomerManagementInfo info = customerCache.getIfPresent(loginInformation);
+        if (info == null) {
+            info = new CustomerManagementInfo();
+            int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
 
-        // init temp array;
-        List<String> customerName = new ArrayList<>();
-        List<Integer> customerId = new ArrayList<>();
-        List<String> userId = new ArrayList<>();
-        List<Integer> totalOrder = new ArrayList<>();
-        List<Float> debtAmount = new ArrayList<>();
-        List<String> saleChannel = new ArrayList<>();
-        List<Integer> responsibleStaffUserId = new ArrayList<>();
-        List<Boolean> guestUser = new ArrayList<>();
+            // init temp array;
+            List<String> customerName = new ArrayList<>();
+            List<Integer> customerId = new ArrayList<>();
+            List<String> userId = new ArrayList<>();
+            List<Integer> totalOrder = new ArrayList<>();
+            List<Float> debtAmount = new ArrayList<>();
+            List<String> saleChannel = new ArrayList<>();
+            List<Integer> responsibleStaffUserId = new ArrayList<>();
+            List<Boolean> guestUser = new ArrayList<>();
 
-        // get all customer info
-        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllCustomerResponse(pageIndex).jsonPath();
-            customerName.addAll(jsonPath.getList("fullName"));
-            customerId.addAll(jsonPath.getList("id"));
-            userId.addAll(jsonPath.getList("userId"));
-            totalOrder.addAll(jsonPath.getList("totalOrder"));
-            debtAmount.addAll(jsonPath.getList("orderDebtSummary"));
-            saleChannel.addAll(jsonPath.getList("saleChannel"));
-            responsibleStaffUserId.addAll(jsonPath.getList("responsibleStaffUserId"));
-            guestUser.addAll(jsonPath.getList("guest"));
+            // get all customer info
+            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+                JsonPath jsonPath = getAllCustomerResponse(pageIndex).jsonPath();
+                customerName.addAll(jsonPath.getList("fullName"));
+                customerId.addAll(jsonPath.getList("id"));
+                userId.addAll(jsonPath.getList("userId"));
+                totalOrder.addAll(jsonPath.getList("totalOrder"));
+                debtAmount.addAll(jsonPath.getList("orderDebtSummary"));
+                saleChannel.addAll(jsonPath.getList("saleChannel"));
+                responsibleStaffUserId.addAll(jsonPath.getList("responsibleStaffUserId"));
+                guestUser.addAll(jsonPath.getList("guest"));
+            }
+
+            // set all customer info
+            info.setCustomerName(customerName);
+            info.setCustomerId(customerId);
+            info.setUserId(userId);
+            info.setTotalOrder(totalOrder);
+            info.setDebtAmount(debtAmount);
+            info.setSaleChannel(saleChannel);
+            info.setResponsibleStaffUserId(responsibleStaffUserId);
+            info.setGuestUser(guestUser);
+
+            // save cache
+            customerCache.put(loginInformation, info);
         }
-
-        // set all customer info
-        info.setCustomerName(customerName);
-        info.setCustomerId(customerId);
-        info.setUserId(userId);
-        info.setTotalOrder(totalOrder);
-        info.setDebtAmount(debtAmount);
-        info.setSaleChannel(saleChannel);
-        info.setResponsibleStaffUserId(responsibleStaffUserId);
-        info.setGuestUser(guestUser);
 
         return info;
     }
@@ -150,5 +155,20 @@ public class APIAllCustomers {
         response.then().statusCode(200);
     }
 
+    public CustomerInfo getAccountCustomerForCreatePOS() {
+        CustomerManagementInfo info = getCustomerManagementInfo();
+        List<String> userId =  info.getUserId();
+        List<String> customerName = info.getCustomerName();
+        List<Boolean> guestUser = info.getGuestUser();
 
+        CustomerInfo customerInfo = new CustomerInfo();
+        for (String id : userId) {
+            if (!guestUser.get(userId.indexOf(id))) {
+                customerInfo.setUserId(id);
+                customerInfo.setMainEmailName(customerName.get(userId.indexOf(id)));
+                break;
+            }
+        }
+        return customerInfo;
+    }
 }

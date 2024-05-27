@@ -22,7 +22,7 @@ public class POSElement {
     }
 
     By loc_ddlSearchType = By.cssSelector(".uik-select__option");
-    String str_ddlSearchResult = "//*[text() = '%s']";
+    String str_ddvProduct = "//*[text() = '%s']";
     By loc_txtItemQuantity = By.cssSelector(".order-in-store-purchase-cart-product-list__group-stock-input input");
     By loc_icnAddStock = By.cssSelector(".err-out-of-stock i");
     By loc_dlgAddStock = By.cssSelector(".order-in-store-purchase-complete__quantity-modal");
@@ -37,6 +37,8 @@ public class POSElement {
     By loc_dlgSelectLot_txtConfirmQuantity = By.cssSelector("td.get-quantity");
     By loc_dlgSelectLot_btnConfirm = By.cssSelector(".modal-lot-select .gs-button__green");
     By loc_btnPromotion = By.cssSelector(".title-promotion span");
+    By txtSearchCustomer = By.cssSelector("#dropdownSuggestionCustomer input");
+    String str_ddvCustomer = "#full-address-%s";
     By loc_dlgDiscount = By.cssSelector(".order-instore-purchase-discount-modal");
 
     enum DiscountType {
@@ -66,5 +68,6 @@ public class POSElement {
     By loc_btnComplete = By.cssSelector(".color--gradient-blue");
     By loc_dlgReceivedNotEnough = By.cssSelector(".modal-dialog");
     By loc_dlgReceivedNotEnough_btnApply = By.cssSelector(".modal-dialog .gs-button__green");
+    By loc_chkNotApplyEarningPoint = By.cssSelector(".group-note +* input");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

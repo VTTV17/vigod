@@ -234,7 +234,7 @@ public class OrderManagementPage extends OrderManagementElement {
         apiAllOrdersWithSellerToken = new APIAllOrders(sellerLoginInformation);
         apiAllOrdersWithStaffToken = new APIAllOrders(staffLoginInformation);
 
-//        checkViewOrderList();
+        checkViewOrderList();
 
         new OrderDetailPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
                 .checkViewOrderDetail();
