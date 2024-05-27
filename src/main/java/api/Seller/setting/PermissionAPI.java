@@ -30,6 +30,7 @@ public class PermissionAPI {
     String GET_GROUP_PERMISSIONS_OF_STAFF_PATH = "/storeservice/api/store-staffs/store/%s?isEnabledCC=false&page=0&size=50&sort=id,desc&keyword=";
     API api = new API();
     LoginDashboardInfo loginInfo;
+    private static LoginInformation staffCredentials;
 
 
     @Data
@@ -127,6 +128,9 @@ public class PermissionAPI {
      * @return The integer ID of the updated permission group.
      */
     public int editGroupPermissionAndGetID(int groupID, String name, String description, CreatePermission model) {
+        // clear cache
+        Login.getLoginCache().invalidate(staffCredentials);
+
         return editGroupPermission(groupID, name, description, model).getInt("id");
     }
 
@@ -203,7 +207,12 @@ public class PermissionAPI {
      * @return The ID of the newly created permission group.
      */
     public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, CreatePermission model) {
+        // add staff credentials
+        PermissionAPI.staffCredentials = staffCredentials;
+
+        // get staffId
         int staffId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
+
         //Remove all permission groups from the staff
         removeAllGroupPermissionsFromStaff(staffId);
         int groupPermissionId = createGroupPermissionAndGetID("Permission %s for %s".formatted(System.currentTimeMillis(), staffCredentials.getEmail().split("@")[0]), "Description %s".formatted(System.currentTimeMillis()), model);
@@ -214,7 +223,7 @@ public class PermissionAPI {
         deleteNoAssignedPermissionGroup();
 
         // clear loginCache login
-        Login.getLoginCache().invalidateAll();
+        Login.getLoginCache().invalidate(staffCredentials);
 
         return groupPermissionId;
     } 
@@ -227,10 +236,16 @@ public class PermissionAPI {
      * @return The ID of the newly created permission group.
      */
     public int createPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials) {
+        // add staff credentials
+        PermissionAPI.staffCredentials = staffCredentials;
+
     	return createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials, CreatePermission.getFullPermissionModel());
     }
 
     public void editPermissionGroupThenGrantItToStaff(LoginInformation ownerCredentials, LoginInformation staffCredentials, int groupId, CreatePermission model) {
+        // add staff credentials
+        PermissionAPI.staffCredentials = staffCredentials;
+
         // delete all permission group that are not assigned to staff
         deleteNoAssignedPermissionGroup();
 
@@ -247,7 +262,7 @@ public class PermissionAPI {
         grantGroupPermissionToStaff(staffId, groupPermissionId);
 
         // clear loginCache login
-        Login.getLoginCache().invalidateAll();
+        Login.getLoginCache().invalidate(staffCredentials);
     }
 
     @Data
