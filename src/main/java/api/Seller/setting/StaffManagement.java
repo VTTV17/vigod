@@ -1,6 +1,8 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -16,6 +18,7 @@ public class StaffManagement {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+    private static final Cache<LoginInformation, AllStaffInformation> staffCache = CacheBuilder.newBuilder().build();
 
     public StaffManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -40,38 +43,44 @@ public class StaffManagement {
     }
 
     AllStaffInformation getAllStaffInformation() {
-        // init suggestion model
-        AllStaffInformation info = new AllStaffInformation();
+        AllStaffInformation info = staffCache.getIfPresent(loginInformation);
+        if (info == null) {
+            // init suggestion model
+            info = new AllStaffInformation();
 
-        // init temp array
-        List<Integer> ids = new ArrayList<>();
-        List<Integer> userIds = new ArrayList<>();
-        List<String> emails = new ArrayList<>();
-        List<String> names = new ArrayList<>();
-        List<Boolean> enables = new ArrayList<>();
+            // init temp array
+            List<Integer> ids = new ArrayList<>();
+            List<Integer> userIds = new ArrayList<>();
+            List<String> emails = new ArrayList<>();
+            List<String> names = new ArrayList<>();
+            List<Boolean> enables = new ArrayList<>();
 
-        // get total products
-        int totalOfStaffs = Integer.parseInt(getAllStaffResponse(0).getHeader("X-Total-Count"));
+            // get total products
+            int totalOfStaffs = Integer.parseInt(getAllStaffResponse(0).getHeader("X-Total-Count"));
 
-        // get number of pages
-        int numberOfPages = totalOfStaffs / 100;
+            // get number of pages
+            int numberOfPages = totalOfStaffs / 100;
 
-        // get all staff info
-        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllStaffResponse(pageIndex).jsonPath();
-            ids.addAll(jsonPath.getList("id"));
-            userIds.addAll(jsonPath.getList("userId"));
-            emails.addAll(jsonPath.getList("email"));
-            names.addAll(jsonPath.getList("name"));
-            enables.addAll(jsonPath.getList("enabled"));
+            // get all staff info
+            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+                JsonPath jsonPath = getAllStaffResponse(pageIndex).jsonPath();
+                ids.addAll(jsonPath.getList("id"));
+                userIds.addAll(jsonPath.getList("userId"));
+                emails.addAll(jsonPath.getList("email"));
+                names.addAll(jsonPath.getList("name"));
+                enables.addAll(jsonPath.getList("enabled"));
+            }
+
+            // set permission group info
+            info.setIds(ids);
+            info.setUserIds(userIds);
+            info.setNames(names);
+            info.setEmails(emails);
+            info.setEnables(enables);
+
+            // save cache
+            staffCache.put(loginInformation, info);
         }
-
-        // set permission group info
-        info.setIds(ids);
-        info.setUserIds(userIds);
-        info.setNames(names);
-        info.setEmails(emails);
-        info.setEnables(enables);
 
         // return model
         return info;

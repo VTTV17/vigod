@@ -11,7 +11,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import api.Seller.customers.SegmentAPI;
+import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 import api.Seller.promotion.CreatePromotion;
 import api.Seller.promotion.PromotionList;
@@ -30,7 +30,7 @@ public class DiscountPermissionTest extends BaseTest {
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
-	SegmentAPI segmentAPI;
+	APISegment segmentAPI;
 	PromotionList promotionListAPI;
 	CreatePromotion createPromotionAPI;
 	
@@ -42,7 +42,7 @@ public class DiscountPermissionTest extends BaseTest {
 		ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
-		segmentAPI = new SegmentAPI(ownerCredentials);
+		segmentAPI = new APISegment(ownerCredentials);
 		promotionListAPI = new PromotionList(ownerCredentials);
 		createPromotionAPI = new CreatePromotion(ownerCredentials);
 		

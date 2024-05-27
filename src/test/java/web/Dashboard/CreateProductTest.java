@@ -1,6 +1,6 @@
 package web.Dashboard;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APIProductDetail;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,7 +29,7 @@ public class CreateProductTest extends BaseTest {
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
         new LoginPage(driver).loginDashboardByJs(loginInformation);
-        customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         new web.StoreFront.login.LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
         tcsFileName = "Create product.xlsx";
     }

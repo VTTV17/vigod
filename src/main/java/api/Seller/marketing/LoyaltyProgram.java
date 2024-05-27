@@ -1,6 +1,6 @@
 package api.Seller.marketing;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -40,9 +40,9 @@ public class LoyaltyProgram {
         int discountPercent = nextInt(MAX_PERCENT_DISCOUNT) + 1;
         int discountMaxAmount = nextInt(1000000) + 1;
 
-        if (new Customers(loginInformation).getSegmentID() == 0) {
+        if (new APISegment(loginInformation).getSegmentID() == 0) {
             try {
-                new Customers(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
+                new APISegment(loginInformation).createSegmentByAPI(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84");
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -63,7 +63,7 @@ public class LoyaltyProgram {
                         "imageUUID": "",
                         "extension": ""
                     }
-                }""".formatted(name, description, new Customers(loginInformation).getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
+                }""".formatted(name, description, new APISegment(loginInformation).getSegmentID(), loginInfo.getStoreID(), discountPercent, discountMaxAmount);
          Response response = new API().post(CREATE_MEMBERSHIP_PATH, loginInfo.getAccessToken(), body);
          response.then().statusCode(201);
          return response.jsonPath().getInt("id");

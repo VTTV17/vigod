@@ -1,6 +1,6 @@
 package web.StoreFront.detail_product;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.onlineshop.Preferences;
 import api.Seller.products.all_products.WholesaleProduct;
@@ -648,7 +648,7 @@ public class ProductDetailPage extends ProductDetailElement {
         branchStatus = getBranchStatus();
 
         // get list segment of customer
-        List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
+        List<Integer> listSegmentOfCustomer = new APIAllCustomers(loginInformation).getListSegmentOfCustomer(customerId);
 
         // get flash sale, discount campaign information
         flashSaleInfo = new FlashSale(loginInformation).getFlashSaleInfo(productInfo.getVariationModelList(), productInfo.getProductSellingPrice());

@@ -1,6 +1,6 @@
 package web.StoreFront;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
@@ -40,7 +40,7 @@ public class BH_8888 extends BaseTest {
         flashSale = new FlashSale(loginInformation);
         discountCampaign = new ProductDiscountCampaign(loginInformation);
         driver = new InitWebdriver().getDriver(browser, headless);
-        customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         conditions = new ProductDiscountCampaignConditions();
         conditions.setCustomerId(customerId);
         new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);

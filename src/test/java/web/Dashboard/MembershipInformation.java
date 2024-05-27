@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import api.Seller.customers.SegmentAPI;
+import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 
 import web.Dashboard.customers.segments.Segments;
@@ -35,7 +35,7 @@ public class MembershipInformation extends BaseTest {
 	HeaderSF headerPage;
 	
 	api.Seller.marketing.LoyaltyProgram loyaltyProgramAPI;
-	SegmentAPI segmentAPI;
+	APISegment segmentAPI;
 
 	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
 	JsonNode buyerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("storefront");
@@ -69,7 +69,7 @@ public class MembershipInformation extends BaseTest {
 		headerPage = new HeaderSF(driver);
 		commonAction = new UICommonAction(driver);
 		
-		segmentAPI = new SegmentAPI(loginInformation);
+		segmentAPI = new APISegment(loginInformation);
 		loyaltyProgramAPI = new api.Seller.marketing.LoyaltyProgram(loginInformation);
 	}	
 	

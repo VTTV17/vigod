@@ -1,6 +1,13 @@
 package app.android.GoSeller;
-import java.io.IOException;
 
+import api.Seller.customers.APISegment;
+import api.Seller.login.Login;
+import app.Buyer.account.BuyerAccountPage;
+import app.Buyer.account.membershipinfo.MembershipInfo;
+import app.Buyer.login.LoginPage;
+import app.Buyer.navigationbar.NavigationBar;
+import app.Buyer.notificationpermission.NotificationPermission;
+import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
@@ -8,23 +15,15 @@ import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import api.Seller.customers.Customers;
-import api.Seller.customers.SegmentAPI;
-import api.Seller.login.Login;
-import io.appium.java_client.AppiumDriver;
-import app.Buyer.account.BuyerAccountPage;
-import app.Buyer.account.membershipinfo.MembershipInfo;
-import app.Buyer.login.LoginPage;
-import app.Buyer.navigationbar.NavigationBar;
-import app.Buyer.notificationpermission.NotificationPermission;
-import web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram;
 import utilities.account.AccountTest;
 import utilities.driver.InitAppiumDriver;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.screenshot.Screenshot;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram;
+
+import java.io.IOException;
 
 public class MembershipInfoApp extends BaseTest {
 
@@ -117,10 +116,10 @@ public class MembershipInfoApp extends BaseTest {
 	public void MB_02_LoginWithMembershipAccount() throws Exception {
 		
 		// Create customer segment using API
-		Customers customerAPI = new Customers(loginInformation);
-		customerAPI.createSegment();
-		String segment = customerAPI.getSegmentName();
-		int segmentId = customerAPI.getSegmentID();
+		APISegment apiSegment = new APISegment(loginInformation);
+		apiSegment.createSegment();
+		String segment = apiSegment.getSegmentName();
+		int segmentId = apiSegment.getSegmentID();
 		
 		// Log into Dashboard
 		loginDashboard();
@@ -144,6 +143,6 @@ public class MembershipInfoApp extends BaseTest {
 		loyaltyProgramAPI.deleteMembership(loyaltyProgramAPI.getMembershipIdByName(tierName));
 		
 		// Delete customer segment
-		new SegmentAPI(loginInformation).deleteSegment(segmentId);
+		new APISegment(loginInformation).deleteSegment(segmentId);
 	}
 }

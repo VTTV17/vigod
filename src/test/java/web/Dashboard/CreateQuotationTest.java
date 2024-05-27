@@ -13,7 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIProductDetail;
@@ -58,7 +58,7 @@ public class CreateQuotationTest extends BaseTest {
 	
 	public void getDataByAPI() {
         loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
-        customerList = new Customers(loginInformation).getAllAccountCustomer();
+        customerList = new APIAllCustomers(loginInformation).getAllAccountCustomer();
         productList = new APIAllProducts(loginInformation).getAllProductNames();
         productIDList = new APIProductDetail(loginInformation).getProductList();
         convUnitProductList = new APIProductDetail(loginInformation).getIdAndNameOfProductWithConversionUnits();

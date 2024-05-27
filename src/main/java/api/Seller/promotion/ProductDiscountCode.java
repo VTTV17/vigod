@@ -1,6 +1,6 @@
 package api.Seller.promotion;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
@@ -80,7 +80,7 @@ public class ProductDiscountCode {
         // segment type:
         // 0: all customers
         // 1: specific segment
-        Customers customers = new Customers(loginInformation);
+        APIAllCustomers customers = new APIAllCustomers(loginInformation);
         List<Integer> listSegmentOfCustomer = customers.getListSegmentOfCustomer(conditions.getCustomerId());
         int segmentConditionType = (conditions.getSegmentConditionType() != null)
                 ? conditions.getSegmentConditionType()

@@ -5,7 +5,8 @@ import api.Seller.affiliate.commission.APICreateEditCommission;
 import api.Seller.affiliate.order.APIPartnerOrders;
 import api.Seller.affiliate.partner.APICreateEditPartner;
 import api.Seller.affiliate.partner.APIPartnerManagement;
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
+import api.Seller.customers.APIEditCustomer;
 import api.Seller.login.Login;
 import api.Seller.orders.pos.APICreateOrderPOS;
 import api.Seller.products.all_products.APIEditProduct;
@@ -20,7 +21,6 @@ import utilities.model.dashboard.marketing.affiliate.CommissionInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
-import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.affiliate.commission.CommissionPage;
@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static utilities.account.AccountTest.*;
-import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class AffiliatePermissionTest extends BaseTest{
@@ -336,12 +335,12 @@ public class AffiliatePermissionTest extends BaseTest{
         }else orderProductListSize = new APIPartnerOrders(ownerCredentials).getOrderRevenueCommissionByApproveStatus(ApproveStatus.PENDING).size();
         for(int i=0; i< 2 - orderProductListSize; i++){
             //Get customer
-            int customer = new Customers(ownerCredentials).getAllAccountCustomerId().get(0);
+            int customer = new APIAllCustomers(ownerCredentials).getAllAccountCustomerId().get(0);
             if (i == 0) {
                 //Get Partner has commission by product
                 int partner = isProductCommission ? new APIPartnerManagement(ownerCredentials).getPartnerHasCommissionByProduct().get(0) : new APIPartnerManagement(ownerCredentials).getPartnerHasCommissionByRevenue().get(0);
                 //Assign partner to customer
-                new Customers(ownerCredentials).assignPartnerToCustomer(customer, partner);
+                new APIEditCustomer(ownerCredentials).assignPartnerToCustomer(customer, partner);
                 //Create order
                 new APICreateOrderPOS(ownerCredentials).CreatePOSOrder(customer,productIds.get(0));
             } else {

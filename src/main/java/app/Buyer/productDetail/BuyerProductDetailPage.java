@@ -1,6 +1,6 @@
 package app.Buyer.productDetail;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.onlineshop.Preferences;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
@@ -410,7 +410,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      */
     void checkProductInformation(String language, int customerId) {
         // get list segment of customer
-        List<Integer> listSegmentOfCustomer = new Customers(loginInformation).getListSegmentOfCustomer(customerId);
+        List<Integer> listSegmentOfCustomer = new APIAllCustomers(loginInformation).getListSegmentOfCustomer(customerId);
 
         // get wholesale config
         if (!productInfo.isDeleted()) wholesaleProductInfo = new WholesaleProduct(loginInformation).wholesaleProductInfo(productInfo, listSegmentOfCustomer);

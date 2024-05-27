@@ -1,24 +1,19 @@
 package web.Dashboard;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.testng.ITestResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import api.Seller.customers.Customers;
-import api.Seller.customers.Customers.CustomerManagementInfo;
-import api.Seller.customers.SegmentAPI;
+import api.Seller.customers.APIAllCustomers;
+import api.Seller.customers.APIAllCustomers.CustomerManagementInfo;
+import api.Seller.customers.APIEditCustomer;
+import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 import api.Seller.mediaservices.MediaServices.ExportHistoryInfo;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -29,13 +24,18 @@ import web.Dashboard.customers.segments.Segments;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class CustomerPermissionTest extends BaseTest {
 
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
-	Customers customerAPI;
-	SegmentAPI segmentAPI;
+	APIEditCustomer editCustomerAPI;
+	APISegment segmentAPI;
 	BranchManagement branchManagmentAPI;
 	StaffManagement staffManagementAPI;
 	CustomerManagementInfo customerManagementInfoAPI;
@@ -59,10 +59,10 @@ public class CustomerPermissionTest extends BaseTest {
 		ownerCredentials = new Login().setLoginInformation("+84", "phu.staging.vn@mailnesia.com", "tma_13Tma").getLoginInformation();
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
-		customerAPI = new Customers(ownerCredentials);
-		segmentAPI = new SegmentAPI(ownerCredentials);
+		editCustomerAPI = new APIEditCustomer(ownerCredentials);
+		segmentAPI = new APISegment(ownerCredentials);
 		staffManagementAPI = new StaffManagement(ownerCredentials);
-		customerManagementInfoAPI = new Customers(ownerCredentials).getCustomerManagementInfo();
+		customerManagementInfoAPI = new APIAllCustomers(ownerCredentials).getCustomerManagementInfo();
 		
 		preConditionSetup();
 	}	
@@ -100,8 +100,8 @@ public class CustomerPermissionTest extends BaseTest {
     }
     
 	int createCustomerSegment() {
-		customerAPI.createSegment();
-		return customerAPI.getSegmentID();
+		segmentAPI.createSegment();
+		return segmentAPI.getSegmentID();
 	}    
     
 	boolean isFileExportedByStaffAndDownloadable(ExportHistoryInfo exportHistoryData, int staffId) {
@@ -126,7 +126,7 @@ public class CustomerPermissionTest extends BaseTest {
 			customerInfo.add(customerManagementInfoAPI.getCustomerId().get(i));
 			customerInfo.add(customerManagementInfoAPI.getUserId().get(i));
 			customerInfo.add(customerManagementInfoAPI.getSaleChannel().get(i));
-			customerAPI.assignStaffToCustomer(staffUserId, customerManagementInfoAPI.getCustomerId().get(i));
+			editCustomerAPI.assignStaffToCustomer(staffUserId, customerManagementInfoAPI.getCustomerId().get(i));
 			customerInfo.add(staffUserId);
 			return customerInfo;
 		}

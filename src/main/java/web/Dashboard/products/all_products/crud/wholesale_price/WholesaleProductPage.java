@@ -1,6 +1,6 @@
 package web.Dashboard.products.all_products.crud.wholesale_price;
 
-import api.Seller.customers.SegmentAPI;
+import api.Seller.customers.APISegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -126,7 +126,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         checkSegmentInformation();
 
         // select segment
-        List<Integer> listSegmentIdInStore = new SegmentAPI(loginInformation).getListSegmentIdInStore();
+        List<Integer> listSegmentIdInStore = new APISegment(loginInformation).getListSegmentIdInStore();
         if (listSegmentIdInStore.isEmpty()) {
             // if store do not have any segment, select All customers option
             logger.info("Select segment: %s.".formatted(commonAction.getText(allCustomerTextInDropdown)));
@@ -214,7 +214,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             if (index == 0) checkSegmentInformation();
 
             // select segment
-            List<Integer> listSegmentIdInStore = new SegmentAPI(loginInformation).getListSegmentIdInStore();
+            List<Integer> listSegmentIdInStore = new APISegment(loginInformation).getListSegmentIdInStore();
             if (listSegmentIdInStore.isEmpty()) {
                 // if store do not have any segment, select All customers option
                 logger.info("Select segment: %s.".formatted(commonAction.getText(allCustomerTextInDropdown)));

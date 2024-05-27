@@ -1,6 +1,6 @@
 package app.android.Buyer;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
@@ -62,7 +62,7 @@ public class ProductDetailTest extends BaseTest {
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickLoginBtn()
                 .performLogin(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
-        customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         conditions = new ProductDiscountCampaignConditions();
         conditions.setCustomerId(customerId);
     }

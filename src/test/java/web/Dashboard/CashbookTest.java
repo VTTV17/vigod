@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import api.Seller.cashbook.CashbookAPI;
 import api.Seller.cashbook.OthersGroupAPI;
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StaffManagement;
@@ -61,7 +61,7 @@ public class CashbookTest extends BaseTest {
 		password = AccountTest.ADMIN_PASSWORD_TIEN;
 		country = AccountTest.ADMIN_COUNTRY_TIEN;
         loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
-        customerList = new Customers(loginInformation).getAllCustomerNames();
+        customerList = new APIAllCustomers(loginInformation).getAllCustomerNames();
         supplierList = new APISupplier(loginInformation).getAllSupplierNames();
         staffList = new StaffManagement(loginInformation).getAllStaffNames();
         othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();

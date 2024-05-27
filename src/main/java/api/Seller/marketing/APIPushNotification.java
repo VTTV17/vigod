@@ -1,8 +1,7 @@
 package api.Seller.marketing;
 
-import api.Seller.customers.SegmentAPI;
+import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
-import com.google.gson.JsonObject;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
@@ -12,7 +11,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class APIPushNotification {
@@ -35,7 +33,7 @@ public class APIPushNotification {
         List<PushNotiEvent> needSegmentEvents =  Arrays.asList(new PushNotiEvent[] {PushNotiEvent.BIRTHDAY, PushNotiEvent.ORDER_COMPLETED,PushNotiEvent.ABANDONED_CHECKOUT});
         List<Integer> segmentLists = new ArrayList<>();
         if(needSegmentEvents.contains(event)){
-            int getSegmentId = new SegmentAPI(loginInformation).getListSegmentIdInStore().get(0);
+            int getSegmentId = new APISegment(loginInformation).getListSegmentIdInStore().get(0);
             segmentLists.add(getSegmentId);
         }
         String body = """

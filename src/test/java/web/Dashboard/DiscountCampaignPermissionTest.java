@@ -1,19 +1,14 @@
 package web.Dashboard;
 
-import api.Seller.customers.Customers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
-import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.promotion.PromotionList;
 import api.Seller.services.CreateServiceAPI;
-import api.Seller.services.ServiceInfoAPI;
 import api.Seller.setting.PermissionAPI;
-import org.apache.poi.ss.formula.atp.Switch;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.driver.InitWebdriver;
-import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;

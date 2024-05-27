@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import api.Seller.customers.APIEditCustomer;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -11,7 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import api.Seller.cashbook.CashbookAPI;
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
@@ -35,7 +36,8 @@ public class CashbookPermissionTest extends BaseTest {
 	LoginInformation staffCredentials;
 	PermissionAPI permissionAPI;
 	CashbookAPI cashbookAPI;
-	Customers customerAPI;
+	APIAllCustomers customerAPI;
+	APIEditCustomer editCustomerAPI;
 	BranchManagement branchManagmentAPI;
 	APISupplier supplierAPI;
 	StaffManagement staffManagementAPI;
@@ -57,7 +59,8 @@ public class CashbookPermissionTest extends BaseTest {
 		staffCredentials = new Login().setLoginInformation("+84", "staff.a@mailnesia.com", "fortesting!1").getLoginInformation();
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		cashbookAPI = new CashbookAPI(ownerCredentials);
-		customerAPI = new Customers(ownerCredentials);
+		customerAPI = new APIAllCustomers(ownerCredentials);
+		editCustomerAPI = new APIEditCustomer(ownerCredentials);
 		branchManagmentAPI = new BranchManagement(ownerCredentials);
 		supplierAPI = new APISupplier(ownerCredentials);
 		staffManagementAPI = new StaffManagement(ownerCredentials);
@@ -95,7 +98,7 @@ public class CashbookPermissionTest extends BaseTest {
 		unassignedCustomerId = getCustomerId(customerAPI, -1);
 		//Assign a staff member to a customer if the customer doesn't have any responsible staff
 		if (assignedCustomerName == null) {
-			customerAPI.assignStaffToCustomer(staffUserId, unassignedCustomerId);
+			editCustomerAPI.assignStaffToCustomer(staffUserId, unassignedCustomerId);
 			assignedCustomerName = getCustomerName(customerAPI, staffUserId);
 			unassignedCustomerName = getCustomerName(customerAPI, -1);
 		}
@@ -122,12 +125,12 @@ public class CashbookPermissionTest extends BaseTest {
 		return new StaffManagement(ownerCredentials).getStaffId(getStaffUserId(staffCredentials));
 	}
 	
-	String getCustomerName(Customers customerAPI, int staffUserId) {
+	String getCustomerName(APIAllCustomers customerAPI, int staffUserId) {
 		List<String> customerNames = customerAPI.getNamesOfCustomersAssignedToStaff(staffUserId);
 		return customerNames.isEmpty() ? null : customerNames.get(0);
 	}
 	
-	int getCustomerId(Customers customerAPI, int staffUserId) {
+	int getCustomerId(APIAllCustomers customerAPI, int staffUserId) {
 		List<Integer> customerIds = customerAPI.getIdsOfCustomersAssignedToStaff(staffUserId);
 		return customerIds.isEmpty() ? null : customerIds.get(0);
 	}

@@ -1,13 +1,13 @@
 package web.Dashboard;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
+import api.Seller.customers.APIEditCustomer;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.promotion.PromotionList;
 import api.Seller.reservations.CreateBookingPOS;
 import api.Seller.reservations.ReservationAPI;
-import api.Seller.services.CreateServiceAPI;
 import api.Seller.services.ServiceInfoAPI;
 import api.Seller.setting.PermissionAPI;
 import api.Seller.setting.StaffManagement;
@@ -15,27 +15,21 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.constant.Constant;
 import utilities.driver.InitWebdriver;
-import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import utilities.permission.CheckPermission;
-
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.promotion.discount.DiscountPage;
 import web.Dashboard.reservation.POSReservation.POSCreateReservation;
 import web.Dashboard.reservation.ReservationManagement;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static utilities.account.AccountTest.*;
-import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
 
 public class ReservationPermissionTest extends BaseTest {
     String sellerUserName;
@@ -48,7 +42,8 @@ public class ReservationPermissionTest extends BaseTest {
     LoginDashboardInfo staffLoginInfo;
     int groupPermissionId;
     int serviceId;
-    Customers customerAPI;
+    APIAllCustomers customerAPI;
+    APIEditCustomer apiEditCustomer;
     String productCreatedByShopOwner = "Gel Rửa Mặt La Roche-Posay Dành Cho Da Dầu, Nhạy Cảm 200ml Effaclar Purifying Foaming Gel For Oily Sensitive Skin";
     String productCreatedByStaff = "Ao thun staff tao";
     List<Integer> productIds = new ArrayList<>();
@@ -88,7 +83,8 @@ public class ReservationPermissionTest extends BaseTest {
     @BeforeMethod
     public void beforeMethod() {
         driver = new InitWebdriver().getDriver(browser, "false");
-         customerAPI = new Customers(ownerCredentials);
+         apiEditCustomer = new APIEditCustomer(ownerCredentials);
+         customerAPI = new APIAllCustomers(ownerCredentials);
     }
 
     @AfterMethod
@@ -236,8 +232,8 @@ public class ReservationPermissionTest extends BaseTest {
         int staffUserId = new StaffManagement(ownerCredentials).getStaffId(new Login().getInfo(staffCredentials).getUserId());
         List<String> customerAssignedToStaffs = customerAPI.getNamesOfCustomersAssignedToStaff(staffUserId);
         List<Integer> customerIdNotAssigneds= customerAPI.getIdsOfCustomersAssignedToStaff(-1);
-        if(customerAssignedToStaffs.size()==0)
-            customerAPI.assignStaffToCustomer(staffUserId,customerIdNotAssigneds.get(0));
+        if(customerAssignedToStaffs.isEmpty())
+            apiEditCustomer.assignStaffToCustomer(staffUserId,customerIdNotAssigneds.get(0));
         String customerNameAssignedStaff = customerAPI.getNamesOfCustomersAssignedToStaff(staffUserId).get(0);
         //Create group permission
         new PermissionAPI(ownerCredentials).editPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,groupPermissionId, setPermissionPOSModel(POSPermissionBinary));

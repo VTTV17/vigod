@@ -1,6 +1,6 @@
 package web.StoreFront;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
@@ -34,7 +34,7 @@ public class BH_9753 extends BaseTest {
         loginInformation.setEmail(ADMIN_ACCOUNT_THANG);
         loginInformation.setPassword(ADMIN_PASSWORD_THANG);
         driver = new InitWebdriver().getDriver(browser, headless);
-        customerId = new Customers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
         new LoginPage(driver).performLoginJS(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG, "+84", loginInformation);
         tcsFileName = "BH_9753_Search and view branchs in product detail page.xlsx";
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();

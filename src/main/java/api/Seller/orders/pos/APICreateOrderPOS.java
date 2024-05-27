@@ -1,10 +1,8 @@
 package api.Seller.orders.pos;
 
-import api.Seller.customers.Customers;
+import api.Seller.customers.APICustomerDetail;
 import api.Seller.login.Login;
-import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIProductDetail;
-import api.Seller.products.all_products.CreateProduct;
 import api.Seller.setting.BranchManagement;
 import io.restassured.response.Response;
 import utilities.api.API;
@@ -13,8 +11,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class APICreateOrderPOS {
     String CREATE_ORDER_PATH = "/orderservice3/api/pos/checkout";
@@ -67,11 +63,11 @@ public class APICreateOrderPOS {
                       "note": "",
                     """;
         }
-        String userId = new Customers(loginInformation).getInfo(customerId).getUserId();
-        String contactName = new Customers(loginInformation).getInfo(customerId).getMainPhoneName();
-        String email = new Customers(loginInformation).getInfo(customerId).getMainEmail();
-        String phone = new Customers(loginInformation).getInfo(customerId).getMainPhoneNumber();
-        String phoneCode = new Customers(loginInformation).getInfo(customerId).getMainPhoneCode();
+        String userId = new APICustomerDetail(loginInformation).getInfo(customerId).getUserId();
+        String contactName = new APICustomerDetail(loginInformation).getInfo(customerId).getMainPhoneName();
+        String email = new APICustomerDetail(loginInformation).getInfo(customerId).getMainEmail();
+        String phone = new APICustomerDetail(loginInformation).getInfo(customerId).getMainPhoneNumber();
+        String phoneCode = new APICustomerDetail(loginInformation).getInfo(customerId).getMainPhoneCode();
         String customerInfo = """
                     "userId": "%s",
                     "profileId": %s,
