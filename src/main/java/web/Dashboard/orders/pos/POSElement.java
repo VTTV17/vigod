@@ -38,7 +38,7 @@ public class POSElement {
     By loc_dlgSelectLot_btnConfirm = By.cssSelector(".modal-lot-select .gs-button__green");
     By loc_btnPromotion = By.cssSelector(".title-promotion span");
     By txtSearchCustomer = By.cssSelector("#dropdownSuggestionCustomer input");
-    String str_ddvCustomer = "#full-address-%s";
+    String str_ddvCustomer = "//div[@class = 'mobile-customer-profile-row__right'][contains(string(), '%s')]";
     By loc_dlgDiscount = By.cssSelector(".order-instore-purchase-discount-modal");
 
     enum DiscountType {

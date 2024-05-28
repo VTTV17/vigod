@@ -154,7 +154,7 @@ public class POSPage extends POSElement {
     void selectCustomer(CustomerInfo customerInfo) {
         commonAction.sendKeys(txtSearchCustomer, customerInfo.getMainEmailName());
         logger.info("Input keywords: %s.".formatted(customerInfo.getMainEmailName()));
-        commonAction.clickJS(By.cssSelector(str_ddvCustomer.formatted(customerInfo.getUserId())));
+        commonAction.clickJS(By.xpath(str_ddvCustomer.formatted(customerInfo.getCustomerId())));
     }
 
 
@@ -164,6 +164,7 @@ public class POSPage extends POSElement {
     LoginInformation staffLoginInformation;
     AllPermissions permissions;
     CheckPermission checkPermission;
+    APISuggestionProduct suggestionProductWithStaffToken;
 
     public POSPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -175,6 +176,7 @@ public class POSPage extends POSElement {
 
     public POSPage getLoginInformation(LoginInformation staffLoginInformation) {
         this.staffLoginInformation = staffLoginInformation;
+        suggestionProductWithStaffToken = new APISuggestionProduct(staffLoginInformation);
         return this;
     }
 
@@ -203,7 +205,7 @@ public class POSPage extends POSElement {
 
     void checkAddStock() {
         // get product for add stock on POS
-        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddStockOnPOS();
+        SuggestionProductsInfo productsInfo = suggestionProductWithStaffToken.findProductInformationForAddStockOnPOS();
 
         if (productsInfo.getItemId() != 0) {
             // select branch
@@ -309,24 +311,26 @@ public class POSPage extends POSElement {
     }
 
     void checkApplyDiscount() {
-        // navigate to POS page by URL
-        navigateToInStorePurchasePage();
-
         // get item for create pos
-        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForAddToCartInPOS();
+        SuggestionProductsInfo productsInfo = suggestionProductWithStaffToken.findProductInformationForAddToCartInPOS();
 
-        // add product to cart
-        searchAndSelectProduct(productsInfo);
+        if (productsInfo.getItemId() != 0) {
+            // navigate to POS page by URL
+            navigateToInStorePurchasePage();
 
-        // check permission
-        if (permissions.getOrders().getOrderManagement().isApplyDiscount()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnPromotion, loc_dlgDiscount), "Can not open discount popup.");
-            checkAddDiscountAmount(productsInfo);
-            checkAddDiscountPercent(productsInfo);
-            checkApplyDiscountCode(productsInfo);
-        } else {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPromotion), "Restricted popup is not shown.");
-        }
+            // add product to cart
+            searchAndSelectProduct(productsInfo);
+
+            // check permission
+            if (permissions.getOrders().getOrderManagement().isApplyDiscount()) {
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnPromotion, loc_dlgDiscount), "Can not open discount popup.");
+                checkAddDiscountAmount(productsInfo);
+                checkAddDiscountPercent(productsInfo);
+                checkApplyDiscountCode(productsInfo);
+            } else {
+                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnPromotion), "Restricted popup is not shown.");
+            }
+        } logger.warn("Can not found product for check apply discount.");
 
         // log
         logger.info("Check permission: Orders >> Order management >> Apply discount.");
@@ -394,14 +398,14 @@ public class POSPage extends POSElement {
     }
 
     void checkCreateDebtOrder() {
-        // navigate to POS page by URL
-        navigateToInStorePurchasePage();
-
         // get item for create pos
-        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForCreatePOSOrder();
+        SuggestionProductsInfo productsInfo = suggestionProductWithStaffToken.findProductInformationForCreatePOSOrder();
 
         // check product
         if (productsInfo.getItemId() != 0) {
+            // navigate to POS page by URL
+            navigateToInStorePurchasePage();
+
             // select branch
             selectBranch(productsInfo);
 
@@ -442,13 +446,14 @@ public class POSPage extends POSElement {
     }
 
     void checkNotApplyEarningPoint() {
-        // navigate to POS page by URL
-        navigateToInStorePurchasePage();
-
-        SuggestionProductsInfo productsInfo = new APISuggestionProduct(staffLoginInformation).findProductInformationForCreatePOSOrder();
+        SuggestionProductsInfo productsInfo = suggestionProductWithStaffToken.findProductInformationForCreatePOSOrder();
         if (productsInfo.getItemId() != 0) {
             CustomerInfo customerInfo = new APIAllCustomers(staffLoginInformation).getAccountCustomerForCreatePOS();
-            if (Optional.ofNullable(customerInfo.getUserId()).isPresent()) {
+            if (customerInfo.getCustomerId() != 0) {
+                // navigate to POS page by URL
+                navigateToInStorePurchasePage();
+
+                // check permission
                 if (permissions.getMarketing().getLoyaltyPoint().isViewPointProgramInformation()) {
                     // select branch
                     selectBranch(productsInfo);

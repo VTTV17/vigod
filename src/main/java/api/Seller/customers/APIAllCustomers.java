@@ -51,6 +51,7 @@ public class APIAllCustomers {
         if (info == null) {
             info = new CustomerManagementInfo();
             int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
+            numberOfPages = Math.min(numberOfPages, 99);
 
             // init temp array;
             List<String> customerName = new ArrayList<>();
@@ -157,15 +158,15 @@ public class APIAllCustomers {
 
     public CustomerInfo getAccountCustomerForCreatePOS() {
         CustomerManagementInfo info = getCustomerManagementInfo();
-        List<String> userId =  info.getUserId();
+        List<Integer> customerId =  info.getCustomerId();
         List<String> customerName = info.getCustomerName();
         List<Boolean> guestUser = info.getGuestUser();
 
         CustomerInfo customerInfo = new CustomerInfo();
-        for (String id : userId) {
-            if (!guestUser.get(userId.indexOf(id))) {
-                customerInfo.setUserId(id);
-                customerInfo.setMainEmailName(customerName.get(userId.indexOf(id)));
+        for (int id : customerId) {
+            if (!guestUser.get(customerId.indexOf(id))) {
+                customerInfo.setCustomerId(id);
+                customerInfo.setMainEmailName(customerName.get(customerId.indexOf(id)));
                 break;
             }
         }
