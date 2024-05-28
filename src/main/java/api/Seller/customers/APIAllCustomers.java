@@ -27,7 +27,7 @@ public class APIAllCustomers {
     LoginDashboardInfo loginInfo;
     API api = new API();
     LoginInformation loginInformation;
-    private final static Cache<LoginInformation, CustomerManagementInfo> customerCache = CacheBuilder.newBuilder().build();
+    private final static Cache<LoginDashboardInfo, CustomerManagementInfo> customerCache = CacheBuilder.newBuilder().build();
 
     public APIAllCustomers(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -47,7 +47,7 @@ public class APIAllCustomers {
     }
 
     public CustomerManagementInfo getCustomerManagementInfo() {
-        CustomerManagementInfo info = customerCache.getIfPresent(loginInformation);
+        CustomerManagementInfo info = customerCache.getIfPresent(loginInfo);
         if (info == null) {
             info = new CustomerManagementInfo();
             int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
@@ -87,7 +87,7 @@ public class APIAllCustomers {
             info.setGuestUser(guestUser);
 
             // save cache
-            customerCache.put(loginInformation, info);
+            customerCache.put(loginInfo, info);
         }
 
         return info;

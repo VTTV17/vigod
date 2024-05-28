@@ -18,7 +18,7 @@ public class StaffManagement {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    private static final Cache<LoginInformation, AllStaffInformation> staffCache = CacheBuilder.newBuilder().build();
+    private static final Cache<LoginDashboardInfo, AllStaffInformation> staffCache = CacheBuilder.newBuilder().build();
 
     public StaffManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -43,7 +43,7 @@ public class StaffManagement {
     }
 
     AllStaffInformation getAllStaffInformation() {
-        AllStaffInformation info = staffCache.getIfPresent(loginInformation);
+        AllStaffInformation info = staffCache.getIfPresent(loginInfo);
         if (info == null) {
             // init suggestion model
             info = new AllStaffInformation();
@@ -79,7 +79,7 @@ public class StaffManagement {
             info.setEnables(enables);
 
             // save cache
-            staffCache.put(loginInformation, info);
+            staffCache.put(loginInfo, info);
         }
 
         // return model

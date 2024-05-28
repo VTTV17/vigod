@@ -29,7 +29,7 @@ public class BranchManagement {
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
     Logger logger = LogManager.getLogger(BranchManagement.class);
-    private static final Cache<LoginInformation, BranchInfo> branchCache = CacheBuilder.newBuilder().build();
+    private static final Cache<LoginDashboardInfo, BranchInfo> branchCache = CacheBuilder.newBuilder().build();
     API api = new API();
 
     public BranchManagement(LoginInformation loginInformation, LoginDashboardInfo... loginInfo) {
@@ -50,7 +50,7 @@ public class BranchManagement {
 
     public BranchInfo getInfo() {
         // init branch info model
-        BranchInfo brInfo = branchCache.getIfPresent(loginInformation);
+        BranchInfo brInfo = branchCache.getIfPresent(loginInfo);
 
         if (brInfo == null) {
             // init branch info model
@@ -105,7 +105,7 @@ public class BranchManagement {
             brInfo.setActiveBranches(brNames.stream().filter(brName -> brStatus.get(brNames.indexOf(brName)).equals("ACTIVE")).toList());
 
             // save cache
-            branchCache.put(loginInformation, brInfo);
+            branchCache.put(loginInfo, brInfo);
         }
 
         // return branch info

@@ -4,6 +4,7 @@ import api.Seller.login.Login;
 import api.Seller.orders.return_order.APIGetListReturnOrderByOrderId;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBodyExtractionOptions;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +14,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import static api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
 import static api.Seller.orders.order_management.APIAllOrders.Channel.BEECOW;
@@ -120,13 +122,14 @@ public class APIAllOrders {
         // get number of pages
         int numberOfPages = Math.min(totalOfOrders / 100, 99);
 
+        List<JsonPath> jsonPaths = IntStream.rangeClosed(0, numberOfPages)
+                .parallel()
+                .mapToObj((int pageIndex1) -> getAllOrderResponse(pageIndex1, branchQuery, channel))
+                .map(ResponseBodyExtractionOptions::jsonPath)
+                .toList();
+
         // get other page data
-        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllOrderResponse(pageIndex, branchQuery, channel)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .jsonPath();
+        for (JsonPath jsonPath: jsonPaths) {
             ids.addAll(jsonPath.getList("response.id"));
             bcOrderGroupIds.addAll(jsonPath.getList("response.bcOrderGroupId"));
             statues.addAll(jsonPath.getList("response.status"));

@@ -22,7 +22,7 @@ public class VAT {
 	
 	API api = new API();
     LoginDashboardInfo loginInfo;
-    private final static Cache<LoginInformation, TaxInfo> taxCache = CacheBuilder.newBuilder().build();
+    private final static Cache<LoginDashboardInfo, TaxInfo> taxCache = CacheBuilder.newBuilder().build();
 
     LoginInformation loginInformation;
     public VAT(LoginInformation loginInformation) {
@@ -32,7 +32,7 @@ public class VAT {
 
 
     public TaxInfo getInfo() {
-        TaxInfo info = taxCache.getIfPresent(loginInformation);
+        TaxInfo info = taxCache.getIfPresent(loginInfo);
 
         if (info == null) {
             // init tax information model
@@ -58,7 +58,7 @@ public class VAT {
             info.setTaxName(taxName);
 
             // save cache
-            taxCache.put(loginInformation, info);
+            taxCache.put(loginInfo, info);
         }
         return info;
     }
