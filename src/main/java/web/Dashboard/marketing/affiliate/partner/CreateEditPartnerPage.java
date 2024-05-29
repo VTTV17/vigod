@@ -68,6 +68,7 @@ public class CreateEditPartnerPage extends CreateEditPartnerElement{
     public void selectCityProvince(String...cityProvince){
         String cityProvinceValue;
         if (cityProvince.length == 0){
+            common.waitTillSelectDropdownHasData(loc_ddlCityProvince);
             common.selectByIndex(loc_ddlCityProvince, new DataGenerator().generatNumberInBound(1,common.getAllOptionInDropDown(common.getElement(loc_ddlCityProvince)).size()));
             cityProvinceValue =  common.getDropDownSelectedValue(loc_ddlCityProvince);
         }else {
@@ -79,6 +80,7 @@ public class CreateEditPartnerPage extends CreateEditPartnerElement{
     public void selectDistrict(String...district){
         String districtValue;
         if (district.length == 0){
+            common.waitTillSelectDropdownHasData(loc_ddlDistrict);
             common.selectByIndex(loc_ddlDistrict, new DataGenerator().generatNumberInBound(1,common.getAllOptionInDropDown(common.getElement(loc_ddlDistrict)).size()));
             districtValue =  common.getDropDownSelectedValue(loc_ddlDistrict);
         }else {
@@ -90,6 +92,7 @@ public class CreateEditPartnerPage extends CreateEditPartnerElement{
     public void selectWard(String...ward){
         String wardValue;
         if (ward.length == 0){
+            common.waitTillSelectDropdownHasData(loc_ddlWard);
             common.selectByIndex(loc_ddlWard, new DataGenerator().generatNumberInBound(1,common.getAllOptionInDropDown(common.getElement(loc_ddlWard)).size()));
             wardValue =  common.getDropDownSelectedValue(loc_ddlWard);
         }else {

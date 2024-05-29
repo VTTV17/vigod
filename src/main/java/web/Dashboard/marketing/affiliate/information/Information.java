@@ -15,6 +15,8 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.OnlineStore.Domain;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
+import web.Dashboard.marketing.affiliate.general.AffiliateGeneral;
+import web.Dashboard.marketing.affiliate.order.PartnerOrdersPage;
 import web.Dashboard.marketing.buylink.CreateBuyLink;
 import web.Dashboard.promotion.discount.DiscountPage;
 
@@ -27,11 +29,13 @@ public class Information extends InformationElement{
     UICommonAction commonAction;
     AllPermissions allPermissions;
     AssertCustomize assertCustomize;
+    AffiliateGeneral affiliateGeneral;
 
     public Information(WebDriver driver) {
         this.driver = driver;
         commonAction =  new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
+        affiliateGeneral = new AffiliateGeneral(driver);
     }
     public void navigateByUrl(){
         String url = Links.DOMAIN + "/affiliate";
@@ -44,60 +48,71 @@ public class Information extends InformationElement{
     public boolean hasViewResellerInfo(){
         return allPermissions.getAffiliate().getResellerInformation().isViewInformation();
     }
-    public Information clickOnSecondTab(){
-        commonAction.click(loc_tab_dropshipReseller,2);
-        logger.info("Click on Reseller tab.");
-        return this;
-    }
     public void checkViewDropshipInfoPer() {
         String url = Links.DOMAIN + "/affiliate";
         if (hasViewDropshipInfo()){
             navigateByUrl();
-            String currentTab = commonAction.getText(loc_tab_dropshipReseller, 0);
+            String currentTab = commonAction.getText(affiliateGeneral.loc_tab_dropshipReseller, 0);
             try {
                 assertCustomize.assertEquals(currentTab, PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.dropshipTab"),
-                        "Dropship tab should be shown, but '%s' is shown".formatted(currentTab));
+                        "[Failed] Dropship tab should be shown, but '%s' is shown".formatted(currentTab));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber).size()>0,"All dropship numberic should be shown");
         }
-        else
-            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(url),"Restricted page should be shown when navigate to dropship info.");
+        else {
+            if(hasViewResellerInfo()){
+                String currentTab = commonAction.getText(affiliateGeneral.loc_tab_dropshipReseller, 0);
+                try {
+                    assertCustomize.assertEquals(currentTab, PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.resellerTab"),
+                            "[Failed] Reseller tab should be shown, but '%s' is shown".formatted(currentTab));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(url), "[Failed] Restricted page should be shown when navigate to dropship info.");
+
+        }
         logger.info("Verified View dropship information.");
     }
     public void checkViewResellerInfoPer(){
         String url = Links.DOMAIN + "/affiliate";
         if (hasViewResellerInfo()){
             navigateByUrl();
-            String currentTab = commonAction.getText(loc_tab_dropshipReseller, 0);
+            affiliateGeneral.selectAffiliateTab(false);
+            String currentTab = commonAction.getText(affiliateGeneral.loc_tabAffiliateActive);
             try {
                 assertCustomize.assertEquals(currentTab, PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.resellerTab"),
-                        "Reseller tab should be shown, but '%s' is shown".formatted(currentTab));
+                        "[Failed] Reseller tab should be shown, but '%s' is shown".formatted(currentTab));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber).size()>0,"All reseller numberic should be shown");
+            assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber).size()>0,"[Failed] All reseller numberic should be shown");
         }
-        else
-            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(url),"Restricted page should be shown when navigate to reseller info.");
-        logger.info("Verified View reseller information.");
-    }
-    public Information completeVerifyViewInformation() {
-        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-        if (assertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
+        else {
+            if(hasViewDropshipInfo()){
+                navigateByUrl();
+                affiliateGeneral.selectAffiliateTab(false);
+                String currentTab = commonAction.getText(affiliateGeneral.loc_tabAffiliateActive);
+                try {
+                    assertCustomize.assertEquals(currentTab, PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.dropshipTab"),
+                            "[Failed] Reseller tab should be shown, but '%s' is shown".formatted(currentTab));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(url), "[Failed] Restricted page should be shown when navigate to reseller info.");
         }
-        return this;
+            logger.info("Verified View reseller information.");
     }
+
     public void verifyViewDropshipInfo(AllPermissions allPermissions){
         this.allPermissions = allPermissions;
         checkViewDropshipInfoPer();
-        completeVerifyViewInformation();
+        AssertCustomize.verifyTest();
     }
     public void verifyViewResellerInfo(AllPermissions allPermissions){
         this.allPermissions = allPermissions;
         checkViewResellerInfoPer();
-        completeVerifyViewInformation();
+        AssertCustomize.verifyTest();
     }
 }

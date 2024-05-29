@@ -337,6 +337,10 @@ public class UICommonAction {
         Select select = new Select(getElements(locator).get(index));
         return select.getOptions();
     }
+    public List<WebElement> getAllOptionInDropDown(By locator) {
+        Select select = new Select(getElement(locator));
+        return select.getOptions();
+    }
 
     /**
      * Waits till the element <b>appears once then disappears</b> in the specific duration
@@ -367,9 +371,14 @@ public class UICommonAction {
         List<WebElement> elements = getElements(locator);
         if (elements.isEmpty()) {
             return true;
-        } else return !elements.get(0).isDisplayed();
+        } else return !getElements(locator).get(0).isDisplayed();
     }
-
+    public boolean isElementNotDisplay(By locator, int timeout) {
+        List<WebElement> elements = getElements(locator,timeout);
+        if (elements.isEmpty()) {
+            return true;
+        } else return !getElements(locator,timeout).get(0).isDisplayed();
+    }
     public String getElementAttribute(WebElement element, String attributeName) {
         String value;
         try {
@@ -407,6 +416,18 @@ public class UICommonAction {
         int optionCount = 0;
         for (int i = 0; i < 30; i++) {
             options = getAllOptionInDropDown(element);
+            optionCount = options.size();
+            logger.debug("Number of dropdown options: " + optionCount);
+            if (optionCount > 0 && !options.get(optionCount - 1).getAttribute("value").isEmpty()) return optionCount;
+            sleepInMiliSecond(100, "Waiting for dropdown to have options");
+        }
+        return optionCount;
+    }
+    public int waitTillSelectDropdownHasData(By by) {
+        List<WebElement> options;
+        int optionCount = 0;
+        for (int i = 0; i < 30; i++) {
+            options = getAllOptionInDropDown(by);
             optionCount = options.size();
             logger.debug("Number of dropdown options: " + optionCount);
             if (optionCount > 0 && !options.get(optionCount - 1).getAttribute("value").isEmpty()) return optionCount;
@@ -591,7 +612,22 @@ public class UICommonAction {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
         return elements;
     }
-
+    public List<String> getListText(By by, int secondTimeout){
+        List<WebElement> elements = getElements(by,secondTimeout);
+        List<String> texts = new ArrayList<>();
+        for (WebElement element:elements){
+            texts.add(getText(elements,elements.indexOf(element)));
+        }
+        return texts;
+    }
+    public List<String> getListText(By by){
+        List<WebElement> elements = getElements(by);
+        List<String> texts = new ArrayList<>();
+        for (WebElement element:elements){
+            texts.add(getText(elements,elements.indexOf(element)));
+        }
+        return texts;
+    }
     public WebElement getElement(By locator) {
         try {
             return wait.until(presenceOfElementLocated(locator));

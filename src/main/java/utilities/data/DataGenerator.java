@@ -7,6 +7,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import utilities.utils.jsonFileUtility;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -294,7 +296,6 @@ public class DataGenerator {
     public static String getFirstString(String... strings) {
         return Optional.ofNullable(strings).filter(stringArr -> stringArr.length > 0).map(stringArr -> stringArr[0]).orElse("");
     }
-
     public static String getStringByRegex(String inputString, String regex) {
         return Pattern.compile(regex).matcher(inputString)
                 .results()
@@ -306,5 +307,22 @@ public class DataGenerator {
                 .results()
                 .map(matchResult -> matchResult.group(1))
                 .toList();
+    }
+    public String generatePreviousTerm(String format){
+        Date date = new Date();
+        SimpleDateFormat dt = new SimpleDateFormat(format);
+        return dt.format(getPreviousTerm(date));
+    }
+    public static Date getPreviousTerm(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        if (calendar.get(Calendar.MONTH) == Calendar.JANUARY) {
+            calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+            calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) - 1);
+        } else {
+            calendar.roll(Calendar.MONTH, false);
+        }
+        calendar.set(Calendar.DATE,01);
+        return calendar.getTime();
     }
 }

@@ -42,7 +42,14 @@ public class APIPartnerOrders {
         return getOrderHasProductCommisionList(true,filter);
     }
     public List<Integer> getOrderRevenueCommissionByApproveStatus(ApproveStatus approveStatus){
+        if(approveStatus.equals(ApproveStatus.ALL)) return  getOrderHasRevenueCommission();
         String filter = "&approveStatus=%s".formatted(approveStatus);
         return getOrderHasRevenueCommission(filter);
     }
+    public List<Integer> getResellerOrderByApproveStatus(ApproveStatus approveStatus){
+        if(approveStatus.equals(ApproveStatus.ALL)) return  getOrderHasProductCommisionList(false);
+        String filter = "&approveStatus.equals=%s".formatted(approveStatus);
+        return getOrderHasProductCommisionList(false,filter);
+    }
+
 }
