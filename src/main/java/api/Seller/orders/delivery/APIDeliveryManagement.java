@@ -17,7 +17,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class APIDeliveryManagement {
@@ -27,7 +26,7 @@ public class APIDeliveryManagement {
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
     @Getter
-    private final static Cache<LoginDashboardInfo, AllDeliveryPackageInformation> deliveryCache = CacheBuilder.newBuilder().build();
+    private final static Cache<String, AllDeliveryPackageInformation> deliveryCache = CacheBuilder.newBuilder().build();
 
     public APIDeliveryManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -54,8 +53,15 @@ public class APIDeliveryManagement {
     }
 
     public AllDeliveryPackageInformation getAllDeliveryInformation() {
-        AllDeliveryPackageInformation info = deliveryCache.getIfPresent(loginInfo);
-        if (info == null) {
+        AllDeliveryPackageInformation info = deliveryCache.getIfPresent(loginInfo.getAccessToken());
+        if (Optional.ofNullable(info).isEmpty()) {
+            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
+                AllDeliveryPackageInformation tempInfo = deliveryCache.getIfPresent("");
+                deliveryCache.invalidateAll();
+                if (Optional.ofNullable(tempInfo).isPresent()) {
+                    deliveryCache.put("", tempInfo);
+                }
+            }
             // init suggestion model
             info = new AllDeliveryPackageInformation();
 
@@ -96,7 +102,7 @@ public class APIDeliveryManagement {
             info.setBranchIds(branchIds);
 
             // save cache
-            deliveryCache.put(loginInfo, info);
+            deliveryCache.put(loginInfo.getAccessToken(), info);
         }
 
         // return model

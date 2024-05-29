@@ -12,13 +12,14 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StaffManagement {
     String GET_STAFF_LIST = "/storeservice/api/store-staffs/store/%s?isEnabledCC=false&page=%s&size=100&sort=id,desc";
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    private static final Cache<LoginDashboardInfo, AllStaffInformation> staffCache = CacheBuilder.newBuilder().build();
+    private static final Cache<String, AllStaffInformation> staffCache = CacheBuilder.newBuilder().build();
 
     public StaffManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -43,8 +44,8 @@ public class StaffManagement {
     }
 
     AllStaffInformation getAllStaffInformation() {
-        AllStaffInformation info = staffCache.getIfPresent(loginInfo);
-        if (info == null) {
+        AllStaffInformation info = staffCache.getIfPresent(loginInfo.getAccessToken());
+        if (Optional.ofNullable(info).isEmpty()) {
             // init suggestion model
             info = new AllStaffInformation();
 
@@ -79,7 +80,7 @@ public class StaffManagement {
             info.setEnables(enables);
 
             // save cache
-            staffCache.put(loginInfo, info);
+            staffCache.put(loginInfo.getAccessToken(), info);
         }
 
         // return model

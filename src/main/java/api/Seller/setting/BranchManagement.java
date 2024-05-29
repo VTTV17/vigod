@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -29,7 +30,8 @@ public class BranchManagement {
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
     Logger logger = LogManager.getLogger(BranchManagement.class);
-    private static final Cache<LoginDashboardInfo, BranchInfo> branchCache = CacheBuilder.newBuilder().build();
+    @Getter
+    private static final Cache<String, BranchInfo> branchCache = CacheBuilder.newBuilder().build();
     API api = new API();
 
     public BranchManagement(LoginInformation loginInformation, LoginDashboardInfo... loginInfo) {
@@ -50,9 +52,17 @@ public class BranchManagement {
 
     public BranchInfo getInfo() {
         // init branch info model
-        BranchInfo brInfo = branchCache.getIfPresent(loginInfo);
+        BranchInfo brInfo = branchCache.getIfPresent(loginInfo.getStaffPermissionToken());
 
         if (brInfo == null) {
+            // if staff token is changed, clear cache
+            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
+                BranchInfo tempInfo = branchCache.getIfPresent("");
+                branchCache.invalidateAll();
+                if (Optional.ofNullable(tempInfo).isPresent()) {
+                    branchCache.put("", tempInfo);
+                }
+            }
             // init branch info model
             brInfo = new BranchInfo();
 
@@ -105,9 +115,8 @@ public class BranchManagement {
             brInfo.setActiveBranches(brNames.stream().filter(brName -> brStatus.get(brNames.indexOf(brName)).equals("ACTIVE")).toList());
 
             // save cache
-            branchCache.put(loginInfo, brInfo);
+            branchCache.put(loginInfo.getStaffPermissionToken(), brInfo);
         }
-
         // return branch info
         return brInfo;
     }

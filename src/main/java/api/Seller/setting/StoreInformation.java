@@ -21,7 +21,7 @@ public class StoreInformation {
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
 
-    private final static Cache<LoginDashboardInfo, StoreInfo> storeInfoCache = CacheBuilder.newBuilder().build();
+    private final static Cache<String, StoreInfo> storeInfoCache = CacheBuilder.newBuilder().build();
 
     public StoreInformation(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -29,7 +29,7 @@ public class StoreInformation {
     }
 
     public StoreInfo getInfo() {
-        StoreInfo storeInfo = storeInfoCache.getIfPresent(loginInfo);
+        StoreInfo storeInfo = storeInfoCache.getIfPresent(loginInfo.getAccessToken());
 
         if (storeInfo == null) {
             // init store info model
@@ -65,7 +65,7 @@ public class StoreInformation {
             storeInfo.setSFLangList(IntStream.range(0, publishLangList.size()).filter(publishLangList::get).mapToObj(storeInfo.getStoreLanguageList()::get).toList());
 
             // save cache
-            storeInfoCache.put(loginInfo, storeInfo);
+            storeInfoCache.put(loginInfo.getAccessToken(), storeInfo);
         }
 
         // return store information

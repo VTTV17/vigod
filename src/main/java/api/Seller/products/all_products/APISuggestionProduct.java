@@ -8,6 +8,7 @@ import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
@@ -22,7 +23,9 @@ public class APISuggestionProduct {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    private static final Cache<Integer, AllSuggestionProductsInfo> cache = CacheBuilder.newBuilder()
+    private record CacheQuery(String staffToken, int branchIds) {
+    }
+    private static final Cache<CacheQuery, AllSuggestionProductsInfo> cache = CacheBuilder.newBuilder()
             .build();
 
     public APISuggestionProduct(LoginInformation loginInformation) {
@@ -73,8 +76,15 @@ public class APISuggestionProduct {
     }
 
     public AllSuggestionProductsInfo getListSuggestionProduct(int branchId) {
-        AllSuggestionProductsInfo info = cache.getIfPresent(branchId);
-        if (info == null) {
+        AllSuggestionProductsInfo info = cache.getIfPresent(new CacheQuery(loginInfo.getStaffPermissionToken(), branchId));
+        if (Optional.ofNullable(info).isEmpty()) {
+            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
+                AllSuggestionProductsInfo tempInfo = cache.getIfPresent(new CacheQuery("", branchId));
+                cache.invalidateAll();
+                if (Optional.ofNullable(tempInfo).isPresent()) {
+                    cache.put(new CacheQuery("", branchId), tempInfo);
+                }
+            }
             // init suggestion model
             info = new AllSuggestionProductsInfo();
 
@@ -133,7 +143,7 @@ public class APISuggestionProduct {
             info.setCostPrice(costPrice);
 
             // return suggestion model
-            cache.put(branchId, info);
+            cache.put(new CacheQuery(loginInfo.getStaffPermissionToken(), branchId), info);
         }
         return info;
     }
