@@ -15,6 +15,7 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import web.Dashboard.orders.orderlist.add_shipment_package.AddShipmentPackagePage;
 import web.Dashboard.orders.orderlist.edit_order.EditOrderPage;
 
 import java.time.Instant;
@@ -52,6 +53,7 @@ public class OrderDetailPage extends OrderDetailElement {
     CheckPermission checkPermission;
     APIAllOrders apiAllOrdersWithSellerToken;
     LoginDashboardInfo staffLoginInfo;
+    AddShipmentPackagePage addShipmentPackagePage;
 
     public OrderDetailPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -59,6 +61,7 @@ public class OrderDetailPage extends OrderDetailElement {
         commonAction = new UICommonAction(driver);
         this.permissions = permissions;
         checkPermission = new CheckPermission(driver);
+        addShipmentPackagePage = new AddShipmentPackagePage(driver);
     }
 
     public OrderDetailPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
@@ -66,6 +69,7 @@ public class OrderDetailPage extends OrderDetailElement {
         this.staffLoginInformation = staffLoginInformation;
         apiAllOrdersWithSellerToken = new APIAllOrders(sellerLoginInformation);
         staffLoginInfo = new Login().getInfo(staffLoginInformation);
+        addShipmentPackagePage.getLoginInformation(sellerLoginInformation, staffLoginInformation);
         return this;
     }
 
@@ -100,26 +104,26 @@ public class OrderDetailPage extends OrderDetailElement {
 
                 // check View delivery package list
                 if (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW)) {
-//                    checkViewDeliveryPackageList(channel);
-//                    checkViewLocationReceiptList(channel, orderId);
-//                    new EditOrderPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
-//                            .checkEditOrder(channel);
-//                    checkDeliveredOrders(channel);
-//                    checkPrintOrderSlip(channel, orderId);
-//                    checkPrintOrderReceipt(channel, orderId);
-//                    checkCreateOrderTag(channel, orderId);
-//                    checkAddTagToOrder(channel, orderId);
-//                    checkRemoveTagFromOrder(channel);
-//                    checkViewTagList(channel, orderId);
-//                    checkDeleteTag(channel, orderId);
-//                    checkConfirmPayment(channel);
+                    checkViewDeliveryPackageList(channel);
+                    checkViewLocationReceiptList(channel, orderId);
+                    new EditOrderPage(driver, permissions).getLoginInformation(sellerLoginInformation, staffLoginInformation)
+                            .checkEditOrder(channel);
+                    checkDeliveredOrders(channel);
+                    checkPrintOrderSlip(channel, orderId);
+                    checkPrintOrderReceipt(channel, orderId);
+                    checkCreateOrderTag(channel, orderId);
+                    checkAddTagToOrder(channel, orderId);
+                    checkRemoveTagFromOrder(channel);
+                    checkViewTagList(channel, orderId);
+                    checkDeleteTag(channel, orderId);
+                    checkConfirmPayment(channel);
                 }
-//
-//                // check confirm order
-//                checkConfirmOrderWithChannel(channel);
-//
-//                // check cancel order
-//                checkCancelOrder(channel);
+
+                // check confirm order
+                checkConfirmOrderWithChannel(channel);
+
+                // check cancel order
+                checkCancelOrder(channel);
             } else
                 // if staff don’t have permission “View order detail” => Show restricted
                 // when click to view order detail
@@ -210,6 +214,9 @@ public class OrderDetailPage extends OrderDetailElement {
                 if (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW)) {
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, "/order/arrange-shipment/"),
                             "[%s] Can not access to Arrange Shipment page.".formatted(channel));
+
+                    // check add shipment package
+                    addShipmentPackagePage.checkDeliveryPermission(channel);
                 } else {
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, loc_dlgToastSuccess),
                             "[%s] Can not confirm order.".formatted(channel));

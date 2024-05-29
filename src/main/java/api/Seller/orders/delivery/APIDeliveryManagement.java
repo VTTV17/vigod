@@ -16,8 +16,12 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
+
+import static api.Seller.orders.delivery.APIDeliveryManagement.DeliveryPackageStatus.*;
+import static api.Seller.orders.delivery.APIDeliveryManagement.DeliveryPackageStatus.*;
 
 public class APIDeliveryManagement {
     Logger logger = LogManager.getLogger(APIDeliveryManagement.class);
@@ -44,6 +48,15 @@ public class APIDeliveryManagement {
         List<Integer> customerIds = new ArrayList<>();
         List<DeliveryPackageStatus> statues = new ArrayList<>();
         List<Integer> branchIds = new ArrayList<>();
+    }
+
+    @Data
+    public static class DeliveryPackageInformation {
+        int deliveryId;
+        int orderId;
+        int customerId;
+        DeliveryPackageStatus status;
+        int branchId;
     }
 
     String deliveryManagementPath = "/orderservices2/api/partial-delivery-orders/store/%s?searchType=CUSTOMER_NAME&searchKeyword=&page=%s&size=100";
@@ -115,5 +128,79 @@ public class APIDeliveryManagement {
         List<Integer> branchIds = info.getBranchIds();
 
         return deliveryIds.stream().filter(id -> assignedBranchIds.contains(branchIds.get(deliveryIds.indexOf(id)))).toList();
+    }
+
+    public DeliveryPackageInformation getDeliveryForViewDetail(List<Integer> assignedBranchIds) {
+        AllDeliveryPackageInformation info = getAllDeliveryInformation();
+        // init temp var
+        List<Integer> deliveryIds = info.getDeliveryIds();
+        List<Integer> branchIds = info.getBranchIds();
+        DeliveryPackageInformation deliveryInfo = new DeliveryPackageInformation();
+
+        int deliveryId = deliveryIds.parallelStream()
+                .filter(id -> assignedBranchIds.contains(branchIds.get(deliveryIds.indexOf(id))))
+                .findAny()
+                .orElse(0);
+
+        if (deliveryId != 0) {
+            deliveryInfo.setDeliveryId(deliveryId);
+            deliveryInfo.setOrderId(info.getOrderIds().get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setStatus(info.getStatues().get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setBranchId(branchIds.get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setCustomerId(info.getCustomerIds().get(deliveryIds.indexOf(deliveryId)));
+        }
+
+        return deliveryInfo;
+    }
+
+    public DeliveryPackageInformation getDeliveryForUpdateStatus(List<Integer> assignedBranchIds) {
+        AllDeliveryPackageInformation info = getAllDeliveryInformation();
+        // init temp var
+        List<Integer> deliveryIds = info.getDeliveryIds();
+        List<Integer> branchIds = info.getBranchIds();
+        List<DeliveryPackageStatus> statuses = info.getStatues();
+        DeliveryPackageInformation deliveryInfo = new DeliveryPackageInformation();
+
+        List<DeliveryPackageStatus> listOfStatusThatCanUpdateToAnotherStatus = List.of(PICKED_UP, SHIPPING, ON_RETURN, RETURNED, CANCELLED);
+        int deliveryId = deliveryIds.parallelStream()
+                .filter(id -> assignedBranchIds.contains(branchIds.get(deliveryIds.indexOf(id)))
+                              && listOfStatusThatCanUpdateToAnotherStatus.contains(statuses.get(deliveryIds.indexOf(id))))
+                .findAny()
+                .orElse(0);
+
+        if (deliveryId != 0) {
+            deliveryInfo.setDeliveryId(deliveryId);
+            deliveryInfo.setOrderId(info.getOrderIds().get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setStatus(info.getStatues().get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setBranchId(branchIds.get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setCustomerId(info.getCustomerIds().get(deliveryIds.indexOf(deliveryId)));
+        }
+
+        return deliveryInfo;
+    }
+
+    public DeliveryPackageInformation getDeliveryForCancel(List<Integer> assignedBranchIds) {
+        AllDeliveryPackageInformation info = getAllDeliveryInformation();
+        // init temp var
+        List<Integer> deliveryIds = info.getDeliveryIds();
+        List<Integer> branchIds = info.getBranchIds();
+        List<DeliveryPackageStatus> statuses = info.getStatues();
+        DeliveryPackageInformation deliveryInfo = new DeliveryPackageInformation();
+
+        int deliveryId = deliveryIds.parallelStream()
+                .filter(id -> assignedBranchIds.contains(branchIds.get(deliveryIds.indexOf(id)))
+                              && Objects.equals(statuses.get(deliveryIds.indexOf(id)), PICKUP_PENDING))
+                .findAny()
+                .orElse(0);
+
+        if (deliveryId != 0) {
+            deliveryInfo.setDeliveryId(deliveryId);
+            deliveryInfo.setOrderId(info.getOrderIds().get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setStatus(info.getStatues().get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setBranchId(branchIds.get(deliveryIds.indexOf(deliveryId)));
+            deliveryInfo.setCustomerId(info.getCustomerIds().get(deliveryIds.indexOf(deliveryId)));
+        }
+
+        return deliveryInfo;
     }
 }

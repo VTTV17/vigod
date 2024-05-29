@@ -124,7 +124,7 @@ public class APIAllOrders {
 
         List<JsonPath> jsonPaths = IntStream.rangeClosed(0, numberOfPages)
                 .parallel()
-                .mapToObj((int pageIndex1) -> getAllOrderResponse(pageIndex1, branchQuery, channel))
+                .mapToObj((int pageIndex) -> getAllOrderResponse(pageIndex, branchQuery, channel))
                 .map(ResponseBodyExtractionOptions::jsonPath)
                 .toList();
 

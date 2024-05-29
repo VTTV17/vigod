@@ -135,7 +135,7 @@ public class POSPage extends POSElement {
                     for (int lotIndex = 0; lotIndex < bound; lotIndex++) {
                         if (quantity > 0) {
                             // input quantity
-                            long availableQuantity = Long.parseLong(commonAction.getText(loc_dlgSelectLot_lblAvailableQuantity));
+                            long availableQuantity = Long.parseLong(commonAction.getText(loc_dlgSelectLot_lblAvailableQuantity, lotIndex));
                             commonAction.sendKeys(loc_dlgSelectLot_txtConfirmQuantity, String.valueOf(Math.min(quantity, availableQuantity)));
                             logger.info("Input lot quantity: %,d.".formatted(quantity));
 
