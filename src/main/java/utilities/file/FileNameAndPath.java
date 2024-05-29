@@ -31,6 +31,10 @@ public class FileNameAndPath {
     public static final String FILE_IMPORT_PRODUCT = "import_product.xlsx";
     public static final String FOLDER_UPLOAD_FILE = "uploadfile";
     public static final String FOLDER_IMPORT_PRODUCT = "import_product";
+    public static final String FILE_IMPORT_PAYOUT_PRODUCT = "importPayoutByProduct.xlsx";
+    public static final String FILE_IMPORT_PAYOUT_REVENUE = "ImportPayoutByRevenue.xlsx";
+    public static final String FILE_IMPORT_PAYOUT_RESELLER = "ImportPayoutReseller.xlsx";
+    public static final String FOLDER_IMPORT_PAYOUT = "import_payout";
     private static boolean isWindow() {
         return (osName.toLowerCase().indexOf("win"))>=0;
     }
