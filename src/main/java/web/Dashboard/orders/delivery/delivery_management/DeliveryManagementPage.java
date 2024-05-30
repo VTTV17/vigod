@@ -13,6 +13,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.orders.delivery.delivery_detail.DeliveryDetailPage;
+import web.Dashboard.orders.orderlist.add_shipment_package.AddShipmentPackagePage;
 
 import java.util.List;
 
@@ -62,6 +63,11 @@ public class DeliveryManagementPage extends DeliveryManagementElement {
 
         // check view delivery detail
         new DeliveryDetailPage(driver, permissions)
+                .getLoginInformation(sellerLoginInformation, staffLoginInformation)
+                .checkDeliveryPermission();
+
+        // check add shipment package
+        new AddShipmentPackagePage(driver, permissions)
                 .getLoginInformation(sellerLoginInformation, staffLoginInformation)
                 .checkDeliveryPermission();
     }

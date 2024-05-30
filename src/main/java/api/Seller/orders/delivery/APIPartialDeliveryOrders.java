@@ -8,7 +8,6 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class APIPartialDeliveryOrders {
@@ -42,16 +41,17 @@ public class APIPartialDeliveryOrders {
         return response.getBody().asString().isEmpty() ? 0 : response.jsonPath().getList("partialDeliveryInfos.id").size();
     }
 
-    Response getPartialDeliveryWithAvailableItemResponse(long orderId) {
-        return api.get(partialDeliveryWithAvailableItemPath.formatted(orderId), loginInfo.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+    public Response getPartialDeliveryWithAvailableItemResponse(long orderId) {
+        return api.get(partialDeliveryWithAvailableItemPath.formatted(orderId), loginInfo.getAccessToken());
     }
 
     public List<DeliveryMethod> getListDeliveryMethodWithOrder(long orderId) {
-        List<String> deliveryMethods = getPartialDeliveryWithAvailableItemResponse(orderId).jsonPath().getList("deliveryMethods");
+        List<String> deliveryMethods = getPartialDeliveryWithAvailableItemResponse(orderId)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("deliveryMethods");
         return deliveryMethods.stream().map(DeliveryMethod::valueOf).toList();
     }
 }

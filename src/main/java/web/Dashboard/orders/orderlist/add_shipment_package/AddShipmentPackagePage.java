@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static api.Seller.orders.delivery.APIPartialDeliveryOrders.DeliveryMethod.*;
-import static api.Seller.orders.order_management.APIAllOrders.Channel;
+import static api.Seller.orders.order_management.APIAllOrders.Channel.GOSELL;
 import static utilities.links.Links.DOMAIN;
 
 public class AddShipmentPackagePage extends AddShipmentPackageElement {
@@ -35,10 +35,10 @@ public class AddShipmentPackagePage extends AddShipmentPackageElement {
         commonAction = new UICommonAction(driver);
     }
 
-    void navigateToAddShipmentPackagePageByURL(Channel channel, long orderId) {
-        driver.get("%s/order/arrange-shipment/%s/%s".formatted(DOMAIN, channel, orderId));
+    void navigateToAddShipmentPackagePageByURL(long orderId) {
+        driver.get("%s/order/arrange-shipment/GOSELL/%s".formatted(DOMAIN, orderId));
         driver.navigate().refresh();
-        logger.info("[%s] Navigate to add shipment package page by URL, orderId: %s.".formatted(channel, orderId));
+        logger.info("Navigate to add shipment package page by URL, orderId: %s.".formatted(orderId));
     }
 
     void selectLot() {
@@ -107,35 +107,47 @@ public class AddShipmentPackagePage extends AddShipmentPackageElement {
         }
     }
 
-    void selectDeliveryMethod(DeliveryMethod deliveryMethod, List<DeliveryMethod> availableDeliveryMethods) {
-        // open delivery dropdown
-        commonAction.click(loc_ddlDeliveryMethod);
-
+    void selectDeliveryMethod(DeliveryMethod deliveryMethod) {
         // select method
-        commonAction.clickJS(loc_ddvDeliveryMethod, availableDeliveryMethods.indexOf(deliveryMethod));
+        commonAction.selectDropdownOptionByValue(loc_ddlDeliveryMethod, String.valueOf(deliveryMethod));
 
-        // input customer info if any
-        if (!commonAction.getListElement(loc_chkAsSameAsSenderInformation).isEmpty()) {
-            if (!commonAction.isCheckedJS(loc_chkAsSameAsSenderInformation))
-                commonAction.clickJS(loc_chkAsSameAsSenderInformation);
-        }
+        if (!commonAction.getListElement(loc_icnUnfortunately).isEmpty()) {
+            // input customer info if any
+            if (!commonAction.getListElement(loc_chkAsSameAsSenderInformation).isEmpty()) {
+                // add customer address
+                if (!commonAction.isCheckedJS(loc_chkAsSameAsSenderInformation))
+                    commonAction.clickJS(loc_chkAsSameAsSenderInformation);
 
-        if (Objects.equals(deliveryMethod, ahamove)) {
-            // open receiver province dropdown
-            String senderProvince = commonAction.getValue(loc_ddlAhamoveSenderProvince);
-            commonAction.click(loc_ddlAhamoveReceiverProvince);
-            commonAction.clickJS(By.xpath(str_ddvAhamoveReceiverProvince.formatted(senderProvince)));
+                // input package information
+                commonAction.sendKeys(loc_txtPackageInformationWeight, "1");
+                commonAction.sendKeys(loc_txtPackageInformationLength, "1");
+                commonAction.sendKeys(loc_txtPackageInformationWidth, "1");
+                commonAction.sendKeys(loc_txtPackageInformationHeight, "1");
+            }
 
-            // open receiver district dropdown
-            String senderDistrict = commonAction.getValue(loc_ddlAhamoveSenderDistrict);
-            commonAction.click(loc_ddlAhamoveReceiverDistrict);
-            commonAction.clickJS(By.xpath(str_ddvAhamoveReceiverDistrict.formatted(senderDistrict)));
+            if (Objects.equals(deliveryMethod, ahamove)) {
+                // open receiver province dropdown
+                String senderProvince = commonAction.getValue(loc_ddlAhamoveSenderProvince);
+                commonAction.click(loc_ddlAhamoveReceiverProvince);
+                commonAction.clickJS(By.xpath(str_ddvAhamoveReceiverProvince.formatted(senderProvince)));
 
-            // open receiver commune dropdown
-            String senderCommune = commonAction.getValue(loc_ddlAhamoveSenderCommune);
-            commonAction.click(loc_ddlAhamoveReceiverCommune);
-            commonAction.clickJS(By.xpath(str_ddvAhamoveReceiverCommune.formatted(senderCommune)));
-        }
+                // open receiver district dropdown
+                String senderDistrict = commonAction.getValue(loc_ddlAhamoveSenderDistrict);
+                commonAction.click(loc_ddlAhamoveReceiverDistrict);
+                commonAction.clickJS(By.xpath(str_ddvAhamoveReceiverDistrict.formatted(senderDistrict)));
+
+                // open receiver commune dropdown
+                String senderCommune = commonAction.getValue(loc_ddlAhamoveSenderCommune);
+                commonAction.click(loc_ddlAhamoveReceiverCommune);
+                commonAction.clickJS(By.xpath(str_ddvAhamoveReceiverCommune.formatted(senderCommune)));
+            }
+
+            if (!commonAction.getListElement(loc_btnReEstimateDeliveryFee).isEmpty()) {
+                commonAction.click(loc_btnReEstimateDeliveryFee);
+                commonAction.sleepInMiliSecond(3000, "Wait estimate shipping fee.");
+            }
+        } else
+            logger.warn("Unfortunately, %s does not offer delivery services for this address.".formatted(deliveryMethod));
 
         // log
         logger.info("Select delivery method: %s.".formatted(deliveryMethod));
@@ -165,36 +177,42 @@ public class AddShipmentPackagePage extends AddShipmentPackageElement {
         this.staffLoginInformation = staffLoginInformation;
         staffLoginInfo = new Login().getInfo(staffLoginInformation);
         apiPartialDeliveryOrdersWithStaffToken = new APIPartialDeliveryOrders(staffLoginInformation);
+        apiAllOrdersWithSellerToken = new APIAllOrders(sellerLoginInformation);
         return this;
     }
 
-    public void checkDeliveryPermission(Channel channel) {
+    public void checkDeliveryPermission() {
         // check add shipment package by 3rd party
-        checkAddShipmentPackageBy3rdParty(channel);
+        checkAddShipmentPackageBy3rdParty();
 
         // check add shipment package by self-delivery/others.
-        checkAddShipmentPackageBySelfDelivery(channel);
+        checkAddShipmentPackageBySelfDelivery();
     }
 
 
-    void checkAddShipmentPackageBy3rdParty(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForDeliveredOrder(channel, staffLoginInfo.getAssignedBranchesIds());
+    void checkAddShipmentPackageBy3rdParty() {
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForAddShipmentPackage(GOSELL, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
-            navigateToAddShipmentPackagePageByURL(channel, orderId);
+            navigateToAddShipmentPackagePageByURL(orderId);
             List<DeliveryMethod> availableDeliveryMethods = apiPartialDeliveryOrdersWithStaffToken.getListDeliveryMethodWithOrder(orderId);
             selectLot();
             selectIMEI();
             if (availableDeliveryMethods.contains(giaohangnhanh)) {
-                selectDeliveryMethod(giaohangnhanh, availableDeliveryMethods);
+                selectDeliveryMethod(giaohangnhanh);
             } else if (availableDeliveryMethods.contains(giaohangtietkiem)) {
-                selectDeliveryMethod(giaohangtietkiem, availableDeliveryMethods);
+                selectDeliveryMethod(giaohangtietkiem);
             } else if (availableDeliveryMethods.contains(ahamove)) {
-                selectDeliveryMethod(ahamove, availableDeliveryMethods);
+                selectDeliveryMethod(ahamove);
             } else logger.warn("Can not found 3rd party");
 
             if (permissions.getOrders().getDelivery().isAddShipmentPackageBy3rdParty()) {
-                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirm, loc_dlgToastSuccess),
-                        "Can not add arrange shipment with 3rd party.");
+                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirm, loc_dlgConfirm),
+                        "Can not open confirm popup.");
+
+                if (!commonAction.getListElement(loc_dlgConfirm).isEmpty()) {
+                    assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirm_btnYes, loc_dlgToastSuccess),
+                            "Can not add arrange shipment with 3rd party.");
+                }
             } else {
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnConfirm),
                         "Restricted popup is not shown.");
@@ -202,31 +220,41 @@ public class AddShipmentPackagePage extends AddShipmentPackageElement {
         }
 
         // log
-        logger.info("[%s] Check permission: Orders >> Delivery >> Add shipment package by 3rd party.".formatted(channel));
+        logger.info("Check permission: Orders >> Delivery >> Add shipment package by 3rd party.");
     }
 
-    void checkAddShipmentPackageBySelfDelivery(Channel channel) {
-        long orderId = apiAllOrdersWithSellerToken.getOrderIdForDeliveredOrder(channel, staffLoginInfo.getAssignedBranchesIds());
+    void checkAddShipmentPackageBySelfDelivery() {
+        long orderId = apiAllOrdersWithSellerToken.getOrderIdForAddShipmentPackage(GOSELL, staffLoginInfo.getAssignedBranchesIds());
         if (orderId != 0) {
-            navigateToAddShipmentPackagePageByURL(channel, orderId);
+            navigateToAddShipmentPackagePageByURL(orderId);
             List<DeliveryMethod> availableDeliveryMethods = apiPartialDeliveryOrdersWithStaffToken.getListDeliveryMethodWithOrder(orderId);
             selectLot();
             selectIMEI();
             if (availableDeliveryMethods.contains(selfdelivery)) {
-                selectDeliveryMethod(selfdelivery, availableDeliveryMethods);
+                selectDeliveryMethod(selfdelivery);
             } else if (availableDeliveryMethods.contains(others)) {
-                selectDeliveryMethod(others, availableDeliveryMethods);
+                selectDeliveryMethod(others);
             } else logger.warn("Can not found self-delivery methods.");
 
+            // click confirm button
+            commonAction.click(loc_btnConfirm);
+
             if (permissions.getOrders().getDelivery().isAddShipmentPackageBySelfDeliveryOther()) {
-                assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirm, loc_dlgToastSuccess),
-                        "Can not add arrange shipment with self-delivery/others.");
+                if (commonAction.getListElement(loc_dlgToastSuccess).isEmpty()) {
+                    assertCustomize.assertFalse(commonAction.getListElement(loc_dlgConfirm).isEmpty(),
+                            "Can not open confirm popup.");
+
+                    if (!commonAction.getListElement(loc_dlgConfirm).isEmpty()) {
+                        assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgConfirm_btnYes, loc_dlgToastSuccess),
+                                "Can not add arrange shipment with self-delivery/others.");
+                    }
+                }
             } else {
-                assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnConfirm),
+                assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
                         "Restricted popup is not shown.");
             }
 
-            logger.info("[%s] Check permission: Orders >> Delivery >> Add shipment package by Self-delivery/Others.".formatted(channel));
+            logger.info("Check permission: Orders >> Delivery >> Add shipment package by Self-delivery/Others.");
         }
     }
 }

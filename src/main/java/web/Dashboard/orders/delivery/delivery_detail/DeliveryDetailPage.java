@@ -99,11 +99,8 @@ public class DeliveryDetailPage extends DeliveryDetailElement {
                 assertCustomize.assertFalse(commonAction.getListElement(loc_dlgUpdateStatus).isEmpty(), "Can not open update delivery status popup.");
 
                 if (!commonAction.getListElement(loc_dlgUpdateStatus).isEmpty()) {
-                    // open package status dropdown
-                    commonAction.click(loc_dlgUpdateStatus_ddlStatus);
-
                     // select status
-                    commonAction.clickJS(loc_dlgUpdateStatus_ddvStatus, 1);
+                    commonAction.selectByIndex(loc_dlgUpdateStatus_ddlStatus, 1);
 
                     // save changes
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgUpdateStatus_btnConfirm,loc_dlgToastSuccess),
@@ -153,7 +150,7 @@ public class DeliveryDetailPage extends DeliveryDetailElement {
         commonAction.click(loc_btnPrintPackageSlip);
 
         // check print package slip permission
-        if (permissions.getOrders().getOrderManagement().isPrintOrderSlip()) {
+        if (permissions.getOrders().getDelivery().isPrintPackageSlip()) {
             if (commonAction.getAllWindowHandles().size() > 1) {
                 // switch to print tab
                 commonAction.switchToWindow(1);

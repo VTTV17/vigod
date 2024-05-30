@@ -4,10 +4,9 @@ import org.openqa.selenium.By;
 
 public class DeliveryDetailElement {
     By loc_btnUpdateStatus = By.cssSelector(".delivery-detail-form-header .gs-button__gray--outline");
-    By loc_dlgUpdateStatus = By.cssSelector("update-status-delivery");
+    By loc_dlgUpdateStatus = By.cssSelector(".update-status-delivery");
     By loc_dlgUpdateStatus_ddlStatus = By.cssSelector("#status");
-    By loc_dlgUpdateStatus_ddvStatus = By.cssSelector("#status option");
-    By loc_dlgUpdateStatus_btnConfirm = By.cssSelector("");
+    By loc_dlgUpdateStatus_btnConfirm = By.cssSelector(".update-status-delivery .gs-button__green");
     By loc_btnCancelDelivery = By.cssSelector(".delivery-detail-form-header .gs-button__gray--outline");
     By loc_dlgCancelDelivery = By.cssSelector(".cancel-delivery");
     By loc_dlgCancelDelivery_txtNote = By.cssSelector(".cancel-delivery [name='note']");

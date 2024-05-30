@@ -53,7 +53,6 @@ public class OrderDetailPage extends OrderDetailElement {
     CheckPermission checkPermission;
     APIAllOrders apiAllOrdersWithSellerToken;
     LoginDashboardInfo staffLoginInfo;
-    AddShipmentPackagePage addShipmentPackagePage;
 
     public OrderDetailPage(WebDriver driver, AllPermissions permissions) {
         this.driver = driver;
@@ -61,7 +60,6 @@ public class OrderDetailPage extends OrderDetailElement {
         commonAction = new UICommonAction(driver);
         this.permissions = permissions;
         checkPermission = new CheckPermission(driver);
-        addShipmentPackagePage = new AddShipmentPackagePage(driver);
     }
 
     public OrderDetailPage getLoginInformation(LoginInformation sellerLoginInformation, LoginInformation staffLoginInformation) {
@@ -69,7 +67,6 @@ public class OrderDetailPage extends OrderDetailElement {
         this.staffLoginInformation = staffLoginInformation;
         apiAllOrdersWithSellerToken = new APIAllOrders(sellerLoginInformation);
         staffLoginInfo = new Login().getInfo(staffLoginInformation);
-        addShipmentPackagePage.getLoginInformation(sellerLoginInformation, staffLoginInformation);
         return this;
     }
 
@@ -214,9 +211,6 @@ public class OrderDetailPage extends OrderDetailElement {
                 if (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW)) {
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, "/order/arrange-shipment/"),
                             "[%s] Can not access to Arrange Shipment page.".formatted(channel));
-
-                    // check add shipment package
-                    addShipmentPackagePage.checkDeliveryPermission(channel);
                 } else {
                     assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnConfirmOrder, loc_dlgToastSuccess),
                             "[%s] Can not confirm order.".formatted(channel));
