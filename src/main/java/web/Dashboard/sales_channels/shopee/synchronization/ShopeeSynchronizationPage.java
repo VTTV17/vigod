@@ -1,4 +1,4 @@
-package web.Dashboard.saleschannels.shopee;
+package web.Dashboard.sales_channels.shopee.synchronization;
 
 import static utilities.account.AccountTest.SHOPEE_COUNTRY;
 
@@ -6,10 +6,7 @@ import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -17,11 +14,14 @@ import org.testng.asserts.SoftAssert;
 
 import web.Dashboard.home.HomePage;
 import utilities.commons.UICommonAction;
+import web.Dashboard.sales_channels.shopee.account_information.AccountInformationPage;
+import web.Dashboard.sales_channels.shopee.account_management.AccountManagementPage;
+
 import static utilities.account.AccountTest.*;
 
-public class Shopee {
+public class ShopeeSynchronizationPage extends ShopeeSynchronizationElement {
 
-	final static Logger logger = LogManager.getLogger(Shopee.class);
+	final static Logger logger = LogManager.getLogger(ShopeeSynchronizationPage.class);
 	
 	
     WebDriver driver;
@@ -30,36 +30,29 @@ public class Shopee {
 
     SoftAssert soft = new SoftAssert();    
     
-    public Shopee(WebDriver driver) {
+    public ShopeeSynchronizationPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         PageFactory.initElements(driver, this);
     }
-
-    @FindBy(css = ".sp-account .gs-button__green")
-    WebElement CONNECT_SHOPEE_BTN;	
-    
-    By SHOPEEINTRO_IMG = By.cssSelector("[alt='shopee-intro']");
  
-	public Shopee waitTillPageFinishLoading() {
+	public void waitTillPageFinishLoading() {
     	for (int i=0; i<30; i++) {
-    		if (commonAction.getElements(SHOPEEINTRO_IMG).size() >0) break;
+    		if (!commonAction.getElements(loc_imgShopeeIntroBackground).isEmpty()) break;
     		commonAction.sleepInMiliSecond(500);
     	}
-    	return this;
-	}     
+	}
 	
 	public boolean isConnectShopeeBtnDisplayed() {
 		commonAction.sleepInMiliSecond(500);
-		return commonAction.isElementDisplay(CONNECT_SHOPEE_BTN);
+		return commonAction.isElementDisplay(loc_btnConnectShopee);
 	}     
     
-    public Shopee clickConnectShopee() {
-    	commonAction.clickElement(CONNECT_SHOPEE_BTN);
+    public void clickConnectShopee() {
+    	commonAction.click(loc_btnConnectShopee);
     	logger.info("Clicked on 'Connect Shopee' button.");
-    	return this;
-    }      
+	}
 
     public void verifyPermissionToConnectShopee(String permission) {
     	if (permission.contentEquals("A")) {
@@ -67,9 +60,9 @@ public class Shopee {
         		clickConnectShopee();
         		new utilities.thirdparty.Shopee(driver).performLogin(SHOPEE_COUNTRY, SHOPEE_USERNAME, SHOPEE_PASSWORD);
         		new HomePage(driver).navigateToPage("Account Information");
-        		new AccountInformation(driver).clickDownloadShopeeProduct();
+        		new AccountInformationPage(driver).clickDownloadShopeeProduct();
         		new HomePage(driver).navigateToPage("Account Management");
-        		new AccountManagement(driver).deleteAccount();
+        		new AccountManagementPage(driver).deleteAccount();
     		}
     	} else if (permission.contentEquals("D")) {
     		// Not reproducible

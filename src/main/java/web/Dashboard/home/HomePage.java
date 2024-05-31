@@ -13,14 +13,13 @@ import web.Dashboard.marketing.landingpage.LandingPage;
 import web.Dashboard.onlineshop.Domains;
 import web.Dashboard.onlineshop.Themes;
 import web.Dashboard.products.all_products.crud.ProductPage;
-import web.Dashboard.saleschannels.shopee.Shopee;
+import web.Dashboard.sales_channels.shopee.synchronization.ShopeeSynchronizationPage;
 import web.Dashboard.settings.bankaccountinformation.BankAccountInformation;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 import utilities.file.FileNameAndPath;
-import utilities.model.sellerApp.login.LoginInformation;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -526,7 +525,7 @@ public class HomePage extends HomePageElement {
         logger.info("Clicked on 'Import From Shopee' button");
         waitTillSpinnerDisappear1();
         commons.sleepInMiliSecond(2000);
-        new Shopee(driver).waitTillPageFinishLoading();
+        new ShopeeSynchronizationPage(driver).waitTillPageFinishLoading();
     }
 
     public void clickImportFromLazada() {

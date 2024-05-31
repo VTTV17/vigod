@@ -39,7 +39,7 @@ import web.Dashboard.products.transfer.crud.TransferPage;
 import web.Dashboard.promotion.discount.DiscountPage;
 import web.Dashboard.promotion.flashsale.FlashSalePage;
 import web.Dashboard.reservation.ReservationManagement;
-import web.Dashboard.saleschannels.shopee.Shopee;
+import web.Dashboard.sales_channels.shopee.synchronization.ShopeeSynchronizationPage;
 import web.Dashboard.service.ServiceManagementPage;
 import web.Dashboard.service.servicecollections.ServiceCollectionManagement;
 import web.Dashboard.settings.account.AccountPage;
@@ -502,7 +502,7 @@ public class Permission {
 					home.hideFacebookBubble();
 					if (subMenu.contentEquals("Account Information")) {
 						if (function.contentEquals("Connect Shopee")) {
-							new Shopee(driver).verifyPermissionToConnectShopee(permission.get(menuComponent));
+							new ShopeeSynchronizationPage(driver).verifyPermissionToConnectShopee(permission.get(menuComponent));
 						}
 					}
 					break;
