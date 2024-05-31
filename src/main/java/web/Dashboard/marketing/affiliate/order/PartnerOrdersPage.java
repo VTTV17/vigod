@@ -15,10 +15,12 @@ import utilities.enums.PaymentStatus;
 import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
+import utilities.utils.FileUtils;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.exporthistory.ExportHistoryPage;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.marketing.affiliate.partner.PartnerPage;
+import web.Dashboard.marketing.affiliate.general.AffiliateGeneral;
 
 import java.util.List;
 
@@ -28,10 +30,28 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
     WebDriver driver;
     AllPermissions allPermissions;
     AssertCustomize assertCustomize;
+    AffiliateGeneral affiliateGeneral;
     public PartnerOrdersPage(WebDriver driver){
         this.driver = driver;
         common = new UICommonAction(driver);
         assertCustomize  = new AssertCustomize(driver);
+        affiliateGeneral = new AffiliateGeneral(driver);
+    }
+    public PartnerOrdersPage clickOnResellerTab(){
+        String currentTab = common.getText(loc_tab_dropshipReseller, 0);
+        String resellerTabName="";
+        try {
+            resellerTabName = PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.resellerTab");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if(!currentTab.equals(resellerTabName)){
+            common.click(loc_tab_dropshipReseller,1);
+            logger.info("Click on Reseller tab.");
+            return this;
+        }
+        logger.info("Current tab is Reseller");
+        return this;
     }
     public PartnerOrdersPage clickOnFilter(){
         common.click(loc_btnFilter);
@@ -112,11 +132,6 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
         logger.info("Click on Reject");
         return this;
     }
-    public PartnerOrdersPage selectTabCommissionByRevenue(){
-        common.click(loc_lst_tabCommissionByProductAndRevenue,1);
-        logger.info("Select Commission by Revenue tab.");
-        return this;
-    }
     public boolean hasViewOrderList(){
         return allPermissions.getAffiliate().getDropshipOrders().isViewOrdersList();
     }
@@ -125,6 +140,21 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
     }
     public boolean hasRejectCommission(){
         return allPermissions.getAffiliate().getDropshipOrders().isRejectCommission();
+    }
+    public boolean hasViewResellerOrderList(){
+        return allPermissions.getAffiliate().getResellerOrders().isViewOrdersList();
+    }
+    public boolean hasExportOrderReseller(){
+        return allPermissions.getAffiliate().getResellerOrders().isExportOrderReseller();
+    }
+    public boolean hasDownloadExportData(){
+        return allPermissions.getAffiliate().getResellerOrders().isDownloadExportData();
+    }
+    public boolean hasApproveCommissionReseller(){
+        return allPermissions.getAffiliate().getResellerOrders().isApproveCommission();
+    }
+    public boolean hasRejectCommissionReseller(){
+        return allPermissions.getAffiliate().getResellerOrders().isRejectCommission();
     }
     public PartnerOrdersPage navigateByUrl(){
         String url = Links.DOMAIN + "/affiliate/order";
@@ -163,34 +193,68 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
         new HomePage(driver).waitTillSpinnerDisappear1();
         return this;
     }
-    public void verifyViewOrderListPermission(){
+    public PartnerOrdersPage clickOnExport(){
+        common.click(loc_btnExport);
+        logger.info("Click on Export button.");
+        return this;
+    }
+    public PartnerOrdersPage clickOnExportOrder(){
+        common.click(loc_lst_btnExportOption,0);
+        common.sleepInMiliSecond(500);
+        logger.info("Click on Export Order");
+        return this;
+    }
+    public ExportHistoryPage clickOnExportHistory(){
+        common.click(loc_lst_btnExportOption,1);
+        logger.info("Click on Export history.");
+        return new ExportHistoryPage(driver);
+    }
+    public PartnerOrdersPage clickOnSelectAllReseller(){
+        common.click(loc_dlgExportOrder_lblSelectAllReseller);
+        logger.info("Click on Select all reseller when export reseller's order");
+        return this;
+    }
+    public PartnerOrdersPage clickExportOnSellectResellerPopup(){
+        common.click(loc_dlgExportOrder_btnExport);
+        logger.info("Click on Export button onf Select Reseller popup.");
+        return this;
+    }
+    public void verifyViewOrderListPermission(boolean isDropshipTab){
         navigateByUrl();
+        if(!isDropshipTab) clickOnResellerTab();
         resetDateFilter();
         List<WebElement> orderList = common.getElements(loc_lstOrderId,3);
-        if(hasViewOrderList()){
+        boolean hasViewOrderListPers = isDropshipTab? hasViewOrderList(): hasViewResellerOrderList();
+        if(hasViewOrderListPers){
             assertCustomize.assertTrue(orderList.size()>0,"[Failed] Order list on Commission by product tab should be shown.");
         }else assertCustomize.assertTrue(orderList.isEmpty(),
                 "[Failed] Order list on Commission by product tab should be empty, but it show %s orders".formatted(orderList.size()));
-        selectTabCommissionByRevenue();
-        orderList = common.getElements(loc_lstOrderId,3);
-        if(hasViewOrderList()){
-            assertCustomize.assertTrue(orderList.size()>0,"[Failed] Order list on Commission by revenue tab should be shown.");
-        }else assertCustomize.assertTrue(orderList.isEmpty(),
-                "[Failed] Order list on Commission by revenue tab should be empty, but it show %s orders".formatted(orderList.size()));
+        if(isDropshipTab) {
+            affiliateGeneral.selectTabCommissionByRevenue();
+            orderList = common.getElements(loc_lstOrderId, 3);
+            if (hasViewOrderListPers) {
+                assertCustomize.assertTrue(orderList.size() > 0, "[Failed] Order list on Commission by revenue tab should be shown.");
+            } else assertCustomize.assertTrue(orderList.isEmpty(),
+                    "[Failed] Order list on Commission by revenue tab should be empty, but it show %s orders".formatted(orderList.size()));
+        }
         logger.info("Verified View order list permission.");
     }
     /**
      *
      * @param isCommisionByProduct true if check permision on Commission By Product tab, false if check permission on Commission By Revenue tab
      */
-    public void verifyApproveOrderPermission(boolean isCommisionByProduct){
-        if(hasViewOrderList()){
+    public void verifyApproveOrderPermission(boolean isDropshipTab, boolean isCommisionByProduct){
+        boolean hasViewOrderListPers = isDropshipTab? hasViewOrderList(): hasViewResellerOrderList();
+        boolean hasApprovePermissionPers = isDropshipTab? hasApproveCommission(): hasApproveCommissionReseller();
+
+        if(hasViewOrderListPers){
             navigateByUrl();
+            if(!isDropshipTab) clickOnResellerTab();
             resetDateFilter();
-            if(isCommisionByProduct) selectTabCommissionByRevenue();
+            if(isCommisionByProduct) affiliateGeneral.selectTabCommissionByRevenue();
             filterByApproveStatus(ApproveStatus.PENDING);
             common.getElements(loc_lstOrderId,5);
-            if(hasApproveCommission()){
+            if(hasApprovePermissionPers){
                 approveAnOrder();
                 String toastMessage = new HomePage(driver).getToastMessage();
                 try {
@@ -214,14 +278,17 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
      *
      * @param isCommisionByProduct true if check permision on Commission By Product tab, false if check permission on Commission By Revenue tab
      */
-    public void verifyRejectOrderPermission(boolean isCommisionByProduct){
-        if(hasViewOrderList()){
+    public void verifyRejectOrderPermission(boolean isDropshipTab, boolean isCommisionByProduct){
+        boolean hasViewOrderListPers = isDropshipTab? hasViewOrderList(): hasViewResellerOrderList();
+        boolean hasRejectCommissionPers = isDropshipTab? hasRejectCommission(): hasRejectCommissionReseller();
+        if(hasViewOrderListPers){
             navigateByUrl();
+            if(!isDropshipTab) clickOnResellerTab();
             resetDateFilter();
-            if(!isCommisionByProduct) selectTabCommissionByRevenue();
+            if(!isCommisionByProduct) affiliateGeneral.selectTabCommissionByRevenue();
             filterByApproveStatus(ApproveStatus.PENDING);
             common.getElements(loc_lstOrderId,5);
-            if(hasRejectCommission()){
+            if(hasRejectCommissionPers){
                 rejectAnOrder();
                 common.sleepInMiliSecond(1000);
                 String rejectingMessage = common.getText(loc_lblRejectingMessage);
@@ -238,26 +305,70 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
                 assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),"" +
                         "[Failed] Restricted popup should be shown when confirm to reject order.");
             }
-            logger.info("Verified reject order permission with isCommisionByProduct = "+isCommisionByProduct);
+            logger.info("Verified reject order permission with isDropshipTab = '%s', isCommisionByProduct = '%s'".formatted(isDropshipTab,isCommisionByProduct));
         }else logger.info("Don't have View order list permission, so no need check Reject order permission.");
     }
-    public PartnerOrdersPage completeVerifyStaffPermissionPartnerPage() {
-//        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-//        if (assertCustomize.getCountFalse() > 0) {
-//            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-//        }
-        AssertCustomize.verifyTest();
-        return this;
+    public void verifyExportOrderReseller(){
+        navigateByUrl();
+        clickOnResellerTab();
+        clickOnExport();
+        clickOnExportOrder();
+        clickOnSelectAllReseller();
+        if(hasExportOrderReseller()){
+            clickExportOnSellectResellerPopup();
+            String toastMessage = new HomePage(driver).getToastMessage();
+            try {
+                assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("affiliate.order.export.successMessage"),
+                        "[Failed] Export success message should be shown, but '%s' is shown".formatted(toastMessage));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_dlgExportOrder_btnExport),
+                "Restricted popup should be shown when click on Export button on Select Reseller popup.");
+        logger.info("Verified Export reseller's order  permission.");
+    }
+    public void verifyDownloadExportData(){
+        navigateByUrl();
+        clickOnResellerTab();
+        clickOnExport();
+        ExportHistoryPage exportHistoryPage = clickOnExportHistory();
+        List<WebElement> exportDropshipPartnerFiles = common.getElements(exportHistoryPage.loc_lst_iconDownloadDropshipPartner,3);
+        if (exportDropshipPartnerFiles.size()>0) {
+            if (hasDownloadExportData()) {
+                //Delete old file.
+                new FileUtils().deleteFileInDownloadFolder("RESELLER_ORDER");
+                //Download new file
+                exportHistoryPage.clickOnDownloadResellerOrder();
+                common.sleepInMiliSecond(3000, "Waiting for download.");
+                assertCustomize.assertTrue(new FileUtils().isDownloadSuccessful("RESELLER_ORDER"), "[Failed] Not found file in download folder.");
+            } else {
+                logger.info("Click on download icon");
+                assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(exportHistoryPage.loc_lst_iconDownloadDropshipPartner, 0),
+                        "[Failed] Restricted page should be shown when click on download icon.");
+            }
+            logger.info("Verified Download exported reseller order file.");
+        }else logger.info("No data to download export dropship partner filed");
     }
     public PartnerOrdersPage checkDropshipOrderPermission(AllPermissions allPermissions){
         this.allPermissions = allPermissions;
-        logger.info("Dropship order permission: "+allPermissions.getMarketing().getBuyLink());
-        verifyViewOrderListPermission();
-        verifyApproveOrderPermission(true);
-        verifyApproveOrderPermission(false);
-        verifyRejectOrderPermission(true);
-        verifyRejectOrderPermission(false);
-        completeVerifyStaffPermissionPartnerPage();
+        logger.info("Dropship order permission: "+allPermissions.getAffiliate().getDropshipOrders());
+        verifyViewOrderListPermission(true);
+        verifyApproveOrderPermission(true,true);
+        verifyApproveOrderPermission(true,false);
+        verifyRejectOrderPermission(true,true);
+        verifyRejectOrderPermission(true,false);
+        AssertCustomize.verifyTest();
+        return this;
+    }
+    public PartnerOrdersPage checkResellerOrderPermission(AllPermissions allPermissions){
+        this.allPermissions = allPermissions;
+        logger.info("Reseller order permission: "+allPermissions.getAffiliate().getResellerOrders());
+        verifyViewOrderListPermission(false);
+        verifyExportOrderReseller();
+        verifyDownloadExportData();
+        verifyApproveOrderPermission(false,false);
+        verifyRejectOrderPermission(true,true);
+        AssertCustomize.verifyTest();
         return this;
     }
 }

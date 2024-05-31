@@ -16,6 +16,7 @@ import utilities.utils.FileUtils;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.exporthistory.ExportHistoryPage;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.marketing.affiliate.general.AffiliateGeneral;
 
 import java.util.List;
 
@@ -27,11 +28,13 @@ public class PartnerPage extends PartnerElement{
     AssertCustomize assertCustomize;
     CreateEditPartnerPage createEditPartnerPage;
     LoginInformation loginInformation;
+    AffiliateGeneral affiliateGeneral;
     public PartnerPage(WebDriver driver){
         this.driver = driver;
         common = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
         createEditPartnerPage = new CreateEditPartnerPage(driver);
+        affiliateGeneral = new AffiliateGeneral(driver);
     }
     public PartnerPage getLoginInfo(LoginInformation loginInformation){
         this.loginInformation = loginInformation;
@@ -95,7 +98,7 @@ public class PartnerPage extends PartnerElement{
     }
     public void verifyViewPartnerListPers(boolean isDropship){
         navigateByUrl();
-        selectAffiliateTab(isDropship);
+        affiliateGeneral.selectAffiliateTab(isDropship);
         List<WebElement> partnerList = common.getElements(loc_lstName,3);
         boolean viewPartnerPermission = isDropship? hasViewDropshipPartnerList() : hasViewResellerPartnerList();
         if(viewPartnerPermission){
@@ -218,26 +221,6 @@ public class PartnerPage extends PartnerElement{
             verifyExportPartner();
             verifyDownloadExportedFile();
         }
-        completeVerifyStaffPermissionPartnerPage();
-    }
-    public PartnerPage completeVerifyStaffPermissionPartnerPage() {
-        logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-        if (assertCustomize.getCountFalse() > 0) {
-            Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-        }
-        return this;
-    }
-    public void selectAffiliateTab(boolean isDropship){
-        String activeTab = common.getText(loc_tabAffiliateActive);
-        String selectTab = "";
-        try {
-            selectTab = isDropship?PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.dropshipTab"): PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.resellerTab");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if(!activeTab.equals(selectTab)){
-            common.click(loc_tab_dropshipReseller,1);
-            logger.info("Switch to tab 2 (Reseller)");
-        }else logger.info("Active tab is '%s', Expected tab is '%s', so no need switch tab".formatted(activeTab,selectTab));
+        AssertCustomize.verifyTest();
     }
 }

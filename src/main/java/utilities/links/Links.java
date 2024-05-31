@@ -22,6 +22,8 @@ public class Links {
     public static String GOMUA_URL = PropertiesUtil.getEnvironmentData("gomuaUrl");
     public static String STORE_CURRENCY = "đ";
     public static String ALL_PRODUCT_PATH = "product";
+    public static String AFFILIATE_PAYOUT_INFORMATION_PATH = "/affiliate/payout/information";
+
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";

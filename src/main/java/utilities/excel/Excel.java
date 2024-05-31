@@ -101,11 +101,16 @@ public class Excel {
 
     public void writeCellValue(String fileName, int sheetId, int rowIndex, int columnIndex, String value) {
         String filePath = new DataGenerator().getFilePath(fileName);
+        System.out.println("filePath: "+filePath);
         try {
             FileInputStream excelFile = new FileInputStream(filePath);
             workbook = new XSSFWorkbook(excelFile);
             sheet = workbook.getSheetAt(sheetId);
             row = sheet.getRow(rowIndex);
+            row = sheet.getRow(rowIndex);
+            if(row == null){
+                row = sheet.createRow(rowIndex);
+            }
             cell = row.getCell(columnIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
             if (cell == null) {
                 cell = row.createCell(columnIndex);
@@ -138,6 +143,9 @@ public class Excel {
             workbook = new XSSFWorkbook(excelFile);
             sheet = workbook.getSheetAt(sheetId);
             row = sheet.getRow(rowIndex);
+            if(row == null){
+                row = sheet.createRow(rowIndex);
+            }
             cell = row.getCell(columnIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
             if (cell == null) {
                 cell = row.createCell(columnIndex);

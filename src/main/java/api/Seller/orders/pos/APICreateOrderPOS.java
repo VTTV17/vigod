@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class APICreateOrderPOS {
     String CREATE_ORDER_PATH = "/orderservice3/api/pos/checkout";
+    String SEARCH_SUGGESTION = "/itemservice/api/store/%s/item-model/suggestion?langKey=vi&page=0&size=20&searchType=PRODUCT_NAME&keyword=&ignoreDeposit=true&branchId=%s&platform=IN_STORE&includeConversion=true";
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
@@ -45,7 +46,7 @@ public class APICreateOrderPOS {
         return productInfo;
     }
     public String getCustomerAndDeliveryInfoForBody(int customerId){
-        if(String.valueOf(customerId).isEmpty()){
+        if(customerId==0){
             return """
                     "userGuest": true,
                       "deliveryInfo": {
@@ -93,8 +94,16 @@ public class APICreateOrderPOS {
                 """.formatted(userId,customerId,contactName,email,phone,phoneCode,customerId);
         return customerInfo;
     }
-    public int CreatePOSOrder(int customerId,int productId){
+
+    /**
+     *
+     * @param customerId 0: if create order for guess, customerId if create order for specific user.
+     * @param productId
+     * @return
+     */
+    public int CreatePOSOrder(int customerId,int...productId){
         int branchId = new BranchManagement(loginInformation).getFreeBranch();
+        int productIdToOder = productId.length>0? productId[0]:getSuggestionProductIDInStock(branchId);
         String body = """
                 {
                     %s%s"paymentCode": "",
@@ -107,7 +116,7 @@ public class APICreateOrderPOS {
                     "paymentMposId": 0,
                     "paymentMposDeviceCode": ""
                 }
-                """.formatted(getProductWithoutVariationInfoForBody(productId,branchId),getCustomerAndDeliveryInfoForBody(customerId));
+                """.formatted(getProductWithoutVariationInfoForBody(productIdToOder,branchId),getCustomerAndDeliveryInfoForBody(customerId));
         Map<String,Object> mapHeader = new HashMap<>();
         mapHeader.put("storeid",String.valueOf(loginInfo.getStoreID()));
         mapHeader.put("platform","WEB");
@@ -116,5 +125,9 @@ public class APICreateOrderPOS {
         Response response = api.post(CREATE_ORDER_PATH,loginInfo.getAccessToken(),body, mapHeader);
         response.then().statusCode(200);
         return response.jsonPath().getInt("id");
+    }
+    public int getSuggestionProductIDInStock(int branchId){
+        Response response = api.get(SEARCH_SUGGESTION.formatted(loginInfo.getStoreID(),branchId),loginInfo.getAccessToken());
+        return response.jsonPath().getInt("find {it.remainingStock > 0}.id");
     }
 }
