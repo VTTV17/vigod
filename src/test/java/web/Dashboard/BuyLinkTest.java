@@ -2,7 +2,7 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.marketing.APIBuyLink;
-import api.Seller.onlineshop.APIPreferences;
+import api.Seller.sale_channel.onlineshop.APIPreferences;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.promotion.CreatePromotion;

@@ -253,8 +253,7 @@ public class AddShipmentPackagePage extends AddShipmentPackageElement {
                 assertCustomize.assertTrue(checkPermission.isAccessRestrictedPresent(),
                         "Restricted popup is not shown.");
             }
-
-            logger.info("Check permission: Orders >> Delivery >> Add shipment package by Self-delivery/Others.");
         }
+        logger.info("Check permission: Orders >> Delivery >> Add shipment package by Self-delivery/Others.");
     }
 }

@@ -1,7 +1,7 @@
 package app.android.GoSeller;
 
 import api.Seller.login.Login;
-import api.Seller.onlineshop.APIMenus;
+import api.Seller.sale_channel.onlineshop.APIMenus;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Buyer.header.APIHeader;

@@ -1,7 +1,7 @@
 package web.Dashboard;
 
 import api.Seller.login.Login;
-import api.Seller.onlineshop.APIMenus;
+import api.Seller.sale_channel.onlineshop.APIMenus;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.services.CreateServiceAPI;
 import api.Seller.services.EditServiceAPI;
