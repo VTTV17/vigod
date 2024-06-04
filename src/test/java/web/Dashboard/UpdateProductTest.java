@@ -38,10 +38,6 @@ public class UpdateProductTest extends BaseTest {
         tcsFileName = "Update product.xlsx";
     }
 
-    @Test
-    void t() {
-        Assert.assertTrue(false);
-    }
     @BeforeGroups(groups = "[UPDATE] Normal product - Without variation")
     void preCondition_G1() {
         boolean isIMEIProduct = false;

@@ -171,7 +171,6 @@ public class APIInventoryHistory {
                             || Objects.equals(status, OrderStatus.CANCELLED))
                             || Objects.equals(status, OrderStatus.REJECTED)
                             || Objects.equals(status, OrderStatus.FAILED)) {
-
                         break;
                     }
                 } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_SOLD)) {

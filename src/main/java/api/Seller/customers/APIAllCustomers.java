@@ -48,7 +48,7 @@ public class APIAllCustomers {
     }
 
     public CustomerManagementInfo getCustomerManagementInfo() {
-        CustomerManagementInfo info = customerCache.getIfPresent(loginInfo.getAccessToken());
+        CustomerManagementInfo info = customerCache.getIfPresent(loginInfo.getStaffPermissionToken());
         if (Optional.ofNullable(info).isEmpty()) {
             if (!loginInfo.getStaffPermissionToken().isEmpty()) {
                 CustomerManagementInfo tempInfo = customerCache.getIfPresent("");

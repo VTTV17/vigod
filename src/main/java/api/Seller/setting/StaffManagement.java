@@ -44,7 +44,7 @@ public class StaffManagement {
     }
 
     AllStaffInformation getAllStaffInformation() {
-        AllStaffInformation info = staffCache.getIfPresent(loginInfo.getAccessToken());
+        AllStaffInformation info = staffCache.getIfPresent(loginInfo.getStaffPermissionToken());
         if (Optional.ofNullable(info).isEmpty()) {
             // init suggestion model
             info = new AllStaffInformation();

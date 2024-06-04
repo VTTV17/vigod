@@ -16,9 +16,9 @@ import java.time.Duration;
 
 import static utilities.account.AccountTest.*;
 
-public class ShopeeSynchronizationPage extends ShopeeSynchronizationElement {
+public class TiktokSynchronizationPage extends TiktokSynchronizationElement {
 
-	final static Logger logger = LogManager.getLogger(ShopeeSynchronizationPage.class);
+	final static Logger logger = LogManager.getLogger(TiktokSynchronizationPage.class);
 	
 	
     WebDriver driver;
@@ -27,7 +27,7 @@ public class ShopeeSynchronizationPage extends ShopeeSynchronizationElement {
 
     SoftAssert soft = new SoftAssert();    
     
-    public ShopeeSynchronizationPage(WebDriver driver) {
+    public TiktokSynchronizationPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
@@ -67,4 +67,68 @@ public class ShopeeSynchronizationPage extends ShopeeSynchronizationElement {
     		Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
     	}
     }
+
+	void checkConnectAccount() {
+
+	}
+
+	void checkDisconnectAccount() {
+
+	}
+
+	void checkViewAccountInformation() {
+
+	}
+
+	void checkRemoveAccount() {
+
+	}
+
+	void checkDownloadProduct() {
+
+	}
+
+	void checkViewProducts() {
+
+	}
+
+	void checkSyncOrders() {
+
+	}
+
+	void checkViewProductLinking() {
+
+	}
+
+	void checkLinkProduct() {
+
+	}
+
+	void checkCreateShopeeProductToGosSELL() {
+
+	}
+
+	void checkUpdateShopeeProductToGoSELL() {
+
+	}
+
+	void checkPurchaseConnection() {
+
+	}
+
+	void checkRenewConnection() {
+
+	}
+
+	void checkUpgradeConnection() {
+
+	}
+
+	void checkUnlinkProduct() {
+
+	}
+
+	void checkSetting() {
+
+	}
 }

@@ -29,7 +29,7 @@ public class StoreInformation {
     }
 
     public StoreInfo getInfo() {
-        StoreInfo storeInfo = storeInfoCache.getIfPresent(loginInfo.getAccessToken());
+        StoreInfo storeInfo = storeInfoCache.getIfPresent(loginInfo.getStaffPermissionToken());
 
         if (storeInfo == null) {
             // init store info model

@@ -27,8 +27,6 @@ public class APIDeliveryManagement {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-//    @Getter
-//    private final static Cache<String, AllDeliveryPackageInformation> deliveryCache = CacheBuilder.newBuilder().build();
 
     public APIDeliveryManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -65,17 +63,8 @@ public class APIDeliveryManagement {
     }
 
     public AllDeliveryPackageInformation getAllDeliveryInformation() {
-        AllDeliveryPackageInformation info;//= deliveryCache.getIfPresent(loginInfo.getAccessToken());
-//        if (Optional.ofNullable(info).isEmpty()) {
-//            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
-//                AllDeliveryPackageInformation tempInfo = deliveryCache.getIfPresent("");
-//                deliveryCache.invalidateAll();
-//                if (Optional.ofNullable(tempInfo).isPresent()) {
-//                    deliveryCache.put("", tempInfo);
-//                }
-//            }
         // init suggestion model
-        info = new AllDeliveryPackageInformation();
+        AllDeliveryPackageInformation info = new AllDeliveryPackageInformation();
 
         // init temp array
         List<Integer> deliveryIds = new ArrayList<>();

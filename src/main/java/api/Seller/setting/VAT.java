@@ -33,7 +33,7 @@ public class VAT {
 
 
     public TaxInfo getInfo() {
-        TaxInfo info = taxCache.getIfPresent(loginInfo.getAccessToken());
+        TaxInfo info = taxCache.getIfPresent(loginInfo.getStaffPermissionToken());
 
         if (Optional.ofNullable(info).isEmpty()) {
             // if staff token is changed, clear cache
