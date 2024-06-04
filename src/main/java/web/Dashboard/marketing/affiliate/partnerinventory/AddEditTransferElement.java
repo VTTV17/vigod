@@ -10,4 +10,5 @@ public class AddEditTransferElement {
     By loc_ddlOrigin = By.xpath("//div[@class='float-right']//div[@class='uik-select__wrapper']");
     By loc_ddlOrigin_options = By.xpath("//div[@class='float-right']//div[@class='uik-select__label']");
     By loc_btnSave = By.cssSelector("[data-testid='submitAffiliateTransferFormEditor']");
+    By loc_lst_btnDelete = By.cssSelector(".delete");
 }

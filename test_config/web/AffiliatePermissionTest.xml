@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="AffiliatePermissionSuite">
+    <test verbose="2" preserve-order="true"
+          name="AffiliatePermissionTest">
+        <classes>
+            <class name="web.Dashboard.AffiliatePermissionTest">
+                <methods>
+                    <include name="checkViewDropshipInfo"/>
+                    <include name="checkViewResellerInfo"/>
+                    <include name="checkDropshipPartnerPers"/>
+                    <include name="checkResellerPartnerPers"/>
+                    <include name="checkCommissionPermisison"/>
+                    <include name="checkDropshipOrderPermission"/>
+                    <include name="checkResellerOrderPermission"/>
+                    <include name="verifyDropshipPayoutPermission"/>
+                    <include name="verifyResellerPayoutPermission"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

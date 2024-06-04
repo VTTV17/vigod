@@ -27,6 +27,7 @@ import web.Dashboard.marketing.affiliate.commission.CommissionPage;
 import web.Dashboard.marketing.affiliate.information.Information;
 import web.Dashboard.marketing.affiliate.order.PartnerOrdersPage;
 import web.Dashboard.marketing.affiliate.partner.PartnerPage;
+import web.Dashboard.marketing.affiliate.partnerinventory.TransferPage;
 import web.Dashboard.marketing.affiliate.payout.payoutinformation.PayoutInformationPage;
 
 import java.io.IOException;
@@ -81,8 +82,8 @@ public class AffiliatePermissionTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
-        super.writeResult(result);
-        driver.quit();
+//        super.writeResult(result);
+//        driver.quit();
     }
     @AfterClass
     public void afterClass(){
@@ -515,5 +516,162 @@ public class AffiliatePermissionTest extends BaseTest{
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         new PayoutInformationPage(driver).getLoginInfo(staffCredentials).verifyPayoutPermission(allPermissions,false);
+    }
+    @DataProvider
+    public Object[] ResellerInventoryData(){
+        return new Object[][]{
+                {"1"},
+//                {"10"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
+//                {"110"},
+//                {"111"},
+//                {"1000"},
+//                {"1001"},
+//                {"1010"},
+//                {"1011"},
+//                {"1100"},
+//                {"1101"},
+//                {"1110"},
+//                {"1111"},
+//                {"10000"},
+//                {"10001"},
+//                {"10010"},
+//                {"10011"},
+//                {"10100"},
+//                {"10101"},
+//                {"10110"},
+//                {"10111"},
+//                {"11000"},
+//                {"11001"},
+//                {"11010"},
+//                {"11011"},
+//                {"11100"},
+//                {"11101"},
+//                {"11110"},
+//                {"11111"},
+//                {"100000"},
+//                {"100001"},
+//                {"100010"},
+//                {"100011"},
+//                {"100100"},
+//                {"100101"},
+//                {"100110"},
+//                {"100111"},
+//                {"101000"},
+//                {"101001"},
+//                {"101010"},
+//                {"101011"},
+//                {"101100"},
+//                {"101101"},
+//                {"101110"},
+//                {"101111"},
+//                {"110000"},
+//                {"110001"},
+//                {"110010"},
+//                {"110011"},
+//                {"110100"},
+//                {"110101"},
+//                {"110110"},
+//                {"110111"},
+//                {"111000"},
+//                {"111001"},
+//                {"111010"},
+//                {"111011"},
+//                {"111100"},
+//                {"111101"},
+//                {"111110"},
+//                {"111111"},
+//                {"1000000"},
+//                {"1000001"},
+//                {"1000010"},
+//                {"1000011"},
+//                {"1000100"},
+//                {"1000101"},
+//                {"1000110"},
+//                {"1000111"},
+//                {"1001000"},
+//                {"1001001"},
+//                {"1001010"},
+//                {"1001011"},
+//                {"1001100"},
+//                {"1001101"},
+//                {"1001110"},
+//                {"1001111"},
+//                {"1010000"},
+//                {"1010001"},
+//                {"1010010"},
+//                {"1010011"},
+//                {"1010100"},
+//                {"1010101"},
+//                {"1010110"},
+//                {"1010111"},
+//                {"1011000"},
+//                {"1011001"},
+//                {"1011010"},
+//                {"1011011"},
+//                {"1011100"},
+//                {"1011101"},
+//                {"1011110"},
+//                {"1011111"},
+//                {"1100000"},
+//                {"1100001"},
+//                {"1100010"},
+//                {"1100011"},
+//                {"1100100"},
+//                {"1100101"},
+//                {"1100110"},
+//                {"1100111"},
+//                {"1101000"},
+//                {"1101001"},
+//                {"1101010"},
+//                {"1101011"},
+//                {"1101100"},
+//                {"1101101"},
+//                {"1101110"},
+//                {"1101111"},
+//                {"1110000"},
+//                {"1110001"},
+//                {"1110010"},
+//                {"1110011"},
+//                {"1110100"},
+//                {"1110101"},
+//                {"1110110"},
+//                {"1110111"},
+//                {"1111000"},
+//                {"1111001"},
+//                {"1111010"},
+//                {"1111011"},
+//                {"1111100"},
+//                {"1111101"},
+//                {"1111110"},
+//                {"1111111"}
+        };
+    }
+    public void verifyResellerInventoryPermission(String dataBinary){
+        //Set permission model
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("1");
+        model.setAffiliate_resellerInventory(dataBinary);
+
+        // Resellerl login
+        LoginInformation resellerCredentials = new Login().setLoginInformation("+84", USERNAME_RESELLER_SHOPVI, PASSWORD_RESELLER_SHOPVI).getLoginInformation();
+
+
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+//        new TransferPage(driver).getLoginInfo(ownerCredentials,).verifyPayoutPermission(allPermissions,false);
+
     }
 }
