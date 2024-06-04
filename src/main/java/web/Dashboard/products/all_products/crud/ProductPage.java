@@ -307,20 +307,23 @@ public class ProductPage extends ProductPageElement {
 
     public ProductPage navigateToUpdateProductPage(int productID) throws Exception {
         // get product id
-        ProductPage.productId = productID;
+        ProductPage.productId = 1282732;//productID;
 
         // log
-        logger.info("Product id: %s".formatted(productID));
+        logger.info("Product id: %s".formatted(productId));
 
         // get product information
-        productInfo = new APIProductDetail(loginInformation).getInfo(productID);
+        productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         // navigate to product detail page by URL
-        driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productID)));
+        driver.get("%s%s".formatted(DOMAIN, updateProductPath.formatted(productId)));
 
         // refresh page
         driver.navigate().refresh();
 
+        commonAction.getElement(loc_lblSEOSetting);
+        long currentPointerHeight = (long) ((JavascriptExecutor) driver).executeScript("return arguments[0].scrollTop;", commonAction.getElement(loc_bodyApp));
+        assertCustomize.assertTrue(currentPointerHeight == 0L, "Product detail page is not focused on top of page.");
         // clear old conversion unit config
 //        if (commonAction.isCheckedJS(loc_chkAddConversionUnit)) {
 //            commonAction.clickJS(loc_chkAddConversionUnit);

@@ -7,6 +7,7 @@ import org.openqa.selenium.support.FindBy;
 import web.Dashboard.products.all_products.management.ProductManagementElement;
 
 public class ProductPageElement {
+    By loc_bodyApp = By.cssSelector("#app-body");
     By loc_ddvSelectedLanguage = By.cssSelector(".language-selector .uik-select__valueWrapper");
     String loc_ddvLanguageValue = "//*[@class = 'uik-select__label']/span[text()= '%s']";
     By loc_btnCreateProduct = new ProductManagementElement().getLoc_btnCreateProduct();
