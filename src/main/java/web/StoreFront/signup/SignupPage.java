@@ -5,6 +5,7 @@ import static utilities.links.Links.SF_URL_TIEN;
 import java.sql.SQLException;
 import java.util.Random;
 
+import api.kibana.KibanaAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -232,7 +233,9 @@ public class SignupPage extends GeneralSF {
 
     public void signUpWithPhoneNumber(String country, String userName, String passWord, String displayName, String birthday) throws SQLException {
         onlyFillOutSignupForm(country, userName, passWord, displayName, birthday);
-        String verificationCode = new InitConnection().getActivationKey(new DataGenerator().getPhoneCode(country) + ":" + userName);
+        String phoneCode = new DataGenerator().getPhoneCode(country);
+        String verificationCode = new KibanaAPI().getKeyFromKibana(phoneCode+":"+userName,"activationKey");
+//                new InitConnection().getActivationKey(new DataGenerator().getPhoneCode(country) + ":" + userName);
         inputVerificationCode(verificationCode);
         clickConfirmBtn();
         inputEmail(displayName+"@mailnesia.com").clickCompleteBtn();

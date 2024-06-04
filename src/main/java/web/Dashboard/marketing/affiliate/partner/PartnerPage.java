@@ -5,12 +5,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.testng.Assert;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.links.Links;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
+import utilities.model.staffPermission.Setting.Account;
 import utilities.permission.CheckPermission;
 import utilities.utils.FileUtils;
 import utilities.utils.PropertiesUtil;
@@ -19,6 +19,8 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.marketing.affiliate.general.AffiliateGeneral;
 
 import java.util.List;
+
+import static utilities.account.AccountTest.USERNAME_RESELLER_SHOPVI;
 
 public class PartnerPage extends PartnerElement{
     final static Logger logger = LogManager.getLogger(PartnerPage.class);
@@ -118,9 +120,9 @@ public class PartnerPage extends PartnerElement{
                     "[Failed] Restricted page should be shown when navigate to %s partner detail url: %s".formatted(isDropship?"Dropship":"Reseller",partnerDetailUrl));
         logger.info("Verified View %s partner detail permission.".formatted(isDropship?"Dropship":"Reseller"));
     }
-    public void callRejectPartnerIfExceedNumber(boolean isDropship){
+    public void callRejectPartnerIfExceedNumber(boolean isDropship, int...excepId){
         boolean isExceed = new APIPartnerManagement(loginInformation).isExceedPartner(isDropship);
-        if(isExceed) new APIPartnerManagement(loginInformation).rejectAddPartner(isDropship);
+        if(isExceed) new APIPartnerManagement(loginInformation).rejectPartner(isDropship,excepId);
     }
     public void verifyAddPartnerPers(boolean isDropship){
         navigateByUrl();
@@ -132,7 +134,8 @@ public class PartnerPage extends PartnerElement{
         }
         boolean addPartnerPermission = isDropship? hasAddDropshipPartner(): hasAddResellerPartner();
         if(addPartnerPermission){
-            callRejectPartnerIfExceedNumber(isDropship);
+            int exceptResellerId = new APIPartnerManagement(loginInformation).getResellerIdByPhone(USERNAME_RESELLER_SHOPVI) ;
+            callRejectPartnerIfExceedNumber(isDropship,exceptResellerId);
             createEditPartnerPage.clickOnSaveBtn();
             String toastMessage = new HomePage(driver).getToastMessage();
             try {

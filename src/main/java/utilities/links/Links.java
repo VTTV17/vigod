@@ -23,7 +23,11 @@ public class Links {
     public static String STORE_CURRENCY = "đ";
     public static String ALL_PRODUCT_PATH = "product";
     public static String AFFILIATE_PAYOUT_INFORMATION_PATH = "/affiliate/payout/information";
-
+    public static String AFFILIATE_TRANSFER_GOODS_PATH = "/affiliate/transfer/partner/list";
+    public static String AFFILIATE_CREATE_TRANSFER_PATH = "/affiliate/transfer/partner/create";
+    public static String AFFILIATE_TRACKING_STOCK_PATH = "/affiliate/inventory";
+    public static String AFFILIATE_TRANSFER_DETAIL_PATH = "/affiliate/transfer/partner/wizard/%s";
+    public static String AFFILIATE_TRANSFER_EDIT_PATH = "affiliate/transfer/partner/edit/%s";
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";

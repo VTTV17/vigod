@@ -283,7 +283,7 @@ public class HomePage extends HomePageElement {
     }
 
     public HomePage selectLanguage(String language) {
-        wait.until(ExpectedConditions.visibilityOf(commons.getElement(loc_btnLanguage)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(loc_btnLanguage));
         if (!getDashboardLanguage().equals(language)) {
             commons.click(loc_btnLanguage);
             List<WebElement> languageElements = commons.getElements(loc_lst_btnLanguages);

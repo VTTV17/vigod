@@ -1,12 +1,14 @@
 package api.Seller.affiliate.order;
 
 import api.Seller.login.Login;
+import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.enums.ApproveStatus;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class APIPartnerOrders {
@@ -19,6 +21,13 @@ public class APIPartnerOrders {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
+
+    /**
+     *
+     * @param isDropship
+     * @param filter: param to filter if any (example: "&approveStatus.equals=1111")
+     * @return
+     */
     public List<Integer> getOrderHasProductCommisionList(boolean isDropship, String...filter){
         String partnerType = isDropship? "DROP_SHIP": "RESELLER";
         Response response;

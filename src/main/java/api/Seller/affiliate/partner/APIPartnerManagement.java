@@ -8,6 +8,7 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class APIPartnerManagement {
@@ -50,10 +51,14 @@ public class APIPartnerManagement {
         return response.then().statusCode(200)
                 .extract().jsonPath().getBoolean("exceedPartner");
     }
-    public void rejectAddPartner(boolean isDropship){
+    public void rejectPartner(boolean isDropship, int...exceptId){
         List<Integer> ids;
         if(isDropship) ids = getDropshipList();
         else ids = getResellerList();
+        //check exceptId belong to ids list, then remove from list
+        for (int i=0; i<exceptId.length; i++){
+            if(ids.contains(exceptId[i])) ids.remove(ids.indexOf(exceptId[i]));;
+        }
         for (int id:ids) {
             Response response = api.put(REJECT_PARTNER_PATH.formatted(loginInfo.getStoreID(),id),loginInfo.getAccessToken());
             response.then().statusCode(200);
@@ -68,5 +73,8 @@ public class APIPartnerManagement {
         Response response = api.get(GET_DROPSHIP_LIST_PATH.formatted(loginInfo.getStoreID(),"SELLING_COMMISSION"),loginInfo.getAccessToken());
         response.then().statusCode(200);
         return response.jsonPath().getList("id");
+    }
+    public int getResellerIdByPhone(String phone){
+        return callAPIResellerList().jsonPath().getInt("find {it.phoneNumber=='%s'}.id".formatted(phone));
     }
 }
