@@ -45,6 +45,10 @@ public class PermissionAPI {
         loginInfo = new Login().getInfo(loginInformation);
     }
 
+    public static void setStaffCredentials(LoginInformation staffCredentials1) {
+    	staffCredentials = staffCredentials1;
+    }
+    
     private List<PermissionModel> getPermissionTree(CreatePermission createPermission) {
         List<PermissionModel> permissionModels = new ArrayList<>();
         Map<String, String> permissionTreeMap = new ObjectMapper().convertValue(createPermission, new TypeReference<>() {
