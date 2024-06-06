@@ -2,6 +2,7 @@ package web.Dashboard;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
@@ -10,6 +11,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import api.Seller.customers.APICustomerDetail;
+import api.Seller.customers.APISegment;
 import api.Seller.gochat.APIFacebook;
 import api.Seller.login.Login;
 import api.Seller.setting.PermissionAPI;
@@ -17,6 +22,13 @@ import api.Seller.setting.StaffManagement;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.model.dashboard.customer.CustomerProfileFB;
+import utilities.model.dashboard.customer.segment.SegmentList;
+import utilities.model.gochat.facebook.ConnectedPages;
+import utilities.model.gochat.facebook.ConversationEntity;
+import utilities.model.gochat.facebook.CreatedAutomationCampaign;
+import utilities.model.gochat.facebook.CreatedBroadcast;
+import utilities.model.gochat.facebook.TagManagement;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
@@ -36,6 +48,8 @@ public class FacebookPermissionTest extends BaseTest {
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	StaffManagement staffManagementAPI;
+	APICustomerDetail customerDetailAPI;
+	APISegment segmentAPI;
 	PermissionAPI permissionAPI;
 	APIFacebook fbAPI;
 	
@@ -51,12 +65,16 @@ public class FacebookPermissionTest extends BaseTest {
 	String staffName;
 	
 	int latestTagId;
+	int latestAutomationId;
+	int latestBroadcastId;
 	
 	@BeforeClass
 	void precondition() {
 		ownerCredentials = new Login().setLoginInformation("+84", "automation0-shop74053@mailnesia.com", "fortesting!1").getLoginInformation();
 		staffCredentials = new Login().setLoginInformation("+84", "staff74053@mailnesia.com", "fortesting!1").getLoginInformation();
 		staffManagementAPI = new StaffManagement(ownerCredentials);
+		customerDetailAPI =new APICustomerDetail(ownerCredentials);
+		segmentAPI = new APISegment(ownerCredentials);
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		fbAPI = new APIFacebook(ownerCredentials);
 		
@@ -65,9 +83,11 @@ public class FacebookPermissionTest extends BaseTest {
 		staffName = staffManagementAPI.getStaffName(staffUserId);
 		
 		latestTagId = fbAPI.getTagList().get(0).getId();
+		latestAutomationId = fbAPI.getAllAutomation().get(0).getId();
+		latestBroadcastId = fbAPI.getAllBroadcast().get(0).getId();
 		
 //    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-    	permissionGroupId = 6284;
+    	permissionGroupId = 6625;
     	
     	
 		driver = new InitWebdriver().getDriver(browser, headless);
@@ -83,6 +103,8 @@ public class FacebookPermissionTest extends BaseTest {
 	@AfterClass
 	void rollback() {
 		fbAPI.getTagList().parallelStream().filter(tag -> tag.getId() > latestTagId).forEach(t -> fbAPI.deleteTag(t.getId()));
+		fbAPI.getAllAutomation().parallelStream().filter(campaign -> campaign.getId() > latestAutomationId).forEach(t -> fbAPI.deleteAutomation(t.getId()));
+		fbAPI.getAllBroadcast().parallelStream().filter(campaign -> campaign.getId() > latestBroadcastId).forEach(t -> fbAPI.deleteBroadcast(t.getId()));
 //		permissionAPI.deleteGroupPermission(permissionGroupId);
 		driver.quit();
 	}		
@@ -96,6 +118,9 @@ public class FacebookPermissionTest extends BaseTest {
 		CreatePermission model = new CreatePermission();
 		model.setHome_none("11");
 		model.setSetting_staffManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"0", "1"})));
+		model.setCustomer_customerManagement("11");
+		model.setCustomer_segment("1");
+//		model.setCustomer_customerManagement(DataGenerator.getRandomListElement(Arrays.asList(new String[] {"11", "00"})));
 		model.setGoChat_facebook(permissionBinary);
 		return model;
 	}
@@ -103,61 +128,43 @@ public class FacebookPermissionTest extends BaseTest {
 	@DataProvider
 	public Object[][] facebookPermission() {
 		return new Object[][] { 
-//			{"0000000000000000000000000000"},
-//			{"0000000000000000000000000001"},
-//			{"0000000000000000000000000011"},
-//			{"0000000000000000000000000111"}, 
-//			{"0000000000000000000000001111"},
-//			{"0000000000000000000000011111"},
-//			{"0000000000000000000000111111"},
-//			{"0000000000000000000001111111"},
-//			{"0000000000000000000011111111"}, //
-			
+			{"0000000000000000000000000000"},
+			{"0000000000000000000000000001"},
+			{"0000000000000000000000000011"},
+			{"0000000000000000000000000111"}, 
+			{"0000000000000000000000001111"},
 			{"0000000000000000000000011111"},
-//			{"0000000000000000000000111111"}, 
-//			{"0000000000000000000001011111"}, 
-//			{"0000000000000000000001111111"}, 
-//			{"0000000000000000000010011111"}, 
-//			{"0000000000000000000010111111"}, 
-//			{"0000000000000000000011011111"}, 
-//			{"0000000000000000000011111111"}, 
-//			{"0000000000000000000100011111"},
-//			{"0000000000000000000100111111"}, 
-//			{"0000000000000000000101011111"}, 
-//			{"0000000000000000000101111111"}, 
-//			{"0000000000000000000110011111"}, 
-//			{"0000000000000000000110111111"}, 
-//			{"0000000000000000000111011111"}, 
-//			{"0000000000000000000111111111"},	
-			
-//			{"0000000000000000000111111111"},
-//			{"0000000000000000001111111111"},
-//			{"0000000000000000011111111111"},
-//			{"0000000000000000111111111111"},
-//			{"0000000000000001111111111111"},
-//			{"0000000000000011111111111111"},
-//			{"0000000000000111111111111111"},
-//			{"0000000000001111111111111111"},
-//			{"0000000000011111111111111111"},
-//			{"0000000000111111111111111111"},
-//			{"0000000001111111111111111111"},
-//			{"0000000011111111111111111111"},
-//			{"0000000111111111111111111111"},
-//			{"0000001111111111111111111111"},
-//			{"0000011111111111111111111111"},
-//			{"0000111111111111111111111111"},
-//			{"0001111111111111111111111111"},
-//			{"0011111111111111111111111111"},
-//			{"0111111111111111111111111111"},
-//			{"1111111111111111111111111111"},
+			{"0000000000000000000000111111"},
+			{"0000000000000000000001111111"},
+			{"0000000000000000000011111111"},
+			{"0000000000000000000111111111"},
+			{"0000000000000000001111111111"},
+			{"0000000000000000011111111111"},
+			{"0000000000000000111111111111"},
+			{"0000000000000001111111111111"}, 
+			{"0000000000000011111111111111"},
+			{"0000000000000111111111111111"},
+			{"0000000000001111111111111111"},//unlink
+			{"0000000000011111111111111111"},//chat
+			{"0000000000111111111111111111"},//order
+			{"0000000001111111111111111111"},//view campaign
+			{"0000000011111111111111111111"},//View campaign detail
+			{"0000000111111111111111111111"},//Create automation campaign
+			{"0000001111111111111111111111"},//edit campaign
+			{"0000011111111111111111111111"},//delete campaign
+			{"0000111111111111111111111111"},//viewbroadcst
+			{"0001111111111111111111111111"},//view detail
+			{"0011111111111111111111111111"},//create broadcast
+			{"0111111111111111111111111111"},//edit
+			{"1111111111111111111111111111"},//delete
 		};
 	}	
 
 	@Test(dataProvider = "facebookPermission")
-	public void CheckFacebookPermission(String permissionBinary) {
+	public void CheckFacebookPermission(String permissionBinary) throws JsonProcessingException {
 		
 		String[] connectedPage = {"101234035989956", "Multiple page Gosell"};
-		String[] disconnectedPage = {"105994502156884", "Testing SELL PAGE"};
+		int linkedCustomer = 4578528;
 		
 		String staffOldPermissionToken = new Login().getInfo(staffCredentials).getStaffPermissionToken();
 		
@@ -170,13 +177,11 @@ public class FacebookPermissionTest extends BaseTest {
 		AllPermissions allPermissionDTO = new AllPermissions(staffNewPermissionToken);
 		
 		System.out.println(allPermissionDTO.getGoChat().getFacebook());
-		System.out.println(allPermissionDTO.getSetting().getStaffManagement());
 		
 		commonAction.refreshPage();
 		commonAction.sleepInMiliSecond(1000, "OMG");
 		
 		//Check permission on Dashboard
-		/*
 		fbPage.checkPermissionToConnectAccount(allPermissionDTO);
 		fbPage.checkPermissionToDisconnectAccount(allPermissionDTO);
 		fbPage.checkPermissionToAddRemovePages(allPermissionDTO);
@@ -184,8 +189,8 @@ public class FacebookPermissionTest extends BaseTest {
 		fbAPI.getConnectedPages().stream().forEach(e -> fbAPI.disconnectPages(e.getPageId()));
 		fbPage.checkPermissionToConnectPages(allPermissionDTO, connectedPage[1]);
 		
-		fbAPI.connectPages(disconnectedPage[0]);
-		fbPage.checkPermissionToDisconnectPages(allPermissionDTO, disconnectedPage[1]);
+		fbAPI.connectPages(connectedPage[0]);
+		fbPage.checkPermissionToDisconnectPages(allPermissionDTO, connectedPage[1]);
 		
 		//Make sure there are at least 2 conversations
 		fbAPI.connectPages(connectedPage[0]);
@@ -198,29 +203,84 @@ public class FacebookPermissionTest extends BaseTest {
 		fbAPI.unassignConversation(unassignedConvsId);
 		fbPage.checkPermissionToViewConversations(allPermissionDTO, assignedConvsName, unassignedConvsName);
 		
-		fbAPI.connectPages(connectedPage[0]);
 		List<ConversationEntity> convEntity1 = fbAPI.getConversations(connectedPage[0]).getData();
 		String assignedConvsId1 = convEntity1.get(0).getSenders().getData().get(0).getId();
 		fbAPI.assignConversation(assignedConvsId1, staffId, staffName);
 		fbPage.checkPermissionToAssignConversations(allPermissionDTO);	
 		
-		fbAPI.connectPages(connectedPage[0]);
 		List<ConversationEntity> convEntity2 = fbAPI.getConversations(connectedPage[0]).getData();
 		String assignedConvsId2 = convEntity2.get(0).getSenders().getData().get(0).getId();
 		fbAPI.assignConversation(assignedConvsId2, staffId, staffName);
 		fbPage.checkPermissionToUnassignConversations(allPermissionDTO);			
+
+		List<ConversationEntity> convEntity3 = fbAPI.getConversations(connectedPage[0]).getData();
+		String assignedConvsId3 = convEntity3.get(0).getSenders().getData().get(0).getId();
+		fbAPI.assignConversation(assignedConvsId3, staffId, staffName);
+		fbPage.checkPermissionToCreateTag(allPermissionDTO);		
+
+		fbPage.checkPermissionToDeleteTag(allPermissionDTO, fbAPI.createRandomTag().getTagName());		
+
+		TagManagement hiddenTag = fbAPI.createRandomTag();
+		fbPage.checkPermissionToHideTag(allPermissionDTO, hiddenTag.getTagName());
+		fbAPI.deleteTag(hiddenTag.getId());
 		
-		*/
+		TagManagement assignedTag = fbAPI.createRandomTag();
+		fbAPI.unassignTag(assignedTag.getId(), assignedConvsId3);
+		fbPage.checkPermissionToAssignTag(allPermissionDTO, assignedTag.getTagName());
+		fbAPI.deleteTag(assignedTag.getId());		
 		
-//		fbAPI.connectPages(connectedPage[0]);
-//		List<ConversationEntity> convEntity3 = fbAPI.getConversations(connectedPage[0]).getData();
-//		String assignedConvsId3 = convEntity3.get(0).getSenders().getData().get(0).getId();
-//		fbAPI.assignConversation(assignedConvsId3, staffId, staffName);
-//		fbPage.checkPermissionToCreateTag(allPermissionDTO);
+		TagManagement unassignedTag = fbAPI.createRandomTag();
+		fbAPI.assignTag(unassignedTag.getId(), assignedConvsId3, connectedPage[0]);
+		fbPage.checkPermissionToUnassignTag(allPermissionDTO, unassignedTag.getTagName());
+		fbAPI.deleteTag(unassignedTag.getId());		
+
+		fbAPI.unlinkFBUserFromCustomer(assignedConvsId3);
+		CustomerProfileFB customerProfile = customerDetailAPI.getCustomerInfoAtGoSocial(linkedCustomer);
+		fbPage.checkPermissionToLinkCustomer(allPermissionDTO, assignedConvsId3, customerProfile.getFullName());		
+
+		CustomerProfileFB customerProfile1 = customerDetailAPI.getCustomerInfoAtGoSocial(linkedCustomer);
+		fbAPI.linkFBUserToCustomer(customerProfile1, assignedConvsId3, connectedPage[0]);
+		fbPage.checkPermissionToUnlinkCustomer(allPermissionDTO);
+		fbAPI.unlinkFBUserFromCustomer(assignedConvsId3);
 		
-		for (int i=0; i<10; i++) {
-			fbAPI.createRandomTag();
-		}
+		//Reply to messages
+		//Place orders for customers
+
+		ConnectedPages connectedPage1 = fbAPI.getConnectedPages().get(0);
+		CreatedAutomationCampaign createdAutomationCampaign = fbAPI.createAutomation(connectedPage1, fbAPI.getStoreConfig(), fbAPI.getFBPosts(connectedPage1.getPageId()).get(0));
+		fbPage.checkPermissionToViewAutomationCampaign(allPermissionDTO);
+		fbAPI.deleteAutomation(createdAutomationCampaign.getId());
+		
+		CreatedAutomationCampaign createdAutomationCampaign2 = fbAPI.createAutomation(connectedPage1, fbAPI.getStoreConfig(), fbAPI.getFBPosts(connectedPage1.getPageId()).get(0));
+		fbPage.checkPermissionToViewAutomationCampaignDetail(allPermissionDTO, createdAutomationCampaign2);
+		fbAPI.deleteAutomation(createdAutomationCampaign2.getId());		
+		
+		fbPage.checkPermissionToCreateAutomationCampaign(allPermissionDTO, connectedPage1);		
+
+		CreatedAutomationCampaign createdAutomationCampaign4 = fbAPI.createAutomation(connectedPage1, fbAPI.getStoreConfig(), fbAPI.getFBPosts(connectedPage1.getPageId()).get(0));
+		fbPage.checkPermissionToEditAutomationCampaign(allPermissionDTO, createdAutomationCampaign4);
+		fbAPI.deleteAutomation(createdAutomationCampaign4.getId());			
+		
+		CreatedAutomationCampaign createdAutomationCampaign5 = fbAPI.createAutomation(connectedPage1, fbAPI.getStoreConfig(), fbAPI.getFBPosts(connectedPage1.getPageId()).get(0));
+		fbPage.checkPermissionToDeleteAutomationCampaign(allPermissionDTO, createdAutomationCampaign5);		
+		
+		List<SegmentList> segmentList = segmentAPI.getSegmentList();
+		CreatedBroadcast broadcast = fbAPI.createBroadcast(connectedPage1, fbAPI.getStoreConfig(), segmentList);
+		fbPage.checkPermissionToViewBroadcastList(allPermissionDTO);
+		fbAPI.deleteBroadcast(broadcast.getId());		
+
+		CreatedBroadcast broadcast2 = fbAPI.createBroadcast(connectedPage1, fbAPI.getStoreConfig(), segmentList);
+		fbPage.checkPermissionToViewBroadcastCampaignDetail(allPermissionDTO, broadcast2);
+		fbAPI.deleteBroadcast(broadcast2.getId());		
+
+		fbPage.checkPermissionToCreateBroadcastCampaign(allPermissionDTO, connectedPage1);	
+		
+		CreatedBroadcast broadcast3 = fbAPI.createBroadcast(connectedPage1, fbAPI.getStoreConfig(), segmentList);
+		fbPage.checkPermissionToEditBroadcastCampaign(allPermissionDTO, broadcast3);
+		fbAPI.deleteBroadcast(broadcast3.getId());	
+		
+		CreatedBroadcast broadcast4 = fbAPI.createBroadcast(connectedPage1, fbAPI.getStoreConfig(), segmentList);
+		fbPage.checkPermissionToDeleteBroadcastCampaign(allPermissionDTO, broadcast4);
 		
 	}		
 }

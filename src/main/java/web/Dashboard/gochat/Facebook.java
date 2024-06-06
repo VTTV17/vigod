@@ -9,12 +9,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
+import utilities.model.gochat.facebook.ConnectedPages;
+import utilities.model.gochat.facebook.CreatedAutomationCampaign;
+import utilities.model.gochat.facebook.CreatedBroadcast;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;						
 
 public class Facebook {
@@ -55,7 +60,14 @@ public class Facebook {
 	}	
 	void waitTillLoadingIconDisappear() {
 		commons.sleepInMiliSecond(500, "Wait in waitTillLoadingIconDisappear()");
+		//There's an issue here. Uncomment the line below when the issue is fixed
 		commons.waitInvisibilityOfElementLocated(elements.loc_icnLoadMoreLoading);
+		//There's an issue here. Delete them when the issue is fixed
+//		for (int i=0; i<10; i++) {
+//			if (!commons.getElements(elements.loc_lblFBUserName).isEmpty()) break;
+//			if (!commons.getElements(elements.loc_lblNoResultFound).isEmpty()) break;
+//			commons.sleepInMiliSecond(1000, "Wait in waitTillLoadingIconDisappear()");
+//		}
 		logger.info("Load more loading icon has disappeared");
 		
 	}	
@@ -72,8 +84,24 @@ public class Facebook {
 		navigateByURL(DOMAIN + "/gosocial/facebook/automation");
 		return this;
 	}	
+	public Facebook navigateToCreateAutomationScreenByURL() {
+		navigateByURL(DOMAIN + "/gosocial/facebook/automation/create");
+		return this;
+	}	
+	public Facebook navigateToAutomationDetailScreenByURL(int campaignId) {
+		navigateByURL(DOMAIN + "/gosocial/facebook/automation/edit/" + campaignId);
+		return this;
+	}	
 	public Facebook navigateToBroadcastScreenByURL() {
 		navigateByURL(DOMAIN + "/gosocial/facebook/broadcast");
+		return this;
+	}	
+	public Facebook navigateToCreateBroadcastScreenByURL() {
+		navigateByURL(DOMAIN + "/gosocial/facebook/broadcast/create");
+		return this;
+	}	
+	public Facebook navigateToBroadcastDetailScreenByURL(int campaignId) {
+		navigateByURL(DOMAIN + "/gosocial/facebook/broadcast/edit/" + campaignId);
 		return this;
 	}	
 	public Facebook clickConnectFacebook() {
@@ -174,7 +202,7 @@ public class Facebook {
 		return this;
 	}
 	public Facebook inputTagName(String name) {
-		commons.inputText(elements.loc_txtTagNameInDialog, name);
+		new Actions(driver).moveToElement(commons.getElement(elements.loc_txtTagNameInDialog)).click().sendKeys(name).build().perform();
 		logger.info("Input tag name: " + name);
 		return this;
 	}
@@ -183,7 +211,109 @@ public class Facebook {
 		logger.info("Clicked Add button in Add Tag dialog");
 		return this;
 	}
+	public Facebook clickDeleteTagIcon(String tagName) {
+		commons.click(By.xpath(elements.loc_icnDeleteTagByName.formatted(tagName)));
+		logger.info("Clicked delete tag icon: " + tagName);
+		commons.sleepInMiliSecond(500, "Wait in clickDeleteTagIcon");
+		return this;
+	}
+	public Facebook clickHideTagIcon(String tagName) {
+		commons.click(By.xpath(elements.loc_icnHideTagByName.formatted(tagName)));
+		logger.info("Clicked the 1st delete tag icon");
+		commons.sleepInMiliSecond(500, "Wait in clickHideTagIcon");
+		return this;
+	}
+	public Facebook selectTagToAssign(String tagName) {
+		commons.click(By.xpath(elements.loc_btnTagByName.formatted(tagName)));
+		logger.info("Clicked tag to assign: " + tagName);
+		return this;
+	}
+	public Facebook clickEditProfileBtn() {
+		commons.click(elements.loc_icnEditProfile);
+		logger.info("Click Edit profile button");
+		return this;
+	}
+	public Facebook clickUnlinkCustomerIcon() {
+		commons.click(elements.loc_icnUnlinkCustomer);
+		logger.info("Click Unlink customer icon");
+		commons.sleepInMiliSecond(500, "Wait a little in clickUnlinkCustomerIcon()");
+		return this;
+	}
+	public Facebook selectCustomerToLink(String customerName) {
+		clickEditProfileBtn();
+		commons.inputText(elements.loc_txtSearchCustomer, customerName);
+		commons.click(By.xpath(elements.loc_lblCustomerResultByName.formatted(customerName)));
+		logger.info("Selected customer to link: " + customerName);
+		return this;
+	}
+	public Facebook clickSaveProfileBtn() {
+		homePage.hideFacebookBubble();
+		commons.click(elements.loc_btnSaveProfile);
+		logger.info("Clicked Save profile button");
+		return this;
+	}
+	public Facebook clickCreateAutomationCampaignBtn() {
+		commons.click(elements.loc_btnCreateAutomationCampaign);
+		logger.info("Clicked Create Automation campaign button");
+		return this;
+	}
+	public Facebook selectPage(String fbPageName) {
+		commons.click(elements.loc_ddlSelectPage);
+		commons.click(By.xpath(elements.loc_ddvSelectPageByName.formatted(fbPageName)));
+		logger.info("Selected Page to create for campaign creation: " + fbPageName);
+		return this;
+	}
+	public Facebook inputCampaignName(String name) {
+		commons.inputText(elements.loc_txtAutomationCampaignName, name);
+		logger.info("Input campaign name: " + name);
+		return this;
+	}
 	
+	public Facebook clickCreateBroadcastCampaignBtn() {
+		commons.click(elements.loc_btnCreateBroadcastCampaign);
+		logger.info("Clicked Create Broadcast campaign button");
+		return this;
+	}	
+	public String getAutomationCampaignNameInDetailScreeen() {
+		String name = "";
+		for (int i=0; i<10; i++) {
+			name = commons.getAttribute(elements.loc_txtAutomationCampaignName, "value");
+			if (!name.isEmpty()) break;
+			commons.sleepInMiliSecond(500, "Wait till automation campaign name gets rendered");
+		}
+		logger.info("Retrieved automation campaign name: " + name);
+		return name;
+	}	
+	public Facebook clickEditAutomationCampaignIcon(String name) {
+		commons.click(By.xpath(elements.loc_icnEditAutomationCampaignByName.formatted(name)));
+		logger.info("Clicked Edit icon of campaign: " + name);
+		return this;
+	}
+	public Facebook clickDeleteAutomationCampaignIcon(String name) {
+		commons.click(By.xpath(elements.loc_icnDeleteAutomationCampaignByName.formatted(name)));
+		logger.info("Clicked Delete icon of campaign: " + name);
+		return this;
+	}
+	public String getBroadcastCampaignNameInDetailScreeen() {
+		String name = "";
+		for (int i=0; i<10; i++) {
+			name = commons.getAttribute(elements.loc_txtAutomationCampaignName, "value");
+			if (!name.isEmpty()) break;
+			commons.sleepInMiliSecond(500, "Wait till broadcast campaign name gets rendered");
+		}
+		logger.info("Retrieved broadcast campaign name: " + name);
+		return name;
+	}	
+	public Facebook clickEditBroadcastCampaignIcon(String name) {
+		commons.click(By.xpath(elements.loc_icnEditBroadcastCampaignByName.formatted(name)));
+		logger.info("Clicked Edit icon of campaign: " + name);
+		return this;
+	}
+	public Facebook clickDeleteBroadcastCampaignIcon(String name) {
+		commons.click(By.xpath(elements.loc_icnDeleteBroadcastCampaignByName.formatted(name)));
+		logger.info("Clicked Delete icon of campaign: " + name);
+		return this;
+	}	
 
 	/*Verify permission for certain feature*/
 	public void verifyPermissionToConnectToFacebook(String permission) {
@@ -336,7 +466,7 @@ public class Facebook {
 	public void checkPermissionToViewConversations(AllPermissions staffPermission, String assignedUser, String unassignedUser) {
 		navigateToConversationScreenByURL(); 
 		if (isPermissionProhibited(staffPermission)) {
-			logger.info("Facebook permission not granted. Skipping checkPermissionToViewAssignedConversations");
+			logger.info("Facebook permission not granted. Skipping checkPermissionToViewConversations");
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 			return;
 		}
@@ -399,7 +529,7 @@ public class Facebook {
 	public void checkPermissionToUnassignConversations(AllPermissions staffPermission) {
 		navigateToConversationScreenByURL(); 
 		if (isPermissionProhibited(staffPermission)) {
-			logger.info("Facebook permission not granted. Skipping checkPermissionToAssignConversations");
+			logger.info("Facebook permission not granted. Skipping checkPermissionToUnassignConversations");
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 			return;
 		}
@@ -416,11 +546,11 @@ public class Facebook {
 		}
 		
 		logger.info("Finished checkPermissionToUnassignConversations");
-	}    
+	}
 	public void checkPermissionToCreateTag(AllPermissions staffPermission) {
 		navigateToConversationScreenByURL();
 		if (isPermissionProhibited(staffPermission)) {
-			logger.info("Facebook permission not granted. Skipping checkPermissionToAssignConversations");
+			logger.info("Facebook permission not granted. Skipping checkPermissionToCreateTag");
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 			return;
 		}
@@ -429,19 +559,450 @@ public class Facebook {
 			return;
 		}
 		
-		String tagName = "Auto Tag " + System.currentTimeMillis();
+		String tagName = "AutoTag" + System.currentTimeMillis();
 		
 		clickFirstConversation().clickAddTagBtn().inputTagName(tagName).clickAddBtnInAddTagDialog();
 		
 		if (staffPermission.getGoChat().getFacebook().isCreateNewTag()) {
+			commons.sleepInMiliSecond(500, "Wait after tag is created");
 			Assert.assertFalse(commons.getElements(By.xpath(elements.loc_lblTagByName.formatted(tagName))).isEmpty(), "Created tag is not shown");
 		} else {
 			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
 		}
 		
 		logger.info("Finished checkPermissionToCreateTag");
+	}  
+	public void checkPermissionToDeleteTag(AllPermissions staffPermission, String deletedTag) {
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToDeleteTag");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToHideTag");
+			return;
+		}
+		
+		clickFirstConversation().clickAddTagBtn().clickDeleteTagIcon(deletedTag);
+		
+		if (staffPermission.getGoChat().getFacebook().isDeleteTag()) {
+			//This implicitly means the tag is hidden
+			Assert.assertTrue(commons.getElements(By.xpath(elements.loc_icnHideTagByName.formatted(deletedTag))).isEmpty(), "The tag is delete");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToDeleteTag");
 	}    
+	public void checkPermissionToHideTag(AllPermissions staffPermission, String hiddenTag) {
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToHideTag");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToHideTag");
+			return;
+		}
+		
+		clickFirstConversation().clickAddTagBtn().clickHideTagIcon(hiddenTag);
+		
+		if (staffPermission.getGoChat().getFacebook().isHideTag()) {
+			//This implicitly means the tag is hidden
+			Assert.assertTrue(commons.getAttribute(By.xpath(elements.loc_icnHideTagByName.formatted(hiddenTag)), "class").contains("inactive"), "The tag is hidden");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToHideTag");
+	}    
+	public void checkPermissionToAssignTag(AllPermissions staffPermission, String assignedTag) {
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToAssignTag");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToAssignTag");
+			return;
+		}
+		
+		clickFirstConversation().selectTagToAssign(assignedTag);
+		
+		if (staffPermission.getGoChat().getFacebook().isAddTagToConversation()) {
+			commons.sleepInMiliSecond(500, "Wait after selecting tag");
+			//This implicitly means the tag is assigned to the conversation
+			Assert.assertFalse(commons.getAttribute(By.xpath(elements.loc_btnTagByName.formatted(assignedTag)), "style").contains("background-color: unset"), "Tag's style attribute containing 'background-color: unset'");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToAssignTag");
+	}    
+	public void checkPermissionToUnassignTag(AllPermissions staffPermission, String unassignedTag) {
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToUnassignTag");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToUnassignTag");
+			return;
+		}
+		
+		clickFirstConversation().selectTagToAssign(unassignedTag);
+		
+		if (staffPermission.getGoChat().getFacebook().isRemoveTagFromConversation()) {
+			commons.sleepInMiliSecond(500, "Wait after selecting tag");
+			//This implicitly means the tag is unassigned from the conversation
+			Assert.assertTrue(commons.getAttribute(By.xpath(elements.loc_btnTagByName.formatted(unassignedTag)), "style").contains("background-color: unset"), "Tag's style attribute containing 'background-color: unset'");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToUnassignTag");
+	}    
+	public void checkPermissionToLinkCustomer(AllPermissions staffPermission, String fbConversation, String goSellCustomer) {
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToLinkCustomer");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToLinkCustomer");
+			return;
+		}
+		
+		clickFirstConversation().selectCustomerToLink(goSellCustomer).clickSaveProfileBtn();
+		
+		//Remember to update code to check list of assigned customers and all customers
+		//Remember to update code to check permission to create customer
+		
+		if (staffPermission.getGoChat().getFacebook().isLinkCustomerWithFBUser()) {
+			Assert.assertEquals(homePage.getToastMessage(), translateText("facebook.customerLinkedSuccessfully"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToLinkCustomer");
+	}    
+	public void checkPermissionToUnlinkCustomer(AllPermissions staffPermission) {
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToUnlinkCustomer");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToUnlinkCustomer");
+			return;
+		}
+		
+		clickFirstConversation().clickEditProfileBtn().clickUnlinkCustomerIcon();
+		if (staffPermission.getGoChat().getFacebook().isUnlinkCustomerWithFBUser()) {
+			Assert.assertTrue(commons.getElements(elements.loc_lblLinkedCustomer).isEmpty(), "Linked customer is removed");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToUnlinkCustomer");
+	}    
+	public void checkPermissionToReplyToMessage(AllPermissions staffPermission) {
+		/* Temporarily skipped
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToUnlinkCustomer");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToUnlinkCustomer");
+			return;
+		}
+		logger.info("Finished checkPermissionToUnlinkCustomer");
+		 */
+	}    
+	public void checkPermissionToPlaceOrder(AllPermissions staffPermission) {
+		/* Temporarily skipped
+		navigateToConversationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToUnlinkCustomer");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if(!staffPermission.getGoChat().getFacebook().isViewAllConversations() && !staffPermission.getGoChat().getFacebook().isViewAssignedConversation()) {
+			logger.info("View conversations permissions not granted. Skipping checkPermissionToUnlinkCustomer");
+			return;
+		}
+		logger.info("Finished checkPermissionToUnlinkCustomer");
+		 */
+	}    
+	public void checkPermissionToViewAutomationCampaign(AllPermissions staffPermission) {
+		navigateToAutomationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToViewAutomationCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		if (staffPermission.getGoChat().getFacebook().isViewAutomationCampaignList()) {
+			//This implicitly means the list is not empty
+			Assert.assertFalse(commons.getText(By.xpath(elements.loc_lblAutomationCampaign)).isEmpty(), "Campaign list is empty");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToViewAutomationCampaign");
+	}  
+	public void checkPermissionToViewAutomationCampaignDetail(AllPermissions staffPermission, CreatedAutomationCampaign campaign) {
+		navigateToAutomationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToViewAutomationCampaignDetail");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		//Navigate to campaign detail screen by clicking on Edit icon
+		if (staffPermission.getGoChat().getFacebook().isViewAutomationCampaignList()) {
+			clickEditAutomationCampaignIcon(campaign.getCampaignName());
+			if (staffPermission.getGoChat().getFacebook().isViewAutomationCampaignDetail()) {
+				Assert.assertEquals(getAutomationCampaignNameInDetailScreeen(), campaign.getCampaignName());
+			} else {
+				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			}
+		}
+		
+		//Navigate to campaign detail screen by URL
+		navigateToAutomationDetailScreenByURL(campaign.getId());
+		if (staffPermission.getGoChat().getFacebook().isViewAutomationCampaignDetail()) {
+			Assert.assertEquals(getAutomationCampaignNameInDetailScreeen(), campaign.getCampaignName());
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToViewAutomationCampaignDetail");
+	}  
+	public void checkPermissionToCreateAutomationCampaign(AllPermissions staffPermission, ConnectedPages page) {
+		navigateToAutomationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToCreateAutomationCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		if (staffPermission.getGoChat().getFacebook().isViewAutomationCampaignList()) {
+			//Navigate to create screen by clicking on Create Campaign button
+			clickCreateAutomationCampaignBtn();
+			if (staffPermission.getGoChat().getFacebook().isCreateAutomationCampaign()) {
+				selectPage(page.getPageName()).inputCampaignName("Automation " + System.currentTimeMillis());
+				commons.click(elements.loc_btnSelectPost);
+				commons.click(elements.loc_chkPost);
+				commons.click(elements.loc_btnSelect);
+				commons.click(elements.loc_btnAddResponse);
+				commons.click(elements.loc_btnSaveAutomationCampaign);
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.create.successMessage"));
+			} else {
+				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			}
+		} else {
+			//Navigate to create screen by URL
+			navigateToCreateAutomationScreenByURL();
+			selectPage(page.getPageName()).inputCampaignName("Automation " + System.currentTimeMillis());
+			commons.click(elements.loc_btnSelectPost);
+			commons.click(elements.loc_chkPost);
+			commons.click(elements.loc_btnSelect);
+			commons.click(elements.loc_btnAddResponse);
+			commons.click(elements.loc_btnSaveAutomationCampaign);
+			if (staffPermission.getGoChat().getFacebook().isCreateAutomationCampaign()) {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.create.successMessage"));
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("common.toast.somethingWrong"));
+			}
+		}
+		
+		logger.info("Finished checkPermissionToCreateAutomationCampaign");
+	}  
+	public void checkPermissionToEditAutomationCampaign(AllPermissions staffPermission, CreatedAutomationCampaign campaign) {
+		navigateToAutomationDetailScreenByURL(campaign.getId());
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToEditAutomationCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		if (!staffPermission.getGoChat().getFacebook().isViewAutomationCampaignDetail()) {
+			logger.info("View Campaign Detail permission not granted. Skipping checkPermissionToEditAutomationCampaign");
+			return;
+		}
+		
+		inputCampaignName("Automation " + System.currentTimeMillis());
+		commons.click(elements.loc_btnSaveAutomationCampaign);
+		if (staffPermission.getGoChat().getFacebook().isEditAutomationCampaign()) {
+			Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		logger.info("Finished checkPermissionToEditAutomationCampaign");
+	}  
+	public void checkPermissionToDeleteAutomationCampaign(AllPermissions staffPermission, CreatedAutomationCampaign campaign) {
+		navigateToAutomationScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToDeleteAutomationCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
 
+		if (!staffPermission.getGoChat().getFacebook().isViewAutomationCampaignList()) {
+			logger.info("View Automation Campaigns permission not granted. Skipping checkPermissionToDeleteAutomationCampaign");
+			return;
+		}		
+		
+		clickDeleteAutomationCampaignIcon(campaign.getCampaignName());
+		if (staffPermission.getGoChat().getFacebook().isDeleteAutomationCampaign()) {
+			new ConfirmationDialog(driver).clickOKBtn();
+			Assert.assertEquals(homePage.getToastMessage(), translateText("marketing.landingPage.delete.successMessage"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToDeleteAutomationCampaign");
+	}  
+	public void checkPermissionToViewBroadcastList(AllPermissions staffPermission) {
+		navigateToBroadcastScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToViewBroadcastList");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		if (staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignList()) {
+			//This implicitly means the list is not empty
+			Assert.assertFalse(commons.getText(By.xpath(elements.loc_lblBroadcastCampaign)).isEmpty(), "Campaign list is empty");
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToViewBroadcastList");
+	}  
+	public void checkPermissionToViewBroadcastCampaignDetail(AllPermissions staffPermission, CreatedBroadcast campaign) {
+		navigateToBroadcastScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToViewBroadcastCampaignDetail");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		//Navigate to campaign detail screen by clicking on Edit icon
+		if (staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignList()) {
+			clickEditBroadcastCampaignIcon(campaign.getCampaignName());
+			if (staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignDetail()) {
+				Assert.assertEquals(getBroadcastCampaignNameInDetailScreeen(), campaign.getCampaignName());
+			} else {
+				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			}
+		}
+		
+		//Navigate to campaign detail screen by URL
+		navigateToBroadcastDetailScreenByURL(campaign.getId());
+		if (staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignDetail()) {
+			Assert.assertEquals(getBroadcastCampaignNameInDetailScreeen(), campaign.getCampaignName());
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToViewBroadcastCampaignDetail");
+	}  	
+	public void checkPermissionToCreateBroadcastCampaign(AllPermissions staffPermission, ConnectedPages page) {
+		navigateToBroadcastScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToCreateBroadcastCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		//Check view segment list permission
+		
+		if (staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignList()) {
+			//Navigate to create screen by clicking on Create Campaign button
+			clickCreateBroadcastCampaignBtn();
+			if (staffPermission.getGoChat().getFacebook().isCreateBroadcastCampaign()) {
+				selectPage(page.getPageName()).inputCampaignName("Broadcast " + System.currentTimeMillis());
+				commons.click(elements.loc_lnkAddSegment);
+				commons.click(elements.loc_chkSegment);
+				commons.click(elements.loc_btnSelect);
+				commons.click(elements.loc_btnAddResponse);
+				commons.click(elements.loc_btnSaveBroadcastCampaign);
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.create.successMessage"));
+			} else {
+				Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			}
+		} else {
+			//Navigate to create screen by URL
+			navigateToCreateBroadcastScreenByURL();
+			selectPage(page.getPageName()).inputCampaignName("Broadcast " + System.currentTimeMillis());
+			commons.click(elements.loc_lnkAddSegment);
+			commons.click(elements.loc_chkSegment);
+			commons.click(elements.loc_btnSelect);
+			commons.click(elements.loc_btnAddResponse);
+			commons.click(elements.loc_btnSaveBroadcastCampaign);
+			if (staffPermission.getGoChat().getFacebook().isCreateBroadcastCampaign()) {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.create.successMessage"));
+			} else {
+				Assert.assertEquals(homePage.getToastMessage(), translateText("common.toast.somethingWrong"));	
+			}
+		}
+		logger.info("Finished checkPermissionToCreateBroadcastCampaign");
+	}
+	public void checkPermissionToEditBroadcastCampaign(AllPermissions staffPermission, CreatedBroadcast campaign) {
+		navigateToBroadcastDetailScreenByURL(campaign.getId());
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToEditBroadcastCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+		
+		// Check view segment list permission
+		if (!staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignDetail()) {
+			logger.info("View Campaign Detail permission not granted. Skipping checkPermissionToEditBroadcastCampaign");
+			return;
+		}
+		
+		inputCampaignName("Broadcast " + System.currentTimeMillis());
+		commons.click(elements.loc_btnSaveBroadcastCampaign);
+		if (staffPermission.getGoChat().getFacebook().isEditBroadcastCampaign()) {
+			Assert.assertEquals(homePage.getToastMessage(), translateText("promotion.flashSale.edit.successMessage"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		logger.info("Finished checkPermissionToEditBroadcastCampaign");
+	}
+	public void checkPermissionToDeleteBroadcastCampaign(AllPermissions staffPermission, CreatedBroadcast campaign) {
+		navigateToBroadcastScreenByURL();
+		if (isPermissionProhibited(staffPermission)) {
+			logger.info("Facebook permission not granted. Skipping checkPermissionToDeleteBroadcastCampaign");
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+			return;
+		}
+
+		if (!staffPermission.getGoChat().getFacebook().isViewBroadcastCampaignList()) {
+			logger.info("View Campaigns permission not granted. Skipping checkPermissionToDeleteBroadcastCampaign");
+			return;
+		}		
+		
+		clickDeleteBroadcastCampaignIcon(campaign.getCampaignName());
+		if (staffPermission.getGoChat().getFacebook().isDeleteBroadcastCampaign()) {
+			new ConfirmationDialog(driver).clickOKBtn();
+			Assert.assertEquals(homePage.getToastMessage(), translateText("marketing.landingPage.delete.successMessage"));
+		} else {
+			Assert.assertTrue(new CheckPermission(driver).isAccessRestrictedPresent());
+		}
+		
+		logger.info("Finished checkPermissionToDeleteBroadcastCampaign");
+	}  	
 	public void checkFacebookPermission(AllPermissions staffPermission, String connectedPage, String disconnectedPage) {
 //		checkPermissionToConnectAccount(staffPermission);
 //		checkPermissionToDisconnectAccount(staffPermission);
