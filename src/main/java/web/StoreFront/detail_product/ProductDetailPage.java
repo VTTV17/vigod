@@ -2,7 +2,7 @@ package web.StoreFront.detail_product;
 
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
-import api.Seller.onlineshop.Preferences;
+import api.Seller.sale_channel.onlineshop.Preferences;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.products.product_reviews.APIProductReviews;
 import api.Seller.promotion.FlashSale;

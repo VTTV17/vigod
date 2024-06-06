@@ -100,7 +100,7 @@ public class Checkout extends CheckoutElement {
     }
 
     public Checkout verifyCity_CountryNonVietName(String expected) {
-        String city = commonAction.getAttribute(loc_dlgUpdateAddress_ddlCityProvince, "value");
+        String city = commonAction.getAttribute(loc_dlgUpdateAddress_txtCity, "value");
         Assert.assertEquals(city, expected);
         logger.info("Verify inputted city: %s display".formatted(city));
         return this;
@@ -139,7 +139,7 @@ public class Checkout extends CheckoutElement {
     }
 
     public String selectDistrict(String district) {
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.waitTillSelectDropdownHasData(loc_dlgUpdateAddress_ddlDistrict);
         if(district.isEmpty()){
             commonAction.selectByIndex(loc_dlgUpdateAddress_ddlDistrict, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlDistrict)).size()));
             district = commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlDistrict);
@@ -151,7 +151,7 @@ public class Checkout extends CheckoutElement {
     }
 
     public String selectWard(String ward) {
-        commonAction.sleepInMiliSecond(500);
+        commonAction.waitTillSelectDropdownHasData(loc_dlgUpdateAddress_ddlWardTown);
         if(ward.isEmpty()){
             commonAction.selectByIndex(loc_dlgUpdateAddress_ddlWardTown, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlWardTown)).size()));
             ward = commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlWardTown);
@@ -175,9 +175,9 @@ public class Checkout extends CheckoutElement {
     }
 
     public String selectState(String state) {
-        commonAction.sleepInMiliSecond(500);
+        commonAction.waitTillSelectDropdownHasData(loc_dlgUpdateAddress_ddlState);
         if(state.isEmpty()){
-            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlState, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlWardTown)).size()));
+            commonAction.selectByIndex(loc_dlgUpdateAddress_ddlState, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(loc_dlgUpdateAddress_ddlState)).size()));
             state = commonAction.getDropDownSelectedValue(loc_dlgUpdateAddress_ddlState);
         }else commonAction.selectByVisibleText(loc_dlgUpdateAddress_ddlState, state);
         logger.info("Select state/region/province: %s".formatted(state));
@@ -221,6 +221,7 @@ public class Checkout extends CheckoutElement {
         }
         String address = "address "+ new DataGenerator().generateString(10);
         inputAddress(address);
+        addressInfo.setAddress(address);
         addressInfo.setCityProvince(selectCityProvince(""));
         addressInfo.setDistrict(selectDistrict(""));
         addressInfo.setWard(selectWard(""));
@@ -270,7 +271,9 @@ public class Checkout extends CheckoutElement {
 
     public Checkout verifyAddressInfo_NonVN(String country, String address, String address2, String state, String city, String zipCode) {
 //        commonAction.sleepInMiliSecond(3000);
-        verifyCountrySelectedValue(country);
+        if(country!="") {
+            verifyCountrySelectedValue(country);
+        }
         verifyAddress(address);
         verifyAddress2(address2);
         verifyStateRegionProvince(state);
@@ -356,6 +359,8 @@ public class Checkout extends CheckoutElement {
         return this;
     }
     public Checkout goToEditMyAddress(){
+        new GeneralSF(driver).waitTillLoaderDisappear();
+        commonAction.sleepInMiliSecond(2000);
         clickOnEditIcon();
         clickUpdateBtnOnMyAddress();
         return this;

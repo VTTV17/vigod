@@ -1,9 +1,11 @@
 package api.Seller.orders.order_management;
 
 import api.Seller.login.Login;
+import api.Seller.orders.delivery.APIPartialDeliveryOrders;
 import api.Seller.orders.return_order.APIGetListReturnOrderByOrderId;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBodyExtractionOptions;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +15,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import static api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
 import static api.Seller.orders.order_management.APIAllOrders.Channel.BEECOW;
@@ -52,7 +55,7 @@ public class APIAllOrders {
     }
 
     public enum OrderStatus {
-        CANCELLED, CANCEL_COMPLETED, CANCEL_PENDING, CANCEL_REJECTED, COMPLETED, DELIVERED, FAILED, IN_CANCEL, PARTIALLY_SHIPPING, PENDING, PICKED, REJECTED, RETURNED, SHIPPED, TO_SHIP, UNKNOWN, WAITING_FOR_PICKUP
+        CANCELLED, CANCEL_COMPLETED, CANCEL_PENDING, CANCEL_REJECTED, COMPLETED, DELIVERED, FAILED, IN_CANCEL, PARTIALLY_SHIPPING, PENDING, PICKED, REJECTED, RETURNED, SHIPPED, TO_SHIP, UNKNOWN, WAITING_FOR_PICKUP, IN_DELIVERY
     }
 
     public enum Channel {
@@ -120,13 +123,14 @@ public class APIAllOrders {
         // get number of pages
         int numberOfPages = Math.min(totalOfOrders / 100, 99);
 
+        List<JsonPath> jsonPaths = IntStream.rangeClosed(0, numberOfPages)
+                .parallel()
+                .mapToObj((int pageIndex) -> getAllOrderResponse(pageIndex, branchQuery, channel))
+                .map(ResponseBodyExtractionOptions::jsonPath)
+                .toList();
+
         // get other page data
-        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-            JsonPath jsonPath = getAllOrderResponse(pageIndex, branchQuery, channel)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .jsonPath();
+        for (JsonPath jsonPath : jsonPaths) {
             ids.addAll(jsonPath.getList("response.id"));
             bcOrderGroupIds.addAll(jsonPath.getList("response.bcOrderGroupId"));
             statues.addAll(jsonPath.getList("response.status"));
@@ -182,8 +186,8 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && Optional.ofNullable(madeBy.get(ids.indexOf(id))).isPresent()
-                        && madeBy.get(ids.indexOf(id)).equals(staffName))
+                              && Optional.ofNullable(madeBy.get(ids.indexOf(id))).isPresent()
+                              && madeBy.get(ids.indexOf(id)).equals(staffName))
                 .boxed()
                 .toList();
     }
@@ -206,7 +210,7 @@ public class APIAllOrders {
         List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
         return ids.stream()
                 .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP))
+                                                  && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP))
                 .findFirst()
                 .orElse(0L);
     }
@@ -221,11 +225,11 @@ public class APIAllOrders {
         List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
         return ids.stream()
                 .mapToLong(id -> id).filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
-                        && !Objects.equals(paymentMethods.get(ids.indexOf(id)), ONLINE_BANKING)
-                        && !Objects.equals(paymentMethods.get(ids.indexOf(id)), CREDIT_DEBIT_CARD)
-                        && !Objects.equals(paymentMethods.get(ids.indexOf(id)), MPOS))
+                                                  && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                                                  && Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
+                                                  && !Objects.equals(paymentMethods.get(ids.indexOf(id)), ONLINE_BANKING)
+                                                  && !Objects.equals(paymentMethods.get(ids.indexOf(id)), CREDIT_DEBIT_CARD)
+                                                  && !Objects.equals(paymentMethods.get(ids.indexOf(id)), MPOS))
                 .findFirst()
                 .orElse(0L);
     }
@@ -240,15 +244,15 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && (Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
-                        || (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                        && (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW))
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), CANCELLED)
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), DELIVERED)
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), FAILED)
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), COMPLETED)
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), RETURNED)
-                        && !Objects.equals(orderStatuses.get(ids.indexOf(id)), PENDING))))
+                              && (Objects.equals(orderStatuses.get(ids.indexOf(id)), TO_SHIP)
+                                  || (Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                                      && (Objects.equals(channel, GOSELL) || Objects.equals(channel, BEECOW))
+                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), CANCELLED)
+                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), DELIVERED)
+                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), FAILED)
+                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), COMPLETED)
+                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), RETURNED)
+                                      && !Objects.equals(orderStatuses.get(ids.indexOf(id)), PENDING))))
                 .findFirst()
                 .orElse(0L);
     }
@@ -263,9 +267,27 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                        && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED)))
+                               && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                               && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED)))
                 .findFirst()
+                .orElse(0L);
+    }
+
+    public long getOrderIdForAddShipmentPackage(Channel channel, List<Integer> assignedBranchIds) {
+        AllOrdersInformation info = getAllOrderInformation(channel);
+        // init temp arr
+        List<Long> ids = new ArrayList<>(info.getIds());
+        List<Integer> branchIds = new ArrayList<>(info.getBranchIds());
+        List<OrderStatus> orderStatuses = new ArrayList<>(info.getStatues());
+        List<ShippingMethod> shippingMethods = new ArrayList<>(info.getShippingMethods());
+        APIPartialDeliveryOrders apiPartialDeliveryOrders = new APIPartialDeliveryOrders(loginInformation);
+        return ids.parallelStream()
+                .mapToLong(id -> id)
+                .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
+                               && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                               && Objects.equals(orderStatuses.get(ids.indexOf(id)), SHIPPED))
+                              && apiPartialDeliveryOrders.getPartialDeliveryWithAvailableItemResponse(id).getStatusCode() == 200)
+                .findAny()
                 .orElse(0L);
     }
 
@@ -279,7 +301,7 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
+                              && !orderTags.get(ids.indexOf(id)).getTagIds().isEmpty())
                 .findFirst()
                 .orElse(0L);
     }
@@ -297,7 +319,7 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> (assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && isShowConfirmPayment(orderStatuses.get(ids.indexOf(id)),
+                               && isShowConfirmPayment(orderStatuses.get(ids.indexOf(id)),
                         paymentMethods.get(ids.indexOf(id)),
                         payTypes.get(ids.indexOf(id)),
                         inStores.get(ids.indexOf(id))))
@@ -312,10 +334,10 @@ public class APIAllOrders {
                                  InStore inStore) {
         List<PaymentMethod> paymentMethodList = List.of(COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD);
         return !(Objects.equals(inStore, InStore.GO_SOCIAL) || // ignore GoSocial order
-                paymentMethodList.contains(paymentMethod) ||
-                (Objects.equals(status, DELIVERED) || Objects.equals(status, RETURNED)) && Objects.equals(payType, PAID) || // order with payType PAID and status in (DELIVERED, RETURNED) or
-                Objects.equals(payType, UNPAID) && (Objects.equals(status, CANCELLED)) || // or order with payType UNPAID and paymentMethod in (COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD) or status CANCELLED
-                Objects.equals(paymentMethod, DEBT) && (Objects.equals(status, DELIVERED) || Objects.equals(status, CANCELLED))); // or order with paymentMethod DEBT and status in (DELIVERED, CANCELLED) are not count debt
+                 paymentMethodList.contains(paymentMethod) ||
+                 (Objects.equals(status, DELIVERED) || Objects.equals(status, RETURNED)) && Objects.equals(payType, PAID) || // order with payType PAID and status in (DELIVERED, RETURNED) or
+                 Objects.equals(payType, UNPAID) && (Objects.equals(status, CANCELLED)) || // or order with payType UNPAID and paymentMethod in (COD, BANK_TRANSFER, MOMO, PAYPAL, ONLINE_BANKING, CREDIT_DEBIT_CARD) or status CANCELLED
+                 Objects.equals(paymentMethod, DEBT) && (Objects.equals(status, DELIVERED) || Objects.equals(status, CANCELLED))); // or order with paymentMethod DEBT and status in (DELIVERED, CANCELLED) are not count debt
     }
 
     public boolean isPrintOrder() {
@@ -340,8 +362,8 @@ public class APIAllOrders {
         return ids.stream()
                 .mapToLong(id -> id)
                 .filter(id -> assignedBranchIds.contains(branchIds.get(ids.indexOf(id)))
-                        && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
-                        && canReturnOrder(id))
+                              && Objects.equals(shippingMethods.get(ids.indexOf(id)), selfdelivery)
+                              && canReturnOrder(id))
                 .findFirst()
                 .orElse(0L);
     }

@@ -19,6 +19,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Login {
     String API_LOGIN_PATH = "/api/authenticate/store/email/gosell";
@@ -77,7 +78,7 @@ public class Login {
 
     public LoginDashboardInfo getInfo(LoginInformation loginInformation) {
         LoginDashboardInfo info = loginCache.getIfPresent(loginInformation);
-        if (info == null) {
+        if (Optional.ofNullable(info).isEmpty()) {
             // init login dashboard info model
             info = new LoginDashboardInfo();
 
@@ -117,7 +118,8 @@ public class Login {
             if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
 
             // set staffToken
-            API.setStaffPermissionToken(info.getStaffPermissionToken() != null ? info.getStaffPermissionToken() : "");
+            if (Optional.ofNullable(info.getStaffPermissionToken()).isEmpty()) info.setStaffPermissionToken("");
+            API.setStaffPermissionToken(info.getStaffPermissionToken());
 
             // get branch info
             BranchInfo branchInfo = new BranchManagement(loginInformation, info).getInfo();

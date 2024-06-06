@@ -219,7 +219,7 @@ public class LoginPage {
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getUserId()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getOwnerId()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
-        if (loginInfo.getStaffPermissionToken() != null)
+        if (!loginInfo.getStaffPermissionToken().isEmpty())
             ((JavascriptExecutor) driver).executeScript("localStorage.setItem('staffPermissionToken', '\"%s\"')".formatted(loginInfo.getStaffPermissionToken()));
 
         logger.info("Set local storage successfully");

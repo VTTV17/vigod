@@ -1,7 +1,7 @@
 package web.Dashboard;
 
 import api.Seller.login.Login;
-import api.Seller.onlineshop.APIMenus;
+import api.Seller.sale_channel.onlineshop.APIMenus;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Buyer.header.APIHeader;
@@ -228,7 +228,7 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("Product: " + productExpectedList);
         productCollectionManagement = new ProductCollectionManagement(driver);
         productCollectionManagement.verifyCollectionInfoAfterUpdated(collectionName, productType, automatedMode, String.valueOf(countItemExpected))
-                .waitToUpdateCollection(7);
+                .waitToUpdateCollection(10);
         callCreateMenuItemParentAPI(collectionName);
         //Check on SF
         navigateSFAndGoToCollectionPage(collectionName);

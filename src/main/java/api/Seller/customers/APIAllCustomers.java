@@ -13,6 +13,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class APIAllCustomers {
@@ -27,7 +28,7 @@ public class APIAllCustomers {
     LoginDashboardInfo loginInfo;
     API api = new API();
     LoginInformation loginInformation;
-    private final static Cache<LoginInformation, CustomerManagementInfo> customerCache = CacheBuilder.newBuilder().build();
+    private final static Cache<String, CustomerManagementInfo> customerCache = CacheBuilder.newBuilder().build();
 
     public APIAllCustomers(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -47,8 +48,15 @@ public class APIAllCustomers {
     }
 
     public CustomerManagementInfo getCustomerManagementInfo() {
-        CustomerManagementInfo info = customerCache.getIfPresent(loginInformation);
-        if (info == null) {
+        CustomerManagementInfo info = customerCache.getIfPresent(loginInfo.getAccessToken());
+        if (Optional.ofNullable(info).isEmpty()) {
+            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
+                CustomerManagementInfo tempInfo = customerCache.getIfPresent("");
+                customerCache.invalidateAll();
+                if (Optional.ofNullable(tempInfo).isPresent()) {
+                    customerCache.put("", tempInfo);
+                }
+            }
             info = new CustomerManagementInfo();
             int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
             numberOfPages = Math.min(numberOfPages, 99);
@@ -87,7 +95,7 @@ public class APIAllCustomers {
             info.setGuestUser(guestUser);
 
             // save cache
-            customerCache.put(loginInformation, info);
+            customerCache.put(loginInfo.getAccessToken(), info);
         }
 
         return info;

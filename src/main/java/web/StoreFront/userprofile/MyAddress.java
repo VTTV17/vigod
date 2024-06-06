@@ -130,6 +130,7 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public String selectCountry(String country) {
+        commonAction.waitTillSelectDropdownHasData(myAddressUI.loc_ddlCountry);
         if(country.isEmpty()){
             commonAction.selectByIndex(myAddressUI.loc_ddlCountry, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlCountry)).size()));
             country =  commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlCountry);
@@ -153,6 +154,7 @@ public class MyAddress extends HeaderSF {
         return this;
     }
     public String selectCityProvince(String city) {
+        commonAction.waitTillSelectDropdownHasData(myAddressUI.loc_ddlCity);
         if(city.isEmpty()){
             commonAction.selectByIndex(myAddressUI.loc_ddlCity, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlCity)).size()));
             city =  commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlCity);
@@ -163,7 +165,7 @@ public class MyAddress extends HeaderSF {
         return city;
     }
     public String selectDistrict(String district) {
-        commonAction.sleepInMiliSecond(1000);
+        commonAction.waitTillSelectDropdownHasData(myAddressUI.loc_ddlDistrict);
         if(district.isEmpty()){
             commonAction.selectByIndex(myAddressUI.loc_ddlDistrict, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlDistrict)).size()));
             district = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlDistrict);
@@ -174,7 +176,7 @@ public class MyAddress extends HeaderSF {
         return district;
     }
     public String selectWard(String ward) {
-        commonAction.sleepInMiliSecond(500);
+        commonAction.waitTillSelectDropdownHasData(myAddressUI.loc_ddlWard);
         if(ward.isEmpty()){
             commonAction.selectByIndex(myAddressUI.loc_ddlWard, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlWard)).size()));
             ward = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlWard);
@@ -185,7 +187,7 @@ public class MyAddress extends HeaderSF {
         return ward;
     }
     public String selectState(String state) {
-        commonAction.sleepInMiliSecond(500);
+        commonAction.waitTillSelectDropdownHasData(myAddressUI.loc_ddlState);
         if(state.isEmpty()){
             commonAction.selectByIndex(myAddressUI.loc_ddlState, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlState)).size()));
             state = commonAction.getDropDownSelectedValue(myAddressUI.loc_ddlState);
@@ -228,6 +230,7 @@ public class MyAddress extends HeaderSF {
         }
         String address = "address "+ new DataGenerator().generateString(10);
         inputAddress(address);
+        addressInfo.setAddress(address);
         addressInfo.setCityProvince(selectCityProvince(""));
         addressInfo.setDistrict(selectDistrict(""));
         addressInfo.setWard(selectWard(""));
@@ -276,7 +279,9 @@ public class MyAddress extends HeaderSF {
     }
     public  MyAddress verifyAddressInfo_NonVN(String country, String address, String address2, String city, String state, String zipCode){
         commonAction.sleepInMiliSecond(2000);
-        verifyCountry(country);
+        if(country!=""){
+            verifyCountry(country);
+        }
         verifyAddress(address);
         verifyAddress2(address2);
         verifyState(state);

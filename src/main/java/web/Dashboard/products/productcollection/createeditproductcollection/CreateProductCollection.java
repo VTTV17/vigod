@@ -150,7 +150,7 @@ public class CreateProductCollection extends CreateProductCollectionElement {
         home.waitTillLoadingDotsDisappear();
         for (String productName : keywords) {
             inputSearchKeyword(productName);
-            home.waitTillSpinnerDisappear();
+            home.waitTillSpinnerDisappear1();
             selectAllProductInCurrentPage();
         }
         clickOnOKBTN();

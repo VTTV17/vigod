@@ -1,7 +1,7 @@
 package app.Buyer.productDetail;
 
 import api.Seller.customers.APIAllCustomers;
-import api.Seller.onlineshop.Preferences;
+import api.Seller.sale_channel.onlineshop.Preferences;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.FlashSale.FlashSaleInfo;

@@ -1,4 +1,4 @@
-package api.Seller.onlineshop;
+package api.Seller.sale_channel.onlineshop;
 
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;

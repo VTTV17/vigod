@@ -293,7 +293,7 @@ public class APIAllProducts {
         return getAllProductJsonPath().getList("name");
     }
 
-    private record CacheQuery(LoginInformation loginInformation, int... branchIds) {
+    private record CacheQuery(String staffToken, int... branchIds) {
     }
 
     private final static Cache<CacheQuery, ProductManagementInfo> allProductCache = CacheBuilder.newBuilder().build();
@@ -317,9 +317,17 @@ public class APIAllProducts {
     }
 
     public ProductManagementInfo getAllProductInformation(int... branchIds) {
-        CacheQuery query = new CacheQuery(loginInformation, branchIds);
+        CacheQuery query = new CacheQuery(loginInfo.getStaffPermissionToken(), branchIds);
         ProductManagementInfo info = allProductCache.getIfPresent(query);
-        if (info == null) {
+        if (Optional.ofNullable(info).isEmpty()) {
+            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
+                ProductManagementInfo tempInfo = allProductCache.getIfPresent(new CacheQuery("", branchIds));
+                allProductCache.invalidateAll();
+                if (Optional.ofNullable(tempInfo).isPresent()) {
+                    allProductCache.put(new CacheQuery("", branchIds), tempInfo);
+                }
+            }
+
             info = new ProductManagementInfo();
             // get page 0 data
             List<Integer> variationNumber = new ArrayList<>();

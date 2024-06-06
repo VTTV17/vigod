@@ -13,6 +13,7 @@ import utilities.model.dashboard.setting.Tax.TaxInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class VAT {
@@ -22,7 +23,7 @@ public class VAT {
 	
 	API api = new API();
     LoginDashboardInfo loginInfo;
-    private final static Cache<LoginInformation, TaxInfo> taxCache = CacheBuilder.newBuilder().build();
+    private final static Cache<String, TaxInfo> taxCache = CacheBuilder.newBuilder().build();
 
     LoginInformation loginInformation;
     public VAT(LoginInformation loginInformation) {
@@ -32,9 +33,17 @@ public class VAT {
 
 
     public TaxInfo getInfo() {
-        TaxInfo info = taxCache.getIfPresent(loginInformation);
+        TaxInfo info = taxCache.getIfPresent(loginInfo.getAccessToken());
 
-        if (info == null) {
+        if (Optional.ofNullable(info).isEmpty()) {
+            // if staff token is changed, clear cache
+            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
+                TaxInfo tempInfo = taxCache.getIfPresent("");
+                taxCache.invalidateAll();
+                if (Optional.ofNullable(tempInfo).isPresent()) {
+                    taxCache.put("", tempInfo);
+                }
+            }
             // init tax information model
             info = new TaxInfo();
 
@@ -58,7 +67,7 @@ public class VAT {
             info.setTaxName(taxName);
 
             // save cache
-            taxCache.put(loginInformation, info);
+            taxCache.put(loginInfo.getAccessToken(), info);
         }
         return info;
     }

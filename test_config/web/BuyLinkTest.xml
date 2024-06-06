@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="BuyLinkTest">
         <classes>
-            <class name="BuyLinkTest">
+            <class name="web.Dashboard.BuyLinkTest">
                 <methods>
                     <include name="BL01_CheckTextOnBuyLinkManagementPage"/>
                     <include name="BL02_CheckTextOnCreateBuyLinkPage"/>

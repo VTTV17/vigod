@@ -378,8 +378,8 @@ public class OrderManagementPage extends OrderManagementElement {
         navigateToOrderManagementPageByURL(channel);
 
         // select export order actions
-        commonAction.click(loc_btnExport);
-        commonAction.click(loc_btnExportOrder);
+        commonAction.clickJS(loc_btnExport);
+        commonAction.clickJS(loc_btnExportOrder);
 
         // check export order permission
         if (permission) {
@@ -402,8 +402,8 @@ public class OrderManagementPage extends OrderManagementElement {
             navigateToOrderManagementPageByURL(channel);
 
             // select export order actions
-            commonAction.click(loc_btnExport);
-            commonAction.click(loc_btnExportOrderByProduct);
+            commonAction.clickJS(loc_btnExport);
+            commonAction.clickJS(loc_btnExportOrderByProduct);
 
             // check export order by product permission
             if (permissions.getOrders().getOrderManagement().isExportOrderByProduct()) {
