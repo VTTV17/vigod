@@ -11,12 +11,14 @@ import java.io.IOException;
 
 public class BaseTest {
     public WebDriver driver;
-
     public String tcsFileName;
     public String testCaseId;
     public String browser;
     public String headless;
     public String language;
+    String URL = "http://127.0.0.1:4723/wd/hub";
+    String appPackage = "%s";
+    String appActivity = "%s.ui.modules.splash.SplashScreenActivity";
 
     @BeforeSuite
     @Parameters({"browser", "headless", "environment", "language"})

@@ -7,6 +7,7 @@ import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
+import api.Seller.setting.APIGetMobileConfiguration;
 import api.Seller.setting.BranchManagement;
 import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.productDetail.BuyerProductDetailPage;
@@ -19,7 +20,9 @@ import utilities.driver.InitAppiumDriver;
 import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.udid.DevicesUDID;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
@@ -33,10 +36,7 @@ public class ProductDetailTest extends BaseTest {
     boolean isHideStock = false;
     boolean isDisplayIfOutOfStock = true;
     ProductInfo productInfo;
-    String udid = "RFCW81B9BRX";
-    String appPackage = "com.mediastep.shop0018";
-    String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
-    String URL = "http://127.0.0.1:4723/wd/hub";
+
     LoginInformation loginInformation;
     List<Integer> branchID;
     BuyerProductDetailPage productDetailPage;
@@ -48,13 +48,14 @@ public class ProductDetailTest extends BaseTest {
     int endMin = 30;
 
     @BeforeClass
-    void setup() throws MalformedURLException {
+    void setup() throws IOException {
         loginInformation = new LoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
         flashSale = new FlashSale(loginInformation);
         discountCampaign = new ProductDiscountCampaign(loginInformation);
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
-
-        driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage, appActivity, URL);
+        String udid = new DevicesUDID().get();
+        String bundleId = new APIGetMobileConfiguration(loginInformation).getAndroidAppPackage();
+        driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage.formatted(bundleId), appActivity.formatted(bundleId), URL);
 
         productDetailPage = new BuyerProductDetailPage(driver);
 
