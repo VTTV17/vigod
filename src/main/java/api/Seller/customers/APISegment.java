@@ -9,7 +9,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
+import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.gochat.facebook.GeneralAutomationCampaign;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.List;
@@ -102,6 +104,9 @@ public class APISegment {
     public List<Integer> getListSegmentIdInStore() {
         return getAllSegmentJsonPath().getList("id");
     }
-
+	public List<SegmentList> getSegmentList() {
+		Response response = api.get(GET_SEGMENT_LIST.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200).extract().response();
+		return response.jsonPath().getList(".", SegmentList.class);
+	} 
 
 }

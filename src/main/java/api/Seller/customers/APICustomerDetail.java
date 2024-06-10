@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.customer.CustomerInfo;
+import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -20,6 +21,7 @@ public class APICustomerDetail {
     	loginInfo = new Login().getInfo(loginInformation);
     }
     String CUSTOMER_INFORMATION_PATH = "/beehiveservices/api/customer-profiles/detail/%s/%s";
+    String cusDetailGoSocialPath = "/beehiveservices/api/customer-profiles/social-chat/store/%s/profile/%s";
 
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
@@ -37,5 +39,13 @@ public class APICustomerDetail {
             customerInfo.setUserId(getCustomerInfo.jsonPath().getString("userId"));
             return customerInfo;
         } else return new CustomerInfo();
+    }
+    
+    public CustomerProfileFB getCustomerInfoAtGoSocial(int customerId) {
+		Response response = api.get(cusDetailGoSocialPath.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken()).then()
+				.statusCode(200)
+				.extract()
+				.response();
+		return response.as(CustomerProfileFB.class);
     }
 }

@@ -222,6 +222,7 @@ public class AllCustomers {
 
 	public CustomerDetails searchAndGoToCustomerDetailByName(String fullName){
 		inputSearchTerm(fullName);
+		commonAction.sleepInMiliSecond(2000, "wait shown result.");
 		clickUser(fullName);
 		return new CustomerDetails(driver);
 	}

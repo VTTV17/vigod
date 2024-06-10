@@ -1,19 +1,22 @@
 package utilities.permission;
 
-import api.Seller.login.Login;
-
 import java.util.LinkedHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+
+import api.Seller.login.Login;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import web.Dashboard.home.HomePage;
 
 public class CheckPermission {
+	final static Logger logger = LogManager.getLogger(CheckPermission.class);
+	
     WebDriver driver;
     UICommonAction commonAction;
 
@@ -31,8 +34,10 @@ public class CheckPermission {
             if (commonAction.getAttribute(loc_lblNoPermissionNotice, "class").contains("access-restricted")) {
                 commonAction.closePopup(loc_dlgRestricted_btnOK, loc_lblNoPermissionNotice);
             }
+            logger.info("Restriction Notice appears");
     		return true;
     	} catch (TimeoutException ex) {
+    		logger.info("Restriction Notice do not appear");
     		return false;
     	}
     }
