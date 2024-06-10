@@ -634,8 +634,30 @@ public class ProductManagementPage extends ProductManagementElement {
         // check product display after updating
         Map<String, List<Long>> mapOfActualPrice = productInformation.getMapOfCurrentProductsPrice(productIds);
         Map<String, List<Long>> mapOfExpectedPrice = productInformation.getMapOfExpectedProductsPrice(productIds, listingPrice, sellingPrice, costPrice);
-        assertCustomize.assertEquals(mapOfActualPrice, mapOfExpectedPrice,
-                "Product price after updating must be %s, but found %s.".formatted(mapOfExpectedPrice, mapOfActualPrice));
+
+        // check product listing price
+        List<Long> actualListingPrice = new ArrayList<>(mapOfActualPrice.get("listingPrice"));
+        Collections.sort(actualListingPrice);
+        List<Long> expectedListingPrice = new ArrayList<>(mapOfExpectedPrice.get("listingPrice"));
+        Collections.sort(expectedListingPrice);
+        assertCustomize.assertEquals(actualListingPrice, expectedListingPrice,
+                "Product listing price after updating must be %s, but found %s.".formatted(expectedListingPrice, actualListingPrice));
+
+        // check product selling price
+        List<Long> actualSellingPrice = new ArrayList<>(mapOfActualPrice.get("sellingPrice"));
+        Collections.sort(actualSellingPrice);
+        List<Long> expectedSellingPrice = new ArrayList<>(mapOfExpectedPrice.get("sellingPrice"));
+        Collections.sort(expectedSellingPrice);
+        assertCustomize.assertEquals(actualSellingPrice, expectedSellingPrice,
+                "Product selling price after updating must be %s, but found %s.".formatted(expectedSellingPrice, actualSellingPrice));
+
+        // check product cost price
+        List<Long> actualCostPrice = new ArrayList<>(mapOfActualPrice.get("costPrice"));
+        Collections.sort(actualCostPrice);
+        List<Long> expectedCostPrice = new ArrayList<>(mapOfExpectedPrice.get("costPrice"));
+        Collections.sort(expectedCostPrice);
+        assertCustomize.assertEquals(actualCostPrice, expectedCostPrice,
+                "Product cost price after updating must be %s, but found %s.".formatted(expectedCostPrice, actualCostPrice));
 
         // log
         logger.info("Check product price after bulk actions: UPDATE PRICE.");
@@ -703,7 +725,7 @@ public class ProductManagementPage extends ProductManagementElement {
         boolean expiredQuality = nextBoolean();
         if (commonAction.isCheckedJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity) != expiredQuality)
             commonAction.clickJS(loc_dlgManageProductByLotDate_chkExcludeExpireQuantity);
-        logger.info("Exclude expired quantity from remaining stock: %s.".formatted(expiredQuality));
+        logger.info("Exclude expired quantity from remaining stock: {}.", expiredQuality);
 
         // confirm bulk update selling platforms
         commonAction.click(loc_dlgManageProductByLotDate_btnYes);

@@ -42,9 +42,14 @@ public class ProductPageElement {
     By loc_btnDelete = By.cssSelector(".gss-content-header .gs-button__red--outline");
     By loc_dlgConfirmDelete_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgCommons = By.cssSelector(".modal-content");
-    By loc_dlgNotification = By.cssSelector("[data-sherpherd='tour-guide-alert-modal']");
-    By loc_dlgUpdateFailed = By.cssSelector(".modal-danger");
+    By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
+    By loc_dlgFailedNotification = By.cssSelector(".modal-danger");
     By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
+    By loc_btnAddAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__header .gs-fake-link");
+    By loc_icnDeleteAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__content-wrapper button");
+    By loc_txtAttributionName = By.cssSelector("[name *= 'input-attribute-name']");
+    By loc_txtAttributionValue = By.cssSelector("[id*= 'input-attribute-value']");
+    By loc_chkDisplayAttribute = By.cssSelector("div:nth-child(8) > div.gs-widget__content-wrapper .uik-checkbox__checkbox");
     By loc_txtSEOTitle = By.cssSelector("input#seoTitle");
     By loc_txtSEODescription = By.cssSelector("input#seoDescription");
     By loc_txtSEOKeywords = By.cssSelector("input#seoKeywords");
@@ -115,7 +120,7 @@ public class ProductPageElement {
     By loc_dlgEditTranslation_txtSEOKeywords = By.cssSelector(".modal-body #seoKeywords");
     By loc_dlgEditTranslation_txtSEOUrl = By.cssSelector(".modal-body #seoUrl");
     By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
-    By loc_dlgToast = By.cssSelector(".Toastify__toast--success");
+    By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
     By loc_dlgEditTranslation_icnClose = By.cssSelector(".modal.fade.show .close");
     @Getter
     By loc_chkAddWholesalePricing = By.cssSelector(".uik-checkbox__wrapper > [name='enabledListing']");

@@ -57,12 +57,18 @@ public class APIProductDetail {
     public boolean checkProductInfo(int productID, String manageInventoryType, boolean hasModel, boolean inStock, boolean isHideStock, boolean isDisplayIfOutOfStock) {
         // get product response
         Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productID), loginInfo.getAccessToken());
-        return res.statusCode() == 200
-                && (res.jsonPath().getBoolean("isHideStock") == isHideStock)
-                & (res.jsonPath().getBoolean("showOutOfStock") == isDisplayIfOutOfStock)
-                & (((res.jsonPath().getInt("totalItem") - res.jsonPath().getInt("totalSoldItem")) > 0) == inStock)
-                & (res.jsonPath().getBoolean("hasModel") == hasModel)
-                & res.jsonPath().getString("inventoryManageType").equals(manageInventoryType);
+        return (res.statusCode() == 200)
+               && (res.jsonPath().getBoolean("isHideStock") == isHideStock)
+               && (res.jsonPath().getBoolean("showOutOfStock") == isDisplayIfOutOfStock)
+               && (((res.jsonPath().getInt("totalItem") - res.jsonPath().getInt("totalSoldItem")) > 0) == inStock)
+               && (res.jsonPath().getBoolean("hasModel") == hasModel)
+               && res.jsonPath().getString("inventoryManageType").equals(manageInventoryType);
+    }
+
+    public boolean checkProductInfo(int productID, String manageInventoryType, boolean hasLot) {
+        // get product response
+        Response res = api.get(GET_PRODUCT_INFORMATION.formatted(productID), loginInfo.getAccessToken());
+        return (res.statusCode() == 200) && res.jsonPath().getString("inventoryManageType").equals(manageInventoryType) && Objects.equals(Optional.of(Boolean.parseBoolean(res.jsonPath().getString("lotAvailable"))).orElse(false), hasLot);
     }
 
     public enum ProductInformationEnum {
@@ -262,7 +268,7 @@ public class APIProductDetail {
 
         // get variation info
         for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
-            boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+            boolean reuseAttribute = Boolean.parseBoolean(Optional.ofNullable(jsonPath.getString("models[%s].reuseAttributes".formatted(modelIndex))).orElse("true"));
 
             // get variation attribute
             if (reuseAttribute) {
@@ -285,7 +291,7 @@ public class APIProductDetail {
 
         // get variation info
         for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
-            boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+            boolean reuseAttribute = Boolean.parseBoolean(Optional.ofNullable(jsonPath.getString("models[%s].reuseAttributes".formatted(modelIndex))).orElse("true"));
 
             // get variation attribute
             if (reuseAttribute) {
@@ -301,6 +307,10 @@ public class APIProductDetail {
         return attributionValuesMap.isEmpty() ? Map.of(modelList.get(0), attributionValues) : attributionValuesMap;
     }
 
+    public void checkSFAPI(int productId) {
+        api.get("/itemservice/api/product/storefront-items/%s".formatted(productId), loginInfo.getAccessToken());
+    }
+
     public Map<String, List<Boolean>> getIsDisplayVariationAttributeMap(JsonPath jsonPath, List<String> modelList, List<Boolean> isDisplayAttributes) {
         // init variation attribution values map
         Map<String, List<Boolean>> isDisplayAttributeMap = new HashMap<>();
@@ -309,7 +319,7 @@ public class APIProductDetail {
         for (int modelIndex = 0; modelIndex < jsonPath.getList("models.id").size(); modelIndex++) {
             // get variation list map
             for (int languageIndex = 0; languageIndex < jsonPath.getList("models[%s].languages.language".formatted(modelIndex)).size(); languageIndex++) {
-                boolean reuseAttribute = jsonPath.getBoolean("models[%s].reuseAttributes".formatted(modelIndex));
+                boolean reuseAttribute = Boolean.parseBoolean(Optional.ofNullable(jsonPath.getString("models[%s].reuseAttributes".formatted(modelIndex))).orElse("true"));
 
                 // get variation attribute
                 if (reuseAttribute) {
@@ -596,8 +606,8 @@ public class APIProductDetail {
         for (String productId : productIds) {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), stockQuantity, inventory);
             if ((productInfo.getProductStockQuantityMap() != null)
-                    && !productInfo.getLotAvailable()
-                    && !productInfo.getManageInventoryByIMEI()) {
+                && !productInfo.getLotAvailable()
+                && !productInfo.getManageInventoryByIMEI()) {
                 List<Integer> allStocks = new ArrayList<>();
                 productInfo.getProductStockQuantityMap().values().stream().map(ArrayList::new).forEach(varStocks -> {
                     varStocks.set(branchInfo.getBranchID().indexOf(branchId), newStock);
@@ -694,7 +704,7 @@ public class APIProductDetail {
             ProductInfo productInfo = getInfo(Integer.parseInt(productId), inventory);
             if (productInfo.getManageInventoryByIMEI() != null) {
                 lotAvailable.add(beforeLot.get(lotAvailable.size()) || !productInfo.getManageInventoryByIMEI() && !listProductIdThatIsCanNotManageByLotDate.contains(Integer.parseInt(productId)));
-                expiredQuality.add(!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && (beforeExpiry.get(expiredQuality.size()) || isExpiredQuality));
+                expiredQuality.add((!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && beforeExpiry.get(expiredQuality.size())) || (!beforeLot.get(expiredQuality.size()) && lotAvailable.get(expiredQuality.size()) && isExpiredQuality) || (beforeLot.get(expiredQuality.size()) && beforeExpiry.get(expiredQuality.size())));
             }
         });
         return Map.of("lotAvailable", lotAvailable, "expiredQuality", expiredQuality);

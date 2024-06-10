@@ -44,5 +44,11 @@ public class VariationDetailElement {
     By loc_dlgEditTranslation_lblDescription = By.xpath("//*[@for='informationName']/parent::div/following-sibling::div/label");
     By loc_dlgEditTranslation_lblSave = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgEditTranslation_lblCancel =  By.cssSelector(".modal-footer .gs-button__white");
+    By loc_chkReUseParentAttribution = By.cssSelector("[name='cbx-resue-attribute']");
+    By loc_lnkAddAttribution = By.cssSelector(".uik-checkbox__wrapper +.gs-fake-link");
+    By loc_icnDeleteAttribution = By.cssSelector(".attribute-item-row button");
+    By loc_txtAttributionName = By.cssSelector("[name *='input-attribute-name']");
+    By loc_txtAttributionValue = By.cssSelector("[name='attribute-value']");
+    By loc_chkDisplayAttribution = By.cssSelector("td input.uik-checkbox__checkbox");
     By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 }

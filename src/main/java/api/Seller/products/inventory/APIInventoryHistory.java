@@ -131,57 +131,53 @@ public class APIInventoryHistory {
     }
 
     public List<Integer> listOfCanNotManagedByLotDateProductIds(List<String> productIds) {
+        return productIds.stream().filter(productId -> !canManageByLotDate(productId)).map(Integer::parseInt).distinct().toList();
+    }
+
+    public boolean canManageByLotDate(String productId) {
         APITransferDetail apiTransferDetail = new APITransferDetail(loginInformation);
         APIPartnerTransferDetail apiPartnerTransferDetail = new APIPartnerTransferDetail(loginInformation);
         APIPurchaseOrderDetail apiPurchaseOrderDetail = new APIPurchaseOrderDetail(loginInformation);
         APIOrderDetail apiOrderDetail = new APIOrderDetail(loginInformation);
-        List<Integer> itemIds = new ArrayList<>();
-        for (String productId : productIds) {
-            AllInventoryHistoryInfo info = getInventoryHistoryInformation(productId);
-            for (int historyIndex = 0; historyIndex < info.getOrderIds().size(); historyIndex++) {
-                if (info.getOrderIds().get(historyIndex).contains("CH")) {
-                    if (Objects.equals(info.getActionType().get(historyIndex), FROM_TRANSFER_AFFILIATE_OUT)) {
-                        PartnerTransferStatus status = apiPartnerTransferDetail.getTransferStatus(Integer.parseInt(info.getOrderIds().get(historyIndex).replaceAll("CH", "")));
-                        if (!(Objects.equals(status, PartnerTransferStatus.RECEIVED)
-                                || Objects.equals(status, PartnerTransferStatus.CANCELLED))) {
-                            itemIds.add(Integer.parseInt(productId));
-                            break;
-                        }
-                    } else {
-                        TransferStatus status = apiTransferDetail.getTransferStatus(Integer.parseInt(info.getOrderIds().get(historyIndex).replaceAll("CH", "")));
-                        if (!(Objects.equals(status, TransferStatus.RECEIVED)
-                                || Objects.equals(status, TransferStatus.CANCELLED))) {
-                            itemIds.add(Integer.parseInt(productId));
-                            break;
-                        }
+        AllInventoryHistoryInfo info = getInventoryHistoryInformation(productId);
+        for (int historyIndex = 0; historyIndex < info.getOrderIds().size(); historyIndex++) {
+            if (info.getOrderIds().get(historyIndex).contains("CH")) {
+                if (Objects.equals(info.getActionType().get(historyIndex), FROM_TRANSFER_AFFILIATE_OUT)) {
+                    PartnerTransferStatus status = apiPartnerTransferDetail.getTransferStatus(Integer.parseInt(info.getOrderIds().get(historyIndex).replaceAll("CH", "")));
+                    if (!(Objects.equals(status, PartnerTransferStatus.RECEIVED)
+                          || Objects.equals(status, PartnerTransferStatus.CANCELLED))) {
+                        return false;
                     }
-                } else if (info.getOrderIds().get(historyIndex).contains("PO")) {
-                    PurchaseOrderStatus status = apiPurchaseOrderDetail.getPurchaseOrderStatus(Integer.parseInt(info.getOrderIds().get(historyIndex).replaceAll("PO", "")));
-                    if (!(Objects.equals(status, PurchaseOrderStatus.COMPLETED)
-                            || Objects.equals(status, PurchaseOrderStatus.CANCELLED))) {
-                        itemIds.add(Integer.parseInt(productId));
-                        break;
+                } else {
+                    TransferStatus status = apiTransferDetail.getTransferStatus(Integer.parseInt(info.getOrderIds().get(historyIndex).replaceAll("CH", "")));
+                    if (!(Objects.equals(status, TransferStatus.RECEIVED)
+                          || Objects.equals(status, TransferStatus.CANCELLED))) {
+                        return false;
                     }
-                } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_LOCK)) {
-                    itemIds.add(Integer.parseInt(productId));
-                    break;
-                } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_EDIT_ORDER)) {
-                    OrderStatus status = apiOrderDetail.getOrderStatus(Integer.parseInt(info.getOrderIds().get(historyIndex)));
-                    if (!(Objects.equals(status, OrderStatus.DELIVERED)
-                            || Objects.equals(status, OrderStatus.CANCELLED))
-                            || Objects.equals(status, OrderStatus.REJECTED)
-                            || Objects.equals(status, OrderStatus.FAILED)) {
-                        break;
-                    }
-                } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_SOLD)) {
-                    List<ReturnOrderStatus> statuses = new APIAllReturnOrder(loginInformation).getAllReturnOrdersInformation(info.getOrderIds().get(historyIndex)).getStatues();
-                    if (statuses.stream().anyMatch(status -> Objects.equals(status, IN_PROGRESS))) {
-                        itemIds.add(Integer.parseInt(productId));
-                        break;
-                    }
+                }
+            } else if (info.getOrderIds().get(historyIndex).contains("PO")) {
+                PurchaseOrderStatus status = apiPurchaseOrderDetail.getPurchaseOrderStatus(Integer.parseInt(info.getOrderIds().get(historyIndex).replaceAll("PO", "")));
+                if (!(Objects.equals(status, PurchaseOrderStatus.COMPLETED)
+                      || Objects.equals(status, PurchaseOrderStatus.CANCELLED))) {
+                    return false;
+                }
+            } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_LOCK)) {
+                return false;
+            } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_EDIT_ORDER)) {
+                OrderStatus status = apiOrderDetail.getOrderStatus(Integer.parseInt(info.getOrderIds().get(historyIndex)));
+                if (!(Objects.equals(status, OrderStatus.DELIVERED)
+                      || Objects.equals(status, OrderStatus.CANCELLED))
+                    || Objects.equals(status, OrderStatus.REJECTED)
+                    || Objects.equals(status, OrderStatus.FAILED)) {
+                    return false;
+                }
+            } else if (Objects.equals(info.getActionType().get(historyIndex), FROM_SOLD)) {
+                List<ReturnOrderStatus> statuses = new APIAllReturnOrder(loginInformation).getAllReturnOrdersInformation(info.getOrderIds().get(historyIndex)).getStatues();
+                if (statuses.stream().anyMatch(status -> Objects.equals(status, IN_PROGRESS))) {
+                    return false;
                 }
             }
         }
-        return itemIds.stream().distinct().toList();
+        return true;
     }
 }

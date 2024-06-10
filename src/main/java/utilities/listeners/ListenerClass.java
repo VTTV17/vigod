@@ -21,7 +21,7 @@ public class ListenerClass implements IInvokedMethodListener {
     public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
         if (method.isTestMethod()
                 && !testResult.isSuccess()
-                && testResult.getThrowable().toString().contains("selenium.TimeoutException")) {
+                && testResult.getThrowable().toString().contains("org.openqa.selenium")) {
             synchronized (this) {
                 hasFailures = true;
             }

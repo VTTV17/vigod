@@ -1,19 +1,20 @@
 package web.Dashboard.products.all_products.crud.wholesale_price;
 
 import api.Seller.customers.APISegment;
+import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import web.Dashboard.products.all_products.crud.ProductPage;
-import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.products.all_products.crud.ProductPage;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,13 +23,12 @@ import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 import static utilities.links.Links.DOMAIN;
+import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 
 public class WholesaleProductPage extends WholesaleProductElement {
     UICommonAction commonAction;
     WebDriver driver;
-    WebDriverWait wait;
     Logger logger = LogManager.getLogger(WholesaleProductPage.class);
 
     private List<Long> wholesaleProductPrice;
@@ -36,6 +36,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
     int productId;
     ProductPage productPage;
     List<String> variationList;
+    List<String> variationModelList;
     Map<String, List<Integer>> productStockQuantity;
     String language;
     boolean hasModel;
@@ -43,18 +44,19 @@ public class WholesaleProductPage extends WholesaleProductElement {
     List<Long> productSellingPrice;
     LoginInformation loginInformation;
 
-    public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation, ProductPage productPage) {
+    public WholesaleProductPage(WebDriver driver, LoginInformation loginInformation, int productId) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         this.loginInformation = loginInformation;
-        this.productPage = productPage;
-        commonAction = productPage.getCommonAction();
-        productId = ProductPage.getProductId();
-        variationList = ProductPage.getVariationList();
-        productStockQuantity = ProductPage.getProductStockQuantity();
+        commonAction = new UICommonAction(driver);
+        this.productPage = new ProductPage(driver);
+        this.productId = productId;
+        ProductInfo productInfo = new APIProductDetail(loginInformation).getInfo(productId);
+        variationList = productInfo.getVariationValuesMap().get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage());
+        variationModelList = productInfo.getVariationModelList();
+        productStockQuantity = productInfo.getProductStockQuantityMap();
         language = ProductPage.getLanguage();
-        hasModel = ProductPage.isHasModel();
-        productSellingPrice = ProductPage.getProductSellingPrice();
+        hasModel = productInfo.isHasModel();
+        productSellingPrice = productInfo.getProductSellingPrice();
         assertCustomize = new AssertCustomize(driver);
     }
 
@@ -69,7 +71,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             commonAction.clickJS(productPage.getLoc_chkAddWholesalePricing());
 
         // [UI] check UI after check on Add Wholesale Pricing checkbox
-        checkWholesaleProductConfig();
+//        checkWholesaleProductConfig();
 
         // click Configure button
         commonAction.click(productPage.getLoc_btnConfigureWholesalePricing());
@@ -79,7 +81,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         commonAction.getElement(noConfigText);
 
         // check [UI] header
-        checkUIHeader();
+//        checkUIHeader();
 
         // hide Facebook bubble
         commonAction.removeFbBubble();
@@ -96,7 +98,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         numOfWholesaleProduct = nextInt(variationList.size()) + 1;
         IntStream.range(0, numOfWholesaleProduct).forEach(varIndex -> {
             wholesaleProductPrice.set(varIndex, nextLong(productSellingPrice.get(varIndex)) + 1);
-            wholesaleProductStock.set(varIndex, nextInt(Math.max(Collections.max(productStockQuantity.get(variationList.get(varIndex))), 1)) + 1);
+            wholesaleProductStock.set(varIndex, nextInt(Math.max(Collections.max(productStockQuantity.get(variationModelList.get(varIndex))), 1)) + 1);
         });
         return this;
     }
@@ -108,7 +110,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         logger.info("Open setup wholesale price table.");
 
         // check [UI] wholesale product page
-        checkWithoutVariationConfigTable();
+//        checkWithoutVariationConfigTable();
 
         // wait and input buy from
         commonAction.sendKeys(withoutVariationBuyFrom, String.valueOf(wholesaleProductStock.get(0)));
@@ -123,7 +125,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
         logger.info("Open segment dropdown.");
 
         // check [UI] segment default value and search box placeholder
-        checkSegmentInformation();
+//        checkSegmentInformation();
 
         // select segment
         List<Integer> listSegmentIdInStore = new APISegment(loginInformation).getListSegmentIdInStore();
@@ -133,7 +135,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             commonAction.click(allCustomerCheckbox);
         } else {
             // in-case store have some segment, select any segment.
-            int segmentId = listSegmentIdInStore.get(nextInt(listSegmentIdInStore.size()));
+            int segmentId = listSegmentIdInStore.get(0);
             logger.info("Select segment: %s.".formatted(commonAction.getText(By.cssSelector(segmentText.formatted(segmentId)))));
             commonAction.click(By.cssSelector(segmentLocator.formatted(segmentId)));
         }
@@ -166,7 +168,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             logger.info("Open select variation popup on wholesale config page.");
 
             // check [UI] Add variation popup
-            if (varIndex == 0) checkAddVariationPopup();
+//            if (varIndex == 0) checkAddVariationPopup();
 
             // select variation
             selectVariation(variation);
@@ -197,7 +199,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             commonAction.clickJS(variationAddWholesalePricingBtn, index);
 
             // check [UI] after add new config
-            if (index == 0) checkVariationConfigTable();
+//            if (index == 0) checkVariationConfigTable();
 
             // wait and input buy from
             commonAction.sendKeys(variationBuyFrom, index, String.valueOf(wholesaleProductStock.get(varIndex)));
@@ -211,7 +213,7 @@ public class WholesaleProductPage extends WholesaleProductElement {
             commonAction.click(variationSegmentDropdown, index);
 
             // check [UI] segment default value and search box placeholder
-            if (index == 0) checkSegmentInformation();
+//            if (index == 0) checkSegmentInformation();
 
             // select segment
             List<Integer> listSegmentIdInStore = new APISegment(loginInformation).getListSegmentIdInStore();

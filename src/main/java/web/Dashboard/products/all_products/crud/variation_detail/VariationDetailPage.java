@@ -4,29 +4,29 @@ import api.Seller.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.model.staffPermission.AllPermissions;
-import utilities.permission.CheckPermission;
-import web.Dashboard.products.all_products.crud.ProductPage;
-import utilities.commons.UICommonAction;
 import utilities.assert_customize.AssertCustomize;
+import utilities.commons.UICommonAction;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
+import web.Dashboard.products.all_products.crud.ProductPage;
 
-import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.links.Links.DOMAIN;
+import static utilities.utils.PropertiesUtil.getPropertiesValueByDBLang;
 
 public class VariationDetailPage extends VariationDetailElement {
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commonAction;
     String modelId;
     String variation;
@@ -40,7 +40,6 @@ public class VariationDetailPage extends VariationDetailElement {
 
     public VariationDetailPage(WebDriver driver, String modelId, ProductInfo productInfo, LoginInformation loginInformation) {
         this.modelId = modelId;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonAction(driver);
         this.loginInformation = loginInformation;
         this.productInfo = productInfo;
@@ -88,63 +87,53 @@ public class VariationDetailPage extends VariationDetailElement {
         String variation = productInfo.getVariationValuesMap()
                 .get(languageCode)
                 .get(productInfo.getBarcodeList().indexOf(modelId));
-        commonAction.click(loc_btnEditTranslation);
-        logger.info("[%s] Open edit translation popup.".formatted(variation));
+        if (!commonAction.getListElement(loc_dlgEditTranslation).isEmpty()) {
+            // convert languageCode to languageName
+            if (languageCode.equals("en") && (uiLanguage.equals("vi") || uiLanguage.equals("VIE")))
+                languageName = "Tiếng Anh";
 
-        try {
-            commonAction.getElement(loc_dlgEditTranslation);
-            logger.info("[%s] Wait edit translation popup presented.".formatted(variation));
-        } catch (TimeoutException ex) {
-            commonAction.click(loc_btnEditTranslation);
-            logger.info("[%s] Open edit translation popup again.".formatted(variation));
-            commonAction.getElement(loc_dlgEditTranslation);
-            logger.info("[%s] Wait edit translation popup visible again.".formatted(variation));
+            // select language for translation
+            if (!commonAction.getText(loc_dlgEditTranslation_selectedLanguage).equals(languageName)) {
+                // open language dropdown
+                commonAction.click(loc_dlgEditTranslation_selectedLanguage);
+
+                // select language
+                commonAction.click(By.xpath(str_dlgEditTranslation_languageInDropdown.formatted(languageName)));
+            }
+            logger.info("[%s] Select language for translation: %s.".formatted(variation, languageName));
+
+            // check [UI] Edit translation popup
+//        if (langIndex == 0) checkUIEditTranslationPopup(uiLanguage);
+
+            // add translation for variation name
+            String name = "[Update][%s][%s] Product version name".formatted(languageCode, variation);
+            commonAction.sendKeys(loc_dlgEditTranslation_variationName, name);
+            logger.info("[%s] Edit translation for product version name: %s.".formatted(variation, name));
+
+            // add translation for variation description
+            String description = "[Update][%s][%s] Product description".formatted(languageCode, variation);
+            commonAction.sendKeys(loc_dlgEditTranslation_variationDescription, description);
+            logger.info("[%s] Edit translation for product description: %s.".formatted(variation, description));
+
+            commonAction.openPopupJS(loc_dlgEditTranslation_btnSave, loc_dlgToastSuccess);
+            logger.info("[%s] Add translation successfully.".formatted(variation));
         }
-
-        // convert languageCode to languageName
-        if (languageCode.equals("en") && (uiLanguage.equals("vi") || uiLanguage.equals("VIE")))
-            languageName = "Tiếng Anh";
-
-        // select language for translation
-        if (!commonAction.getText(loc_dlgEditTranslation_selectedLanguage).equals(languageName)) {
-            // open language dropdown
-            commonAction.click(loc_dlgEditTranslation_selectedLanguage);
-
-            // select language
-            commonAction.click(By.xpath(str_dlgEditTranslation_languageInDropdown.formatted(languageName)));
-        }
-        logger.info("[%s] Select language for translation: %s.".formatted(variation, languageName));
-
-        // check [UI] Edit translation popup
-        if (langIndex == 0) checkUIEditTranslationPopup(uiLanguage);
-
-        // add translation for variation name
-        String name = "[Update][%s][%s] Product version name".formatted(languageCode, variation);
-        commonAction.sendKeys(loc_dlgEditTranslation_variationName, name);
-        logger.info("[%s] Edit translation for product version name: %s.".formatted(variation, name));
-
-        // add translation for variation description
-        String description = "[Update][%s][%s] Product description".formatted(languageCode, variation);
-        commonAction.sendKeys(loc_dlgEditTranslation_variationDescription, description);
-        logger.info("[%s] Edit translation for product description: %s.".formatted(variation, description));
-
-        commonAction.openPopupJS(loc_dlgEditTranslation_btnSave, loc_dlgToastSuccess);
-        logger.info("[%s] Add translation successfully.".formatted(variation));
-
-        // close edit translation popup
-        commonAction.click(loc_dlgEditTranslation_btnClose);
-        logger.info("[%s] Close Edit translation popup.".formatted(variation));
     }
 
     public void updateVariationProductNameAndDescription(String status) throws Exception {
         navigateToVariationDetailPage();
-        checkUIVariationDetailPage(uiLanguage, status);
+//        checkUIVariationDetailPage(uiLanguage, status);
         updateVariationProductName();
         updateVariationProductDescription();
         completeUpdateProductVersionNameAndDescription();
         List<String> langCodeList = new ArrayList<>(storeInfo.getStoreLanguageList());
         List<String> langNameList = new ArrayList<>(storeInfo.getStoreLanguageName());
         langCodeList.remove(storeInfo.getDefaultLanguage());
+
+        // open edit translation popup
+        commonAction.click(loc_btnEditTranslation);
+        assertCustomize.assertFalse(commonAction.getListElement(loc_dlgEditTranslation).isEmpty(),
+                "Can not open edit translation popup.");
 
         for (int langIndex = 0; langIndex < langCodeList.size(); langIndex++) {
             updateVariationTranslation(langCodeList.get(langIndex), langNameList.get(storeInfo.getStoreLanguageList().indexOf(langCodeList.get(langIndex))), langIndex);
@@ -156,6 +145,43 @@ public class VariationDetailPage extends VariationDetailElement {
         if (!productInfo.getVariationStatus().get(productInfo.getBarcodeList().indexOf(modelId)).equals(status))
             commonAction.clickJS(loc_btnDeactivate);
         logger.info("[%s] Update status successfully.".formatted(variation));
+    }
+
+
+    public void updateAttribution() {
+        navigateToVariationDetailPage();
+
+        boolean isUseParentAttribution = nextBoolean();
+
+        if (!Objects.equals(commonAction.isCheckedJS(loc_chkReUseParentAttribution), isUseParentAttribution)) {
+            commonAction.clickJS(loc_chkReUseParentAttribution);
+        }
+
+        if (!isUseParentAttribution) {
+            // remove old attribution
+            if (!commonAction.getListElement(loc_icnDeleteAttribution).isEmpty()) {
+                int bound = commonAction.getListElement(loc_icnDeleteAttribution).size();
+                IntStream.iterate(bound - 1, index -> index >= 0, index -> index - 1).forEach(index -> commonAction.clickJS(loc_icnDeleteAttribution, index));
+            }
+
+            int numOfAttribute = nextInt(10);
+            // add attribution
+            IntStream.range(0, numOfAttribute)
+                    .forEachOrdered(index -> commonAction.clickJS(loc_lnkAddAttribution));
+
+            // input attribution
+            long epoch = Instant.now().toEpochMilli();
+            IntStream.range(0, numOfAttribute).forEach(attIndex -> {
+                commonAction.sendKeys(loc_txtAttributionName, attIndex, "name_%s_%s".formatted(attIndex, epoch));
+                commonAction.sendKeys(loc_txtAttributionValue, attIndex, "value_%s_%s".formatted(attIndex, epoch));
+                if (!Objects.equals(commonAction.isCheckedJS(loc_chkDisplayAttribution, attIndex), nextBoolean())) {
+                    commonAction.clickJS(loc_chkDisplayAttribution);
+                }
+            });
+
+            // save changes
+            commonAction.click(loc_btnSave);
+        }
     }
 
     // check UI

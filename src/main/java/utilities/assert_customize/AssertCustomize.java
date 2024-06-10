@@ -16,10 +16,6 @@ public class AssertCustomize {
     @Setter
     static int countFalse;
 
-    @Setter
-    @Getter
-    private static boolean keepCountFalse;
-
     public AssertCustomize(WebDriver driver) {
         this.driver = driver;
     }
@@ -87,6 +83,5 @@ public class AssertCustomize {
 
         // verify test
         if (tempCount > 0) Assert.fail("Count fail: %d.".formatted(tempCount));
-
     }
 }

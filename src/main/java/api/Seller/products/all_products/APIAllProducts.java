@@ -1,6 +1,7 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
+import api.Seller.products.inventory.APIInventoryHistory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
@@ -342,13 +343,16 @@ public class APIAllProducts {
             int numberOfPages = totalOfProducts / 100;
 
             // get other page data
-            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-                Response allProducts = getAllProductsResponse(pageIndex, branchIds);
-                variationNumber.addAll(allProducts.jsonPath().getList("variationNumber"));
-                allProductIds.addAll(allProducts.jsonPath().getList("id"));
-                allProductNames.addAll(allProducts.jsonPath().getList("name"));
-                remainingStocks.addAll(allProducts.jsonPath().getList("remainingStock"));
-            }
+            List<JsonPath> jsonPaths = IntStream.rangeClosed(0, numberOfPages)
+                    .parallel()
+                    .mapToObj(pageIndex -> getAllProductsResponse(pageIndex, branchIds).jsonPath())
+                    .toList();
+            jsonPaths.forEach(jsonPath -> {
+                variationNumber.addAll(jsonPath.getList("variationNumber"));
+                allProductIds.addAll(jsonPath.getList("id"));
+                allProductNames.addAll(jsonPath.getList("name"));
+                remainingStocks.addAll(jsonPath.getList("remainingStock"));
+            });
             info.setProductIds(allProductIds);
             info.setVariationNumber(variationNumber);
             info.setProductNames(allProductNames);
@@ -414,6 +418,22 @@ public class APIAllProducts {
 
     public int getProductIDWithVariationAndInStock(boolean isManageByIMEI, boolean isHideStock, boolean isDisplayIfOutOfStock, int... branchIds) {
         return getProductIdMatchWithConditions(true, isManageByIMEI, true, isHideStock, isDisplayIfOutOfStock, branchIds);
+    }
+
+    public int getProductIdForEdit(boolean hasModel, boolean isManageByIMEI, boolean hasLot) {
+        APIInventoryHistory apiInventoryHistory = new APIInventoryHistory(loginInformation);
+        APIProductDetail apiProductDetail = new APIProductDetail(loginInformation);
+        String manageInventoryType = isManageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
+        ProductManagementInfo info = getAllProductInformation();
+        List<Integer> productIds = info.getProductIds();
+        List<Integer> numOfVariations = info.getVariationNumber();
+
+        return productIds.parallelStream()
+                .filter(id -> Objects.equals(numOfVariations.get(productIds.indexOf(id)) > 0, hasModel)
+                              && apiProductDetail.checkProductInfo(id, manageInventoryType, hasLot)
+                              && apiInventoryHistory.canManageByLotDate(id.toString()))
+                .findAny()
+                .orElse(0);
     }
 
     public Map<String, Integer> getCurrentStocks(List<String> productIds) {

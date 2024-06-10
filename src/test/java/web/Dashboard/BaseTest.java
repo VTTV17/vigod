@@ -40,6 +40,7 @@ public class BaseTest {
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
+        AssertCustomize.setCountFalse(0);
 //        new Screenshot().takeScreenshot(driver);
     }
 

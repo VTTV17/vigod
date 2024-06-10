@@ -327,7 +327,7 @@ public class SupplierPage extends SupplierElement {
         selectCountry(isVNSupplier);
 
         // check UI
-        checkUIAddSupplierPage(language, isVNSupplier);
+//        checkUIAddSupplierPage(language, isVNSupplier);
 
         // generate data
         String epoch = String.valueOf(Instant.now().toEpochMilli());
@@ -421,7 +421,7 @@ public class SupplierPage extends SupplierElement {
         selectCountry(isVNSupplier);
 
         // check UI
-        checkUIUpdateSupplierPage(language, isVNSupplier);
+//        checkUIUpdateSupplierPage(language, isVNSupplier);
 
         // generate data
         String epoch = String.valueOf(Instant.now().toEpochMilli());

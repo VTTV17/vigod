@@ -1,14 +1,17 @@
 package utilities.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import utilities.utils.jsonFileUtility;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -27,6 +30,7 @@ public class DataGenerator {
     public String generateNumber(int length) {
         return RandomStringUtils.random(length, false, true);
     }
+
     public long generateLongNumber(long max) {
         Random rand = new Random();
         return rand.nextLong(max);
@@ -271,31 +275,44 @@ public class DataGenerator {
     public String randomPhoneByCountry(String country) {
         return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
     }
-    
+
     public static <T> T getRandomListElement(List<T> list) {
-    	return list.get(new Random().nextInt(0, list.size()));
-    }	
-    
-    public String getCurrentDate(String format){
+        return list.get(new Random().nextInt(0, list.size()));
+    }
+
+    public String getCurrentDate(String format) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
 
+    @SneakyThrows
     public String getFilePath(String fileName) {
         File root = new File(System.getProperty("user.dir"));
-        return FileUtils.listFiles(root, null, true)
-                .stream()
-                .filter(file -> file.getName().equals(fileName))
-                .filter(file -> !file.getAbsolutePath().contains("target"))
-                .findFirst()
-                .map(File::getAbsolutePath)
-                .orElse("");
+        List<Path> paths = Files.walk(Paths.get(root.toString())).toList();
+        Optional<Path> filePath = paths.stream()
+                .filter(path1 -> !Files.isDirectory(path1))
+                .filter(path -> path.getFileName().toString().equals(fileName))
+                .findFirst();
+        return filePath.map(Path::toString).orElse("");
     }
+
+    @SneakyThrows
+    public String getFolderPath(String folderName) {
+        File root = new File(System.getProperty("user.dir"));
+        List<Path> paths = Files.walk(Paths.get(root.toString())).toList();
+        Optional<Path> folderPath = paths.stream()
+                .filter(Files::isDirectory)
+                .filter(path -> path.getFileName().toString().equals(folderName))
+                .findFirst();
+        return folderPath.map(Path::toString).orElse("");
+    }
+
 
     public static String getFirstString(String... strings) {
         return Optional.ofNullable(strings).filter(stringArr -> stringArr.length > 0).map(stringArr -> stringArr[0]).orElse("");
     }
+
     public static String getStringByRegex(String inputString, String regex) {
         return Pattern.compile(regex).matcher(inputString)
                 .results()
@@ -308,11 +325,13 @@ public class DataGenerator {
                 .map(matchResult -> matchResult.group(1))
                 .toList();
     }
-    public String generatePreviousTerm(String format){
+
+    public String generatePreviousTerm(String format) {
         Date date = new Date();
         SimpleDateFormat dt = new SimpleDateFormat(format);
         return dt.format(getPreviousTerm(date));
     }
+
     public static Date getPreviousTerm(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -322,7 +341,7 @@ public class DataGenerator {
         } else {
             calendar.roll(Calendar.MONTH, false);
         }
-        calendar.set(Calendar.DATE,01);
+        calendar.set(Calendar.DATE, 01);
         return calendar.getTime();
     }
 }
