@@ -170,7 +170,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
 
     void checkFilterAndSearchBranchIsShown(String... variationName) {
-        String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
+        String varName = variationName.length > 0 ? ((!variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
         // check Search icon is shown or not
         boolean checkSearchBox = true;
@@ -195,7 +195,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
 
     void checkFilterAndSearchBranchIsHidden(String... variationName) {
-        String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
+        String varName = variationName.length > 0 ? ((!variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
         // check Search icon is shown or not
         boolean checkSearchBox = true;
@@ -221,7 +221,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     }
 
     void checkBranchNameAndStock(String brElementText, boolean brStatus, int brStock, String... variationName) {
-        String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
+        String varName = variationName.length > 0 ? ((!variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
         // check branch information
         // check branch name
@@ -257,14 +257,14 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
      * <p> And verify that SoldOut mark has been shown</p>
      */
     void checkSoldOutMark(String... variationName) {
-        String varName = variationName.length > 0 ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
+        String varName = variationName.length > 0 ? ((!variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
         boolean isSoldOut = commonMobile.moveAndGetElement(SOLD_OUT_MARK) != null;
         assertCustomize.assertTrue(isSoldOut, "[Failed]%s Sold out mark does not show".formatted(varName));
         logger.info("%s Check 'SOLD OUT' mark is shown".formatted(varName));
     }
 
     void checkBuyNowAddToCartAndContactNowBtn(String... variationName) {
-        String varName = (variationName.length > 0) ? ((variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
+        String varName = (variationName.length > 0) ? ((!variationName[0].isEmpty()) ? "[Variation: %s]".formatted(variationName[0]) : "") : "";
 
         if (!(new Preferences(loginInformation).isEnabledListingProduct() && productInfo.isEnabledListing())) {
             // check Buy now button is shown
@@ -365,7 +365,7 @@ public class BuyerProductDetailPage extends BuyerProductDetailElement {
     void checkVariationInformation(int varIndex, long listingPrice, long sellingPrice, long flashSalePrice, int wholesaleProductStock, long wholesaleProductPrice, List<Integer> branchStock, String language, String... variationName) {
         // log
         if (variationName.length > 0)
-            if (variationName[0].isEmpty()) logger.info("*** var: %s ***".formatted(variationName[0]));
+            if (!variationName[0].isEmpty()) logger.info("*** var: %s ***".formatted(variationName[0]));
 
         // check product name
         checkProductName(productInfo.getVariationModelList().get(varIndex), language);

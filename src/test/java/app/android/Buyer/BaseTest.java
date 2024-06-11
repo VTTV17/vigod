@@ -3,6 +3,7 @@ package app.android.Buyer;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
 import utilities.screenshot.Screenshot;
 import utilities.utils.PropertiesUtil;
@@ -39,6 +40,7 @@ public class BaseTest {
     public void writeResult(ITestResult result) throws IOException {
         if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
         new Screenshot().takeScreenshot(driver);
+        AssertCustomize.setCountFalse(0);
     }
 
     public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
