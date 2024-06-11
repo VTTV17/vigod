@@ -1,6 +1,7 @@
 package web.Dashboard.login;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 import static utilities.links.Links.LOGIN_PATH;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,16 +32,13 @@ public class LoginPage {
         commonAction = new UICommonAction(driver);
     }
 
+    //Will move these locators to a separate file later
     By loc_lblLoginScreen = By.cssSelector(".login-widget");
     By loc_lblForgotPasswordScreen = By.cssSelector(".forgot-page-wrapper");
-    
-    By loc_lblSelectedLanguage = By.xpath("//span[contains(@class,'changeLanguage-selected')]");
-    By loc_lnkEnglish = By.cssSelector(".login-widget__changeLanguage-english");
-    By loc_lnkVietnamese = By.cssSelector(".login-widget__changeLanguage:nth-of-type(2)");
-
-    By loc_ddlCountry = By.cssSelector(".select-country-wrapper .select-country__input-container");
+    By loc_ddlLanguage = By.cssSelector(".change-language__wrapper");
+    String loc_ddvLanguage = "//div[starts-with(@class,'select-country__option')]//div[@class='label' and .='%s']";
+    By loc_ddlCountry = By.cssSelector(".select-country-wrapper .select-country__input-container input");
     String loc_ddvCountry = "//*[contains(@class, 'select-country__option')]//div[@class='label' and text()=\"%s\"]";
-
     By loc_frmLogin = By.xpath("//div[contains(@class,'login-widget__formBody') and not(@hidden)]");
     By loc_txtUsername = new ByChained(loc_frmLogin, By.cssSelector("input[name='username']")); 
     By loc_txtPassword = new ByChained(loc_frmLogin, By.cssSelector("input[name='password']"));
@@ -50,14 +48,13 @@ public class LoginPage {
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
     By loc_btnFacebookLogin = By.cssSelector(".login-widget__btnSubmitFaceBook"); 
     By loc_tabStaff = By.cssSelector("span.login-widget__tab:nth-child(2)");
-    
     By loc_dlgWarning = By.cssSelector("div.modal-content");
+    By loc_lnkForgotPassword = new ByChained(loc_frmLogin, By.cssSelector(".login-widget__forgotPassword"));
 
-    By loc_lnkForgotPassword = By.cssSelector(".login-widget__forgotPassword");
-    By loc_btnContinue = By.cssSelector(".login-widget__btnSubmit"); 
-    By loc_txtVerificationCode = By.cssSelector("input[name='key']"); 
-    By loc_lnkResendOTP = By.cssSelector(".btn-resend");
-
+    public LoginPage navigateBiz() {
+    	driver.get(DOMAIN_BIZ + LOGIN_PATH);
+    	return this;
+    }
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
         return this;
@@ -100,28 +97,10 @@ public class LoginPage {
         return this;
     }
 
-    public LoginPage clickForgotPassword() {
+    public ForgotPasswordPage clickForgotPassword() {
         commonAction.click(loc_lnkForgotPassword);
         logger.info("Clicked on Forgot Password linktext.");
-        return this;
-    }
-
-    public LoginPage clickResendOTP() {
-        commonAction.click(loc_lnkResendOTP);
-        logger.info("Clicked on Resend linktext.");
-        return this;
-    }
-
-    public LoginPage clickContinueOrConfirmBtn() {
-        commonAction.click(loc_btnContinue);
-        logger.info("Clicked on Continue/Confirm button.");
-        return this;
-    }
-
-    public LoginPage inputVerificationCode(String verificationCode) {
-        commonAction.sendKeys(loc_txtVerificationCode, verificationCode);
-        logger.info("Input '" + verificationCode + "' into Verification Code field.");
-        return this;
+        return new ForgotPasswordPage(driver);
     }
 
     public LoginPage performLogin(String username, String password) {
@@ -157,27 +136,26 @@ public class LoginPage {
     }
 
     public String getSelectedLanguage() {
-        String selectedLanguage = commonAction.getText(loc_lblSelectedLanguage);
-        logger.info("Retrieved selected language.");
+        String selectedLanguage = commonAction.getText(loc_ddlLanguage);
+        logger.info("Retrieved selected language: " + selectedLanguage);
         return selectedLanguage;
     }
 
     /**
      * Selects the display language on the login page.
-     *
-     * @param language the desired language to be displayed, either "ENG" or "VIE"
-     * @throws Exception if an exception occurs during the execution of this method
+     * @param either "ENG" or "VIE"
      */
-    public LoginPage selectDisplayLanguage(String language) throws Exception {
-        commonAction.sleepInMiliSecond(1000);
-        if (language.contentEquals("ENG")) {
-            commonAction.click(loc_lnkEnglish);
-        } else if (language.contentEquals("VIE")) {
-            commonAction.click(loc_lnkVietnamese);
-        } else {
-            throw new Exception("Input value does not match any of the accepted values: VIE/ENG");
+    public LoginPage selectDisplayLanguage(String language) {
+    	if (getSelectedLanguage().contentEquals(language)) return this;
+
+    	commonAction.click(loc_ddlLanguage);
+        if (!language.contentEquals("ENG") && !language.contentEquals("VIE")) {
+        	language = "ENG";
+        	logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
         }
+        commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
         logger.info("Selected display language '%s'.".formatted(language));
+        commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
         return this;
     }
     
@@ -223,13 +201,6 @@ public class LoginPage {
             ((JavascriptExecutor) driver).executeScript("localStorage.setItem('staffPermissionToken', '\"%s\"')".formatted(loginInfo.getStaffPermissionToken()));
 
         logger.info("Set local storage successfully");
-    }
-
-    public void verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(loc_lblLoginFailError);
-        String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("login.screen.error.wrongVerificationCode", signupLanguage);
-        Assert.assertEquals(text, retrievedMsg, "[Signin][Wrong Verification Code] Message does not match.");
-        logger.info("verifyVerificationCodeError completed");
     }
 
     public void verifyTextAtLoginScreen() throws Exception {
