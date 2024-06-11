@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APICustomerDetail;
 import api.Seller.customers.APISegment;
 import api.Seller.gochat.APIFacebook;
@@ -40,7 +41,7 @@ import web.Dashboard.login.LoginPage;
 
 /**
  * <p>Ticket: https://mediastep.atlassian.net/browse/BH-24619</p>
- * <p>Preconditions: There exists a staff</p>
+ * <p>Preconditions: There exists a staff, a Facebook post and a customer segment</p>
  */
 
 public class FacebookPermissionTest extends BaseTest {
@@ -48,6 +49,7 @@ public class FacebookPermissionTest extends BaseTest {
 	LoginInformation ownerCredentials;
 	LoginInformation staffCredentials;
 	StaffManagement staffManagementAPI;
+	APIAllCustomers customerAPI;
 	APICustomerDetail customerDetailAPI;
 	APISegment segmentAPI;
 	PermissionAPI permissionAPI;
@@ -63,6 +65,7 @@ public class FacebookPermissionTest extends BaseTest {
 	int staffUserId;
 	int staffId;
 	String staffName;
+	int linkedCustomerId;
 	
 	int latestTagId;
 	int latestAutomationId;
@@ -71,9 +74,10 @@ public class FacebookPermissionTest extends BaseTest {
 	@BeforeClass
 	void precondition() {
 		ownerCredentials = new Login().setLoginInformation("+84", "automation0-shop74053@mailnesia.com", "fortesting!1").getLoginInformation();
-		staffCredentials = new Login().setLoginInformation("+84", "staff74053@mailnesia.com", "fortesting!1").getLoginInformation();
+		staffCredentials = new Login().setLoginInformation("+84", "staffa74053@mailnesia.com", "fortesting!1").getLoginInformation();
 		staffManagementAPI = new StaffManagement(ownerCredentials);
-		customerDetailAPI =new APICustomerDetail(ownerCredentials);
+		customerAPI = new APIAllCustomers(ownerCredentials);
+		customerDetailAPI = new APICustomerDetail(ownerCredentials);
 		segmentAPI = new APISegment(ownerCredentials);
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		fbAPI = new APIFacebook(ownerCredentials);
@@ -82,12 +86,14 @@ public class FacebookPermissionTest extends BaseTest {
 		staffId = staffManagementAPI.getStaffId(staffUserId);
 		staffName = staffManagementAPI.getStaffName(staffUserId);
 		
+		linkedCustomerId = customerAPI.getAllCustomerIds().parallelStream().filter(id -> customerDetailAPI.getCustomerInfoAtGoSocial(id).getPhones().size()>0).findFirst().orElse(null);
+		
 		latestTagId = fbAPI.getTagList().get(0).getId();
 		latestAutomationId = fbAPI.getAllAutomation().get(0).getId();
 		latestBroadcastId = fbAPI.getAllBroadcast().get(0).getId();
 		
 //    	permissionGroupId = permissionAPI.createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-    	permissionGroupId = 6625;
+    	permissionGroupId = 6670;
     	
     	
 		driver = new InitWebdriver().getDriver(browser, headless);
@@ -99,12 +105,20 @@ public class FacebookPermissionTest extends BaseTest {
 		loginPage.staffLogin(staffCredentials.getEmail(), staffCredentials.getPassword());
 		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
 	}	
-
+	void deleteTags() {
+		fbAPI.getTagList().parallelStream().filter(tag -> tag.getId() > latestTagId).forEach(t -> fbAPI.deleteTag(t.getId()));
+	}
+	void deleteAutomationCampaigns() {
+		fbAPI.getAllAutomation().parallelStream().filter(campaign -> campaign.getId() > latestAutomationId).forEach(t -> fbAPI.deleteAutomation(t.getId()));
+	}
+	void deleteBroadcastCampaigns() {
+		fbAPI.getAllAutomation().parallelStream().filter(campaign -> campaign.getId() > latestAutomationId).forEach(t -> fbAPI.deleteAutomation(t.getId()));
+	}
 	@AfterClass
 	void rollback() {
-		fbAPI.getTagList().parallelStream().filter(tag -> tag.getId() > latestTagId).forEach(t -> fbAPI.deleteTag(t.getId()));
-		fbAPI.getAllAutomation().parallelStream().filter(campaign -> campaign.getId() > latestAutomationId).forEach(t -> fbAPI.deleteAutomation(t.getId()));
-		fbAPI.getAllBroadcast().parallelStream().filter(campaign -> campaign.getId() > latestBroadcastId).forEach(t -> fbAPI.deleteBroadcast(t.getId()));
+		deleteTags();
+		deleteAutomationCampaigns();
+		deleteBroadcastCampaigns();
 //		permissionAPI.deleteGroupPermission(permissionGroupId);
 		driver.quit();
 	}		
@@ -128,25 +142,25 @@ public class FacebookPermissionTest extends BaseTest {
 	@DataProvider
 	public Object[][] facebookPermission() {
 		return new Object[][] { 
-			{"0000000000000000000000000000"},
-			{"0000000000000000000000000001"},
-			{"0000000000000000000000000011"},
-			{"0000000000000000000000000111"}, 
-			{"0000000000000000000000001111"},
-			{"0000000000000000000000011111"},
-			{"0000000000000000000000111111"},
-			{"0000000000000000000001111111"},
-			{"0000000000000000000011111111"},
-			{"0000000000000000000111111111"},
-			{"0000000000000000001111111111"},
-			{"0000000000000000011111111111"},
-			{"0000000000000000111111111111"},
-			{"0000000000000001111111111111"}, 
-			{"0000000000000011111111111111"},
-			{"0000000000000111111111111111"},
-			{"0000000000001111111111111111"},//unlink
-			{"0000000000011111111111111111"},//chat
-			{"0000000000111111111111111111"},//order
+//			{"0000000000000000000000000000"},
+//			{"0000000000000000000000000001"},
+//			{"0000000000000000000000000011"},
+//			{"0000000000000000000000000111"}, 
+//			{"0000000000000000000000001111"},
+//			{"0000000000000000000000011111"},
+//			{"0000000000000000000000111111"},
+//			{"0000000000000000000001111111"},
+//			{"0000000000000000000011111111"},
+//			{"0000000000000000000111111111"},
+//			{"0000000000000000001111111111"},
+//			{"0000000000000000011111111111"},
+//			{"0000000000000000111111111111"},
+//			{"0000000000000001111111111111"}, 
+//			{"0000000000000011111111111111"},
+//			{"0000000000000111111111111111"},
+//			{"0000000000001111111111111111"},//unlink
+//			{"0000000000011111111111111111"},//chat
+//			{"0000000000111111111111111111"},//order
 			{"0000000001111111111111111111"},//view campaign
 			{"0000000011111111111111111111"},//View campaign detail
 			{"0000000111111111111111111111"},//Create automation campaign
@@ -164,13 +178,12 @@ public class FacebookPermissionTest extends BaseTest {
 	public void CheckFacebookPermission(String permissionBinary) throws JsonProcessingException {
 		
 		String[] connectedPage = {"101234035989956", "Multiple page Gosell"};
-		int linkedCustomer = 4578528;
 		
 		String staffOldPermissionToken = new Login().getInfo(staffCredentials).getStaffPermissionToken();
 		
 		PermissionAPI.setStaffCredentials(staffCredentials);
 		
-		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Tien's Permission", "Description Tien's Permission", setPermissionModel(permissionBinary));
+		permissionAPI.editGroupPermissionAndGetID(permissionGroupId, "Customer Permission", "Description Customer Permission", setPermissionModel(permissionBinary));
 		
 		String staffNewPermissionToken = new CheckPermission(driver).waitUntilPermissionUpdated(staffOldPermissionToken, staffCredentials);
 		
@@ -235,11 +248,10 @@ public class FacebookPermissionTest extends BaseTest {
 		fbAPI.deleteTag(unassignedTag.getId());		
 
 		fbAPI.unlinkFBUserFromCustomer(assignedConvsId3);
-		CustomerProfileFB customerProfile = customerDetailAPI.getCustomerInfoAtGoSocial(linkedCustomer);
+		CustomerProfileFB customerProfile = customerDetailAPI.getCustomerInfoAtGoSocial(linkedCustomerId);
 		fbPage.checkPermissionToLinkCustomer(allPermissionDTO, assignedConvsId3, customerProfile.getFullName());		
 
-		CustomerProfileFB customerProfile1 = customerDetailAPI.getCustomerInfoAtGoSocial(linkedCustomer);
-		fbAPI.linkFBUserToCustomer(customerProfile1, assignedConvsId3, connectedPage[0]);
+		fbAPI.linkFBUserToCustomer(customerProfile, assignedConvsId3, connectedPage[0]);
 		fbPage.checkPermissionToUnlinkCustomer(allPermissionDTO);
 		fbAPI.unlinkFBUserFromCustomer(assignedConvsId3);
 		

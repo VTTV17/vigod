@@ -21,9 +21,11 @@ public class CustomerProfileFB {
 	Boolean guest;
 	CustomerAddress customerAddress;
 	String birthday;
+	String gender;
 	Integer partnerId;
 	String accountType;
 	Integer initDebt;
 	String partnerType;
+	Integer customerDropshipId;
 	Boolean inMerge;
 }
