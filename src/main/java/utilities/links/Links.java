@@ -8,6 +8,7 @@ public class Links {
 
     public static String SETTING_PAGE_TITLE = "Admin Staging - Settings";
     public static String DOMAIN = PropertiesUtil.getEnvironmentData("dashboarUrl");
+    public static String DOMAIN_BIZ = PropertiesUtil.getEnvironmentData("dashboardUrlBiz");
     public static String SETTING_PATH = "/setting";
     public static String SF_URL_TIEN = PropertiesUtil.getEnvironmentData("sfShopTien");
     public static String SF_ShopVi = PropertiesUtil.getEnvironmentData("sfShopVi");

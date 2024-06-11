@@ -29,7 +29,7 @@ public class KibanaAPI {
 
 	JsonPath getKeyFromKibanaJsonPath(String username) {
 		long endTimestamp = System.currentTimeMillis();
-		long startTimestamp = endTimestamp - TimeUnit.MINUTES.toMillis(1);
+		long startTimestamp = endTimestamp - TimeUnit.SECONDS.toMillis(30);
 		
 		String body1 = """
 				{"index":"logs-*","ignore_unavailable":true,"timeout":0,"preference":1713452407734}
@@ -65,7 +65,7 @@ public class KibanaAPI {
 		
 		for (int i=0; i<10; i++) {
 			key = extractKeyFromKibanaJsonPath(getKeyFromKibanaJsonPath(username), keyType);
-			if (!key.isEmpty()) break;
+			if (!key.isEmpty() && key !=null) break;
 	        try {
 	            sleep(1000);
 	        } catch (InterruptedException e) {

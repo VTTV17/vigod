@@ -1,5 +1,16 @@
 package web.Dashboard;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.testng.ITestResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APIAllCustomers.CustomerManagementInfo;
 import api.Seller.customers.APIEditCustomer;
@@ -8,12 +19,6 @@ import api.Seller.login.Login;
 import api.Seller.mediaservices.MediaServices.ExportHistoryInfo;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.PermissionAPI;
-import api.Seller.setting.StaffManagement;
-import org.testng.ITestResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -24,11 +29,6 @@ import web.Dashboard.customers.segments.Segments;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class CustomerPermissionTest extends BaseTest {
 
 	LoginInformation ownerCredentials;
@@ -37,7 +37,6 @@ public class CustomerPermissionTest extends BaseTest {
 	APIEditCustomer editCustomerAPI;
 	APISegment segmentAPI;
 	BranchManagement branchManagmentAPI;
-	StaffManagement staffManagementAPI;
 	CustomerManagementInfo customerManagementInfoAPI;
 	
 	int permissionGroupId;
@@ -61,7 +60,6 @@ public class CustomerPermissionTest extends BaseTest {
 		permissionAPI = new PermissionAPI(ownerCredentials);
 		editCustomerAPI = new APIEditCustomer(ownerCredentials);
 		segmentAPI = new APISegment(ownerCredentials);
-		staffManagementAPI = new StaffManagement(ownerCredentials);
 		customerManagementInfoAPI = new APIAllCustomers(ownerCredentials).getCustomerManagementInfo();
 		
 		preConditionSetup();

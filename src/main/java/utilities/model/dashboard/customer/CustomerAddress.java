@@ -18,5 +18,5 @@ public class CustomerAddress {
 	String wardCode;
 	String city;
 	String zipCode;
-	CustomerGeoLocation geoLocation;
+	Object geoLocation;
 }
