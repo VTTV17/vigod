@@ -2,8 +2,8 @@ package app.android.Buyer;
 
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.products.all_products.CreateProduct;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
@@ -23,7 +23,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.udid.DevicesUDID;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,7 +54,9 @@ public class ProductDetailTest extends BaseTest {
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
         String udid = new DevicesUDID().get();
         String bundleId = new APIGetMobileConfiguration(loginInformation).getAndroidAppPackage();
-        driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage.formatted(bundleId), appActivity.formatted(bundleId), URL);
+        appPackage = appPackage.formatted(bundleId);
+        appActivity = appActivity.formatted(bundleId);
+        driver = new InitAppiumDriver().getAppiumDriver(udid, "ANDROID", appPackage, appActivity, URL);
 
         productDetailPage = new BuyerProductDetailPage(driver);
 
@@ -70,13 +71,7 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void preCondition_G1() {
-        isIMEIProduct = false;
-        int branchStock = 5;
-        // get product ID
-        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
-                    .getProductID();
+        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 5).getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
@@ -86,12 +81,7 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void preCondition_G2() {
-        isIMEIProduct = true;
-        int branchStock = 5;
-        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock)
-                    .getProductID();
+        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, 5).getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
@@ -101,13 +91,7 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void preCondition_G3() {
-        isIMEIProduct = false;
-        int branchStock = 2;
-        int increaseNum = 1;
-        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
-                    .getProductID();
+        productId = new CreateProduct(loginInformation).createVariationProduct(false, 1).getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
@@ -117,15 +101,7 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void preCondition_G4() {
-        isIMEIProduct = true;
-        int branchStock = 2;
-        int increaseNum = 1;
-        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct,
-                isHideStock,
-                isDisplayIfOutOfStock);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock)
-                    .getProductID();
+        productId = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, 1).getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
