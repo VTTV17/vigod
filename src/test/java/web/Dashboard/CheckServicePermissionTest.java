@@ -71,7 +71,7 @@ public class CheckServicePermissionTest extends BaseTest {
         //Create a permisison
         staffLoginInfo = new Login().getInfo(staffCredentials);
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
-        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
+//        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
         // seller create service
         ownerCreatedServiceId = new CreateServiceAPI(ownerCredentials).createService(new ServiceInfo()).getServiceId();
         // staff create service
@@ -94,8 +94,7 @@ public class CheckServicePermissionTest extends BaseTest {
         new LoginPage(driver).staffLogin(staffUserName,staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceManagementPage(driver,staffCredentials).navigateToServiceManagementUrl()
-                .checkPermissionServiceManagement(allPermissions,staffCreatedServiceId,ownerCreatedServiceId)
-                .completeVerifyStaffPermissionServiceManagement();
+                .checkPermissionServiceManagement(allPermissions,staffCreatedServiceId,ownerCreatedServiceId);
     }
     @Test(dataProvider="serviceCollectionPermissionModel",dataProviderClass = PermissionDataProvider.class)
     public void checkPermissionServiceCollection(String serviceCollectionBinary){
@@ -108,7 +107,7 @@ public class CheckServicePermissionTest extends BaseTest {
         //create permisison
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials,model);
         //Get info of the staff after being granted the permission
-        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
+//        new CheckPermission(driver).waitUntilPermissionUpdated(staffLoginInfo.getStaffPermissionToken(),staffCredentials);
         staffLoginInfo = new Login().getInfo(staffCredentials);
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
         //Get collectionId
@@ -117,7 +116,6 @@ public class CheckServicePermissionTest extends BaseTest {
         new LoginPage(driver).staffLogin(staffUserName,staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
         new ServiceCollectionManagement(driver,staffCredentials).navigateToServiceCollectUrl()
-                .checkPermissionServiceCollection(allPermissions,collectionId)
-                .completeVerifyStaffPermissionServiceCollection();
+                .checkPermissionServiceCollection(allPermissions,collectionId);
     }
 }

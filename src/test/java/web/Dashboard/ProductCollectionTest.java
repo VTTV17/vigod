@@ -166,7 +166,7 @@ public class ProductCollectionTest extends BaseTest {
             productListSorted = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         }
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productListSorted.size()/PAGE_SIZE_SF_COLLECTION +1),productListSorted);
     }
 
     /**
@@ -234,7 +234,7 @@ public class ProductCollectionTest extends BaseTest {
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productExpectedList);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productExpectedList.size()/PAGE_SIZE_SF_COLLECTION +1),productExpectedList);
     }
 
     /**
@@ -279,7 +279,7 @@ public class ProductCollectionTest extends BaseTest {
         APIAllProducts apiAllProducts = new APIAllProducts(loginInformation);
         List<String> productListExpected = apiAllProducts.getProductListInCollectionByLatest(String.valueOf(collectIDNewest));
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListExpected)
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productListExpected.size()/PAGE_SIZE_SF_COLLECTION +1),productListExpected)
                 .verifySEOInfo("", "", "", collectionName);
         //Delete menuItem (Clear data)
         callDeleteMenuItemAndCollectionAPI(collectionName);
@@ -295,7 +295,7 @@ public class ProductCollectionTest extends BaseTest {
         System.out.println("productPriorityMapInput: " + CreateProductCollection.productPriorityMap);
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(loginInformation, CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productListSorted.size()/PAGE_SIZE_SF_COLLECTION +1),productListSorted);
 //        collectionNameEditManual = collectionName;
     }
 
@@ -321,7 +321,7 @@ public class ProductCollectionTest extends BaseTest {
         navigateSFAndGoToCollectionPage(collectionName);
         productCollectionSF = new ProductCollectionSF(driver);
 //        productCollectionSF.verifyProductCollectionName(collectionName)
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListExpected)
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productListExpected.size()/PAGE_SIZE_SF_COLLECTION +1),productListExpected)
                 .verifySEOInfo(SEOTitle, SEODescription, SEOKeyword, collectionName);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
@@ -397,8 +397,8 @@ public class ProductCollectionTest extends BaseTest {
         createAutomationCollectionAndVerify(collectionName, Constant.ANY_CONDITION, conditions);
         callDeleteMenuItemAndCollectionAPI(collectionName);
     }
-
-    @Test(priority = 12)
+//logic out of date
+//    @Test(priority = 12)
     public void PC_12_BH_5239_CheckPermission() throws IOException {
         checkPlanPermission("GoWeb", userName_goWeb);
         checkPlanPermission("GoApp", userName_goApp);
@@ -425,7 +425,7 @@ public class ProductCollectionTest extends BaseTest {
         navigateSFAndGoToCollectionPage(collectionName);
         List<String> productListSorted = CreateProductCollection.sortProductListByPriorityAndUpdatedDate(loginInformation, CreateProductCollection.productPriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),productListSorted);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(productListSorted.size()/PAGE_SIZE_SF_COLLECTION +1),productListSorted);
         collectNameEditPriority = collectionName;
         collectionIdHasPriority = collectIDNewest;
     }

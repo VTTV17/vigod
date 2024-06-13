@@ -51,7 +51,7 @@ public class Constant {
             MANUALLY_MODE = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.manuallyModeTxt");
             PRODUCT_TYPE = PropertiesUtil.getPropertiesValueByDBLang("products.productCollections.management.table.productTypeTxt");
             SERVICE_TYPE = PropertiesUtil.getPropertiesValueByDBLang("services.serviceCollections.management.table.serviceTypeTxt");
-            SERVICE_TITLE = PropertiesUtil.getPropertiesValueByDBLang("");
+            SERVICE_TITLE = "";
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

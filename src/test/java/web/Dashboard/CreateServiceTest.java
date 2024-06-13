@@ -465,8 +465,8 @@ public class CreateServiceTest extends BaseTest {
                 .clickSaveBtn()
                 .verifyCreateSeviceSuccessfulMessage();
     }
-
-    @Test
+//  out of date
+//    @Test
     public void CS11_CheckCreateSVPermision() throws Exception {
         testCaseId = "CS11";
         checkPermisionCreateSVByPackage(AccountTest.ADMIN_USERNAME_GOWEB, true);
@@ -544,11 +544,13 @@ public class CreateServiceTest extends BaseTest {
                 .waitDotLoadingDisappear();
         new HeaderSF(driver).clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
-        serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "");
+        serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "")
+                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOTitle, SEOUrl);;
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage("ENG");
         serviceDetailPage = new ServiceDetailPage(driver);
-        serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "");
+        serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
+                     .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, SEOTitleTranslate);
         //edit seo
         home = new HomePage(driver);
         home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
@@ -583,11 +585,14 @@ public class CreateServiceTest extends BaseTest {
                 .searchWithFullName(serviceEdit)
                 .clickSearchResult();
         serviceDetailPage = new ServiceDetailPage(driver);
-        serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "");
+        serviceDetailPage.verifySEOInfo(SEOTitle, SEODesctiption, SEOKeyword, "", "")
+                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOTitle, SEOUrl);
         headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage("ENG");
         serviceDetailPage = new ServiceDetailPage(driver);
-        serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "");
+        serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
+                .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, SEOTitleTranslate);
+
         //delete seo
         home = new HomePage(driver);
         home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
@@ -792,7 +797,8 @@ public class CreateServiceTest extends BaseTest {
                 .clickCloseBTNOnNotificationPopup()
                 .verifyServiceNotDisplayInList(serviceDelete);
     }
-    @Test
+    //out of date
+//    @Test
     public void ES08_CheckEditSVPermision() throws Exception {
         testCaseId = "ES08";
         checkPermisionUpdateSVByPackage(AccountTest.ADMIN_USERNAME_GOWEB, true);

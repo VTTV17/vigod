@@ -2,6 +2,7 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIEditProduct;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.CreateProduct;
 import api.Seller.promotion.PromotionList;
 import api.Seller.services.CreateServiceAPI;
@@ -84,7 +85,7 @@ public class DiscountCampaignPermissionTest extends BaseTest{
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
         super.writeResult(result);
-//        driver.quit();
+        driver.quit();
     }
 
     @DataProvider
@@ -1124,7 +1125,9 @@ public class DiscountCampaignPermissionTest extends BaseTest{
         model.setPromotion_discountCampaign(discountCampaignPermissionBinary);
         return model;
     }
+    public void callAPICreateCampaign(){
 
+    }
     //BH-24962
     @Test(dataProvider = "DiscountCampaignPermissionModel")
     public void checkPermissionDiscountCampaign(String discountCampaignPermissionBinary){

@@ -22,7 +22,7 @@ public class CreateServiceElement {
     By loc_chbShowAsListingAction = By.xpath("(//input[@type='checkbox'])[1]/following-sibling::div");
     By loc_txaServiceDescription = By.xpath("//label[@for='serviceDescription']//following::div[@class='fr-element fr-view']");
     By loc_frmCollection = By.cssSelector(".product-form-collection-selector");
-    By loc_lstCollectionSuggestion = By.xpath("//div[contains(@id,'react-select-4-option')]");
+    By loc_lstCollectionSuggestion = By.xpath("//div[contains(@id,'option')]");
     By loc_lblSelectedCollection = By.xpath("//div[@class='product-form-collection-selector']//div[contains(@class,'multiValue')]/div[1]");
     By loc_txtUploadImage = By.xpath("//input[@type='file' and @style ='display: none;']");
     By loc_txtLocation = By.cssSelector("#locations");

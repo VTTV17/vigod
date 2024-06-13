@@ -165,6 +165,7 @@ public class MyAddress extends HeaderSF {
         return city;
     }
     public String selectDistrict(String district) {
+        commonAction.sleepInMiliSecond(1000);
         commonAction.waitTillSelectDropdownHasData(myAddressUI.loc_ddlDistrict);
         if(district.isEmpty()){
             commonAction.selectByIndex(myAddressUI.loc_ddlDistrict, new DataGenerator().generatNumberInBound(1,commonAction.getAllOptionInDropDown(commonAction.getElement(myAddressUI.loc_ddlDistrict)).size()));

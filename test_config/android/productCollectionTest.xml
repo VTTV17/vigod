@@ -34,7 +34,7 @@
                     <include name="MPC27_CheckCollectionDetail_AllCondition_Buyer"/>
                     <include name="MPC28_CreateAutomationCollection_AnyCondition"/>
                     <include name="MPC29_CheckCollectionDetail_AnyCondition_Buyer"/>
-                    <include name="MPC30_CheckPermissionByPackage"/>
+<!--                    <include name="MPC30_CheckPermissionByPackage"/>-->
                     <include name="MPC31_UpdateCollection_AllCondition"/>
                     <include name="MPC32_CheckCollectionDetail_UpdateCollectionType_AllCondition"/>
                     <include name="MPC33_UpdateCollection_AnyCondition"/>

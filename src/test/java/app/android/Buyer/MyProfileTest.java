@@ -103,7 +103,7 @@ public class MyProfileTest extends BaseTest {
         capabilities.setCapability("udid", "R5CR92R4K7V");
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0037");
-        capabilities.setCapability("appActivity", "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity");
+        capabilities.setCapability("appActivity", "com.mediastep.shop0037.ui.modules.splash.SplashScreenActivity");
         capabilities.setCapability("noReset", "false");
         capabilities.setCapability("autoGrantPermissions", "true");
         String url = "http://127.0.0.1:4723/wd/hub";
@@ -136,12 +136,13 @@ public class MyProfileTest extends BaseTest {
     public String callAPISignUpAccount(boolean isEmailAccount) {
         loginInformation = new Login().setLoginInformation("+84", sellerUsername, sellerPass).getLoginInformation();
         String userName;
+        String random = generator.randomNumberGeneratedFromEpochTime(8);
         if (isEmailAccount) {
-            userName = "email" + generator.randomNumberGeneratedFromEpochTime(7) + "@mailnesia.com";
-            new SignUp(loginInformation).signUpByMail(userName, passBuyer);
+            userName = "email" + random + "@mailnesia.com";
+            new SignUp(loginInformation).signUpByMail(userName,"VN","vi",random, passBuyer);
         } else {
-            userName = "01" + generator.randomNumberGeneratedFromEpochTime(7);
-            new SignUp(loginInformation).signUpByPhoneNumber(passBuyer, userName, "+84");
+            userName = "09" + random;
+            new SignUp(loginInformation).signUpByPhoneNumber("+84",userName,"VN","vi",random,passBuyer);
         }
         return userName;
     }

@@ -352,9 +352,9 @@ public class Checkout extends CheckoutElement {
         logger.info("Click on Confirm button on Shipping address modal");
         return this;
     }
-    public Checkout updateAddressVN(String country,String address, String city, String district, String ward){
+    public Checkout updateAddressVN(){
         goToEditMyAddress();
-        inputAddressInfo_VN(country,address,city,district,ward);
+        inputAddressInfo_VN();
         completeEditAddress();
         return this;
     }

@@ -49,5 +49,8 @@ public class RegisterPayloadBuilder extends JsonObjectBuilder {
         jsonData.put("mobile", mobile);
         return this;
     }
-
+    public RegisterPayloadBuilder givenMail(String mail) {
+        jsonData.put("email", mail);
+        return this;
+    }
 }

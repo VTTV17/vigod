@@ -9,6 +9,7 @@ import org.testng.Assert;
 import web.StoreFront.GeneralSF;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
+import web.StoreFront.services.ServiceDetailPage;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -97,6 +98,12 @@ public class ProductCollectionSF extends GeneralSF {
             Assert.assertEquals(SEOKeywordActual, SEOKeyword);
         }
         logger.info("Verify SEO info");
+        return this;
+    }
+    public ProductCollectionSF navigateToServiceDetailBySEOUrl(String domain, String SEOUrl) {
+        common.navigateToURL(domain+SEOUrl);
+        logger.info("Navigate to: "+domain+SEOUrl);
+        common.sleepInMiliSecond(500, "Wait page load.");
         return this;
     }
     public ProductCollectionSF verifyCollectionEmpty(){

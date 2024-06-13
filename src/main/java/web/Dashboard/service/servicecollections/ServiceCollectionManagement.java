@@ -154,7 +154,8 @@ public class ServiceCollectionManagement {
 	public ServiceCollectionManagement searchCollection(String collectionName){
 		commonAction.inputText(loc_txtSearch,collectionName);
 		logger.info("Input to search collection: "+collectionName);
-		new HomePage(driver).waitTillSpinnerDisappear();
+		commonAction.sleepInMiliSecond(1000,"Wait loading show");
+		new HomePage(driver).waitTillSpinnerDisappear1();
 		return this;
 	}
 	public String getTheFirstCollectionName() {
@@ -319,13 +320,7 @@ public class ServiceCollectionManagement {
 		checkPermissionCreateCollection();
 		checkPermissionEditCollection(collectionId);
 		checkPermissionDeleteServiceCollection(collectionId);
-		return this;
-	}
-	public ServiceCollectionManagement completeVerifyStaffPermissionServiceCollection() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();
 		return this;
 	}
 }

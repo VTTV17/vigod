@@ -50,7 +50,7 @@ public class ServiceDetailTest extends BaseTest {
     @BeforeClass
     public void setUp() throws Exception {
         String appPackage = "com.mediastep.shop0037";
-        String appActivity = "com.mediastep.gosell.ui.modules.splash.SplashScreenActivity";
+        String appActivity = appPackage+".ui.modules.splash.SplashScreenActivity";
         driver=launchApp(appPackage,appActivity);
         generator = new DataGenerator();
         PropertiesUtil.setEnvironment("STAG");
