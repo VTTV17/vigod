@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.file.FileNameAndPath.FILE_BUY_LINK_TCS;
 import static utilities.links.Links.SF_ShopVi;
 
@@ -51,21 +52,22 @@ public class BuyLinkTest extends BaseTest {
     web.StoreFront.login.LoginPage loginSF;
     String discountCodeName;
     double productPrice;
+    double productPriceAfterDiscount;
     double discountAmount;
     SignupPage signupSF;
     String shopDomain;
     QuicklyCheckout quicklyCheckout;
-    String token;
     LoginInformation loginInformation;
     List<Integer> productIds = new ArrayList<>();
     @BeforeClass
-    public void beforeClass() throws Exception {
+    public void beforeClass() {
         userNameDb = AccountTest.ADMIN_SHOP_VI_USERNAME;
         passWordDb = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         userNameSF = PropertiesUtil.getEnvironmentData("buyer1");
         passWordSF = AccountTest.SF_SHOP_VI_PASSWORD;
         languageDB = language;
         languageSF = language;
+        MAX_PRICE = 999999L;
         loginInformation = new Login().setLoginInformation("+84",userNameDb,passWordDb).getLoginInformation();
         shopDomain = SF_ShopVi;
         tcsFileName = FILE_BUY_LINK_TCS;
@@ -79,7 +81,7 @@ public class BuyLinkTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-        if (driver != null) driver.quit();
+//        if (driver != null) driver.quit();
     }
     @AfterClass
     public void afterClass(){
@@ -226,7 +228,8 @@ public class BuyLinkTest extends BaseTest {
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = new CreateProduct(loginInformation).getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
-        discountAmount = percent*productPrice/100;
+        productPriceAfterDiscount = Math.ceil(productPrice - percent*productPrice/100);
+        discountAmount = productPrice - productPriceAfterDiscount;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
@@ -314,8 +317,8 @@ public class BuyLinkTest extends BaseTest {
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = new CreateProduct(loginInformation).getProductSellingPrice().get(0);
         double percent = CreatePromotion.apiCouponValue;
-        discountAmount = productPrice*percent/100;
-
+        productPriceAfterDiscount = Math.ceil(productPrice - percent*productPrice/100);
+        discountAmount = productPrice - productPriceAfterDiscount;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
@@ -359,12 +362,12 @@ public class BuyLinkTest extends BaseTest {
         loginSF = new GeneralSF(driver).clickOnRegisterButtonOnRequiredLoginModal();
         signupSF = new SignupPage(driver);
         String generateName = generate.generateString(10);
-        String buyerAccount_Signup = "01" + generate.generateNumber(9);
+        String buyerAccount_Signup = "09" + generate.generateNumber(8);
         String buyerDisplayName_Signup = generateName;
         signupSF.signUpWithPhoneNumber("Vietnam", buyerAccount_Signup, passWordSF, buyerDisplayName_Signup, "");
         new Checkout(driver)
-                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
-                .updateAddressVN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
+                .verifyDicountAmount("0đ")
+                .updateAddressVN()
                 .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
@@ -390,11 +393,11 @@ public class BuyLinkTest extends BaseTest {
         generalSF = new GeneralSF(driver);
         generalSF.navigateToURL(buyLinkURL);
         new Checkout(driver)
-                .verifyDicountAmount(String.format("%.0f",discountAmount)+"đ")
+                .verifyDicountAmount("0đ")
                 .clickOnEditIcon()
                 .inputPhoneNumber(new DataGenerator().randomVNPhone())
-                .inputAddressInfo_VN("", "address1", "An Giang", "Huyện Tri Tôn", "An Tức")
-                .clickOnConfirmButtonOnUpdateAddresModal()
+                .inputAddressInfo_VN();
+        new Checkout(driver).clickOnConfirmButtonOnUpdateAddresModal()
                 .clickOnCompleteBtn()
                 .verifyProductNames(productName)
                 .verifyDiscountAmount("0đ");
@@ -464,7 +467,8 @@ public class BuyLinkTest extends BaseTest {
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = new CreateProduct(loginInformation).getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
-        discountAmount = percent*productPrice/100;
+        productPriceAfterDiscount = Math.ceil(productPrice - percent*productPrice/100);
+        discountAmount = productPrice - productPriceAfterDiscount;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
@@ -512,7 +516,9 @@ public class BuyLinkTest extends BaseTest {
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = new CreateProduct(loginInformation).getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
-        discountAmount = percent*productPrice/100;
+
+        productPriceAfterDiscount = Math.ceil(productPrice - percent*productPrice/100);
+        discountAmount = productPrice - productPriceAfterDiscount;
         createBuyLink = LoginAndNavigateToCreateBuyLinkPage();
         buyLinkManagement = createBuyLink.searchAndSelectProduct(productName)
                 .clickOnNextBtn()
@@ -725,7 +731,8 @@ public class BuyLinkTest extends BaseTest {
         productName = new String[]{new CreateProduct(loginInformation).getProductName()};
         productPrice = new CreateProduct(loginInformation).getProductSellingPrice().get(0);
         double percent =  CreatePromotion.apiCouponValue;
-        discountAmount = percent*productPrice/100;
+        productPriceAfterDiscount = Math.ceil(productPrice - percent*productPrice/100);
+        discountAmount = productPrice - productPriceAfterDiscount;
         //edit buy link with discount
         buyLinkManagement =  LoginAndNavigateToBuyLinkPage()
                 .clickExploreNow()

@@ -224,9 +224,9 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		logger.info("Verified permission Create service.");
 	}
 	public void checkPermissionViewCollection(){
-		commons.click(createServiceUI.loc_frmCollection);
 		commons.sleepInMiliSecond(1000);
-		boolean isSuggestionListShow = !commons.getListElement(createServiceUI.loc_lstCollectionSuggestion).isEmpty();
+		commons.click(createServiceUI.loc_frmCollection);
+		boolean isSuggestionListShow = !commons.getElements(createServiceUI.loc_lstCollectionSuggestion,2).isEmpty();
 		if (allPermissions.getService().getServiceCollection().isViewCollectionList())
 			assertCustomize.assertTrue(isSuggestionListShow,"[Failed] Collection list not show.");
 		else assertCustomize.assertFalse(isSuggestionListShow,"[Failed] Collection should be hidden, but it show now.");
@@ -236,7 +236,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+serviceId;
 		if(allPermissions.getService().getServiceManagement().isViewServiceDetail()&&(allPermissions.getService().getServiceManagement().isViewListService()||allPermissions.getService().getServiceManagement().isViewListCreatedService())) {
 			commons.navigateToURL(viewDetailServiceUrl);
-			commons.sleepInMiliSecond(200);
+			commons.sleepInMiliSecond(500);
 			if(allPermissions.getService().getServiceManagement().isEditService()){
 				checkPermissionViewCollection();
 				commons.click(createServiceUI.loc_btnSave);
@@ -260,9 +260,11 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+inactiveServiceId;
 			commons.navigateToURL(viewDetailServiceUrl);
 			new HomePage(driver).waitTillSpinnerDisappear1();
+			commons.sleepInMiliSecond(500);
 			if(allPermissions.getService().getServiceManagement().isActivateService()){
 				commons.click(createServiceUI.loc_btnActiveDeactive);
-				commons.sleepInMiliSecond(500);
+				new HomePage(driver).waitTillLoadingDotsDisappear();
+				commons.sleepInMiliSecond(1000);
 				try {
 					String activelblENG = PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus","ENG");
 					String activelblVIE = PropertiesUtil.getPropertiesValueByDBLang("services.create.activeStatus","VIE");
@@ -283,6 +285,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 			String viewDetailServiceUrl = Links.DOMAIN+"/service/edit/"+activeServiceId;
 			commons.navigateToURL(viewDetailServiceUrl);
 			new HomePage(driver).waitTillSpinnerDisappear1();
+			commons.sleepInMiliSecond(200);
 			if(allPermissions.getService().getServiceManagement().isDeactivateService()){
 				commons.click(createServiceUI.loc_btnActiveDeactive);
 				commons.sleepInMiliSecond(500);
@@ -292,7 +295,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 					String inactiveLblVIE = PropertiesUtil.getPropertiesValueByDBLang("services.create.inactiveStatus","VIE");
 					String statusLbl  = commons.getText(createServiceUI.loc_lblStatus);
 					assertCustomize.assertTrue(statusLbl.contentEquals(inactiveLblENG)||statusLbl.contentEquals(inactiveLblVIE),
-							"[Failed] ServiceId: %s - Active status should be shown, but '%s' is shown".formatted(activeServiceId,statusLbl));
+							"[Failed] ServiceId: %s - Deactive status should be shown, but '%s' is shown".formatted(activeServiceId,statusLbl));
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -350,13 +353,7 @@ public class ServiceManagementPage extends ServiceManagementElement {
 		checkPermissionActiveService();
 		checkPermissionDeactivateService();
 		checkPermissionDeleteService(staffCreatedServiceId);
-		return this;
-	}
-	public ServiceManagementPage completeVerifyStaffPermissionServiceManagement() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();
 		return this;
 	}
 }

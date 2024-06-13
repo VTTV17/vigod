@@ -42,10 +42,14 @@ public class Collection {
         if (productNameElements.size() !=0){
             productNamesActual = common.getListElementText(PRODUCT_NAME_LIST);
         }
+        System.out.println("Size List 1: "+productNamesActual.size());
+
         List<String> productNamesActualToLowerCase =new ArrayList<>();
         for (String productName:productNamesActual) {
             productNamesActualToLowerCase.add(productName.toLowerCase());
         }
+        System.out.println("Size List 2: "+productNamesActualToLowerCase.size());
+
         List<String> toExpectedSort = new ArrayList<>();
         toExpectedSort.addAll(expected);
         if (!hasCheckPriority){

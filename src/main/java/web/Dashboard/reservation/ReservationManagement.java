@@ -63,15 +63,18 @@ public class ReservationManagement {
 	public ReservationManagement navigateToReservationsUrl(){
 		commonAction.navigateToURL(Links.DOMAIN+"/reservation/list");
 		logger.info("Navigate to reservation list.");
-		commonAction.sleepInMiliSecond(200);
+		new HomePage(driver).waitTillSpinnerDisappear1();
+		commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 	public ReservationManagement clickDatePicker(){
 		commonAction.click(loc_frmDatePicker);
+		logger.info("Click on Date picker");
 		return this;
 	}
 	public ReservationManagement clickResetPicker(){
 		commonAction.click(loc_btnReset);
+		logger.info("Click Reset picker.");
 		return this;
 	}
 	public ReservationManagement resetDatePicker(){
@@ -208,13 +211,7 @@ public class ReservationManagement {
 		checkPermissionConfirmReservation(toConfirmReservationId);
 		checkPermissionCompleteReservation(confirmedReservationId);
 		checkPermissionCancelReservation(toConfirmReservationId);
-		return this;
-	}
-	public ReservationManagement completeVerifyStaffPermissionReservationManagement() {
-		logger.info("countFail = %s".formatted(assertCustomize.getCountFalse()));
-		if (assertCustomize.getCountFalse() > 0) {
-			Assert.fail("[Failed] Fail %d cases".formatted(assertCustomize.getCountFalse()));
-		}
+		AssertCustomize.verifyTest();
 		return this;
 	}
 }
