@@ -31,27 +31,23 @@ public class ChangePasswordDialog {
 		logger.info("Input '" + currentPassword + "' into Current Password field.");
 		return this;
 	}
-
 	public ChangePasswordDialog inputNewPassword(String newPassword) {
 		commonAction.inputText(loc_txtNewPassword, newPassword);
 		logger.info("Input '" + newPassword + "' into New Password field.");
 		return this;
 	}
-
 	public ChangePasswordDialog clickDoneBtn() {
 		commonAction.click(loc_btnDone);
 		logger.info("Clicked on 'Done' button");
 		new GeneralSF(driver).waitTillLoaderDisappear();
 		return this;
 	}
-
 	public ChangePasswordDialog clickCloseBtn() {
 		commonAction.click(loc_btnClose);
 		logger.info("Clicked on 'Close' button");
 		return this;
 	}
 
-	
 	/**
 	 * <p>
 	 * Get error message for Current Password field when users input invalid data for the field.
@@ -60,9 +56,9 @@ public class ChangePasswordDialog {
 	 * <p>
 	 * @return an error saying what is wrong
 	 */	
-	public String getErrorForCurrentPasswordField() {
+	public String getCurrentPasswordError() {
 		String error = commonAction.getText(loc_lblCurrentPasswordError);
-		logger.info("Finished getting error message for 'Current Password' field");
+		logger.info("Retrieved current password error: " + error);
 		return error;
 	}
 
@@ -74,9 +70,9 @@ public class ChangePasswordDialog {
 	 * <p>
 	 * @return an error saying what is wrong
 	 */
-	public String getErrorForNewPasswordField() {
+	public String getNewPasswordError() {
 		String error = commonAction.getText(loc_lblNewPasswordError);
-		logger.info("Finished getting error message for 'New Password' field");
+		logger.info("Retrieved new password error: " + error);
 		return error;
 	}
 	

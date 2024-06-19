@@ -106,6 +106,7 @@ public class LoginDashboard extends BaseTest {
 		loginPage.navigate().selectDisplayLanguage(language);
 
 		// 7-digit phone number
+		//https://mediastep.atlassian.net/browse/BH-29615
 		String error = loginPage.performLogin(generate.generateNumber(7), generate.generateString(10)).getUsernameError();
 		Assert.assertEquals(error, invalidPhoneError);
 		commonAction.refreshPage();
