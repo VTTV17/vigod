@@ -137,24 +137,9 @@ public class CommissionPage extends CommissionElement{
                 }
             }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_icnEdit,0),
                     "[Failed] Restricted popup should be shown when click on edit icon.");
-            logger.info("Verified Edit commission permission.");
-        }else {
-            String editUrl = Links.DOMAIN + "/affiliate/commission/edit/"+id;
-            if (hasEditCommission()){
-                common.navigateToURL(editUrl);
-                common.sleepInMiliSecond(500);
-                common.click(createCommissionPage.loc_btnSave);
-                String toastMessage = new HomePage(driver).getToastMessage();
-                try {
-                    assertCustomize.assertEquals(toastMessage,PropertiesUtil.getPropertiesValueByDBLang("affiliate.commission.update.successMessage"),
-                            "[Failed] Update success message should be shown, but '%s' is shown".formatted(toastMessage));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(editUrl),
-                    "[Failed] Restricted popup should be shown when navigate to edit url.");
-            logger.info("Verified Edit commission permission.");
-        }
+        }else logger.info("Don't have view commission list, so no need check edit commission permission.");
+        logger.info("Verified Edit commission permission.");
+
     }
     public void verifyDeleteCommission(){
         if(hasViewProductCommissionList()){

@@ -19,11 +19,18 @@ public class TransferDetailPage extends TransferDetailElement{
         String url = Links.DOMAIN + Links.AFFILIATE_TRANSFER_DETAIL_PATH.formatted(id);
         common.navigateToURL(url);
         logger.info("Navigate to url: "+url);
+        common.sleepInMiliSecond(500);
     }
     public void clickSelectAction(){
+        int count = 0;
+        while (common.getElements(loc_progressing,1).size()>0 && count<5){
+            common.refreshPage();
+            common.sleepInMiliSecond(500,"Wait progressing label disappear");
+            count++;
+        }
         common.click(loc_lnkSelectAction);
         logger.info("Click Select Action link");
-
+        common.sleepInMiliSecond(200);
     }
     public AddEditTransferPage clickEditTransfer(){
         common.click(loc_lst_actions,0);

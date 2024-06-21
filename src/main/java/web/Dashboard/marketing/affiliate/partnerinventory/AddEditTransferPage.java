@@ -55,6 +55,7 @@ public class AddEditTransferPage extends AddEditTransferElement {
         common.inputText(loc_txtSearchProduct, productName);
         common.sleepInMiliSecond(200);
         new HomePage(driver).waitTillSpinnerDisappear1();
+        common.sleepInMiliSecond(1000);
         List<WebElement> productNames = common.getElements(loc_lst_searchProductSuggestion, 3);
         if (productNames.isEmpty()) return false;
         for (int i = 0; i < productNames.size(); i++) {
@@ -99,6 +100,7 @@ public class AddEditTransferPage extends AddEditTransferElement {
         } else {
             inputPartner(partnerName[0]);
             new HomePage(driver).waitTillSpinnerDisappear1();
+            common.sleepInMiliSecond(500);
             List<WebElement> partnerSuggestion = common.getElements(loc_lst_searchPartnerSuggestion, 3);
             boolean isClicked = false;
             for (int i = 0; i < partnerSuggestion.size(); i++) {
@@ -117,11 +119,13 @@ public class AddEditTransferPage extends AddEditTransferElement {
         }
     }
     public void clickSave(){
+        common.sleepInMiliSecond(1000);
         common.click(loc_btnSave);
         logger.info("Click on Save button.");
     }
     public AddEditTransferPage inputInfoToCreateTransferRandom(){
         selectPartnerDestination();
+        common.sleepInMiliSecond(1000);
         selectProduct();
         return this;
     }

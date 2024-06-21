@@ -16,6 +16,7 @@ public class TrackingStockPage extends TrackingStockElement{
 
     public TrackingStockPage(WebDriver driver) {
         this.driver = driver;
+        common = new UICommonAction(driver);
     }
     public void navigateByUrl(){
         String url = Links.DOMAIN + Links.AFFILIATE_TRACKING_STOCK_PATH;
