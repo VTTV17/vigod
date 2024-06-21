@@ -352,6 +352,7 @@ public class FlashSalePage extends FlashSaleElement {
         verifyPermissionCreateFlashSale(productNameOfShopOwner,productNameOfStaff);
         verifyPermissionEditFlashSale(flashSaleScheduleId);
         verifyPermissionDeleteFlashSale();
+        AssertCustomize.verifyTest();
         return this;
     }
     public FlashSalePage completeVerifyStaffPermissionFlashSale() {

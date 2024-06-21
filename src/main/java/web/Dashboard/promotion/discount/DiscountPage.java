@@ -1,6 +1,9 @@
 package web.Dashboard.promotion.discount;
 
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.promotion.ProductDiscountCampaign;
+import api.Seller.promotion.PromotionList;
 import api.Seller.setting.BranchManagement;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +17,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import utilities.assert_customize.AssertCustomize;
+import utilities.enums.DiscountStatus;
+import utilities.enums.DiscountType;
 import utilities.links.Links;
+import utilities.model.api.promotion.productDiscountCampaign.ProductDiscountCampaignConditions;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -49,7 +56,7 @@ public class DiscountPage extends DiscountElement {
 	ServiceDiscountCampaignPage serviceCampaignPage;
 	HomePage homePage;
 	LoginInformation loginInformation;
-
+	LoginInformation staffLoginInfo;
 	public DiscountPage(WebDriver driver) {
 		super(driver);
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -60,12 +67,36 @@ public class DiscountPage extends DiscountElement {
 		serviceCampaignPage = new ServiceDiscountCampaignPage(driver);
 	}
 
-    public DiscountPage getLoginInformation(LoginInformation loginInformation) {
+    public DiscountPage getLoginInformation(LoginInformation loginInformation, LoginInformation staffLoginInfo) {
         // get login information (username, password)
         this.loginInformation = loginInformation;
+		this.staffLoginInfo = staffLoginInfo;
         return this;
-    }	
-	
+    }
+	public int callAPIgetCampaignId(DiscountType discountType, DiscountStatus status, int productId){
+		int discountId = new PromotionList(loginInformation).getDiscountId(discountType,status);
+		if(discountId == -1){
+			switch (discountType){
+				case PRODUCT_DISCOUNT_CAMPAIGN -> {
+					ProductDiscountCampaignConditions conditions = new ProductDiscountCampaignConditions();
+					conditions.setSegmentConditionType(0);
+					conditions.setDiscountCampaignBranchConditionType(0);
+					conditions.setAppliesToType(0);
+					ProductInfo productInfo = new APIProductDetail(loginInformation).getInfo(productId);
+					switch (status){
+						case IN_PROGRESS -> new ProductDiscountCampaign(loginInformation).createProductDiscountCampaign(conditions,productInfo,0);
+						case SCHEDULED -> new ProductDiscountCampaign(loginInformation).createProductDiscountCampaign(conditions,productInfo,1);
+						case EXPIRED -> {
+							new ProductDiscountCampaign(loginInformation).createProductDiscountCampaign(conditions,productInfo,0);
+							new ProductDiscountCampaign(loginInformation).endEarlyDiscountCampaign();
+						}
+					}
+				}
+			}
+			discountId = new PromotionList(loginInformation).getDiscountId(discountType,status);
+		}
+		return discountId;
+	}
 	Logger logger = LogManager.getLogger(DiscountPage.class);
 
     /**
@@ -946,7 +977,6 @@ public class DiscountPage extends DiscountElement {
 	public DiscountPage verifyPermissionViewProductCampaignDetail(int productCampaignScheduledId){
 		String detailUrl = Links.DOMAIN + "/discounts/detail/WHOLE_SALE/" + productCampaignScheduledId;
 		String editUrl = Links.DOMAIN + "/discounts/edit/WHOLE_SALE/" + productCampaignScheduledId;
-
 		// has permission: View product campaign list then click on promotion list.
 		if(allPermissions.getPromotion().getDiscountCampaign().isViewProductCampaignList()){
 			navigateUrl();
@@ -1055,6 +1085,7 @@ public class DiscountPage extends DiscountElement {
 			if (allPermissions.getPromotion().getDiscountCampaign().isViewServiceDiscountCampaignDetail()) {
 				//check navigate to detail page
 				commonAction.navigateToURL(detailUrl);
+				commonAction.sleepInMiliSecond(1000);
 				String name = commonAction.getText(productDiscountCampaignEl.loc_detail_lblDiscountCampaignName);
 				assertCustomize.assertFalse(name.isEmpty(), "[Failed] Service discount campaign should be shown name on service detail page, but '%s' is shown".formatted(name));
 				//check navigate to edit page
@@ -1214,8 +1245,8 @@ public class DiscountPage extends DiscountElement {
 	}
 	public DiscountPage checkPermissionViewBranchList(){
 		
-		List<Integer> branchIds = new Login().getInfo(loginInformation).getAssignedBranchesIds();
-		List<String> branchNamesAssigned = new BranchManagement(loginInformation).getBranchNameById(branchIds);
+		List<Integer> branchIds = new Login().getInfo(staffLoginInfo).getAssignedBranchesIds();
+		List<String> branchNamesAssigned = new BranchManagement(staffLoginInfo).getBranchNameById(branchIds);
 		new ProductDiscountCampaignPage(driver)
 				.tickApplicableBranch(1)
 				.clickOnSelectBranch();
@@ -1418,18 +1449,22 @@ public class DiscountPage extends DiscountElement {
 			logger.info("Don't have View service campain list permission, so no need check end service campaign permission on Discount campaign list.");
 		return this;
 	}
-	public DiscountPage verifyPermissionDiscountCampaign(AllPermissions allPermissions, String productNameCreatedByShopOwner, String productNameCreatedByStaff, String serviceNameCreatedByShopOwner, String serviceNameCreatedByStaff, int productCampaignInprogressId, int serviceCampaignInprogessId, int productCampaignScheduleId, int serviceCampaignScheduleId ){
+	public DiscountPage verifyPermissionDiscountCampaign(AllPermissions allPermissions, String productNameCreatedByShopOwner, String productNameCreatedByStaff, String serviceNameCreatedByShopOwner, String serviceNameCreatedByStaff, int productIdCreateCampaign ){
 		this.allPermissions = allPermissions;
 		
 		verifyPermissionViewProductCampaignList();
+		int productCampaignScheduleId  = callAPIgetCampaignId(DiscountType.PRODUCT_DISCOUNT_CAMPAIGN,DiscountStatus.SCHEDULED,productIdCreateCampaign);
 		verifyPermissionViewProductCampaignDetail(productCampaignScheduleId);
 		verifyPermissionViewServiceCampaignList();
+		int serviceCampaignScheduleId = callAPIgetCampaignId(DiscountType.SERVICE_DISCOUNT_CAMPAIGN,DiscountStatus.SCHEDULED,productIdCreateCampaign);
 		verifyPermissionViewServiceCampaignDetail(serviceCampaignScheduleId);
 		verifyPermissionCreateProductCampaign(productNameCreatedByShopOwner,productNameCreatedByStaff);
 		verifyPermissionCreateServiceCampaign(serviceNameCreatedByShopOwner,serviceNameCreatedByStaff);
 		verifyPermissionEditProductDiscountCampaign(productCampaignScheduleId,productNameCreatedByShopOwner,productNameCreatedByStaff);
 		verifyPermissionEditServiceDiscountCampaign(serviceCampaignScheduleId,serviceNameCreatedByShopOwner,serviceNameCreatedByStaff);
+		int productCampaignInprogressId = callAPIgetCampaignId(DiscountType.PRODUCT_DISCOUNT_CAMPAIGN,DiscountStatus.IN_PROGRESS,productIdCreateCampaign);
 		verifyPermissionEndProductDiscountCampaign(productCampaignInprogressId);
+		int serviceCampaignInprogessId = callAPIgetCampaignId(DiscountType.SERVICE_DISCOUNT_CAMPAIGN,DiscountStatus.IN_PROGRESS,productIdCreateCampaign);
 		verifyPermissionEndServiceDiscountCampaign(serviceCampaignInprogessId);
 		AssertCustomize.verifyTest();
 		return this;

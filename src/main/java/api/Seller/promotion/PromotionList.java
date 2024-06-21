@@ -5,6 +5,8 @@ import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.enums.DiscountStatus;
+import utilities.enums.DiscountType;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -23,36 +25,29 @@ public class PromotionList {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public Response getPromotionListRes(String discountType, String status){
+    public Response getPromotionListRes(DiscountType discountType, DiscountStatus status){
         String typeParam;
         switch (discountType){
-            case "Product Discount Code" -> typeParam = "COUPON";
-            case "Service Discount Code" -> typeParam = "COUPON_SERVICE";
-            case "Product Discount Campaign" -> typeParam = "WHOLE_SALE";
-            case "Service Discount Campaign" -> typeParam = "WHOLE_SALE_SERVICE";
+            case PRODUCT_DISCOUNT_CODE -> typeParam = "COUPON";
+            case SERVICE_DISCOUNT_CODE -> typeParam = "COUPON_SERVICE";
+            case PRODUCT_DISCOUNT_CAMPAIGN -> typeParam = "WHOLE_SALE";
+            case SERVICE_DISCOUNT_CAMPAIGN -> typeParam = "WHOLE_SALE_SERVICE";
             default -> typeParam = "";
         }
-        String statusParam;
-        switch (status){
-            case "Scheduled" -> statusParam = "SCHEDULED";
-            case "Expired" -> statusParam = "EXPIRED";
-            case "In Progress" -> statusParam = "IN_PROGRESS";
-            default -> statusParam = "";
-        }
-        Response response = api.get(DISCOUNT_CAMPAIGN_LIST_PATH.formatted(loginInfo.getStoreID(),typeParam,statusParam),loginInfo.getAccessToken());
+        Response response = api.get(DISCOUNT_CAMPAIGN_LIST_PATH.formatted(loginInfo.getStoreID(),typeParam,status),loginInfo.getAccessToken());
         return response;
     }
-    public int getDiscountId(String discountType, String status){
+    public int getDiscountId(DiscountType discountType, DiscountStatus status){
         List<Integer> ids= getDiscountIdList(discountType, status);
         return ids.isEmpty() ? -1 : ids.get(0);
     }
-    public List<Integer> getDiscountIdList(String discountType, String status){
+    public List<Integer> getDiscountIdList(DiscountType discountType, DiscountStatus status){
     	Response response = getPromotionListRes(discountType,status);
     	return response.then().statusCode(200).extract().jsonPath().getList("id");
     }
     public void endEarlyInprogressDiscountCampaign() {
         // get list in-progress discount campaign
-        List<Integer> inProgressList = getPromotionListRes("","In Progress").jsonPath().getList("id");
+        List<Integer> inProgressList = getPromotionListRes(DiscountType.ALL,DiscountStatus.IN_PROGRESS).jsonPath().getList("id");
 
         // end in-progress service campaign
         inProgressList.forEach(campaignID -> api.delete(DELETE_DISCOUNT_CAMPAIGN_PATH + campaignID, loginInfo.getAccessToken()).then().statusCode(200));

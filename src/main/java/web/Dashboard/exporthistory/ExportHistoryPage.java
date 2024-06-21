@@ -17,6 +17,8 @@ public class ExportHistoryPage {
     }
     public By loc_lst_iconDownloadDropshipPartner  = By.xpath("//div[contains(@class,'body-desktop')]//div[contains(text(),'EXPORT_DROPSHIP_PARTNERS')]/following-sibling::div[contains(@class,'action')]/div");
     public By loc_lst_iconDownloadResellerOrder = By.xpath("//div[contains(@class,'body-desktop')]//div[contains(text(),'RESELLER_ORDER')]/following-sibling::div[contains(@class,'action')]/div");
+    public By loc_lst_iconDownloadResellerCustomer = By.xpath("//div[contains(@class,'body-desktop')]//div[contains(text(),'RESELLER_CUSTOMER')]/following-sibling::div[contains(@class,'action')]/div");
+
     By loc_lstDropshipPartnerFileName = By.xpath("//div[contains(@class,'body-desktop')]//div[contains(text(),'EXPORT_DROPSHIP_PARTNERS')]");
     public void clickOnDownloadDropshipPartner(){
         common.click(loc_lst_iconDownloadDropshipPartner,0);
@@ -30,5 +32,9 @@ public class ExportHistoryPage {
     public void clickOnDownloadResellerOrder(){
         common.click(loc_lst_iconDownloadResellerOrder,0);
         logger.info("Click on Download reseller order");
+    }
+    public void clickOnDownloadResellerCustomer(){
+        common.click(loc_lst_iconDownloadResellerCustomer,0);
+        logger.info("Click on Download reseller customer.");
     }
 }

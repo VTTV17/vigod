@@ -220,7 +220,8 @@ public class LandingPage extends LandingPageElement {
 			if(hasViewLandingPageListPers()) {
 				navigateUrl();
 				commonAction.click(loc_icnShowMoreAction);
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_ddvAction, 2),
+				commonAction.click(loc_ddvAction, 2);
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),
 						"[Failed]Restricted page should be shown when click Clone landing page.");
 			}
 		}
@@ -255,6 +256,8 @@ public class LandingPage extends LandingPageElement {
 				navigateUrl();
 				filterStatus("Draft");
 				commonAction.click(loc_icnEdit);
+				createLandingPage.inputSubDomain(new DataGenerator().generateString(10));
+
 				if (hasEditLandingPagePers()) {
 					commonAction.sleepInMiliSecond(1000);
 					commonAction.click(createLandingPage.loc_btnSave);
@@ -271,6 +274,8 @@ public class LandingPage extends LandingPageElement {
 				}
 			} else {
 				commonAction.navigateToURL(editUrl);
+				createLandingPage.inputSubDomain(new DataGenerator().generateString(10));
+
 				if (hasEditLandingPagePers()) {
 					commonAction.click(createLandingPage.loc_btnSave);
 					String toastMessage = new HomePage(driver).getToastMessage();
@@ -474,7 +479,8 @@ public class LandingPage extends LandingPageElement {
 							"[Failed] Restricted page not show when click on clone button on list.");
 				}
 			}else{
-				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_ddvAction, 2),
+				commonAction.click(loc_ddvAction, 2);
+				assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(new ConfirmationDialog(driver).loc_btnOK),
 						"[Failed]Restricted page should be shown when click Clone landing page.");
 				logger.info("Don't has Create landing page permission, so staff don't have Clone permission.");
 			}

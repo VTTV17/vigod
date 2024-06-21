@@ -24,6 +24,7 @@ public class PartnerOrdersElement {
     By loc_lst_btnExportOption = By.cssSelector(".uik-dropdown-item__wrapper");
     By loc_dlgExportOrder_ckbSelectAllReseller = By.cssSelector("[name='check-all-selected']");
     By loc_dlgExportOrder_lblSelectAllReseller = By.xpath("//input[@name='check-all-selected']/following-sibling::label");
+    By loc_dlgExportOrder_lst_lblResellerName = By.xpath("//input[@name='store-reseller']//following-sibling::label");
     By loc_dlgExportOrder_btnExport = By.cssSelector(".modal-footer .gs-button__green");
 
 }

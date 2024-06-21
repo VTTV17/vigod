@@ -139,10 +139,10 @@ public class MyProfileTest extends BaseTest {
         String random = generator.randomNumberGeneratedFromEpochTime(8);
         if (isEmailAccount) {
             userName = "email" + random + "@mailnesia.com";
-            new SignUp(loginInformation).signUpByMail(userName,"VN","vi",random, passBuyer);
+            new SignUp(loginInformation).signUpByMail(userName,"VN","vi","auto "+random, passBuyer);
         } else {
             userName = "09" + random;
-            new SignUp(loginInformation).signUpByPhoneNumber("+84",userName,"VN","vi",random,passBuyer);
+            new SignUp(loginInformation).signUpByPhoneNumber("+84",userName,"VN","vi","auto "+random,passBuyer);
         }
         return userName;
     }
