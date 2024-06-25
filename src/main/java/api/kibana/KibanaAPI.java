@@ -64,13 +64,15 @@ public class KibanaAPI {
 		String key = "";
 		
 		for (int i=0; i<10; i++) {
-			key = extractKeyFromKibanaJsonPath(getKeyFromKibanaJsonPath(username), keyType);
-			if (!key.isEmpty() && key !=null) break;
 	        try {
 	            sleep(1000);
 	        } catch (InterruptedException e) {
 	            throw new RuntimeException(e);
 	        }
+			key = extractKeyFromKibanaJsonPath(getKeyFromKibanaJsonPath(username), keyType);
+			if (key ==null) continue;
+			if (key.isEmpty()) continue;
+			break;
 		}
 		logger.info("Retrieved %s for username %s: %s".formatted(keyType, username, key));
 		return key;

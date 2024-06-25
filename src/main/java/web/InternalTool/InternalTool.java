@@ -39,7 +39,7 @@ public class InternalTool {
     By loc_dlgConfirmation_btnApprove = By.xpath("//span[text()='Approve']/parent::button");
     By loc_lblSuccessfullMessage = By.xpath("//span[text()='Successful!']");
     By loc_txtUserName = By.cssSelector("#email");
-    By loc_txtPassword = By.cssSelector("#email");
+    By loc_txtPassword = By.cssSelector("#password");
     By loc_btnLogin = By.xpath("//button[@type='submit']");
 
     /**
