@@ -10,6 +10,7 @@ import org.testng.Assert;
 
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.settings.plans.PackagePayment;
 import web.Dashboard.settings.plans.PlansPage;
 import utilities.commons.UICommonAction;
 import utilities.enums.PaymentMethod;
@@ -318,7 +319,7 @@ public class StoreLanguages {
 		
 		clickAddLanguage();
 		new ConfirmationDialog(driver).clickOKBtn();
-		PlansPage planPage = new PlansPage(driver);
+		PackagePayment planPage = new PackagePayment(driver);
 		planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
 		
 		if (staffPermission.getSetting().getStoreLanguage().isPurchaseLanguagePackage()) {
@@ -349,7 +350,7 @@ public class StoreLanguages {
 		
 		if (staffPermission.getSetting().getStoreLanguage().isRenewLanguagePackage()) {
 			//Not sure if this is a bug as it's not as expected in ticket
-			PlansPage planPage = new PlansPage(driver);
+			PackagePayment planPage = new PackagePayment(driver);
 			planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
 			planPage.completePayment(PaymentMethod.BANKTRANSFER);
 			Assert.assertTrue(!planPage.getOrderId().isEmpty(), "OrderId is not empty");

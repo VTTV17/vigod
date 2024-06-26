@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.account.AccountPage;
+import web.Dashboard.settings.plans.PackagePayment;
 import web.Dashboard.settings.plans.PlansPage;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
@@ -48,6 +49,7 @@ public class BuyPlans {
 			HomePage homePage = new HomePage(driver);
 			AccountPage accountPage = new AccountPage(driver);
 			PlansPage plansPage = new PlansPage(driver);
+			PackagePayment packagePayment = new PackagePayment(driver);
 			
 			
 			loginPage.navigate().performLogin(country, username, password);
@@ -58,10 +60,10 @@ public class BuyPlans {
 			accountPage.clickSeePlans();
 
 			/* Buy Plan */
-			plansPage.selectPlan(plan);
-			plansPage.selectPaymentMethod(payment);
-			String orderID = plansPage.completePayment(payment);
-			plansPage.logoutAfterSuccessfulPurchase(payment, orderID);
+//			plansPage.selectPlan(plan);
+			packagePayment.selectPaymentMethod(payment);
+			String orderID = packagePayment.completePayment(payment);
+			packagePayment.logoutAfterSuccessfulPurchase(payment, orderID);
 			
 			loginPage.navigate().performLogin(country, username, password);
 			homePage.navigateToPage("Settings");
