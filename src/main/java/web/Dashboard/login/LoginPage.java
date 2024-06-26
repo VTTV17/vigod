@@ -37,6 +37,7 @@ public class LoginPage {
     By loc_lblForgotPasswordScreen = By.cssSelector(".forgot-page-wrapper");
     By loc_ddlLanguage = By.cssSelector(".change-language__wrapper");
     String loc_ddvLanguage = "//div[starts-with(@class,'select-country__option')]//div[@class='label' and .='%s']";
+    By loc_ddlCountryDefaultValue = By.cssSelector(".select-country-wrapper .option");
     By loc_ddlCountry = By.cssSelector(".select-country-wrapper .select-country__input-container input");
     String loc_ddvCountry = "//*[contains(@class, 'select-country__option')]//div[@class='label' and text()=\"%s\"]";
     By loc_frmLogin = By.xpath("//div[contains(@class,'login-widget__formBody') and not(@hidden)]");
@@ -61,6 +62,7 @@ public class LoginPage {
     }
 
     public LoginPage selectCountry(String country) {
+    	commonAction.getElement(loc_ddlCountryDefaultValue); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
     	commonAction.click(loc_ddlCountry);
     	commonAction.click(By.xpath(loc_ddvCountry.formatted(country)));
     	logger.info("Selected country: " + country);

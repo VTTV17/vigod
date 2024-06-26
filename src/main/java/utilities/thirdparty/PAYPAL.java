@@ -3,14 +3,10 @@ package utilities.thirdparty;
 import static utilities.account.AccountTest.PAYPAL_PASSWORD;
 import static utilities.account.AccountTest.PAYPAL_USERNAME;
 
-import java.time.Duration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utilities.commons.UICommonAction;
@@ -26,64 +22,41 @@ public class PAYPAL {
 
 	public PAYPAL(WebDriver driver) {
 		this.driver = driver;
-		wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 		commonAction = new UICommonAction(driver);
-		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "email")
-	WebElement USERNAME;
-	
-	@FindBy(id = "btnNext")
-	WebElement NEXT_BTN;
-
-	@FindBy(id = "password")
-	WebElement PASSWORD;
-
-	@FindBy(id = "btnLogin")
-	WebElement LOGIN_BTN;
-
-	@FindBy(id = "payment-submit-btn")
-	WebElement COMPLETE_PURCHASE_BTN;
+	//Will move these locators to a separate file
+	By loc_txtUsername = By.id("email");
+	By loc_btnNext = By.id("btnNext");
+	By loc_txtPassword = By.id("password");
+	By loc_btnLogin = By.id("btnLogin");
+	By loc_btnCompletePurchase = By.id("payment-submit-btn");
 
 	public PAYPAL inputUsername(String username) {
-		commonAction.inputText(USERNAME, username);
-		logger.info("Input '" + username + "' into Username field.");
+		commonAction.inputText(loc_txtUsername, username);
+		logger.info("Input Username: {}", username);
 		return this;
 	}
-
 	public PAYPAL clickNext() {
-		commonAction.clickElement(NEXT_BTN);
-		logger.info("Clicked on 'Next' button.");
+		commonAction.click(loc_btnNext);
+		logger.info("Clicked 'Next' button.");
 		return this;
 	}	
-	
 	public PAYPAL inputPassword(String password) {
-		commonAction.inputText(PASSWORD, password);
-		logger.info("Input '" + password + "' into Password field.");
+		commonAction.inputText(loc_txtPassword, password);
+		logger.info("Input Password: {}", password);
 		return this;
 	}
-
 	public PAYPAL clickLogin() {
-		commonAction.clickElement(LOGIN_BTN);
-		logger.info("Clicked on 'Login' button.");
+		commonAction.click(loc_btnLogin);
+		logger.info("Clicked 'Login' button.");
 		return this;
 	}
-
 	public PAYPAL clickCompletePurchase() {
-		// Without the 2 consecutive lines below, the new tab won't disappear on its own
-//		wait.until(ExpectedConditions.visibilityOf(PAYNOW_BTN));
-//		commonAction.sleepInMiliSecond(10000); 
-		commonAction.clickElement(COMPLETE_PURCHASE_BTN);
+		commonAction.click(loc_btnCompletePurchase);
 		logger.info("Clicked on 'Complete Purchase' button.");
 		return this;
 	}
-
-	public PAYPAL completePayment() {
-		completePayment(PAYPAL_USERNAME, PAYPAL_PASSWORD);
-		return this;
-	}
-	
 	public PAYPAL completePayment(String username, String password) {
 		inputUsername(username);
 		clickNext();
@@ -92,5 +65,8 @@ public class PAYPAL {
 		clickCompletePurchase();
 		return this;
 	}
-
+	public PAYPAL completePayment() {
+		completePayment(PAYPAL_USERNAME, PAYPAL_PASSWORD);
+		return this;
+	}
 }

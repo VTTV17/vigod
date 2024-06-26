@@ -23,7 +23,7 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
-import web.Dashboard.settings.plans.PlansPage;
+import web.Dashboard.settings.plans.PackagePayment;
 
 public class BranchPage extends BranchElement {
 	final static Logger logger = LogManager.getLogger(BranchPage.class);
@@ -280,7 +280,7 @@ public class BranchPage extends BranchElement {
 			confirmationDlg.clickOKBtn();
 			
 			if (staffPermission.getSetting().getBranchManagement().isPurchaseBranch()) {
-				PlansPage planPage = new PlansPage(driver);
+				PackagePayment planPage = new PackagePayment(driver);
 				planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
 				planPage.completePayment(PaymentMethod.BANKTRANSFER);
 				Assert.assertTrue(!planPage.getOrderId().isEmpty(), "OrderId is not empty");
@@ -310,7 +310,7 @@ public class BranchPage extends BranchElement {
 		}
 		
 		clickRenewExpiredBranchBtn();
-		PlansPage planPage = new PlansPage(driver);
+		PackagePayment planPage = new PackagePayment(driver);
 		planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
 		
 		if (staffPermission.getSetting().getBranchManagement().isRenewBranch()) {
@@ -336,7 +336,7 @@ public class BranchPage extends BranchElement {
 		}
 		
 		clickUpgradeBranchBtn();
-		PlansPage planPage = new PlansPage(driver);
+		PackagePayment planPage = new PackagePayment(driver);
 		planPage.selectPaymentMethod(PaymentMethod.BANKTRANSFER);
 		
 		if (staffPermission.getSetting().getBranchManagement().isUpgradeBranch()) {

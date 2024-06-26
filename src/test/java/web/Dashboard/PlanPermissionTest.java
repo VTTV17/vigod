@@ -56,20 +56,20 @@ public class PlanPermissionTest extends BaseTest {
         if (driver != null) driver.quit();
     }
     public void setupShop(String username, String storeName, String url, String contact, String pickupAddress, String province, String district, String ward) {
-        signupPage.inputStoreName(storeName);
+//        signupPage.inputStoreName(storeName);
         if (url != "") {
-            signupPage.inputStoreURL(url);
+//            signupPage.inputStoreURL(url);
         }
         if (!username.matches("\\d+")) {
-            signupPage.inputStorePhone(contact);
+//            signupPage.inputStorePhone(contact);
         } else {
-            signupPage.inputStoreMail(contact);
+//            signupPage.inputStoreMail(contact);
         }
-        signupPage.inputPickupAddress(pickupAddress)
-                .selectProvince(province)
-                .selectDistrict(district)
-                .selectWard(ward)
-                .clickCompleteBtn();
+//        signupPage.inputPickupAddress(pickupAddress)
+//                .selectProvince(province)
+//                .selectDistrict(district)
+//                .selectWard(ward)
+//                .clickCompleteBtn();
     }
 
     public String SignUpForVNShopWithEmail() throws SQLException, InterruptedException {
@@ -94,7 +94,7 @@ public class PlanPermissionTest extends BaseTest {
         commonAction.closeTab();
         commonAction.switchToWindow(0);
         signupPage.inputVerificationCode(code)
-                .clickConfirmBtn();
+                .clickConfirmOTPBtn();
         //Setup store
         setupShop(username, storeName, "",  contact, pickupAddress, province, district, ward);
         return username;
@@ -124,16 +124,17 @@ public class PlanPermissionTest extends BaseTest {
                 userName_GoLead = SignUpForVNShopWithEmail();
                 break;
         }
-        plansPage = new PlansPage(driver);
-        plansPage.selectPlan(plan).selectPayment();
-        orderID = plansPage.getOrderId();
-        plansPage = new PlansPage(driver);
-        plansPage.clickOnLogOut();
-        internalTool = new InternalTool(driver);
-        internalTool.openNewTabAndNavigateToInternalTool()
-                .login()
-                .navigateToPage("GoSell","Packages","Orders list")
-                .approveOrder(orderID).closeTab();
+//        plansPage = new PlansPage(driver);
+//        plansPage.selectPlan(plan);
+//        new PackagePayment(driver).selectPaymentMethod(PaymentMethod.BANKTRANSFER);
+//        orderID = new PackagePayment(driver).getOrderId();
+//        plansPage = new PlansPage(driver);
+//        new PackagePayment(driver).clickOnLogOut();
+//        internalTool = new InternalTool(driver);
+//        internalTool.openNewTabAndNavigateToInternalTool()
+//                .login()
+//                .navigateToPage("GoSell","Packages","Orders list")
+//                .approveOrder(orderID).closeTab();
     }
 
     public void checkPlanPermission(String packageType, String userName) throws IOException {

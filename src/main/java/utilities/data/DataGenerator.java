@@ -1,10 +1,17 @@
 package utilities.data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mifmif.common.regex.Generex;
+
+import api.dotrand.DotrandAPI;
+import io.restassured.path.json.JsonPath;
 import lombok.SneakyThrows;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import utilities.model.dashboard.setupstore.CountryData;
 import utilities.utils.jsonFileUtility;
 
 import java.io.File;
@@ -54,6 +61,17 @@ public class DataGenerator {
             countries.add(it.next());
         }
         return countries;
+    }
+    
+    //Will remove later
+    public static List<CountryData> getCountryListExp() {
+    	JsonNode data = jsonFileUtility.readJsonFile("CountryEntity.json");
+    	try {
+			return JsonPath.from(new ObjectMapper().writeValueAsString(data)).getList(".", CountryData.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+    	return null;
     }
 
     /**
@@ -276,6 +294,15 @@ public class DataGenerator {
         return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
     }
 
+	public static String randomValidPhoneByCountry(String countryCode) {
+		String phone = "";
+		for (int i=0; i<1000; i++) { //At times the function returns phone numbers with the wrong format, so we repeat it several times until a valid phone is returned
+			phone = new Generex(DotrandAPI.getPhoneRegexJsonPath(countryCode)).random();
+			if (phone.matches("\\d+")) break; 
+		}
+		return phone;
+	}	    
+    
     public static <T> T getRandomListElement(List<T> list) {
         return list.get(new Random().nextInt(0, list.size()));
     }

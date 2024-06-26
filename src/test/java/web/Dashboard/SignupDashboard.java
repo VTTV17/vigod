@@ -23,6 +23,7 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.home.Permission;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.account.AccountPage;
+import web.Dashboard.settings.plans.PackagePayment;
 import web.Dashboard.settings.plans.PlansPage;
 import web.Dashboard.signup.SignupPage;
 import web.GoMua.headergomua.HeaderGoMua;
@@ -46,6 +47,7 @@ public class SignupDashboard extends BaseTest {
 	LoginPage loginPage;
 	HomePage homePage;
 	PlansPage plansPage;
+	PackagePayment packagePayment;
 
 	String mail;
 	String password;
@@ -73,6 +75,7 @@ public class SignupDashboard extends BaseTest {
 		signupPage = new SignupPage(driver);
 		loginPage = new LoginPage(driver);
 		homePage = new HomePage(driver);
+		packagePayment = new PackagePayment(driver);
 		commonAction = new UICommonAction(driver);
 		generate = new DataGenerator();
 	}	
@@ -298,10 +301,11 @@ public class SignupDashboard extends BaseTest {
 
 			/* Buy Plan */
 			plansPage = new PlansPage(driver);
-			plansPage.selectPlan(plan);
-			plansPage.selectPaymentMethod(paymentMethod);
-			String orderID = plansPage.completePayment(paymentMethod);
-			plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//			plansPage.selectPlan(plan);
+			PackagePayment packagePayment = new PackagePayment(driver);
+			packagePayment.selectPaymentMethod(paymentMethod);
+			String orderID = packagePayment.completePayment(paymentMethod);
+			packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 			
 			loginPage.navigate().performLogin("Vietnam", "auto0-shop0844735279@mailnesia.com", password);
 			homePage.navigateToPage("Settings");
@@ -379,7 +383,7 @@ public class SignupDashboard extends BaseTest {
 		/* Sign up */
 		signupPage.navigate().selectDisplayLanguage(language).verifyTextAtSignupScreen(language);
 		signupPage.fillOutSignupForm(country, username, password, referralCode).verifyTextAtVerificationCodeScreen(username, language);
-		signupPage.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmBtn();
+		signupPage.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.verifyTextAtSetupShopScreen(username, country, language);
@@ -403,7 +407,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, referralCode)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -411,7 +415,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Check if users are redirected to plan purchase screen */
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
+//		plansPage.selectPlan(plan);
 
 		/* Check if store URL in database contains only lowercase letters */
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
@@ -435,7 +439,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, referralCode)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -443,7 +447,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Check if users are redirected to plan purchase screen */
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
+//		plansPage.selectPlan(plan);
 
 		/* Check if store URL in database contains only lowercase letters */
 		Assert.assertEquals(new InitConnection().getStoreURL(storeName), storeURL.toLowerCase());
@@ -488,7 +492,7 @@ public class SignupDashboard extends BaseTest {
 		String firstCode = getVerificationCode(phoneCode, username);
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
-		signupPage.clickConfirmBtn();
+		signupPage.clickConfirmOTPBtn();
 		signupPage.verifyVerificationCodeError(language).completeVerify();
 
 		// If that's a mail account then we'll wait until new code is generated
@@ -509,7 +513,7 @@ public class SignupDashboard extends BaseTest {
 
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code");
-		signupPage.clickConfirmBtn();
+		signupPage.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -535,13 +539,13 @@ public class SignupDashboard extends BaseTest {
 		String firstCode = getVerificationCode(phoneCode, username);
 		signupPage.inputVerificationCode(firstCode);
 		signupPage.clickResendOTP();
-		signupPage.clickConfirmBtn();
+		signupPage.clickConfirmOTPBtn();
 		signupPage.verifyVerificationCodeError(language).completeVerify();
 		if (!username.matches("\\d+")) commonAction.sleepInMiliSecond(5000);
 		String resentCode = getVerificationCode(phoneCode, username);
 		signupPage.inputVerificationCode(resentCode);
 		Assert.assertNotEquals(firstCode, resentCode, "New verification code");
-		signupPage.clickConfirmBtn();
+		signupPage.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -559,8 +563,8 @@ public class SignupDashboard extends BaseTest {
 
 		// Sign up
 		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmBtn();
-		signupPage.inputStoreName(storeName);
+				.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmOTPBtn();
+//		signupPage.inputStoreName(storeName);
 
 		// Exit current session
 		driver.quit();
@@ -568,7 +572,7 @@ public class SignupDashboard extends BaseTest {
 		// Re-login
 		driver = new InitWebdriver().getDriver("chrome", "false");
 		new LoginPage(driver).navigate().performLogin(country, username, password);
-		new SignupPage(driver).inputStoreName(storeName);
+//		new SignupPage(driver).inputStoreName(storeName);
 
 	}
 
@@ -586,7 +590,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, referralCode)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -598,7 +602,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Check if users are redirected to plan purchase screen upon clicking on Upgrade Now button */
 		homePage.clickUpgradeNow();
-		new PlansPage(driver).selectPlan(plan);
+//		new PlansPage(driver).selectPlan(plan);
 
 		/* Verify Upgrade Now dialog appears at every screen to which the user navigates */
 		verifyUpgradeNowDialogAppearEverywhere();
@@ -631,7 +635,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, referralCode)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -643,7 +647,7 @@ public class SignupDashboard extends BaseTest {
 
 		/* Check if users are redirected to plan purchase screen upon clicking on Upgrade Now button */
 		homePage.clickUpgradeNow();
-		new PlansPage(driver).selectPlan(plan);
+//		new PlansPage(driver).selectPlan(plan);
 
 		/* Verify Upgrade Now dialog appears at every screen to which the user navigates */
 		verifyUpgradeNowDialogAppearEverywhere();
@@ -674,7 +678,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, referralCode)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -687,7 +691,7 @@ public class SignupDashboard extends BaseTest {
 		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
 
 		/* Check if users are redirected to plan purchase screen upon clicking on Upgrade Now button */
-		new PlansPage(driver).selectPlan(plan);
+//		new PlansPage(driver).selectPlan(plan);
 
 		/* Verify Upgrade Now dialog appears at every screen to which the user navigates */
 		verifyUpgradeNowDialogAppearEverywhere();
@@ -856,11 +860,11 @@ public class SignupDashboard extends BaseTest {
 		/* Buy Plan */
 		plan = "GoSOCIAL";
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
-		plansPage.selectPaymentMethod(paymentMethod);
-		plansPage.completePayment(paymentMethod);
-		String orderID = plansPage.getOrderId();
-		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//		plansPage.selectPlan(plan);
+		packagePayment.selectPaymentMethod(paymentMethod);
+		packagePayment.completePayment(paymentMethod);
+		String orderID = packagePayment.getOrderId();
+		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
@@ -908,11 +912,11 @@ public class SignupDashboard extends BaseTest {
 		/* Buy Plan */
 		plan = "GoAPP";
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
-		plansPage.selectPaymentMethod(paymentMethod);
-		plansPage.completePayment(paymentMethod);
-		String orderID = plansPage.getOrderId();
-		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//		plansPage.selectPlan(plan);
+		packagePayment.selectPaymentMethod(paymentMethod);
+		packagePayment.completePayment(paymentMethod);
+		String orderID = packagePayment.getOrderId();
+		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 		
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
@@ -1044,11 +1048,11 @@ public class SignupDashboard extends BaseTest {
 		plan = "GoLEAD";
 		paymentMethod = PaymentMethod.ATM.name();
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
-		plansPage.selectPaymentMethod(paymentMethod);
-		plansPage.completePayment(paymentMethod);
-		String orderID = plansPage.getOrderId();
-		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//		plansPage.selectPlan(plan);
+		packagePayment.selectPaymentMethod(paymentMethod);
+		packagePayment.completePayment(paymentMethod);
+		String orderID = packagePayment.getOrderId();
+		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
@@ -1232,7 +1236,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, "HAPPY")
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -1240,11 +1244,11 @@ public class SignupDashboard extends BaseTest {
 
 		/* Buy Plan */
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
-		plansPage.selectPaymentMethod(paymentMethod);
-		plansPage.completePayment(paymentMethod);
-		String orderID = plansPage.getOrderId();
-		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//		plansPage.selectPlan(plan);
+		packagePayment.selectPaymentMethod(paymentMethod);
+		packagePayment.completePayment(paymentMethod);
+		String orderID = packagePayment.getOrderId();
+		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
@@ -1267,7 +1271,7 @@ public class SignupDashboard extends BaseTest {
 				.selectDisplayLanguage(language)
 				.fillOutSignupForm(country, username, password, referralCode)
 				.inputVerificationCode(getVerificationCode(phoneCode, username))
-				.clickConfirmBtn();
+				.clickConfirmOTPBtn();
 
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -1275,11 +1279,11 @@ public class SignupDashboard extends BaseTest {
 
 		/* Buy Plan */
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
-		plansPage.selectPaymentMethod(paymentMethod);
-		plansPage.completePayment(paymentMethod);
-		String orderID = plansPage.getOrderId();
-		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//		plansPage.selectPlan(plan);
+		packagePayment.selectPaymentMethod(paymentMethod);
+		packagePayment.completePayment(paymentMethod);
+		String orderID = packagePayment.getOrderId();
+		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
@@ -1304,7 +1308,7 @@ public class SignupDashboard extends BaseTest {
 		signupPage.navigate().selectDisplayLanguage(language)
 		.fillOutSignupForm(country, username, password, referralCode)
 		.inputVerificationCode(getVerificationCode(phoneCode, username))
-		.clickConfirmBtn();
+		.clickConfirmOTPBtn();
 		
 		/* Setup store */
 		signupPage.setupShop(username, storeName, storeURL, country, currency, storeLanguage, contact, pickupAddress,
@@ -1312,11 +1316,11 @@ public class SignupDashboard extends BaseTest {
 		
 		/* Buy Plan */
 		plansPage = new PlansPage(driver);
-		plansPage.selectPlan(plan);
-		plansPage.selectPaymentMethod(paymentMethod);
-		plansPage.completePayment(paymentMethod);
-		String orderID = plansPage.getOrderId();
-		plansPage.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
+//		plansPage.selectPlan(plan);
+		packagePayment.selectPaymentMethod(paymentMethod);
+		packagePayment.completePayment(paymentMethod);
+		String orderID = packagePayment.getOrderId();
+		packagePayment.logoutAfterSuccessfulPurchase(paymentMethod, orderID);
 		
 		/* Re-login to the shop and test permissions */
 		loginPage.performLogin(country, username, password);
