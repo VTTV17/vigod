@@ -4,14 +4,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import web.Dashboard.marketing.landingpage.LandingPage;
 import web.Dashboard.onlineshop.Domains;
-import web.Dashboard.onlineshop.Themes;
+import web.Dashboard.onlineshop.themes.Themes;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.sales_channels.shopee.synchronization.ShopeeSynchronizationPage;
 import web.Dashboard.settings.bankaccountinformation.BankAccountInformation;
@@ -44,15 +45,13 @@ public class HomePage extends HomePageElement {
     final static Logger logger = LogManager.getLogger(HomePage.class);
     HomePageElement homeUI;
     String MENU_ITEM = "//a[@name='%pageNavigate%']";
+    AllPermissions allPermissions;
 
     public HomePage(WebDriver driver) {
-        super(driver);
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         commons = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
-        homeUI = new HomePageElement(driver);
-        PageFactory.initElements(driver, this);
     }
     public Map<String, String> pageMap() {
         Map<String, String> map = new HashMap<>();
@@ -662,6 +661,52 @@ public class HomePage extends HomePageElement {
     }
     public HomePage navigateToPageByURL(){
         commons.navigateToURL(DOMAIN);
+        return this;
+    }
+    public HomePage clickOnBellIcon(){
+        commons.click(loc_icnBell);
+        logger.info("Click on bell icon.");
+        return this;
+    }
+    /*--------------Staff permission----------------*/
+    public boolean hasNotification(){
+        return allPermissions.getHome().isNotification();
+    }
+    public boolean hasChangeLanguage(){
+        return allPermissions.getHome().isChangLanguage();
+    }
+    public void checkNotification(){
+        if(hasNotification()){
+            clickOnBellIcon();
+            assertCustomize.assertTrue(commons.getElements(loc_tllNotification,1).size()>0,
+                    "[Failed] Notification title should be shown");
+        }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_icnBell),
+                "[Failed] Restricted popup should be shown when click on Bell icon.");
+        logger.info("Verified Notification permission.");
+    }
+    public void checkChangeLanguage(){
+        if(hasChangeLanguage()){
+            String language = getDashboardLanguage()=="ENG"?"VIE":"ENG";
+            selectLanguage(language);
+            commons.sleepInMiliSecond(2000);
+            try {
+                assertCustomize.assertEquals(commons.getText(loc_btnLogOut),PropertiesUtil.getPropertiesValueByDBLang("home.logoutBtn",language),"" +
+                        "[Failed] Logout button should be shown in language = "+language);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else {
+            commons.click(loc_btnLanguage);
+            assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_lst_btnLanguages,0),
+                    "[Failed] Restricted popup should be shown when click select language");
+        }
+        logger.info("Verified Change language permission.");
+    }
+    public HomePage checkHomePermission(AllPermissions allPermissions){
+        this.allPermissions = allPermissions;
+        checkNotification();
+        checkChangeLanguage();
+        AssertCustomize.verifyTest();
         return this;
     }
 }

@@ -38,7 +38,7 @@ public class POSCreateReservation extends POSReservationElement{
         this.loginInformation = loginInformation;
         commons = new UICommonAction(driver);
         assertCustomize = new AssertCustomize(driver);
-        homePageEl = new HomePageElement(driver);
+        homePageEl = new HomePageElement();
     }
     public POSCreateReservation navigate(){
         commons.navigateToURL(Links.DOMAIN+urlPOSService);

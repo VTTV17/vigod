@@ -14,4 +14,5 @@ public class Cashbook{
 	private boolean createReceiptTransaction;
 	private boolean viewReceiptTransactionList;
 	private boolean viewPaymentTransactionDetail;
+
 }
