@@ -9,11 +9,6 @@ import org.openqa.selenium.support.PageFactory;
 import java.util.List;
 
 public class HomePageElement {
-    WebDriver driver;
-    public HomePageElement(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
     By loc_lblShopName = By.cssSelector(".header-right .store-detail__name");
     By loc_lblPageTitle = By.xpath("//div[@class='title']");
     By loc_lblGoPOS = By.xpath("(//div[@class='card-row']//span[@class='capitalize-none'])[1]");
@@ -63,4 +58,6 @@ public class HomePageElement {
     By loc_imgFacebookBubble = By.id("fb-root");
     By loc_imgFacebookActionBubble = By.id("fb-open-app-action");
     By loc_stnStatistics = By.cssSelector(".statistic");
+    By loc_icnBell = By.cssSelector(".header-right__ele-right #recommendationBtn");
+    By loc_tllNotification = By.cssSelector(".header-right__ele-right .modal-header .title");
 }

@@ -25,7 +25,6 @@ import java.util.List;
 public class ResellerCustomers extends ResellerCustomersElement{
     final static Logger logger = LogManager.getLogger(ResellerCustomers.class);
     WebDriver driver;
-    WebDriverWait wait;
     UICommonAction commons;
     AllPermissions allPermissions;
     AssertCustomize assertCustomize;
@@ -99,6 +98,7 @@ public class ResellerCustomers extends ResellerCustomersElement{
             //Call API check 403
             assertCustomize.assertTrue(responseExport.statusCode()==403,"[Failed] Call API export customer should be response 403, but it response '%s'".formatted(responseExport.statusCode()));
         }
+        logger.info("Verified Export reseller permission.");
     }
     public void checkDownloadCustomerPermission(){
         navigateByUrl();
@@ -121,6 +121,7 @@ public class ResellerCustomers extends ResellerCustomersElement{
             }
             logger.info("Verified Download exported file.");
         }else logger.info("No data to download export reseller customer filed");
+        logger.info("Verified Download customer permission.");
     }
     public ResellerCustomers checkResellerCustomerPermission(AllPermissions allPermissions){
         this.allPermissions = allPermissions;

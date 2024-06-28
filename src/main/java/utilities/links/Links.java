@@ -31,7 +31,10 @@ public class Links {
     public static String AFFILIATE_TRANSFER_EDIT_PATH = "/affiliate/transfer/partner/edit/%s";
     public static String AFFILIATE_CUSTOMER_PATH = "/affiliate/customers";
     public static String AFFILIATE_PAYOUT_HISTORY_PATH = "/affiliate/payout/history";
-
+    public static String GO_WALLET_PATH = "/go-wallet/transaction-history/list";
+    public static String THEMES_PATH = "/theme/management";
+    public static String THEMES_LIBRARY_PATH = "/theme/library";
+    public static String BLOG_MANAGEMENT_PATH = "/channel/storefront/blog/article/list";
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";

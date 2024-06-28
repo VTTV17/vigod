@@ -22,7 +22,7 @@ import web.Dashboard.marketing.loyaltypoint.LoyaltyPoint;
 import web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram;
 import web.Dashboard.marketing.pushnotification.PushNotificationManagement;
 import web.Dashboard.onlineshop.Domains;
-import web.Dashboard.onlineshop.Themes;
+import web.Dashboard.onlineshop.themes.Themes;
 import web.Dashboard.onlineshop.blog.BlogManagement;
 import web.Dashboard.onlineshop.menus.MenuManagement;
 import web.Dashboard.onlineshop.pages.PageManagement;
