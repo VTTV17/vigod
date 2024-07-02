@@ -296,8 +296,9 @@ public class DataGenerator {
 
 	public static String randomValidPhoneByCountry(String countryCode) {
 		String phone = "";
+		String regex = DotrandAPI.getPhoneRegexJsonPath(countryCode);
 		for (int i=0; i<1000; i++) { //At times the function returns phone numbers with the wrong format, so we repeat it several times until a valid phone is returned
-			phone = new Generex(DotrandAPI.getPhoneRegexJsonPath(countryCode)).random();
+			phone = new Generex(regex).random();
 			if (phone.matches("\\d+")) break; 
 		}
 		return phone;

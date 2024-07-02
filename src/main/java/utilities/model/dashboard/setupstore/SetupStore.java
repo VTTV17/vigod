@@ -1,10 +1,13 @@
 package utilities.model.dashboard.setupstore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import lombok.Data;
 import utilities.data.DataGenerator;
+import utilities.links.Links;
 
 @Data
 public class SetupStore {
@@ -34,6 +37,53 @@ public class SetupStore {
 	String contact;
 	boolean isContactProvided;
 
+	List<String> avoidedCountry() {
+		List<String> avoidedCountries = new ArrayList<>();
+		avoidedCountries.add("Aland Islands");
+		avoidedCountries.add("Andorra");
+		avoidedCountries.add("Aruba");
+		avoidedCountries.add("Belize");
+		avoidedCountries.add("Bonaire, Sint Eustatius and Saba");
+		avoidedCountries.add("British Indian Ocean Territory");
+		avoidedCountries.add("Brunei");
+		avoidedCountries.add("Cape Verde");
+		avoidedCountries.add("Comoros");
+		avoidedCountries.add("Cook Islands");
+		avoidedCountries.add("Eritrea");
+		avoidedCountries.add("Estonia");
+		avoidedCountries.add("Falkland Islands");
+		avoidedCountries.add("Faroe Islands");
+		avoidedCountries.add("Fiji Islands");
+		avoidedCountries.add("Gabon");
+		avoidedCountries.add("Gambia The");
+		avoidedCountries.add("Greenland");
+		avoidedCountries.add("Guyana");
+		avoidedCountries.add("Iceland");
+		avoidedCountries.add("Liberia");
+		avoidedCountries.add("Liechtenstein");
+		avoidedCountries.add("Maldives");
+		avoidedCountries.add("Marshall Islands");
+		avoidedCountries.add("Micronesia");
+		avoidedCountries.add("Nauru");
+		avoidedCountries.add("New Caledonia");
+		avoidedCountries.add("Niue");
+		avoidedCountries.add("Norfolk Island");
+		avoidedCountries.add("Palau");
+		avoidedCountries.add("Panama");
+		avoidedCountries.add("Saint Helena");
+		avoidedCountries.add("Saint Pierre and Miquelon");
+		avoidedCountries.add("Sao Tome and Principe");
+		avoidedCountries.add("Seychelles");
+		avoidedCountries.add("Solomon Islands");
+		avoidedCountries.add("Suriname");
+		avoidedCountries.add("Tokelau");
+		avoidedCountries.add("Tonga");
+		avoidedCountries.add("Tuvalu");
+		avoidedCountries.add("Vanuatu");
+		avoidedCountries.add("Wallis And Futuna Islands");
+		return avoidedCountries;
+	}
+	
 	void generateData(CountryData countryEntity) {
 		
 		region = countryEntity.getRegion();
@@ -46,7 +96,7 @@ public class SetupStore {
 		country = countryEntity.getOut_country();
 		countryCode = countryEntity.getCode();
 		phoneCode = countryEntity.getPhone_code();
-		phone = DataGenerator.randomValidPhoneByCountry(countryCode);
+		phone = country.contentEquals("Vietnam") ? "0" + DataGenerator.randomValidPhoneByCountry(countryCode) : DataGenerator.randomValidPhoneByCountry(countryCode);
 		email = "auto0-shop%s@mailnesia.com".formatted(phone);	
 		name = "Automation Shop %s".formatted(getPhone());
 
@@ -56,7 +106,7 @@ public class SetupStore {
 		password = "fortesting!1";
 		isContactProvided = new Random().nextBoolean();
 
-		domain = "domain" + country;
+		if (domain==null) domain = DataGenerator.getRandomListElement(Arrays.asList(new String[] {Links.DOMAIN + Links.SIGNUP_PATH, Links.DOMAIN_BIZ + Links.SIGNUP_PATH}));
 		referralCode = "REFFERAL" + countryCode;
 	}
 	
@@ -64,6 +114,10 @@ public class SetupStore {
 		CountryData countryEntity = null;
 		for (int i=0; i<500; i++) {
 			countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
+			
+			//Temporarily skip this country as they have phone numbers of less than 8 digits
+			if(avoidedCountry().contains(countryEntity.getOut_country())) continue;
+			
 			//Temporarily skip these countries as they don't actually have valid phone numbers
 			if (countryEntity.getOut_country().contentEquals("Bouvet Island")) continue;
 			if (countryEntity.getOut_country().contentEquals("French Southern Territories")) continue;

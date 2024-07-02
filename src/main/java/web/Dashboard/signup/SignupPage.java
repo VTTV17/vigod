@@ -43,6 +43,7 @@ public class SignupPage {
     }
 
     By loc_ddlCountry = By.cssSelector(".input-field.phone-code .select-country__input-container input");
+    By loc_ddlPhoneCode = By.cssSelector(".input-field.phone-code .option .code");
     
     By loc_txtUsername = By.id("username");
     By loc_txtPassword = By.id("password");
@@ -51,6 +52,7 @@ public class SignupPage {
     
     By loc_txtVerificationCode = By.id("verifyCode");
     By loc_lnkResendOTP = By.cssSelector(".resend-otp span.send-code");
+    By loc_lblInvalidFeedback = By.cssSelector(".invalid-feedback");
     static public By loc_btnConfirm = By.cssSelector("button.button-v2.confirm-button"); //Work at verification screen and Setup Store screen
     
     By loc_lnkLogout = By.xpath("//div[contains(@class,'package-steps')]/following-sibling::*/a");
@@ -70,12 +72,18 @@ public class SignupPage {
         return navigate(DOMAIN + SIGNUP_PATH);
     }
 
+    public boolean isLanguageDropdownDisplayed() {
+		boolean isDisplayed = !commonAction.getElements(LoginPage.loc_ddlLanguage).isEmpty();
+		logger.info("Is Display Language Dropdown displayed: {}", isDisplayed);
+		return isDisplayed;
+    }    
 	public SignupPage selectDisplayLanguage(String language) {
 		//Temporarily use the same function from LoginPage. Will think of a better way to handle this
 		new LoginPage(driver).selectDisplayLanguage(language);
 		return this;
 	}    
     public SignupPage selectCountry(String country) {
+    	commonAction.waitVisibilityOfElementLocated(loc_ddlPhoneCode); //Implicitly means the dropdown has a default value and ready for further actions. Reason #1
     	commonAction.click(loc_ddlCountry);
     	commonAction.click(By.xpath(new SignupPageElement().loc_ddvCountry.formatted(country)));
     	logger.info("Selected country: " + country);    	
@@ -190,6 +198,7 @@ public class SignupPage {
     
     public SignupPage verifyUsernameExistError(String signupLanguage) throws Exception {
     	String text = commonAction.getText(loc_lblSignupFailError, 1);
+    	logger.info("Retrieve Username Exists error: {}", text);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.userExists", signupLanguage);
     	soft.assertEquals(text,retrievedMsg, "[Signup][Username already exists] Message does not match.");
     	logger.info("verifyUsernameExistError completed");
@@ -197,9 +206,10 @@ public class SignupPage {
     }
     
     public SignupPage verifyVerificationCodeError(String signupLanguage) throws Exception {
-        String text = commonAction.getText(loc_lblSignupFailError);
+        String text = commonAction.getText(loc_lblInvalidFeedback);
+        logger.info("Retrieve Verification Code error: {}", text);
     	String retrievedMsg = PropertiesUtil.getPropertiesValueByDBLang("signup.screen.error.wrongVerificationCode", signupLanguage);
-    	soft.assertEquals(text,retrievedMsg, "[Signup][Wrong Verification Code] Message does not match.");
+    	Assert.assertEquals(text,retrievedMsg, "[Signup][Wrong Verification Code] Message does not match.");
         logger.info("verifyVerificationCodeError completed");
         return this;
     }

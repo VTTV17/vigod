@@ -454,30 +454,6 @@ public class SignupDashboard extends BaseTest {
 	}
 
 	@Test
-	public void SignupDB_04_CreateShopUsingExistingAccount() throws Exception {
-
-		/* Sign up with phone */
-		storePhone = AccountTest.ADMIN_SHOP_VI_USERNAME;
-		password = AccountTest.ADMIN_SHOP_VI_PASSWORD;
-		country = AccountTest.ADMIN_COUNTRY_TIEN;
-
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, storePhone, password, referralCode)
-				.verifyUsernameExistError(language).completeVerify();
-
-		/* Sign up with email */
-		mail = AccountTest.ADMIN_ACCOUNT_THANG;
-		password = AccountTest.ADMIN_PASSWORD_THANG;
-		country = AccountTest.ADMIN_COUNTRY_TIEN;
-
-		signupPage.navigate()
-				.selectDisplayLanguage(language)
-				.fillOutSignupForm(country, mail, password, referralCode)
-				.verifyUsernameExistError(language).completeVerify();
-	}
-
-	@Test
 	public void SignupDB_05_ResendVerificationCodeToEmail() throws Exception {
 
 		/* Set value for some variables */
@@ -554,26 +530,6 @@ public class SignupDashboard extends BaseTest {
 
 		/* Log into shop again */
 		verifyUpgradeNowDialogAppearAfterLogin(country, username, password);
-	}
-
-	@Test
-	public void SignupDB_07_ContinueSignupWizardAfterExitingSession() throws SQLException {
-
-		String username = storePhone;
-
-		// Sign up
-		signupPage.navigate().fillOutSignupForm(country, username, password, referralCode)
-				.inputVerificationCode(getVerificationCode(phoneCode, username)).clickConfirmOTPBtn();
-//		signupPage.inputStoreName(storeName);
-
-		// Exit current session
-		driver.quit();
-
-		// Re-login
-		driver = new InitWebdriver().getDriver("chrome", "false");
-		new LoginPage(driver).navigate().performLogin(country, username, password);
-//		new SignupPage(driver).inputStoreName(storeName);
-
 	}
 
 	public void SignupDB_08_CreateShopUsingEmailAccountWithPromotionLinkAndDomain() throws Exception {

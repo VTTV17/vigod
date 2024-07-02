@@ -24,9 +24,21 @@ public class PlansPage {
 		commons = new UICommonAction(driver);
 		elements = new PlansPageElement();
 	}
-	
-	public List<String> getDurationOptions() {
-		commons.getElement(elements.loc_tabDurationOptions); //This implicitly means the tabs are present ready for further actions
+
+    public boolean isFreeTrialBtnDisplayed() {
+    	commons.getElement(elements.loc_tabDurationOptions); //This implicitly means the tabs are present ready for further actions
+		boolean isDisplayed = !commons.getElements(elements.loc_btnFreeTrial).isEmpty();
+		logger.info("Is Free Trial button displayed: {}", isDisplayed);
+		return isDisplayed;
+    }	
+    public PlansPage clickFreeTrialBtn() {
+    	commons.click(elements.loc_btnFreeTrial);
+    	logger.info("Clicked Free Trial button");
+    	return this;
+    }	
+	public List<String> getPackagePeriodOptions() {
+		commons.getElement(elements.loc_lblPackagePerMonth); //This implicitly means the tabs are displayed in correct language ready for further actions
+		commons.sleepInMiliSecond(1000, "Wait for the tab to be rendered in correct language"); //Don't know why at times the tabs are displayed in mix languages
 		List<String> durationOptions = new ArrayList<String>();
 		for(int i=0; i<commons.getElements(elements.loc_tabDurationOptions).size(); i++) {
 			durationOptions.add(commons.getText(elements.loc_tabDurationOptions, i));
@@ -56,6 +68,21 @@ public class PlansPage {
 		logger.info("Retrieved Package Info: {}", packageOptions);
 		return packageOptions;
 	}
+	
+//	public List<String> getPackageBenefits() {
+//		commons.getElement(elements.loc_lblPackageTitle); //This implicitly means the packages are present ready for further actions
+//		
+//		By loc_lblBenefitTitle = By.cssSelector(".package-plans-benefit .item .title");
+//		
+//		List<String> title = new ArrayList<>();
+//		
+//		for(int i=0; i<commons.getElements(loc_lblBenefitTitle).size(); i++) {
+//			title.add(commons.getText(loc_lblBenefitTitle, i));
+//		}
+//		
+//		logger.info("Retrieved Package Benefits: {}", title);
+//		return title;
+//	}
 	public PlansPage subscribeToPackage(String packageName) {
 		commons.click(By.xpath(elements.loc_btnSubscribePackageByName.formatted(packageName)));
 		logger.info("Subscribed to: {}", packageName);

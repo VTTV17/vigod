@@ -3,6 +3,8 @@ package web.Dashboard.settings.plans;
 import org.openqa.selenium.By;
 
 public class PlansPageElement {
+	
+	By loc_btnFreeTrial = By.cssSelector(".package-plans-layout-header .right button.button-v2");
 	By loc_tabDurationOptions = By.cssSelector(".package-plans-layout-header .options div.option");
 	String loc_tabDurationByName = "//div[@class='package-plans-layout-header']/*[@class='options']/*[starts-with(@class,'option') and (contains(.,'noys Year') or contains(.,'noys năm'))]";
 	By loc_lblPackageTitle = By.xpath("//div[@class='package-plans-package-list']//div[starts-with(@class,'items')]//*[@class='title']");

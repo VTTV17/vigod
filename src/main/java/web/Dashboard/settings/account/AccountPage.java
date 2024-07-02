@@ -84,14 +84,13 @@ public class AccountPage {
 		List<List<String>> table = new ArrayList<>();
         for (int i = 0; i < commonAction.getElements(By.xpath(elements.loc_tmpRecords)).size(); i++) {
             List<String> rowData = new ArrayList<>();
-            String index = String.valueOf(i+1);
-            rowData.add(commonAction.getText(By.xpath(elements.loc_tmpPlanColumn.replace("index", index)), 0));
-            rowData.add(commonAction.getText(By.xpath(elements.loc_tmpPlanColumn.replace("index", index)), 1));
-            rowData.add(commonAction.getText(By.xpath(elements.loc_tmpPlanColumn.replace("index", index)), 2));
-            rowData.add(commonAction.getText(By.xpath(elements.loc_tmpPlanColumn.replace("index", index)), 3));
+            rowData.add(commonAction.getText(elements.loc_lblSubscriptionStartDate, i));
+            rowData.add(commonAction.getText(elements.loc_lblPlanExpiryDate, i));
+            rowData.add(commonAction.getText(elements.loc_lblPlanName, i));
+            rowData.add(commonAction.getText(elements.loc_lblPlanStatus,i));
             table.add(rowData);
         }
-		logger.info("Retrieved current plan info.");
+		logger.info("Retrieved plan info: {}", table);
 		return table;
 	}    
 	
