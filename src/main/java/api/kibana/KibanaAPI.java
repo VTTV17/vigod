@@ -52,7 +52,7 @@ public class KibanaAPI {
 		
 		String correctResult = results.stream().filter(e -> e.matches("(?:sendActivationEmailGoSell|sendPasswordResetEmailGoSell|Send kafka messageDTO).*")).findFirst().orElse("");
 		
-		Matcher matcher = Pattern.compile("%s='*(\\d+)'*".formatted(keyType)).matcher(correctResult);
+		Matcher matcher = Pattern.compile("%s='*(\\w+)'*".formatted(keyType)).matcher(correctResult);
 		
 		return (matcher.find()) ? matcher.group(1):"";
 	}	
