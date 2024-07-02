@@ -30,8 +30,8 @@ public class PackagePayment {
 		elements = new PackagePaymentElement();
 	}
 	
-	public List<String> getDurationOptions() {
-		commons.getElement(elements.loc_rdoDurationOptions); //This implicitly means the options are present ready for further actions
+	public List<String> getPackagePeriodOptions() {
+		commons.getElement(elements.loc_lblPackageBasePrice); //This implicitly means the options are filled with data, this element appearing means APIs needed are already executed. Reason #1
 		List<String> durationOptions = new ArrayList<String>();
 		for(int i=0; i<commons.getElements(elements.loc_rdoDurationOptions).size(); i++) {
 			durationOptions.add(commons.getText(elements.loc_rdoDurationOptions, i));
@@ -59,7 +59,7 @@ public class PackagePayment {
 		totalInfo.setName(commons.getText(elements.loc_lblPackageName));
 		totalInfo.setDuration(commons.getText(elements.loc_lblPackageDuration));
 		totalInfo.setBasePrice(commons.getText(elements.loc_lblPackageBasePrice));
-		totalInfo.setVatPrice(commons.getText(elements.loc_lblPackageVAT));
+		if (!commons.getElements(elements.loc_lblPackageVAT).isEmpty()) totalInfo.setVatPrice(commons.getText(elements.loc_lblPackageVAT)); //Hidden for domain .biz stores
 		totalInfo.setFinalTotal(commons.getText(elements.loc_lblPackageFinalTotal));
 		logger.info("Retrieved finalized package info: {}", totalInfo);
 		return totalInfo;

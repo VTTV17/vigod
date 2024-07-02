@@ -35,7 +35,7 @@ public class LoginPage {
     //Will move these locators to a separate file later
     By loc_lblLoginScreen = By.cssSelector(".login-widget");
     By loc_lblForgotPasswordScreen = By.cssSelector(".forgot-page-wrapper");
-    By loc_ddlLanguage = By.cssSelector(".change-language__wrapper");
+    public static By loc_ddlLanguage = By.cssSelector(".change-language__wrapper");
     String loc_ddvLanguage = "//div[starts-with(@class,'select-country__option')]//div[@class='label' and .='%s']";
     By loc_ddlCountryDefaultValue = By.cssSelector(".select-country-wrapper .option");
     By loc_ddlCountry = By.cssSelector(".select-country-wrapper .select-country__input-container input");
@@ -59,6 +59,11 @@ public class LoginPage {
     public LoginPage navigate() {
         driver.get(DOMAIN + LOGIN_PATH);
         return this;
+    }
+    
+    public LoginPage navigate(String url) {
+    	driver.get(url);
+    	return this;
     }
 
     public LoginPage selectCountry(String country) {

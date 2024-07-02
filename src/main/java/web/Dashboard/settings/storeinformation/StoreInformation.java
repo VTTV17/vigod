@@ -70,19 +70,25 @@ public class StoreInformation {
 	
 	public StoreInformation clickStoreInformationTab() {
 		commonAction.click(elements.loc_tabStoreInfo);
-		logger.info("Clicked on Store Information tab.");
+		logger.info("Clicked Store Information tab.");
 		return this;
 	}
 
+	//Currently returns timezone only. Will update this function so that location is returned as well 
+	public String getTimezone() {
+		String timezone = commonAction.getText(elements.loc_ddlTimezone);
+		logger.info("Retrieved timezone: {}", timezone);
+		return timezone;
+	}
+	
 	public StoreInformation inputShopName(String name) {
 		commonAction.inputText(elements.loc_txtShopName, name);
-		logger.info("Input '" + name + "' into Shop Name field.");
+		logger.info("Input Shop Name: {}", name);
 		return this;
 	}
-
 	public String getShopName() {
 		String name = commonAction.getAttribute(elements.loc_txtShopName, "value");
-		logger.info("Retrieved shop name: " + name);
+		logger.info("Retrieved shop name: {}", name);
 		return name;
 	}
 
@@ -92,61 +98,56 @@ public class StoreInformation {
 			return this;
 		}
 		commonAction.inputText(elements.loc_txtAppName, name);
-		logger.info("Input '" + name + "' into App Name field.");
+		logger.info("Input App Name: {}", name);
 		return this;
 	}
-
 	public String getAppName() {
 		String name = commonAction.getAttribute(elements.loc_txtAppName, "value");
-		logger.info("Retrieved app name: " + name);
+		logger.info("Retrieved app name: {}", name);
 		return name;
 	}    
 
 	public StoreInformation inputHotline(String phone) {
 		commonAction.inputText(elements.loc_txtHotline, phone);
-		logger.info("Input '" + phone + "' into Hotline field.");
+		logger.info("Input Hotline: {}", phone);
 		return this;
 	}    
-
 	public String getHoline() {
 		String value = commonAction.getAttribute(elements.loc_txtHotline, "value");
-		logger.info("Retrieved Hotline: " + value);
+		logger.info("Retrieved Hotline: {}", value);
 		return value;
 	}      
 
 	public StoreInformation inputEmail(String email) {
 		commonAction.inputText(elements.loc_txtEmail, email);
-		logger.info("Input '" + email + "' into Email field.");
+		logger.info("Input Email: {}", email);
 		return this;
 	}
-
 	public String getEmail() {
 		String value = commonAction.getAttribute(elements.loc_txtEmail, "value");
-		logger.info("Retrieved Hotline: " + value);
+		logger.info("Retrieved Email: {}", value);
 		return value;
 	}     
 
 	public StoreInformation inputStoreAdress(String address) {
 		commonAction.inputText(elements.loc_txtAddress, address);
-		logger.info("Input '" + address + "' into Store Address List field.");
+		logger.info("Input Store Address: {}", address);
 		return this;
 	}
 
 	public StoreInformation inputFacebookLink(String link) {
 		commonAction.inputText(elements.loc_txtFacebook, link);
-		logger.info("Input '" + link + "' into Facebook Link field.");
+		logger.info("Input Facebook Link: {}", link);
 		return this;
 	}
-
 	public StoreInformation inputInstagramLink(String link) {
 		commonAction.inputText(elements.loc_txtInstagram, link);
-		logger.info("Input '" + link + "' into Instagram Link field.");
+		logger.info("Input Instagram Link: {}", link);
 		return this;
 	}
-
 	public StoreInformation inputYoutubeLink(String link) {
 		commonAction.inputText(elements.loc_txtYoutube, link);
-		logger.info("Input '" + link + "' into Youtube Link field.");
+		logger.info("Input Youtube Link: {}", link);
 		return this;
 	}
 
@@ -156,24 +157,23 @@ public class StoreInformation {
 			return this;
 		}
 		commonAction.inputText(elements.loc_txtSEOTitle, seoTitle);
-		logger.info("Input '" + seoTitle + "' into SEO Title field.");
+		logger.info("Input SEO Title: {}", seoTitle);
 		return this;
 	}  
-
 	public String getSEOTitle() {
 		String title = commonAction.getAttribute(elements.loc_txtSEOTitle, "value");
-		logger.info("Retrieved SEO Title: %s".formatted(title));
+		logger.info("Retrieved SEO Title: {}", title);
 		return title;
 	}     
 
 	public boolean getNoticeLogoToggleStatus() {
 		String status = commonAction.getAttribute(elements.loc_btnNoticeLogo, "value");
-		logger.info("Retrieved status of Notice Logo Toggle: %s".formatted(status));
+		logger.info("Retrieved status of Notice Logo Toggle: {}", status);
 		return Boolean.parseBoolean(status);
 	}      
 	public boolean getRegisteredLogoToggleStatus() {
 		String status = commonAction.getAttribute(elements.loc_btnRegisteredLogo, "value");
-		logger.info("Retrieved status of Registered Logo Toggle: %s".formatted(status));
+		logger.info("Retrieved status of Registered Logo Toggle: {}", status);
 		return Boolean.parseBoolean(status);
 	}      
 

@@ -6,6 +6,7 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 public class StoreInfoPageElement {
 
     By loc_tabStoreInfo = By.cssSelector("li:nth-child(2) > a.nav-link");
+    By loc_ddlTimezone = By.cssSelector(".time-zone--selection-option .right-content");
     By loc_txtShopName = By.id("shopName");
     By loc_txtAppName = By.id("appName");
     By loc_txtAppNameAncestor = new ByChained(loc_txtAppName, By.xpath("./parent::*/parent::*"));

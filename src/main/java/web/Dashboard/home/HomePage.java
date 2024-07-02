@@ -257,7 +257,7 @@ public class HomePage extends HomePageElement {
     public void clickUpgradeNow() {
         commons.click(loc_btnUpgradeNow);
         logger.info("Clicked on Upgrade Now button");
-        new HomePage(driver).waitTillSpinnerDisappear();
+        new HomePage(driver).waitTillSpinnerDisappear1();
     }
 
     public void closeUpgradeNowPopUp() {

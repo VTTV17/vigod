@@ -3,6 +3,7 @@ package api.kibana;
 import static java.lang.Thread.sleep;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -47,9 +48,11 @@ public class KibanaAPI {
 	}
 
 	String extractKeyFromKibanaJsonPath(JsonPath jsonPath, String keyType) {
-		String message = jsonPath.getString("responses[0].hits.hits._source.message");
+		List<String> results = jsonPath.getList("responses[0].hits.hits._source.message");
 		
-		Matcher matcher = Pattern.compile("(?:sendActivationEmailGoSell|sendPasswordResetEmailGoSell|Send kafka messageDTO).*" + keyType + "='*(\\w+)'*").matcher(message);
+		String correctResult = results.stream().filter(e -> e.matches("(?:sendActivationEmailGoSell|sendPasswordResetEmailGoSell|Send kafka messageDTO).*")).findFirst().orElse("");
+		
+		Matcher matcher = Pattern.compile("%s='*(\\d+)'*".formatted(keyType)).matcher(correctResult);
 		
 		return (matcher.find()) ? matcher.group(1):"";
 	}	
