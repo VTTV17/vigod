@@ -373,12 +373,12 @@ public class MarketingPermissionTest extends BaseTest {
                 {"11111111","1"},
                 {"11111111","0"},
         };
-//        Object[][] randomResult = new Object[50][];
-//        for (int index = 0; index < 5; index++) {
-//            randomResult[index] = result[(int) (result.length * Math.random())];
-//        }
-//        return randomResult;
-        return result;
+        Object[][] randomResult = new Object[50][];
+        for (int index = 0; index < 5; index++) {
+            randomResult[index] = result[(int) (result.length * Math.random())];
+        }
+        return randomResult;
+//        return result;
     }
     /* https://mediastep.atlassian.net/browse/BH-25137 */
     @Test(dataProvider = "LandingPagePermissionModel")

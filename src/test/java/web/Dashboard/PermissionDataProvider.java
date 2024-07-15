@@ -1,6 +1,7 @@
 package web.Dashboard;
 
 import org.testng.annotations.DataProvider;
+import utilities.data.DataGenerator;
 
 public class PermissionDataProvider {
 	@DataProvider
@@ -1738,5 +1739,15 @@ public class PermissionDataProvider {
 //			{"11111110"},
 			{"11111111"},
 		};
-	}		
+	}
+
+	public Object[] randomProviderData(int numRows){
+		Object[] test_data = new Object[numRows][];
+		for(int i=0;i <numRows;i++){
+			int number = i==0?0:new DataGenerator().generatNumberInBound((int) Math.pow(2,i-1),(int) Math.pow(2,i));
+			String random = Integer.toBinaryString(number);
+			test_data[i] = new Object[]{random};
+		}
+		return test_data;
+	}
 }

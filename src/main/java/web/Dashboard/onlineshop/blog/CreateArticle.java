@@ -61,6 +61,7 @@ public class CreateArticle {
 	public void clickOnEditTranslation(){
 		commonAction.click(loc_btnEditTranslation);
 		logger.info("Click on Edit Translation button");
+		commonAction.sleepInMiliSecond(300,"Wait popup show.");
 	}
 	public void clickSaveOnEditTranslationModal(){
 		commonAction.click(loc_dlgEditTranslation_btnSave);
