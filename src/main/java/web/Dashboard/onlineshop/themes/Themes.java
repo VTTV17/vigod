@@ -102,13 +102,13 @@ public class Themes {
 		commonAction.click(loc_btnCustomize);
 		logger.info("Click on Customize button.");
 	}
-	public void clickThreeDotIconOnMyThemes(int index){
-		if (commonAction.getElements(loc_blkMyThemes_icnThreeDot,1).size()>0){
-			commonAction.click(loc_blkMyThemes_icnThreeDot,index);
-			logger.info("Click on three dot icon on My themes section. index = "+index);
-		}else {
-
+	public void clickThreeDotIconOnMyThemes(){
+		if (commonAction.getElements(loc_blkMyThemes_icnThreeDot,1).isEmpty()){
+			new APIThemes(loginInformation).addANewTheme();
+			logger.info("Call api add new them");
 		}
+		commonAction.click(loc_blkMyThemes_icnThreeDot);
+		logger.info("Click on three dot icon on My themes section.");
 	}
 	public void clickPublishMyThemes(){
 		commonAction.click(loc_blkMyThemes_btnAction,0);
@@ -123,7 +123,7 @@ public class Themes {
 		logger.info("Click Remove on My Themes section");
 	}
 	public Themes deleteAThemes(){
-		clickThreeDotIconOnMyThemes(0);
+		clickThreeDotIconOnMyThemes();
 		clickRemoveMyThemes();
 		new ConfirmationDialog(driver).clickOnRedBtn();
 		return this;
@@ -172,7 +172,7 @@ public class Themes {
 			commonAction.switchToWindow(currentWindow);
 			//Check when click Customize on My Themes
 			navigateByUrl();
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			clickCustomizeMyThemes();
 			switchNewTab();
 			assertCustomize.assertTrue(commonAction.getCurrentURL().contains("/theme/theme-making/"),
@@ -205,7 +205,7 @@ public class Themes {
 			commonAction.switchToWindow(currentWindow);
 			//Check when click Customize on My Themes
 			navigateByUrl();
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			clickCustomizeMyThemes();
 			switchNewTab();
 			assertCustomize.assertTrue(commonAction.getCurrentURL().contains("/restricted"),
@@ -263,7 +263,7 @@ public class Themes {
 			commonAction.switchToWindow(currentWindow);
 			//Check when click Customize on My Themes
 			navigateByUrl();
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			clickCustomizeMyThemes();
 			switchNewTab();
 			editThemesAndVerifyMessage(false);
@@ -281,7 +281,7 @@ public class Themes {
 			commonAction.switchToWindow(currentWindow);
 			//Check when click Customize on My Themes
 			navigateByUrl();
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			clickCustomizeMyThemes();
 			switchNewTab();
 			new HomePage(driver).waitTillSpinnerDisappear1();
@@ -335,7 +335,7 @@ public class Themes {
 			commonAction.switchToWindow(currentWindow);
 			//Check when click publish on My Themes
 			navigateByUrl();
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			clickPublishMyThemes();
 			commonAction.sleepInMiliSecond(500);
 			new ConfirmationDialog(driver).clickOKBtn();
@@ -373,7 +373,7 @@ public class Themes {
 			commonAction.switchToWindow(currentWindow);
 			//Check when click publish on My Themes
 			navigateByUrl();
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_blkMyThemes_btnAction,0),
 					"[Failed] Restricted popup should be shown when click publish on My Themes.");
 
@@ -444,7 +444,7 @@ public class Themes {
 				throw new RuntimeException(e);
 			}
 		}else {
-			clickThreeDotIconOnMyThemes(0);
+			clickThreeDotIconOnMyThemes();
 			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_blkMyThemes_btnAction,2),
 					"[Failed] Restricted popup should be shown when click on Delete theme.");
 		}

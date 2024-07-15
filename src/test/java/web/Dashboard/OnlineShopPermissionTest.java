@@ -2,10 +2,14 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.sale_channel.onlineshop.APIBlog;
+import api.Seller.sale_channel.onlineshop.APIMenus;
+import api.Seller.sale_channel.onlineshop.APIPages;
 import api.Seller.setting.PermissionAPI;
+import api.Seller.setting.StoreInformation;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -13,7 +17,11 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.onlineshop.Domains;
 import web.Dashboard.onlineshop.blog.BlogManagement;
+import web.Dashboard.onlineshop.menus.MenuManagement;
+import web.Dashboard.onlineshop.pages.PageManagement;
+import web.Dashboard.onlineshop.preferences.Configuration;
 import web.Dashboard.onlineshop.themes.Themes;
 
 import java.io.IOException;
@@ -109,18 +117,18 @@ public class OnlineShopPermissionTest extends BaseTest{
 //                {"1100001"},
 //                {"1100010"},
 //                {"1100011"},
-//                {"1100100"},
-//                {"1100101"},
-//                {"1100110"},
-//                {"1100111"},
-//                {"1111000"},
-//                {"1111001"},
+                {"1100100"},
+                {"1100101"},
+                {"1100110"},
+                {"1100111"},
+                {"1111000"},
+                {"1111001"},
 //                {"1111010"},
 //                {"1111011"},
 //                {"1111100"},
 //                {"1111101"},
 //                {"1111110"},
-//                {"1111111"}
+                {"1111111"}
         };
     }
     @Test(dataProvider = "ThemesData")
@@ -223,22 +231,22 @@ public class OnlineShopPermissionTest extends BaseTest{
 //                {"1001111"},
 //                {"1010000"},
 //                {"1010001"},
-                {"1010010"},
-                {"1010011"},
-                {"1010100"},
-                {"1010101"},
-                {"1010110"},
-                {"1010111"},
-                {"1011000"},
-                {"1011001"},
-                {"1011010"},
-                {"1011011"},
-                {"1011100"},
-                {"1011101"},
-                {"1011110"},
-                {"1011111"},
-                {"1100000"},
-                {"1100001"},
+//                {"1010010"},
+//                {"1010011"},
+//                {"1010100"},
+//                {"1010101"},
+//                {"1010110"},
+//                {"1010111"},
+//                {"1011000"},
+//                {"1011001"},
+//                {"1011010"},
+//                {"1011011"},
+//                {"1011100"},
+//                {"1011101"},
+//                {"1011110"},
+//                {"1011111"},
+//                {"1100000"},
+//                {"1100001"},
 //                {"1100010"},
 //                {"1100011"},
 //                {"1100100"},
@@ -475,9 +483,9 @@ public class OnlineShopPermissionTest extends BaseTest{
 //                {"101001011"},
 //                {"101001100"},
 //                {"101001101"},
-//                {"101001110"},
-//                {"101001111"},
-//                {"101010000"},
+                {"101001110"},
+                {"101001111"},
+                {"101010000"},
 //                {"101010001"},
 //                {"101010010"},
 //                {"101010011"},
@@ -1103,9 +1111,9 @@ public class OnlineShopPermissionTest extends BaseTest{
 //                {"1110111111"},
 //                {"1111000000"},
 //                {"1111000001"},
-//                {"1111000010"},
-//                {"1111000011"},
-//                {"1111000100"},
+                {"1111000010"},
+                {"1111000011"},
+                {"1111000100"},
 //                {"1111000101"},
 //                {"1111000110"},
 //                {"1111000111"},
@@ -1184,5 +1192,154 @@ public class OnlineShopPermissionTest extends BaseTest{
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Online Shop","Blog");
         new BlogManagement(driver).getLoginInfo(staffCredentials).checkBlogPermission(allPermissions,articleId,categoryId);
+    }
+
+    @DataProvider
+    public Object[] PageData(){
+        return new Object[][]{
+//            {"1"},
+//            {"10"},
+//            {"11"},
+//            {"100"},
+//            {"101"},
+//            {"110"},
+//            {"111"},
+//            {"1000"},
+//            {"1001"},   //Bug1: has Delete permission, but currently restricted popup still show
+//            {"1010"},
+//            {"1011"},   //Bug1:
+//            {"1100"},   //Bug1
+//            {"1101"},   //Bug1
+//            {"1110"},   //Bug1
+//            {"1111"},   //Bug1
+//            {"10000"},
+//            {"10001"},
+//            {"10010"},
+//            {"10011"},
+//            {"10100"},
+//            {"10101"},
+//            {"10110"},
+//            {"10111"},
+//            {"11000"},
+//            {"11001"},  //Bug1
+//            {"11010"},
+//            {"11011"},  //Bug1
+//            {"11100"},  //Bug1
+//            {"11101"},  //Bug1
+//            {"11110"},  //Bug1
+//            {"11111"}   //Bug1
+        };
+    }
+    @Test(dataProvider = "PageData")
+    public void checkPagePemission(String binaryData){
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("10");
+        model.setOnlineStore_page(binaryData);
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        int pageId = new PageManagement(driver).getLoginInfo(staffCredentials,ownerCredentials).callAPIGetPageId();
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Online Shop","Pages");
+        new PageManagement(driver).getLoginInfo(staffCredentials,ownerCredentials).checkPagePermission(allPermissions,pageId);
+    }
+    @DataProvider
+    public Object[] MenuData(){
+        return new Object[][]{
+//                {"1"},
+//                {"10"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
+//                {"110"},
+//                {"111"},
+//                {"1000"},
+//                {"1001"},
+//                {"1010"},
+//                {"1011"},
+//                {"1100"},
+                {"1101"},   //Bug1: Translation api response 403 when has permission
+                {"1110"},
+                {"1111"}    //Bug1
+        };
+    }
+    @Test(dataProvider = "MenuData")
+    public void checkMenuPermission(String binaryData){
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("10");
+        model.setOnlineStore_menu(binaryData);
+        model.setProduct_collection("1");
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        int menuIdEditable = new APIMenus(ownerCredentials).getMenuIdCanEdit();
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Online Shop","Menus");
+        new MenuManagement(driver).checkMenuPermission(allPermissions);
+    }
+    @DataProvider
+    public Object[] DomainData(){
+        return new Object[][]{
+//                {"0"},
+//                {"1"},
+//                {"10"},
+                {"11"},
+        };
+    }
+    @Test(dataProvider = "DomainData")
+    public void checkDomainPermission(String binaryData){
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("10");
+        model.setOnlineStore_domain(binaryData);
+        //
+        sellerUserName = ADMIN_SHOP_COFFEE_USERNAME;
+        sellerPassword = ADMIN_SHOP_COFFEE_PASSWORD;
+        staffUserName = STAFF_COFFEE_SHOP_USERNAME;
+        ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
+        staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
+
+        //edit permisison
+        new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials,staffCredentials, model);
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB);
+        new Domains(driver).getLoginInfo(ownerCredentials).checkDomainPermission(allPermissions);
+    }
+    @DataProvider
+    public Object[] randomPreferenceData(){
+      return new PermissionDataProvider().randomProviderData(13);
+    }
+    @Test(dataProvider = "randomPreferenceData")
+    public void checkPreferencePermission(String binaryData){
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("10");
+        model.setProduct_productManagement("1");
+        model.setOnlineStore_preferences(binaryData);
+        System.out.println("Preferences Permission: "+binaryData);
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB);
+        new Configuration(driver).getLoginInfo(staffCredentials).checkPreferencesPermission(allPermissions);
+
     }
 }

@@ -61,6 +61,7 @@ public class AccountTest {
     public static String GOMUA_PASSWORD_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyerPassword");
     public static String GOMUA_USERNAME_PHONE = PropertiesUtil.getEnvironmentData("gomuaBuyerPhone");
     public static String STAFF_SHOP_VI_USERNAME = PropertiesUtil.getEnvironmentData("staffShopViUserName");
+    public static String STAFF_COFFEE_SHOP_USERNAME = PropertiesUtil.getEnvironmentData("staffShopCoffeeShop");
     public static String STAFF_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("staffShopViPass");
     public static String STAFF_USERNAME_TIEN = PropertiesUtil.getEnvironmentData("staffUsernameShopTien");
     public static String STAFF_PASSWORD_TIEN = PropertiesUtil.getEnvironmentData("staffPasswordShopTien");

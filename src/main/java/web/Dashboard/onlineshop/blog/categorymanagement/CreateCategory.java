@@ -39,6 +39,7 @@ public class CreateCategory {
 		String url = Links.DOMAIN + "/channel/storefront/blog/article/category/edit/"+id;
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to edit category url: "+url);
+		commonAction.sleepInMiliSecond(500);
 		return this;
 	}
 	public CategoryManagement createSimpleCategory(){

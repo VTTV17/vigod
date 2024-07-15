@@ -177,7 +177,7 @@ public class BlogManagement {
 	public void checkViewBlogCategoryList(){
 		navigateByUrl();
 		clickCategoryManagement();
-		List<WebElement> categoryList = commonAction.getElements(categoryManagement.loc_lst_icnEdit,1);
+		List<WebElement> categoryList = commonAction.getElements(categoryManagement.loc_lst_icnEdit,2);
 		if(hasViewBlogCategoryList()){
 			assertCustomize.assertTrue(categoryList.size()>0,"[Failed] Category list should be shown.");
 		}else assertCustomize.assertTrue(categoryList.isEmpty(),"[Failed] Category list should be empty");
@@ -250,7 +250,7 @@ public class BlogManagement {
 			createArticle.navigateByUrl(id);
 			if(hasTranslateArticle()){
 				createArticle.clickOnEditTranslation();
-				createArticle.clickOnSave();
+				createArticle.clickSaveOnEditTranslationModal();
 				String toast = new HomePage(driver).getToastMessage();
 				try {
 					assertCustomize.assertEquals(toast,PropertiesUtil.getPropertiesValueByDBLang("onlineshop.blog.update.success"),
@@ -291,9 +291,9 @@ public class BlogManagement {
 		checkViewBlogCategoryList();
 		checkAddBlogCategory();
 		checkEditBlogCategory(categoryId);
-		checkDeleteCategory();
 		checkTranslateArticle(articleId);
 		checkTranslateCategory(categoryId);
+		checkDeleteCategory();
 		AssertCustomize.verifyTest();
 		return this;
 	}
