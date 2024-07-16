@@ -1,0 +1,44 @@
+{
+    "STARTUP_PLUS": {
+        "bundlePackagePlanName": "STARTUP+",
+        "bundlePackagePlanCode": "bundle_vn_0001_statup_plus",
+        "monthPrice": "1583333.00",
+        "totalPrice": ["19000000.00", "38000000.00", "76000000.00"],
+        "currency": "VND"
+    },
+    "PROFESSIONAL_PLUS": {
+        "bundlePackagePlanName": "PROFESSIONAL+",
+        "bundlePackagePlanCode": "bundle_vn_0002_professional_plus",
+        "monthPrice": "2416666.00",
+        "totalPrice": ["29000000.00", "58000000.00", "116000000.00"],
+        "currency": "VND"
+    },
+    "OAO_PLUS": {
+        "bundlePackagePlanName": "OAO+",
+        "bundlePackagePlanCode": "bundle_vn_0003_oao_plus",
+        "monthPrice": "4083333.00",
+        "totalPrice": ["49000000.00", "98000000.00", "196000000.00"],
+        "currency": "VND"
+    },
+    "ENTERPRISE_PLUS": {
+        "bundlePackagePlanName": "ENTERPRISE+",
+        "bundlePackagePlanCode": "bundle_vn_0004_enterprise_plus",
+        "monthPrice": "5750000.00",
+        "totalPrice": ["69000000.00", "138000000.00", "207000000.00"],
+        "currency": "VND"
+    },
+    "BASIC": {
+        "bundlePackagePlanName": "BASIC",
+        "bundlePackagePlanCode": "bundle_global_0005_basic",
+        "monthPrice": "5.75",
+        "totalPrice": ["69.00", "138.00", "207.00"],
+        "currency": "USD"
+    },
+    "PROFESSIONAL": {
+        "bundlePackagePlanName": "PROFESSIONAL",
+        "bundlePackagePlanCode": "bundle_global_0006_professional",
+        "monthPrice": "8.25",
+        "totalPrice": ["99.00", "198.00", "297.00"],
+        "currency": "USD"
+    }
+}

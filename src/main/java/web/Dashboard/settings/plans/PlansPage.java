@@ -91,5 +91,9 @@ public class PlansPage {
 	public PlansPage subscribeToPackage(NewPackage newPackage) {
 		return subscribeToPackage(NewPackage.getValue(newPackage));
 	}
-	
+	public PlansPage clickContinueOnFeatureComparisionDialog() {
+	  commons.click(elements.loc_btnContinue);
+	  logger.info("Click Continue on Feature Comparision dialog");
+	  return this;
+	}
 }

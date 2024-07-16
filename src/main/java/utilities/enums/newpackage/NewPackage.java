@@ -25,6 +25,18 @@ public enum NewPackage {
     }  
     public static List<NewPackage> forForeignStore() {
     	return Arrays.asList(BASIC, PROFESSIONAL);
-    }    
+    }   
+    
+    public static NewPackage getKeyFromValue(String value) {
+    	return switch (value) {
+			case "STARTUP+": yield STARTUP_PLUS;
+			case "PROFESSIONAL+": yield PROFESSIONAL_PLUS;
+			case "OAO+": yield OAO_PLUS;
+			case "ENTERPRISE+": yield ENTERPRISE_PLUS;
+			case "BASIC": yield BASIC;
+			case "PROFESSIONAL": yield PROFESSIONAL;
+			default: throw new IllegalArgumentException("Unexpected value: " + value);
+    	};  
+    }
     
 }

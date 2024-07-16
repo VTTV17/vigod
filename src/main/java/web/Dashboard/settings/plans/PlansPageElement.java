@@ -13,4 +13,5 @@ public class PlansPageElement {
 	By loc_lblPackagePerMonth = By.xpath("//div[@class='package-plans-package-list']//div[starts-with(@class,'items')]//*[@class='per-month']");
 	String loc_blkPackageByName = "//div[@class='package-plans-package-list']//div[starts-with(@class,'items')]//*[@class='title' and .='%s']";
 	String loc_btnSubscribePackageByName = loc_blkPackageByName + "//following-sibling::button[starts-with(@class,'button-v2')]";		
+	By loc_btnContinue = By.cssSelector(".modal-body button:nth-child(2)");
 }

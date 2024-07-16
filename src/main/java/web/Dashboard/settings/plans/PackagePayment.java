@@ -10,7 +10,7 @@ import org.openqa.selenium.WebDriver;
 
 import utilities.commons.UICommonAction;
 import utilities.enums.PaymentMethod;
-import utilities.model.dashboard.setting.packageinfo.FinalizedPackageTotal;
+import utilities.model.dashboard.setting.packageinfo.PlanPaymentReview;
 import utilities.model.dashboard.setting.packageinfo.PaymentCompleteInfo;
 import utilities.thirdparty.ATM;
 import utilities.thirdparty.PAYPAL;
@@ -44,6 +44,12 @@ public class PackagePayment {
 		logger.info("Selected Year - Price options: {}", numberOfYears);
 		return this;
 	}
+	
+	public boolean isOnlinePaymentTabHidden() {
+		boolean isHidden = commons.getAttribute(elements.loc_tabOnlinePayment, "hidden") != null;
+		logger.info("Online Payment tab is hidden: {}", isHidden);
+		return isHidden;
+	}
 	public List<String> getOnlinePaymentOptions() {
 		commons.click(elements.loc_tabOnlinePayment);
 		commons.getElement(elements.loc_rdoPAYPAL); //This implicitly means the options are present ready for further actions
@@ -54,12 +60,13 @@ public class PackagePayment {
 		logger.info("Retrieved payment options available: {}", paymentOptions);
 		return paymentOptions;
 	}	
-	public FinalizedPackageTotal getFinalizePackageInfo() {
-		FinalizedPackageTotal totalInfo = new FinalizedPackageTotal();
+	public PlanPaymentReview getFinalizePackageInfo() {
+		PlanPaymentReview totalInfo = new PlanPaymentReview();
 		totalInfo.setName(commons.getText(elements.loc_lblPackageName));
 		totalInfo.setDuration(commons.getText(elements.loc_lblPackageDuration));
 		totalInfo.setBasePrice(commons.getText(elements.loc_lblPackageBasePrice));
 		if (!commons.getElements(elements.loc_lblPackageVAT).isEmpty()) totalInfo.setVatPrice(commons.getText(elements.loc_lblPackageVAT)); //Hidden for domain .biz stores
+		if (!commons.getElements(elements.loc_lblRefund).isEmpty()) totalInfo.setRefundAmount(commons.getText(elements.loc_lblRefund)); //Hidden when purchase packages for the 1st time
 		totalInfo.setFinalTotal(commons.getText(elements.loc_lblPackageFinalTotal));
 		logger.info("Retrieved finalized package info: {}", totalInfo);
 		return totalInfo;

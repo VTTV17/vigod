@@ -12,7 +12,7 @@ import org.testng.asserts.SoftAssert;
 
 import api.kibana.KibanaAPI;
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.setupstore.SetupStore;
+import utilities.model.dashboard.setupstore.SetupStoreDG;
 import utilities.utils.PropertiesUtil;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
@@ -117,7 +117,7 @@ public class SignupPage {
     	clickSignupBtn();
     	return this;
     }
-    public SignupPage fillOutSignupForm(SetupStore store) {
+    public SignupPage fillOutSignupForm(SetupStoreDG store) {
         return fillOutSignupForm(store.getCountry(), store.getUsername(), store.getPassword(), store.getReferralCode());
     }
     
@@ -145,7 +145,7 @@ public class SignupPage {
     	inputVerificationCode(new KibanaAPI().getKeyFromKibana(username, "activationKey"));
     	return clickConfirmOTPBtn();
     }    
-    public SetUpStorePage provideVerificationCode(SetupStore store) {
+    public SetUpStorePage provideVerificationCode(SetupStoreDG store) {
     	String formattedUsername = store.getUsername().matches("\\d+") ? "%s:%s".formatted(store.getPhoneCode(), store.getUsername()) : store.getUsername();
     	return provideVerificationCode(formattedUsername);
     }    

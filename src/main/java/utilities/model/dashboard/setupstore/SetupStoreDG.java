@@ -10,7 +10,7 @@ import utilities.data.DataGenerator;
 import utilities.links.Links;
 
 @Data
-public class SetupStore {
+public class SetupStoreDG {
 
 	String domain;
 	String referralCode;

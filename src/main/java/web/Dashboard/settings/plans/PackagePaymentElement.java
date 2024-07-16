@@ -14,6 +14,7 @@ public class PackagePaymentElement {
 	By loc_lblPackageDuration = By.cssSelector(".package-payment-total-section .period");
 	By loc_lblPackageBasePrice = By.cssSelector(".package-payment-total-section .pre-total .price");
 	By loc_lblPackageVAT = By.cssSelector(".package-payment-total-section .tax .price");
+	By loc_lblRefund = By.cssSelector(".package-payment-total-section .refund .price");
 	By loc_lblPackageFinalTotal = By.cssSelector(".package-payment-total-section .total .price");
 	By loc_btnPlaceOrder = By.cssSelector(".package-payment-total-section button.button-v2");
 	

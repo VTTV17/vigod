@@ -11,6 +11,8 @@ import lombok.SneakyThrows;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import utilities.enums.newpackage.NewPackage;
+import utilities.model.dashboard.setting.plan.PlanNameAndPrice;
 import utilities.model.dashboard.setupstore.CountryData;
 import utilities.utils.jsonFileUtility;
 
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -74,6 +77,16 @@ public class DataGenerator {
     	return null;
     }
 
+    public static PlanNameAndPrice getPlanInfo(NewPackage packagePlan) {
+    	JsonNode data = jsonFileUtility.readJsonFile("PackagePrice.json");
+    	try {
+			return JsonPath.from(new ObjectMapper().writeValueAsString(data)).getObject(packagePlan.name(), PlanNameAndPrice.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+    	return null;
+    }    
+    
     /**
      * @return a random country
      */
@@ -87,7 +100,7 @@ public class DataGenerator {
      * @param country the name of the country to get the code for
      * @return the phone code for the given country, or null if it is not found
      */
-    public String getPhoneCode(String country) {
+    static public String getPhoneCode(String country) {
         JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("phoneCode");
         return data.asText();
     }
@@ -308,7 +321,7 @@ public class DataGenerator {
         return list.get(new Random().nextInt(0, list.size()));
     }
 
-    public String getCurrentDate(String format) {
+    public static String getCurrentDate(String format) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
@@ -371,5 +384,33 @@ public class DataGenerator {
         }
         calendar.set(Calendar.DATE, 01);
         return calendar.getTime();
+    }
+    
+	public enum TimeUnits {
+		SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS;
+	}    
+    public static LocalDateTime forwardTime(LocalDateTime initialTime, long timeAmount, TimeUnits unit) {
+    	return switch (unit) {
+    	case SECONDS ->  initialTime.plusSeconds(timeAmount);
+    	case MINUTES ->  initialTime.plusMinutes(timeAmount);
+    	case HOURS ->  initialTime.plusHours(timeAmount);
+    	case DAYS ->  initialTime.plusDays(timeAmount);
+    	case WEEKS ->  initialTime.plusWeeks(timeAmount);
+    	case MONTHS ->  initialTime.plusMonths(timeAmount);
+    	case YEARS ->  initialTime.plusYears(timeAmount);
+    	default -> throw new IllegalArgumentException("Unexpected value: " + unit);
+    	};
+    }
+    public static LocalDateTime forwardTime(long timeAmount, TimeUnits unit) {
+    	LocalDateTime currentTime = LocalDateTime.now();
+    	return forwardTime(currentTime, timeAmount, unit);
+    }    
+    public static String forwardTimeWithFormat(LocalDateTime initialTime, long timeAmount, TimeUnits unit, String outputFormat) {
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern(outputFormat);
+    	return dtf.format(forwardTime(initialTime, timeAmount, unit));
+    }    
+    public static String forwardTimeWithFormat(long timeAmount, TimeUnits unit, String outputFormat) {
+    	LocalDateTime currentTime = LocalDateTime.now();
+        return forwardTimeWithFormat(currentTime, timeAmount, unit, outputFormat);
     }
 }
