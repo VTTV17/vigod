@@ -1,11 +1,17 @@
 package web.Dashboard.analytics;
 
+import com.beust.ah.A;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.impl.xb.xsdschema.All;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
+import utilities.assert_customize.AssertCustomize;
+import utilities.links.Links;
+import utilities.model.staffPermission.AllPermissions;
+import utilities.permission.CheckPermission;
 import web.Dashboard.home.HomePage;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
@@ -16,10 +22,13 @@ public class ReservationAnalytics {
 	
     WebDriver driver;
     UICommonAction commonAction;
-
+	AllPermissions allPermissions;
+	AssertCustomize assertCustomize;
+	String url = Links.DOMAIN + "/analytics/reservation";
     public ReservationAnalytics(WebDriver driver) {
         this.driver = driver;
         commonAction = new UICommonAction(driver);
+		assertCustomize = new AssertCustomize(driver);
     }
     
     By loc_ddlFilterDate = By.cssSelector(".analytics-reservations button");
@@ -48,6 +57,16 @@ public class ReservationAnalytics {
 			Assert.assertEquals(new HomePage(driver).verifySalePitchPopupDisplay(), 0);
 		}
     }
-    /*-------------------------------------*/  
-    
+    /*---------------Staff Permission----------------------*/
+    public ReservationAnalytics checkReservationAnalyticsPermission(AllPermissions allPermissions){
+		this.allPermissions = allPermissions;
+		commonAction.sleepInMiliSecond(2000,"Wait login loaded");
+		if(allPermissions.getAnalytics().getReservationAnalytics().isViewReservationAnalytics()){
+			assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(url,url),
+					"[Failed] Reservation page should be show when navigate to url: "+url);
+		}else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(url),
+				"[Failed] Restricted page should be shown when navigate to url: "+url);
+		AssertCustomize.verifyTest();
+		return this;
+	}
 }

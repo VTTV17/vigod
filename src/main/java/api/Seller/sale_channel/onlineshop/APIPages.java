@@ -22,25 +22,28 @@ public class APIPages {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public int createPage(){
+    public Response createPageResponse(){
         String title = new DataGenerator().generateString(10);
         String body = """
                 {    "title":"%s",
                     "url":"%s",
-                    "rawContent":"<p>%s</p>","
-                    storeId":"%s",
+                    "rawContent":"<p>%s</p>",
+                    "storeId":"%s",
                     "status":"PUBLISH"
                 }
                 """.formatted(title,title,"Description "+title,loginInfo.getStoreID());
-        Response response = api.post(CREATE_PAGE_PATH,loginInfo.getAccessToken(),body);
+        Response response = api.post(CREATE_PAGE_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),body);
+        return response;
+    }
+    public int createPage(){
+        Response response = createPageResponse();
         response.then().statusCode(201);
         return response.jsonPath().getInt("id");
     }
-    public int getAPageId(){
-        Response response = api.get(GET_PAGE_LIST_PATH,loginInfo.getAccessToken());
+    public List<Integer> getPageIdList(){
+        Response response = api.get(GET_PAGE_LIST_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<Integer> ids = response.jsonPath().getList("id");
-        if(ids.isEmpty()) return 0;
-        return ids.get(0);
+        return ids;
     }
 }

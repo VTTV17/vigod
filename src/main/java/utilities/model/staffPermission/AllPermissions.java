@@ -581,7 +581,7 @@ public class AllPermissions {
         onlineStore.getPreferences().setEnableDisableProductListing(checkPermission(preferencesPermission, 5));
         onlineStore.getPreferences().setEnableDisableServiceListing(checkPermission(preferencesPermission, 6));
         onlineStore.getPreferences().setAddRemoveGoogleAnalyticsCode(checkPermission(preferencesPermission, 7));
-        onlineStore.getPreferences().setExportGoogleShoppingProduct(checkPermission(preferencesPermission, 8));
+        onlineStore.getPreferences().setAddRemoveGoogleShoppingCode(checkPermission(preferencesPermission, 8));
         onlineStore.getPreferences().setExportGoogleShoppingProduct(checkPermission(preferencesPermission, 9));
         onlineStore.getPreferences().setAddRemoveGoogleTagManager(checkPermission(preferencesPermission, 10));
         onlineStore.getPreferences().setAddRemoveFacebookPixel(checkPermission(preferencesPermission, 11));

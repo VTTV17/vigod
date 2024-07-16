@@ -35,6 +35,10 @@ public class Links {
     public static String THEMES_PATH = "/theme/management";
     public static String THEMES_LIBRARY_PATH = "/theme/library";
     public static String BLOG_MANAGEMENT_PATH = "/channel/storefront/blog/article/list";
+    public static String PAGE_MANAGEMENT_PATH = "/channel/storefront/custom-page";
+    public static String EDIT_PAGE_PATH = "/channel/storefront/custom-page/edit/%s";
+    public static String MENUS_PATH = "/channel/storefront/menu";
+    public static String PREFERENCE_PATH = "/channel/storefront/preference";
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";

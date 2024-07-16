@@ -32,7 +32,7 @@ public class FileUtils {
         File[] files = directory.listFiles();
         if (files != null)
             Arrays.stream(files)
-                    .filter(file -> file.getName().startsWith(subName))
+                    .filter(file -> file.getName().contains(subName))
                     .map(file -> file.delete()
                             ? "File '%s' is deleted.".formatted(file.getName())
                             : "Something went wrong when delete '%s' file.".formatted(file.getName()))

@@ -1,10 +1,13 @@
 package api.Seller.sale_channel.onlineshop;
 
 import api.Seller.login.Login;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.onlineshop.ThemeInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -47,23 +50,22 @@ public class APIThemes {
         response.then().statusCode(204);
     }
     public void addANewTheme(){
-//        int id = getThemeStoreId();
-//        Response contentRes = api.get(GET_CONTENT_OF_THEME_PATH.formatted(loginInfo.getStoreID(),id),loginInfo.getAccessToken());
-//
-//        String homePageContent = contentRes.then().statusCode(200).extract().jsonPath().getString("findAll {pages[*].type == 'HOME'}.content");
-//        System.out.println(homePageContent);
-//        String body = """
-//                {
-//                "customName": "%s",
-//                "masterThemeId": "%s",
-//                "pages":[
-//                    {
-//                    "content":"
-//                    }
-//                ]
-//                }
-//                """;
-//        Response response = api.post(ADD_NEW_THEME_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(),)
+        int id = getThemeStoreId();
+        Response contentRes = api.get(GET_CONTENT_OF_THEME_PATH.formatted(loginInfo.getStoreID(),id),loginInfo.getAccessToken());
+        String homePageContent = contentRes.then().statusCode(200).extract().jsonPath().getString("pages.find {it.type == 'HOME'}.content");
+        int pageContentId = contentRes.jsonPath().getInt("pages.find {it.type == 'HOME'}.id");
+        String customName = "Themes "+ new DataGenerator().generateString(5);
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("customName",customName);
+        requestBody.addProperty("masterThemeId",id);
+        JsonObject page = new JsonObject();
+        page.addProperty("content",homePageContent);
+        page.addProperty("id",pageContentId);
+        JsonArray pageArray = new JsonArray();
+        pageArray.add(page);
+        requestBody.add("pages",pageArray);
+        Response response = api.post(ADD_NEW_THEME_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken(), requestBody.toString());
+        response.then().statusCode(200);
     }
 
 }

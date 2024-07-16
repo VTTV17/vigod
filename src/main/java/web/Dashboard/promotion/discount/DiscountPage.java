@@ -2,6 +2,7 @@ package web.Dashboard.promotion.discount;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.promotion.APICreateServiceCampaign;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.promotion.PromotionList;
 import api.Seller.setting.BranchManagement;
@@ -89,6 +90,16 @@ public class DiscountPage extends DiscountElement {
 						case EXPIRED -> {
 							new ProductDiscountCampaign(loginInformation).createProductDiscountCampaign(conditions,productInfo,0);
 							new ProductDiscountCampaign(loginInformation).endEarlyDiscountCampaign();
+						}
+					}
+				}
+				case SERVICE_DISCOUNT_CAMPAIGN -> {
+					switch (status){
+						case IN_PROGRESS -> new APICreateServiceCampaign(loginInformation).createServiceDiscountCampaign(0);
+						case SCHEDULED -> new APICreateServiceCampaign(loginInformation).createServiceDiscountCampaign(1);
+						case EXPIRED -> {
+							new APICreateServiceCampaign(loginInformation).createServiceDiscountCampaign(0);
+
 						}
 					}
 				}
