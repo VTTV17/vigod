@@ -6,7 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 import utilities.commons.UICommonAction;
-import utilities.model.dashboard.setupstore.SetupStore;
+import utilities.model.dashboard.setupstore.SetupStoreDG;
 
 public class SetUpStorePage {
 
@@ -146,7 +146,7 @@ public class SetUpStorePage {
 		clickContinueBtn();
 	}    
 	
-	public void setupShopExp(SetupStore store) {
+	public void setupShopExp(SetupStoreDG store) {
 		setupShopExp(store.getAccountType(), store.getName(), store.getUrl(), 
 				store.isContactProvided(), store.getContact(), 
 				store.getCountry(), store.getRegion(), store.getTimezone(), 

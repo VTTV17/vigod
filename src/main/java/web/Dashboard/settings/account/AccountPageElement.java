@@ -6,7 +6,7 @@ public class AccountPageElement {
 
 	By loc_tabAccount = By.cssSelector("li:nth-child(1) > a.nav-link");
 	By loc_btnSeePlan = By.cssSelector(".see-plan button");
-	By loc_btnRenew = By.cssSelector(".current__plan_information .gs-button__green");
+	By loc_btnRenew = By.cssSelector(".action .button-v2");
 	
 	String loc_tmpRecords = "//*[@class='see-current-plans']//*[@class='item']";
 	By loc_lblSubscriptionStartDate = By.cssSelector(".subscription-date .value");

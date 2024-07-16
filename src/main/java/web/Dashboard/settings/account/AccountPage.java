@@ -70,19 +70,28 @@ public class AccountPage {
 	public AccountPage clickAccountTab() {
 		commonAction.click(elements.loc_tabAccount);
 		logger.info("Clicked on Account tab.");
+		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
 
 	public AccountPage clickRenew() {
 		commonAction.click(elements.loc_btnSeePlan);
 		logger.info("Clicked on 'See Plans' button.");
-		homePage.waitTillSpinnerDisappear();
+		homePage.waitTillSpinnerDisappear1();
 		return this;
 	}
 
 	public List<List<String>> getPlanInfo() {
+	  
+		int recordCount = 0;
+		for (int i=0; i<10; i++) {
+		  recordCount = commonAction.getElements(By.xpath(elements.loc_tmpRecords)).size();
+		  if (recordCount >0) break;
+		  commonAction.sleepInMiliSecond(500, "Records of plan not displayed. Retrying...");
+		}
+	  
 		List<List<String>> table = new ArrayList<>();
-        for (int i = 0; i < commonAction.getElements(By.xpath(elements.loc_tmpRecords)).size(); i++) {
+        for (int i = 0; i < recordCount; i++) {
             List<String> rowData = new ArrayList<>();
             rowData.add(commonAction.getText(elements.loc_lblSubscriptionStartDate, i));
             rowData.add(commonAction.getText(elements.loc_lblPlanExpiryDate, i));

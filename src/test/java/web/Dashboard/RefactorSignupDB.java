@@ -1,27 +1,41 @@
 package web.Dashboard;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
+import api.Seller.login.Login;
+import api.Seller.setting.APIAccount;
 import api.kibana.KibanaAPI;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.data.DataGenerator.TimeUnits;
 import utilities.driver.InitWebdriver;
 import utilities.enums.PaymentMethod;
 import utilities.enums.newpackage.NewPackage;
 import utilities.links.Links;
-import utilities.model.dashboard.setting.packageinfo.FinalizedPackageTotal;
 import utilities.model.dashboard.setting.packageinfo.PackageInfo;
-import utilities.model.dashboard.setupstore.PurchasePackage;
-import utilities.model.dashboard.setupstore.SetupStore;
+import utilities.model.dashboard.setting.packageinfo.PaymentCompleteInfo;
+import utilities.model.dashboard.setting.packageinfo.PlanPaymentReview;
+import utilities.model.dashboard.setting.plan.PlanStatus;
+import utilities.model.dashboard.setupstore.PurchasePlanDG;
+import utilities.model.dashboard.setupstore.SetupStoreDG;
+import utilities.packageplan.PlanMoney;
+import utilities.thirdparty.Mailnesia;
+import utilities.thirdparty.Mailnesia.MailType;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.settings.account.AccountPage;
@@ -30,6 +44,7 @@ import web.Dashboard.settings.plans.PlansPage;
 import web.Dashboard.settings.storeinformation.StoreInformation;
 import web.Dashboard.signup.SetUpStorePage;
 import web.Dashboard.signup.SignupPage;
+import web.Dashboard.signup.VerifyMailContent;
 
 public class RefactorSignupDB extends BaseTest {
 
@@ -41,10 +56,10 @@ public class RefactorSignupDB extends BaseTest {
 	PackagePayment packagePaymentPage;
 	AccountPage accountPage;
 	StoreInformation storeInfoPage;
-	
-	SetupStore storeModel;
-	PurchasePackage packagePaymentModel;
-	
+
+	SetupStoreDG storeDG;
+	PurchasePlanDG planPaymentDG;
+
 	@BeforeMethod
 	public void setup() {
 		driver = new InitWebdriver().getDriver(browser, headless);
@@ -56,8 +71,8 @@ public class RefactorSignupDB extends BaseTest {
 		storeInfoPage = new StoreInformation(driver);
 		commonAction = new UICommonAction(driver);
 		plansPage = new PlansPage(driver);
-		storeModel = new SetupStore();
-		packagePaymentModel = new PurchasePackage();
+		storeDG = new SetupStoreDG();
+		planPaymentDG = new PurchasePlanDG();
 	}
 
 	boolean canSwitchLanguage(String domain) {
@@ -91,493 +106,685 @@ public class RefactorSignupDB extends BaseTest {
 	String defaultFreeTrialPackage(String country) {
 		return country.contentEquals("Vietnam") ? NewPackage.STARTUP_PLUS.name() : NewPackage.BASIC.name();
 	}	
-	
-	String getActivationKey(SetupStore store) {
+
+	String getActivationKey(SetupStoreDG store) {
 		return new KibanaAPI().getKeyFromKibana(store.getUsername().matches("^\\d+$") ? "%s:%s".formatted(store.getPhoneCode(), store.getUsername()) : store.getUsername(), "activationKey");
 	}	
-	
-	void registerAccount(SetupStore store) {
+
+	void registerAccount(SetupStoreDG store) {
 		signupPage.navigate(store.getDomain());
 		boolean isLanguageDisplayed = signupPage.isLanguageDropdownDisplayed();
-		
+
 		//Validate if Select Display Language dropdown appears
 		Assert.assertEquals(isLanguageDisplayed, canSwitchLanguage(store.getDomain()));
-		
+
 		if (isLanguageDisplayed) signupPage.selectDisplayLanguage("ENG");
 		signupPage.fillOutSignupForm(store);
 		signupPage.provideVerificationCode(store);
 	}
-	
-	void selectPackage(SetupStore store, PurchasePackage packagePayment) {
+
+	void selectPackage(SetupStoreDG store, PurchasePlanDG packagePayment) {
 		List<String> periodOptions = plansPage.getPackagePeriodOptions();
-		
+
 		//Validate package period options
 		Assert.assertEquals(periodOptions.size(), periodOptionCount(store.getDomain()));
-		
-		plansPage.selectDuration(new Random().nextInt(0, periodOptions.size()) +1);
-		
+
+		plansPage.selectDuration(packagePayment.getPeriod());
+
 		//Validate if Free Trial button appears
 		Assert.assertEquals(plansPage.isFreeTrialBtnDisplayed(), isFreeTrialOffered(store.getDomain()));
-		
+
 		List<PackageInfo> availablePackages = plansPage.getPackageInfo();
-		
+
 		//Validate the number of packages available
 		Assert.assertEquals(availablePackages.size(), availablePackageCount(store.getCountry()));
-		
+
 		//Validate currency
 		availablePackages.stream().forEach(e -> Assert.assertTrue(e.getTotalPrice().matches(currencyRegex(store.getCountry()))));
-		
+
 		plansPage.subscribeToPackage(packagePayment.getNewPackage());
 	}
-	
-	void selectPayment(SetupStore store, PurchasePackage packageAndPayment) {
+
+	PaymentCompleteInfo selectPayment(SetupStoreDG store, PurchasePlanDG packageAndPayment) {
 		List<String> periodPaymentOptions = packagePaymentPage.getPackagePeriodOptions();
-		
+
 		//Validate package period options
 		Assert.assertEquals(periodPaymentOptions.size(), periodOptionCount(store.getDomain()));
-		
+
 		//Validate available payment options
 		List<String> onlinePaymentOptions = packagePaymentPage.getOnlinePaymentOptions();
 		Assert.assertEquals(onlinePaymentOptions, onlinePaymentOptions(store.getCountry()));
-		
+
 		//Validate currency
 		periodPaymentOptions.stream().forEach(e -> Assert.assertTrue(e.matches(pricePerYearRegex(store.getCountry()))));
-		
+
 		//Validate currency
-		FinalizedPackageTotal finalizedPackagePayment =  packagePaymentPage.getFinalizePackageInfo();
-		Assert.assertTrue(finalizedPackagePayment.getBasePrice().matches(currencyRegex(store.getCountry())));
-		Assert.assertTrue(finalizedPackagePayment.getFinalTotal().matches(currencyRegex(store.getCountry())));
+		PlanPaymentReview planPaymentReview = packagePaymentPage.getFinalizePackageInfo();
+		Assert.assertTrue(planPaymentReview.getBasePrice().matches(currencyRegex(store.getCountry())));
+		Assert.assertTrue(planPaymentReview.getFinalTotal().matches(currencyRegex(store.getCountry())));
 		if (store.getDomain().contains("biz")) {
-			Assert.assertNull(finalizedPackagePayment.getVatPrice());
+			Assert.assertNull(planPaymentReview.getVatPrice());
 		} else {
-			Assert.assertTrue(finalizedPackagePayment.getVatPrice().matches(currencyRegex(store.getCountry())));
+			Assert.assertTrue(planPaymentReview.getVatPrice().matches(currencyRegex(store.getCountry())));
 		}
-		
+
 		packagePaymentPage.selectPaymentMethod(packageAndPayment.getPaymentMethod());
 		String orderId = packagePaymentPage.completePayment(packageAndPayment.getPaymentMethod());
 		packagePaymentPage.approvePackageInInternalTool(packageAndPayment.getPaymentMethod(), orderId);
-		
+
 		//Validate currency
-		Assert.assertTrue(packagePaymentPage.getPaymentCompleteInfo().getTotal().matches(currencyRegex(store.getCountry())));
+		PaymentCompleteInfo paymentCompleteInfo = packagePaymentPage.getPaymentCompleteInfo();
+		Assert.assertTrue(paymentCompleteInfo.getTotal().matches(currencyRegex(store.getCountry())));
 		packagePaymentPage.clickBackToDashboardBtn();
+
+		return paymentCompleteInfo;
 	}
 
-	void validatePackageIsEnabled(PurchasePackage packageAndPayment) {
+	void validatePackageIsEnabled(PurchasePlanDG packageAndPayment) {
 		homePage.navigateToPage("Settings");
 		accountPage.clickAccountTab();
 		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), NewPackage.getValue(packageAndPayment.getNewPackage()));
 	}
-	
+
+	String workoutExpiryDate(String currentDate, int period) {
+		int expiryYear = Integer.valueOf(currentDate.replaceAll("(?:\\d{2}-){2}", "")) + period;
+		return currentDate.replaceAll("\\d{4}", String.valueOf(expiryYear));
+	}
+
+	void validatePackageIsEnabledExp(PurchasePlanDG packageAndPayment, String subscriptionDate, String expiryDate) {
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab();
+
+		List<List<String>> planInfo = accountPage.getPlanInfo();
+		Assert.assertEquals(planInfo.get(0).get(0), subscriptionDate);
+		Assert.assertEquals(planInfo.get(0).get(1), expiryDate);
+		Assert.assertEquals(planInfo.get(0).get(2), NewPackage.getValue(packageAndPayment.getNewPackage()));
+	}
+
+	public static List<MailType> emailsToCheck(SetupStoreDG store, PurchasePlanDG purchasePackage) {
+
+		List<MailType> mailTypes = new ArrayList<>();
+
+		if (store.getAccountType().contentEquals("EMAIL")) {
+			mailTypes.add(MailType.VERIFICATION_CODE);
+			mailTypes.add(MailType.ACCOUNT_REGISTRATION);
+			mailTypes.add(MailType.WELCOME);
+			if (purchasePackage.getPaymentMethod() == PaymentMethod.BANKTRANSFER) mailTypes.add(MailType.PAYMENT_CONFIRMATION);
+			mailTypes.add(MailType.SUCCESSFUL_PAYMENT);
+		} else {
+			if (store.isContactProvided()) {
+				mailTypes.add(MailType.WELCOME);
+				if (purchasePackage.getPaymentMethod() == PaymentMethod.BANKTRANSFER) mailTypes.add(MailType.PAYMENT_CONFIRMATION);
+				mailTypes.add(MailType.SUCCESSFUL_PAYMENT);
+			}
+		}
+		return mailTypes;
+	}	
+
+	void checkMail(List<MailType> mailTypes, SetupStoreDG store, PaymentCompleteInfo paymentCompleteInfo, String expiryDate) {
+		Mailnesia mailPage = new Mailnesia(driver);
+
+		for (int i=0; i<10; i++) {
+			if (mailPage.navigate(store.getEmail()).getListOfEmailHeadersExp().size() == mailTypes.size()) break;
+			commonAction.sleepInMiliSecond(2000, "Wait till emails are fully displayed");
+		}
+
+		for (MailType e : mailTypes) {
+			String content = new Mailnesia(driver).getEmailBody(e);
+			switch (e) {
+			case VERIFICATION_CODE: VerifyMailContent.verificationCode(content, store);
+			case ACCOUNT_REGISTRATION: VerifyMailContent.successfulAccountRegistration(content, store);
+			case WELCOME: VerifyMailContent.welcome(content, store);
+			case PAYMENT_CONFIRMATION: VerifyMailContent.paymentConfirmation(content, store, paymentCompleteInfo);
+			case SUCCESSFUL_PAYMENT: VerifyMailContent.successfulPayment(content, store, paymentCompleteInfo, expiryDate);
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + e);
+			}
+		}
+	}
+
 	void validateTimezoneShopName() {
 		storeInfoPage.clickStoreInformationTab();
-		Assert.assertEquals(storeInfoPage.getShopName(), storeModel.getName());
-		Assert.assertEquals(storeInfoPage.getTimezone(), storeModel.getTimezone());
+		Assert.assertEquals(storeInfoPage.getShopName(), storeDG.getName());
+		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
 	}
-	
+
 	@Test
 	public void SignupWithExistingAccount() throws Exception {
-		
+
 		/*Domain .vn*/
-		storeModel.randomStoreData();
-		storeModel.setCountry("Vietnam");
-		storeModel.setUsername(AccountTest.ADMIN_SHOP_VI_USERNAME);
-		storeModel.setPassword(AccountTest.ADMIN_SHOP_VI_PASSWORD);
-		
+		storeDG.randomStoreData();
+		storeDG.setCountry("Vietnam");
+		storeDG.setUsername(AccountTest.ADMIN_SHOP_VI_USERNAME);
+		storeDG.setPassword(AccountTest.ADMIN_SHOP_VI_PASSWORD);
+
 		signupPage.navigate(Links.DOMAIN + Links.SIGNUP_PATH).selectDisplayLanguage("ENG");
-		signupPage.fillOutSignupForm(storeModel);
+		signupPage.fillOutSignupForm(storeDG);
 		signupPage.verifyUsernameExistError(language).completeVerify();
-		
-		storeModel.setCountry("Vietnam");
-		storeModel.setUsername(AccountTest.ADMIN_ACCOUNT_THANG);
-		storeModel.setPassword(AccountTest.ADMIN_PASSWORD_THANG);
-		
+
+		storeDG.setCountry("Vietnam");
+		storeDG.setUsername(AccountTest.ADMIN_ACCOUNT_THANG);
+		storeDG.setPassword(AccountTest.ADMIN_PASSWORD_THANG);
+
 		signupPage.navigate(Links.DOMAIN + Links.SIGNUP_PATH).selectDisplayLanguage("ENG");
-		signupPage.fillOutSignupForm(storeModel);
+		signupPage.fillOutSignupForm(storeDG);
 		signupPage.verifyUsernameExistError(language).completeVerify();
-		
+
 		/*Domain .biz*/
-		storeModel.setCountry("Taiwan");
-		storeModel.setUsername("905283336");
-		storeModel.setPassword(AccountTest.ADMIN_PASSWORD_TIEN);
-		
+		storeDG.setCountry("Taiwan");
+		storeDG.setUsername("905283336");
+		storeDG.setPassword(AccountTest.ADMIN_PASSWORD_TIEN);
+
 		signupPage.navigate(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
-		signupPage.fillOutSignupForm(storeModel);
+		signupPage.fillOutSignupForm(storeDG);
 		signupPage.verifyUsernameExistError(language).completeVerify();
-		
-		storeModel.setCountry("Australia");
-		storeModel.setUsername("tienbirdfeedbiz@mailnesia.com");
-		storeModel.setPassword(AccountTest.ADMIN_PASSWORD_TIEN);
-		
+
+		storeDG.setCountry("Australia");
+		storeDG.setUsername("tienbirdfeedbiz@mailnesia.com");
+		storeDG.setPassword(AccountTest.ADMIN_PASSWORD_TIEN);
+
 		signupPage.navigate(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
-		signupPage.fillOutSignupForm(storeModel);
+		signupPage.fillOutSignupForm(storeDG);
 		signupPage.verifyUsernameExistError("ENG").completeVerify();
 	}
 
 	@Test
 	public void Signup11() {
-		
+
 		//Randomize data
-		storeModel.randomStoreData();
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/* Sign up */
-		registerAccount(storeModel);
-		
-		if (storeModel.getDomain().contains("biz")) {
+		registerAccount(storeDG);
+
+		if (storeDG.getDomain().contains("biz")) {
 			new LoginPage(driver).navigateBiz();
 		} else {
 			new LoginPage(driver).navigate();
 		}
-		
-		new LoginPage(driver).performLogin(storeModel.getCountry(), storeModel.getUsername(), storeModel.getPassword());		
-		
+
+		new LoginPage(driver).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());		
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
-		selectPackage(storeModel, packagePaymentModel);
-		
+		selectPackage(storeDG, planPaymentDG);
+
 		/* Select payment */
-		selectPayment(storeModel, packagePaymentModel);
-		
+		selectPayment(storeDG, planPaymentDG);
+
 		//Validate package plan is activated
-		validatePackageIsEnabled(packagePaymentModel);
-		
+		validatePackageIsEnabled(planPaymentDG);
+
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
 	}	
-	
+
 	@Test
 	public void ResendOTPForMailAccount() throws Exception {
-		storeModel.setAccountType("EMAIL");
-		storeModel.randomStoreData();
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.setAccountType("EMAIL");
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/*Register account*/
-		signupPage.navigate(storeModel.getDomain());
+		signupPage.navigate(storeDG.getDomain());
 		if (signupPage.isLanguageDropdownDisplayed()) signupPage.selectDisplayLanguage("ENG");
-		signupPage.fillOutSignupForm(storeModel);
-		
-		String firstKey = getActivationKey(storeModel);
-		
+		signupPage.fillOutSignupForm(storeDG);
+
+		String firstKey = getActivationKey(storeDG);
+
 		signupPage.inputVerificationCode(firstKey);
 		signupPage.clickResendOTP().clickConfirmOTPBtn();
 		signupPage.verifyVerificationCodeError("ENG");
-		
+
 		commonAction.sleepInMiliSecond(5000);
-		String resentCode = getActivationKey(storeModel);
+		String resentCode = getActivationKey(storeDG);
 		signupPage.inputVerificationCode(resentCode);
-		
+
 		Assert.assertNotEquals(resentCode, firstKey, "Resent verification code");
-		
+
 		signupPage.clickConfirmOTPBtn();
-		
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
-		selectPackage(storeModel, packagePaymentModel);
-		
+		selectPackage(storeDG, planPaymentDG);
+
 		/* Select payment */
-		selectPayment(storeModel, packagePaymentModel);
-		
+		selectPayment(storeDG, planPaymentDG);
+
 		//Validate package plan is activated
-		validatePackageIsEnabled(packagePaymentModel);
-		
+		validatePackageIsEnabled(planPaymentDG);
+
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
 	}
-	
+
 	@Test
 	public void ResendOTPForPhoneAccount() throws Exception {
-		storeModel.setAccountType("MOBILE");
-		storeModel.randomStoreData();
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.setAccountType("MOBILE");
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/*Register account*/
-		signupPage.navigate(storeModel.getDomain());
+		signupPage.navigate(storeDG.getDomain());
 		if (signupPage.isLanguageDropdownDisplayed()) signupPage.selectDisplayLanguage("ENG");
-		signupPage.fillOutSignupForm(storeModel);
-		
-		String firstKey = getActivationKey(storeModel);
-		
+		signupPage.fillOutSignupForm(storeDG);
+
+		String firstKey = getActivationKey(storeDG);
+
 		signupPage.inputVerificationCode(firstKey);
 		commonAction.sleepInMiliSecond(5000, "Wait a little before triggering another API"); 
 		signupPage.clickResendOTP().clickConfirmOTPBtn();
 		signupPage.verifyVerificationCodeError("ENG");
-		
-//		commonAction.sleepInMiliSecond(5000);
-		String resentCode = getActivationKey(storeModel);
+
+		//		commonAction.sleepInMiliSecond(5000);
+		String resentCode = getActivationKey(storeDG);
 		signupPage.inputVerificationCode(resentCode);
-		
+
 		Assert.assertNotEquals(resentCode, firstKey, "Resent verification code");
-		
+
 		signupPage.clickConfirmOTPBtn();
-		
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
-		selectPackage(storeModel, packagePaymentModel);
-		
+		selectPackage(storeDG, planPaymentDG);
+
 		/* Select payment */
-		selectPayment(storeModel, packagePaymentModel);
-		
+		selectPayment(storeDG, planPaymentDG);
+
 		//Validate package plan is activated
-		validatePackageIsEnabled(packagePaymentModel);
-		
+		validatePackageIsEnabled(planPaymentDG);
+
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
 	}
-	
+
 	@Test
 	public void SignupByMail() {
-		
+
 		//Randomize data
-		storeModel.setAccountType("EMAIL");
-		storeModel.randomStoreData();
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.setAccountType("EMAIL");
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/* Sign up */
-		registerAccount(storeModel);
-		
+		registerAccount(storeDG);
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
-		selectPackage(storeModel, packagePaymentModel);
-		
+		selectPackage(storeDG, planPaymentDG);
+
 		/* Select payment */
-		selectPayment(storeModel, packagePaymentModel);
-		
+		selectPayment(storeDG, planPaymentDG);
+
 		//Validate package plan is activated
-		validatePackageIsEnabled(packagePaymentModel);
-		
+		validatePackageIsEnabled(planPaymentDG);
+
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
 	}
-	
+
 	@Test
 	public void SignupByPhone() {
-		
+
 		//Randomize data
-		storeModel.setAccountType("MOBILE");
-		storeModel.randomStoreData();
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.setAccountType("MOBILE");
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/* Sign up */
-		registerAccount(storeModel);
-		
+		registerAccount(storeDG);
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
-		selectPackage(storeModel, packagePaymentModel);
-		
+		selectPackage(storeDG, planPaymentDG);
+
 		/* Select payment */
-		selectPayment(storeModel, packagePaymentModel);
-		
+		selectPayment(storeDG, planPaymentDG);
+
 		//Validate package plan is activated
-		validatePackageIsEnabled(packagePaymentModel);
-		
+		validatePackageIsEnabled(planPaymentDG);
+
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
 	}
-	
 
-	
+
+
 	@Test
 	public void ActivateFreeTrialWhenCreatingShop() {
-		
+
 		//Randomize data
-		storeModel.setDomain(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
-		storeModel.randomStoreData();
-		System.out.println(storeModel);
-		
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
+		storeDG.randomStoreData();
+		System.out.println(storeDG);
+
 		/* Sign up */
-		signupPage.navigate(storeModel.getDomain());
-		signupPage.fillOutSignupForm(storeModel);
-		signupPage.provideVerificationCode(storeModel);
-		
+		signupPage.navigate(storeDG.getDomain());
+		signupPage.fillOutSignupForm(storeDG);
+		signupPage.provideVerificationCode(storeDG);
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
 		List<String> periodOptions = plansPage.getPackagePeriodOptions();
 		plansPage.selectDuration(new Random().nextInt(0, periodOptions.size()) +1);
 		plansPage.clickFreeTrialBtn();
 		homePage.getToastMessage();
 		homePage.navigateToPage("Home");
-		
+
 		//Validate package plan is activated
 		homePage.navigateToPage("Settings");
 		accountPage.clickAccountTab();
-		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), defaultFreeTrialPackage(storeModel.getCountry()));
+		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), defaultFreeTrialPackage(storeDG.getCountry()));
 	}
-	
+
 	@Test
 	public void ActivateFreeTrialAfterShopCreated() {
-		
+
 		//Randomize data
-		storeModel.setDomain(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
-		storeModel.randomStoreData();
-		System.out.println(storeModel);
-		
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
+		storeDG.randomStoreData();
+		System.out.println(storeDG);
+
 		/* Sign up */
-		signupPage.navigate(storeModel.getDomain());
-		signupPage.fillOutSignupForm(storeModel);
-		signupPage.provideVerificationCode(storeModel);
-		
+		signupPage.navigate(storeDG.getDomain());
+		signupPage.fillOutSignupForm(storeDG);
+		signupPage.provideVerificationCode(storeDG);
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
 		plansPage.getPackagePeriodOptions();
-		
+
 		driver.quit();
-		
+
 		driver = new InitWebdriver().getDriver("chrome", "false");
 		homePage = new HomePage(driver);
 		plansPage = new PlansPage(driver);
 		accountPage = new AccountPage(driver);
 		storeInfoPage = new StoreInformation(driver);
-		
-		new LoginPage(driver).navigateBiz().performLogin(storeModel.getCountry(), storeModel.getUsername(), storeModel.getPassword());
+
+		new LoginPage(driver).navigateBiz().performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
 		homePage.clickUpgradeNow();
 		plansPage.clickFreeTrialBtn();
 		homePage.getToastMessage();
-		
+
 		//Validate package plan is activated
 		homePage.navigateToPage("Settings");
 		accountPage.clickAccountTab();
-		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), defaultFreeTrialPackage(storeModel.getCountry()));
-		
+		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), defaultFreeTrialPackage(storeDG.getCountry()));
+
 		validateTimezoneShopName();
 	}
 
 	@Test(invocationCount = 1)
 	public void SignupPurchasePackageExp() {
-		
+
 		//Randomize data
-		storeModel.randomStoreData();
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.setAccountType("EMAIL");
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/* Sign up */
-		registerAccount(storeModel);
-		
+		registerAccount(storeDG);
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
-		selectPackage(storeModel, packagePaymentModel);
-		
+		selectPackage(storeDG, planPaymentDG);
+
 		/* Select payment */
-		selectPayment(storeModel, packagePaymentModel);
-		
+		PaymentCompleteInfo paymentCompleteInfo = selectPayment(storeDG, planPaymentDG);
+
+		String subcriptionDate = DataGenerator.getCurrentDate("dd-MM-yyyy");
+		String expiryDate = DataGenerator.forwardTimeWithFormat(planPaymentDG.getPeriod(), TimeUnits.YEARS, "dd-MM-yyyy");
+
 		//Validate package plan is activated
-		validatePackageIsEnabled(packagePaymentModel);
-		
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, expiryDate);
+
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
+
+		List<MailType> availableMail = emailsToCheck(storeDG, planPaymentDG);
+		checkMail(availableMail, storeDG, paymentCompleteInfo, expiryDate.replaceAll("-", "/"));
 	}
-	
+
 	public void SignupPurchasePackage() {
-		
+
 		//Randomize data
-		storeModel.randomStoreData("Vietnam");
-		packagePaymentModel.randomPackageAndPaymentMethod(storeModel);
-		System.out.println(storeModel);
-		System.out.println(packagePaymentModel);
-		
+		storeDG.randomStoreData("Vietnam");
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+
 		/* Sign up */
-		signupPage.navigate(storeModel.getDomain());
+		signupPage.navigate(storeDG.getDomain());
 		boolean isLanguageDisplayed = signupPage.isLanguageDropdownDisplayed();
-		
+
 		//Validate if Select Display Language dropdown appears
-		Assert.assertEquals(isLanguageDisplayed, canSwitchLanguage(storeModel.getDomain()));
-		
+		Assert.assertEquals(isLanguageDisplayed, canSwitchLanguage(storeDG.getDomain()));
+
 		if (isLanguageDisplayed) signupPage.selectDisplayLanguage("ENG");
-		signupPage.fillOutSignupForm(storeModel);
-		signupPage.provideVerificationCode(storeModel);
-		
+		signupPage.fillOutSignupForm(storeDG);
+		signupPage.provideVerificationCode(storeDG);
+
 		/* Setup store */
-		setupStorePage.setupShopExp(storeModel);
-		
+		setupStorePage.setupShopExp(storeDG);
+
 		/* Select package */
 		List<String> periodOptions = plansPage.getPackagePeriodOptions();
-		
+
 		//Validate package period options
-		Assert.assertEquals(periodOptions.size(), periodOptionCount(storeModel.getDomain()));
-		
+		Assert.assertEquals(periodOptions.size(), periodOptionCount(storeDG.getDomain()));
+
 		plansPage.selectDuration(new Random().nextInt(0, periodOptions.size()) +1);
-		
+
 		//Validate if Free Trial button appears
-		Assert.assertEquals(plansPage.isFreeTrialBtnDisplayed(), isFreeTrialOffered(storeModel.getDomain()));
-		
+		Assert.assertEquals(plansPage.isFreeTrialBtnDisplayed(), isFreeTrialOffered(storeDG.getDomain()));
+
 		List<PackageInfo> availablePackages = plansPage.getPackageInfo();
-		
+
 		//Validate the number of packages available
-		Assert.assertEquals(availablePackages.size(), availablePackageCount(storeModel.getCountry()));
-		
+		Assert.assertEquals(availablePackages.size(), availablePackageCount(storeDG.getCountry()));
+
 		//Validate currency
-		availablePackages.stream().forEach(e -> Assert.assertTrue(e.getTotalPrice().matches(currencyRegex(storeModel.getCountry()))));
-		
-		plansPage.subscribeToPackage(packagePaymentModel.getNewPackage());
-		
+		availablePackages.stream().forEach(e -> Assert.assertTrue(e.getTotalPrice().matches(currencyRegex(storeDG.getCountry()))));
+
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+
 		/* Select payment */
 		List<String> periodPaymentOptions = packagePaymentPage.getPackagePeriodOptions();
-		
+
 		//Validate package period options
-		Assert.assertEquals(periodPaymentOptions.size(), periodOptionCount(storeModel.getDomain()));
-		
+		Assert.assertEquals(periodPaymentOptions.size(), periodOptionCount(storeDG.getDomain()));
+
 		//Validate available payment options
 		List<String> onlinePaymentOptions = packagePaymentPage.getOnlinePaymentOptions();
-		Assert.assertEquals(onlinePaymentOptions, onlinePaymentOptions(storeModel.getCountry()));
-		
+		Assert.assertEquals(onlinePaymentOptions, onlinePaymentOptions(storeDG.getCountry()));
+
 		//Validate currency
-		periodPaymentOptions.stream().forEach(e -> Assert.assertTrue(e.matches(pricePerYearRegex(storeModel.getCountry()))));
-		
+		periodPaymentOptions.stream().forEach(e -> Assert.assertTrue(e.matches(pricePerYearRegex(storeDG.getCountry()))));
+
 		//Validate currency
-		FinalizedPackageTotal finalizedPackagePayment =  packagePaymentPage.getFinalizePackageInfo();
-		Assert.assertTrue(finalizedPackagePayment.getBasePrice().matches(currencyRegex(storeModel.getCountry())));
-		Assert.assertTrue(finalizedPackagePayment.getFinalTotal().matches(currencyRegex(storeModel.getCountry())));
-		if (storeModel.getDomain().contains("biz")) {
+		PlanPaymentReview finalizedPackagePayment =  packagePaymentPage.getFinalizePackageInfo();
+		Assert.assertTrue(finalizedPackagePayment.getBasePrice().matches(currencyRegex(storeDG.getCountry())));
+		Assert.assertTrue(finalizedPackagePayment.getFinalTotal().matches(currencyRegex(storeDG.getCountry())));
+		if (storeDG.getDomain().contains("biz")) {
 			Assert.assertNull(finalizedPackagePayment.getVatPrice());
 		} else {
-			Assert.assertTrue(finalizedPackagePayment.getVatPrice().matches(currencyRegex(storeModel.getCountry())));
+			Assert.assertTrue(finalizedPackagePayment.getVatPrice().matches(currencyRegex(storeDG.getCountry())));
 		}
-		
-		packagePaymentPage.selectPaymentMethod(packagePaymentModel.getPaymentMethod());
-		String orderId = packagePaymentPage.completePayment(packagePaymentModel.getPaymentMethod());
-		packagePaymentPage.approvePackageInInternalTool(packagePaymentModel.getPaymentMethod(), orderId);
-		
+
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		String orderId = packagePaymentPage.completePayment(planPaymentDG.getPaymentMethod());
+		packagePaymentPage.approvePackageInInternalTool(planPaymentDG.getPaymentMethod(), orderId);
+
 		//Validate currency
-		Assert.assertTrue(packagePaymentPage.getPaymentCompleteInfo().getTotal().matches(currencyRegex(storeModel.getCountry())));
+		Assert.assertTrue(packagePaymentPage.getPaymentCompleteInfo().getTotal().matches(currencyRegex(storeDG.getCountry())));
 		packagePaymentPage.clickBackToDashboardBtn();
-		
+
 		//Validate package plan is activated
 		homePage.navigateToPage("Settings");
 		accountPage.clickAccountTab();
-		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), NewPackage.getValue(packagePaymentModel.getNewPackage()));
-		
+		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), NewPackage.getValue(planPaymentDG.getNewPackage()));
+
 		//Validate Shop Name and timezone are displayed as expected
 		storeInfoPage.clickStoreInformationTab();
-		Assert.assertEquals(storeInfoPage.getShopName(), storeModel.getName());
-		Assert.assertEquals(storeInfoPage.getTimezone(), storeModel.getTimezone());
+		Assert.assertEquals(storeInfoPage.getShopName(), storeDG.getName());
+		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
+	}	
+
+	@Test(invocationCount = 5)
+	public void ChangePackageVN() {
+
+		//Randomize data
+		storeDG.randomStoreData("Vietnam");
+		storeDG.setUsername("0830659539");
+		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Cameroon");
+//		storeDG.setUsername("665803698");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+
+		BigDecimal expectedRefund = PlanMoney.calculateRefund(storeDG.getCountry(), currentPlanName, period, PlanMoney.workoutRemainingDays(expiryDate));
+
+		//Get new package
+		for (int i=0; i<20; i++) {
+			planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+			if (!planPaymentDG.getNewPackage().equals(currentPlanName)) break;
+		}
+
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage()).clickContinueOnFeatureComparisionDialog();
+
+		PlanPaymentReview planPaymentReview =  packagePaymentPage.getFinalizePackageInfo();
+
+		BigDecimal actualTotalAmount = new BigDecimal(planPaymentReview.getFinalTotal().replaceAll("[^\\d+\\.]",""));
+		
+		//Compare refundAmount
+		Assert.assertEquals(new BigDecimal(planPaymentReview.getRefundAmount().replaceAll("[^\\d+\\.]","")), expectedRefund);
+		
+		BigDecimal expectedTotal = PlanMoney.calculateTotalPrice(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod(), expectedRefund);
+		
+		if (expectedTotal.compareTo(BigDecimal.ZERO) == 0) {
+			Assert.assertTrue(packagePaymentPage.isOnlinePaymentTabHidden());
+		} else {
+			Assert.assertFalse(packagePaymentPage.isOnlinePaymentTabHidden());
+		}
+		
+		//Compare total amount
+		Assert.assertEquals(actualTotalAmount.compareTo(expectedTotal), 0);
+		
+		if (expectedTotal.compareTo(BigDecimal.ZERO) == 0) {
+			planPaymentDG.setPaymentMethod(PaymentMethod.BANKTRANSFER);
+		}
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		String orderId = packagePaymentPage.completePayment(planPaymentDG.getPaymentMethod());
+
+		if (expectedTotal.compareTo(BigDecimal.ZERO) != 0) {
+			packagePaymentPage.approvePackageInInternalTool(planPaymentDG.getPaymentMethod(), orderId);
+		}
+
+		packagePaymentPage.clickBackToDashboardBtn();
+
+		//Validate package plan is activated
+		String subcriptionDate = DataGenerator.getCurrentDate("dd-MM-yyyy");
+		String newExpiryDate = DataGenerator.forwardTimeWithFormat(planPaymentDG.getPeriod(), TimeUnits.YEARS, "dd-MM-yyyy");
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
+
 	}	
 	
+	@Test(invocationCount = 5)
+	public void RenewPackageVN() {
+		
+		//Randomize data
+		storeDG.randomStoreData("Vietnam");
+		storeDG.setUsername("0830659539");
+		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		planPaymentDG.setNewPackage(currentPlanName);
+		
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+		
+		//Bug cache not cleared
+		if (planPaymentDG.getPeriod() !=1) plansPage.clickContinueOnFeatureComparisionDialog();
+		
+		PlanPaymentReview planPaymentReview =  packagePaymentPage.getFinalizePackageInfo();
+		
+		BigDecimal actualTotal = new BigDecimal(planPaymentReview.getFinalTotal().replaceAll("[^\\d+\\.]",""));
+		
+		BigDecimal expectedTotal = PlanMoney.calculatePriceIncludingTax(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod());
+		
+		//Compare total amount
+		Assert.assertEquals(actualTotal.compareTo(expectedTotal), 0, "Actual: %s, expected: %s".formatted(actualTotal, expectedTotal));
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		String orderId = packagePaymentPage.completePayment(planPaymentDG.getPaymentMethod());
+		packagePaymentPage.approvePackageInInternalTool(planPaymentDG.getPaymentMethod(), orderId);
+		
+		packagePaymentPage.clickBackToDashboardBtn();
+		
+		//Validate package plan is activated
+		String dateFormat = "dd-MM-yyyy";
+		String subcriptionDate = DataGenerator.getCurrentDate(dateFormat);
+		String newExpiryDate = DataGenerator.forwardTimeWithFormat(LocalDateTime.ofInstant(expiryDate, ZoneId.systemDefault()), planPaymentDG.getPeriod(), TimeUnits.YEARS, dateFormat);
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
+		
+	}	
+
 	@AfterMethod
 	public void writeResult(ITestResult result) throws IOException {
 		super.writeResult(result);
