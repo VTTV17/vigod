@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
+
+import com.mifmif.common.regex.Generex;
 public class LoginSF {
     private static String username;
     private static String password;
@@ -61,7 +63,10 @@ public class LoginSF {
         headerMap.put("platform", "WEB");
         headerMap.put("storeid", String.valueOf(new Login().getInfo(loginInformation).getStoreID()));
         
-        Response resetResponse = new API().post("/api/account/reset_password/mobile/gosell", "noTokenNeeded", body, headerMap);
+        //Bypass IP-based rate limits by randomly generated IPs each run
+        String randomIP = new Generex("\\&testIp=[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}").random();
+        
+        Response resetResponse = new API().post("/api/account/reset_password/mobile/gosell?isResend=true%s".formatted(randomIP), "noTokenNeeded", body, headerMap);
         resetResponse.then().log().ifValidationFails().statusCode(200);
 
         return resetResponse;

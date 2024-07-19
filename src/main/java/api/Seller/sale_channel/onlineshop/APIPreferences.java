@@ -10,6 +10,7 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 public class APIPreferences {
     public static String ENABLE_GUEST_CHECKOUT_PATH = "storeservice/api/stores/%s/checkout?enableGuestCheckout=%s";
+    String GET_GUEST_CHECKOUT_STATUS_PATH = "/storeservice/api/stores/%s/checkout";
     final static Logger logger = LogManager.getLogger(APIPreferences.class);
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -29,4 +30,10 @@ public class APIPreferences {
         response.then().statusCode(200);
         logger.info("Set up guest checkout = "+isEnable);
     }
+    public boolean getGuestCheckoutStatus(){
+        Response response = api.get(GET_GUEST_CHECKOUT_STATUS_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        return response.jsonPath().get();
+    }
+
 }

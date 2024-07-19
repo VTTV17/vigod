@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Vi All Test Suite">
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
+    <parameter name="environment" value="STAG"/>
+    <parameter name="language" value="VIE"/>
+    <suite-files>
+        <suite-file path="BuyLinkTest.xml"/>
+        <suite-file path="createServiceTest.xml"/>
+        <suite-file path="productCollectionTest.xml"/>
+        <suite-file path="serviceCollectionTest.xml"/>
+        <suite-file path="UserProfileSFTes.xml"/>
+    </suite-files>
+</suite>

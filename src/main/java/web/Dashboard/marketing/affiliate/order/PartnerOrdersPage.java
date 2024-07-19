@@ -214,6 +214,11 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
         logger.info("Click on Select all reseller when export reseller's order");
         return this;
     }
+    public PartnerOrdersPage clickToSelectReseller(int index){
+        common.click(loc_dlgExportOrder_lst_lblResellerName,index);
+        logger.info("Click on Reseller: "+common.getText(loc_dlgExportOrder_lst_lblResellerName,index));
+        return this;
+    }
     public PartnerOrdersPage clickExportOnSellectResellerPopup(){
         common.click(loc_dlgExportOrder_btnExport);
         logger.info("Click on Export button onf Select Reseller popup.");
@@ -313,7 +318,7 @@ public class PartnerOrdersPage extends PartnerOrdersElement{
         clickOnResellerTab();
         clickOnExport();
         clickOnExportOrder();
-        clickOnSelectAllReseller();
+        clickToSelectReseller(0);
         if(hasExportOrderReseller()){
             clickExportOnSellectResellerPopup();
             String toastMessage = new HomePage(driver).getToastMessage();

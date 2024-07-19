@@ -8,6 +8,7 @@ public class Links {
 
     public static String SETTING_PAGE_TITLE = "Admin Staging - Settings";
     public static String DOMAIN = PropertiesUtil.getEnvironmentData("dashboarUrl");
+    public static String DOMAIN_BIZ = PropertiesUtil.getEnvironmentData("dashboardUrlBiz");
     public static String SETTING_PATH = "/setting";
     public static String SF_URL_TIEN = PropertiesUtil.getEnvironmentData("sfShopTien");
     public static String SF_ShopVi = PropertiesUtil.getEnvironmentData("sfShopVi");
@@ -27,7 +28,17 @@ public class Links {
     public static String AFFILIATE_CREATE_TRANSFER_PATH = "/affiliate/transfer/partner/create";
     public static String AFFILIATE_TRACKING_STOCK_PATH = "/affiliate/inventory";
     public static String AFFILIATE_TRANSFER_DETAIL_PATH = "/affiliate/transfer/partner/wizard/%s";
-    public static String AFFILIATE_TRANSFER_EDIT_PATH = "affiliate/transfer/partner/edit/%s";
+    public static String AFFILIATE_TRANSFER_EDIT_PATH = "/affiliate/transfer/partner/edit/%s";
+    public static String AFFILIATE_CUSTOMER_PATH = "/affiliate/customers";
+    public static String AFFILIATE_PAYOUT_HISTORY_PATH = "/affiliate/payout/history";
+    public static String GO_WALLET_PATH = "/go-wallet/transaction-history/list";
+    public static String THEMES_PATH = "/theme/management";
+    public static String THEMES_LIBRARY_PATH = "/theme/library";
+    public static String BLOG_MANAGEMENT_PATH = "/channel/storefront/blog/article/list";
+    public static String PAGE_MANAGEMENT_PATH = "/channel/storefront/custom-page";
+    public static String EDIT_PAGE_PATH = "/channel/storefront/custom-page/edit/%s";
+    public static String MENUS_PATH = "/channel/storefront/menu";
+    public static String PREFERENCE_PATH = "/channel/storefront/preference";
 
     // PROD config
 //    public final static String URI = "https://api.beecow.com";

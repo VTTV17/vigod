@@ -6,10 +6,13 @@ public class AccountPageElement {
 
 	By loc_tabAccount = By.cssSelector("li:nth-child(1) > a.nav-link");
 	By loc_btnSeePlan = By.cssSelector(".see-plan button");
-	By loc_btnRenew = By.cssSelector(".current__plan_information .gs-button__green");
+	By loc_btnRenew = By.cssSelector(".action .button-v2");
 	
-	String loc_tmpRecords = "//*[contains(@class, 'current__plan_information')]//*[contains(@class,'gs-widget__content')]";
-	String loc_tmpPlanColumn = "(%s)[index]//*[@class='account__block']//b".formatted(loc_tmpRecords);
+	String loc_tmpRecords = "//*[@class='see-current-plans']//*[@class='item']";
+	By loc_lblSubscriptionStartDate = By.cssSelector(".subscription-date .value");
+	By loc_lblPlanExpiryDate = By.cssSelector(".expiry-date .value");
+	By loc_lblPlanName = By.cssSelector(".plan .value");
+	By loc_lblPlanStatus = By.cssSelector(".plans-status .status-chip");
 	
 	By loc_txtFirstName = By.id("firstName");
 	By loc_txtLastName = By.id("lastName");

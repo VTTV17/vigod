@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class APICreateOrderPOS {
     String CREATE_ORDER_PATH = "/orderservice3/api/pos/checkout";
-    String SEARCH_SUGGESTION = "/itemservice/api/store/%s/item-model/suggestion?langKey=vi&page=0&size=20&searchType=PRODUCT_NAME&keyword=&ignoreDeposit=true&branchId=%s&platform=IN_STORE&includeConversion=true";
+    String SEARCH_SUGGESTION = "/itemservice/api/store/%s/item-model/suggestion?langKey=vi&page=0&size=100&searchType=PRODUCT_NAME&keyword=&ignoreDeposit=true&branchId=%s&platform=IN_STORE&includeConversion=true";
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
@@ -129,5 +129,29 @@ public class APICreateOrderPOS {
     public int getSuggestionProductIDInStock(int branchId){
         Response response = api.get(SEARCH_SUGGESTION.formatted(loginInfo.getStoreID(),branchId),loginInfo.getAccessToken());
         return response.jsonPath().getInt("find {it.remainingStock > 0}.id");
+    }
+    public int CreatePOSOrderByBranch(int customerId, int branchId){
+        int productIdToOder = getSuggestionProductIDInStock(branchId);
+        String body = """
+                {
+                    %s%s"paymentCode": "",
+                    "paymentMethod": "CASH",
+                    "platform": "IN_STORE",
+                    "selfDeliveryFee": 0,
+                    "inStore": true,
+                    "isAllowEarningPoint": true,
+                    "taxAmount": 0,
+                    "paymentMposId": 0,
+                    "paymentMposDeviceCode": ""
+                }
+                """.formatted(getProductWithoutVariationInfoForBody(productIdToOder,branchId),getCustomerAndDeliveryInfoForBody(customerId));
+        Map<String,Object> mapHeader = new HashMap<>();
+        mapHeader.put("storeid",String.valueOf(loginInfo.getStoreID()));
+        mapHeader.put("platform","WEB");
+        mapHeader.put("isinternational",false);
+        mapHeader.put("langkey","en");
+        Response response = api.post(CREATE_ORDER_PATH,loginInfo.getAccessToken(),body, mapHeader);
+        response.then().statusCode(200);
+        return response.jsonPath().getInt("id");
     }
 }

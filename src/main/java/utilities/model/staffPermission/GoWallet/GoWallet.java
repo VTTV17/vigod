@@ -7,4 +7,5 @@ public class GoWallet {
     private boolean changAPIN;
     private boolean viewGoWallet;
     private boolean topUpGoWallet;
+    private boolean viewBalance;
 }

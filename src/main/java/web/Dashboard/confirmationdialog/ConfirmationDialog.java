@@ -31,7 +31,7 @@ public class ConfirmationDialog {
 	//Temporary locator
 	By loc_btnCancel_V2 = By.cssSelector(".modal-footer button:nth-child(1)");
 	By loc_btnOK_V2 = By.cssSelector(".modal-footer button:nth-child(2)");
-	
+	By loc_SecondModal_btnGreen = By.xpath("(//div[@class='modal-footer'])[2]//button[contains(@class,'gs-button__green')]");
 	public void clickGrayBtn() {
 		commonAction.click(loc_btnCancel);
 	}
@@ -41,6 +41,7 @@ public class ConfirmationDialog {
 	
 	public void clickGreenBtn() {
 		commonAction.click(loc_btnOK);
+		logger.info("Click on Green button on modal.");
 	}
 
 	public String getGrayBtnText() {
@@ -96,5 +97,9 @@ public class ConfirmationDialog {
 		commonAction.click(loc_btnRed);
 		logger.info("Click on red button.");
 		return this;
+	}
+	public void clickGreenBtnOnSecondModal(){
+		commonAction.click(loc_SecondModal_btnGreen);
+		logger.info("Click on Green button on the second modal");
 	}
 }

@@ -52,6 +52,7 @@ public class ATM {
 	
 	@FindBy(id = "btnConfirm")
 	WebElement CONFIRM_BTN;
+	By loc_dlgTermsOfUse_btnAgreeContinue = By.cssSelector(".modal-footer #btnAgree");
 	
 	public ATM selectBank(String bank) {
     	if (bank.contentEquals("NCB")) {
@@ -100,7 +101,12 @@ public class ATM {
 		commonAction.clickElement(CONFIRM_BTN);
 		logger.info("Clicked on 'Confirm' button.");
 		return this;
-	}	
+	}
+	public ATM clickAgreeContinueBtn(){
+		commonAction.click(loc_dlgTermsOfUse_btnAgreeContinue);
+		logger.info("Click on Agree and Continue button.");
+		return this;
+	}
 	
 	public ATM completePayment() {
 		selectBank(ATM_BANK);
@@ -108,6 +114,7 @@ public class ATM {
 		inputCardHolder(ATM_CARDHOLDER);
 		inputIssuingDate(ATM_ISSUINGDATE);
 		clickContinue();
+		clickAgreeContinueBtn();
 		inputOTP(ATM_OTP);
 		clickConfirm();
 		return this;

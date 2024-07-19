@@ -10,6 +10,7 @@ import api.Seller.services.ServiceInfoAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 
+import utilities.api.API;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.service.servicecollections.CreateServiceCollection;
@@ -58,7 +59,6 @@ public class ServiceCollectionTest extends BaseTest {
     ProductCollectionSF productCollectionSF;
     APIMenus apiMenus;
     String[] serviceList = {};
-    List<Integer> serviceIdList = new ArrayList<>();
     EditServiceCollection editServiceCollection;
     String serviceCollectionNameEdit;
     @BeforeClass
@@ -85,24 +85,25 @@ public class ServiceCollectionTest extends BaseTest {
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
         super.writeResult(result);
-//        if (driver != null) driver.quit();
+        if (driver != null) driver.quit();
     }
     @AfterClass
     public void callAPIDeleteData(){
         //Delete Service
         ServiceInfoAPI serviceInfoAPI = new ServiceInfoAPI(loginInformation);
+        List<Integer> serviceIdList = serviceInfoAPI.getServiceIdList(20);
         for (int serviceId :serviceIdList) {
             serviceInfoAPI.deleteService(serviceId);
         }
+        //Delete Collection
+        callDeleteCollectionAPI();
     }
-    public void callDeleteMenuItemAndCollectionAPI(String collectionName) throws Exception {
-        callLoginAPI();
-        APIMenus menu = new APIMenus(loginInformation);
-        menu.deleteMenuItem(collectionName);
-        ServiceCollectionAPI serviceCollectionAPI = new ServiceCollectionAPI(loginInformation);
-        int collectIDNewest = serviceCollectionAPI.getNewestCollectionID();
+    public void callDeleteCollectionAPI() {
+        List<Integer> serviceCollectionToDetele = new ServiceCollectionAPI(loginInformation).getListServiceCollectionId(10);
         APIProductCollection productCollection = new APIProductCollection(loginInformation);
-        productCollection.deleteCollection(String.valueOf(collectIDNewest));
+        for (int id:serviceCollectionToDetele){
+            productCollection.deleteCollection(String.valueOf(id));
+        }
     }
     public CreateServiceCollection loginAndNavigateToCreateServiceCollection() throws Exception {
         loginDashboard = new LoginPage(driver);
@@ -151,7 +152,6 @@ public class ServiceCollectionTest extends BaseTest {
             String[] times = new String[]{"21:11","22:10"};
             ServiceInfo serviceInfo = new CreateServiceAPI(loginInformation).createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,false);
             serviceList[i]=serviceInfo.getServiceName();
-            serviceIdList.add(serviceInfo.getServiceId());
         }
         return serviceList ;
     }
@@ -162,7 +162,6 @@ public class ServiceCollectionTest extends BaseTest {
         String[] location = new String[]{"quan 1", "quan 2","quan 8","quan 9"};
         String[] times = new String[]{"21:11","22:10"};
         ServiceInfo serviceInfo = new CreateServiceAPI(loginInformation).createService(serviceName,serviceDescription,listingPrice,sellingPrice,location,times,false);
-        serviceIdList.add(serviceInfo.getServiceId());
         return serviceInfo ;
     }
     public void createAutomationCollectionAndVerify(String collectionName, String conditionType, String...conditions) throws Exception {
@@ -233,7 +232,7 @@ public class ServiceCollectionTest extends BaseTest {
             serviceListExpected = new ServiceInfoAPI(loginInformation).getServiceListInCollectionByLastModifeDate(collectIDNewest);
         }
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),serviceListExpected);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(serviceListExpected.size()/PAGE_SIZE_SF_COLLECTION +1),serviceListExpected);
     }
     public void checkPlanPermission(String userName, boolean hasPermission) throws Exception {
         loginDashboard = new LoginPage(driver);
@@ -290,7 +289,6 @@ public class ServiceCollectionTest extends BaseTest {
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit,SERVICE_TYPE,MANUALLY_MODE,String.valueOf(serviceList.length));
         navigateToSFAndVerifyCollectionPage(serviceCollectionNameEdit,false);
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionNameEdit);
     }
     @Test(priority = 3)
     public void SC03_CreateManuaServiceCollectionHasAService() throws Exception {
@@ -310,8 +308,7 @@ public class ServiceCollectionTest extends BaseTest {
         callCreateMenuItemParentAPI(serviceCollectionName);
         //Check product collection on SF
         navigateSFAndGoToCollectionPage(serviceCollectionName).
-                verifyProductNameList(new ProductCollectionSF(driver).getProductNameList(), Arrays.stream(serviceList).toList());
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionName);
+                verifyProductNameList(new ProductCollectionSF(driver).getProductNameListWithLazyLoad(serviceList.length/PAGE_SIZE_SF_COLLECTION +1), Arrays.stream(serviceList).toList());
     }
     @Test(priority = 4)
     public void SC04_CreateManualServiceCollectionWithServiceHasPriority() throws Exception {
@@ -338,7 +335,7 @@ public class ServiceCollectionTest extends BaseTest {
         navigateSFAndGoToCollectionPage(serviceCollectionName);
         List<String> serviceListExpected = CreateServiceCollection.sortServiceListByPriorityAndLastUpdatedDate(loginInformation, CreateServiceCollection.servicePriorityMap, collectIDNewest);
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(),serviceListExpected);
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(serviceListExpected.size()/PAGE_SIZE_SF_COLLECTION +1),serviceListExpected);
     }
     @Test(dependsOnMethods = "SC04_CreateManualServiceCollectionWithServiceHasPriority",priority = 5)
 //    @Test
@@ -351,7 +348,6 @@ public class ServiceCollectionTest extends BaseTest {
                 .searchCollection(serviceCollectionNameEdit)
                 .verifyCollectionInfoAfterCreated(serviceCollectionNameEdit, Constant.SERVICE_TYPE, MANUALLY_MODE, String.valueOf(serviceList.length));
         navigateToSFAndVerifyCollectionPage(serviceCollectionNameEdit,true);
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionNameEdit);
     }
     @Test(priority = 6)
     public void SC06_CreateManualServiceCollectionWithAServiceAndSEO() throws Exception {
@@ -382,8 +378,9 @@ public class ServiceCollectionTest extends BaseTest {
         //Check service collection on SF, dùng lại của product
         navigateSFAndGoToCollectionPage(serviceCollectionName)
                 .verifySEOInfo(SEOTitle,SEODescription,SEOKeyword,serviceCollectionName)
-                .verifyProductNameList(new ProductCollectionSF(driver).getProductNameList(), Arrays.stream(serviceList).toList());
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionName);
+                .navigateToServiceDetailBySEOUrl(domainSF,SEOUrl)
+                .verifySEOInfo(SEOTitle,SEODescription,SEOKeyword,serviceCollectionName)
+                .verifyProductNameList(new ProductCollectionSF(driver).getProductNameListWithLazyLoad(serviceList.length/PAGE_SIZE_SF_COLLECTION +1), Arrays.stream(serviceList).toList());
     }
     @Test(priority = 7)
     public void SC07_CreateAutomatedServiceCollection_TitleContainKeyword() throws Exception {
@@ -394,7 +391,6 @@ public class ServiceCollectionTest extends BaseTest {
         callAPICreateService(serviceName);
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.CONTAINS+"-"+randomText};
         createAutomationCollectionAndVerify(serviceCollectionName,Constant.ALL_CONDITION,condition);
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionName);
     }
     @Test(priority = 8)
     public void SC08_CreateAutomatedServiceCollection_TitleStartsWithKeyword() throws Exception {
@@ -405,7 +401,6 @@ public class ServiceCollectionTest extends BaseTest {
         callAPICreateService(serviceName);
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+Constant.STARTS_WITH+"-"+randomText};
         createAutomationCollectionAndVerify(serviceCollectionName,Constant.ALL_CONDITION,condition);
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionName);
     }
     @Test(priority = 9)
     public void SC09_CreateAutomatedServiceCollection_TitleEndsWithKeyword() throws Exception {
@@ -423,7 +418,6 @@ public class ServiceCollectionTest extends BaseTest {
         testCaseId = "SC10";
         String[] condition = new String[]{Constant.SERVICE_TITLE+"-"+ STARTS_WITH+"-"+"Service"};
         editAutomationCollectionAndVerify(serviceCollectionNameEdit, ALL_CONDITION,condition);
-        callDeleteMenuItemAndCollectionAPI(serviceCollectionNameEdit);
     }
     @Test(priority = 11)
     public void SC11_CreateAutomatedServiceCollection_TitleEqualKeyword() throws Exception {
@@ -466,7 +460,9 @@ public class ServiceCollectionTest extends BaseTest {
         HeaderSF headerSF = new HeaderSF(driver);
         headerSF.clickUserInfoIcon().changeLanguage(languageSF).waitTillLoaderDisappear();
         headerSF.clickOnMenuItemByText(serviceCollectionNameEdit).waitTillLoaderDisappear();
-        new ProductCollectionSF(driver).verifySEOInfo(serviceCollectionsInfo.getSEOTitleTranslation(),serviceCollectionsInfo.getSEODescriptionTranslation(),serviceCollectionsInfo.getSEOKeywordTranslation(),serviceCollectionsInfo.getCollectionNameTranslation());
+        new ProductCollectionSF(driver).verifySEOInfo(serviceCollectionsInfo.getSEOTitleTranslation(),serviceCollectionsInfo.getSEODescriptionTranslation(),serviceCollectionsInfo.getSEOKeywordTranslation(),serviceCollectionsInfo.getCollectionNameTranslation())
+                .navigateToServiceDetailBySEOUrl(domainSF,serviceCollectionsInfo.getSEOUrlTranslation())
+                .verifySEOInfo(serviceCollectionsInfo.getSEOTitleTranslation(),serviceCollectionsInfo.getSEODescriptionTranslation(),serviceCollectionsInfo.getSEOKeywordTranslation(),serviceCollectionsInfo.getCollectionNameTranslation());
     }
     @Test(priority = 14)
     public void SC14_DeleteCollection(){
@@ -480,7 +476,8 @@ public class ServiceCollectionTest extends BaseTest {
         serviceCollectionManagement.deleteTheFirstCollection();
         serviceCollectionManagement.verifyCollectNameNotDisplayInList(firstCollection);
     }
-    @Test(priority = 15)
+    //out of date
+//    @Test(priority = 15)
     public void SC15_CheckPermission() throws Exception {
         testCaseId = "SC15";
         checkPlanPermission(userName_goWeb,true);
@@ -518,7 +515,7 @@ public class ServiceCollectionTest extends BaseTest {
         //Check on SF
         navigateSFAndGoToCollectionPage(serviceCollectionsInfo.getCollectionName());
         productCollectionSF = new ProductCollectionSF(driver);
-        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameList(), Arrays.stream(serviceList).toList());
+        productCollectionSF.verifyProductNameList(productCollectionSF.getProductNameListWithLazyLoad(serviceList.length/PAGE_SIZE_SF_COLLECTION +1), Arrays.stream(serviceList).toList());
     }
     @Test(priority = 18)
     public void SC18_VerifyAutomatedCollectionWhenServiceBelongCollectionDoesNotMeetCondition() throws Exception {

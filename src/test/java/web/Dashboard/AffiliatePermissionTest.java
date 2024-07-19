@@ -16,6 +16,7 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.driver.InitWebdriver;
 import utilities.enums.ApproveStatus;
+import utilities.enums.TransferStatus;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.affiliate.CommissionInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -23,11 +24,14 @@ import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.marketing.affiliate.Customers.ResellerCustomers;
 import web.Dashboard.marketing.affiliate.commission.CommissionPage;
 import web.Dashboard.marketing.affiliate.information.Information;
 import web.Dashboard.marketing.affiliate.order.PartnerOrdersPage;
 import web.Dashboard.marketing.affiliate.partner.PartnerPage;
 import web.Dashboard.marketing.affiliate.partnerinventory.TransferPage;
+import web.Dashboard.marketing.affiliate.payout.payouthistory.PayoutHistoryElement;
+import web.Dashboard.marketing.affiliate.payout.payouthistory.PayoutHistoryPage;
 import web.Dashboard.marketing.affiliate.payout.payoutinformation.PayoutInformationPage;
 
 import java.io.IOException;
@@ -83,7 +87,7 @@ public class AffiliatePermissionTest extends BaseTest{
     public void writeResult(ITestResult result) throws IOException {
         //clear data - delete all created group permission
 //        super.writeResult(result);
-//        driver.quit();
+        driver.quit();
     }
     @AfterClass
     public void afterClass(){
@@ -100,7 +104,7 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] ViewInfomationData(){
         return new Object[][]{
-                {"0"},
+//                {"0"},
                 {"1"}
         };
     }
@@ -152,69 +156,69 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] DropshipPartnerData(){
         return new Object[][]{
-//                {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"},
-//                {"1001"},
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},
-//                {"1101"},
-//                {"1110"},
-//                {"1111"},
-//                {"10000"},
-//                {"10001"},
-//                {"10010"},
-//                {"10011"},
-//                {"10100"},
-//                {"10101"},
-//                {"10110"},
-//                {"10111"},
-//                {"11000"},
-//                {"11001"},
-//                {"11010"},
-//                {"11011"},
-//                {"11100"},
-//                {"11101"},
-//                {"11110"},
-//                {"11111"},
-//                {"100000"},
-//                {"100001"},
-//                {"100010"},
-//                {"100011"},
-//                {"100100"},
-//                {"100101"},
-//                {"100110"},
-//                {"100111"},
-//                {"101000"},
-//                {"101001"},
-//                {"101010"},
-//                {"101011"},
-//                {"101100"},
-//                {"101101"},
-//                {"101110"},
-//                {"101111"},
-//                {"110000"},
-//                {"110001"},
-//                {"110010"},
-//                {"110011"},
-//                {"110100"},
-//                {"110101"},
-//                {"110110"},
-//                {"110111"},
-//                {"111000"},
-//                {"111001"},
-//                {"111010"},
-//                {"111011"},
-//                {"111100"},
-//                {"111101"},
-//                {"111110"},
-//                {"111111"}
+                {"1"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
+                {"1101"},
+                {"1110"},
+                {"1111"},
+                {"10000"},
+                {"10001"},
+                {"10010"},
+                {"10011"},
+                {"10100"},
+                {"10101"},
+                {"10110"},
+                {"10111"},
+                {"11000"},
+                {"11001"},
+                {"11010"},
+                {"11011"},
+                {"11100"},
+                {"11101"},
+                {"11110"},
+                {"11111"},
+                {"100000"},
+                {"100001"},
+                {"100010"},
+                {"100011"},
+                {"100100"},
+                {"100101"},
+                {"100110"},
+                {"100111"},
+                {"101000"},
+                {"101001"},
+                {"101010"},
+                {"101011"},
+                {"101100"},
+                {"101101"},
+                {"101110"},
+                {"101111"},
+                {"110000"},
+                {"110001"},
+                {"110010"},
+                {"110011"},
+                {"110100"},
+                {"110101"},
+                {"110110"},
+                {"110111"},
+                {"111000"},
+                {"111001"},
+                {"111010"},
+                {"111011"},
+                {"111100"},
+                {"111101"},
+                {"111110"},
+                {"111111"}
         };
     }
     @Test(dataProvider = "DropshipPartnerData")
@@ -240,17 +244,17 @@ public class AffiliatePermissionTest extends BaseTest{
     public Object[] ResellerPartnerData(){
         return new Object[][]{
                 {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"},
-//                {"1001"},
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
                 {"1101"},
                 {"1110"},
                 {"1111"}
@@ -286,19 +290,19 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] CommissionData(){
         return new Object[][]{
-                {"1"},
+                {"1"},  //Bug: khong hien restricted khi khong co quyen add và edit
                 {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"},
-//                {"1001"},
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},
-//                {"1101"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
+                {"1101"},
                 {"1110"},
                 {"1111"},
         };
@@ -355,11 +359,11 @@ public class AffiliatePermissionTest extends BaseTest{
     public Object[] DropshipOrderData(){
         return new Object[][]{
                 {"1"},
-                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-                {"110"},
+                {"10"}, //Bug khong co quyen view list, dang hien restricted pag
+                {"11"},
+                {"100"}, //bug tuong tu
+                {"101"},
+                {"110"},//bug tuong tu
                 {"111"}
         };
     }
@@ -400,9 +404,9 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] ResellerOrderData(){
         return new Object[][]{
-//                {"1"},
-//                {"10"},
-//                {"11"},
+                {"1"},
+                {"10"}, //Bug Khong co quyen View list order, 4.5 đang hiện Restricted page >>Step co ticket improve fix 4.6
+                {"11"},
 //                {"100"},
 //                {"101"},
 //                {"110"},
@@ -422,15 +426,15 @@ public class AffiliatePermissionTest extends BaseTest{
 //                {"10100"},
 //                {"10101"},
 //                {"10110"},
-//                {"10111"},
+                {"10111"},
 //                {"11000"},
 //                {"11001"},
 //                {"11010"},
 //                {"11011"},
 //                {"11100"},
-//                {"11101"},
+                {"11101"},
 //                {"11110"},
-//                {"11111"},
+                {"11111"},
         };
     }
     @Test(dataProvider = "ResellerOrderData")
@@ -462,9 +466,9 @@ public class AffiliatePermissionTest extends BaseTest{
         return new Object[][]{
                 {"1"},
                 {"10"},
-                {"11"},
-                {"100"},
-                {"101"},
+//                {"11"},
+//                {"100"},
+//                {"101"},
                 {"110"},
                 {"111"},
         };
@@ -520,7 +524,7 @@ public class AffiliatePermissionTest extends BaseTest{
     @DataProvider
     public Object[] ResellerInventoryData(){
         return new Object[][]{
-                {"1"},
+//                {"1"},
 //                {"10"},
 //                {"11"},
 //                {"100"},
@@ -640,24 +644,26 @@ public class AffiliatePermissionTest extends BaseTest{
 //                {"1110110"},
 //                {"1110111"},
 //                {"1111000"},
-//                {"1111001"},
-//                {"1111010"},
-//                {"1111011"},
+                {"1111001"},
+                {"1111010"},
+                {"1111011"},
 //                {"1111100"},
 //                {"1111101"},
 //                {"1111110"},
 //                {"1111111"}
         };
     }
+    @Test(dataProvider = "ResellerInventoryData")
     public void verifyResellerInventoryPermission(String dataBinary){
         //Set permission model
         CreatePermission model = new CreatePermission();
         model.setHome_none("1");
         model.setAffiliate_resellerInventory(dataBinary);
+        model.setProduct_productManagement("1");
+        model.setAffiliate_resellerPartner("1");
 
         // Resellerl login
         LoginInformation resellerCredentials = new Login().setLoginInformation("+84", USERNAME_RESELLER_SHOPVI, PASSWORD_RESELLER_SHOPVI).getLoginInformation();
-
 
         //edit permisison
         new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
@@ -667,11 +673,65 @@ public class AffiliatePermissionTest extends BaseTest{
 
         //Get permission
         AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
-
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
-//        new TransferPage(driver).getLoginInfo(ownerCredentials,).verifyPayoutPermission(allPermissions,false);
+        new TransferPage(driver).getLoginInfo(ownerCredentials,resellerCredentials,staffCredentials).checkPartnerTransferPermision(allPermissions,productCreatedByShopOwner,productCreatedByStaff);
+    }
+    @DataProvider
+    public Object[] ResellerCustomerData(){
+        return new Object[][]{
+                {"0"},
+                {"1"},
+                {"10"},
+                {"11"},
+        };
+    }
+    @Test(dataProvider = "ResellerCustomerData")
+    public void verifyResellerCustomerPermission(String dataBinary){
+        //Set permission model
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("1");
+        model.setAffiliate_resellerCustomer(dataBinary);
 
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new ResellerCustomers(driver,staffCredentials).checkResellerCustomerPermission(allPermissions);
+    }
+    @DataProvider
+    public Object[] PayoutHistoryData(){
+        return new Object[][]{
+                {"0"},
+                {"1"},
+        };
+    }
+    @Test(dataProvider = "PayoutHistoryData")
+    public void verifyPayoutHistoryPermission(String dataBinary){
+        //Set permission model
+        CreatePermission model = new CreatePermission();
+        model.setHome_none("1");
+        model.setAffiliate_payoutHistory(dataBinary);
+
+        //edit permisison
+        new PermissionAPI(ownerCredentials).editGroupPermissionAndGetID(groupPermissionId, "Vi's Permission "+groupPermissionId, "Description Vi's Permission", model);
+
+        //Get info of the staff after being granted the permission
+        staffLoginInfo = new Login().getInfo(staffCredentials);
+
+        //Get permission
+        AllPermissions allPermissions = new AllPermissions(staffLoginInfo.getStaffPermissionToken());
+        //Check on UI
+        new LoginPage(driver).staffLogin(staffUserName, staffPass);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new PayoutHistoryPage(driver,staffCredentials).checkViewPayoutHistoryPermission(allPermissions);
     }
 }

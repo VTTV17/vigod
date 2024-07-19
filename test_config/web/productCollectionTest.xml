@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Default Suite">
+<suite name="Product collection suite">
     <test thread-count="5" name="ProductCollectionTest">
         <classes>
-            <class name="ProductCollectionTest">
+            <class name="web.Dashboard.ProductCollectionTest">
                 <methods>
                     <include name="PC_01_BH_4783_CreateManualProductCollection_V2"/>
                     <include name="PC_02_BH_4784_CreateManualProductCollectionAndAddAProductSEO"/>
@@ -17,8 +17,16 @@
                     <include name="PC_10_BH_4793_CreateAutomationProductCollectionWithANDMultipleCondition"/>
                     <include name="PC_11_BH_4794_CreateAutomationProductCollectionWithORMultipleCondition"/>
 <!--                    <include name="PC_12_BH_5239_CheckPermission"/>-->
+                    <include name="PC_13_BH_7670_CreateCollectionWithProductSortByPriorityNumber"/>
+                    <include name="PC_14_BH_7671_UpdatePriorityNumberForProductInCollection"/>
+                    <include name="PC_15_BH_4785_EditManualProductCollection"/>
+                    <include name="PC_16_BH_4796_AddProductToExistingManualCollection"/>
+                    <include name="PC_17_BH_4797_UpdateAutomationCollection_AndCondition"/>
+                    <include name="PC_18_BH_4798_UpdateAutomationCollection_OrCondition"/>
+                    <include name="PC_19_BH_4795_DeleteAProductCollection"/>
+                    <include name="PC_20_VerifyText"/>
                 </methods>
-            </class> <!-- CreateServiceTest -->
+            </class>
         </classes>
     </test> <!-- GoSELL-Automation -->
 </suite> <!-- Default Suite -->

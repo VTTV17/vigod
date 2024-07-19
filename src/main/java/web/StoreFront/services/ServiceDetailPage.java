@@ -49,7 +49,7 @@ public class ServiceDetailPage {
     By loc_lst_imgServiceThumb = By.cssSelector(".slider-detail-thumb img");
     String sfAllServicesTxt = PropertiesUtil.getPropertiesValueBySFLang("serviceDetail.allServicesTxt");
 
-    public ServiceDetailPage verifyServiceName(String nameExpected) throws IOException {
+    public ServiceDetailPage verifyServiceName(String nameExpected) {
         String nameActual = commons.getText(loc_lblServiceName);
         Assert.assertEquals(nameActual, nameExpected, "Service name display: " + nameActual + " not match with expected " + nameExpected);
         logger.info("Verify service name display on detail page");
@@ -154,7 +154,7 @@ public class ServiceDetailPage {
         commons.click(loc_lnkCollection);
         logger.info("Click on collection link to go to collection page");
     }
-    public ServiceDetailPage verifyNavigateToServiceDetailBySEOUrl(String domain, String SEOUrl, String seviceName) throws IOException {
+    public ServiceDetailPage verifyNavigateToServiceDetailBySEOUrl(String domain, String SEOUrl, String seviceName) {
         commons.openNewTab();
         commons.switchToWindow(1);
         commons.navigateToURL(domain+SEOUrl);

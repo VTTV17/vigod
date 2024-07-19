@@ -4,6 +4,7 @@ public enum MenuItemType {
     COLLECTION_PRODUCT,
     COLLECTION_SERVICE,
     BLOG,
-    PAGE
+    PAGE,
+    ARTICLE
 
 }

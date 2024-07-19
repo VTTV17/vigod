@@ -97,7 +97,7 @@ public class BuyerAccountPage {
     public BuyerMyProfile clickProfile(){
         commonAction.sleepInMiliSecond(1000);
         commonAction.clickElement(accountEl.DISPLAY_NAME);
-//        commonAction.sleepInMiliSecond(2000);
+        commonAction.sleepInMiliSecond(2000);
         logger.info("Click on profile.");
         return new BuyerMyProfile(driver);
     }

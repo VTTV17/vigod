@@ -41,6 +41,7 @@ public class Information extends InformationElement{
         String url = Links.DOMAIN + "/affiliate";
         commonAction.navigateToURL(url);
         logger.info("Navigate to url: "+url);
+        commonAction.sleepInMiliSecond(500);
     }
     public boolean hasViewDropshipInfo(){
         return allPermissions.getAffiliate().getDropshipInformation().isViewInformation();
@@ -52,18 +53,19 @@ public class Information extends InformationElement{
         String url = Links.DOMAIN + "/affiliate";
         if (hasViewDropshipInfo()){
             navigateByUrl();
-            String currentTab = commonAction.getText(affiliateGeneral.loc_tab_dropshipReseller, 0);
+            affiliateGeneral.selectAffiliateTab(true);
+            String currentTab = commonAction.getText(affiliateGeneral.loc_tabAffiliateActive);
             try {
                 assertCustomize.assertEquals(currentTab, PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.dropshipTab"),
                         "[Failed] Dropship tab should be shown, but '%s' is shown".formatted(currentTab));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber).size()>0,"All dropship numberic should be shown");
+            assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber,2).size()>0,"All dropship numberic should be shown");
         }
         else {
             if(hasViewResellerInfo()){
-                String currentTab = commonAction.getText(affiliateGeneral.loc_tab_dropshipReseller, 0);
+                String currentTab = commonAction.getText(affiliateGeneral.loc_tabAffiliateActive);
                 try {
                     assertCustomize.assertEquals(currentTab, PropertiesUtil.getPropertiesValueByDBLang("affiliate.information.resellerTab"),
                             "[Failed] Reseller tab should be shown, but '%s' is shown".formatted(currentTab));
@@ -87,7 +89,7 @@ public class Information extends InformationElement{
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber).size()>0,"[Failed] All reseller numberic should be shown");
+            assertCustomize.assertTrue(commonAction.getElements(loc_lst_lblNumber,2).size()>0,"[Failed] All reseller numberic should be shown");
         }
         else {
             if(hasViewDropshipInfo()){

@@ -170,7 +170,7 @@ public class CreateServiceCollection extends CreateEditServiceCollectionElement 
         inputSEOTitle(serviceCollectionsInfo.getSEOTitle());
         inputSEODescription(serviceCollectionsInfo.getSEODescription());
         inputSEOKeywords(serviceCollectionsInfo.getSEOKeywords());
-        inputSEOUrl(serviceCollectionsInfo.getSEODescription());
+        inputSEOUrl(serviceCollectionsInfo.getURLLink());
         return this;
     }
 

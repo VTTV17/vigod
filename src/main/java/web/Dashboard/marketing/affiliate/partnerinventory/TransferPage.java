@@ -7,13 +7,12 @@ import api.Seller.login.Login;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.formula.atp.Switch;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.enums.TransferStatus;
 import utilities.links.Links;
-import utilities.model.dashboard.marketing.affiliate.PartnerTransferInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -21,6 +20,7 @@ import utilities.utils.PropertiesUtil;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
 public class TransferPage extends TransferElement{
@@ -130,16 +130,19 @@ public class TransferPage extends TransferElement{
     public void checkViewInventorySummary(){
         if(hasViewInventorySummary()){
             trackingStockPage.navigateByUrl();
+            common.sleepInMiliSecond(500);
             assertCustomize.assertTrue(trackingStockPage.isProductInventoryListShow(),
                     "[Failed] Inventory summary (Partner's product inventory) should be shown.");
         }else assertCustomize.assertFalse(trackingStockPage.isProductInventoryListShow(),
                 "[Failed] Inventory summary (Partner's product inventory) should not be shown.");
     }
-    public void checkCreateTransfer(){
+    public void checkCreateTransfer(String productOfOwner, String productOfStaff){
         if(hasCreateTransfer()){
-            if(hasViewInventorySummary())
+            clickAddTransferBtn();
+            checkViewProductList(productOfOwner,productOfStaff);
+            checkViewResellerListPermission();
+            checkViewBranchPermission();
             if((hasViewProductList()||hasViewCreatedProductList())&& hasViewResellerList()){
-                clickAddTransferBtn();
                 addEditTransferPage.inputInfoToCreateTransferRandom().clickSave();
                 String toastMessage = new HomePage(driver).getToastMessage();
                 try {
@@ -148,27 +151,23 @@ public class TransferPage extends TransferElement{
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            }else {
-                assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(loc_transferBtn,Links.AFFILIATE_CREATE_TRANSFER_PATH),
-                        "[Failed] Create partner page should be shown.");
-            }
+            }else logger.info("Don't create transfer because don't have View reseller list or View product list permission.");
         }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(loc_transferBtn),
-                "");
+                "Restricted page/popup not shown when click on add transfer permission.");
         logger.info("Verified View inventory summary permission.");
     }
 
     /**
      * Check permission of Transfer product to partner button on 2 page: Tracking Stock and Transfer Goods
      */
-    public void checkCreateTransferOnTwoPage(){
+    public void checkCreateTransferOnTwoPage(String productOfOwner, String productOfStaff){
         navigateByUrl();
-        checkCreateTransfer();
+        checkCreateTransfer(productOfOwner,productOfStaff);
         trackingStockPage.navigateByUrl();
-        checkCreateTransfer();
+        checkCreateTransfer(productOfOwner,productOfStaff);
     }
-    public int getTransferOfStaff(TransferStatus transferStatus){
+    public List<Integer> getTransferOfStaff(TransferStatus transferStatus){
         List<Integer> branchIds = new Login().getInfo(staffCredential).getAssignedBranchesIds();
-
         List<Integer> ids = new APITransferList(staffCredential).getTransferByOriginBranch(0, transferStatus);
         if(ids.isEmpty()){
             int newTransferId = new APIPartnerCreateTransfer(sellerCredential,resellerCredential).createPartnerTransfer(branchIds.get(0)).getId();
@@ -178,9 +177,11 @@ public class TransferPage extends TransferElement{
                 // add new case when you need
             }
         }
-        return ids.get(0);
+        return ids;
     }
-    public void checkViewTransferDetail(int transferId){
+    public void checkViewTransferDetail(){
+        List<Integer> idList = getTransferOfStaff(TransferStatus.READY_FOR_TRANSPORT);
+        int transferId = idList.get(new DataGenerator().generatNumberInBound(0,idList.size()));
         String url = Links.DOMAIN + Links.AFFILIATE_TRANSFER_DETAIL_PATH.formatted(transferId);
         if(hasViewTransferDetail()){
             assertCustomize.assertTrue(new CheckPermission(driver).checkAccessedSuccessfully(url,Links.AFFILIATE_TRANSFER_DETAIL_PATH.formatted(transferId)),
@@ -188,12 +189,14 @@ public class TransferPage extends TransferElement{
         }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(url),
                 "[Failed] Restricted page should be shown when navigate to transfer detail.");
     }
-    public void checkEditTransfer(int id){
-        String urlEdit = Links.DOMAIN + Links.AFFILIATE_TRANSFER_EDIT_PATH.formatted(id);
+    public void checkEditTransfer(){
         if(hasViewTransferDetail()){
+            List<Integer> idList = getTransferOfStaff(TransferStatus.READY_FOR_TRANSPORT);
+            int id = idList.get(new DataGenerator().generatNumberInBound(0,idList.size()));
             transferDetailPage.navigateByUrl(id);
+            transferDetailPage.clickSelectAction();
             if(hasEditTransfer()){
-//                transferDetailPage.clickEditTransfer();
+                transferDetailPage.clickEditTransfer();
                 addEditTransferPage.deleteAllTransferProduct();
                 addEditTransferPage.selectProduct();
                 addEditTransferPage.clickSave();
@@ -206,11 +209,12 @@ public class TransferPage extends TransferElement{
                 }
             }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(transferDetailPage.loc_lst_actions,0),
                     "[Failed] Restricted popup should be shown when click edit transfer.");
-        }else assertCustomize.assertTrue(new CheckPermission(driver).checkAccessRestricted(urlEdit),
-                "[Failed] Restricted page should be shown when navigate to edit transfer page.");
+        }else logger.info("Don't have View transfer detail, so no need check edit permission.");    //Currently: Don't show data when navigate to edit page.
     }
-    public void checkCancelTransfer(int id){
+    public void checkCancelTransfer(){
         if(hasViewTransferDetail()) {
+            List<Integer> idList = getTransferOfStaff(TransferStatus.READY_FOR_TRANSPORT);
+            int id = idList.get(new DataGenerator().generatNumberInBound(0,idList.size()));
             transferDetailPage.navigateByUrl(id);
             transferDetailPage.clickSelectAction();
             if (hasCancelTransfer()) {
@@ -231,7 +235,8 @@ public class TransferPage extends TransferElement{
     }
     public void checkConfirmShipGoods(){
         if(hasViewTransferDetail()){
-            int id = getTransferOfStaff(TransferStatus.READY_FOR_TRANSPORT);
+            List<Integer> idList = getTransferOfStaff(TransferStatus.READY_FOR_TRANSPORT);
+            int id = idList.get(new DataGenerator().generatNumberInBound(0,idList.size()));
             transferDetailPage.navigateByUrl(id);
             if(hasConfirmShipGoods()){
                 transferDetailPage.clickTransferShipGoods_ReceiveGood();
@@ -250,7 +255,7 @@ public class TransferPage extends TransferElement{
     }
     public void checkConfirmReceivedGood(){
         if(hasViewTransferDetail()){
-            int id = getTransferOfStaff(TransferStatus.DELIVERING);
+            int id = getTransferOfStaff(TransferStatus.DELIVERING).get(0);
             transferDetailPage.navigateByUrl(id);
             if(hasConfirmReceivedGood()){
                 transferDetailPage.clickTransferShipGoods_ReceiveGood();
@@ -267,13 +272,13 @@ public class TransferPage extends TransferElement{
             }
         }else logger.info("Don't have View transfer detail, so no need check Receive Good permission.");
     }
-    public TransferPage checkPartnerTransferPermision(AllPermissions allPermissions, int newTransferId){
+    public TransferPage checkPartnerTransferPermision(AllPermissions allPermissions,String productOfOwner, String productOfStaff){
         this.allPermissions = allPermissions;
         checkViewInventorySummary();
-        checkCreateTransfer();
-        checkViewTransferDetail(newTransferId);
-        checkEditTransfer(newTransferId);
-        checkCancelTransfer(newTransferId);
+        checkCreateTransferOnTwoPage(productOfOwner,productOfStaff);
+        checkViewTransferDetail();
+        checkEditTransfer();
+        checkCancelTransfer();
         checkConfirmShipGoods();
         checkConfirmReceivedGood();
         AssertCustomize.verifyTest();

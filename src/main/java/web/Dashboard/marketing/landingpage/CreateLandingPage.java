@@ -132,7 +132,7 @@ public class CreateLandingPage {
 		List<WebElement> pageList = commonAction.getElements(loc_dlgSelectTemplate_lstPageNumber,3);
 		for (int i=0;i<pageList.size();i++){
 			By loc = By.xpath(xpathUseBtnByName.formatted(templateName));
-			if(commonAction.getElements(loc,1).size()>0){
+			if(commonAction.getElements(loc,2).size()>0){
 				commonAction.click(loc);
 				logger.info("Select template: "+templateName);
 				return this;
@@ -160,6 +160,7 @@ public class CreateLandingPage {
 		commonAction.sleepInMiliSecond(100);
 		new HomePage(driver).waitTillSpinnerDisappear1();
 		List<WebElement> productNames = new ArrayList<>();
+		productNames = commonAction.getElements(loc_lst_lblProductNameSearchResult,2);
 		for (int j=0;j<5;j++){
 			productNames = commonAction.getElements(loc_lst_lblProductNameSearchResult);
 			if(!productNames.isEmpty()) {

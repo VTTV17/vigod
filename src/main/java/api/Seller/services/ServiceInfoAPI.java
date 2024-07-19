@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ServiceInfoAPI {
     API api = new API();
@@ -137,6 +138,17 @@ public class ServiceInfoAPI {
         Response response = api.get(path,loginInfo.getAccessToken());
         response.then().statusCode(200);
         return response.jsonPath().getList("id");
+    }
+
+    /**
+     *
+     * @param remainNumber: number service remain when get list to delete
+     * @return
+     */
+    public List<Integer> getServiceIdList(int remainNumber){
+        List<Integer> ids = getServiceIdList();
+        int limitNumber = ids.size()>remainNumber? ids.size()-remainNumber: ids.size();
+        return ids.stream().limit(limitNumber).collect(Collectors.toList());
     }
 
     /**

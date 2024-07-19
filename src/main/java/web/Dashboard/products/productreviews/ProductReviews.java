@@ -45,7 +45,7 @@ public class ProductReviews extends ProductReviewElement {
      * Check whether Product Reviews feature is enabled
      */
     public boolean isProductReviewsEnabled() {
-        return commons.getElement(new ByChained(loc_btnEnableReviewToggle, loc_btnToggleStatus)).isSelected();
+        return commons.isCheckedJS(new ByChained(loc_btnEnableReviewToggle, loc_btnToggleStatus));
     }
 
     /**

@@ -64,10 +64,6 @@ public class SellerGeneral {
         logger.info("Verify toast message.");
         return this;
     }
-    public SellerGeneral waitLoadingDisapear(){
-        common.waitTillElementDisappear(common.getElement(LOADING_ICON,30),30);
-        return this;
-    }
     public String getPopupMessage(){
         String popupMessage = common.getText(POPUP_MESSAGE);
         logger.info("Get popup message: "+popupMessage);

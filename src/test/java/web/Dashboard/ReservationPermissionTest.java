@@ -98,19 +98,19 @@ public class ReservationPermissionTest extends BaseTest {
     @DataProvider
     public Object[] reservationPermissionModel() {
         return new Object[][]{
-//                {"1"},
-//                {"10"},
-//                {"11"},
-//                {"100"},
-//                {"101"},
-//                {"110"},
-//                {"111"},
-//                {"1000"},
-//                {"1001"},
-//                {"1010"},
-//                {"1011"},
-//                {"1100"},
-//                {"1101"},
+                {"1"},
+                {"10"},
+                {"11"},
+                {"100"},
+                {"101"},
+                {"110"},
+                {"111"},
+                {"1000"},
+                {"1001"},
+                {"1010"},
+                {"1011"},
+                {"1100"},
+                {"1101"},
                 {"1110"},
                 {"1111"},
                 {"10000"},
@@ -186,15 +186,14 @@ public class ReservationPermissionTest extends BaseTest {
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.RESERVATIONS_MENU_ITEM_NAME);
         new ReservationManagement(driver)
-                .checkPermissionReservationManagement(allPermissions, toConfirmReservationId, confirmedReservationId)
-                .completeVerifyStaffPermissionReservationManagement();
+                .checkPermissionReservationManagement(allPermissions, toConfirmReservationId, confirmedReservationId);
     }
 
     CreatePermission setPermissionPOSModel(String POSPermissionBinary) {
         CreatePermission model = new CreatePermission();
         model.setHome_none("11");
         model.setService_serviceManagement("1");
-        model.setCustomer_customerManagement("100000");
+        model.setCustomer_customerManagement("1");
 //        Random rd = new Random();
 //        if (rd.nextBoolean()) {
 //            model.setService_serviceManagement("1");

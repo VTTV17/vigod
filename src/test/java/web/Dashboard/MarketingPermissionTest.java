@@ -13,6 +13,8 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.constant.Constant;
 import utilities.driver.InitWebdriver;
+import utilities.enums.DiscountStatus;
+import utilities.enums.DiscountType;
 import utilities.enums.PushNotiEvent;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -354,29 +356,29 @@ public class MarketingPermissionTest extends BaseTest {
 //                {"11101110","1"},
 //                {"11101111","1"},
 //                {"11110000","1"},
-//                {"11110001","1"},
-//                {"11110010","1"},
-//                {"11110011","1"},
-//                {"11110100","1"},
-//                {"11110101","1"},
-//                {"11110110","1"},
-//                {"11110111","1"},
-//                {"11111000","1"},
-//                {"11111001","1"},
-//                {"11111010","1"},
-//                {"11111011","1"},
-//                {"11111100","1"},
-//                {"11111101","1"},
-//                {"11111110","1"},
-//                {"11111111","1"},
-//                {"11111111","0"},
+                {"11110001","1"},
+                {"11110010","1"},
+                {"11110011","1"},
+                {"11110100","1"},
+                {"11110101","1"},
+                {"11110110","1"},
+                {"11110111","1"},
+                {"11111000","1"},
+                {"11111001","1"},
+                {"11111010","1"},
+                {"11111011","1"},
+                {"11111100","1"},
+                {"11111101","1"},
+                {"11111110","1"},
+                {"11111111","1"},
+                {"11111111","0"},
         };
-//        Object[][] randomResult = new Object[50][];
-//        for (int index = 0; index < 5; index++) {
-//            randomResult[index] = result[(int) (result.length * Math.random())];
-//        }
-//        return randomResult;
-        return result;
+        Object[][] randomResult = new Object[50][];
+        for (int index = 0; index < 5; index++) {
+            randomResult[index] = result[(int) (result.length * Math.random())];
+        }
+        return randomResult;
+//        return result;
     }
     /* https://mediastep.atlassian.net/browse/BH-25137 */
     @Test(dataProvider = "LandingPagePermissionModel")
@@ -408,7 +410,7 @@ public class MarketingPermissionTest extends BaseTest {
         if(buyLinkId==0){
             new APIBuyLink(ownerCredentials).createBuyLink();
         }
-        int productDiscountCodeList = new PromotionList(ownerCredentials).getDiscountId("Product Discount Code","In Progress");
+        int productDiscountCodeList = new PromotionList(ownerCredentials).getDiscountId(DiscountType.PRODUCT_DISCOUNT_CODE, DiscountStatus.IN_PROGRESS);
         if(productDiscountCodeList==-1){
             new CreatePromotion(ownerCredentials).createProductDiscountCode();
         }
@@ -608,11 +610,11 @@ public class MarketingPermissionTest extends BaseTest {
                 {"11"}, //Bug1: has Create permission, but Restricted popup show when click on Save
                 {"100"},
                 {"101"},
-                {"110"},// Bug2
+                {"110"},
                 {"111"},
                 {"1000"},
                 {"1001"},
-                {"1010"},   //Bug2
+                {"1010"},   //Bug1
                 {"1011"}, //Bug1
                 {"1100"},
                 {"1101"},
@@ -624,11 +626,11 @@ public class MarketingPermissionTest extends BaseTest {
                 {"10011"},  //Bug1
                 {"10100"},
                 {"10101"},
-                {"10110"},    //Bug1
+                {"10110"},    //Bug2
                 {"10111"},
                 {"11000"},
                 {"11001"},
-                {"11010"},  //Bug2
+                {"11010"},  //Bug1
                 {"11011"},  //Bug1
                 {"11100"},
                 {"11101"},

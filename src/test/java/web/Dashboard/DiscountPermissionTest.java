@@ -18,6 +18,8 @@ import api.Seller.promotion.PromotionList;
 import api.Seller.setting.PermissionAPI;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.enums.DiscountStatus;
+import utilities.enums.DiscountType;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
@@ -104,7 +106,7 @@ public class DiscountPermissionTest extends BaseTest {
 				createdProductList.add(productDiscountCodeIdToEnd);
 			}
 		}
-		productDiscountCodeIdToEnd = productDiscountCodeIdToEnd == 0 ? promotionListAPI.getDiscountId("Product Discount Code", "In Progress") : productDiscountCodeIdToEnd;
+		productDiscountCodeIdToEnd = productDiscountCodeIdToEnd == 0 ? promotionListAPI.getDiscountId(DiscountType.PRODUCT_DISCOUNT_CODE, DiscountStatus.IN_PROGRESS) : productDiscountCodeIdToEnd;
 		
 		int serviceDiscountCodeIdToEnd = 0;
 		List<Integer> createdServiceList = new ArrayList<>();
@@ -116,7 +118,7 @@ public class DiscountPermissionTest extends BaseTest {
 			}
 		}
 		
-		serviceDiscountCodeIdToEnd = serviceDiscountCodeIdToEnd == 0 ? promotionListAPI.getDiscountId("Service Discount Code", "In Progress") : serviceDiscountCodeIdToEnd;
+		serviceDiscountCodeIdToEnd = serviceDiscountCodeIdToEnd == 0 ? promotionListAPI.getDiscountId(DiscountType.SERVICE_DISCOUNT_CODE, DiscountStatus.IN_PROGRESS) : serviceDiscountCodeIdToEnd;
 		
 		discountPage.checkDiscountPermission(allPermissionDTO, 11557142, 11565085, productDiscountCodeIdToEnd, serviceDiscountCodeIdToEnd, "Tien's Jacket", "Staff A's Dog Food", "Air plane ticket 1", "Staff A's Cleaning Services");
 		

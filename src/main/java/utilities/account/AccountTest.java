@@ -61,7 +61,16 @@ public class AccountTest {
     public static String GOMUA_PASSWORD_EMAIL = PropertiesUtil.getEnvironmentData("gomuaBuyerPassword");
     public static String GOMUA_USERNAME_PHONE = PropertiesUtil.getEnvironmentData("gomuaBuyerPhone");
     public static String STAFF_SHOP_VI_USERNAME = PropertiesUtil.getEnvironmentData("staffShopViUserName");
+    public static String STAFF_COFFEE_SHOP_USERNAME = PropertiesUtil.getEnvironmentData("staffShopCoffeeShop");
     public static String STAFF_SHOP_VI_PASSWORD = PropertiesUtil.getEnvironmentData("staffShopViPass");
+    public static String STAFF_USERNAME_TIEN = PropertiesUtil.getEnvironmentData("staffUsernameShopTien");
+    public static String STAFF_PASSWORD_TIEN = PropertiesUtil.getEnvironmentData("staffPasswordShopTien");
+    public static String ADMIN_FORGOTPASSWORD_USERNAME_MAIL = PropertiesUtil.getEnvironmentData("adminForgotPasswordUsernameMail");
+    public static String ADMIN_FORGOTPASSWORD_PASSWORD_MAIL = PropertiesUtil.getEnvironmentData("adminForgotPasswordPasswordMail");
+    public static String ADMIN_FORGOTPASSWORD_COUNTRY_MAIL = PropertiesUtil.getEnvironmentData("adminForgotPasswordCountryMail");
+    public static String ADMIN_FORGOTPASSWORD_USERNAME_PHONE = PropertiesUtil.getEnvironmentData("adminForgotPasswordUsernamePhone");
+    public static String ADMIN_FORGOTPASSWORD_PASSWORD_PHONE = PropertiesUtil.getEnvironmentData("adminForgotPasswordPasswordPhone");
+    public static String ADMIN_FORGOTPASSWORD_COUNTRY_PHONE = PropertiesUtil.getEnvironmentData("adminForgotPasswordCountryPhone");
 
 
     //ATM Credentials
@@ -81,8 +90,8 @@ public class AccountTest {
     public static String VISA_ADDRESS = "22 Lang Ha";
     public static String VISA_OTP = "1234";
     //PAYPAL Credentials
-    public static String PAYPAL_USERNAME = "Bonguyen11397@gmail.com";
-    public static String PAYPAL_PASSWORD = "Abc@110113";
+    public static String PAYPAL_USERNAME = "trangthuy9662@gmail.com";
+    public static String PAYPAL_PASSWORD = "P@ssword1@";
     //Shopee Credentials
     public static String SHOPEE_COUNTRY = "VN";
     public static String SHOPEE_USERNAME = "chicoseller.01@gmail.com";

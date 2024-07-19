@@ -72,6 +72,7 @@ public class AllPermissions {
         goWallet.setViewGoWallet(checkPermission(goWalletPermission, 0));
         goWallet.setTopUpGoWallet(checkPermission(goWalletPermission, 1));
         goWallet.setChangAPIN(checkPermission(goWalletPermission, 2));
+        goWallet.setViewBalance(checkPermission(goWalletPermission, 3));
     }
 
     void setHome(String payloadJson) {
@@ -533,7 +534,7 @@ public class AllPermissions {
         onlineStore.getTheme().setViewThemeDetail(checkPermission(themePermission, 1));
         onlineStore.getTheme().setEditTheme(checkPermission(themePermission, 2));
         onlineStore.getTheme().setPublishTheme(checkPermission(themePermission, 3));
-        onlineStore.getTheme().setUnpublishTheme(checkPermission(themePermission, 4));
+        onlineStore.getTheme().setUnpublishTheme(checkPermission(themePermission, 4));// It redundant >> BH-38227
         onlineStore.getTheme().setAddNewTheme(checkPermission(themePermission, 5));
         onlineStore.getTheme().setDeleteTheme(checkPermission(themePermission, 6));
 
@@ -580,7 +581,7 @@ public class AllPermissions {
         onlineStore.getPreferences().setEnableDisableProductListing(checkPermission(preferencesPermission, 5));
         onlineStore.getPreferences().setEnableDisableServiceListing(checkPermission(preferencesPermission, 6));
         onlineStore.getPreferences().setAddRemoveGoogleAnalyticsCode(checkPermission(preferencesPermission, 7));
-        onlineStore.getPreferences().setExportGoogleShoppingProduct(checkPermission(preferencesPermission, 8));
+        onlineStore.getPreferences().setAddRemoveGoogleShoppingCode(checkPermission(preferencesPermission, 8));
         onlineStore.getPreferences().setExportGoogleShoppingProduct(checkPermission(preferencesPermission, 9));
         onlineStore.getPreferences().setAddRemoveGoogleTagManager(checkPermission(preferencesPermission, 10));
         onlineStore.getPreferences().setAddRemoveFacebookPixel(checkPermission(preferencesPermission, 11));

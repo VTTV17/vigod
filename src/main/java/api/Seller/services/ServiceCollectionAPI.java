@@ -6,6 +6,9 @@ import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ServiceCollectionAPI {
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
@@ -19,5 +22,12 @@ public class ServiceCollectionAPI {
         Response listCollectionRes = api.get(GET_SERVICE_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
         listCollectionRes.then().statusCode(200);
         return  (int) listCollectionRes.jsonPath().getList("lstCollection.id").get(0);
+    }
+    public List<Integer> getListServiceCollectionId(int remainNumber){
+        Response listCollectionRes = api.get(GET_SERVICE_COLLECTION_LIST_PATH.formatted(loginInfo.getStoreID()),loginInfo.getAccessToken());
+        listCollectionRes.then().statusCode(200);
+        List<Integer> ids = listCollectionRes.jsonPath().getList("lstCollection.id");
+        int limitNumber = ids.size()> remainNumber ? ids.size() - remainNumber: ids.size();
+        return ids.stream().limit(limitNumber).collect(Collectors.toList());
     }
 }

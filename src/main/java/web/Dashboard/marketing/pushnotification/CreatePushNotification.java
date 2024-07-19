@@ -24,7 +24,7 @@ public class CreatePushNotification {
 	By loc_txtCampaignName = By.id("campaignName");
 	By loc_lnkAddSegment = By.cssSelector(".btn-add-segment");
 	By loc_ddlLinkTo = By.cssSelector(".choose-link__type");
-	By loc_dvvLinkTo = By.cssSelector(".choose-link__type [role='menuitem']");
+	By loc_ddvLinkTo = By.cssSelector(".choose-link__type [role='menuitem']");
 	By loc_ddlLinkValue = By.cssSelector(".choose-link__value .btn-secondary");
 	By loc_ddvLinkValue = By.cssSelector(".choose-link__value .dropdown-item");
 	By loc_lnkChooseAProductService = By.cssSelector(".product-item__type span");
@@ -58,7 +58,7 @@ public class CreatePushNotification {
 	}
 	public CreatePushNotification selectLinkToType(int index){
 		commonAction.click(loc_ddlLinkTo);
-		commonAction.click(loc_dvvLinkTo,index);
+		commonAction.click(loc_ddvLinkTo,index);
 		switch (index){
 			case 0 -> logger.info("Selected None");
 			case 1 -> logger.info("Selected Page");

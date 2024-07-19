@@ -1,5 +1,7 @@
 package api.Seller.gochat;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -154,45 +156,36 @@ public class APIFacebook {
 		api.put(unassignTagPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(200).extract().response();
 		logger.info("Unassigned tag '%s' from conversation '%s'".formatted(tagId, conversationId));
 	}
-	public void linkFBUserToCustomer(CustomerProfileFB customerProfile, String conversationId, String pageId) {
-		String body = """
-				{
-				"id": %s,
-				"fullName": "%s",
-				"phone": "%s",
-				"email": "",
-				"addressId": %s,
-				"address": "",
-				"locationCode": "",
-				"districtCode": "",
-				"wardCode": "",
-				"birthday": null,
-				"socialUserId": "%s",
-				"countryCode": "VN",
-				"city": "",
-				"fbPageId": "%s",
-				"phones": [{
-				"phoneCode": "%s",
-				"phoneName": "%s",
-				"phoneNumber": "%s",
-				"phoneType": "%s"
-				}],
-				"backupEmails": [],
-				"backupPhones": [],
-				"geoLocation": null
-				}""".formatted(customerProfile.getId(), 
-						customerProfile.getFullName(), 
-						customerProfile.getPhones().get(0).getPhoneNumber(),
-						customerProfile.getCustomerAddress().getId(),
-						//address -> birthday
-						conversationId,
-						pageId,
-						customerProfile.getPhones().get(0).getPhoneCode(),
-						customerProfile.getPhones().get(0).getPhoneName(),
-						customerProfile.getPhones().get(0).getPhoneNumber(),
-						customerProfile.getPhones().get(0).getPhoneType()
-						);
-		api.post(linkFBUserPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), body).then().statusCode(200).extract().response();
+	public void linkFBUserToCustomer(CustomerProfileFB customerProfile, String conversationId, String pageId) throws JsonProcessingException {
+		LinkedHashMap<String, Object> payload = new LinkedHashMap<>();
+		payload.put("id", customerProfile.getId());
+		payload.put("fullName", customerProfile.getFullName());
+		payload.put("phone", customerProfile.getPhones().get(0).getPhoneNumber());
+		payload.put("email", customerProfile.getEmails().isEmpty() ? "" : customerProfile.getEmails().get(0).getEmail());
+		payload.put("phones", customerProfile.getPhones());
+		payload.put("backupEmails", customerProfile.getBackupEmails());
+		payload.put("backupPhones", customerProfile.getBackupPhones());
+		if (!customerProfile.getEmails().isEmpty())
+			payload.put("emails", customerProfile.getEmails().get(0));
+		if (customerProfile.getCustomerAddress().getId() !=null)
+			payload.put("addressId", customerProfile.getCustomerAddress().getId());
+		payload.put("address", customerProfile.getCustomerAddress().getAddress());
+		if (customerProfile.getCustomerAddress().getCountryCode().contentEquals("VN")) {
+			payload.put("districtCode", customerProfile.getCustomerAddress().getDistrictCode());
+			payload.put("wardCode", customerProfile.getCustomerAddress().getWardCode());
+		} else {
+			payload.put("address2", customerProfile.getCustomerAddress().getAddress2());
+			payload.put("city", customerProfile.getCustomerAddress().getCity());
+			payload.put("zipCode", customerProfile.getCustomerAddress().getZipCode());
+		}
+		payload.put("countryCode", customerProfile.getCustomerAddress().getCountryCode());
+		payload.put("locationCode", customerProfile.getCustomerAddress().getLocationCode());
+		payload.put("birthday", customerProfile.getBirthday());
+		payload.put("socialUserId", conversationId);
+		payload.put("fbPageId", pageId);
+		payload.put("geoLocation", customerProfile.getCustomerAddress().getGeoLocation());
+		
+		api.post(linkFBUserPath.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), new ObjectMapper().writeValueAsString(payload)).then().statusCode(200).extract().response();
 		logger.info("Linked '%s' to conversation '%s'".formatted(customerProfile.getFullName(), conversationId));
 	}
 	public void unlinkFBUserFromCustomer(String conversationId) {
