@@ -1,6 +1,5 @@
 package app.android.GoSeller;
 
-import android.BaseTest;
 import api.Seller.products.all_products.CreateProduct;
 import mobile.seller.android.login.LoginScreen;
 import mobile.seller.android.products.edit_product.EditProductScreen;

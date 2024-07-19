@@ -1,8 +1,16 @@
 package utilities.data;
 
+import api.dotrand.DotrandAPI;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mifmif.common.regex.Generex;
+import io.restassured.path.json.JsonPath;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
+import utilities.enums.newpackage.NewPackage;
+import utilities.model.dashboard.setting.plan.PlanNameAndPrice;
+import utilities.model.dashboard.setupstore.CountryData;
 import utilities.utils.jsonFileUtility;
 
 import java.io.File;
@@ -63,6 +71,17 @@ public class DataGenerator {
         return countries.get(new Random().nextInt(0, countries.size()));
     }
 
+
+    public static String randomValidPhoneByCountry(String countryCode) {
+        String phone = "";
+        String regex = DotrandAPI.getPhoneRegexJsonPath(countryCode);
+        for (int i=0; i<1000; i++) { //At times the function returns phone numbers with the wrong format, so we repeat it several times until a valid phone is returned
+            phone = new Generex(regex).random();
+            if (phone.matches("\\d+")) break;
+        }
+        return phone;
+    }
+
     /**
      * Returns the phone code for a given country name as a String
      * @param country the name of the country to get the code for
@@ -107,6 +126,27 @@ public class DataGenerator {
             return numbers.remove(0);
         }
     }
+
+    //Will remove later
+    public static List<CountryData> getCountryListExp() {
+        JsonNode data = jsonFileUtility.readJsonFile("CountryEntity.json");
+        try {
+            return JsonPath.from(new ObjectMapper().writeValueAsString(data)).getList(".", CountryData.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public static PlanNameAndPrice getPlanInfo(NewPackage packagePlan) {
+        JsonNode data = jsonFileUtility.readJsonFile("PackagePrice.json");
+        try {
+            return JsonPath.from(new ObjectMapper().writeValueAsString(data)).getObject(packagePlan.name(), PlanNameAndPrice.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public List<Integer> randomListNumberWithNoDuplicate(int maximum) {
         UniqueRng rng = new UniqueRng(maximum);
@@ -273,7 +313,7 @@ public class DataGenerator {
         return list.get(new Random().nextInt(0, list.size()));
     }
 
-    public String getCurrentDate(String format) {
+    public static String getCurrentDate(String format) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
@@ -342,5 +382,33 @@ public class DataGenerator {
         }
         calendar.set(Calendar.DATE, 01);
         return calendar.getTime();
+    }
+
+    public enum TimeUnits {
+        SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS;
+    }
+    public static LocalDateTime forwardTime(LocalDateTime initialTime, long timeAmount, TimeUnits unit) {
+        return switch (unit) {
+            case SECONDS ->  initialTime.plusSeconds(timeAmount);
+            case MINUTES ->  initialTime.plusMinutes(timeAmount);
+            case HOURS ->  initialTime.plusHours(timeAmount);
+            case DAYS ->  initialTime.plusDays(timeAmount);
+            case WEEKS ->  initialTime.plusWeeks(timeAmount);
+            case MONTHS ->  initialTime.plusMonths(timeAmount);
+            case YEARS ->  initialTime.plusYears(timeAmount);
+            default -> throw new IllegalArgumentException("Unexpected value: " + unit);
+        };
+    }
+    public static LocalDateTime forwardTime(long timeAmount, TimeUnits unit) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return forwardTime(currentTime, timeAmount, unit);
+    }
+    public static String forwardTimeWithFormat(LocalDateTime initialTime, long timeAmount, TimeUnits unit, String outputFormat) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(outputFormat);
+        return dtf.format(forwardTime(initialTime, timeAmount, unit));
+    }
+    public static String forwardTimeWithFormat(long timeAmount, TimeUnits unit, String outputFormat) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return forwardTimeWithFormat(currentTime, timeAmount, unit, outputFormat);
     }
 }

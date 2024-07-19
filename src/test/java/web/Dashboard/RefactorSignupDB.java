@@ -1,24 +1,13 @@
 package web.Dashboard;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import api.Seller.login.Login;
+import api.Seller.setting.APIAccount;
+import api.kibana.KibanaAPI;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import api.Seller.login.Login;
-import api.Seller.setting.APIAccount;
-import api.kibana.KibanaAPI;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
@@ -45,6 +34,16 @@ import web.Dashboard.settings.storeinformation.StoreInformation;
 import web.Dashboard.signup.SetUpStorePage;
 import web.Dashboard.signup.SignupPage;
 import web.Dashboard.signup.VerifyMailContent;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class RefactorSignupDB extends BaseTest {
 

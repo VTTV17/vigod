@@ -1,6 +1,5 @@
 package app.android.GoSeller;
 
-import android.BaseTest;
 import mobile.seller.android.login.LoginScreen;
 import mobile.seller.android.products.product_management.ProductManagementScreen;
 import org.testng.annotations.BeforeClass;
