@@ -8,6 +8,9 @@ import api.Seller.products.all_products.CreateProduct;
 import app.Buyer.account.BuyerAccountPage;
 import app.Buyer.account.BuyerMyProfile;
 import app.Buyer.account.address.BuyerAddress;
+import app.Buyer.buyergeneral.BuyerGeneral;
+import app.Buyer.checkout.CheckoutOneStep;
+import app.Buyer.checkout.DeliveryAddress;
 import app.Buyer.login.LoginPage;
 import app.Buyer.navigationbar.NavigationBar;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -18,11 +21,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonMobile;
-import utilities.constant.Constant;
 import utilities.data.DataGenerator;
 import utilities.driver.InitAppiumDriver;
 import utilities.file.FileNameAndPath;
+import utilities.model.dashboard.storefront.AddressInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import utilities.udid.DevicesUDID;
 import utilities.utils.PropertiesUtil;
 
 import java.io.IOException;
@@ -31,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static utilities.account.AccountTest.*;
+import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class MyProfileTest extends BaseTest {
     String buyer;
@@ -46,21 +51,8 @@ public class MyProfileTest extends BaseTest {
     String userName_PhoneAccount_EditInfo_HasBirthday;
     int productIDToAddToCart;
     int branchID;
-    String addressCheckout;
-    String cityProvinceCheckout;
-    String districtCheckout;
-    String wardCheckout;
-    String countryCheckout;
-    String address2Checkout;
-    String cityInputCheckout;
-    String zipCodeCheckout;
-    String stateCheckout;
     String userName_UpdateAddress;
     LoginInformation loginInformation;
-    String emailAccount_NoBirthday;
-    String phoneAccounnt_NoBirthday;
-    String emailAccount_NoAddressCheckOut;
-    String emailAccount_UpdateAddress;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -78,29 +70,19 @@ public class MyProfileTest extends BaseTest {
         CreateProduct newProductInfo = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 30);
         productIDToAddToCart = newProductInfo.getProductID();
         branchID = newProductInfo.getBranchIds().get(0);
-        new LoginSF(loginInformation).LoginToSF("qcgosell01@gmail.com", "Psso12!@", "+84");
-        addressCheckout = "so 2 update";
-        cityProvinceCheckout = "Gia Lai";
-        districtCheckout = "Kbang";
-        wardCheckout = "KBang";
-        countryCheckout = "Algeria";
-        address2Checkout = "89 address2 update";
-        cityInputCheckout = "city in non VN checkout";
-        zipCodeCheckout = "6987890";
-        stateCheckout = "Annaba";
         userName_UpdateAddress = SF_USERNAME_VI_3;
         tcsFileName = FileNameAndPath.FILE_USER_PROFILE_TCS;
-        emailAccount_NoBirthday = callAPISignUpAccount(true);
-        phoneAccounnt_NoBirthday = callAPISignUpAccount(false);
-        emailAccount_NoAddressCheckOut = callAPISignUpAccount(true);
-        emailAccount_UpdateAddress = callAPISignUpAccount(true);
-
+        MAX_PRICE = 999999L;
     }
 
     @BeforeMethod
     public void launchApp() {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "R5CR92R4K7V");
+        try {
+            capabilities.setCapability("udid", new DevicesUDID().get());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", "com.mediastep.shop0037");
         capabilities.setCapability("appActivity", "com.mediastep.shop0037.ui.modules.splash.SplashScreenActivity");
@@ -125,6 +107,7 @@ public class MyProfileTest extends BaseTest {
         navigationBar.tapOnAccountIcon()
                 .clickLoginBtn()
                 .performLogin(buyerAccount, passBuyer);
+        new BuyerGeneral(driver).waitLoadingDisapear();
         return new BuyerAccountPage(driver);
     }
 
@@ -136,12 +119,13 @@ public class MyProfileTest extends BaseTest {
     public String callAPISignUpAccount(boolean isEmailAccount) {
         loginInformation = new Login().setLoginInformation("+84", sellerUsername, sellerPass).getLoginInformation();
         String userName;
-        String random = generator.randomNumberGeneratedFromEpochTime(8);
         if (isEmailAccount) {
-            userName = "email" + random + "@mailnesia.com";
-            new SignUp(loginInformation).signUpByMail(userName,"VN","vi","auto "+random, passBuyer);
+            String randomName = new DataGenerator().randomNumberGeneratedFromEpochTime(5);
+            userName = "email" + randomName + "@mailnesia.com";
+            new SignUp(loginInformation).signUpByMail(userName,"VN","vi","auto "+randomName, passBuyer);
         } else {
-            userName = "09" + random;
+            String random = DataGenerator.randomValidPhoneByCountry("VN");
+            userName = random;
             new SignUp(loginInformation).signUpByPhoneNumber("+84",userName,"VN","vi","auto "+random,passBuyer);
         }
         return userName;
@@ -169,7 +153,7 @@ public class MyProfileTest extends BaseTest {
     @Test
     public void MUP03_UpdateUserProfile_EmailAccount_NoBirthdayBefore() {
         testCaseId = "MUP03";
-        String emailAccount = emailAccount_NoBirthday;
+        String emailAccount = callAPISignUpAccount(true);
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name " + randomNumber;
         String identityCardEdit = randomNumber;
@@ -237,7 +221,7 @@ public class MyProfileTest extends BaseTest {
     @Test
     public void MUP05_UpdateUserProfile_PhoneAccount_NoBirthdayBefore() {
         testCaseId = "MUP05";
-        String phoneNumber = phoneAccounnt_NoBirthday;
+        String phoneNumber = callAPISignUpAccount(false);
         String randomNumber = generator.randomNumberGeneratedFromEpochTime(8);
         String nameEdit = "update name " + randomNumber;
         String identityCardEdit = randomNumber;
@@ -304,137 +288,120 @@ public class MyProfileTest extends BaseTest {
     @Test
     public void MUP07_CheckAddress_UserHasAddressThenCheckout() {
         testCaseId = "MUP07";
-        login(buyer).
-                changeLanguage(language);
+        login(buyer).changeLanguage(language);
         //get addres information in My profile
         navigationBar = new NavigationBar(driver);
-        BuyerAddress addressInfo = navigationBar.tapOnAccountIcon()
-                .clickProfile().scrollDown().clickAddress();
-        String country = addressInfo.getCountry();
-        String address = addressInfo.getAddress();
-        String cityProvince = addressInfo.getCityProvince();
-        String district = addressInfo.getDistrict();
-        String ward = addressInfo.getWard();
-        addressInfo.tapOnBackIcon()
-                .tapOnBackIcon();
+        AddressInfo addressInfo = navigationBar.tapOnAccountIcon()
+                .clickProfile().scrollDown().clickAddress().getAddressInfo();
+        new BuyerAddress(driver).tapOnBackIcon().tapOnBackIcon();
         //Go to checkout to verify address, then checkout with new address
         callAPIAddToCart(buyer);
         new NavigationBar(driver).tapOnCartIcon()
-                .tapOnContinueBtn().scrollDown()
-                .verifyAddressVN(country, address, cityProvince, district, ward)
-                .inputAddressVN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueShopping();
+                .tapOnContinueBtn();
+//                new BuyerGeneral(driver).waitLoadingShowThenDisappear();
+        AddressInfo addressInfoCheckout =  new CheckoutOneStep(driver).verifyAddress(addressInfo)
+                .goToDeliveryAddress().goToEditMyAddress()
+                .verifyAddress(addressInfo)
+                .updateDeliveryAddress(true,false);
+        new BuyerGeneral(driver).clickOnBackIcon().waitLoadingDisapear();
+                new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
         //Go to My profile to verify
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickProfile().scrollDown()
                 .clickAddress()
-                .verifyAddressVN(country, address, cityProvince, district, ward)
+                .verifyAddress(addressInfo)
                 .tapOnBackIcon()
                 .tapOnBackIcon();
         //Verify checkout with non VN address
         callAPIAddToCart(buyer);
         new NavigationBar(driver).tapOnCartIcon()
-                .tapOnContinueBtn().scrollDown()
-                .verifyAddressVN(country, address, cityProvince, district, ward)
-                .inputAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout)
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueShopping();
+                .tapOnContinueBtn();
+        addressInfoCheckout =  new CheckoutOneStep(driver).verifyAddress(addressInfo)
+                .goToDeliveryAddress().goToEditMyAddress()
+                .verifyAddress(addressInfo)
+                .updateDeliveryAddress(false,false);
+        new BuyerGeneral(driver).clickOnBackIcon().waitLoadingDisapear();
+        new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
         //Go to My profile to verify
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickProfile().scrollDown()
                 .clickAddress()
-                .verifyAddressVN(country, address, cityProvince, district, ward);
+                .verifyAddress(addressInfo);
     }
 
     @Test
     public void MUP08_CheckAddress_NoAddressThenCheckout() {
         testCaseId = "MUP08";
-        String radomPhone = generator.randomVNPhone();
-        String emailAccount = emailAccount_NoAddressCheckOut;
-        login(emailAccount).
-                changeLanguage(language);
+        String emailAccount = callAPISignUpAccount(true);
+        login(emailAccount).changeLanguage(language);
         //Go to checkout to verify address, then checkout with new address
         callAPIAddToCart(emailAccount);
-        new NavigationBar(driver).tapOnCartIcon().waitLoadingDisapear()
-                .tapOnContinueBtn().scrollDown()
-                .inputPhone("+84", radomPhone)
-                .inputAddressVN("", addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueShopping();
-        new UICommonMobile(driver).sleepInMiliSecond(7000);
+        new NavigationBar(driver).tapOnCartIcon()
+                .tapOnContinueBtn();
+        AddressInfo addressInfoCheckout =  new CheckoutOneStep(driver).goToDeliveryAddress().goToEditMyAddress()
+                .updateDeliveryAddress(true,false);
+        new DeliveryAddress(driver).verifyFullAddressOnMyAddress(addressInfoCheckout);
+        new BuyerGeneral(driver).clickOnBackIcon().waitLoadingDisapear();
+        new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
+        new UICommonMobile(driver).sleepInMiliSecond(2000);
         //Go to My profile to verify
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickProfile().scrollDown()
                 .clickAddress()
-                .verifyAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .tapOnBackIcon()
-                .tapOnBackIcon();
+                .verifyAddress(addressInfoCheckout);
     }
 
     @Test
     public void MUP09_UpdateAddress_ExistedAccount() {
         testCaseId = "MUP09";
         //Check update address VN
-        login(userName_UpdateAddress).
+       AddressInfo addressProfile = login(userName_UpdateAddress).
                 changeLanguage(language).clickProfile().scrollDown().clickAddress()
-                .inputAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .clickAddress()
-                .verifyAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .updateRandomAddress(true);
+        new BuyerMyProfile(driver).clickAddress()
+                .verifyAddress(addressProfile)
                 .tapOnBackIcon()
                 .tapOnBackIcon();
         callAPIAddToCart(userName_UpdateAddress);
         new NavigationBar(driver).tapOnCartIcon()
-                .tapOnContinueBtn().scrollDown()
-                .verifyAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueShopping();
+                .tapOnContinueBtn().goToDeliveryAddress().goToEditMyAddress()
+                .verifyAddress(addressProfile);
+         new BuyerGeneral(driver).clickOnBackIcon().clickOnBackIcon().waitLoadingDisapear();
+        new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
         //Check update address non VN
-        navigationBar = new NavigationBar(driver);
-        navigationBar.tapOnAccountIcon()
-                .clickProfile().scrollDown().clickAddress()
-                .inputAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout)
-                .clickAddress()
-                .verifyAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout)
+       addressProfile =  new NavigationBar(driver).tapOnAccountIcon().clickProfile().scrollDown().clickAddress()
+                .updateRandomAddress(false);
+        new BuyerMyProfile(driver).clickAddress()
+                .verifyAddress(addressProfile)
                 .tapOnBackIcon()
                 .tapOnBackIcon();
         callAPIAddToCart(userName_UpdateAddress);
         new NavigationBar(driver).tapOnCartIcon()
-                .tapOnContinueBtn()
-                .verifyAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout);
+                .tapOnContinueBtn().goToDeliveryAddress().goToEditMyAddress()
+                .verifyAddress(addressProfile);
     }
 
     @Test
     public void MUP10_UpdateAddress_NewAccount() {
         testCaseId = "MUP10";
         //Call api create buyer
-        String emailAccount = emailAccount_UpdateAddress;
+        String account = callAPISignUpAccount(false);
         //Check update address VN
         String radomPhone = generator.randomVNPhone();
-        login(emailAccount).
+        AddressInfo addressProfile = login(account).
                 changeLanguage(language).clickProfile().scrollDown().clickAddress()
-                .inputAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .clickAddress()
-                .verifyAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
+                .updateRandomAddress(true);
+        new BuyerMyProfile(driver).clickAddress()
+                .verifyAddress(addressProfile)
                 .tapOnBackIcon()
                 .tapOnBackIcon();
-        callAPIAddToCart(emailAccount);
+        //Check on Checkout screen.
+        callAPIAddToCart(account);
         new NavigationBar(driver).tapOnCartIcon()
-                .tapOnContinueBtn().scrollDown()
-                .inputPhone("+84", radomPhone)
-                .verifyAddressVN(Constant.VIETNAM, addressCheckout, cityProvinceCheckout, districtCheckout, wardCheckout)
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueBtn()
-                .tapOnContinueShopping();
+                .tapOnContinueBtn().goToDeliveryAddress().goToEditMyAddress()
+                .verifyAddress(addressProfile).inputPhoneOrEmailIfNeed();
+        new BuyerGeneral(driver).clickOnBackIcon().waitLoadingDisapear();
+        new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
         //Call api create buyer
         String emailAccountNonVn = callAPISignUpAccount(true);
         //Check update address non VN
@@ -444,18 +411,17 @@ public class MyProfileTest extends BaseTest {
                 .logOut()
                 .clickLoginBtn()
                 .performLogin(emailAccountNonVn, passBuyer);
-        navigationBar = new NavigationBar(driver);
-        navigationBar.tapOnAccountIcon()
+        addressProfile = new NavigationBar(driver).tapOnAccountIcon()
                 .clickProfile().scrollDown().clickAddress()
-                .inputAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout)
-                .clickAddress()
-                .verifyAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout)
+                .updateRandomAddress(false);
+        new BuyerMyProfile(driver).clickAddress()
+                .verifyAddress(addressProfile)
                 .tapOnBackIcon()
                 .tapOnBackIcon();
         callAPIAddToCart(emailAccountNonVn);
         new NavigationBar(driver).tapOnCartIcon()
-                .tapOnContinueBtn()
-                .verifyAddressNonVN(countryCheckout, addressCheckout, address2Checkout, cityInputCheckout, stateCheckout, zipCodeCheckout);
+                .tapOnContinueBtn().goToDeliveryAddress().goToEditMyAddress()
+                .verifyAddress(addressProfile);
     }
 
     @Test
@@ -467,7 +433,6 @@ public class MyProfileTest extends BaseTest {
                 .checkErrorWhenInputInvalidEmail()
                 .tapOtherPhones()
                 .checkErrorWhenInputOtherPhoneOutOfRange();
-
     }
 
     @Test
@@ -585,23 +550,25 @@ public class MyProfileTest extends BaseTest {
         testCaseId = "MUP18";
         login(userName_EditInfo_HasBirthday).changeLanguage(language).clickProfile()
                 .scrollDown().tapDeleteAccount()
-                .verifyTextDeleteAccountPopup();
+                .getLoginInfo(loginInformation).verifyTextDeleteAccountPopup();
     }
 
     @Test
     public void MUP19_DeleteAccount() throws Exception {
         testCaseId = "MUP19";
         //delete account
-        String emailAccount = callAPISignUpAccount(true);
-        login(emailAccount).changeLanguage(language).clickProfile().scrollDown().tapDeleteAccount()
+        String account = callAPISignUpAccount(false);
+        login(account).changeLanguage(language).clickProfile().scrollDown().tapDeleteAccount()
                 .tapDeleteBTNOnDeletePopup();
         //check auto logout and login again
         new NavigationBar(driver).tapOnAccountIcon().verifyLoginButtonShow();
-        login(emailAccount);
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickLoginBtn()
+                .performLogin(account, passBuyer);
         new LoginPage(driver).verifyToastMessage(PropertiesUtil.getPropertiesValueBySFLang("buyerApp.login.loginError"));
         //check sign up again
-        new SignUp(loginInformation).signUpByMail(emailAccount, passBuyer);
-        new LoginPage(driver).performLogin(emailAccount, passBuyer);
+        new SignUp(loginInformation).signUpByMail(account,"VN","vi",account, passBuyer);
+        new LoginPage(driver).performLogin(account, passBuyer);
         new BuyerAccountPage(driver).verifyAvatarDisplay();
     }
 }
