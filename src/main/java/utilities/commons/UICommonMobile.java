@@ -356,12 +356,6 @@ public class UICommonMobile extends UICommonAction {
 	public boolean isElementChecked(By locator) {
 		return getElement(locator).getAttribute("checked").equals("true");
 	}
-	public List<WebElement> getElements(By by, int inSeconds) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(inSeconds));
-		logger.info("Get Element...");
-		return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
-	}
-
 	public void waitPageLoaded(By locator) {
 		// wait home page loaded
 		boolean isLoaded;

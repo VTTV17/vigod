@@ -5,11 +5,13 @@ import api.JsonObjectBuilder;
 import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
 import api.kibana.KibanaAPI;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
+import utilities.links.Links;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static utilities.links.Links.SF_DOMAIN;
 
@@ -37,6 +40,9 @@ public class SignUp {
     LoginInformation loginInformation;
     public SignUp (LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
+        RestAssured.proxy("localhost", 8888);
+        baseURI = Links.URI;
+
     }
 
     public void getGuestToken() {

@@ -23,7 +23,7 @@ public class CompletedOrder {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         common = new UICommonMobile(driver);
     }
-    By CONTINUE_SHOPPING = By.xpath("//*[ends-with(@resource-id,'activity_shopping_cart_order_completed_btn_continue_shopping')]");
+    By CONTINUE_SHOPPING = By.xpath("//*[ends-with(@resource-id,'tvContinueShopping')]");
     public BuyerHomePage tapOnContinueShopping(){
         common.clickElement(CONTINUE_SHOPPING);
         logger.info("Tap on Continue Shopping button");

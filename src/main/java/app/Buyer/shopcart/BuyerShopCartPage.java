@@ -1,12 +1,12 @@
 package app.Buyer.shopcart;
 
+import app.Buyer.checkout.CheckoutOneStep;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import app.Buyer.buyergeneral.BuyerGeneral;
-import app.Buyer.checkout.CheckoutStep1;
 import utilities.commons.UICommonMobile;
 
 import java.time.Duration;
@@ -24,15 +24,15 @@ public class BuyerShopCartPage extends BuyerShopCartElement {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         commonAction = new UICommonMobile(driver);
     }
-    public CheckoutStep1 tapOnContinueBtn(){
+    public CheckoutOneStep tapOnContinueBtn(){
         commonAction.clickElement(CONTINUE_BTN);
         logger.info("Tap on Continue button.");
-        commonAction.sleepInMiliSecond(2000);
-        return new CheckoutStep1(driver);
+        waitLoadingDisapear();
+        return new CheckoutOneStep(driver);
     }
     public BuyerShopCartPage waitLoadingDisapear(){
-        logger.info("Wait loading...");
-        new BuyerGeneral(driver).waitLoadingDisappear();
+        logger.info("Start Wait loading...");
+        new BuyerGeneral(driver).waitLoadingDisapear();
         return this;
     }
 }
