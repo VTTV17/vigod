@@ -8,8 +8,6 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import utilities.screenshot.Screenshot;
 
-import java.io.IOException;
-
 public class AssertCustomize {
     WebDriver driver;
     @Getter
@@ -26,10 +24,7 @@ public class AssertCustomize {
         try {
             Assert.assertEquals(actual, expected, mess);
         } catch (AssertionError ex) {
-            try {
-                new Screenshot().takeScreenshot(driver);
-            } catch (IOException ignore) {
-            }
+            new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -39,10 +34,7 @@ public class AssertCustomize {
         try {
             Assert.assertNotEquals(actual, expected, mess);
         } catch (AssertionError ex) {
-            try {
-                new Screenshot().takeScreenshot(driver);
-            } catch (IOException ignore) {
-            }
+            new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -52,10 +44,7 @@ public class AssertCustomize {
         try {
             Assert.assertTrue(actual, mess);
         } catch (AssertionError ex) {
-            try {
-                new Screenshot().takeScreenshot(driver);
-            } catch (IOException ignore) {
-            }
+            new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }
@@ -65,10 +54,7 @@ public class AssertCustomize {
         try {
             Assert.assertFalse(actual, mess);
         } catch (AssertionError ex) {
-            try {
-                new Screenshot().takeScreenshot(driver);
-            } catch (IOException ignore) {
-            }
+            new Screenshot().takeScreenshot(driver);
             countFalse += 1;
             logger.error(ex.toString().split("java.lang.AssertionError: ")[1].split(" expected ")[0]);
         }

@@ -210,7 +210,7 @@ public class CreateProduct {
         info.setProductName(productName);
 
         // generate variation map
-        Map<String, List<String>> variationMap = new DataGenerator().randomVariationMap();
+        Map<String, List<String>> variationMap = new DataGenerator().randomVariationMap("");
 
         // set variation name
         List<String> varName = new ArrayList<>(variationMap.keySet());
@@ -222,7 +222,7 @@ public class CreateProduct {
         List<List<String>> varValue = new ArrayList<>(variationMap.values());
         List<String> variationList = new ArrayList<>(varValue.get(0).stream().map(var -> "%s_%s".formatted(storeInfo.getDefaultLanguage(), var)).toList());
         if (varValue.size() > 1) {
-            variationList = new DataGenerator().mixVariationValue(variationList, varValue.get(1), storeInfo.getDefaultLanguage());
+            variationList = new DataGenerator().mixVariationValue(variationList, varValue.get(1));
         }
         info.setVariationValueList(variationList);
 

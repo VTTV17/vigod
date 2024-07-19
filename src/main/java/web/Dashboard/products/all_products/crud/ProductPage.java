@@ -805,7 +805,7 @@ public class ProductPage extends ProductPageElement {
     // Variation product
     public void addVariations() throws Exception {
         // generate variation map
-        variationMap = new DataGenerator().randomVariationMap();
+        variationMap = new DataGenerator().randomVariationMap("");
         logger.info("Variation map: %s".formatted(variationMap));
 
         // get variation list from variation map
@@ -815,7 +815,7 @@ public class ProductPage extends ProductPageElement {
         if (varList.size() > 1)
             IntStream.range(1, varList.size())
                     .forEachOrdered(varIndex -> variationList = new DataGenerator()
-                            .mixVariationValue(variationList, varList.get(varIndex), storeInfo.getDefaultLanguage()));
+                            .mixVariationValue(variationList, varList.get(varIndex)));
         logger.info("Variation list: %s".formatted(variationList));
 
         // delete old variation

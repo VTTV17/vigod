@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="GoSELL-Automation">
+        <classes>
+            <class name="seller.app.iOS.ProductManagementTest">
+                <methods>
+                    <include name="MN_PRODUCT_01_SortProductByRecentUpdated"/>
+                    <include name="MN_PRODUCT_02_SortProductByStockHighToLow"/>
+                    <include name="MN_PRODUCT_03_SortProductByStockLowToHigh"/>
+                    <include name="MN_PRODUCT_04_SortProductByPriorityHighToLow"/>
+                    <include name="MN_PRODUCT_05_SortProductByPriorityLowToHigh"/>
+                    <include name="MN_PRODUCT_06_FilterProductByActiveStatus"/>
+                    <include name="MN_PRODUCT_07_FilterProductByActiveStatus"/>
+                    <include name="MN_PRODUCT_08_FilterProductByErrorStatus"/>
+                    <include name="MN_PRODUCT_09_FilterProductByLazadaChannel"/>
+                    <include name="MN_PRODUCT_10_FilterProductByShopeeChannel"/>
+                    <include name="MN_PRODUCT_11_FilterProductByWebPlatform"/>
+                    <include name="MN_PRODUCT_12_FilterProductByAppPlatform"/>
+                    <include name="MN_PRODUCT_13_FilterProductByInStorePlatform"/>
+                    <include name="MN_PRODUCT_14_FilterProductByNonePlatform"/>
+                    <include name="MN_PRODUCT_15_FilterProductByBranch"/>
+                    <include name="MN_PRODUCT_16_FilterProductByCollections"/>
+                </methods>
+            </class> <!-- ProductManagementTest -->
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

@@ -306,6 +306,7 @@ public class APIAllProducts {
         private List<Integer> variationNumber;
         private List<String> productNames;
         private List<Integer> remainingStocks;
+        private List<Integer> priority;
     }
 
     Response getAllProductsResponse(int pageIndex, int... branchIds) {

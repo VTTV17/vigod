@@ -2,8 +2,6 @@ package utilities.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.SneakyThrows;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import utilities.utils.jsonFileUtility;
 
@@ -20,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 
 public class DataGenerator {
@@ -152,48 +151,34 @@ public class DataGenerator {
     /**
      * generate Variation value
      */
-    private List<String> generateListString(int index, int size) {
-        List<String> randomList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            randomList.add("var%s_%s".formatted(index, i + 1));
-        }
-        return randomList;
+    private List<String> generateListString(String defaultLanguage, int index, int size) {
+        return IntStream.range(0, size).mapToObj(i -> "%s_var%s_%s".formatted(defaultLanguage, index, i + 1)).toList();
     }
 
+    public List<Integer> getNumOfValuesOnEachGroup(int numberOfVariations, int numberOfGroups) {
+        if (numberOfGroups == 1) return List.of(numberOfVariations);
+        int factor = IntStream.range(2, numberOfVariations).filter(i -> numberOfVariations % i == 0).findFirst().orElse(1);
+        return List.of(factor, numberOfVariations / factor);
+    }
     /**
      * generate variation maps (variation name : get variation value)
      */
-    public Map<String, List<String>> randomVariationMap() {
-        // init variation map
-        // key: variation name
-        // values: get of variation name
-        Map<String, List<String>> map = new HashMap<>();
+    public Map<String, List<String>> randomVariationMap(String defaultLanguage) {
+        // generate number of variation groups
+        int numberOfGroups = nextInt(MAX_VARIATION_QUANTITY) + 1;
 
-        // generate number of variation
-        int variationNum = RandomUtils.nextInt(MAX_VARIATION_QUANTITY) + 1;
+        // init number of variation values
+        int numberOfVariations = nextInt((numberOfGroups == 1) ? MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION : MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS) + 1;
 
-        // init get number of each variation
-        List<Integer> numberOfVariationValue = new ArrayList<>();
-
-        // generate number variation value of first variation
-        numberOfVariationValue.add(RandomUtils.nextInt(MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION) + 1);
-
-        // get number variation value of other variation
-        for (int i = 1; i < variationNum; i++) {
-            int prevMulti = 1;
-            for (int id = 0; id < i; id++) {
-                prevMulti = prevMulti * numberOfVariationValue.get(id);
-            }
-            numberOfVariationValue.add(RandomUtils.nextInt(Math.min((MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS / prevMulti), MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION)) + 1);
-        }
+        // get number of value of each group variation
+        List<Integer> numberOfVariationValue = getNumOfValuesOnEachGroup(numberOfVariations, numberOfGroups);
 
         // generate random data for variation map
-        for (int i = 0; i < numberOfVariationValue.size(); i++) {
-            map.put("var%s".formatted(i + 1), generateListString(i + 1, numberOfVariationValue.get(i)));
-        }
-
-        // return variation map
-        return new TreeMap<>(map);
+        return new TreeMap<>(IntStream.range(0, numberOfVariationValue.size())
+                .boxed()
+                .collect(Collectors.toMap(valueIndex -> "%s_var%s".formatted(defaultLanguage, valueIndex + 1),
+                        valueIndex -> generateListString(defaultLanguage, valueIndex + 1, numberOfVariationValue.get(valueIndex)),
+                        (a, b) -> b)));
     }
 
     /**
@@ -201,13 +186,9 @@ public class DataGenerator {
      * <p> example: var1 = {a, b, c} and var2 = {d}</p>
      * <p> with above variations, we have 3 variation value {a|d, b|d, c|d}</p>
      */
-    public List<String> mixVariationValue(List<String> variationValueList1, List<String> variationValueList2, String language) {
+    public List<String> mixVariationValue(List<String> variationValueList1, List<String> variationValueList2) {
         List<String> mixedVariationValueList = new ArrayList<>();
-        for (String var1 : variationValueList1) {
-            for (String var2 : variationValueList2) {
-                mixedVariationValueList.add("%s|%s_%s".formatted(var1, language, var2));
-            }
-        }
+        variationValueList1.forEach(var1 -> variationValueList2.stream().map(var2 -> "%s|%s".formatted(var1, var2)).forEach(mixedVariationValueList::add));
         return mixedVariationValueList;
     }
 
@@ -224,9 +205,21 @@ public class DataGenerator {
             variationList.add("%s_%s".formatted(language, var));
         }
         if (varValue.size() > 1) {
-            for (int i = 1; i < varValue.size(); i++) {
+            for (int valueIndex = 1; valueIndex < varValue.size(); valueIndex++) {
                 variationList = new DataGenerator()
-                        .mixVariationValue(variationList, varValue.get(i), language);
+                        .mixVariationValue(variationList, varValue.get(valueIndex));
+            }
+        }
+        return variationList;
+    }
+
+    public List<String> getVariationList(Map<String, List<String>> variationMap) {
+        List<List<String>> varValue = new ArrayList<>(variationMap.values());
+        List<String> variationList = new ArrayList<>(varValue.get(0));
+        if (varValue.size() > 1) {
+            for (int valueIndex = 1; valueIndex < varValue.size(); valueIndex++) {
+                variationList = new DataGenerator()
+                        .mixVariationValue(variationList, varValue.get(valueIndex));
             }
         }
         return variationList;
@@ -291,8 +284,9 @@ public class DataGenerator {
         File root = new File(System.getProperty("user.dir"));
         List<Path> paths = Files.walk(Paths.get(root.toString())).toList();
         Optional<Path> filePath = paths.stream()
-                .filter(path1 -> !Files.isDirectory(path1))
-                .filter(path -> path.getFileName().toString().equals(fileName))
+                .filter(path -> !Files.isDirectory(path))
+                .filter(path -> path.toString().contains("resources")
+                                && path.getFileName().toString().equals(fileName))
                 .findFirst();
         return filePath.map(Path::toString).orElse("");
     }
@@ -306,6 +300,11 @@ public class DataGenerator {
                 .filter(path -> path.getFileName().toString().equals(folderName))
                 .findFirst();
         return folderPath.map(Path::toString).orElse("");
+    }
+
+    public List<String> getAllFileNamesInFolder(String folderName) {
+        File root = new File(getFolderPath(folderName));
+        return Arrays.stream(Objects.requireNonNull(root.listFiles())).filter(File::isFile).map(File::getName).toList();
     }
 
 

@@ -33,6 +33,7 @@ public class InitAppiumDriver {
 		capabilities.setCapability("fastReset", "true");
 		capabilities.setCapability("resetOnSessionStartOnly", "true");
 		capabilities.setCapability("autoGrantPermissions","true");
+		capabilities.setCapability("automationName", "UIAutomator2");
         return getAppiumDriver(capabilities, url);
     }
 

@@ -3,15 +3,15 @@ package app.android.GoSeller;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import utilities.appium_server.AppiumServer;
+import utilities.assert_customize.AssertCustomize;
+import utilities.recording.ScreenRecording;
 import utilities.utils.PropertiesUtil;
-import utilities.excel.Excel;
-import utilities.screenshot.Screenshot;
 
 import java.io.IOException;
 
 public class BaseTest {
     public WebDriver driver;
-
     public String tcsFileName;
     public String testCaseId;
     public String browser;
@@ -19,40 +19,40 @@ public class BaseTest {
     public String language;
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "environment", "language"})
-    void getConfig(@Optional("chrome") String browser,
-                   @Optional("true") String headless,
-                   @Optional("STAG") String environment,
-                   @Optional("VIE") String language) {
-        this.browser = browser;
-        this.headless = headless;
+    @Parameters({"environment", "language"})
+    public void getConfig(@Optional("STAG") String environment,
+                          @Optional("VIE") String language) {
         this.language = language;
-
         // set environment, language for Properties
         PropertiesUtil.setEnvironment(environment);
         PropertiesUtil.setDBLanguage(language);
         PropertiesUtil.setSFLanguage(language);
-    }
-    @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
-        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
-        new Screenshot().takeScreenshot(driver);
+
+        // Start server
+        AppiumServer.startServer();
     }
 
-    public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
-        Excel excel = new Excel();
-        int testCaseRow = excel.getRowCellByKey(fileName, sheetId, testCaseID).get(0);
-        int resultCellIndex = excel.getCellIndexByCellValue(fileName, sheetId, 0, "Result %s".formatted(language));
-        switch (result.getStatus()) {
-            case ITestResult.SUCCESS -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "PASS");
-            case ITestResult.SKIP -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "SKIP");
-            case ITestResult.FAILURE -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "FAIL");
-            default -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "OTHER STATUS");
-        }
+    @BeforeMethod
+    void startTest() {
+        // Start recording
+        ScreenRecording.startRecording(driver);
+    }
+
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        // Clear assert count false
+        AssertCustomize.setCountFalse(0);
+
+        // Stop recording
+        ScreenRecording.stopRecording(driver, result);
     }
 
     @AfterSuite
-    public void tearDown() {
-//        if (driver != null) driver.quit();
+    void tearDown() {
+        // Clear driver
+        if (driver != null) driver.quit();
+
+        // Start server
+        AppiumServer.stopServer();
     }
 }
