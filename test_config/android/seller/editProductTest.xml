@@ -6,7 +6,7 @@
     </listeners>
     <test thread-count="5" name="AppiumProject">
         <classes>
-            <class name="seller.app.android.GoSeller.EditProductTest">
+            <class name="app.android.GoSeller.EditProductTest">
                 <methods>
                     <include name="preCondition_G1"/>
                     <include name="UP_PRODUCT_G1_01_UpdateProductWithoutDimension"/>

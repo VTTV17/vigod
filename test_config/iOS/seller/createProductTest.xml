@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Automation">
         <classes>
-            <class name="seller.app.iOS.CreateProductTest">
+            <class name="app.iOS.CreateProductTest">
                 <methods>
                     <include name="CR_PRODUCT_G1_01_CreateProductWithoutDimension"/>
 <!--                    <include name="CR_PRODUCT_G1_02_CreateProductWithDimension"/>-->
