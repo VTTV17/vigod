@@ -29,7 +29,7 @@ public class BaseTest {
         PropertiesUtil.setSFLanguage(language);
 
         // Start server
-        AppiumServer.startServer();
+//        AppiumServer.startServer();
     }
 
     @BeforeMethod

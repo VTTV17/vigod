@@ -19,7 +19,7 @@ import static utilities.environment.goSELLEREnvironment.goSELLERLoginActivity;
 
 public class InitAndroidDriver {
     Logger logger = LogManager.getLogger();
-    private final static String url = "http://127.0.0.1:%s/wd/hub".formatted(AppiumServer.getAppiumServerPort());
+    private final static String url = "http://127.0.0.1:4723/wd/hub";
 
     /**
      * This method returns an instance of the AppiumDriver class. It takes in the following parameters:
@@ -42,27 +42,6 @@ public class InitAndroidDriver {
         capabilities.setCapability("resetOnSessionStartOnly", "true");
         capabilities.setCapability("autoGrantPermissions","true");
         capabilities.setCapability("automationName", "UIAutomator2");
-        if (udid.contains(":")) {
-            // Get adb port
-            int adbPort = FreePort.get();
-            if (adbPort == AppiumServer.getAppiumServerPort()) adbPort = FreePort.get();
-
-            // Restart ADB server
-            CommandWindows.execute("adb -P %s kill-server".formatted(adbPort));
-            CommandWindows.execute("adb -P %s start-server".formatted(adbPort));
-
-            // Forward devices to new adb port
-            CommandWindows.execute("adb -P %s connect %s".formatted(adbPort, udid));
-
-            // Close command windows
-            CommandWindows.execute("taskkill /F /IM cmd.exe");
-
-            // Add adbPort config
-            capabilities.setCapability("adbPort", adbPort);
-
-            // Log
-            logger.info("Appium adbPort: {}", adbPort);
-        }
         // Fix startActivity issue
         capabilities.setCapability("appWaitActivity","*");
         return new AndroidDriver(new URL(url), capabilities);

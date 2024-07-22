@@ -51,6 +51,15 @@ public class UICommonAndroid {
         }
     }
 
+    boolean canScrollUp() {
+        try {
+            driver.findElement(AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollBackward()"));
+            return true;
+        } catch (NoSuchElementException ignored) {
+            return false;
+        }
+    }
+
     public void scrollUp() {
         try {
             driver.findElement(AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollBackward()"));
@@ -64,6 +73,16 @@ public class UICommonAndroid {
             driver.findElement(AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollForward().scrollToEnd(1000)"));
             logger.info("Scroll to end of screen");
         } catch (NoSuchElementException ignored) {
+        }
+    }
+
+    boolean canScrollDown() {
+        try {
+            driver.findElement(AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollForward()"));
+            return false;
+        } catch (NoSuchElementException ignored) {
+            logger.info(ignored);
+            return true;
         }
     }
 
@@ -83,6 +102,18 @@ public class UICommonAndroid {
         return driver.findElements(locator).isEmpty()
                 ? List.of()
                 : wait.until(presenceOfAllElementsLocatedBy(locator));
+    }
+
+    public WebElement getElementByText(String text) {
+        By locator = AppiumBy.androidUIAutomator(
+                "new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"%s\")".formatted(text));
+        try {
+            // In case, element is present, must not scroll more.
+            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        } catch (NoSuchElementException ex) {
+            // Can scroll into element
+            return driver.findElement(locator);
+        }
     }
 
     public WebElement getElement(String resourceId) {
@@ -111,7 +142,7 @@ public class UICommonAndroid {
         int currentSize = elements.size();
 
         // find list elements
-        while (currentSize <= index) {
+        while (currentSize < index) {
             // init temp arr
             List<WebElement> tempArr = new ArrayList<>(elements);
 
@@ -125,7 +156,7 @@ public class UICommonAndroid {
             elements = tempArr.stream().distinct().toList();
 
             // check has new element or not
-            if (elements.size() == currentSize) break;
+            if (!canScrollDown()) break;
 
             // get current number of elements
             currentSize = elements.size();
@@ -155,7 +186,7 @@ public class UICommonAndroid {
         int currentSize = elements.size();
 
         // find list elements
-        while (currentSize <= index) {
+        while (currentSize < index) {
             // init temp arr
             List<WebElement> tempArr = new ArrayList<>(elements);
 
@@ -169,7 +200,7 @@ public class UICommonAndroid {
             elements = tempArr.stream().distinct().toList();
 
             // check has new element or not
-            if (elements.size() == currentSize) break;
+            if (!canScrollDown()) break;
 
             // get current number of elements
             currentSize = elements.size();
@@ -177,6 +208,10 @@ public class UICommonAndroid {
 
         // return element
         return elements.get(index);
+    }
+
+    public void clickElementByText(String elText) {
+        getElementByText(elText).click();
     }
 
     public void click(By locator) {
@@ -257,6 +292,14 @@ public class UICommonAndroid {
 
     public String getText(By locator, int index) {
         return getElement(locator, index).getText();
+    }
+
+    public String getText(String resourceId, By locator) {
+        return getElement(resourceId, locator).getText();
+    }
+
+    public String getText(String resourceId, By locator, int index) {
+        return getElement(resourceId, locator, index).getText();
     }
 
     public boolean isEnabled(By locator) {
@@ -358,11 +401,6 @@ public class UICommonAndroid {
     public boolean isShown(String parentResourceId, By locator) {
         getElement(parentResourceId);
         return !getListElement(locator).isEmpty();
-    }
-
-    public WebElement getElementByText(String elText) {
-        String xpath = "//*[@text = '%s']".formatted(elText);
-        return getElement(By.xpath(xpath));
     }
 
     public WebElement moveAndGetOverlappedElementByText(String elText, By overlapLocator) {
@@ -494,14 +532,13 @@ public class UICommonAndroid {
         return elements.isEmpty() ? List.of() : new ArrayList<>(elements.stream().map(WebElement::getText).toList());
     }
 
-    public List<String> getListElementTextOnLastScreen(By locator) {
-        // Scroll to end of screen
-        scrollToEndOfScreen();
-
-        // Get all elements in this screen
-        List<WebElement> elements = new ArrayList<>(getListElement(locator));
-
-        return new ArrayList<>(elements.stream().map(WebElement::getText).toList());
+    public boolean isTextShown(String text) {
+        try {
+            getElementByText(text);
+            return true;
+        } catch (NoSuchElementException ignored) {
+            return false;
+        }
     }
 
 }
