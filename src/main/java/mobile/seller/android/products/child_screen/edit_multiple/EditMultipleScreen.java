@@ -2,7 +2,6 @@ package mobile.seller.android.products.child_screen.edit_multiple;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAndroid;
@@ -38,7 +37,7 @@ public class EditMultipleScreen extends EditMultipleElement {
         logger.info("Bulk selling price: %,d".formatted(sellingPrice));
 
         // Save changes
-        commonMobile.click(rsId_dlgUpdatePrice_btnOK);
+        commonMobile.click(loc_dlgUpdatePrice_btnOK);
     }
 
     public void bulkUpdateStock(boolean manageByIMEI, boolean manageByLot, BranchInfo branchInfo, int increaseNum, int... branchStock) {
@@ -55,10 +54,10 @@ public class EditMultipleScreen extends EditMultipleElement {
                 int branchQuantity = ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]) + branchIndex * increaseNum;
 
                 // Open list branches
-                commonMobile.click(rsId_ddvSelectedBranch);
+                commonMobile.click(loc_ddvSelectedBranch);
 
                 // Switch branch
-                commonMobile.click(By.xpath(xpath_ddvBranch.formatted(branchName)));
+                commonMobile.click(loc_lstBranches(branchIndex));
 
                 // Open list actions
                 commonMobile.click(loc_lblActions);
@@ -70,10 +69,10 @@ public class EditMultipleScreen extends EditMultipleElement {
                 commonMobile.click(loc_dlgUpdateStock_tabChange);
 
                 // Input quantity
-                commonMobile.sendKeys(rsId_dlgUpdateStock_txtQuantity, String.valueOf(branchQuantity));
+                commonMobile.sendKeys(loc_dlgUpdateStock_txtQuantity, String.valueOf(branchQuantity));
 
                 // Save changes
-                commonMobile.click(rsId_dlgUpdateStock_btnOK);
+                commonMobile.click(loc_dlgUpdateStock_btnOK);
 
                 // Log
                 logger.info("Bulk update stock for branch '{}', quantity: {}", branchName, branchQuantity);
@@ -81,6 +80,6 @@ public class EditMultipleScreen extends EditMultipleElement {
         }
 
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
     }
 }

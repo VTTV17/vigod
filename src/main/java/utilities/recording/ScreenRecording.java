@@ -27,7 +27,7 @@ public class ScreenRecording {
         if (!result.isSuccess()) {
             java.util.Base64.Decoder decoder = java.util.Base64.getDecoder();
             byte[] decodedBytes = decoder.decode(video);
-            Path path = Paths.get(new DataGenerator().getFolderPath("recording_video") + File.separator + "%s.mp4".formatted(result.getName()));
+            Path path = Paths.get(new DataGenerator().getPathOfFolder("recording_video") + File.separator + "%s.mp4".formatted(result.getName()));
             Files.write(path, decodedBytes);
         }
     }

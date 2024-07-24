@@ -19,8 +19,6 @@ public class HomeScreen extends HomeElement {
     }
 
 
-
-
     public boolean isAccountTabDisplayed() {
         boolean isDisplayed = commonAction.isDisplayed(loc_tabAccount);
         logger.info("Is Account Tab displayed: {}", isDisplayed);
@@ -50,19 +48,13 @@ public class HomeScreen extends HomeElement {
 
     @SneakyThrows
     public void navigate(QuickActions actions) {
-        // Move to Quick access section
-        commonAction.getElement(rsId_sectionQuickAccess);
-
         // Actions
-        commonAction.click(loc_btnQuickAccessActions, QuickActions.getAllQuickActions().indexOf(actions));
+        commonAction.click(loc_btnQuickAccessActions(QuickActions.getAllQuickActions().indexOf(actions)));
     }
 
     @SneakyThrows
     public void navigate(ManagementActions actions) {
-        // Move into management section
-        commonAction.getElement(rsId_sectionManagement);
-
         // Actions
-        commonAction.click(loc_btnManagementActions, ManagementActions.getAllManagementActions().indexOf(actions));
+        commonAction.click(loc_btnManagementActions(ManagementActions.getAllManagementActions().indexOf(actions)));
     }
 }

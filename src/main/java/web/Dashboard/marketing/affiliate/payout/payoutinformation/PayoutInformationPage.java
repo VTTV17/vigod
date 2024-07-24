@@ -106,7 +106,7 @@ public class PayoutInformationPage extends PayoutInfomationElement {
     }
     public void importPayoutFile(String fileName){
         common.sleepInMiliSecond(200);
-        String filePath = new DataGenerator().getFilePath(fileName);
+        String filePath = new DataGenerator().getPathOfFileInResourcesRoot(fileName);
         common.uploads(loc_txtUploadFile,filePath);
         logger.info("Upload payout file: "+fileName);
     }

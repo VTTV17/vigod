@@ -27,9 +27,6 @@ public class BaseTest {
         PropertiesUtil.setEnvironment(environment);
         PropertiesUtil.setDBLanguage(language);
         PropertiesUtil.setSFLanguage(language);
-
-        // Start server
-//        AppiumServer.startServer();
     }
 
     @BeforeMethod
@@ -50,9 +47,6 @@ public class BaseTest {
     @AfterSuite
     void tearDown() {
         // Clear driver
-        if (driver != null) driver.quit();
-
-        // Start server
-        AppiumServer.stopServer();
+//        if (driver != null) driver.quit();
     }
 }

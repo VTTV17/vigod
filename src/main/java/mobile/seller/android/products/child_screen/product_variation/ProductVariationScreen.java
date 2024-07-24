@@ -21,7 +21,6 @@ import java.util.stream.IntStream;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
-import static utilities.environment.goSELLEREnvironment.goSELLERProductBranchInventoryActivity;
 import static utilities.environment.goSELLEREnvironment.goSELLERProductDetailActivity;
 
 public class ProductVariationScreen extends ProductVariationElement {
@@ -111,7 +110,7 @@ public class ProductVariationScreen extends ProductVariationElement {
         imageFileNames.forEach(fileName -> commonMobile.pushFileToMobileDevices(fileName));
 
         // Open select image popup
-        commonMobile.click(rsId_btnSelectImage);
+        commonMobile.click(loc_btnSelectImage);
 
         // Select images
         new SelectImagePopup(driver).selectImages(imageFileNames);
@@ -123,7 +122,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     void updateVariationName() {
         // Input variation name
         String name = "[%s][%s] Variation name %s".formatted(defaultLanguage, variationValue, getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtVariationName, name);
+        commonMobile.sendKeys(loc_txtVariationName, name);
 
         // Get variation name
         variationInfo.setName(name);
@@ -144,13 +143,13 @@ public class ProductVariationScreen extends ProductVariationElement {
             logger.info("Reuse parent description");
         } else {
             // Get current reuse description checkbox status
-            boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_chkReuseProductDescription));
+            boolean status = commonMobile.isChecked(commonMobile.getElement(loc_chkReuseProductDescription));
 
             // Uncheck reuse description checkbox
-            if (status) commonMobile.click(rsId_chkReuseProductDescription);
+            if (status) commonMobile.click(loc_chkReuseProductDescription);
 
             // Open description popup
-            commonMobile.click(rsId_btnVariationDescription);
+            commonMobile.click(loc_btnVariationDescription);
 
             // Input product description
             String description = "[%s][%s] Variation description %s".formatted(defaultLanguage, variationValue, getCurrentEpoch());
@@ -167,17 +166,17 @@ public class ProductVariationScreen extends ProductVariationElement {
     void updateVariationPrice() {
         // Input listing price
         long listingPrice = nextLong(MAX_PRICE);
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtVariationListingPrice, String.valueOf(listingPrice));
+        commonMobile.sendKeys(loc_txtVariationListingPrice, String.valueOf(listingPrice));
         logger.info("Input variation listing price: %,d".formatted(listingPrice));
 
         // Input selling price
         long sellingPrice = hasDiscount ? nextLong(Math.max(listingPrice, 1)) : listingPrice;
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtVariationSellingPrice, String.valueOf(sellingPrice));
+        commonMobile.sendKeys(loc_txtVariationSellingPrice, String.valueOf(sellingPrice));
         logger.info("Input variation selling price: %,d".formatted(sellingPrice));
 
         // Input cost price
         long costPrice = hasCostPrice ? nextLong(Math.max(sellingPrice, 1)) : 0;
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtVariationCostPrice, String.valueOf(costPrice));
+        commonMobile.sendKeys(loc_txtVariationCostPrice, String.valueOf(costPrice));
         logger.info("Input variation cost price: %,d".formatted(costPrice));
 
         // Get variation price
@@ -189,7 +188,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     void updateVariationSKU() {
         // Input variation SKU
         String sku = "SKU%s".formatted(getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtVariationSKU, sku);
+        commonMobile.sendKeys(loc_txtVariationSKU, sku);
 
         // Log
         logger.info("Input variation SKU: {}", sku);
@@ -198,7 +197,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     void updateVariationBarcode() {
         // Input variation barcode
         String barcode = "Barcode%s".formatted(getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtVariationBarcode, barcode);
+        commonMobile.sendKeys(loc_txtVariationBarcode, barcode);
 
         // Log
         logger.info("Input variation barcode: {}", barcode);
@@ -211,7 +210,7 @@ public class ProductVariationScreen extends ProductVariationElement {
         // Check product is managed by lot or not
         if (!productInfo.getLotAvailable() || productInfo.getManageInventoryByIMEI()) {
             // Navigate to inventory screen
-            commonMobile.click(rsId_btnInventory);
+            commonMobile.click(loc_btnInventory);
 
             // Add variation stock
             new InventoryScreen(driver).addStock(productInfo.getManageInventoryByIMEI(), branchInfo, variationValue, branchStock);
@@ -228,7 +227,7 @@ public class ProductVariationScreen extends ProductVariationElement {
         // Check product is managed by lot or not
         if (!productInfo.getLotAvailable() || productInfo.getManageInventoryByIMEI()) {
             // Navigate to inventory screen
-            commonMobile.navigateToScreenUsingWebElement(rsId_btnInventory, goSELLERProductBranchInventoryActivity);
+            commonMobile.click(loc_btnInventory);
 
             // Add variation stock
             new InventoryScreen(driver).updateStock(productInfo.getManageInventoryByIMEI(), branchInfo, variationValue, branchStock);
@@ -242,7 +241,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     }
 
     void updateVariationStatus() {
-        if (commonMobile.isShown(rsId_btnDeactivate)) {
+        if (commonMobile.isShown(loc_btnDeactivate)) {
             // Get new variation status
             String newStatus = nextBoolean() ? "ACTIVE" : "DEACTIVE";
 
@@ -251,7 +250,7 @@ public class ProductVariationScreen extends ProductVariationElement {
 
             // Update variation status
             if (!currentStatus.equals(newStatus)) {
-                commonMobile.click(rsId_btnDeactivate);
+                commonMobile.click(loc_btnDeactivate);
             }
 
             // Get variation status
@@ -264,10 +263,9 @@ public class ProductVariationScreen extends ProductVariationElement {
 
     void completeUpdateVariation() {
         // Save all product information
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
 
         // Wait product detail screen loaded
-        commonMobile.waitInvisible(rsId_prgLoading);
         commonMobile.waitUntilScreenLoaded(goSELLERProductDetailActivity);
     }
 

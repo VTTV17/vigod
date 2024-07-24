@@ -1,45 +1,44 @@
 package mobile.seller.android.products.edit_product;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.support.pagefactory.ByChained;
 
+import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static utilities.commons.UICommonAndroid.androidUIAutomatorListString;
+import static utilities.commons.UICommonAndroid.androidUIAutomatorString;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class EditProductElement {
-    String rsId_prgLoading = "%s:id/pbLoading".formatted(goSELLERBundleId);
-    String rsId_btnSave = "%s:id/tvActionBarIconRight".formatted(goSELLERBundleId);
-    String rsId_btnSelectImage = "%s:id/rlSelectImages".formatted(goSELLERBundleId);
-    By loc_icnDeleteImages = By.xpath("//*[@* = '%s:id/ivDelete']".formatted(goSELLERBundleId));
-    String rsId_txtProductName = "%s:id/edtProductName".formatted(goSELLERBundleId);
-    String rsId_btnProductDescription = "%s:id/tvProductDescription".formatted(goSELLERBundleId);
-    String rsId_sctPrice = "%s:id/clProductPriceContainer".formatted(goSELLERBundleId);
-    By loc_txtWithoutVariationListingPrice = By.xpath("//*[@*= '%s:id/edtProductOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(goSELLERBundleId, goSELLERBundleId));
-    By loc_txtWithoutVariationSellingPrice = By.xpath("//*[@*= '%s:id/edtProductNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(goSELLERBundleId, goSELLERBundleId));
-    By loc_txtWithoutVariationCostPrice = By.xpath("//*[@*= '%s:id/edtProductCostPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(goSELLERBundleId, goSELLERBundleId));
-    String rsId_txtWithoutVariationSKU = "%s:id/edtSKU".formatted(goSELLERBundleId);
-    String rsId_txtWithoutVariationBarcode = "%s:id/edtProductBarcode".formatted(goSELLERBundleId);
-    String rsId_chkHideRemainingStock = "%s:id/ivHideStockOnOnlineStore".formatted(goSELLERBundleId);
-    String rsId_chkShowOutOfStock ="%s:id/ivDisplayIfOutOfStock".formatted(goSELLERBundleId);
-    String rsId_chkShowListingPrice = "%s:id/ivListingProductCheckBox".formatted(goSELLERBundleId);
-    String rsId_chkManageByLot = "%s:id/ivManageStockByLotDate".formatted(goSELLERBundleId);
-    String rsId_chkExcludeExpiredStock = "%s:id/ivExcludeExpireQuantity".formatted(goSELLERBundleId);
-    String rsId_btnInventory = "%s:id/clInventoryContainer".formatted(goSELLERBundleId);
-    String rsId_swShipping = "%s:id/swShipping".formatted(goSELLERBundleId);
-    String rsId_txtWeight = "%s:id/edtShippingWeight".formatted(goSELLERBundleId);
-    String rsId_txtLength = "%s:id/edtShippingLength".formatted(goSELLERBundleId);
-    String rsId_txtWidth = "%s:id/edtShippingWidth".formatted(goSELLERBundleId);
-    String rsId_txtHeight = "%s:id/edtShippingHeight".formatted(goSELLERBundleId);
-    String rsId_swWebPlatform = "%s:id/swPlatformWeb".formatted(goSELLERBundleId);
-    String rsId_swAppPlatform = "%s:id/swPlatformApp".formatted(goSELLERBundleId);
-    String rsId_swInStorePlatform = "%s:id/swPlatformInstore".formatted(goSELLERBundleId);
-    String rsId_swGoSocialPlatform = "%s:id/swPlatformGoSocial".formatted(goSELLERBundleId);
-    String rsId_btnAddCollection = "%s:id/tvAddCollection".formatted(goSELLERBundleId);
-    By loc_icnRemoveCollections = By.xpath("//*[@* = '%s:id/ivDelete']".formatted(goSELLERBundleId));
-    String rsId_swPriority = "%s:id/swPriority".formatted(goSELLERBundleId);
-    String rsId_txtPriority = "%s:id/edtPriority".formatted(goSELLERBundleId);
-    String rsId_swVariations = "%s:id/swVariation".formatted(goSELLERBundleId);
-    String rsId_lblVariation = "%s:id/tvVariationLabel".formatted(goSELLERBundleId);
-    By loc_imgVariation = By.xpath("//*[@*= '%s:id/rivVariationImage']".formatted(goSELLERBundleId));
-    String rsId_btnAddVariation = "%s:id/tvAddVariation".formatted(goSELLERBundleId);
-    String rsId_btnEditMultiple = "%s:id/clEditMultiple".formatted(goSELLERBundleId);
-    String rsId_dlgWarningManagedByLot_btnOK = "%s:id/tvRightButton".formatted(goSELLERBundleId);
+    By loc_btnSave = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivActionBarIconRight".formatted(goSELLERBundleId)));
+    By loc_icnDeleteImages = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivDelete".formatted(goSELLERBundleId)));
+    By loc_icnUploadImages = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/rlSelectImages".formatted(goSELLERBundleId)));
+    By loc_txtProductName = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtProductName".formatted(goSELLERBundleId)));
+    By loc_btnProductDescription = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/tvProductDescription".formatted(goSELLERBundleId)));
+    By loc_txtWithoutVariationListingPrice = new ByChained(androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtProductOrgPrice".formatted(goSELLERBundleId))), By.id("%s:id/edtPriceCustom".formatted(goSELLERBundleId)));
+    By loc_txtWithoutVariationSellingPrice = new ByChained(androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtProductNewPrice".formatted(goSELLERBundleId))), By.id("%s:id/edtPriceCustom".formatted(goSELLERBundleId)));
+    By loc_txtWithoutVariationCostPrice = new ByChained(androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtProductCostPrice".formatted(goSELLERBundleId))), By.id("%s:id/edtPriceCustom".formatted(goSELLERBundleId)));
+    By loc_txtWithoutVariationSKU = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtSKU".formatted(goSELLERBundleId)));
+    By loc_txtWithoutVariationBarcode = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtProductBarcode".formatted(goSELLERBundleId)));
+    By loc_chkHideRemainingStock = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivHideStockOnOnlineStore".formatted(goSELLERBundleId)));
+    By loc_chkDisplayIfOutOfStock = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivDisplayIfOutOfStock".formatted(goSELLERBundleId)));
+    By loc_chkManageStockByLotDate = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivManageStockByLotDate".formatted(goSELLERBundleId)));
+    By loc_lblInventory = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/clInventoryContainer".formatted(goSELLERBundleId)));
+    By loc_swShipping = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swShipping".formatted(goSELLERBundleId)));
+    By loc_txtShippingWeight = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtShippingWeight".formatted(goSELLERBundleId)));
+    By loc_txtShippingLength = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtShippingLength".formatted(goSELLERBundleId)));
+    By loc_txtShippingWidth = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtShippingWidth".formatted(goSELLERBundleId)));
+    By loc_txtShippingHeight = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtShippingHeight".formatted(goSELLERBundleId)));
+    By loc_swWeb = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swPlatformWeb".formatted(goSELLERBundleId)));
+    By loc_swApp = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swPlatformApp".formatted(goSELLERBundleId)));
+    By loc_swInStore = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swPlatformInstore".formatted(goSELLERBundleId)));
+    By loc_swGoSocial = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swPlatformGoSocial".formatted(goSELLERBundleId)));
+    By loc_swPriority = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swPriority".formatted(goSELLERBundleId)));
+    By loc_txtPriorityValue = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtPriority".formatted(goSELLERBundleId)));
+    By loc_swVariations = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/swVariation".formatted(goSELLERBundleId)));
+    By loc_btnAddVariation = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/tvAddVariation".formatted(goSELLERBundleId)));
+    By loc_lstVariations(int variationIndex)  {
+        return androidUIAutomator(androidUIAutomatorListString.formatted("%s:id/llVariationContainer".formatted(goSELLERBundleId), variationIndex));
+    }
+    By loc_btnEditMultiple = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/clEditMultiple".formatted(goSELLERBundleId)));
+    By loc_dlgWarningManageByLot_btnOK = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/tvRightButton".formatted(goSELLERBundleId)));
 }

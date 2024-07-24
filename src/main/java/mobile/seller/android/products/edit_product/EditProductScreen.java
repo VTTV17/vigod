@@ -185,7 +185,7 @@ public class EditProductScreen extends EditProductElement {
         imageFileNames.forEach(fileName -> commonMobile.pushFileToMobileDevices(fileName));
 
         // Open select image popup
-        commonMobile.click(rsId_btnSelectImage);
+        commonMobile.click(loc_icnUploadImages);
 
         // Select images
         new SelectImagePopup(driver).selectImages(imageFileNames);
@@ -197,7 +197,7 @@ public class EditProductScreen extends EditProductElement {
     void inputProductName() {
         // Input product name
         String name = "[%s][%s] Product name %s".formatted(defaultLanguage, manageByIMEI ? "IMEI" : "NORMAL", getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtProductName, name);
+        commonMobile.sendKeys(loc_txtProductName, name);
 
         // Get new product name
         Map<String, String> mainNameMap = new HashMap<>(productInfo.getMainProductNameMap());
@@ -210,7 +210,7 @@ public class EditProductScreen extends EditProductElement {
 
     void inputProductDescription() {
         // Open description popup
-        commonMobile.click(rsId_btnProductDescription);
+        commonMobile.click(loc_btnProductDescription);
 
         // Input product description
         String description = "[%s] Product description %s".formatted(defaultLanguage, getCurrentEpoch());
@@ -229,17 +229,17 @@ public class EditProductScreen extends EditProductElement {
     void inputWithoutVariationPrice() {
         // Input listing price
         long listingPrice = nextLong(MAX_PRICE);
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtWithoutVariationListingPrice, String.valueOf(listingPrice));
+        commonMobile.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(listingPrice));
         logger.info("Input without variation listing price: %,d".formatted(listingPrice));
 
         // Input selling price
         long sellingPrice = hasDiscount ? nextLong(Math.max(listingPrice, 1)) : listingPrice;
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtWithoutVariationSellingPrice, String.valueOf(sellingPrice));
+        commonMobile.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(sellingPrice));
         logger.info("Input without variation selling price: %,d".formatted(sellingPrice));
 
         // Input cost price
         long costPrice = hasCostPrice ? nextLong(Math.max(sellingPrice, 1)) : 0;
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtWithoutVariationCostPrice, String.valueOf(costPrice));
+        commonMobile.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(costPrice));
         logger.info("Input without variation cost price: %,d".formatted(costPrice));
 
         // Get new product price
@@ -251,7 +251,7 @@ public class EditProductScreen extends EditProductElement {
     void inputWithoutVariationSKU() {
         // Input without variation SKU
         String sku = "SKU%s".formatted(getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtWithoutVariationSKU, sku);
+        commonMobile.sendKeys(loc_txtWithoutVariationSKU, sku);
 
         // Log
         logger.info("Input without variation SKU: {}", sku);
@@ -260,7 +260,7 @@ public class EditProductScreen extends EditProductElement {
     void inputWithoutVariationBarcode() {
         // Input without variation barcode
         String barcode = "Barcode%s".formatted(getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtWithoutVariationBarcode, barcode);
+        commonMobile.sendKeys(loc_txtWithoutVariationBarcode, barcode);
 
         // Log
         logger.info("Input without variation barcode: {}", barcode);
@@ -272,10 +272,10 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void hideRemainingStockOnOnlineStore() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_chkHideRemainingStock));
+        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_chkHideRemainingStock));
 
         // Hide remaining stock on online store config
-        if (!Objects.equals(hideRemainingStock, status)) commonMobile.click(rsId_chkHideRemainingStock);
+        if (!Objects.equals(hideRemainingStock, status)) commonMobile.click(loc_chkHideRemainingStock);
 
         // Log
         logger.info("Hide remaining stock on online store config: {}", hideRemainingStock);
@@ -287,10 +287,10 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void displayIfOutOfStock() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_chkShowOutOfStock));
+        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_chkDisplayIfOutOfStock));
 
         // Add display out of stock config
-        if (!Objects.equals(showOutOfStock, status)) commonMobile.click(rsId_chkShowOutOfStock);
+        if (!Objects.equals(showOutOfStock, status)) commonMobile.click(loc_chkDisplayIfOutOfStock);
 
         // Log
         logger.info("Display out of stock config: {}", showOutOfStock);
@@ -302,10 +302,10 @@ public class EditProductScreen extends EditProductElement {
     void manageProductByLot() {
         if (!manageByIMEI) {
             // Get current manage by lot checkbox status
-            boolean status = !commonMobile.isEnabled(rsId_chkManageByLot);
+            boolean status = !commonMobile.isEnabled(loc_chkManageStockByLotDate);
 
             // Manage product by lot
-            if (manageByLot && !status) commonMobile.click(rsId_chkManageByLot);
+            if (manageByLot && !status) commonMobile.click(loc_chkManageStockByLotDate);
 
             // Log
             logger.info("Manage product by lot date: {}", manageByLot || status);
@@ -319,7 +319,7 @@ public class EditProductScreen extends EditProductElement {
         // Check product is managed by lot or not
         if (!manageByLot || manageByIMEI) {
             // Navigate to inventory screen
-            commonMobile.click(rsId_btnInventory);
+            commonMobile.click(loc_lblInventory);
 
             // Add without variation stock
             new InventoryScreen(driver).updateStock(manageByIMEI, branchInfo, "", branchStock);
@@ -334,27 +334,27 @@ public class EditProductScreen extends EditProductElement {
 
     void modifyShippingInformation() {
         // Get current shipping config status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_swShipping));
+        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_swShipping));
 
         // Update shipping status
-        if (!Objects.equals(hasDimension, status)) commonMobile.click(rsId_swShipping);
+        if (!Objects.equals(hasDimension, status)) commonMobile.click(loc_swShipping);
 
         // If product has dimension, add shipping configuration
         // Add product weight
         if (hasDimension) {
-            commonMobile.sendKeys(rsId_txtWeight, "10");
+            commonMobile.sendKeys(loc_txtShippingWeight, "10");
             logger.info("Add product weight: 10g");
 
             // Add product length
-            commonMobile.sendKeys(rsId_txtLength, "10");
+            commonMobile.sendKeys(loc_txtShippingLength, "10");
             logger.info("Add product length: 10cm");
 
             // Add product width
-            commonMobile.sendKeys(rsId_txtWidth, "10");
+            commonMobile.sendKeys(loc_txtShippingWidth, "10");
             logger.info("Add product width: 10cm");
 
             // Add product height
-            commonMobile.sendKeys(rsId_txtHeight, "10");
+            commonMobile.sendKeys(loc_txtShippingHeight, "10");
             logger.info("Add product height: 10cm");
         } else logger.info("Product do not have shipping information.");
     }
@@ -362,40 +362,40 @@ public class EditProductScreen extends EditProductElement {
     void modifyProductSellingPlatform() {
         /* WEB PLATFORM */
         // Get current show on web status
-        boolean webStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swWebPlatform));
+        boolean webStatus = commonMobile.isChecked(commonMobile.getElement(loc_swWeb));
 
         // Modify show on web config
-        if (!Objects.equals(showOnWeb, webStatus)) commonMobile.click(rsId_swWebPlatform);
+        if (!Objects.equals(showOnWeb, webStatus)) commonMobile.click(loc_swWeb);
 
         // Log
         logger.info("On web configure: {}", showOnWeb);
 
         /* APP PLATFORM */
         // Get current show on app status
-        boolean appStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swAppPlatform));
+        boolean appStatus = commonMobile.isChecked(commonMobile.getElement(loc_swApp));
 
         // Modify show on app config
-        if (!Objects.equals(showOnApp, appStatus)) commonMobile.click(rsId_swAppPlatform);
+        if (!Objects.equals(showOnApp, appStatus)) commonMobile.click(loc_swApp);
 
         // Log
         logger.info("On app configure: {}", showOnApp);
 
         /* IN-STORE PLATFORM */
         // Get current show in-store status
-        boolean inStoreStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swInStorePlatform));
+        boolean inStoreStatus = commonMobile.isChecked(commonMobile.getElement(loc_swInStore));
 
         // Modify show in-store config
-        if (!Objects.equals(showInStore, inStoreStatus)) commonMobile.click(rsId_swInStorePlatform);
+        if (!Objects.equals(showInStore, inStoreStatus)) commonMobile.click(loc_swInStore);
 
         // Log
         logger.info("In store configure: {}", showInStore);
 
         /* GO SOCIAL PLATFORM */
         // Get current show in goSocial status
-        boolean goSocialStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swGoSocialPlatform));
+        boolean goSocialStatus = commonMobile.isChecked(commonMobile.getElement(loc_swGoSocial));
 
         // Modify show in goSocial config
-        if (!Objects.equals(showInGoSocial, goSocialStatus)) commonMobile.click(rsId_swGoSocialPlatform);
+        if (!Objects.equals(showInGoSocial, goSocialStatus)) commonMobile.click(loc_swGoSocial);
 
         // Log
         logger.info("In goSOCIAL configure: {}", showInGoSocial);
@@ -409,16 +409,16 @@ public class EditProductScreen extends EditProductElement {
 
     void modifyPriority() {
         // Get current priority config status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_swPriority));
+        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_swPriority));
 
         // Update priority config
-        if (!Objects.equals(hasPriority, status)) commonMobile.click(rsId_swPriority);
+        if (!Objects.equals(hasPriority, status)) commonMobile.click(loc_swPriority);
 
         // If product has priority, add priority
         if (hasPriority) {
             // Input priority
             int priority = nextInt(100);
-            commonMobile.sendKeys(rsId_txtPriority, String.valueOf(priority));
+            commonMobile.sendKeys(loc_txtPriorityValue, String.valueOf(priority));
 
             // Log
             logger.info("Product priority: {}", priority);
@@ -431,8 +431,8 @@ public class EditProductScreen extends EditProductElement {
             logger.info("Product that is managed by Lot, do not allow add variation");
         } else {
             // Else navigate to Add/Edit variation screen to add new variation
-            commonMobile.click(rsId_swVariations);
-            commonMobile.click(rsId_btnAddVariation);
+            commonMobile.click(loc_swVariations);
+            commonMobile.click(loc_btnAddVariation);
 
             // Add/Edit variation
             new CRUDVariationScreen(driver).addVariation(defaultLanguage);
@@ -466,24 +466,21 @@ public class EditProductScreen extends EditProductElement {
     }
 
     void removeVariation() {
-        // Move into variation section
-        commonMobile.getElement(rsId_lblVariation);
-
         // If product is managed by Lot, that is not allow to remove variation
         if (this.hasLot) {
             logger.info("Product that is managed by Lot, do not allow remove variation");
         }
         // If product has variation, remove old variation
-        else if (commonMobile.isShown(loc_imgVariation)) {
+        else if (commonMobile.isShown(loc_lstVariations(0))) {
             // Navigate to Add/Edit variation
-            commonMobile.click(rsId_btnAddVariation);
+            commonMobile.click(loc_btnAddVariation);
 
             // Remove all variations and save changes
             new CRUDVariationScreen(driver).removeOldVariation()
                     .saveChanges();
 
             // Save changes
-            commonMobile.click(rsId_btnSave);
+            commonMobile.click(loc_btnSave);
         }
     }
 
@@ -493,7 +490,7 @@ public class EditProductScreen extends EditProductElement {
 
         // Navigate to edit multiple screen
         if (totalVariations > 1) {
-            commonMobile.click(rsId_btnEditMultiple);
+            commonMobile.click(loc_btnEditMultiple);
 
             // Init edit multiple model
             EditMultipleScreen editMultipleScreen = new EditMultipleScreen(driver);
@@ -528,18 +525,17 @@ public class EditProductScreen extends EditProductElement {
 
     void completeUpdateProduct() {
         // Save all product information
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
 
         // If product are managed by lot, accept when warning shows
-        if (commonMobile.isShown(rsId_dlgWarningManagedByLot_btnOK)) {
-            commonMobile.click(rsId_dlgWarningManagedByLot_btnOK);
+        if (commonMobile.isShown(loc_dlgWarningManageByLot_btnOK)) {
+            commonMobile.click(loc_dlgWarningManageByLot_btnOK);
 
             // Log
             logger.info("Confirm managed by lot");
         }
 
         // Wait product management screen loaded
-        commonMobile.waitInvisible(rsId_prgLoading);
         commonMobile.waitUntilScreenLoaded(goSELLERProductManagementActivity);
 
         // If product are updated, check information after updating
@@ -674,7 +670,7 @@ public class EditProductScreen extends EditProductElement {
         // Update variation information
         IntStream.range(0, productInfo.getVariationValuesMap().get(defaultLanguage).size()).forEach(variationIndex -> {
             // Navigate to variation detail screen
-            commonMobile.click(rsId_lblVariation, loc_imgVariation, variationIndex);
+            commonMobile.click(loc_lstVariations(variationIndex));
 
             // Update variation information
             productVariationScreen.getVariationInformation(defaultLanguage, branchInfo, hasDiscount, hasCostPrice, variationIndex, productInfo)

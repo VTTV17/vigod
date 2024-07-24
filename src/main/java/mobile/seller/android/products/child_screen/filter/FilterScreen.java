@@ -27,18 +27,18 @@ public class FilterScreen extends FilterElement {
 
     public void filterByStatus(String status) {
         // Reset all filters
-        commonMobile.click(rsId_btnReset);
+        commonMobile.click(loc_btnReset);
 
         // Select status
         switch (status) {
-            case "ACTIVE" -> commonMobile.click(rsId_sctStatus, loc_btnFilterByStatus, 1);
-            case "INACTIVE" -> commonMobile.click(rsId_sctStatus, loc_btnFilterByStatus, 2);
-            case "ERROR" -> commonMobile.click(rsId_sctStatus, loc_btnFilterByStatus, 3);
-            default -> commonMobile.click(rsId_sctStatus, loc_btnFilterByStatus, 0);
+            case "ACTIVE" -> commonMobile.click(loc_btnFilterByStatus(1));
+            case "INACTIVE" -> commonMobile.click(loc_btnFilterByStatus(2));
+            case "ERROR" -> commonMobile.click(loc_btnFilterByStatus(3));
+            default -> commonMobile.click(loc_btnFilterByStatus(0));
         }
 
         // Apply filter
-        commonMobile.click(rsId_btnApply);
+        commonMobile.click(loc_btnApply);
 
         // Log
         logger.info("Filter list product by status: {}", status);
@@ -46,17 +46,17 @@ public class FilterScreen extends FilterElement {
 
     public void filterByChannel(String channel) {
         // Reset all filters
-        commonMobile.click(rsId_btnReset);
+        commonMobile.click(loc_btnReset);
 
         // Select channel
         switch (channel) {
-            case "LAZADA" -> commonMobile.click(rsId_sctChannel, loc_btnFilterByChannel, 1);
-            case "SHOPEE" -> commonMobile.click(rsId_sctChannel, loc_btnFilterByChannel, 2);
-            default -> commonMobile.click(rsId_sctChannel, loc_btnFilterByChannel, 0);
+            case "LAZADA" -> commonMobile.click( loc_btnFilterByChannel( 1));
+            case "SHOPEE" -> commonMobile.click( loc_btnFilterByChannel( 2));
+            default -> commonMobile.click( loc_btnFilterByChannel( 0));
         }
 
         // Apply filter
-        commonMobile.click(rsId_btnApply);
+        commonMobile.click(loc_btnApply);
 
         // Log
         logger.info("Filter list product by channel, channelName: {}", channel);
@@ -64,19 +64,19 @@ public class FilterScreen extends FilterElement {
 
     public void filterByPlatform(String platform) {
         // Reset all filters
-        commonMobile.click(rsId_btnReset);
+        commonMobile.click(loc_btnReset);
 
         // Select platform
         switch (platform) {
-            case "WEB" -> commonMobile.click(rsId_sctPlatform,loc_btnFilterByPlatform, 1);
-            case "APP" -> commonMobile.click(rsId_sctPlatform,loc_btnFilterByPlatform, 2);
-            case "IN_STORE" -> commonMobile.click(rsId_sctPlatform,loc_btnFilterByPlatform, 3);
-            case "NONE" -> commonMobile.click(rsId_sctPlatform,loc_btnFilterByPlatform, 4);
-            default -> commonMobile.click(rsId_sctPlatform,loc_btnFilterByPlatform, 0);
+            case "WEB" -> commonMobile.click(loc_btnFilterByPlatform(1));
+            case "APP" -> commonMobile.click(loc_btnFilterByPlatform( 2));
+            case "IN_STORE" -> commonMobile.click(loc_btnFilterByPlatform( 3));
+            case "NONE" -> commonMobile.click(loc_btnFilterByPlatform(4));
+            default -> commonMobile.click(loc_btnFilterByPlatform(0));
         }
 
         // Apply filter
-        commonMobile.click(rsId_btnApply);
+        commonMobile.click(loc_btnApply);
 
         // Log
         logger.info("Filter list product platform, platformName: {}", platform);
@@ -84,16 +84,16 @@ public class FilterScreen extends FilterElement {
 
     public void filterByBranch(String branchName) {
         // Reset all filters
-        commonMobile.click(rsId_btnReset);
+        commonMobile.click(loc_btnReset);
 
         // Navigate to branch screen
-        commonMobile.click(rsId_btnSeeAllBranches);
+        commonMobile.click(loc_btnSeeAllBranches);
 
         // Select branch
         new BranchScreen(driver).selectBranch(branchName);
 
         // Apply filter
-        commonMobile.click(rsId_btnApply);
+        commonMobile.click(loc_btnApply);
 
         // Log
         logger.info("Filter list product by branch, branchName: {}", branchName);
@@ -101,16 +101,16 @@ public class FilterScreen extends FilterElement {
 
     public void filterByCollections(String collectionName) {
         // Reset all filters
-        commonMobile.click(rsId_btnReset);
+        commonMobile.click(loc_btnReset);
 
         // Navigate to collections screen
-        commonMobile.click(rsId_btnSeeAllCollections);
+        commonMobile.click(loc_btnSeeAllCollections);
 
         // Select collection
         new CollectionsScreen(driver).selectCollection(collectionName);
 
         // Apply filter
-        commonMobile.click(rsId_btnApply);
+        commonMobile.click(loc_btnApply);
 
         // Log
         logger.info("Filter list product by collection, collectionName: {}", collectionName);

@@ -407,7 +407,7 @@ public class ProductPage extends ProductPageElement {
                     .forEach(iconIndex -> commonAction.clickJS(loc_icnRemoveImages, iconIndex));
         // upload product image
         for (String imgFile : imageFile) {
-            String filePath = new DataGenerator().getFilePath(imgFile);
+            String filePath = new DataGenerator().getPathOfFileInResourcesRoot(imgFile);
             commonAction.uploads(imgUploads, filePath);
             logger.info("[Upload image popup] Upload images, file path: %s.".formatted(filePath));
         }
@@ -991,7 +991,7 @@ public class ProductPage extends ProductPageElement {
 
             // upload image
             for (String imgFile : imageFile) {
-                String filePath = new DataGenerator().getFilePath(imgFile);
+                String filePath = new DataGenerator().getPathOfFileInResourcesRoot(imgFile);
                 commonAction.uploads(loc_dlgUploadsImage_btnUploads, filePath);
                 logger.info("[Upload image popup] Upload images, file path: %s.".formatted(filePath));
             }

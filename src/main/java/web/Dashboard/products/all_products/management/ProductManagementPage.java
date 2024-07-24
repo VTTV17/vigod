@@ -126,7 +126,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // upload file
         if (!commonAction.getListElement(loc_dlgImport).isEmpty()) {
-            commonAction.uploads(loc_dlgImport_btnDragAndDrop, new DataGenerator().getFilePath("import_product.xlsx"));
+            commonAction.uploads(loc_dlgImport_btnDragAndDrop, new DataGenerator().getPathOfFileInResourcesRoot("import_product.xlsx"));
 
             // complete import product
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_dlgImport_btnImport, loc_prgStatus),

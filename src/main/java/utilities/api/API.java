@@ -19,7 +19,7 @@ public class API {
     public static String staffPermissionToken = "";
 
     public API() {
-//        RestAssured.proxy("localhost", 8888);
+        RestAssured.proxy("localhost", 8888);
         baseURI = Links.URI;
     }
 
@@ -140,7 +140,7 @@ public class API {
                 .auth()
                 .oauth2(token)
                 .header("Staffpermissions-Token", staffPermissionToken)
-                .multiPart(new File(new DataGenerator().getFilePath(fileName)))
+                .multiPart(new File(new DataGenerator().getPathOfFileInResourcesRoot(fileName)))
                 .when()
                 .post(path);
     }

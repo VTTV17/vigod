@@ -70,15 +70,24 @@ public class ProductDiscountCampaign {
 
     public void endEarlyDiscountCampaign() {
         // get list schedule discount campaign
-        List<Integer> scheduleList = api.get(DISCOUNT_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(loginInfo.getStoreID()),
-                loginInfo.getAccessToken()).jsonPath().getList("id");
+        List<Integer> scheduleList = api.get(DISCOUNT_CAMPAIGN_SCHEDULE_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
 
         // end schedule discount campaign
-        scheduleList.forEach(campaignID -> api.delete(DELETE_DISCOUNT_CAMPAIGN_PATH + campaignID, loginInfo.getAccessToken()).then().statusCode(200));
+        scheduleList.forEach(campaignID -> api.delete(DELETE_DISCOUNT_CAMPAIGN_PATH + campaignID, loginInfo.getAccessToken())
+                .then()
+                .statusCode(200));
 
         // get list in-progress discount campaign
-        List<Integer> inProgressList = api.get(DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH.formatted(loginInfo.getStoreID()),
-                loginInfo.getAccessToken()).jsonPath().getList("id");
+        List<Integer> inProgressList = api.get(DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath().getList("id");
 
         // end in-progress discount campaign
         inProgressList.forEach(campaignID -> api.delete(DELETE_DISCOUNT_CAMPAIGN_PATH + campaignID, loginInfo.getAccessToken()).then().statusCode(200));
@@ -279,7 +288,7 @@ public class ProductDiscountCampaign {
         String body = getDiscountCampaignBody(startDatePlus);
 
         // POST API to create new product discount campaign
-        Response createProductDiscountCampaign = api.post(CREATE_PRODUCT_DISCOUNT_CAMPAIGN_PATH, loginInfo.getAccessToken(), body);
+        Response createProductDiscountCampaign = api.post(CREATE_PRODUCT_DISCOUNT_CAMPAIGN_PATH, loginInfo.getAccessToken(), body, Map.of("time-zone", "Asia/Saigon"));
 
         // check product discount campaign is create
         createProductDiscountCampaign.then().statusCode(200);
@@ -308,7 +317,7 @@ public class ProductDiscountCampaign {
     DiscountCampaignInfo getInfo(int campaignID, ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
         logger.info("CampaignId: %s.".formatted(campaignID));
         // GET discount campaign information by API
-        Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL_PATH.formatted(campaignID), loginInfo.getAccessToken())
+        Response discountCampaignDetail = api.get(DISCOUNT_CAMPAIGN_DETAIL_PATH.formatted(campaignID), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
                 .then()
                 .statusCode(200)
                 .extract().response();
@@ -403,7 +412,7 @@ public class ProductDiscountCampaign {
 
     public Map<String, BranchDiscountCampaignInfo> getAllDiscountCampaignInfo(ProductInfo productInfo, List<Integer> listSegmentOfCustomer) {
         // get list in-progress discount campaign
-        List<Integer> discountCampaignList = api.get(DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken())
+        List<Integer> discountCampaignList = api.get(DISCOUNT_CAMPAIGN_IN_PROGRESS_LIST_PATH.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
                 .then()
                 .statusCode(200)
                 .extract()

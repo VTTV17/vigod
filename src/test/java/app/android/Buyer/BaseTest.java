@@ -5,6 +5,7 @@ import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.assert_customize.AssertCustomize;
 import utilities.excel.Excel;
+import utilities.recording.ScreenRecording;
 import utilities.screenshot.Screenshot;
 import utilities.utils.PropertiesUtil;
 
@@ -33,27 +34,25 @@ public class BaseTest {
         PropertiesUtil.setDBLanguage(language);
         PropertiesUtil.setSFLanguage(language);
     }
-    @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
-        if ((tcsFileName != null) && (testCaseId != null)) writeResultToExcel(tcsFileName, 0, result, testCaseId);
-        new Screenshot().takeScreenshot(driver);
-        AssertCustomize.setCountFalse(0);
+
+    @BeforeMethod
+    void startTest() {
+        // Start recording
+        ScreenRecording.startRecording(driver);
     }
 
-    public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
-        Excel excel = new Excel();
-        int testCaseRow = excel.getRowCellByKey(fileName, sheetId, testCaseID).get(0);
-        int resultCellIndex = excel.getCellIndexByCellValue(fileName, sheetId, 0, "Result %s".formatted(language));
-        switch (result.getStatus()) {
-            case ITestResult.SUCCESS -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "PASS");
-            case ITestResult.SKIP -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "SKIP");
-            case ITestResult.FAILURE -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "FAIL");
-            default -> excel.writeCellValue(fileName, sheetId, testCaseRow, resultCellIndex, "OTHER STATUS");
-        }
+    @AfterMethod
+    public void writeResult(ITestResult result) throws IOException {
+        // Clear assert count false
+        AssertCustomize.setCountFalse(0);
+
+        // Stop recording
+        ScreenRecording.stopRecording(driver, result);
     }
 
     @AfterSuite
-    public void tearDown() {
-//        if (driver != null) driver.quit();
+    void tearDown() {
+        // Clear driver
+        if (driver != null) driver.quit();
     }
 }

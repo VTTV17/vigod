@@ -1,15 +1,18 @@
 package mobile.seller.android.home;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.support.pagefactory.ByChained;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static org.openqa.selenium.By.id;
+import static utilities.commons.UICommonAndroid.androidUIAutomatorListString;
+import static utilities.commons.UICommonAndroid.androidUIAutomatorString;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class HomeElement {
-    String rsId_sectionQuickAccess = "%s:id/rlvQuickActions".formatted(goSELLERBundleId);
-
     public enum QuickActions {
         createNewOrder, createReservation, addProduct, addNewCustomer, scanProduct, liveStream, facebook, zaloOA;
 
@@ -18,7 +21,9 @@ public class HomeElement {
         }
     }
 
-    By loc_btnQuickAccessActions = By.xpath("//*[@resource-id = '%s:id/rlvQuickActions']//*[@resource-id ='%s:id/ivIcon']".formatted(goSELLERBundleId, goSELLERBundleId));
+    By loc_btnQuickAccessActions(int actionsIndex) {
+        return androidUIAutomator(androidUIAutomatorListString.formatted("%s:id/ivIcon".formatted(goSELLERBundleId), actionsIndex));
+    }
 
     public enum ManagementActions {
         orders, products, customers, reservations, inventory, supplier, purchaseOrders, cashbook, affiliate, discount, imei, inventoryCheck;
@@ -28,8 +33,9 @@ public class HomeElement {
         }
     }
 
-    String rsId_sectionManagement = "%s:id/rlvManagements".formatted(goSELLERBundleId);
-    By loc_btnManagementActions = By.xpath("//*[@* ='%s:id/rlvManagements']//*[@* = '%s:id/ivIcon']".formatted(goSELLERBundleId, goSELLERBundleId));
+    By loc_btnManagementActions(int actionsIndex) {
+        return androidUIAutomator(androidUIAutomatorListString.formatted("%s:id/ivIcon".formatted(goSELLERBundleId), QuickActions.getAllQuickActions().size() + actionsIndex));
+    } 
     By loc_tabAccount = By.xpath("//*[contains(@resource-id, 'bottom_navigation_tab_account')]");
     By loc_btnLogout = By.xpath("//*[contains(@resource-id, 'llLogout')]");
     By loc_btnOK = By.xpath("//*[contains(@resource-id, 'tvRightButton')]");

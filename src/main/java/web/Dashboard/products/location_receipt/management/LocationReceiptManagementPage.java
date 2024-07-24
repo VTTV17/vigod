@@ -87,7 +87,7 @@ public class LocationReceiptManagementPage extends LocationReceiptManagementElem
         }
 
         // upload file
-        String importFilePath = new DataGenerator().getFilePath("import_location_receipt_template.xlsx");
+        String importFilePath = new DataGenerator().getPathOfFileInResourcesRoot("import_location_receipt_template.xlsx");
         commonAction.uploads(loc_dlgImportProductLotOrLocationInBulk_btnDragAndDrop, importFilePath);
         logger.info("Import lot/location, file path: %s.".formatted(importFilePath));
     }

@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 public class CRUDVariationScreen extends CRUDVariationElement {
     WebDriver driver;
     AssertCustomize assertCustomize;
-    UICommonAndroid commonMobile;
+    UICommonAndroid commonAndroid;
     Logger logger = LogManager.getLogger();
     @Getter
     private static Map<String, List<String>> variationMap;
@@ -23,15 +23,14 @@ public class CRUDVariationScreen extends CRUDVariationElement {
     public CRUDVariationScreen(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
-        commonMobile = new UICommonAndroid(driver);
+        commonAndroid = new UICommonAndroid(driver);
     }
 
     public CRUDVariationScreen removeOldVariation() {
         // Remove old variation
-        if (commonMobile.isShown(rsId_btnRemoveVariationGroup2))
-            commonMobile.click(rsId_btnRemoveVariationGroup2);
-        if (commonMobile.isShown(rsId_btnRemoveVariationGroup1))
-            commonMobile.click(rsId_btnRemoveVariationGroup1);
+        while (commonAndroid.isShown(loc_btnRemoveVariationGroup)) {
+            commonAndroid.click(loc_btnRemoveVariationGroup);
+        }
 
         return this;
     }
@@ -52,16 +51,16 @@ public class CRUDVariationScreen extends CRUDVariationElement {
             List<String> variationValue = variationMap.get(variationGroup);
 
             // Add new variation group
-            commonMobile.click(rsId_btnAddVariation);
+            commonAndroid.click(loc_btnAddVariation);
 
             // Input variation group
-            commonMobile.sendKeys(groupIndex == 0 ? rsId_txtVariationGroup1 : rsId_txtVariationGroup2, variationGroup);
+            commonAndroid.sendKeys(groupIndex == 0 ? loc_txtVariationName1 : loc_txtVariationName2, variationGroup);
             logger.info("Add variation group {}, group: {}", groupIndex + 1, variationGroup);
 
             // Input variation value
             for (String value : variationValue) {
-                commonMobile.sendKeys(groupIndex == 0 ? rsId_txtVariationValue1 : rsId_txtVariationValue2, value);
-                commonMobile.click(groupIndex == 0 ? rsId_btnAddVariationValue1 : rsId_btnAddVariationValue2);
+                commonAndroid.sendKeys(groupIndex == 0 ? loc_txtVariationValue1 : loc_txtVariationValue2, value);
+                commonAndroid.click(groupIndex == 0 ? loc_btnAddVariationValue1 : loc_btnAddVariationValue2);
                 logger.info("Add variation value for group {}, value: {}", groupIndex + 1, value);
             }
         });
@@ -75,6 +74,6 @@ public class CRUDVariationScreen extends CRUDVariationElement {
 
     public void saveChanges() {
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonAndroid.click(loc_btnSave);
     }
 }

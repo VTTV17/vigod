@@ -31,16 +31,22 @@ public class InventoryScreen extends InventoryElement {
             // Get branch quantity
             int branchQuantity = (branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex];
 
-            // Add branch stock
-            if (manageByIMEI) {
-                // Navigate to add imei screen
-                commonMobile.click(loc_txtBranchStock, branchIndex);
+            // Get current branch quantity
+            String currentStock = commonMobile.getText(loc_txtBranchStock(branchIndex)).replaceAll("\\D+", "");
 
-                // Add imei
-                new AddIMEIScreen(driver).addIMEI(branchQuantity, branchName, variation);
-            } else {
-                // Input branch stock
-                commonMobile.sendKeys(loc_txtBranchStock, branchIndex, String.valueOf(branchQuantity));
+            // Check current branch stock, only update when stock is changed
+            if ((!currentStock.isEmpty() || branchQuantity != 0) && Integer.parseInt(currentStock.isEmpty() ? "0" : currentStock) != branchQuantity) {
+                // Add branch stock
+                if (manageByIMEI) {
+                    // Navigate to add imei screen
+                    commonMobile.click(loc_txtBranchStock(branchIndex));
+
+                    // Add imei
+                    new AddIMEIScreen(driver).addIMEI(branchQuantity, branchName, variation);
+                } else {
+                    // Input branch stock
+                    commonMobile.sendKeys(loc_txtBranchStock(branchIndex), String.valueOf(branchQuantity));
+                }
             }
 
             // Log
@@ -48,7 +54,7 @@ public class InventoryScreen extends InventoryElement {
         });
 
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
     }
 
     public void updateStock(boolean manageByIMEI, BranchInfo branchInfo, String variation, int... branchStock) {
@@ -61,7 +67,7 @@ public class InventoryScreen extends InventoryElement {
             int branchQuantity = (branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex];
 
             // Get current quantity
-            String value = commonMobile.getText(loc_txtBranchStock, branchIndex).replaceAll("\\D+", "");
+            String value = commonMobile.getText(loc_txtBranchStock(branchIndex)).replaceAll("\\D+", "");
             int currentBranchQuantity = value.isEmpty() ? 0 : Integer.parseInt(value);
 
             // Only update stock when stock is changed
@@ -69,27 +75,27 @@ public class InventoryScreen extends InventoryElement {
                 // Add branch stock
                 if (manageByIMEI) {
                     // Navigate to add imei screen
-                    commonMobile.click(loc_txtBranchStock, branchIndex);
+                    commonMobile.click(loc_txtBranchStock(branchIndex));
 
                     // Add imei
                     new AddIMEIScreen(driver).addIMEI(branchQuantity, branchName, variation);
                 } else {
                     // Click into branch stock textbox
-                    commonMobile.click(loc_txtBranchStock, branchIndex);
+                    commonMobile.click(loc_txtBranchStock(branchIndex));
 
                     // If update stock popup shows, update stock on popup
-                    if (commonMobile.isShown(rsId_dlgUpdateStock)) {
+                    if (commonMobile.isShown(loc_dlgUpdateStock)) {
                         // Switch to change tab
                         commonMobile.click(loc_dlgUpdateStock_tabChange);
 
                         // Input quantity
-                        commonMobile.sendKeys(rsId_dlgUpdateStock_txtQuantity, String.valueOf(branchQuantity));
+                        commonMobile.sendKeys(loc_dlgUpdateStock_txtQuantity, String.valueOf(branchQuantity));
 
                         // Save changes
-                        commonMobile.click(rsId_dlgUpdateStock_btnOK);
+                        commonMobile.click(loc_dlgUpdateStock_btnOK);
                     } else {
                         // Input into branch stock textbox
-                        commonMobile.sendKeys(loc_txtBranchStock, branchIndex, String.valueOf(branchQuantity));
+                        commonMobile.sendKeys(loc_txtBranchStock(branchIndex), String.valueOf(branchQuantity));
                     }
                 }
             }
@@ -99,6 +105,6 @@ public class InventoryScreen extends InventoryElement {
         });
 
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
     }
 }

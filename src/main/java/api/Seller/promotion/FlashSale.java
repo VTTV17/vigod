@@ -58,13 +58,23 @@ public class FlashSale {
 
     public void endEarlyFlashSale() {
         // get schedule flash sale list
-        List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
+        List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
         logger.debug("schedule flash sale list: %s".formatted(scheduleList));
         if (scheduleList != null)
             scheduleList.forEach(id -> new API().delete(DELETE_FLASH_SALE_PATH.formatted(id, loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200));
 
         // get in progress flash sale
-        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
+        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
         logger.debug("in-progress flash sale list: %s".formatted(inProgressList));
         if (inProgressList != null)
             inProgressList.forEach(id -> new API().post("%s%s?storeId=%s".formatted(END_EARLY_FLASH_SALE_PATH, id, loginInfo.getStoreID()), loginInfo.getAccessToken()).then().statusCode(200));
@@ -129,15 +139,15 @@ public class FlashSale {
 
     public void createFlashSale(ProductInfo productInfo, int... time) {
         endEarlyFlashSale();
-        // post api create new flash sale campaign
-        Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBody(productInfo, time));
 
-        createFlashSale.prettyPrint();
+        // post api create new flash sale campaign
+        Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBody(productInfo, time), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
 
         logger.debug("Flash sale id: %s.".formatted(createFlashSale.jsonPath().getInt("id")));
-
-        createFlashSale.then().statusCode(200);
-
     }
 
     void getFlashSaleInformation(int flashSaleID, List<String> listVariationModelId) {
@@ -176,11 +186,21 @@ public class FlashSale {
         List<Integer> flashSaleList = new ArrayList<>();
 
         // get in-progress list
-        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
+        List<Integer> inProgressList = new API().get("%s%s?status=IN_PROGRESS".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
         if (inProgressList != null) flashSaleList.addAll(inProgressList);
 
         // get schedule list
-        List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken()).jsonPath().getList("id");
+        List<Integer> scheduleList = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken(), Map.of("time-zone", "Asia/Saigon"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList("id");
         if (scheduleList != null) flashSaleList.addAll(scheduleList);
 
         // init flash sale status map

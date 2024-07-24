@@ -5,9 +5,6 @@ import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import utilities.appium_server.AppiumServer;
-import utilities.cmd.CommandWindows;
-import utilities.get_port.FreePort;
 
 import java.net.MalformedURLException;
 import java.net.URL;

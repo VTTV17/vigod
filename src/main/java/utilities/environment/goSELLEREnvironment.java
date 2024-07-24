@@ -3,7 +3,6 @@ package utilities.environment;
 import utilities.utils.PropertiesUtil;
 
 public class goSELLEREnvironment {
-    public final static String goSELLERAppName = PropertiesUtil.getEnvironmentData("goSELLERAppName");
     public final static String goSELLERBundleId = PropertiesUtil.getEnvironmentData("goSELLERBundleId");
     public final static String goSELLERLoginActivity = "com.mediastep.gosellseller.modules.credentials.login.LoginActivity";
     public final static String goSELLERHomeActivity = "com.mediastep.gosellseller.modules.tabs.main.MainActivity";

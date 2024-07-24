@@ -1,16 +1,19 @@
 package mobile.seller.android.products.child_screen.crud_variations;
 
+import org.openqa.selenium.By;
+
+import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static utilities.commons.UICommonAndroid.androidUIAutomatorString;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class CRUDVariationElement {
-    String rsId_btnRemoveVariationGroup1 = "%s:id/ivDeleteVariation1".formatted(goSELLERBundleId);
-    String rsId_btnRemoveVariationGroup2 = "%s:id/ivDeleteVariation2".formatted(goSELLERBundleId);
-    String rsId_btnAddVariation = "%s:id/tvAddVariation".formatted(goSELLERBundleId);
-    String rsId_txtVariationGroup1 = "%s:id/edtVariation1Name".formatted(goSELLERBundleId);
-    String rsId_txtVariationValue1 = "%s:id/edtInputImeiSerialNumberValue".formatted(goSELLERBundleId);
-    String rsId_btnAddVariationValue1 = "%s:id/ivAddNewImeiSerialNumber".formatted(goSELLERBundleId);
-    String rsId_txtVariationGroup2 = "%s:id/edtVariation2Name".formatted(goSELLERBundleId);
-    String rsId_txtVariationValue2 = "%s:id/edtVariation2Value".formatted(goSELLERBundleId);
-    String rsId_btnAddVariationValue2 = "%s:id/ivAddValueForVariation2".formatted(goSELLERBundleId);
-    String rsId_btnSave = "%s:id/tvActionBarIconRight".formatted(goSELLERBundleId);
+    By loc_btnRemoveVariationGroup = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivDeleteVariation1".formatted(goSELLERBundleId)));
+    By loc_btnAddVariation = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/tvAddVariation".formatted(goSELLERBundleId)));
+    By loc_txtVariationName1 = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtVariation1Name".formatted(goSELLERBundleId)));
+    By loc_txtVariationValue1 = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtInputImeiSerialNumberValue".formatted(goSELLERBundleId)));
+    By loc_btnAddVariationValue1 = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivAddNewImeiSerialNumber".formatted(goSELLERBundleId)));
+    By loc_txtVariationName2 = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtVariation2Name".formatted(goSELLERBundleId)));
+    By loc_txtVariationValue2 = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/edtVariation2Value".formatted(goSELLERBundleId)));
+    By loc_btnAddVariationValue2 = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivAddValueForVariation2".formatted(goSELLERBundleId)));
+    By loc_btnSave = androidUIAutomator(androidUIAutomatorString.formatted("%s:id/ivActionBarIconRight".formatted(goSELLERBundleId)));
 }

@@ -26,7 +26,7 @@ public class CollectionsScreen extends CollectionsElement {
 
     public void selectCollection(String collectionName) {
         // Select collection
-        commonMobile.click(collectionName.equals("ALL") ? loc_btnAllCollections : By.xpath(str_btnCollection.formatted(collectionName)));
+        commonMobile.click(collectionName.equals("ALL") ? loc_btnAllCollections : loc_btnCollection(collectionName));
 
         // Log
         logger.info("Select collection: {}", collectionName);

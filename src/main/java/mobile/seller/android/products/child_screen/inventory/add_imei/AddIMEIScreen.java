@@ -26,24 +26,24 @@ public class AddIMEIScreen extends AddIMEIElement {
 
     public void addIMEI(int quantity, String branchName, String variation) {
         // Remove old IMEI
-        while (commonMobile.isShown(rsId_icnRemoveIMEI)) {
-            commonMobile.click(rsId_icnRemoveIMEI);
+        while (commonMobile.isShown(loc_icnRemoveIMEI)) {
+            commonMobile.click(loc_icnRemoveIMEI);
         }
 
         // Add imei value for variation
         IntStream.range(0, quantity).forEach(index -> {
             // Input imei value
             String imei = "%s%s_%s".formatted(variation.isEmpty() ? "" : "%s_".formatted(variation), branchName, index);
-            commonMobile.sendKeys(rsId_txtIMEI, imei);
+            commonMobile.sendKeys(loc_txtIMEI, imei);
 
             // Add
-            commonMobile.click(rsId_btnAdd);
+            commonMobile.click(loc_btnAdd);
 
             // Log
             logger.info("Add imei into branch '{}', value: {}", branchName, imei);
         });
 
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
     }
 }

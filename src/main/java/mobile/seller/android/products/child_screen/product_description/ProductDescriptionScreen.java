@@ -20,6 +20,6 @@ public class ProductDescriptionScreen extends ProductDescriptionElement {
         commonMobile.sendKeysActions(commonMobile.getElement(loc_txtContent), description);
 
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
     }
 }

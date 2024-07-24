@@ -1,7 +1,5 @@
 package mobile.seller.android.products.child_screen.select_image_popup;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAndroid;
@@ -13,7 +11,6 @@ public class SelectImagePopup extends SelectImageElement {
     WebDriver driver;
     AssertCustomize assertCustomize;
     UICommonAndroid commonMobile;
-    Logger logger = LogManager.getLogger();
     public SelectImagePopup(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
@@ -22,9 +19,9 @@ public class SelectImagePopup extends SelectImageElement {
 
     public void selectImages(List<String> imageFileNames) {
         // Select images
-        IntStream.range(0, imageFileNames.size()).forEach(imageIndex -> commonMobile.click(loc_lstImages, imageIndex));
+        IntStream.range(0, imageFileNames.size()).forEach(imageIndex -> commonMobile.click(loc_lstImages( imageIndex)));
 
         // Save changes
-        commonMobile.click(rsId_btnSave);
+        commonMobile.click(loc_btnSave);
     }
 }

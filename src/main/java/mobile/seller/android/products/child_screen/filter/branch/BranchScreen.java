@@ -25,7 +25,7 @@ public class BranchScreen extends BranchElement{
 
     public void selectBranch(String branchName) {
         // Select branch
-        commonMobile.click(branchName.equals("ALL") ? loc_btnAllBranches : By.xpath(str_btnBranch.formatted(branchName)));
+        commonMobile.click(branchName.equals("ALL") ? loc_btnAllBranches : loc_btnBranch(branchName));
 
         // Log
         logger.info("Select branch: {}", branchName);

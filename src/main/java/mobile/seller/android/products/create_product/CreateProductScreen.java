@@ -22,6 +22,7 @@ import utilities.data.DataGenerator;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.dashboard.setting.storeInformation.StoreInfo;
+import utilities.screenshot.Screenshot;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ import static utilities.environment.goSELLEREnvironment.*;
 public class CreateProductScreen extends CreateProductElement {
     WebDriver driver;
     AssertCustomize assertCustomize;
-    UICommonAndroid commonMobile;
+    UICommonAndroid commonAndroid;
     Logger logger = LogManager.getLogger();
     private static String defaultLanguage;
     private static BranchInfo branchInfo;
@@ -55,7 +56,7 @@ public class CreateProductScreen extends CreateProductElement {
         assertCustomize = new AssertCustomize(driver);
 
         // Init commons class
-        commonMobile = new UICommonAndroid(driver);
+        commonAndroid = new UICommonAndroid(driver);
 
         // Get store information
         storeInfo = new StoreInformation(LoginScreen.getLoginInformation()).getInfo();
@@ -137,7 +138,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     public CreateProductScreen navigateToCreateProductScreen() {
         // Navigate to create product screen
-        commonMobile.navigateToScreenUsingScreenActivity(goSELLERBundleId, goSELLERCreateProductActivity);
+        commonAndroid.navigateToScreenUsingScreenActivity(goSELLERBundleId, goSELLERCreateProductActivity);
 
         // Log
         logger.info("Navigate to create product screen.");
@@ -150,10 +151,10 @@ public class CreateProductScreen extends CreateProductElement {
         List<String> imageFileNames = new DataGenerator().getAllFileNamesInFolder("images");
 
         // Sent list images to mobile device
-        imageFileNames.forEach(fileName -> commonMobile.pushFileToMobileDevices(fileName));
+        imageFileNames.forEach(fileName -> commonAndroid.pushFileToMobileDevices(fileName));
 
         // Open select image popup
-        commonMobile.click(rsId_btnSelectImage);
+        commonAndroid.click(loc_icnUploadImages);
 
         // Select images
         new SelectImagePopup(driver).selectImages(imageFileNames);
@@ -165,7 +166,7 @@ public class CreateProductScreen extends CreateProductElement {
     void inputProductName() {
         // Input product name
         String name = "[%s][%s] Product name %s".formatted(defaultLanguage, manageByIMEI ? "IMEI" : "NORMAL", getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtProductName, name);
+        commonAndroid.sendKeys(loc_txtProductName, name);
 
         // Get product name
         Map<String, String> mainNameMap = new HashMap<>();
@@ -178,7 +179,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     void inputProductDescription() {
         // Open description popup
-        commonMobile.click(rsId_btnProductDescription);
+        commonAndroid.click(loc_btnProductDescription);
 
         // Input product description
         String description = "[%s] Product description %s".formatted(defaultLanguage, getCurrentEpoch());
@@ -191,23 +192,22 @@ public class CreateProductScreen extends CreateProductElement {
 
         // Log
         logger.info("Input product description: {}", description);
-
     }
 
     void inputWithoutVariationPrice() {
         // Input listing price
         long listingPrice = nextLong(MAX_PRICE);
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtWithoutVariationListingPrice, String.valueOf(listingPrice));
+        commonAndroid.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(listingPrice));
         logger.info("Input without variation listing price: %,d".formatted(listingPrice));
 
         // Input selling price
         long sellingPrice = hasDiscount ? nextLong(Math.max(listingPrice, 1)) : listingPrice;
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtWithoutVariationSellingPrice, String.valueOf(sellingPrice));
+        commonAndroid.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(sellingPrice));
         logger.info("Input without variation selling price: %,d".formatted(sellingPrice));
 
         // Input cost price
         long costPrice = hasCostPrice ? nextLong(Math.max(sellingPrice, 1)) : 0;
-        commonMobile.sendKeys(rsId_sctPrice, loc_txtWithoutVariationCostPrice, String.valueOf(costPrice));
+        commonAndroid.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(costPrice));
         logger.info("Input without variation cost price: %,d".formatted(costPrice));
 
         // Get product price
@@ -219,7 +219,7 @@ public class CreateProductScreen extends CreateProductElement {
     void inputWithoutVariationSKU() {
         // Input without variation SKU
         String sku = "SKU%s".formatted(getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtWithoutVariationSKU, sku);
+        commonAndroid.sendKeys(loc_txtWithoutVariationSKU, sku);
 
         // Log
         logger.info("Input without variation SKU: {}", sku);
@@ -228,7 +228,7 @@ public class CreateProductScreen extends CreateProductElement {
     void inputWithoutVariationBarcode() {
         // Input without variation barcode
         String barcode = "Barcode%s".formatted(getCurrentEpoch());
-        commonMobile.sendKeys(rsId_txtWithoutVariationBarcode, barcode);
+        commonAndroid.sendKeys(loc_txtWithoutVariationBarcode, barcode);
 
         // Log
         logger.info("Input without variation barcode: {}", barcode);
@@ -240,10 +240,10 @@ public class CreateProductScreen extends CreateProductElement {
     @SneakyThrows
     void hideRemainingStockOnOnlineStore() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_chkHideRemainingStock));
+        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_chkHideRemainingStock));
 
         // Hide remaining stock on online store config
-        if (!Objects.equals(hideRemainingStock, status)) commonMobile.click(rsId_chkHideRemainingStock);
+        if (!Objects.equals(hideRemainingStock, status)) commonAndroid.click(loc_chkHideRemainingStock);
 
         // Log
         logger.info("Hide remaining stock on online store config: {}", hideRemainingStock);
@@ -255,10 +255,10 @@ public class CreateProductScreen extends CreateProductElement {
     @SneakyThrows
     void displayIfOutOfStock() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_chkShowOutOfStock));
+        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_chkDisplayIfOutOfStock));
 
         // Add display out of stock config
-        if (!Objects.equals(showOutOfStock, status)) commonMobile.click(rsId_chkShowOutOfStock);
+        if (!Objects.equals(showOutOfStock, status)) commonAndroid.click(loc_chkDisplayIfOutOfStock);
 
         // Log
         logger.info("Display out of stock config: {}", showOutOfStock);
@@ -268,11 +268,14 @@ public class CreateProductScreen extends CreateProductElement {
     }
 
     void selectManageInventory() {
-        // Open manage inventory dropdown
-        commonMobile.click(rsId_ddvSelectedManageType);
+        // If product is managed by IMEI/Serial number
+        if (manageByIMEI) {
+            // Open manage inventory dropdown
+            commonAndroid.click(loc_lblSelectedManageInventoryType);
 
-        // Select manage inventory type
-        commonMobile.click(manageByIMEI ? rsId_ddvManagedByIMEI : rsId_ddvManagedByProduct);
+            // Select manage inventory type
+            commonAndroid.click(loc_lblManageInventoryByIMEI);
+        }
 
         // Log
         logger.info("Manage inventory by: {}", manageByIMEI ? "IMEI/Serial number" : "Product");
@@ -284,10 +287,10 @@ public class CreateProductScreen extends CreateProductElement {
     void manageProductByLot() {
         if (!manageByIMEI) {
             // Get current manage by lot checkbox status
-            boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_chkManageByLot));
+            boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_chkManageStockByLotDate));
 
             // Manage product by lot
-            if (manageByLot && !status) commonMobile.click(rsId_chkManageByLot);
+            if (manageByLot && !status) commonAndroid.click(loc_chkManageStockByLotDate);
 
             // Log
             logger.info("Manage product by lot date: {}", manageByLot);
@@ -301,7 +304,7 @@ public class CreateProductScreen extends CreateProductElement {
         // Check product is managed by lot or not
         if (!manageByLot || manageByIMEI) {
             // Navigate to inventory screen
-            commonMobile.click(rsId_btnInventory);
+            commonAndroid.click(loc_lblInventory);
 
             // Add without variation stock
             new InventoryScreen(driver).addStock(manageByIMEI, branchInfo, "", branchStock);
@@ -319,27 +322,27 @@ public class CreateProductScreen extends CreateProductElement {
 
     void modifyShippingInformation() {
         // Get current shipping config status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_swShipping));
+        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_swShipping));
 
         // Update shipping status
-        if (!Objects.equals(hasDimension, status)) commonMobile.click(rsId_swShipping);
+        if (!Objects.equals(hasDimension, status)) commonAndroid.click(loc_swShipping);
 
         // If product has dimension, add shipping configuration
         // Add product weight
         if (hasDimension) {
-            commonMobile.sendKeys(rsId_txtWeight, "10");
+            commonAndroid.sendKeys(loc_txtShippingWeight, "10");
             logger.info("Add product weight: 10g");
 
             // Add product length
-            commonMobile.sendKeys(rsId_txtLength, "10");
+            commonAndroid.sendKeys(loc_txtShippingLength, "10");
             logger.info("Add product length: 10cm");
 
             // Add product width
-            commonMobile.sendKeys(rsId_txtWidth, "10");
+            commonAndroid.sendKeys(loc_txtShippingWidth, "10");
             logger.info("Add product width: 10cm");
 
             // Add product height
-            commonMobile.sendKeys(rsId_txtHeight, "10");
+            commonAndroid.sendKeys(loc_txtShippingHeight, "10");
             logger.info("Add product height: 10cm");
         } else logger.info("Product do not have shipping information.");
     }
@@ -347,40 +350,40 @@ public class CreateProductScreen extends CreateProductElement {
     void modifyProductSellingPlatform() {
         /* WEB PLATFORM */
         // Get current show on web status
-        boolean webStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swWebPlatform));
+        boolean webStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swWeb));
 
         // Modify show on web config
-        if (!Objects.equals(showOnWeb, webStatus)) commonMobile.click(rsId_swWebPlatform);
+        if (!Objects.equals(showOnWeb, webStatus)) commonAndroid.click(loc_swWeb);
 
         // Log
         logger.info("On web configure: {}", showOnWeb);
 
         /* APP PLATFORM */
         // Get current show on app status
-        boolean appStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swAppPlatform));
+        boolean appStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swApp));
 
         // Modify show on app config
-        if (!Objects.equals(showOnApp, appStatus)) commonMobile.click(rsId_swAppPlatform);
+        if (!Objects.equals(showOnApp, appStatus)) commonAndroid.click(loc_swApp);
 
         // Log
         logger.info("On app configure: {}", showOnApp);
 
         /* IN-STORE PLATFORM */
         // Get current show in-store status
-        boolean inStoreStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swInStorePlatform));
+        boolean inStoreStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swInStore));
 
         // Modify show in-store config
-        if (!Objects.equals(showInStore, inStoreStatus)) commonMobile.click(rsId_swInStorePlatform);
+        if (!Objects.equals(showInStore, inStoreStatus)) commonAndroid.click(loc_swInStore);
 
         // Log
         logger.info("In store configure: {}", showInStore);
 
         /* GO SOCIAL PLATFORM */
         // Get current show in goSocial status
-        boolean goSocialStatus = commonMobile.isChecked(commonMobile.getElement(rsId_swGoSocialPlatform));
+        boolean goSocialStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swGoSocial));
 
         // Modify show in goSocial config
-        if (!Objects.equals(showInGoSocial, goSocialStatus)) commonMobile.click(rsId_swGoSocialPlatform);
+        if (!Objects.equals(showInGoSocial, goSocialStatus)) commonAndroid.click(loc_swGoSocial);
 
         // Log
         logger.info("In goSOCIAL configure: {}", showInGoSocial);
@@ -394,16 +397,16 @@ public class CreateProductScreen extends CreateProductElement {
 
     void modifyPriority() {
         // Get current priority config status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(rsId_swPriority));
+        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_swPriority));
 
         // Update priority config
-        if (!Objects.equals(hasPriority, status)) commonMobile.click(rsId_swPriority);
+        if (!Objects.equals(hasPriority, status)) commonAndroid.click(loc_swPriority);
 
         // If product has priority, add priority
         if (hasPriority) {
             // Input priority
             int priority = nextInt(100);
-            commonMobile.sendKeys(rsId_txtPriority, String.valueOf(priority));
+            commonAndroid.sendKeys(loc_txtPriorityValue, String.valueOf(priority));
 
             // Log
             logger.info("Product priority: {}", priority);
@@ -412,8 +415,8 @@ public class CreateProductScreen extends CreateProductElement {
 
     void addVariations() {
         // Navigate to Add/Edit variation
-        commonMobile.click(rsId_swVariations);
-        commonMobile.click(rsId_btnAddVariation);
+        commonAndroid.click(loc_swVariations);
+        commonAndroid.click(loc_btnAddVariation);
 
         // Add/Edit variation
         new CRUDVariationScreen(driver).addVariation(defaultLanguage);
@@ -460,7 +463,7 @@ public class CreateProductScreen extends CreateProductElement {
             ProductVariationScreen productVariationScreen = new ProductVariationScreen(driver);
 
             // Navigate to variation detail screen to update variation information
-            commonMobile.click(rsId_lblVariation, loc_imgVariation, 0);
+            commonAndroid.click(loc_lstVariations);
 
             // Update variation information
             productVariationScreen.getVariationInformation(defaultLanguage, branchInfo, hasDiscount, hasCostPrice, 0, productInfo)
@@ -477,7 +480,7 @@ public class CreateProductScreen extends CreateProductElement {
             productInfo.setBarcodeList(List.of(info.getBarcode()));
         } else { // Update variation information at edit multiple screen
             // Navigate to edit multiple screen
-            commonMobile.click(rsId_btnEditMultiple);
+            commonAndroid.click(loc_btnEditMultiple);
 
             // Init edit multiple model
             EditMultipleScreen editMultipleScreen = new EditMultipleScreen(driver);
@@ -506,11 +509,10 @@ public class CreateProductScreen extends CreateProductElement {
 
     void completeCreateProduct() {
         // Save all product information
-        commonMobile.click(rsId_btnSave);
+        commonAndroid.click(loc_btnSave);
 
         // Wait product management screen loaded
-        commonMobile.waitInvisible(rsId_prgLoading);
-        commonMobile.waitUntilScreenLoaded(goSELLERProductManagementActivity);
+        commonAndroid.waitUntilScreenLoaded(goSELLERProductManagementActivity);
 
         // If product are updated, check information after updating
         // Get product ID

@@ -49,7 +49,7 @@ public class ProductManagementScreen extends ProductManagementElement {
 
     public void navigateToProductDetailScreen(String productName) {
         // Search product by name
-        commonMobile.sendKeys(rsId_txtSearchBox, productName);
+        commonMobile.sendKeys(loc_txtSearchBox, productName);
 
         // Log
         logger.info("Search product by name: {}", productName);
@@ -68,15 +68,15 @@ public class ProductManagementScreen extends ProductManagementElement {
 
     void sortListProduct(String sortOption) {
         // Open list of sort options
-        commonMobile.click(rsId_btnSort);
+        commonMobile.click(loc_btnSort);
 
         // Sort product
         switch (sortOption) {
-            case "Stock high to low" -> commonMobile.click(loc_lstSortOptions, 1);
-            case "Stock low to high" -> commonMobile.click(loc_lstSortOptions, 2);
-            case "Priority high to low" -> commonMobile.click(loc_lstSortOptions, 3);
-            case "Priority low to high" -> commonMobile.click(loc_lstSortOptions, 4);
-            default ->  commonMobile.click(loc_lstSortOptions, 0);
+            case "Stock high to low" -> commonMobile.click(loc_lstSortOptions( 1));
+            case "Stock low to high" -> commonMobile.click(loc_lstSortOptions( 2));
+            case "Priority high to low" -> commonMobile.click(loc_lstSortOptions( 3));
+            case "Priority low to high" -> commonMobile.click(loc_lstSortOptions( 4));
+            default ->  commonMobile.click(loc_lstSortOptions( 0));
         }
 
         // Log
@@ -178,7 +178,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by Activate status
         new FilterScreen(driver).filterByStatus("ACTIVE");
@@ -202,7 +202,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by Inactive status
         new FilterScreen(driver).filterByStatus("INACTIVE");
@@ -226,7 +226,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by Error status
         new FilterScreen(driver).filterByStatus("ERROR");
@@ -251,7 +251,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by Lazada channel
         new FilterScreen(driver).filterByChannel("LAZADA");
@@ -275,7 +275,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by Shopee channel
         new FilterScreen(driver).filterByChannel("SHOPEE");
@@ -299,7 +299,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by Web platform
         new FilterScreen(driver).filterByPlatform("WEB");
@@ -323,7 +323,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by App platform
         new FilterScreen(driver).filterByPlatform("APP");
@@ -348,7 +348,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by in-store platform
         new FilterScreen(driver).filterByPlatform("IN_STORE");
@@ -372,7 +372,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Filter list product by in-store platform
         new FilterScreen(driver).filterByPlatform("NONE");
@@ -396,7 +396,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Get branch info
         BranchInfo branchInfo = new BranchManagement(LoginScreen.getLoginInformation()).getInfo();
@@ -425,7 +425,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         sortListProduct("Recent updated");
 
         // Navigate to Filter screen
-        commonMobile.click(rsId_btnFilter);
+        commonMobile.click(loc_btnFilter);
 
         // Get collection info
         CollectionInfo collectionInfo= new APIProductCollection(LoginScreen.getLoginInformation()).getManualCollection();

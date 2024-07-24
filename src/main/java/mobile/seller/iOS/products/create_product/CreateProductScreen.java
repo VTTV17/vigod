@@ -489,7 +489,7 @@ public class CreateProductScreen extends CreateProductElement {
             productInfo.setBarcodeList(List.of(info.getBarcode()));
         } else { // Update variation information at edit multiple screen
             // Navigate to edit multiple screen
-            commonIOS.tap(loc_btnEditMultiple);
+            commonIOS.click(loc_btnEditMultiple);
 
             // Init edit multiple model
             EditMultipleScreen editMultipleScreen = new EditMultipleScreen(driver);

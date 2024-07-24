@@ -18,40 +18,29 @@ public class Screenshot {
 
     @SneakyThrows
     public void takeScreenshot(WebDriver driver) {
-        String path = new DataGenerator().getFolderPath("debug") + "/%s_%s.png".formatted("debug",
+        String path = new DataGenerator().getPathOfFolder("debug") + "/%s_%s.png".formatted("debug",
                 generateDateTime("yyyy_MM_dd-HH_mm_ss")).replace("/", File.separator);
         FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
     }
 
     @SneakyThrows
-    public Screenshot takeScreenShot(WebDriver driver, WebElement element) {
-        // Get entire page screenshot
-        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        BufferedImage fullImg = ImageIO.read(screenshot);
+    public Screenshot takeScreenShot(WebElement element) {
+        // Get element screenshot
+        File screenshot = element.getScreenshotAs(OutputType.FILE);
 
-        // Get the location of element on the page
-        Point point = element.getLocation();
+        // Get destination folder
+        File destination = new File(new DataGenerator().getPathOfFolderInResourceRoot("element_image") + File.separator + "el_image.png");
 
-        // Get width and height of the element
-        int eleWidth = element.getSize().getWidth();
-        int eleHeight = element.getSize().getHeight();
-
-        // Crop the entire page screenshot to get only element screenshot
-        BufferedImage elementScreenShoot = fullImg.getSubimage(point.getX(), point.getY(), eleWidth, eleHeight);
-        ImageIO.write(elementScreenShoot, "png", screenshot);
-
-        // Copy the element screenshot to disk
-        File screenshotLocation = new File(new DataGenerator().getFolderPath("element_image") + File.separator + "el_image.png");
-        FileUtils.copyFile(screenshot, screenshotLocation);
-
+        // Move file into destination
+        FileUtils.copyFile(screenshot, destination);
         return this;
     }
 
     @SneakyThrows
     public boolean compareImages() {
         // Load the images
-        BufferedImage img1 = ImageIO.read(new File(new DataGenerator().getFilePath("checked.png")));
-        BufferedImage img2 = ImageIO.read(new File(new DataGenerator().getFilePath("el_image.png")));
+        BufferedImage img1 = ImageIO.read(new File(new DataGenerator().getPathOfFileInResourcesRoot("checked.png")));
+        BufferedImage img2 = ImageIO.read(new File(new DataGenerator().getPathOfFileInResourcesRoot("el_image.png")));
 
         // Compare pixel by pixel
         int totalPixel = img1.getHeight() * img1.getWidth() / 4;
