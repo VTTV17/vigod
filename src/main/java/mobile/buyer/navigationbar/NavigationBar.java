@@ -1,7 +1,7 @@
 package mobile.buyer.navigationbar;
 
-import mobile.buyer.home.account.BuyerAccountPage;
 import mobile.buyer.home.HomeScreen;
+import mobile.buyer.home.account.BuyerAccountPage;
 import mobile.buyer.search.BuyerSearchPage;
 import mobile.buyer.shopcart.BuyerShopCartPage;
 import org.apache.logging.log4j.LogManager;
@@ -9,11 +9,11 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.commons.UICommonMobile;
+import utilities.commons.UICommonAndroid;
 
 import java.time.Duration;
 
-public class NavigationBar extends UICommonMobile {
+public class NavigationBar extends UICommonAndroid {
     By HOME_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_home')]");
     By SEARCH_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_product')]");
     By SHOP_CART_ICON = By.xpath("//*[ends-with(@resource-id,'bottom_navigation_tab_cart')]");
@@ -30,25 +30,27 @@ public class NavigationBar extends UICommonMobile {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
-    public BuyerSearchPage tapOnSearchIcon(){
-        clickElement(SEARCH_ICON);
+
+    public BuyerSearchPage tapOnSearchIcon() {
+        click(SEARCH_ICON);
         logger.info("Tap on search icon.");
         return new BuyerSearchPage(driver);
     }
-    public HomeScreen tapOnHomeIcon(){
-        new UICommonMobile(driver).waitPageLoaded(HOME_ICON);
-        clickElement(HOME_ICON);
+
+    public HomeScreen tapOnHomeIcon() {
+        click(HOME_ICON);
         logger.info("Tap on home icon.");
         return new HomeScreen(driver);
     }
-    public BuyerShopCartPage tapOnCartIcon(){
-        clickElement(SHOP_CART_ICON);
+
+    public BuyerShopCartPage tapOnCartIcon() {
+        click(SHOP_CART_ICON);
         logger.info("Tap on shop cart icon.");
-//        new BuyerGeneral(driver).waitLoadingDisappear();
         return new BuyerShopCartPage(driver);
     }
-    public BuyerAccountPage tapOnAccountIcon(){
-        clickElement(PROFILE_ICON);
+
+    public BuyerAccountPage tapOnAccountIcon() {
+        click(PROFILE_ICON);
         logger.info("Tap on account icon.");
         return new BuyerAccountPage(driver);
     }

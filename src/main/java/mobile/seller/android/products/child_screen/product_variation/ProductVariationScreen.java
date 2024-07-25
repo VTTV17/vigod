@@ -143,7 +143,7 @@ public class ProductVariationScreen extends ProductVariationElement {
             logger.info("Reuse parent description");
         } else {
             // Get current reuse description checkbox status
-            boolean status = commonMobile.isChecked(commonMobile.getElement(loc_chkReuseProductDescription));
+            boolean status = commonMobile.isChecked(loc_chkReuseProductDescription);
 
             // Uncheck reuse description checkbox
             if (status) commonMobile.click(loc_chkReuseProductDescription);

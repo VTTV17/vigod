@@ -5,6 +5,7 @@ import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
@@ -85,7 +87,7 @@ public class FlashSale {
         String model = productInfo.getVariationModelList().get(varIndex);
 
         // if variation stock > 0 => add variation to flash sale campaign
-        if (Collections.max(productInfo.getProductStockQuantityMap().get(model))  > 0) {
+        if (Collections.max(productInfo.getProductStockQuantityMap().get(model)) > 0) {
             int stock = nextInt(Collections.max(productInfo.getProductStockQuantityMap().get(model))) + 1;
 
             // purchase limit
@@ -95,22 +97,22 @@ public class FlashSale {
             long price = nextLong(productInfo.getProductSellingPrice().get(varIndex));
 
             return productInfo.isHasModel() ? """
-                {
-                            "itemId": "%s",
-                            "limitPurchaseStock": "%s",
-                            "modelId": "%s",
-                            "price": "%s",
-                            "saleStock": "%s"
-                        }
-                """.formatted(productInfo.getProductId(), purchaseLimit, model.split("-")[1], price, stock)
+                    {
+                                "itemId": "%s",
+                                "limitPurchaseStock": "%s",
+                                "modelId": "%s",
+                                "price": "%s",
+                                "saleStock": "%s"
+                            }
+                    """.formatted(productInfo.getProductId(), purchaseLimit, model.split("-")[1], price, stock)
                     : """
-                {
-                            "itemId": "%s",
-                            "limitPurchaseStock": "%s",
-                            "price": "%s",
-                            "saleStock": "%s"
-                        }
-                """.formatted(productInfo.getProductId(), purchaseLimit, price, stock);
+                    {
+                                "itemId": "%s",
+                                "limitPurchaseStock": "%s",
+                                "price": "%s",
+                                "saleStock": "%s"
+                            }
+                    """.formatted(productInfo.getProductId(), purchaseLimit, price, stock);
         } else return "";
     }
 
@@ -137,15 +139,23 @@ public class FlashSale {
                     "items": %s}""".formatted(flashSaleName, flashSaleStartTime, flashSaleEndTime, getItems(productInfo));
     }
 
+    @SneakyThrows
+    Response createFlashSaleResponse(ProductInfo productInfo, int... time) {
+        // post api create new flash sale campaign
+        for (int executeTimes = 0; executeTimes < 5; executeTimes++) {
+            Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBody(productInfo, time), Map.of("time-zone", "Asia/Saigon"));
+            if (createFlashSale.getStatusCode() == 200) return createFlashSale;
+            sleep(3000);
+            logger.debug("Try create flash sale again");
+        }
+        return null;
+    }
+
     public void createFlashSale(ProductInfo productInfo, int... time) {
         endEarlyFlashSale();
 
         // post api create new flash sale campaign
-        Response createFlashSale = api.post(CREATE_FLASH_SALE_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken(), getFlashSaleBody(productInfo, time), Map.of("time-zone", "Asia/Saigon"))
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
+        Response createFlashSale = createFlashSaleResponse(productInfo, time);
 
         logger.debug("Flash sale id: %s.".formatted(createFlashSale.jsonPath().getInt("id")));
     }
@@ -229,10 +239,11 @@ public class FlashSale {
 
         return info;
     }
-    public int getAFlashSaleScheduled(){
+
+    public int getAFlashSaleScheduled() {
         Response response = new API().get("%s%s?status=SCHEDULED".formatted(FLASH_SALE_LIST_PATH, loginInfo.getStoreID()), loginInfo.getAccessToken());
         List<Integer> ids = response.jsonPath().getList("id");
-        if(ids.isEmpty()) return 0;
+        if (ids.isEmpty()) return 0;
         return ids.get(0);
     }
 

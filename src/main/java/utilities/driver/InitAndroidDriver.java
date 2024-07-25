@@ -41,6 +41,7 @@ public class InitAndroidDriver {
         capabilities.setCapability("automationName", "UIAutomator2");
         // Fix startActivity issue
         capabilities.setCapability("appWaitActivity","*");
+        capabilities.setCapability("appWaitForLaunch", "false");
         return new AndroidDriver(new URL(url), capabilities);
     }
 

@@ -101,7 +101,7 @@ public class LoginScreen {
     }
 
     public boolean isTermAgreementChecked() {
-        boolean isChecked = commonMobile.isChecked(commonMobile.getElement(TERM_CHECKBOX));
+        boolean isChecked = commonMobile.isChecked(TERM_CHECKBOX);
         logger.info("Is Term Agreement checkbox checked: {}", isChecked);
         return isChecked;
     }

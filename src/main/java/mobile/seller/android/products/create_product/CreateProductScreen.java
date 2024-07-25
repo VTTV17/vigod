@@ -240,7 +240,7 @@ public class CreateProductScreen extends CreateProductElement {
     @SneakyThrows
     void hideRemainingStockOnOnlineStore() {
         // Get current checkbox status
-        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_chkHideRemainingStock));
+        boolean status = commonAndroid.isChecked(loc_chkHideRemainingStock);
 
         // Hide remaining stock on online store config
         if (!Objects.equals(hideRemainingStock, status)) commonAndroid.click(loc_chkHideRemainingStock);
@@ -255,7 +255,7 @@ public class CreateProductScreen extends CreateProductElement {
     @SneakyThrows
     void displayIfOutOfStock() {
         // Get current checkbox status
-        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_chkDisplayIfOutOfStock));
+        boolean status = commonAndroid.isChecked(loc_chkDisplayIfOutOfStock);
 
         // Add display out of stock config
         if (!Objects.equals(showOutOfStock, status)) commonAndroid.click(loc_chkDisplayIfOutOfStock);
@@ -287,7 +287,7 @@ public class CreateProductScreen extends CreateProductElement {
     void manageProductByLot() {
         if (!manageByIMEI) {
             // Get current manage by lot checkbox status
-            boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_chkManageStockByLotDate));
+            boolean status = commonAndroid.isChecked(loc_chkManageStockByLotDate);
 
             // Manage product by lot
             if (manageByLot && !status) commonAndroid.click(loc_chkManageStockByLotDate);
@@ -322,7 +322,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     void modifyShippingInformation() {
         // Get current shipping config status
-        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_swShipping));
+        boolean status = commonAndroid.isChecked(loc_swShipping);
 
         // Update shipping status
         if (!Objects.equals(hasDimension, status)) commonAndroid.click(loc_swShipping);
@@ -350,7 +350,7 @@ public class CreateProductScreen extends CreateProductElement {
     void modifyProductSellingPlatform() {
         /* WEB PLATFORM */
         // Get current show on web status
-        boolean webStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swWeb));
+        boolean webStatus = commonAndroid.isChecked(loc_swWeb);
 
         // Modify show on web config
         if (!Objects.equals(showOnWeb, webStatus)) commonAndroid.click(loc_swWeb);
@@ -360,7 +360,7 @@ public class CreateProductScreen extends CreateProductElement {
 
         /* APP PLATFORM */
         // Get current show on app status
-        boolean appStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swApp));
+        boolean appStatus = commonAndroid.isChecked(loc_swApp);
 
         // Modify show on app config
         if (!Objects.equals(showOnApp, appStatus)) commonAndroid.click(loc_swApp);
@@ -370,7 +370,7 @@ public class CreateProductScreen extends CreateProductElement {
 
         /* IN-STORE PLATFORM */
         // Get current show in-store status
-        boolean inStoreStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swInStore));
+        boolean inStoreStatus = commonAndroid.isChecked(loc_swInStore);
 
         // Modify show in-store config
         if (!Objects.equals(showInStore, inStoreStatus)) commonAndroid.click(loc_swInStore);
@@ -380,7 +380,7 @@ public class CreateProductScreen extends CreateProductElement {
 
         /* GO SOCIAL PLATFORM */
         // Get current show in goSocial status
-        boolean goSocialStatus = commonAndroid.isChecked(commonAndroid.getElement(loc_swGoSocial));
+        boolean goSocialStatus = commonAndroid.isChecked(loc_swGoSocial);
 
         // Modify show in goSocial config
         if (!Objects.equals(showInGoSocial, goSocialStatus)) commonAndroid.click(loc_swGoSocial);
@@ -397,7 +397,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     void modifyPriority() {
         // Get current priority config status
-        boolean status = commonAndroid.isChecked(commonAndroid.getElement(loc_swPriority));
+        boolean status = commonAndroid.isChecked(loc_swPriority);
 
         // Update priority config
         if (!Objects.equals(hasPriority, status)) commonAndroid.click(loc_swPriority);

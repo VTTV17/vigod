@@ -272,7 +272,7 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void hideRemainingStockOnOnlineStore() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_chkHideRemainingStock));
+        boolean status = commonMobile.isChecked(loc_chkHideRemainingStock);
 
         // Hide remaining stock on online store config
         if (!Objects.equals(hideRemainingStock, status)) commonMobile.click(loc_chkHideRemainingStock);
@@ -287,7 +287,7 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void displayIfOutOfStock() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_chkDisplayIfOutOfStock));
+        boolean status = commonMobile.isChecked(loc_chkDisplayIfOutOfStock);
 
         // Add display out of stock config
         if (!Objects.equals(showOutOfStock, status)) commonMobile.click(loc_chkDisplayIfOutOfStock);
@@ -334,7 +334,7 @@ public class EditProductScreen extends EditProductElement {
 
     void modifyShippingInformation() {
         // Get current shipping config status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_swShipping));
+        boolean status = commonMobile.isChecked(loc_swShipping);
 
         // Update shipping status
         if (!Objects.equals(hasDimension, status)) commonMobile.click(loc_swShipping);
@@ -362,7 +362,7 @@ public class EditProductScreen extends EditProductElement {
     void modifyProductSellingPlatform() {
         /* WEB PLATFORM */
         // Get current show on web status
-        boolean webStatus = commonMobile.isChecked(commonMobile.getElement(loc_swWeb));
+        boolean webStatus = commonMobile.isChecked(loc_swWeb);
 
         // Modify show on web config
         if (!Objects.equals(showOnWeb, webStatus)) commonMobile.click(loc_swWeb);
@@ -372,7 +372,7 @@ public class EditProductScreen extends EditProductElement {
 
         /* APP PLATFORM */
         // Get current show on app status
-        boolean appStatus = commonMobile.isChecked(commonMobile.getElement(loc_swApp));
+        boolean appStatus = commonMobile.isChecked(loc_swApp);
 
         // Modify show on app config
         if (!Objects.equals(showOnApp, appStatus)) commonMobile.click(loc_swApp);
@@ -382,7 +382,7 @@ public class EditProductScreen extends EditProductElement {
 
         /* IN-STORE PLATFORM */
         // Get current show in-store status
-        boolean inStoreStatus = commonMobile.isChecked(commonMobile.getElement(loc_swInStore));
+        boolean inStoreStatus = commonMobile.isChecked(loc_swInStore);
 
         // Modify show in-store config
         if (!Objects.equals(showInStore, inStoreStatus)) commonMobile.click(loc_swInStore);
@@ -392,7 +392,7 @@ public class EditProductScreen extends EditProductElement {
 
         /* GO SOCIAL PLATFORM */
         // Get current show in goSocial status
-        boolean goSocialStatus = commonMobile.isChecked(commonMobile.getElement(loc_swGoSocial));
+        boolean goSocialStatus = commonMobile.isChecked(loc_swGoSocial);
 
         // Modify show in goSocial config
         if (!Objects.equals(showInGoSocial, goSocialStatus)) commonMobile.click(loc_swGoSocial);
@@ -409,7 +409,7 @@ public class EditProductScreen extends EditProductElement {
 
     void modifyPriority() {
         // Get current priority config status
-        boolean status = commonMobile.isChecked(commonMobile.getElement(loc_swPriority));
+        boolean status = commonMobile.isChecked(loc_swPriority);
 
         // Update priority config
         if (!Objects.equals(hasPriority, status)) commonMobile.click(loc_swPriority);

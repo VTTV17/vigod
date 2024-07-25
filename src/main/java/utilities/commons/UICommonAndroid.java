@@ -4,6 +4,8 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.StartsActivity;
+import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.android.nativekey.KeyEvent;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,8 +33,10 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllEle
 public class UICommonAndroid {
 
     private final static Logger logger = LogManager.getLogger(UICommonAndroid.class);
-    public final static String androidUIAutomatorString = "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))";
-    public final static String androidUIAutomatorListString = "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))";
+    public final static String androidUIAutomatorResourcesIdString = "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))";
+    public final static String androidUIAutomatorResourcesIdInstanceString = "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))";
+    public final static String androidUIAutomatorTextString = "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"%s\"))";
+    public final static String androidUIAutomatorPartTextString = "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\"%s\"))";
 
     WebDriver driver;
     WebDriverWait wait;
@@ -62,32 +66,46 @@ public class UICommonAndroid {
         }
     }
 
+    void closeNotificationScreen() {
+        // Close notification screen
+        if (driver.getPageSource().contains("Appium Settings")) {
+            ((AndroidDriver) driver).pressKey(new KeyEvent(AndroidKey.BACK));
+
+            // Log
+            logger.info("Close notification screen");
+        }
+    }
+
     public List<WebElement> getListElement(By locator) {
         try {
+            // Close notification screen
+            closeNotificationScreen();
+
+            // Wait element present
             customWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignore) {
         }
+
+        // Close notification screen
+        closeNotificationScreen();
+
         return driver.findElements(locator).isEmpty()
                 ? List.of()
                 : wait.until(presenceOfAllElementsLocatedBy(locator));
     }
 
-    public WebElement getElementByText(String text) {
-        By locator = androidUIAutomator(
-                "new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView(\"%s\")".formatted(text));
-        try {
-            // In case, element is present, must not scroll more.
-            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (NoSuchElementException ex) {
-            // Can scroll into element
-            return driver.findElement(locator);
-        }
-    }
-
     public WebElement getElement(By locator) {
         try {
+            // Close notification screen
+            closeNotificationScreen();
+
+            // Get and return element
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (StaleElementReferenceException | TimeoutException ex) {
+            // Close notification screen
+            closeNotificationScreen();
+
+            // Find again
             return driver.findElement(locator);
         }
     }
@@ -224,7 +242,8 @@ public class UICommonAndroid {
         }
     }
 
-    public boolean isChecked(WebElement element) {
+    public boolean isChecked(By locator) {
+        WebElement element = getElement(locator);
         if (element.getAttribute("class").equals("android.widget.ImageView")) {
             // Get element screenshot then compare screenshot with checked sample image
             try {

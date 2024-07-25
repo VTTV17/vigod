@@ -1,15 +1,12 @@
 package mobile.seller.android.home;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.support.pagefactory.ByChained;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
-import static org.openqa.selenium.By.id;
-import static utilities.commons.UICommonAndroid.androidUIAutomatorListString;
-import static utilities.commons.UICommonAndroid.androidUIAutomatorString;
+import static utilities.commons.UICommonAndroid.androidUIAutomatorResourcesIdInstanceString;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class HomeElement {
@@ -22,7 +19,7 @@ public class HomeElement {
     }
 
     By loc_btnQuickAccessActions(int actionsIndex) {
-        return androidUIAutomator(androidUIAutomatorListString.formatted("%s:id/ivIcon".formatted(goSELLERBundleId), actionsIndex));
+        return androidUIAutomator(androidUIAutomatorResourcesIdInstanceString.formatted("%s:id/ivIcon".formatted(goSELLERBundleId), actionsIndex));
     }
 
     public enum ManagementActions {
@@ -34,7 +31,7 @@ public class HomeElement {
     }
 
     By loc_btnManagementActions(int actionsIndex) {
-        return androidUIAutomator(androidUIAutomatorListString.formatted("%s:id/ivIcon".formatted(goSELLERBundleId), QuickActions.getAllQuickActions().size() + actionsIndex));
+        return androidUIAutomator(androidUIAutomatorResourcesIdInstanceString.formatted("%s:id/ivIcon".formatted(goSELLERBundleId), QuickActions.getAllQuickActions().size() + actionsIndex));
     } 
     By loc_tabAccount = By.xpath("//*[contains(@resource-id, 'bottom_navigation_tab_account')]");
     By loc_btnLogout = By.xpath("//*[contains(@resource-id, 'llLogout')]");
