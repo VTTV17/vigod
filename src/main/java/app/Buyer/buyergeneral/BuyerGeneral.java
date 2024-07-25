@@ -4,11 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utilities.commons.UICommonMobile;
+import utilities.constant.Constant;
+import utilities.data.DataGenerator;
+import utilities.model.dashboard.storefront.AddressInfo;
 
 import java.time.Duration;
+import java.util.List;
 
 public class BuyerGeneral extends UICommonMobile {
     final static Logger logger = LogManager.getLogger(BuyerGeneral.class);
@@ -29,18 +35,16 @@ public class BuyerGeneral extends UICommonMobile {
     By SEARCH_RESULT_CHECKED_ICON_1 = By.xpath("(//*[ends-with(@resource-id,'item_list_region_root')])[1]//*[ends-with(@resource-id,'item_list_region_img_checked')]");
     By HEADER_CLOSE_ICON = By.xpath("//*[ends-with(@resource-id,'fragment_select_region_btn_close')]");
     By HEADER_CANCEL_SEARCH = By.xpath("//*[ends-with(@resource-id,'search_module_btn_cancel')]");
-    By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast')]");
+    By TOASTMESSAGE = By.xpath("//*[ends-with(@class,'Toast') or ends-with(@resource-id,'tvContent')]");
     By DATE_PICKER_YEAR = By.xpath("//*[ends-with(@resource-id,'date_picker_year')]");
     By DATE_PICKER_DAY_FRAME = By.xpath("//*[ends-with(@resource-id,'animator')]");
     By YEAR_LIST = By.xpath("//*[ends-with(@resource-id,'month_text_view')]");
-
-    public BuyerGeneral waitLoadingDisappear(){
-        waitTillElementDisappear(getElement(el_loading_icon,30),30);
-        logger.info("Wait loading...");
-        return this;
-    }
-    public BuyerGeneral waitInMiliSecond(long milisecond){
-        sleepInMiliSecond(milisecond);
+    By loc_header_btnRight = By.xpath("//*[contains(@resource-id, 'action_bar_basic_right_button')]");
+    public BuyerGeneral waitLoadingDisapear(){
+        logger.info("Star Wait loading...");
+        List<WebElement> loadingEls =  getElements(el_loading_icon,3);
+        if(loadingEls.size()>0) waitForElementInvisible(loadingEls.get(0), 10);
+        logger.info("End wait loading.");
         return this;
     }
     public BuyerGeneral clickOnBackIcon(){
@@ -86,4 +90,15 @@ public class BuyerGeneral extends UICommonMobile {
         logger.info("Verify toast message.");
         return this;
     }
+    public BuyerGeneral tapRightBtnOnHeader(){
+        click(loc_header_btnRight);
+        logger.info("Tap on Right button on header.");
+        return this;
+    }
+    public BuyerGeneral tapCloseIconOnHeader(){
+        clickElement(HEADER_CLOSE_ICON);
+        logger.info("Click on Close icon on Header.");
+        return this;
+    }
+
 }

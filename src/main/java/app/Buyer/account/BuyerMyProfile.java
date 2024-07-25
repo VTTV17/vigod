@@ -1,5 +1,6 @@
 package app.Buyer.account;
 
+import api.Seller.login.Login;
 import app.Buyer.account.address.BuyerAddress;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +10,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import app.Buyer.buyergeneral.BuyerGeneral;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonMobile;
 import utilities.data.DataGenerator;
@@ -24,13 +27,17 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     WebDriver driver;
     WebDriverWait wait;
     UICommonMobile common;
-
+    LoginDashboardInfo loginDashboardInfo;
+    LoginInformation sellerLoginInfo;
     public BuyerMyProfile(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         common = new UICommonMobile(driver);
     }
-    
+    public BuyerMyProfile getLoginInfo(LoginInformation sellerLoginInfo){
+        this.sellerLoginInfo = sellerLoginInfo;
+        return this;
+    }
 	public String getDisplayName() {
 		String value = common.getText(YOUR_NAME_INPUT);
 		logger.info("Retrieved Display Name: " + value);
@@ -623,8 +630,9 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
         return this;
     }
     public BuyerMyProfile verifyTextDeleteAccountPopup() throws Exception {
+        String storeName = new Login().getInfo(sellerLoginInfo).getStoreName();
         Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_TITLE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.poupTitle"));
-        Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_MESSAGE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.message"));
+        Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_MESSAGE),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.message").formatted(storeName));
         Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_DELETE_BTN),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.deleteBtn"));
         Assert.assertEquals(common.getText(DELETE_ACCOUNT_POPUP_CANCEL_BTN),PropertiesUtil.getPropertiesValueBySFLang("buyerApp.myProfile.deleteAccount.cancelBtn"));
         return this;
@@ -632,8 +640,7 @@ public class BuyerMyProfile extends BuyerMyProfileElement{
     public void tapDeleteBTNOnDeletePopup(){
         common.clickElement(DELETE_ACCOUNT_POPUP_DELETE_BTN);
         logger.info("Tap on delete button on Delete popup.");
-        common.sleepInMiliSecond(1000);
-        new BuyerGeneral(driver).waitLoadingDisappear();
+        new BuyerGeneral(driver).waitLoadingDisapear();
 //        common.sleepInMiliSecond(1000);
     }
 }
