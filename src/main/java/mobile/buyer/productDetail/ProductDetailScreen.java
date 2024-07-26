@@ -213,7 +213,7 @@ public class ProductDetailScreen extends ProductDetailElement {
         assertCustomize.assertNotEquals(commonAndroid.getListElement(loc_icnSearchBranch).isEmpty(), isShown, "Search branch icon is not %s".formatted(isShown ? "shown" : "hidden"));
 
         // check Filter icon
-        if (isShown) {
+        if (!commonAndroid.getListElement(loc_icnSearchBranch).isEmpty()) {
             commonAndroid.click(loc_icnSearchBranch);
             assertCustomize.assertFalse(commonAndroid.getListElement(loc_icnFilterBranch).isEmpty(), "Filter branch icon is not shown");
         }

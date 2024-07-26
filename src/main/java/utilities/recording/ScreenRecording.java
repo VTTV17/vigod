@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import utilities.data.DataGenerator;
+import utilities.utils.FileUtils;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -27,7 +28,13 @@ public class ScreenRecording {
         if (!result.isSuccess()) {
             java.util.Base64.Decoder decoder = java.util.Base64.getDecoder();
             byte[] decodedBytes = decoder.decode(video);
-            Path path = Paths.get(new DataGenerator().getPathOfFolder("recording_video") + File.separator + "%s.mp4".formatted(result.getName()));
+
+            // Delete old recording
+            String fileName = "%s.mp4".formatted(result.getName());
+            new FileUtils().deleteFileInDownloadFolder(fileName);
+
+            // Save recording
+            Path path = Paths.get(new DataGenerator().getPathOfFolder("recording_video") + File.separator + fileName);
             Files.write(path, decodedBytes);
         }
     }

@@ -1,6 +1,7 @@
 package utilities.commons;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.InteractsWithApps;
 import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.StartsActivity;
@@ -229,16 +230,17 @@ public class UICommonAndroid {
         swipeByCoordinatesInPercent(startX, y, endX, y);
     }
 
-    public void relaunchApp(String appPackage, String appActivity) {
-        Activity activity = new Activity(appPackage, appActivity);
-        activity.setStopApp(false);
-        ((StartsActivity) driver).startActivity(activity);
+    public void relaunchApp(String appPackage) {
+        ((InteractsWithApps) driver).terminateApp(appPackage);
+        ((InteractsWithApps) driver).activateApp(appPackage);
     }
 
-    public void navigateToScreenUsingScreenActivity(String appPackage, String activity) {
+    public void navigateToScreenUsingScreenActivity(String appPackage, String appActivity) {
         // Navigate to screen by activity
-        if (!((AndroidDriver) driver).currentActivity().equals(activity)) {
-            relaunchApp(appPackage, activity);
+        if (!((AndroidDriver) driver).currentActivity().equals(appActivity)) {
+            Activity activity = new Activity(appPackage, appActivity);
+            activity.setStopApp(false);
+            ((StartsActivity) driver).startActivity(activity);
         }
     }
 
@@ -292,5 +294,10 @@ public class UICommonAndroid {
         List<WebElement> elements = getListElement(locator);
 
         return elements.isEmpty() ? List.of() : new ArrayList<>(elements.stream().map(WebElement::getText).toList());
+    }
+
+    public WebDriver terminateApp(String appPackage) {
+            ((InteractsWithApps) driver).terminateApp(appPackage);
+        return driver;
     }
 }

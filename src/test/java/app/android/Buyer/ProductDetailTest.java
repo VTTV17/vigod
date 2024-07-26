@@ -27,7 +27,6 @@ import java.util.List;
 import static java.lang.Thread.sleep;
 import static utilities.account.AccountTest.*;
 import static utilities.environment.goBUYEREnvironment.goBUYERBundleId;
-import static utilities.environment.goBUYEREnvironment.goBUYERSplashActivity;
 
 public class ProductDetailTest extends BaseTest {
     int productId;
@@ -35,6 +34,7 @@ public class ProductDetailTest extends BaseTest {
 
     LoginInformation loginInformation;
     List<Integer> branchID;
+    UICommonAndroid commonAndroid;
     ProductDetailScreen productDetailScreen;
     ProductDiscountCampaignConditions conditions;
     FlashSale flashSale;
@@ -43,22 +43,28 @@ public class ProductDetailTest extends BaseTest {
 
     @BeforeClass
     void setup() {
+        // Init login information
         loginInformation = new LoginInformation(ADMIN_ACCOUNT_THANG, ADMIN_PASSWORD_THANG);
+
+        // Get API
         flashSale = new FlashSale(loginInformation);
         discountCampaign = new ProductDiscountCampaign(loginInformation);
         branchID = new BranchManagement(loginInformation).getInfo().getBranchID();
+        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
+        conditions = new ProductDiscountCampaignConditions();
+        conditions.setCustomerId(customerId);
+
+        // Init driver
         String udid = PropertiesUtil.getEnvironmentData("udidAndroidThang");
         driver = new InitAndroidDriver().getBuyerDriver(udid, goBUYERBundleId);
 
+        // Init precondition
+        commonAndroid = new UICommonAndroid(driver);
         productDetailScreen = new ProductDetailScreen(driver);
-
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickLoginBtn()
                 .performLogin(BUYER_ACCOUNT_THANG, BUYER_PASSWORD_THANG);
         new NavigationBar(driver).tapOnAccountIcon().changeLanguage(language);
-        customerId = new APIAllCustomers(loginInformation).getCustomerID(BUYER_ACCOUNT_THANG);
-        conditions = new ProductDiscountCampaignConditions();
-        conditions.setCustomerId(customerId);
     }
 
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
@@ -254,14 +260,13 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_13_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(false, false, true);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
+        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -275,14 +280,13 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_14_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(false, false, true);
-        if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -301,6 +305,7 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -454,12 +459,12 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_13_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(true, false, true);
-        if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
+
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -473,12 +478,12 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_14_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(true, false, true);
-        if (productId == 0)
             productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -496,6 +501,8 @@ public class ProductDetailTest extends BaseTest {
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -704,13 +711,12 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_17_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, true);
-        if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -724,13 +730,12 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_18_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, true);
-        if (productId == 0)
             productId = new CreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -749,6 +754,7 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -958,12 +964,12 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_17_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, true);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
+        productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
+
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -977,12 +983,12 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_18_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, true);
-        if (productId == 0)
-            productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
+        productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
+
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -1001,14 +1007,16 @@ public class ProductDetailTest extends BaseTest {
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
 
+        commonAndroid.relaunchApp(goBUYERBundleId);
+
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
     }
 
     @AfterMethod
     void teardown() {
-        // Relaunch app
-        new UICommonAndroid(driver).relaunchApp(goBUYERBundleId, goBUYERSplashActivity);
+        // Relaunch
+        commonAndroid.relaunchApp(goBUYERBundleId);
     }
 
     void waitFlashSaleStart() {
