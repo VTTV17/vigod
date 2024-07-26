@@ -9,6 +9,11 @@ import utilities.model.sellerApp.login.LoginInformation;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.login.LoginPage;
+import web.Dashboard.orders.delivery.delivery_management.DeliveryManagementPage;
+import web.Dashboard.orders.orderlist.order_list.OrderManagementPage;
+import web.Dashboard.orders.pos.POSPage;
+import web.Dashboard.orders.quotation.QuotationPage;
+import web.Dashboard.orders.return_orders.return_order_management.ReturnOrdersManagementPage;
 import web.Dashboard.products.all_products.management.ProductManagementPage;
 import web.Dashboard.products.inventory.InventoryPage;
 import web.Dashboard.products.location.LocationPage;
@@ -71,6 +76,21 @@ public class PermissionTest extends BaseTest {
 
             int debt = nextInt((int) pow(2, 6));
             System.out.printf("debt= %d;%n", debt);
+
+            int ord = nextInt((int) pow(2, 24));
+            System.out.printf("ord= %d;%n", ord);
+
+            int ret = nextInt((int) pow(2, 9));
+            System.out.printf("ret= %d;%n", ret);
+
+            int quo = nextInt(2);
+            System.out.printf("pos= %d;%n", quo);
+
+            int pos = nextInt((int) pow(2, 5));
+            System.out.printf("pos= %d;%n", pos);
+
+            int del = nextInt((int) pow(2, 6));
+            System.out.printf("del= %d;%n", del);
 
 
             createPermission.setProduct_productManagement(Integer.toBinaryString(prod));
@@ -154,6 +174,36 @@ public class PermissionTest extends BaseTest {
 
             try {
                 new DebtManagementPage(driver).getLoginInformation(sellerLogin, staffLogin).checkDebtPermission(permissions);
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+
+            try {
+                new OrderManagementPage(driver).getLoginInformation(sellerLogin, staffLogin).checkOrderManagementPermission(permissions);
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+
+            try {
+                new ReturnOrdersManagementPage(driver, permissions).getLoginInformation(sellerLogin, staffLogin).checkReturnOrdersPermission();
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+
+            try {
+                new QuotationPage(driver, permissions).checkQuotationPermission();
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+
+            try {
+                new POSPage(driver, permissions).getLoginInformation(staffLogin).checkPOSPermission();
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+
+            try {
+                new DeliveryManagementPage(driver, permissions).getLoginInformation(sellerLogin, staffLogin).checkDeliveryPermission();
             } catch (Exception ex) {
                 System.out.println(ex);
             }
