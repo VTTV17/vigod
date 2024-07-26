@@ -15,6 +15,9 @@ public class ProductDetailElement {
     By loc_lblListingPrice = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_original_price".formatted(goBUYERBundleId)));
     By loc_lblDiscountCampaignBadge = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_tv_wholesale_label".formatted(goBUYERBundleId)));
     By loc_lblWholesaleProductBadge = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_group_wholesale_pricing".formatted(goBUYERBundleId)));
+    By loc_lblVariationName(String variationName) {
+        return androidUIAutomator(androidUIAutomatorTextString.formatted(variationName));
+    }
     By loc_lblVariationName1 = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_tv_variation_1_label".formatted(goBUYERBundleId)));
     By loc_lblVariationName2 = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_tv_variation_2_label".formatted(goBUYERBundleId)));
     By loc_lblVariationValue(String variationValue) {

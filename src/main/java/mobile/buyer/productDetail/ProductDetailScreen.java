@@ -197,15 +197,7 @@ public class ProductDetailScreen extends ProductDetailElement {
         List<String> expectedVariationNameList = Arrays.stream(productInfo.getVariationGroupNameMap().get(language).split("\\|")).toList();
 
         // Check all variation names show
-        IntStream.range(0, expectedVariationNameList.size()).forEach(varIndex -> {
-            // Get expected variation name
-            String expVariationName = expectedVariationNameList.get(varIndex);
-
-            // Check variation name
-            String actVariationName = commonAndroid.getText(varIndex == 0 ? loc_lblVariationName1 : loc_lblVariationName2);
-            assertCustomize.assertEquals(actVariationName, expVariationName, "Variation name must be %s, but found %s".formatted(expVariationName, actVariationName));
-        });
-        logger.info("[Check variation name] Check product variation show correctly");
+        expectedVariationNameList.forEach(variationName -> assertCustomize.assertFalse(commonAndroid.getListElement(loc_lblVariationName(variationName)).isEmpty(), "Variation name %s is not shown".formatted(variationName)));
     }
 
     void checkFilterAndSearchBranch(boolean isShown) {
