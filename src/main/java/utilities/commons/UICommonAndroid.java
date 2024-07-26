@@ -136,11 +136,6 @@ public class UICommonAndroid {
     }
 
 
-    public void hidKeyboard() {
-        ((AndroidDriver) driver).hideKeyboard();
-        logger.debug("Hid keyboard");
-    }
-
     public void tapByCoordinates(int x, int y) {
         // Create new PointerInput objects for start and end positions
         PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
@@ -187,16 +182,7 @@ public class UICommonAndroid {
         swipeGesture.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         // Execute the swipe gesture on the device
-        String platformNameFromCapacity = ((AppiumDriver) driver).getCapabilities().getCapability("platformName").toString();
         ((AppiumDriver) driver).perform(List.of(swipeGesture));
-    }
-
-    public void waitSplashScreenLoaded() {
-        wait.until((ExpectedCondition<Boolean>) driver -> {
-            AndroidDriver andDriver = (AndroidDriver) driver;
-            assert andDriver != null;
-            return Objects.requireNonNull(andDriver.currentActivity()).contains("MainActivity") || Objects.requireNonNull(andDriver.currentActivity()).contains("Login");
-        });
     }
 
     public void waitUntilScreenLoaded(String screenActivity) {
@@ -205,14 +191,6 @@ public class UICommonAndroid {
             assert androidDriver != null;
             return Objects.requireNonNull(androidDriver.currentActivity()).equals(screenActivity);
         });
-    }
-
-    public String getCurrentActivity() {
-        return ((AndroidDriver) driver).currentActivity();
-    }
-
-    public boolean isShown(String resourceId) {
-        return !getListElement(By.id(resourceId)).isEmpty();
     }
 
     public boolean isShown(By locator) {
@@ -263,21 +241,10 @@ public class UICommonAndroid {
         return getElement(locator).isDisplayed();
     }
 
-    public void waitPageLoaded(By locator) {
-        // wait home page loaded
-        boolean isLoaded;
-        do {
-            isLoaded = driver.getPageSource().contains(locator.toString().replaceAll("B.*?'|'.+", ""));
-        } while (!isLoaded);
-    }
-
     @SneakyThrows
     public void pushFileToMobileDevices(String fileName) {
         // Specify the file to be uploaded
         File file = new File(new DataGenerator().getPathOfFileInResourcesRoot(fileName));
-
-        // Convert the file to a byte array
-        byte[] fileContent = Files.readAllBytes(file.toPath());
 
         // Push the file to the device
         ((AndroidDriver) driver).pushFile("/sdcard/Download/%s".formatted(fileName), file);
@@ -294,10 +261,5 @@ public class UICommonAndroid {
         List<WebElement> elements = getListElement(locator);
 
         return elements.isEmpty() ? List.of() : new ArrayList<>(elements.stream().map(WebElement::getText).toList());
-    }
-
-    public WebDriver terminateApp(String appPackage) {
-            ((InteractsWithApps) driver).terminateApp(appPackage);
-        return driver;
     }
 }
