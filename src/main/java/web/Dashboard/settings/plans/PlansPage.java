@@ -69,20 +69,35 @@ public class PlansPage {
 		return packageOptions;
 	}
 	
-//	public List<String> getPackageBenefits() {
-//		commons.getElement(elements.loc_lblPackageTitle); //This implicitly means the packages are present ready for further actions
-//		
-//		By loc_lblBenefitTitle = By.cssSelector(".package-plans-benefit .item .title");
-//		
-//		List<String> title = new ArrayList<>();
-//		
-//		for(int i=0; i<commons.getElements(loc_lblBenefitTitle).size(); i++) {
-//			title.add(commons.getText(loc_lblBenefitTitle, i));
-//		}
-//		
-//		logger.info("Retrieved Package Benefits: {}", title);
-//		return title;
-//	}
+	public List<List<String>> getPackageBenefits(String country) {
+		commons.getElement(elements.loc_lblPackageTitle); //This implicitly means the packages are present ready for further actions
+		
+		int packageCount = country.contentEquals("Vietnam") ? NewPackage.forVNStore().size() : NewPackage.forForeignStore().size();
+		
+		List<List<String>> benefits = new ArrayList<List<String>>();
+		
+		for (int i=1; i<= commons.getElements(By.xpath(elements.loc_lblBenefitTitle)).size(); i++) {
+			
+			List<String> tray = new ArrayList<>();
+			
+			tray.add(commons.getText(By.xpath(elements.loc_lblBenefitTitle), i-1)); //Benefit title
+			
+			//Benefit content
+			for (int j=1; j<=packageCount; j++) {
+				String tempText = commons.getText(By.xpath(elements.loc_lblBenefitContent.formatted(i, j)));
+				if (tempText.isEmpty()) {
+					tempText = commons.getElements(By.xpath(elements.loc_icnBenefitChecked.formatted(i, j))).isEmpty() ? "false" : "true";
+				}
+				
+				tray.add(tempText);
+			}
+			benefits.add(tray);
+		}
+		
+		logger.info("Retrieved Package Benefits: {}", benefits);
+		return benefits;
+	}
+	
 	public PlansPage subscribeToPackage(String packageName) {
 		commons.click(By.xpath(elements.loc_btnSubscribePackageByName.formatted(packageName)));
 		logger.info("Subscribed to: {}", packageName);

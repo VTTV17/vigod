@@ -15,21 +15,23 @@ import com.google.common.io.Resources;
 
 public class jsonFileUtility {
 	public static JsonNode readJsonFile(String fileName) {
+		JsonNode rootNode = null;
+		try {
+			rootNode = new ObjectMapper().readTree(readFileToString(fileName));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return rootNode;
+	}
+	
+	public static String readFileToString(String fileName) {
 		URL url = Resources.getResource(fileName);
 		String jsonString = null;
-		JsonNode rootNode = null;
-		
 		try {
 			jsonString = FileUtils.readFileToString(new File(url.toURI()), StandardCharsets.UTF_8);
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
-		
-		try {
-			rootNode = new ObjectMapper().readTree(jsonString);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return rootNode;
+		return jsonString;
 	}
 }

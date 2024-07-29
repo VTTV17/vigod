@@ -29,7 +29,7 @@ public class VerifyMailContent {
     static String GOSELLMAIL_REGEX = "(?:<mailto:)?(.*\\@.*\\..{2,3})(?:\\?|or|.{3}c)";
     static String GOSELLPHONE_REGEX = "(?:<tel:|\\n)(\\d{8,})";
     static String TRACKINGLINK_REGEX = "//tracking\\.(.*)/tracking";
-    static String ORDERID_REGEX = "(?:Order ID|M. đ.n h.ng):#(\\d+)";
+    public static String ORDERID_REGEX = "(?:Order ID|M. đ.n h.ng):#(\\d+)";
     
     static String getDomain(String url) {
     	return url.contains("biz") ? DOMAIN_BIZ : DOMAIN_VN;
@@ -141,6 +141,8 @@ public class VerifyMailContent {
     	List<String> urlLinkText = extractInfoFromMailBody(content, TRACKINGLINK_REGEX);
     	Assert.assertEquals(urlLinkText.size(), 2);
     	urlLinkText.stream().forEach(e -> Assert.assertEquals(e, getDomain(store.getDomain())));
+    	
+    	logger.info("Finished paymentConfirmation");
     }    
     
     public static void successfulPayment(String content, SetupStoreDG store, PaymentCompleteInfo paymentCompleteInfo, String expectedExpiryDate) {
@@ -167,6 +169,8 @@ public class VerifyMailContent {
     	List<String> urlLinkText = extractInfoFromMailBody(content, TRACKINGLINK_REGEX);
     	Assert.assertEquals(urlLinkText.size(), 2);
     	urlLinkText.stream().forEach(e -> Assert.assertEquals(e, getDomain(store.getDomain())));
+    	
+    	logger.info("Finished successfulPayment");
     }      
     
 }

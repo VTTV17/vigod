@@ -47,6 +47,12 @@ public class ATM {
 	@FindBy(id = "btnContinue")
 	WebElement CONTINUE_BTN;
 	
+	@FindBy(css = "[data-bs-target='#modalCancelPayment'] .ubtn-text")
+	WebElement CANCEL_BTN;
+	
+	@FindBy(css = "#modalCancelPayment [onclick='cancelConfirm()']")
+	WebElement CONFIRM_CANCEL_PAYMENT_BTN;
+	
 	@FindBy(id = "otpvalue")
 	WebElement OTP;
 	
@@ -91,6 +97,18 @@ public class ATM {
 		return this;
 	}	
 	
+	public ATM clickCancelBtn() {
+		commonAction.clickElement(CANCEL_BTN);
+		logger.info("Clicked on 'Cancel' button.");
+		return this;
+	}	
+	
+	public ATM clickConfirmCancelPaymentBtn() {
+		commonAction.clickElement(CONFIRM_CANCEL_PAYMENT_BTN);
+		logger.info("Clicked on 'Confirm' button to abort payment process.");
+		return this;
+	}	
+	
 	public ATM inputOTP(String OTPValue) {
 		commonAction.inputText(OTP, OTPValue);
 		logger.info("Input '" + OTPValue + "' into OTP field.");
@@ -130,5 +148,12 @@ public class ATM {
 		clickConfirm();
 		return this;
 	}		
+	
+	public ATM abandonPayment() {
+		selectBank(ATM_BANK);
+		clickCancelBtn();
+		clickConfirmCancelPaymentBtn();
+		return this;
+	}	
 	
 }
