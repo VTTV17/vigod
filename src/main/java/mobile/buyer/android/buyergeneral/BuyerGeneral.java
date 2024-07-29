@@ -1,4 +1,4 @@
-package mobile.buyer.buyergeneral;
+package mobile.buyer.android.buyergeneral;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

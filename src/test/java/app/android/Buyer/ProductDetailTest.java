@@ -8,8 +8,8 @@ import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
 import api.Seller.setting.BranchManagement;
-import mobile.buyer.navigationbar.NavigationBar;
-import mobile.buyer.productDetail.ProductDetailScreen;
+import mobile.buyer.android.navigationbar.NavigationBar;
+import mobile.buyer.android.productDetail.ProductDetailScreen;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
@@ -317,6 +317,7 @@ public class ProductDetailTest extends BaseTest {
         flashSale.createFlashSale(productInfo, 1, 30);
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitFlashSaleStart();
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -513,6 +514,8 @@ public class ProductDetailTest extends BaseTest {
         flashSale.createFlashSale(productInfo, 1, 30);
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitFlashSaleStart();
+
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -766,6 +769,7 @@ public class ProductDetailTest extends BaseTest {
         flashSale.createFlashSale(productInfo, 1, 30);
         discountCampaign.createProductDiscountCampaign(conditions, productInfo, 0);
         waitFlashSaleStart();
+        commonAndroid.relaunchApp(goBUYERBundleId);
 
         productDetailScreen
                 .openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);

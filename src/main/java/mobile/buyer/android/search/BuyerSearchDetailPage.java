@@ -1,4 +1,4 @@
-package mobile.buyer.search;
+package mobile.buyer.android.search;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

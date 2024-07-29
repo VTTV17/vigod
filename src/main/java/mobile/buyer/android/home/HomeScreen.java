@@ -1,4 +1,4 @@
-package mobile.buyer.home;
+package mobile.buyer.android.home;
 
 import app.Buyer.collection.Collection;
 import org.apache.logging.log4j.LogManager;
@@ -6,13 +6,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
 import utilities.commons.UICommonAndroid;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 
 import java.time.Duration;
-
-import static utilities.environment.goBUYEREnvironment.goBUYERHomeScreenActivity;
 
 public class HomeScreen extends HomeElement {
     final static Logger logger = LogManager.getLogger(HomeScreen.class);

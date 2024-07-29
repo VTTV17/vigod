@@ -1,8 +1,8 @@
-package mobile.buyer.login;
+package mobile.buyer.android.login;
 
-import mobile.buyer.buyergeneral.BuyerGeneral;
-import mobile.buyer.login.forgot_password.ForgotPasswordScreen;
-import mobile.buyer.login.signup.SignupScreen;
+import mobile.buyer.android.buyergeneral.BuyerGeneral;
+import mobile.buyer.android.login.forgot_password.ForgotPasswordScreen;
+import mobile.buyer.android.login.signup.SignupScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;

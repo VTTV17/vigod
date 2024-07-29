@@ -1,4 +1,4 @@
-package mobile.buyer.shopcart;
+package mobile.buyer.android.shopcart;
 
 import org.openqa.selenium.By;
 

@@ -1,9 +1,9 @@
-package mobile.buyer.navigationbar;
+package mobile.buyer.android.navigationbar;
 
-import mobile.buyer.home.HomeScreen;
-import mobile.buyer.home.account.BuyerAccountPage;
-import mobile.buyer.search.BuyerSearchPage;
-import mobile.buyer.shopcart.BuyerShopCartPage;
+import mobile.buyer.android.home.HomeScreen;
+import mobile.buyer.android.home.account.BuyerAccountPage;
+import mobile.buyer.android.search.BuyerSearchPage;
+import mobile.buyer.android.shopcart.BuyerShopCartPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;

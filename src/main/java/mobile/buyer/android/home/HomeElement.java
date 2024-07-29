@@ -1,4 +1,4 @@
-package mobile.buyer.home;
+package mobile.buyer.android.home;
 
 import org.openqa.selenium.By;
 

@@ -1,4 +1,4 @@
-package mobile.buyer.home.account;
+package mobile.buyer.android.home.account;
 
 import app.Buyer.account.BuyerChangeLanguage;
 import app.Buyer.account.BuyerMyProfile;

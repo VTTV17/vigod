@@ -1,4 +1,4 @@
-package mobile.buyer.search;
+package mobile.buyer.android.search;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

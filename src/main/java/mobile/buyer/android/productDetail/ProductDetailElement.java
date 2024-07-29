@@ -1,4 +1,4 @@
-package mobile.buyer.productDetail;
+package mobile.buyer.android.productDetail;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.pagefactory.ByChained;
@@ -11,15 +11,14 @@ import static utilities.environment.goBUYEREnvironment.goBUYERBundleId;
 public class ProductDetailElement {
     By loc_lblFlashSaleBadge = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/llFlashSaleContainer1".formatted(goBUYERBundleId)));
     By loc_lblProductName = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_title".formatted(goBUYERBundleId)));
-    By loc_lblSoldOutMark = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/activity_item_details_tv_not_available".formatted(goBUYERBundleId)));
+//    By loc_lblSoldOutMark = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/activity_item_details_tv_not_available".formatted(goBUYERBundleId)));
+    By loc_lblSoldOutMark = androidUIAutomator(androidUIAutomatorTextString.formatted("Hết hàng"));
     By loc_lblListingPrice = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_original_price".formatted(goBUYERBundleId)));
     By loc_lblDiscountCampaignBadge = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_tv_wholesale_label".formatted(goBUYERBundleId)));
     By loc_lblWholesaleProductBadge = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_group_wholesale_pricing".formatted(goBUYERBundleId)));
     By loc_lblVariationName(String variationName) {
         return androidUIAutomator(androidUIAutomatorTextString.formatted(variationName));
     }
-    By loc_lblVariationName1 = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_tv_variation_1_label".formatted(goBUYERBundleId)));
-    By loc_lblVariationName2 = androidUIAutomator(androidUIAutomatorResourcesIdString.formatted("%s:id/item_market_product_detail_desc_tv_variation_2_label".formatted(goBUYERBundleId)));
     By loc_lblVariationValue(String variationValue) {
         return androidUIAutomator(androidUIAutomatorTextString.formatted(variationValue));
     }

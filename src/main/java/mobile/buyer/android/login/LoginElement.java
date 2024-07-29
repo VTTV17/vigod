@@ -1,4 +1,4 @@
-package mobile.buyer.login;
+package mobile.buyer.android.login;
 
 import org.openqa.selenium.By;
 

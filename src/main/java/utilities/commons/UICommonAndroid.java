@@ -22,7 +22,6 @@ import utilities.data.DataGenerator;
 import utilities.screenshot.Screenshot;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;

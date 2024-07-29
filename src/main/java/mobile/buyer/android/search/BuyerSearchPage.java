@@ -1,6 +1,6 @@
-package mobile.buyer.search;
+package mobile.buyer.android.search;
 
-import mobile.buyer.productDetail.ProductDetailScreen;
+import mobile.buyer.android.productDetail.ProductDetailScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;

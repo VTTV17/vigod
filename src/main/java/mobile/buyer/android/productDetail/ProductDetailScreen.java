@@ -1,4 +1,4 @@
-package mobile.buyer.productDetail;
+package mobile.buyer.android.productDetail;
 
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.WholesaleProduct;
@@ -8,9 +8,9 @@ import api.Seller.promotion.ProductDiscountCampaign.BranchDiscountCampaignInfo;
 import api.Seller.sale_channel.onlineshop.Preferences;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
-import mobile.buyer.buyergeneral.BuyerGeneral;
-import mobile.buyer.navigationbar.NavigationBar;
-import mobile.buyer.shopcart.BuyerShopCartPage;
+import mobile.buyer.android.buyergeneral.BuyerGeneral;
+import mobile.buyer.android.navigationbar.NavigationBar;
+import mobile.buyer.android.shopcart.BuyerShopCartPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;

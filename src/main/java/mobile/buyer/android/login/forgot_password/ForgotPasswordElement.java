@@ -1,4 +1,4 @@
-package mobile.buyer.login.forgot_password;
+package mobile.buyer.android.login.forgot_password;
 
 import org.openqa.selenium.By;
 

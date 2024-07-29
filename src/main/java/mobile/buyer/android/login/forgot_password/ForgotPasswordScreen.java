@@ -1,4 +1,4 @@
-package mobile.buyer.login.forgot_password;
+package mobile.buyer.android.login.forgot_password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

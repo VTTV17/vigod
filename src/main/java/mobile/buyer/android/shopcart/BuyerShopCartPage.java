@@ -1,7 +1,7 @@
-package mobile.buyer.shopcart;
+package mobile.buyer.android.shopcart;
 
 import app.Buyer.checkout.CheckoutStep1;
-import mobile.buyer.buyergeneral.BuyerGeneral;
+import mobile.buyer.android.buyergeneral.BuyerGeneral;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
