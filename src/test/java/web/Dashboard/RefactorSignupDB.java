@@ -1,13 +1,26 @@
 package web.Dashboard;
 
-import api.Seller.login.Login;
-import api.Seller.setting.APIAccount;
-import api.kibana.KibanaAPI;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import api.Seller.login.Login;
+import api.Seller.setting.APIAccount;
+import api.kibana.KibanaAPI;
+import api.mailnesia.APIMailnesia;
 import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
@@ -34,16 +47,6 @@ import web.Dashboard.settings.storeinformation.StoreInformation;
 import web.Dashboard.signup.SetUpStorePage;
 import web.Dashboard.signup.SignupPage;
 import web.Dashboard.signup.VerifyMailContent;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
 public class RefactorSignupDB extends BaseTest {
 
@@ -185,11 +188,6 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), NewPackage.getValue(packageAndPayment.getNewPackage()));
 	}
 
-	String workoutExpiryDate(String currentDate, int period) {
-		int expiryYear = Integer.valueOf(currentDate.replaceAll("(?:\\d{2}-){2}", "")) + period;
-		return currentDate.replaceAll("\\d{4}", String.valueOf(expiryYear));
-	}
-
 	void validatePackageIsEnabledExp(PurchasePlanDG packageAndPayment, String subscriptionDate, String expiryDate) {
 		homePage.navigateToPage("Settings");
 		accountPage.clickAccountTab();
@@ -200,7 +198,7 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(planInfo.get(0).get(2), NewPackage.getValue(packageAndPayment.getNewPackage()));
 	}
 
-	public static List<MailType> emailsToCheck(SetupStoreDG store, PurchasePlanDG purchasePackage) {
+	List<MailType> decideOnMailTypeToCheck(SetupStoreDG store, PurchasePlanDG purchasePackage) {
 
 		List<MailType> mailTypes = new ArrayList<>();
 
@@ -219,25 +217,32 @@ public class RefactorSignupDB extends BaseTest {
 		}
 		return mailTypes;
 	}	
+	List<MailType> decidedOnMailTypeToCheckOnRenewing(SetupStoreDG store, PurchasePlanDG purchasePackage) {
+		
+		List<MailType> mailTypes = new ArrayList<>();
 
+		if (!store.getUsername().matches("\\d+")) {
+			if (purchasePackage.getPaymentMethod() == PaymentMethod.BANKTRANSFER) mailTypes.add(MailType.PAYMENT_CONFIRMATION);
+			mailTypes.add(MailType.SUCCESSFUL_PAYMENT);
+		}
+		return mailTypes;
+	}		
+	
 	void checkMail(List<MailType> mailTypes, SetupStoreDG store, PaymentCompleteInfo paymentCompleteInfo, String expiryDate) {
+		
 		Mailnesia mailPage = new Mailnesia(driver);
 
-		for (int i=0; i<10; i++) {
-			if (mailPage.navigate(store.getEmail()).getListOfEmailHeadersExp().size() == mailTypes.size()) break;
-			commonAction.sleepInMiliSecond(2000, "Wait till emails are fully displayed");
-		}
+		mailPage.waitTillThereAreMails(store.getEmail(), mailTypes.size());
 
 		for (MailType e : mailTypes) {
 			String content = new Mailnesia(driver).getEmailBody(e);
 			switch (e) {
-			case VERIFICATION_CODE: VerifyMailContent.verificationCode(content, store);
-			case ACCOUNT_REGISTRATION: VerifyMailContent.successfulAccountRegistration(content, store);
-			case WELCOME: VerifyMailContent.welcome(content, store);
-			case PAYMENT_CONFIRMATION: VerifyMailContent.paymentConfirmation(content, store, paymentCompleteInfo);
-			case SUCCESSFUL_PAYMENT: VerifyMailContent.successfulPayment(content, store, paymentCompleteInfo, expiryDate);
-			default:
-				throw new IllegalArgumentException("Unexpected value: " + e);
+			case VERIFICATION_CODE -> VerifyMailContent.verificationCode(content, store);
+			case ACCOUNT_REGISTRATION -> VerifyMailContent.successfulAccountRegistration(content, store);
+			case WELCOME -> VerifyMailContent.welcome(content, store);
+			case PAYMENT_CONFIRMATION -> VerifyMailContent.paymentConfirmation(content, store, paymentCompleteInfo);
+			case SUCCESSFUL_PAYMENT -> VerifyMailContent.successfulPayment(content, store, paymentCompleteInfo, expiryDate);
+			default -> throw new IllegalArgumentException("Unexpected value: " + e);
 			}
 		}
 	}
@@ -288,7 +293,7 @@ public class RefactorSignupDB extends BaseTest {
 	}
 
 	@Test
-	public void Signup11() {
+	public void RegisterThenLoginToContinue() {
 
 		//Randomize data
 		storeDG.randomStoreData();
@@ -543,7 +548,6 @@ public class RefactorSignupDB extends BaseTest {
 	public void SignupPurchasePackageExp() {
 
 		//Randomize data
-		storeDG.setAccountType("EMAIL");
 		storeDG.randomStoreData();
 		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
 		System.out.println(storeDG);
@@ -570,7 +574,7 @@ public class RefactorSignupDB extends BaseTest {
 		//Validate Shop Name and timezone are displayed as expected
 		validateTimezoneShopName();
 
-		List<MailType> availableMail = emailsToCheck(storeDG, planPaymentDG);
+		List<MailType> availableMail = decideOnMailTypeToCheck(storeDG, planPaymentDG);
 		checkMail(availableMail, storeDG, paymentCompleteInfo, expiryDate.replaceAll("-", "/"));
 	}
 
@@ -659,16 +663,225 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
 	}	
 
-	@Test(invocationCount = 5)
+	@Test(invocationCount = 2)
+	public void AbortPaymentProcessVN() {
+		
+		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Canada");
+//		storeDG.setUsername("bao142@mailnesia.com");
+//		storeDG.setEmail("bao142@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Cameron");
+//		storeDG.setUsername("665803698");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);		
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		storeDG.randomStoreData("Vietnam");
+		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		planPaymentDG.setNewPackage(currentPlanName);
+		
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+		
+		//Bug cache not cleared
+		if (planPaymentDG.getPeriod() !=1) plansPage.clickContinueOnFeatureComparisionDialog();
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		packagePaymentPage.abandonPayment(planPaymentDG.getPaymentMethod());
+		
+		commonAction.navigateBack();
+		
+		//Validate package plan is activated
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab();
+		
+		String dateFormat = "dd-MM-yyyy";
+		String subcriptionDate = DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.ofInstant(registeredDate, ZoneId.systemDefault()));
+		String newExpiryDate = DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.ofInstant(expiryDate, ZoneId.systemDefault()));
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
+	}		
+	@Test(invocationCount = 2)
+	public void AbortPaymentProcessBiz() {
+		
+		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Canada");
+//		storeDG.setUsername("bao142@mailnesia.com");
+//		storeDG.setEmail("bao142@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+		storeDG.randomStoreData("Cameroon");
+		storeDG.setUsername("665803698");
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		planPaymentDG.setNewPackage(currentPlanName);
+		
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+		
+		//Bug cache not cleared
+		if (planPaymentDG.getPeriod() !=1) plansPage.clickContinueOnFeatureComparisionDialog();
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		packagePaymentPage.abandonPayment(planPaymentDG.getPaymentMethod());
+		
+		commonAction.navigateBack();
+		
+		//Validate package plan is activated
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab();
+		
+		String dateFormat = "dd-MM-yyyy";
+		String subcriptionDate = DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.ofInstant(registeredDate, ZoneId.systemDefault()));
+		String newExpiryDate = DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.ofInstant(expiryDate, ZoneId.systemDefault()));
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
+	}		
+	
+	@Test
+	public void AbandonPaymentThenEnableFreeTrial() {
+		
+		//Randomize data
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.SIGNUP_PATH);
+		storeDG.setAccountType("MOBILE");
+		storeDG.randomStoreData();
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		planPaymentDG.setPaymentMethod(PaymentMethod.PAYPAL); //Reset payment method to PAYPAL
+		System.out.println(storeDG);
+		System.out.println(planPaymentDG);
+		
+		/* Sign up */
+		signupPage.navigate(storeDG.getDomain());
+		boolean isLanguageDisplayed = signupPage.isLanguageDropdownDisplayed();
+		
+		//Validate if Select Display Language dropdown appears
+		Assert.assertEquals(isLanguageDisplayed, canSwitchLanguage(storeDG.getDomain()));
+		
+		if (isLanguageDisplayed) signupPage.selectDisplayLanguage("ENG");
+		signupPage.fillOutSignupForm(storeDG);
+		signupPage.provideVerificationCode(storeDG);
+		
+		/* Setup store */
+		setupStorePage.setupShopExp(storeDG);
+		
+		/* Select package */
+		List<String> periodOptions = plansPage.getPackagePeriodOptions();
+		
+		//Validate package period options
+		Assert.assertEquals(periodOptions.size(), periodOptionCount(storeDG.getDomain()));
+		
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+		
+		//Validate if Free Trial button appears
+		Assert.assertEquals(plansPage.isFreeTrialBtnDisplayed(), isFreeTrialOffered(storeDG.getDomain()));
+		
+		List<PackageInfo> availablePackages = plansPage.getPackageInfo();
+		
+		//Validate the number of packages available
+		Assert.assertEquals(availablePackages.size(), availablePackageCount(storeDG.getCountry()));
+		
+		//Validate currency
+		availablePackages.stream().forEach(e -> Assert.assertTrue(e.getTotalPrice().matches(currencyRegex(storeDG.getCountry()))));
+		
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+		
+		/* Select payment */
+		List<String> periodPaymentOptions = packagePaymentPage.getPackagePeriodOptions();
+		
+		//Validate package period options
+		Assert.assertEquals(periodPaymentOptions.size(), periodOptionCount(storeDG.getDomain()));
+		
+		//Validate available payment options
+		List<String> onlinePaymentOptions = packagePaymentPage.getOnlinePaymentOptions();
+		Assert.assertEquals(onlinePaymentOptions, onlinePaymentOptions(storeDG.getCountry()));
+		
+		//Validate currency
+		periodPaymentOptions.stream().forEach(e -> Assert.assertTrue(e.matches(pricePerYearRegex(storeDG.getCountry()))));
+		
+		//Validate currency
+		PlanPaymentReview finalizedPackagePayment =  packagePaymentPage.getFinalizePackageInfo();
+		Assert.assertTrue(finalizedPackagePayment.getBasePrice().matches(currencyRegex(storeDG.getCountry())));
+		Assert.assertTrue(finalizedPackagePayment.getFinalTotal().matches(currencyRegex(storeDG.getCountry())));
+		if (storeDG.getDomain().contains("biz")) {
+			Assert.assertNull(finalizedPackagePayment.getVatPrice());
+		} else {
+			Assert.assertTrue(finalizedPackagePayment.getVatPrice().matches(currencyRegex(storeDG.getCountry())));
+		}
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		packagePaymentPage.abandonPayment(planPaymentDG.getPaymentMethod());
+		
+		commonAction.navigateBack();
+		
+		plansPage.clickFreeTrialBtn();
+		homePage.getToastMessage();
+		homePage.navigateToPage("Home");
+
+		//Validate package plan is activated
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab();
+		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), defaultFreeTrialPackage(storeDG.getCountry()));
+		
+		//Validate Shop Name and timezone are displayed as expected
+		storeInfoPage.clickStoreInformationTab();
+		Assert.assertEquals(storeInfoPage.getShopName(), storeDG.getName());
+		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
+	}	
+
+	@Test(invocationCount = 4)
 	public void ChangePackageVN() {
 
 		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
 		storeDG.randomStoreData("Vietnam");
-		storeDG.setUsername("0830659539");
+		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
 		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
 //		storeDG.randomStoreData("Cameroon");
 //		storeDG.setUsername("665803698");
 //		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Germany");
+//		storeDG.setUsername("auto0-shop15062030346@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
 		System.out.println(storeDG);
 
 		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
@@ -730,16 +943,108 @@ public class RefactorSignupDB extends BaseTest {
 		String newExpiryDate = DataGenerator.forwardTimeWithFormat(planPaymentDG.getPeriod(), TimeUnits.YEARS, "dd-MM-yyyy");
 		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
 
+	}
+	
+	@Test(invocationCount = 3)
+	public void ChangePackageBiz() {
+		
+		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		storeDG.randomStoreData("Cameroon");
+		storeDG.setUsername("665803698");
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Germany");
+//		storeDG.setUsername("auto0-shop15062030346@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		
+		BigDecimal expectedRefund = PlanMoney.calculateRefund(storeDG.getCountry(), currentPlanName, period, PlanMoney.workoutRemainingDays(expiryDate));
+		
+		//Get new package
+		for (int i=0; i<20; i++) {
+			planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+			if (!planPaymentDG.getNewPackage().equals(currentPlanName)) break;
+		}
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+		
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage()).clickContinueOnFeatureComparisionDialog();
+		
+		PlanPaymentReview planPaymentReview =  packagePaymentPage.getFinalizePackageInfo();
+		
+		BigDecimal actualTotalAmount = new BigDecimal(planPaymentReview.getFinalTotal().replaceAll("[^\\d+\\.]",""));
+		
+		//Compare refundAmount
+		Assert.assertEquals(new BigDecimal(planPaymentReview.getRefundAmount().replaceAll("[^\\d+\\.]","")), expectedRefund);
+		
+		BigDecimal expectedTotal = PlanMoney.calculateTotalPrice(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod(), expectedRefund);
+		
+		if (expectedTotal.compareTo(BigDecimal.ZERO) == 0) {
+			Assert.assertTrue(packagePaymentPage.isOnlinePaymentTabHidden());
+		} else {
+			Assert.assertFalse(packagePaymentPage.isOnlinePaymentTabHidden());
+		}
+		
+		//Compare total amount
+		Assert.assertEquals(actualTotalAmount.compareTo(expectedTotal), 0);
+		
+		if (expectedTotal.compareTo(BigDecimal.ZERO) == 0) {
+			planPaymentDG.setPaymentMethod(PaymentMethod.BANKTRANSFER);
+		}
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		String orderId = packagePaymentPage.completePayment(planPaymentDG.getPaymentMethod());
+		
+		if (expectedTotal.compareTo(BigDecimal.ZERO) != 0) {
+			packagePaymentPage.approvePackageInInternalTool(planPaymentDG.getPaymentMethod(), orderId);
+		}
+		
+		packagePaymentPage.clickBackToDashboardBtn();
+		
+		//Validate package plan is activated
+		String subcriptionDate = DataGenerator.getCurrentDate("dd-MM-yyyy");
+		String newExpiryDate = DataGenerator.forwardTimeWithFormat(planPaymentDG.getPeriod(), TimeUnits.YEARS, "dd-MM-yyyy");
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
+		
 	}	
 	
-	@Test(invocationCount = 5)
+	@Test(invocationCount = 4)
 	public void RenewPackageVN() {
 		
 		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Canada");
+//		storeDG.setUsername("bao142@mailnesia.com");
+//		storeDG.setEmail("bao142@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
 		storeDG.randomStoreData("Vietnam");
-		storeDG.setUsername("0830659539");
+		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
 		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
 		System.out.println(storeDG);
+		
+		APIMailnesia.deleteAllEmails(storeDG.getEmail());
 		
 		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
 		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
@@ -772,6 +1077,7 @@ public class RefactorSignupDB extends BaseTest {
 		
 		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
 		String orderId = packagePaymentPage.completePayment(planPaymentDG.getPaymentMethod());
+		PaymentCompleteInfo paymentCompleteInfo = packagePaymentPage.getPaymentCompleteInfo();
 		packagePaymentPage.approvePackageInInternalTool(planPaymentDG.getPaymentMethod(), orderId);
 		
 		packagePaymentPage.clickBackToDashboardBtn();
@@ -782,7 +1088,127 @@ public class RefactorSignupDB extends BaseTest {
 		String newExpiryDate = DataGenerator.forwardTimeWithFormat(LocalDateTime.ofInstant(expiryDate, ZoneId.systemDefault()), planPaymentDG.getPeriod(), TimeUnits.YEARS, dateFormat);
 		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
 		
+		List<MailType> availableMail = decidedOnMailTypeToCheckOnRenewing(storeDG, planPaymentDG);
+		checkMail(availableMail, storeDG, paymentCompleteInfo, newExpiryDate.replaceAll("-", "/"));
 	}	
+	
+	@Test(invocationCount = 3)
+	public void RenewPackageBiz() {
+		
+		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		storeDG.randomStoreData("Canada");
+		storeDG.setUsername("bao142@mailnesia.com");
+		storeDG.setEmail("bao142@mailnesia.com");
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		APIMailnesia.deleteAllEmails(storeDG.getEmail());
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		planPaymentDG.setNewPackage(currentPlanName);
+		
+		plansPage.selectDuration(planPaymentDG.getPeriod());
+		plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+		
+		//Bug cache not cleared
+		if (planPaymentDG.getPeriod() !=1) plansPage.clickContinueOnFeatureComparisionDialog();
+		
+		PlanPaymentReview planPaymentReview =  packagePaymentPage.getFinalizePackageInfo();
+		
+		BigDecimal actualTotal = new BigDecimal(planPaymentReview.getFinalTotal().replaceAll("[^\\d+\\.]",""));
+		
+		BigDecimal expectedTotal = PlanMoney.calculatePriceIncludingTax(storeDG.getDomain(), planPaymentDG.getNewPackage(), planPaymentDG.getPeriod());
+		
+		//Compare total amount
+		Assert.assertEquals(actualTotal.compareTo(expectedTotal), 0, "Actual: %s, expected: %s".formatted(actualTotal, expectedTotal));
+		
+		packagePaymentPage.selectPaymentMethod(planPaymentDG.getPaymentMethod());
+		String orderId = packagePaymentPage.completePayment(planPaymentDG.getPaymentMethod());
+		PaymentCompleteInfo paymentCompleteInfo = packagePaymentPage.getPaymentCompleteInfo();
+		packagePaymentPage.approvePackageInInternalTool(planPaymentDG.getPaymentMethod(), orderId);
+		
+		packagePaymentPage.clickBackToDashboardBtn();
+		
+		//Validate package plan is activated
+		String dateFormat = "dd-MM-yyyy";
+		String subcriptionDate = DataGenerator.getCurrentDate(dateFormat);
+		String newExpiryDate = DataGenerator.forwardTimeWithFormat(LocalDateTime.ofInstant(expiryDate, ZoneId.systemDefault()), planPaymentDG.getPeriod(), TimeUnits.YEARS, dateFormat);
+		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
+		
+		List<MailType> availableMail = decidedOnMailTypeToCheckOnRenewing(storeDG, planPaymentDG);
+		checkMail(availableMail, storeDG, paymentCompleteInfo, newExpiryDate.replaceAll("-", "/"));
+	}	
+	
+	@Test
+	public void PackageBenefitsVN() {
+		
+		//Randomize data
+		storeDG.randomStoreData("Vietnam");
+		storeDG.setUsername("0830659539");
+		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Canada");
+//		storeDG.setUsername("bao142@mailnesia.com");
+//		storeDG.setEmail("bao142@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		
+		int maxPlanCount = storeDG.getCountry().contentEquals("Vietnam") ? 3 : 1;
+		List<String> langList = new ArrayList<>();
+		langList.add("ENG");
+		if (canSwitchLanguage(storeDG.getDomain())) {
+			langList.add("VIE");
+		}
+		
+		for (String lang : langList) {
+			if (canSwitchLanguage(storeDG.getDomain())) homePage.selectLanguage(lang);
+			
+			for (int duration=1 ;duration<=maxPlanCount; duration++) {
+				plansPage.selectDuration(duration);
+				
+				List<List<String>> actualBenefits = plansPage.getPackageBenefits(storeDG.getCountry());
+				
+				List<List<String>> expectedBenefits = DataGenerator.getBenefitsByPlan(storeDG.getCountry(), duration, lang.substring(0, 2).toLowerCase()); 
+				
+				Assert.assertEquals(actualBenefits, expectedBenefits);
+			}		
+		}
+	}	
+	
 
 	@AfterMethod
 	public void writeResult(ITestResult result) throws IOException {

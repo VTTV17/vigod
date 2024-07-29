@@ -1,0 +1,291 @@
+{
+    "ONE_YEAR": [
+        {
+            "en": [
+                "Professional e-Commerce website",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Point of sale software (POS)",
+                "false",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage branches/ Inventory locations (Extra fee)",
+                "false",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Affiliates",
+                "false",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Multi-Level Affiliate",
+                "false",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Upload and manage products",
+                "Unlimited",
+                "Unlimited"
+            ]
+        },
+        {
+            "en": [
+                "Create and manage service bookings",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Inventory management",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Create and manage inventory for products with conversion units",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage product by Lot date",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage product inventory by location",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage orders",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage suppliers",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage staffs accounts",
+                "Unlimited",
+                "Unlimited"
+            ]
+        },
+        {
+            "en": [
+                "Self delivery - automatically calculate shipping fees based on delivery location",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Payment options: COD, PayPal, debt, bank transfer",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Manage your business from anywhere using the GoSELLER app",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "E-Warranty",
+                "false",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Cash book",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "TAX Management",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Revenue, cost, order reports and analytics",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Customer relationship management (CRM)",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Customer segmentation",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Customer dept management",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Customer Analytics",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Loyalty membership level",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Create program of earn points and redeem points for discount",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Discount code",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Create flash sale campaign",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Wholesale management",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Buy X get Y creation",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Create buy X - get Y campaign",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Create the campaign of buy X - get discount for Y product",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "SEO Optimization",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Google Analytics",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Google Tag Manager",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Facebook Pixel",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Google Smart Shopping",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Email Marketing",
+                "Unlimited",
+                "Unlimited"
+            ]
+        },
+        {
+            "en": [
+                "Multiple language",
+                "true",
+                "true"
+            ]
+        },
+        {
+            "en": [
+                "Currency product pricing exchange by market (190+ countries)",
+                "true",
+                "true"
+            ]
+        }
+    ]
+}

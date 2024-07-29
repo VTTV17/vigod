@@ -54,7 +54,7 @@ public class PlanMoney {
 
 	public static BigDecimal calculateRefund(String country, NewPackage plan, int years, long remainingDays) {
 		if (country.contentEquals("Vietnam")) {
-			return workoutRefund(plan, years, remainingDays, 10, 0);
+			return workoutRefund(plan, years, remainingDays, 4, 0);
 		}
 		return workoutRefund(plan, years, remainingDays, 4, 2);
 	}
