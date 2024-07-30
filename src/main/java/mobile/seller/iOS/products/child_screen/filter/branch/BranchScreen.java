@@ -24,7 +24,7 @@ public class BranchScreen extends BranchElement {
 
     public void selectBranch(String branchName) {
         // Select branch
-        commonIOS.tap(branchName.equals("ALL") ? loc_btnAllBranches : loc_btnBranch(branchName));
+        commonIOS.click(branchName.equals("ALL") ? loc_btnAllBranches : loc_btnBranch(branchName));
 
         // Log
         logger.info("Select branch: {}", branchName);

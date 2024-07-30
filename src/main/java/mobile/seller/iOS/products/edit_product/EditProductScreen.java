@@ -174,11 +174,11 @@ public class EditProductScreen extends EditProductElement {
         // Remove product images
         int numberOfImages = commonIOS.getListElements(loc_icnDeleteImages).size();
         IntStream.range(0, numberOfImages)
-                .forEach(index -> commonIOS.tap(loc_icnDeleteImages));
+                .forEach(index -> commonIOS.click(loc_icnDeleteImages));
         logger.info("Remove old product images");
 
         // Open select image popup
-        commonIOS.tap(loc_icnProductImage);
+        commonIOS.click(loc_icnProductImage);
 
         // Select images
         new SelectImagePopup(driver).selectImages();
@@ -203,7 +203,7 @@ public class EditProductScreen extends EditProductElement {
 
     void inputProductDescription() {
         // Open description popup
-        commonIOS.tap(loc_btnProductDescription);
+        commonIOS.click(loc_btnProductDescription);
 
         // Input product description
         String description = "[%s] Product description %s".formatted(defaultLanguage, getCurrentEpoch());
@@ -268,7 +268,7 @@ public class EditProductScreen extends EditProductElement {
         boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkHideRemainingStock));
 
         // Hide remaining stock on online store config
-        if (!Objects.equals(hideRemainingStock, status)) commonIOS.tap(loc_chkHideRemainingStock);
+        if (!Objects.equals(hideRemainingStock, status)) commonIOS.click(loc_chkHideRemainingStock);
 
         // Log
         logger.info("Hide remaining stock on online store config: {}", hideRemainingStock);
@@ -283,7 +283,7 @@ public class EditProductScreen extends EditProductElement {
         boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkDisplayIfOutOfStock));
 
         // Add display out of stock config
-        if (!Objects.equals(showOutOfStock, status)) commonIOS.tap(loc_chkDisplayIfOutOfStock);
+        if (!Objects.equals(showOutOfStock, status)) commonIOS.click(loc_chkDisplayIfOutOfStock);
 
         // Log
         logger.info("Display out of stock config: {}", showOutOfStock);
@@ -298,7 +298,7 @@ public class EditProductScreen extends EditProductElement {
             boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkManageStockByLotDate));
 
             // Manage product by lot
-            if (manageByLot && !status) commonIOS.tap(loc_chkManageStockByLotDate);
+            if (manageByLot && !status) commonIOS.click(loc_chkManageStockByLotDate);
 
             // Log
             logger.info("Manage product by lot date: {}", manageByLot || status);
@@ -312,7 +312,7 @@ public class EditProductScreen extends EditProductElement {
         // Check product is managed by lot or not
         if (!manageByLot || manageByIMEI) {
             // Navigate to inventory screen
-            commonIOS.tap(loc_btnInventory);
+            commonIOS.click(loc_btnInventory);
 
             // Add without variation stock
             new InventoryScreen(driver).updateStock(manageByIMEI, branchInfo, "", branchStock);
@@ -425,7 +425,7 @@ public class EditProductScreen extends EditProductElement {
         } else {
             // Else navigate to Add/Edit variation screen to add new variation
             commonIOS.click(loc_swVariation);
-            commonIOS.tap(loc_btnAddVariation);
+            commonIOS.click(loc_btnAddVariation);
 
             // Add/Edit variation
             new CRUDVariationScreen(driver).addVariation(defaultLanguage);
@@ -455,6 +455,7 @@ public class EditProductScreen extends EditProductElement {
             // Get new variation information
             productInfo.setVariationGroupNameMap(groupMap);
             productInfo.setVariationValuesMap(valueMap);
+            productInfo.setHasModel(true);
         }
     }
 
@@ -467,7 +468,6 @@ public class EditProductScreen extends EditProductElement {
         else if (!commonIOS.getListElements(loc_lstVariations, 10000).isEmpty()) {
             // Navigate to Add/Edit variation
             commonIOS.click(loc_btnEditVariation);
-            commonIOS.tap(loc_btnEditVariation);
 
             // Remove all variations and save changes
             new CRUDVariationScreen(driver).removeOldVariation()
@@ -477,7 +477,7 @@ public class EditProductScreen extends EditProductElement {
             commonIOS.sendKeys(loc_txtWithoutVariationCostPrice, "0");
 
             // Save changes
-            commonIOS.tap(loc_btnSave);
+            commonIOS.click(loc_btnSave);
 
             // Wait product updated
             commonIOS.getElement(loc_txtSearchBox);
@@ -491,7 +491,6 @@ public class EditProductScreen extends EditProductElement {
         // Navigate to edit multiple screen
         if (totalVariations > 1) {
             commonIOS.click(loc_btnEditMultiple);
-            if (!driver.findElements(loc_btnEditMultiple).isEmpty()) commonIOS.tap(loc_btnEditMultiple);
 
             // Init edit multiple model
             EditMultipleScreen editMultipleScreen = new EditMultipleScreen(driver);
@@ -520,16 +519,15 @@ public class EditProductScreen extends EditProductElement {
             // So we must be updated variation information at that's detail screen
             updateVariationInformation(branchStock);
         }
-
     }
 
     void completeUpdateProduct() {
         // Save all product information
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
 
         // If product are managed by lot, accept when warning shows
         if (!commonIOS.getListElements(loc_dlgWarningManagedByLot_btnOK).isEmpty()) {
-            commonIOS.tap(loc_dlgWarningManagedByLot_btnOK);
+            commonIOS.click(loc_dlgWarningManagedByLot_btnOK);
 
             // Log
             logger.info("Confirm managed by lot");
@@ -693,7 +691,7 @@ public class EditProductScreen extends EditProductElement {
         // Update variation information
         IntStream.range(0, productInfo.getVariationValuesMap().get(defaultLanguage).size()).forEach(variationIndex -> {
             // Navigate to variation detail screen
-            commonIOS.tap(loc_lstVariations, variationIndex);
+            commonIOS.click(loc_lstVariations, variationIndex);
 
             // Update variation information
             productVariationScreen.getVariationInformation(defaultLanguage, branchInfo, hasDiscount, hasCostPrice, variationIndex, productInfo)

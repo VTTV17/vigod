@@ -20,6 +20,6 @@ public class ProductDescriptionScreen extends ProductDescriptionElement {
         commonIOS.sendKeys(loc_txtContent, description);
 
         // Save changes
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 }

@@ -24,9 +24,9 @@ public class SelectImagePopup extends SelectImageElement{
 
     public void selectImages() {
         // Select images
-       commonIOS.tap(loc_lstImages, 0);
+       commonIOS.click(loc_lstImages, 0);
 
         // Save changes
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 }

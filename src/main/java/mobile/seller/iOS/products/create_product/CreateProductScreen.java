@@ -153,7 +153,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     void selectImages() {
         // Open select image popup
-        commonIOS.tap(loc_icnProductImage);
+        commonIOS.click(loc_icnProductImage);
 
         // Allow access all photo library
         try {
@@ -188,7 +188,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     void inputProductDescription() {
         // Open description popup
-        commonIOS.tap(loc_btnProductDescription);
+        commonIOS.click(loc_btnProductDescription);
 
         // Input product description
         String description = "[%s] Product description %s".formatted(defaultLanguage, getCurrentEpoch());
@@ -253,7 +253,7 @@ public class CreateProductScreen extends CreateProductElement {
         boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkHideRemainingStock));
 
         // Hide remaining stock on online store config
-        if (!Objects.equals(hideRemainingStock, status)) commonIOS.tap(loc_chkHideRemainingStock);
+        if (!Objects.equals(hideRemainingStock, status)) commonIOS.click(loc_chkHideRemainingStock);
 
         // Log
         logger.info("Hide remaining stock on online store config: {}", hideRemainingStock);
@@ -268,7 +268,7 @@ public class CreateProductScreen extends CreateProductElement {
         boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkDisplayIfOutOfStock));
 
         // Add display out of stock config
-        if (!Objects.equals(showOutOfStock, status)) commonIOS.tap(loc_chkDisplayIfOutOfStock);
+        if (!Objects.equals(showOutOfStock, status)) commonIOS.click(loc_chkDisplayIfOutOfStock);
 
         // Log
         logger.info("Display out of stock config: {}", showOutOfStock);
@@ -284,7 +284,7 @@ public class CreateProductScreen extends CreateProductElement {
             commonIOS.click(loc_ddvSelectedManageInventoryType);
 
             // Select manage inventory type
-            commonIOS.tap(loc_ddvManageInventoryByIMEI);
+            commonIOS.click(loc_ddvManageInventoryByIMEI);
         }
 
         // Log
@@ -300,7 +300,7 @@ public class CreateProductScreen extends CreateProductElement {
             boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkManageStockByLotDate));
 
             // Manage product by lot
-            if (manageByLot && !status) commonIOS.tap(loc_chkManageStockByLotDate);
+            if (manageByLot && !status) commonIOS.click(loc_chkManageStockByLotDate);
 
             // Log
             logger.info("Manage product by lot date: {}", manageByLot);
@@ -313,7 +313,7 @@ public class CreateProductScreen extends CreateProductElement {
     void addWithoutVariationStock(int... branchStock) {
         if (!manageByLot || manageByIMEI) {
             // Navigate to inventory screen
-            commonIOS.tap(loc_btnInventory);
+            commonIOS.click(loc_btnInventory);
 
             // Add without variation stock
             new InventoryScreen(driver).addStock(manageByIMEI, branchInfo, "", branchStock);
@@ -425,7 +425,7 @@ public class CreateProductScreen extends CreateProductElement {
     void addVariations() {
         // Navigate to Add/Edit variation
         commonIOS.click(loc_swVariation);
-        commonIOS.tap(loc_btnAddVariation);
+        commonIOS.click(loc_btnAddVariation);
 
         // Add/Edit variation
         new CRUDVariationScreen(driver).addVariation(defaultLanguage);
@@ -472,7 +472,7 @@ public class CreateProductScreen extends CreateProductElement {
             ProductVariationScreen productVariationScreen = new ProductVariationScreen(driver);
 
             // Navigate to variation detail screen to update variation information
-            commonIOS.tap(loc_lstVariations);
+            commonIOS.click(loc_lstVariations);
 
             // Update variation information
             productVariationScreen.getVariationInformation(defaultLanguage, branchInfo, hasDiscount, hasCostPrice, 0, productInfo)
@@ -518,7 +518,7 @@ public class CreateProductScreen extends CreateProductElement {
 
     void completeCreateProduct() {
         // Save all product information
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
 
         // Wait product management screen loaded
         assertCustomize.assertFalse(commonIOS.getListElements(loc_txtSearchBox).isEmpty(), "Can not create product");

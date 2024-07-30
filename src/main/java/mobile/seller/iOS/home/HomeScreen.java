@@ -26,7 +26,7 @@ public class HomeScreen extends HomeElement{
     public void logout() {
         if (!commonIOS.getListElements(loc_icnAccount).isEmpty()) {
             // Navigate to Account screen
-            commonIOS.tap(loc_icnAccount);
+            commonIOS.click(loc_icnAccount);
 
             // Logout
             new AccountScreen(driver).logout();
@@ -35,7 +35,7 @@ public class HomeScreen extends HomeElement{
 
     public void navigateToCreateProductScreen() {
         // Click create product icon
-        commonIOS.tap(loc_icnCreateProduct);
+        commonIOS.click(loc_icnCreateProduct);
 
         // Log
         logger.info("Navigate create product screen");
@@ -43,7 +43,7 @@ public class HomeScreen extends HomeElement{
 
     public void navigateToProductManagementScreen() {
         // Click product management icon
-        commonIOS.tap(loc_icnProductManagement);
+        commonIOS.click(loc_icnProductManagement);
 
         // Log
         logger.info("Navigate product management screen");

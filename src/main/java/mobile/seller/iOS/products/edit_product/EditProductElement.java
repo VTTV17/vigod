@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 
 public class EditProductElement {
     By loc_icnDeleteImages = By.xpath("//XCUIElementTypeImage[@name=\"icon_close_product_image_selected\"]");
-    By loc_icnProductImage = By.xpath("//XCUIElementTypeImage[@name=\"icon_selected_image_default\"]");
+    By loc_icnProductImage = By.xpath("//XCUIElementTypeImage[@name=\"icon_selected_image_default\"]/preceding-sibling::XCUIElementTypeButton");
     By loc_txtProductName = By.xpath("//XCUIElementTypeStaticText[@name=\"Product name *\"]/following-sibling::XCUIElementTypeTextField");
     By loc_btnProductDescription = By.xpath("//XCUIElementTypeStaticText[@name=\"Description\"]/following-sibling::XCUIElementTypeButton");
     By loc_txtWithoutVariationListingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\"]/following-sibling::XCUIElementTypeOther//XCUIElementTypeTextField)[1]");
@@ -35,10 +35,10 @@ public class EditProductElement {
     By loc_swInStore = By.xpath("//XCUIElementTypeStaticText[@name=\"In-store\"]//following-sibling::XCUIElementTypeSwitch");
     By loc_swGoSocial = By.xpath("//XCUIElementTypeStaticText[@name=\"GoSocial\"]//following-sibling::XCUIElementTypeSwitch");
     By loc_swVariation = By.xpath("//XCUIElementTypeStaticText[@name=\"Variations(0)\"]//following-sibling::XCUIElementTypeSwitch");
-    By loc_btnAddVariation = By.xpath("//XCUIElementTypeStaticText[@name=\"Add Variation\"]");
-    By loc_btnEditVariation = By.xpath("//XCUIElementTypeStaticText[@name=\"Edit Variation\"]");
-    By loc_btnEditMultiple = By.xpath("//XCUIElementTypeStaticText[@name=\"Edit multiple\"]");
-    By loc_lstVariations = By.xpath("//XCUIElementTypeStaticText[contains(@name, \"available\")]");
+    By loc_btnAddVariation = By.xpath("//XCUIElementTypeStaticText[@name=\"Add Variation\"]/preceding-sibling::XCUIElementTypeButton");
+    By loc_btnEditVariation = By.xpath("//XCUIElementTypeStaticText[@name=\"Edit Variation\"]//preceding-sibling::XCUIElementTypeButton");
+    By loc_btnEditMultiple = By.xpath("//XCUIElementTypeButton[@name=\"Edit multiple\"]");
+    By loc_lstVariations = By.xpath("//XCUIElementTypeStaticText[contains(@name, \"available\")]//parent::XCUIElementTypeCell");
     By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
     By loc_dlgWarningManagedByLot_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
 }

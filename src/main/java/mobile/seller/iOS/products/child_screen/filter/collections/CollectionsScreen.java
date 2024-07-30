@@ -25,7 +25,7 @@ public class CollectionsScreen extends CollectionsElement {
 
     public void selectCollection(String collectionName) {
         // Select collection
-        commonIOS.tap(collectionName.equals("ALL") ? loc_btnAllCollections : loc_btnCollection(collectionName));
+        commonIOS.click(collectionName.equals("ALL") ? loc_btnAllCollections : loc_btnCollection(collectionName));
 
         // Log
         logger.info("Select collection: {}", collectionName);

@@ -35,7 +35,7 @@ public class InventoryScreen extends InventoryElement {
             if (!(branchQuantity == 0 && commonIOS.getText(loc_txtBranchStock(branchName)).equals("Input quantity"))) {
                 if (manageByIMEI) {
                     // Navigate to add imei screen
-                    commonIOS.tap(loc_txtBranchStock(branchName));
+                    commonIOS.click(loc_txtBranchStock(branchName));
 
                     // Add imei
                     new AddIMEIScreen(driver).addIMEI(branchQuantity, branchName, variation);
@@ -50,7 +50,7 @@ public class InventoryScreen extends InventoryElement {
         });
 
         // Save changes
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 
     public void updateStock(boolean manageByIMEI, BranchInfo branchInfo, String variation, int... branchStock) {
@@ -71,13 +71,13 @@ public class InventoryScreen extends InventoryElement {
                 // Add branch stock
                 if (manageByIMEI) {
                     // Navigate to add imei screen
-                    commonIOS.tap(loc_txtBranchStock(branchName));
+                    commonIOS.click(loc_txtBranchStock(branchName));
 
                     // Add imei
                     new AddIMEIScreen(driver).addIMEI(branchQuantity, branchName, variation);
                 } else {
                     // Click into branch stock textbox
-                    commonIOS.tap(loc_txtBranchStock(branchName));
+                    commonIOS.click(loc_txtBranchStock(branchName));
 
                     // If update stock popup shows, update stock on popup
                     if (!commonIOS.getListElements(loc_dlgUpdateStock_tabChange).isEmpty()) {
@@ -88,7 +88,7 @@ public class InventoryScreen extends InventoryElement {
                         commonIOS.sendKeys(loc_txtUpdateStock_txtQuantity, String.valueOf(branchQuantity));
 
                         // Save changes
-                        commonIOS.tap(loc_dlgUpdateStock_btnOK);
+                        commonIOS.click(loc_dlgUpdateStock_btnOK);
                     } else {
                         // Input into branch stock textbox
                         commonIOS.sendKeys(loc_txtBranchStock(branchName), String.valueOf(branchQuantity));
@@ -101,6 +101,6 @@ public class InventoryScreen extends InventoryElement {
         });
 
         // Save changes
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 }

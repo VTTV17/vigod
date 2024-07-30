@@ -25,10 +25,10 @@ public class AccountScreen extends AccountElement {
 
     public void logout() {
         // Open logout popup
-        commonIOS.tap(loc_icnLogout);
+        commonIOS.click(loc_icnLogout);
 
         // Confirm logout
-        commonIOS.tap(loc_dlgLogout_btnOK);
+        commonIOS.click(loc_dlgLogout_btnOK);
 
         // Log
         logger.info("Logout");

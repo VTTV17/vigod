@@ -23,10 +23,10 @@ public class EditMultipleScreen extends EditMultipleElement {
 
     public void bulkUpdatePrice(long listingPrice, long sellingPrice) {
         // Open list actions
-        commonIOS.tap(loc_icnActions);
+        commonIOS.click(loc_icnActions);
 
         // Select bulk update price actions
-        commonIOS.tap(loc_ddvUpdatePriceActions);
+        commonIOS.click(loc_ddvUpdatePriceActions);
 
         // Input listing price
         commonIOS.sendKeys(loc_dlgUpdatePrice_txtListingPrice, String.valueOf(listingPrice));
@@ -37,7 +37,7 @@ public class EditMultipleScreen extends EditMultipleElement {
         logger.info("Bulk selling price: %,d".formatted(sellingPrice));
 
         // Save changes
-        commonIOS.tap(loc_dlgUpdatePrice_btnOK);
+        commonIOS.click(loc_dlgUpdatePrice_btnOK);
     }
 
     public void bulkUpdateStock(boolean manageByIMEI, boolean manageByLot, BranchInfo branchInfo, int increaseNum, int... branchStock) {
@@ -54,25 +54,25 @@ public class EditMultipleScreen extends EditMultipleElement {
                 int branchQuantity = ((branchIndex >= branchStock.length) ? 0 : branchStock[branchIndex]) + branchIndex * increaseNum;
 
                 // Open list branches
-                commonIOS.tap(loc_icnStoreBranch);
+                commonIOS.click(loc_icnStoreBranch);
 
                 // Switch branch
-                commonIOS.tap(loc_ddvBranch(branchName));
+                commonIOS.click(loc_ddvBranch(branchName));
 
                 // Open list actions
-                commonIOS.tap(loc_icnActions);
+                commonIOS.click(loc_icnActions);
 
                 // Select bulk update stock actions
-                commonIOS.tap(loc_ddvUpdateStockActions);
+                commonIOS.click(loc_ddvUpdateStockActions);
 
                 // Switch to change tab
-                commonIOS.tap(loc_dlgUpdateStock_tabChange);
+                commonIOS.click(loc_dlgUpdateStock_tabChange);
 
                 // Input quantity
                 commonIOS.sendKeys(loc_dlgUpdateStock_txtQuantity, String.valueOf(branchQuantity));
 
                 // Save changes
-                commonIOS.tap(loc_dlgUpdateStock_btnOK);
+                commonIOS.click(loc_dlgUpdateStock_btnOK);
 
                 // Log
                 logger.info("Bulk update stock for branch '{}', quantity: {}", branchName, branchQuantity);
@@ -80,6 +80,6 @@ public class EditMultipleScreen extends EditMultipleElement {
         }
 
         // Save changes
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 }

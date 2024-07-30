@@ -30,7 +30,7 @@ public class CRUDVariationScreen extends CRUDVariationElement {
         // Remove old variation
         if (!commonIOS.getListElements(loc_icnRemoveVariationGroup).isEmpty())
             IntStream.iterate(commonIOS.getListElements(loc_icnRemoveVariationGroup).size() - 1, removeIndex -> removeIndex >= 0, removeIndex -> removeIndex - 1)
-                    .forEach(removeIndex -> commonIOS.tap(loc_icnRemoveVariationGroup, removeIndex));
+                    .forEach(removeIndex -> commonIOS.click(loc_icnRemoveVariationGroup, removeIndex));
 
         return this;
     }
@@ -51,7 +51,7 @@ public class CRUDVariationScreen extends CRUDVariationElement {
             List<String> variationValue = variationMap.get(variationName);
 
             // Add new variation group
-            commonIOS.tap(loc_btnAddVariation);
+            commonIOS.click(loc_btnAddVariation);
 
             // Input variation group
             commonIOS.sendKeys(loc_txtVariationName, groupIndex, variationName);
@@ -60,7 +60,7 @@ public class CRUDVariationScreen extends CRUDVariationElement {
             // Input variation value
             for (String value : variationValue) {
                 commonIOS.sendKeys(loc_txtVariationValue, groupIndex, value);
-                commonIOS.tap(loc_icnAddVariationValue, groupIndex);
+                commonIOS.click(loc_icnAddVariationValue, groupIndex);
                 logger.info("Add variation value for group {}, value: {}", groupIndex + 1, value);
             }
         });
@@ -74,6 +74,6 @@ public class CRUDVariationScreen extends CRUDVariationElement {
 
     public void saveChanges() {
         // Save changes
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 }

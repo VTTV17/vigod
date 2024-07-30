@@ -54,7 +54,7 @@ public class EditProductTest extends BaseTest {
     @BeforeGroups(groups = "[iOS][UPDATE] Normal product - Variation")
     void preCondition_G3() {
         // Get product ID
-        productId = apiCreateProduct.createVariationProduct(false, 0).getProductID();
+        productId = 1289737;//apiCreateProduct.createVariationProduct(false, 0).getProductID();
     }
 
     @BeforeGroups(groups = "[iOS][UPDATE] IMEI product - Variation")
@@ -343,9 +343,9 @@ public class EditProductTest extends BaseTest {
     }
 
     @Test
-    void UP_PRODUCT_G3_11_UpdateProductInformationByEachVariation() {
+    void UP_PRODUCT_G3_15_UpdateProductInformationByEachVariation() {
         // Get product ID for new test
-        productId = 1287199;//apiCreateProduct.createVariationProduct(false, 0).getProductID();
+        productId = apiCreateProduct.createVariationProduct(false, 0).getProductID();
 
         // Update each variation
         editProductScreen.navigateToProductDetailScreen(productId)

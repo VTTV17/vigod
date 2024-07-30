@@ -103,7 +103,7 @@ public class ProductVariationScreen extends ProductVariationElement {
 
     void selectVariationImages() {
         // Open select image popup
-        commonIOS.tap(loc_icnVariationImage);
+        commonIOS.click(loc_icnVariationImage);
 
         // Select images
         new SelectImagePopup(driver).selectImages();
@@ -139,10 +139,10 @@ public class ProductVariationScreen extends ProductVariationElement {
             boolean status = commonIOS.isChecked(commonIOS.getElement(loc_chkReuseProductDescription));
 
             // Uncheck reuse description checkbox
-            if (status) commonIOS.tap(loc_chkReuseProductDescription);
+            if (status) commonIOS.click(loc_chkReuseProductDescription);
 
             // Open description popup
-            commonIOS.tap(loc_txtVariationDescription);
+            commonIOS.click(loc_btnVariationDescription);
 
             // Input product description
             String description = "[%s][%s] Variation description %s".formatted(defaultLanguage, variationValue, getCurrentEpoch());
@@ -203,7 +203,7 @@ public class ProductVariationScreen extends ProductVariationElement {
         // Check product is managed by lot or not
         if (!productInfo.getLotAvailable() || productInfo.getManageInventoryByIMEI()) {
             // Navigate to inventory screen
-            commonIOS.tapOnRightTopCorner(loc_icnInventory);
+            commonIOS.click(loc_icnInventory);
 
             // Add variation stock
             new InventoryScreen(driver).addStock(productInfo.getManageInventoryByIMEI(), branchInfo, variationValue, branchStock);
@@ -220,7 +220,7 @@ public class ProductVariationScreen extends ProductVariationElement {
         // Check product is managed by lot or not
         if (!productInfo.getLotAvailable() || productInfo.getManageInventoryByIMEI()) {
             // Navigate to inventory screen
-            commonIOS.tap(loc_icnInventory);
+            commonIOS.click(loc_icnInventory);
 
             // Add variation stock
             new InventoryScreen(driver).updateStock(productInfo.getManageInventoryByIMEI(), branchInfo, variationValue, branchStock);
@@ -243,7 +243,7 @@ public class ProductVariationScreen extends ProductVariationElement {
 
             // Update variation status
             if (!currentStatus.equals(newStatus)) {
-                commonIOS.tap(loc_btnDeactivate);
+                commonIOS.click(loc_btnDeactivate);
             }
 
             // Get variation status
@@ -256,7 +256,7 @@ public class ProductVariationScreen extends ProductVariationElement {
 
     void completeUpdateVariation() {
         // Save all product information
-        commonIOS.tap(loc_btnSave);
+        commonIOS.click(loc_btnSave);
     }
 
     public void addVariationInformation(int... branchStock) {

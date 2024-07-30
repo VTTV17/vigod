@@ -38,7 +38,7 @@ public class UICommonIOS {
         By loc_btnDone = By.xpath("//XCUIElementTypeButton[@name=\"Done\"]");
         if (!driver.findElements(loc_btnDone).isEmpty()) {
             // Hid keyboard
-            tap(loc_btnDone);
+            click(loc_btnDone);
         }
     }
 
@@ -91,6 +91,21 @@ public class UICommonIOS {
         ((IOSDriver) driver).perform(List.of(tapPosition));
     }
 
+    public void doubleTapInCenter(int x, int y) {
+        // Create an instance of PointerInput
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence doubleTap = new Sequence(finger, 1);
+
+        // Move to the element and perform the double tap
+        doubleTap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
+                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(new Pause(finger, Duration.ofMillis(100))) // Small pause between taps
+                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+        ((IOSDriver) driver).perform(List.of(doubleTap));
+    }
+
     public void tapByCoordinatesInPercent(double x, double y) {
         // Get the size of the device screen
         Dimension size = driver.manage().window().getSize();
@@ -116,14 +131,6 @@ public class UICommonIOS {
         tapByCoordinates(rightTopX, rightTopY);
     }
 
-    public void tap(By locator) {
-        tapOnCenter(getElement(locator));
-    }
-
-    public void tap(By locator, int index) {
-        tapOnCenter(getElement(locator, index));
-    }
-
     public void tapOnRightTopCorner(By locator) {
         tapOnRightTopCorner(getElement(locator));
     }
@@ -133,23 +140,43 @@ public class UICommonIOS {
     }
 
     public void click(By locator) {
-        getElement(locator).click();
+        WebElement element = getElement(locator);
+        switch (element.getAttribute("type")) {
+            case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(element);
+            default -> element.click();
+        }
     }
 
     public void click(By locator, int index) {
-        getElement(locator, index).click();
+        WebElement element = getElement(locator, index);
+        switch (element.getAttribute("type")) {
+            case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(element);
+            default -> element.click();
+        }
     }
 
     public void sendKeys(By locator, CharSequence content) {
-        getElement(locator).clear();
-        getElement(locator).sendKeys(content);
-        hidKeyboard();
+        try {
+            getElement(locator).clear();
+            getElement(locator).sendKeys(content);
+            hidKeyboard();
+        } catch (StaleElementReferenceException ex) {
+            getElement(locator).clear();
+            getElement(locator).sendKeys(content);
+            hidKeyboard();
+        }
     }
 
     public void sendKeys(By locator, int index, CharSequence content) {
-        getElement(locator, index).clear();
-        getElement(locator, index).sendKeys(content);
-        hidKeyboard();
+        try {
+            getElement(locator, index).clear();
+            getElement(locator, index).sendKeys(content);
+            hidKeyboard();
+        } catch (StaleElementReferenceException ex) {
+            getElement(locator, index).clear();
+            getElement(locator, index).sendKeys(content);
+            hidKeyboard();
+        }
     }
 
     public String getText(By locator) {
