@@ -78,7 +78,7 @@ public class AnalyticPermissionTest extends BaseTest{
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new UICommonAction(driver).sleepInMiliSecond(2000);
+//        new UICommonAction(driver).sleepInMiliSecond(2000);
         new HomePage(driver).waitTillSpinnerDisappear1();
         new OrderAnalytics(driver).getLoginInfo(ownerCredentials,staffCredentials).checkOrderAnalyticPermission(allPermissions);
     }
@@ -104,7 +104,6 @@ public class AnalyticPermissionTest extends BaseTest{
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-//        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).navigateToPage("Analytics","Orders");
         new ReservationAnalytics(driver).checkReservationAnalyticsPermission(allPermissions);
     }
 }

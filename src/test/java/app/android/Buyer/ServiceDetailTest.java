@@ -18,6 +18,7 @@ import app.Buyer.navigationbar.NavigationBar;
 import app.Buyer.search.BuyerSearchDetailPage;
 import app.Buyer.servicedetail.BuyerServiceDetail;
 import app.Buyer.servicedetail.SelectLocationPage;
+import utilities.udid.DevicesUDID;
 import utilities.utils.PropertiesUtil;
 import utilities.account.AccountTest;
 import utilities.data.DataGenerator;
@@ -75,7 +76,11 @@ public class ServiceDetailTest extends BaseTest {
     }
     public AppiumDriver launchApp(String appPackage, String appActivity) {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("udid", "R5CR92R4K7V");
+        try {
+            capabilities.setCapability("udid", new DevicesUDID().get());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("appPackage", appPackage);
         capabilities.setCapability("appActivity", appActivity);
