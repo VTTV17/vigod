@@ -160,6 +160,9 @@ public class LoginPage {
         	language = "ENG";
         	logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
         }
+        
+        commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
+        
         commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
         logger.info("Selected display language '%s'.".formatted(language));
         commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
