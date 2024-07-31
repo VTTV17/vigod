@@ -14,4 +14,8 @@ public class PlansPageElement {
 	String loc_blkPackageByName = "//div[@class='package-plans-package-list']//div[starts-with(@class,'items')]//*[@class='title' and .='%s']";
 	String loc_btnSubscribePackageByName = loc_blkPackageByName + "//following-sibling::button[starts-with(@class,'button-v2')]";		
 	By loc_btnContinue = By.cssSelector(".modal-body button:nth-child(2)");
+	
+	String loc_lblBenefitTitle = "//*[starts-with(@class,'package-plans-benefit')]//div[starts-with(@class,'item')]//div[@class='title']";
+	String loc_lblBenefitContent = "((//*[starts-with(@class,'package-plans-benefit')]//div[starts-with(@class,'item')]//div[@class='title'])[%s]/following-sibling::div[@class='check'])[%s]";
+	String loc_icnBenefitChecked = loc_lblBenefitContent + "//img";
 }

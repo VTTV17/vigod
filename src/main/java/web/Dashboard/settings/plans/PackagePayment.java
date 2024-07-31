@@ -147,6 +147,45 @@ public class PackagePayment {
 		commons.switchToWindow(currentWindowHandle);
 		return getOrderId();
 	}
+	
+	public String abandonPayment(PaymentMethod method) {
+		//Return orderId fast when the payment is Bank-Transfer
+		if (method.equals(PaymentMethod.BANKTRANSFER)) {
+			return getOrderId();
+		}
+		
+		//Get current tab handle
+		String currentWindowHandle = commons.getCurrentWindowHandle();
+		
+		int currentNumberOfWindows = 1;
+		
+		//Wait till a new tab is launch
+		for(int i=0; i<5; i++) {
+			currentNumberOfWindows = commons.getAllWindowHandles().size();
+			if (currentNumberOfWindows >1) break;
+			commons.sleepInMiliSecond(1000, "Wait till a new tab is launch");
+		}
+		
+		//Switch to the newly launched tab
+		commons.switchToWindow(1);
+		
+		switch (method) {
+		case ATM -> new ATM(driver).abandonPayment();
+		case VISA -> new VISA(driver).abandonPayment();
+		case PAYPAL -> new PAYPAL(driver).abandonPayment();
+		default -> System.out.println(); //No coding is needed
+		}
+		
+		//Wait till the latest tab is closed
+		for (int i=9; i>=0; i--) {
+			if (commons.getAllWindowHandles().size() != currentNumberOfWindows) {
+				break;
+			}
+			commons.sleepInMiliSecond(2000);
+		}
+		commons.switchToWindow(currentWindowHandle);
+		return "";
+	}
 
 	/**
 	 * @param method Input value: BANKTRANSFER/ATM/VISA/PAYPAL
@@ -186,7 +225,7 @@ public class PackagePayment {
 		}
 		case PAYPAL: {
 			internal.openNewTabAndNavigateToInternalTool().login().navigateToPage("GoSell","Packages","New Packages");
-			for (int i=0; i<20; i++) {
+			for (int i=0; i<15; i++) {
 				if (internal.getOrderApprovalStatus(orderID).contentEquals("Approved")) {
 					break;
 				}

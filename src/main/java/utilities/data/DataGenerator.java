@@ -63,6 +63,31 @@ public class DataGenerator {
         return countries;
     }
 
+	/**
+	 * Retrieves plan benefits from a json file
+	 * @param country
+	 * @param period 1/2/3
+	 * @param lang vi/en
+	 * @return
+	 */
+	public static List<List<String>> getBenefitsByPlan(String country, int period, String lang){
+		/**
+		 * Creation of shops located in Vietnam is not supported for domain .biz
+		 * So country field will be adequately useful to decide what packages are displayed
+		 */
+		String benefitJsonFile = country.contentEquals("Vietnam") ? "PlanPerksVN.json" : "PlanPerksBIZ.json";
+		String duration = switch (period) {
+		case 1 -> "ONE_YEAR";
+		case 2 -> "TWO_YEAR";
+		case 3 -> "THREE_YEAR";
+		default -> throw new IllegalArgumentException("%s is invalid. Please try again with a different value".formatted(period));
+		};
+		
+		JsonPath jsonPath = JsonPath.from(jsonFileUtility.readFileToString(benefitJsonFile));
+		List<List<String>> benefits = jsonPath.getList("%s.%s".formatted(duration, lang)); 
+		return benefits;
+	}  
+	
     /**
      * @return a random country
      */
@@ -71,23 +96,12 @@ public class DataGenerator {
         return countries.get(new Random().nextInt(0, countries.size()));
     }
 
-
-    public static String randomValidPhoneByCountry(String countryCode) {
-        String phone = "";
-        String regex = DotrandAPI.getPhoneRegexJsonPath(countryCode);
-        for (int i=0; i<1000; i++) { //At times the function returns phone numbers with the wrong format, so we repeat it several times until a valid phone is returned
-            phone = new Generex(regex).random();
-            if (phone.matches("\\d+")) break;
-        }
-        return phone;
-    }
-
     /**
      * Returns the phone code for a given country name as a String
      * @param country the name of the country to get the code for
      * @return the phone code for the given country, or null if it is not found
      */
-    public String getPhoneCode(String country) {
+    public static String getPhoneCode(String country) {
         JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("phoneCode");
         return data.asText();
     }
@@ -308,7 +322,20 @@ public class DataGenerator {
     public String randomPhoneByCountry(String country) {
         return country.contentEquals("Vietnam") ? randomVNPhone() : randomForeignPhone();
     }
+    
+    public static String generatePhoneFromRegex(String regex) {
+    	String phone = "";
+    	for (int i=0; i<1000; i++) { //At times the function returns phone numbers with the wrong format, so we repeat it several times until a valid phone is returned
+    		phone = new Generex(regex).random();
+    		if (phone.matches("\\d+")) break; 
+    	}
+    	return phone;
+    }	    
 
+	public static String randomValidPhoneByCountry(String countryCode) {
+		return generatePhoneFromRegex(DotrandAPI.getPhoneRegexJsonPath(countryCode));
+	}	    
+    
     public static <T> T getRandomListElement(List<T> list) {
         return list.get(new Random().nextInt(0, list.size()));
     }

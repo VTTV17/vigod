@@ -38,6 +38,8 @@ public class VISA {
 
 	//Will move these locators to a separate file
 	By loc_btnVISA = By.id("VISA");
+	By loc_btnCancel = By.cssSelector("[data-bs-target='#modalCancelPayment'] .ubtn-text");
+	By loc_btnConfirmAbortPayment = By.cssSelector("#modalCancelPayment [onclick='cancelConfirm()']");
 	By loc_txtCardNumber = By.id("card_number_mask");
 	By loc_txtCardDate = By.id("cardDate");
 	By loc_txtCCV = By.id("cvcCvv");
@@ -57,6 +59,17 @@ public class VISA {
 		logger.info("Clicked 'VISA' button.");
 		return this;
 	}	
+
+	public VISA clickCancelBtn() {
+		commonAction.click(loc_btnCancel);
+		logger.info("Clicked on 'Cancel' button.");
+		return this;
+	}		
+	public VISA clickConfirmCancelPaymentBtn() {
+		commonAction.click(loc_btnConfirmAbortPayment);
+		logger.info("Clicked on 'Confirm' button to abort payment process.");
+		return this;
+	}		
 	
 	public VISA inputCardNumber(String number) {
 		commonAction.inputText(loc_txtCardNumber, number);
@@ -156,4 +169,11 @@ public class VISA {
 		return this;
 	}
 
+	public VISA abandonPayment() {
+		clickVISABtn();
+		clickCancelBtn();
+		clickConfirmCancelPaymentBtn();
+		return this;
+	}		
+	
 }

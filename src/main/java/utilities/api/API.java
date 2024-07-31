@@ -84,7 +84,17 @@ public class API {
                 .when()
                 .post(path);
     }
-
+    
+    public final Response postDesignatedForMailnesia(String path, String token) {
+    	return given().relaxedHTTPSValidation()
+    			.auth()
+    			.oauth2(token)
+    			.formParam("delete", 1)
+    			.header("Content-Type", "application/x-www-form-urlencoded")
+    			.when()
+    			.post(path);
+    }
+    
     @SafeVarargs
     public final Response put(String path, String token, String body, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()

@@ -26,12 +26,19 @@ public class PAYPAL {
 	}
 
 	//Will move these locators to a separate file
+	By loc_btnCancel = By.id("cancelLink");
 	By loc_txtUsername = By.id("email");
 	By loc_btnNext = By.id("btnNext");
 	By loc_txtPassword = By.id("password");
 	By loc_btnLogin = By.id("btnLogin");
 	By loc_btnCompletePurchase = By.id("payment-submit-btn");
 
+	public PAYPAL clickCancelBtn() {
+		commonAction.click(loc_btnCancel);
+		logger.info("Clicked on 'Cancel' button.");
+		return this;
+	}		
+	
 	public PAYPAL inputUsername(String username) {
 		commonAction.inputText(loc_txtUsername, username);
 		logger.info("Input Username: {}", username);
@@ -69,4 +76,9 @@ public class PAYPAL {
 		completePayment(PAYPAL_USERNAME, PAYPAL_PASSWORD);
 		return this;
 	}
+	
+	public PAYPAL abandonPayment() {
+		clickCancelBtn();
+		return this;
+	}		
 }

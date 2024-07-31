@@ -49,6 +49,19 @@ public class Mailnesia {
 		return this;
 	}
 
+	public void waitTillThereAreMails(String email) {
+		for (int i=0; i<5; i++) {
+			if (navigate(email).getListOfEmailHeadersExp().size() >0) break;
+			common.sleepInMiliSecond(3000, "Wait till at least one mail is present");
+		}
+	}
+	public void waitTillThereAreMails(String email, int emailCount) {
+		for (int i=0; i<5; i++) {
+			if (navigate(email).getListOfEmailHeadersExp().size() >= emailCount) break;
+			common.sleepInMiliSecond(3000, "Wait till at least one mail is present");
+		}
+	}
+	
 	public String getVerificationCode() {
 		String code = null;
 		// Refresh page till a code is found
@@ -115,23 +128,12 @@ public class Mailnesia {
 	
 	public void clickEmail(MailType mailType) {
 		switch (mailType) {
-		case VERIFICATION_CODE: {
-			common.click(loc_tblSubjectVerificationCode); break;
-		}
-		case ACCOUNT_REGISTRATION: {
-			common.click(loc_tblSubjectSuccessfulRegistration); break;
-		}
-		case WELCOME: {
-			common.click(loc_tblSubjectWelcome); break;
-		}
-		case PAYMENT_CONFIRMATION: {
-			common.click(loc_tblSubjecPaymentConfirmation); break;
-		}
-		case SUCCESSFUL_PAYMENT: {
-			common.click(loc_tblSubjecSuccessfulPayment); break;
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + mailType);
+			case VERIFICATION_CODE -> common.click(loc_tblSubjectVerificationCode);
+			case ACCOUNT_REGISTRATION -> common.click(loc_tblSubjectSuccessfulRegistration);
+			case WELCOME -> common.click(loc_tblSubjectWelcome);
+			case PAYMENT_CONFIRMATION -> common.click(loc_tblSubjecPaymentConfirmation);
+			case SUCCESSFUL_PAYMENT -> common.click(loc_tblSubjecSuccessfulPayment);
+			default -> throw new IllegalArgumentException("Unexpected value: " + mailType);
 		}
 		common.sleepInMiliSecond(700, "Wait in clickEmail()");
 	}
