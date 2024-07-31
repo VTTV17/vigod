@@ -61,7 +61,7 @@ public class ProductManagementScreen extends ProductManagementElement {
         logger.info("Search product by name: {}", productName);
 
         // Navigate to product detail screen
-        if (!commonIOS.getListElements(loc_lblProductName(productName)).isEmpty()) {
+        if (!commonIOS.getListElement(loc_lblProductName(productName)).isEmpty()) {
             // Click into first result
             commonIOS.click(loc_lblProductName(productName));
 
@@ -89,7 +89,7 @@ public class ProductManagementScreen extends ProductManagementElement {
     
     private List<String> getListProductOnFirstScreen() {
         // Get all products on first screen after sort/filter
-        return IntStream.range(0, commonIOS.getListElements(loc_lblProductName).size())
+        return IntStream.range(0, commonIOS.getListElement(loc_lblProductName).size())
                 .mapToObj(index -> commonIOS.getText(loc_lblProductName, index)).toList();
     }
 

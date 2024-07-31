@@ -1,4 +1,4 @@
-package app.iOS;
+package app.iOS.GoSeller;
 
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;

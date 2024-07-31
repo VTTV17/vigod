@@ -172,7 +172,7 @@ public class EditProductScreen extends EditProductElement {
 
     void selectProductImages() {
         // Remove product images
-        int numberOfImages = commonIOS.getListElements(loc_icnDeleteImages).size();
+        int numberOfImages = commonIOS.getListElement(loc_icnDeleteImages).size();
         IntStream.range(0, numberOfImages)
                 .forEach(index -> commonIOS.click(loc_icnDeleteImages));
         logger.info("Remove old product images");
@@ -465,7 +465,7 @@ public class EditProductScreen extends EditProductElement {
             logger.info("Product that is managed by Lot, do not allow remove variation");
         }
         // If product has variation, remove old variation
-        else if (!commonIOS.getListElements(loc_lstVariations, 10000).isEmpty()) {
+        else if (!commonIOS.getListElement(loc_lstVariations).isEmpty()) {
             // Navigate to Add/Edit variation
             commonIOS.click(loc_btnEditVariation);
 
@@ -486,7 +486,13 @@ public class EditProductScreen extends EditProductElement {
 
     void bulkUpdateVariations(int increaseNum, int... branchStock) {
         // Get total variations
-        int totalVariations = CRUDVariationScreen.getVariationMap().values().stream().mapToInt(List::size).reduce(1, (a, b) -> a * b);
+        int totalVariations = this.hasLot
+                ? productInfo.getVariationModelList().size()
+                : CRUDVariationScreen.getVariationMap()
+                    .values()
+                    .stream()
+                    .mapToInt(List::size)
+                    .reduce(1, (a, b) -> a * b);
 
         // Navigate to edit multiple screen
         if (totalVariations > 1) {
@@ -526,7 +532,7 @@ public class EditProductScreen extends EditProductElement {
         commonIOS.click(loc_btnSave);
 
         // If product are managed by lot, accept when warning shows
-        if (!commonIOS.getListElements(loc_dlgWarningManagedByLot_btnOK).isEmpty()) {
+        if (!commonIOS.getListElement(loc_dlgWarningManagedByLot_btnOK).isEmpty()) {
             commonIOS.click(loc_dlgWarningManagedByLot_btnOK);
 
             // Log
@@ -534,10 +540,10 @@ public class EditProductScreen extends EditProductElement {
         }
 
         // Wait product management screen loaded
-        assertCustomize.assertFalse(commonIOS.getListElements(loc_txtSearchBox, 10000).isEmpty(), "Can not update product");
+        assertCustomize.assertFalse(commonIOS.getListElement(loc_txtSearchBox).isEmpty(), "Can not update product");
 
         // If product are updated, check information after updating
-        if (!commonIOS.getListElements(loc_txtSearchBox).isEmpty()) {
+        if (!commonIOS.getListElement(loc_txtSearchBox).isEmpty()) {
             // Get current product information
             ProductInfo currentInfo = apiProductDetail.getInfo(productInfo.getProductId());
 

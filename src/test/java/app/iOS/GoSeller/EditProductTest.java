@@ -1,4 +1,4 @@
-package app.iOS;
+package app.iOS.GoSeller;
 
 import api.Seller.products.all_products.CreateProduct;
 import mobile.seller.iOS.login.LoginScreen;
@@ -54,7 +54,7 @@ public class EditProductTest extends BaseTest {
     @BeforeGroups(groups = "[iOS][UPDATE] Normal product - Variation")
     void preCondition_G3() {
         // Get product ID
-        productId = 1289737;//apiCreateProduct.createVariationProduct(false, 0).getProductID();
+        productId = apiCreateProduct.createVariationProduct(false, 0).getProductID();
     }
 
     @BeforeGroups(groups = "[iOS][UPDATE] IMEI product - Variation")

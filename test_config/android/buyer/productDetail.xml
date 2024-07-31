@@ -5,12 +5,12 @@
         <classes>
             <class name="app.android.Buyer.ProductDetailTest">
                 <methods>
-<!--                    <include name="Android_Buyer_G1_01_FlashSaleIsInProgress"/>-->
-<!--                    <include name="Android_Buyer_G1_02_FlashSaleIsExpired" />-->
-<!--                    <include name="Android_Buyer_G1_03_FlashSaleIsSchedule" />-->
-<!--                    <include name="Android_Buyer_G1_04_DiscountCampaignIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G1_05_DiscountCampaignIsExpired" />-->
-<!--                    <include name="Android_Buyer_G1_06_DiscountCampaignIsSchedule" />-->
+                    <include name="Android_Buyer_G1_01_FlashSaleIsInProgress"/>
+                    <include name="Android_Buyer_G1_02_FlashSaleIsExpired" />
+                    <include name="Android_Buyer_G1_03_FlashSaleIsSchedule" />
+                    <include name="Android_Buyer_G1_04_DiscountCampaignIsInProgress" />
+                    <include name="Android_Buyer_G1_05_DiscountCampaignIsExpired" />
+                    <include name="Android_Buyer_G1_06_DiscountCampaignIsSchedule" />
                     <include name="Android_Buyer_G1_07_HideStockAndInStock" />
                     <include name="Android_Buyer_G1_08_ShowStockAndInStock" />
                     <include name="Android_Buyer_G1_09_SettingDisplayAndProductInStock" />
@@ -21,12 +21,12 @@
                     <include name="Android_Buyer_G1_14_AllBranchesActiveAndHideBranchOnStoreFront" />
                     <include name="Android_Buyer_G1_15_AllBranchesActiveAndShowBranchOnStoreFront" />
 
-<!--                    <include name="Android_Buyer_G2_01_FlashSaleIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G2_02_FlashSaleIsExpired" />-->
-<!--                    <include name="Android_Buyer_G2_03_FlashSaleIsSchedule" />-->
-<!--                    <include name="Android_Buyer_G2_04_DiscountCampaignIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G2_05_DiscountCampaignIsExpired" />-->
-<!--                    <include name="Android_Buyer_G2_06_DiscountCampaignIsSchedule" />-->
+                    <include name="Android_Buyer_G2_01_FlashSaleIsInProgress" />
+                    <include name="Android_Buyer_G2_02_FlashSaleIsExpired" />
+                    <include name="Android_Buyer_G2_03_FlashSaleIsSchedule" />
+                    <include name="Android_Buyer_G2_04_DiscountCampaignIsInProgress" />
+                    <include name="Android_Buyer_G2_05_DiscountCampaignIsExpired" />
+                    <include name="Android_Buyer_G2_06_DiscountCampaignIsSchedule" />
                     <include name="Android_Buyer_G2_07_HideStockAndInStock" />
                     <include name="Android_Buyer_G2_08_ShowStockAndInStock" />
                     <include name="Android_Buyer_G2_09_SettingDisplayAndProductInStock" />
@@ -37,12 +37,12 @@
                     <include name="Android_Buyer_G2_14_AllBranchesActiveAndHideBranchOnStoreFront" />
                     <include name="Android_Buyer_G2_15_AllBranchesActiveAndShowBranchOnStoreFront" />
 
-<!--                    <include name="Android_Buyer_G3_01_FlashSaleIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G3_02_FlashSaleIsExpired" />-->
-<!--                    <include name="Android_Buyer_G3_03_FlashSaleIsSchedule" />-->
-<!--                    <include name="Android_Buyer_G3_04_DiscountCampaignIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G3_05_DiscountCampaignIsExpired" />-->
-<!--                    <include name="Android_Buyer_G3_06_DiscountCampaignIsSchedule" />-->
+                    <include name="Android_Buyer_G3_01_FlashSaleIsInProgress" />
+                    <include name="Android_Buyer_G3_02_FlashSaleIsExpired" />
+                    <include name="Android_Buyer_G3_03_FlashSaleIsSchedule" />
+                    <include name="Android_Buyer_G3_04_DiscountCampaignIsInProgress" />
+                    <include name="Android_Buyer_G3_05_DiscountCampaignIsExpired" />
+                    <include name="Android_Buyer_G3_06_DiscountCampaignIsSchedule" />
                     <include name="Android_Buyer_G3_07_HideStockAndInStock_AllVariations" />
                     <include name="Android_Buyer_G3_08_HideStockAndInStock_SomeVariations" />
                     <include name="Android_Buyer_G3_09_ShowStockAndInStock_AllVariations" />
@@ -57,12 +57,12 @@
                     <include name="Android_Buyer_G3_18_AllBranchesActiveAndHideBranchOnStoreFront" />
                     <include name="Android_Buyer_G3_19_AllBranchesActiveAndShowBranchOnStoreFront" />
 
-<!--                    <include name="Android_Buyer_G4_01_FlashSaleIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G4_02_FlashSaleIsExpired" />-->
-<!--                    <include name="Android_Buyer_G4_03_FlashSaleIsSchedule" />-->
-<!--                    <include name="Android_Buyer_G4_04_DiscountCampaignIsInProgress" />-->
-<!--                    <include name="Android_Buyer_G4_05_DiscountCampaignIsExpired" />-->
-<!--                    <include name="Android_Buyer_G4_06_DiscountCampaignIsSchedule" />-->
+                    <include name="Android_Buyer_G4_01_FlashSaleIsInProgress" />
+                    <include name="Android_Buyer_G4_02_FlashSaleIsExpired" />
+                    <include name="Android_Buyer_G4_03_FlashSaleIsSchedule" />
+                    <include name="Android_Buyer_G4_04_DiscountCampaignIsInProgress" />
+                    <include name="Android_Buyer_G4_05_DiscountCampaignIsExpired" />
+                    <include name="Android_Buyer_G4_06_DiscountCampaignIsSchedule" />
                     <include name="Android_Buyer_G4_07_HideStockAndInStock_AllVariations" />
                     <include name="Android_Buyer_G4_08_HideStockAndInStock_SomeVariations" />
                     <include name="Android_Buyer_G4_09_ShowStockAndInStock_AllVariations" />

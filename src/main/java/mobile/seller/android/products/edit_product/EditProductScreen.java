@@ -486,7 +486,13 @@ public class EditProductScreen extends EditProductElement {
 
     void bulkUpdateVariations(int increaseNum, int... branchStock) {
         // Get total variations
-        int totalVariations = CRUDVariationScreen.getVariationMap().values().stream().mapToInt(List::size).reduce(1, (a, b) -> a * b);
+        int totalVariations = this.hasLot
+                ? productInfo.getVariationModelList().size()
+                : mobile.seller.iOS.products.child_screen.crud_variations.CRUDVariationScreen.getVariationMap()
+                    .values()
+                    .stream()
+                    .mapToInt(List::size)
+                    .reduce(1, (a, b) -> a * b);
 
         // Navigate to edit multiple screen
         if (totalVariations > 1) {

@@ -80,7 +80,7 @@ public class InventoryScreen extends InventoryElement {
                     commonIOS.click(loc_txtBranchStock(branchName));
 
                     // If update stock popup shows, update stock on popup
-                    if (!commonIOS.getListElements(loc_dlgUpdateStock_tabChange).isEmpty()) {
+                    if (!commonIOS.getListElement(loc_dlgUpdateStock_tabChange).isEmpty()) {
                         // Switch to change tab
                         commonIOS.click(loc_dlgUpdateStock_tabChange);
 

@@ -1,4 +1,4 @@
-package app.iOS;
+package app.iOS.GoSeller;
 
 import mobile.seller.iOS.login.LoginScreen;
 import mobile.seller.iOS.products.product_management.ProductManagementScreen;

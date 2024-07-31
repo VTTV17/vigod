@@ -234,7 +234,7 @@ public class ProductVariationScreen extends ProductVariationElement {
     }
 
     void updateVariationStatus() {
-        if (!commonIOS.getListElements(loc_btnDeactivate).isEmpty()) {
+        if (!commonIOS.getListElement(loc_btnDeactivate).isEmpty()) {
             // Get new variation status
             String newStatus = nextBoolean() ? "ACTIVE" : "DEACTIVE";
 
@@ -270,7 +270,7 @@ public class ProductVariationScreen extends ProductVariationElement {
         completeUpdateVariation();
 
         // Verify variation is updated
-        assertCustomize.assertFalse(commonIOS.getListElements(loc_chkDisplayIfOutOfStock).isEmpty(), "Can not update variation");
+        assertCustomize.assertFalse(commonIOS.getListElement(loc_chkDisplayIfOutOfStock).isEmpty(), "Can not update variation");
     }
 
     public void updateVariationInformation(int... branchStock) {

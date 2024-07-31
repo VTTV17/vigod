@@ -521,10 +521,10 @@ public class CreateProductScreen extends CreateProductElement {
         commonIOS.click(loc_btnSave);
 
         // Wait product management screen loaded
-        assertCustomize.assertFalse(commonIOS.getListElements(loc_txtSearchBox).isEmpty(), "Can not create product");
+        assertCustomize.assertFalse(commonIOS.getListElement(loc_txtSearchBox).isEmpty(), "Can not create product");
 
         // If product are updated, check information after updating
-        if (!commonIOS.getListElements(loc_txtSearchBox).isEmpty()) {
+        if (!commonIOS.getListElement(loc_txtSearchBox).isEmpty()) {
             // Get product ID
             int productId = new APIAllProducts(LoginScreen.getLoginInformation()).searchProductIdByName(productInfo.getMainProductNameMap().get(defaultLanguage));
 

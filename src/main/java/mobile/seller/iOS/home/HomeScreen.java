@@ -24,7 +24,7 @@ public class HomeScreen extends HomeElement{
     }
 
     public void logout() {
-        if (!commonIOS.getListElements(loc_icnAccount).isEmpty()) {
+        if (!commonIOS.getListElement(loc_icnAccount).isEmpty()) {
             // Navigate to Account screen
             commonIOS.click(loc_icnAccount);
 

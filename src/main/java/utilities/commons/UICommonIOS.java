@@ -1,6 +1,5 @@
 package utilities.commons;
 
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
@@ -46,20 +45,15 @@ public class UICommonIOS {
         return new WebDriverWait(driver, Duration.ofMillis(milSeconds));
     }
 
-    public List<WebElement> getListElements(By locator, int... milSeconds) {
-        int waitTime = (milSeconds.length == 0) ? 3000 : milSeconds[0];
+    public List<WebElement> getListElement(By locator) {
         try {
-            customWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
+            customWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignored) {
         }
 
         return driver.findElements(locator).isEmpty()
                 ? List.of()
                 : wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
-    }
-
-    public WebElement getElement(String predicateString) {
-        return wait.until(ExpectedConditions.presenceOfElementLocated(AppiumBy.iOSNsPredicateString(predicateString)));
     }
 
     public WebElement getElement(By locator) {
@@ -140,18 +134,16 @@ public class UICommonIOS {
     }
 
     public void click(By locator) {
-        WebElement element = getElement(locator);
-        switch (element.getAttribute("type")) {
-            case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(element);
-            default -> element.click();
+        switch (getElement(locator).getAttribute("type")) {
+            case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(getElement(locator));
+            default -> getElement(locator).click();
         }
     }
 
     public void click(By locator, int index) {
-        WebElement element = getElement(locator, index);
-        switch (element.getAttribute("type")) {
-            case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(element);
-            default -> element.click();
+        switch (getElement(locator, index).getAttribute("type")) {
+            case "XCUIElementTypeImage", "XCUIElementTypeOther" -> tapOnCenter(getElement(locator, index));
+            default -> getElement(locator, index).click();
         }
     }
 
@@ -224,4 +216,8 @@ public class UICommonIOS {
         return element.getAttribute("value").equals("1");
     }
 
+    public void relaunchApp(String bundleId) {
+        ((IOSDriver) driver).terminateApp(bundleId);
+        ((IOSDriver) driver).activateApp(bundleId);
+    }
 }

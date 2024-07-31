@@ -3,7 +3,7 @@
 <suite name="Default Suite">
     <test thread-count="5" name="GoSELL-Automation">
         <classes>
-            <class name="app.iOS.ProductManagementTest">
+            <class name="app.iOS.GoSeller.ProductManagementTest">
                 <methods>
                     <include name="MN_PRODUCT_01_SortProductByRecentUpdated"/>
                     <include name="MN_PRODUCT_02_SortProductByStockHighToLow"/>
