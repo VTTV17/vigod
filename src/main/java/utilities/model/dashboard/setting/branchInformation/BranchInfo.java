@@ -15,6 +15,7 @@ public class BranchInfo {
     private List<String> countryCode;
     private List<Boolean> isDefaultBranch;
     private List<Integer> branchID;
+    private List<String> branchType;
     private List<String> branchName;
     private List<Boolean> isHideOnStoreFront;
     private List<String> allBranchStatus;

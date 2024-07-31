@@ -1,10 +1,14 @@
 package api.Seller.products.all_products;
 
 import api.Seller.login.Login;
+import api.Seller.products.all_products.APIProductDetail.ProductInformationEnum;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import api.Seller.setting.VAT;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -15,7 +19,6 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -26,430 +29,264 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class APICreateProduct {
-    String createProductPath = "/itemservice/api/items?fromSource=DASHBOARD";
     API api = new API();
-    long epoch = Instant.now().toEpochMilli();
+    LoginDashboardInfo loginInfo;
+    LoginInformation loginInformation;
     TaxInfo taxInfo;
     BranchInfo branchInfo;
     StoreInfo storeInfo;
-    LoginDashboardInfo loginInfo;
-    private static String productName;
-    private static String productDescription;
-    private static boolean hasModel;
+
+    private static final String createProductPath = "/itemservice/api/items?fromSource=DASHBOARD";
     private static int productId;
-    private static List<Long> productSellingPrice;
-    private static Map<String, List<Integer>> productStockQuantity;
-    private static List<Integer> branchIds;
-    ProductPayloadInfo info = new ProductPayloadInfo();
 
     public APICreateProduct(LoginInformation loginInformation) {
+        this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
         taxInfo = new VAT(loginInformation).getInfo();
         branchInfo = new BranchManagement(loginInformation).getInfo();
-        branchIds = branchInfo.getBranchID();
         storeInfo = new StoreInformation(loginInformation).getInfo();
     }
 
     @Data
+    @RequiredArgsConstructor
+    public static class ProductPayload {
+        private final List<Category> categories = List.of(new Category(null, 1, 1014), new Category(null, 2, 1680));
+        private String name;
+        private final int cateId = 1680;
+        private final String itemType = "BUSINESS_PRODUCT";
+        private final String currency = "đ";
+        private String description;
+        private final int discount = 0;
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private Long costPrice;
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private Long orgPrice;
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private Long newPrice;
+        private final int totalComment = 0;
+        private final int totalLike = 0;
+        private final List<Image> images = List.of(new Image("28952be8-ef6b-4877-99fa-399c7ddd8c01", "https://d3a0f2zusjbf7r.cloudfront.net", "jpg", 0));
+        private final int totalItem = 0;
+        private final ShippingInfo shippingInfo = nextBoolean() ? new ShippingInfo(10, 10, 10, 10) : new ShippingInfo(0, 0, 0, 0);
+        private String parentSku;
+        private List<Model> models = new ArrayList<>();
+        private List<Object> itemAttributes = new ArrayList<>();
+        private List<Object> itemAttributeDeleteIds = new ArrayList<>();
+        private String seoTitle;
+        private String seoDescription;
+        private String seoUrl;
+        private String seoKeywords;
+        private String priority;
+        private String taxId;
+        private final boolean quantityChanged = true;
+        private final boolean isSelfDelivery = false;
+        private boolean showOutOfStock = true;
+        private String barcode;
+        private boolean isHideStock;
+        private boolean lotAvailable;
+        private boolean expiredQuality;
+        private String inventoryManageType;
+        private String conversionUnitId;
+        private final boolean onApp = true;
+        private final boolean onWeb = true;
+        private final boolean inStore = true;
+        private final boolean inGoSocial = true;
+        private final boolean enabledListing = false;
+        private List<Inventory> lstInventory = new ArrayList<>();
+        private List<ItemModelCodeDTO> itemModelCodeDTOS = new ArrayList<>();
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Category {
+        private Integer id;
+        private int level;
+        private int cateId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Image {
+        private String imageUUID;
+        private String urlPrefix;
+        private String extension;
+        private int rank;
+    }
+
+    @Data
+    @AllArgsConstructor
     public static class ShippingInfo {
         private int weight;
         private int height;
-        private int width;
         private int length;
+        private int width;
     }
 
     @Data
-    public static class BranchStock {
+    public static class ItemModelCodeDTO {
         private int branchId;
-        private int stock;
+        private String code;
+        private final String status = "AVAILABLE";
+
+        public ItemModelCodeDTO(int branchId, String branchName, String variation, int index) {
+            this.branchId = branchId;
+            this.code = "%s%s_%s".formatted(variation.isEmpty() ? "" : "%s_".formatted(variation), branchName, index);
+        }
     }
 
     @Data
-    public static class ModelCodeInfo {
+    @AllArgsConstructor
+    public static class Inventory {
         private int branchId;
-        private List<String> modelCodes;
+        private String branchType;
+        private final String inventoryActionType = "FROM_CREATE_AT_ITEM_SCREEN";
+        private final int inventoryCurrent = 0;
+        private int inventoryStock;
+        private final String inventoryType = "SET";
+        private final String sku = "";
     }
 
     @Data
-    public static class StockQuantityInfo {
-        private String variation;
-        private List<BranchStock> branchStockList;
+    @AllArgsConstructor
+    public static class Model {
+        private String name;
+        private long orgPrice;
+        private final int discount = 0;
+        private long newPrice;
+        private final int totalItem = 0;
+        private String label;
+        private final String sku = "";
+        private final int newStock = 0;
+        private final int costPrice = 0;
+        private List<Inventory> lstInventory;
+        private List<ItemModelCodeDTO> itemModelCodeDTOS;
     }
 
-    @Data
-    public static class PriceInfo {
-        private long listingPrice;
-        private long sellingPrice;
-    }
+    ProductPayload payload = new ProductPayload();
 
-    @Data
-    public static class SeoInfo {
-        private String seoTitle;
-        private String seoDescription;
-        private String seoURL;
-        private String seoKeywords;
-    }
-
-    @Data
-    public static class ProductPayloadInfo {
-        private boolean manageByIMEI;
-        private String productName;
-        private String productDescription;
-        private String currency = "đ";
-        private ShippingInfo shippingInfo;
-        private String taxId;
-        private boolean showOutOfStock = true;
-        private boolean hideStock;
-        private boolean lotAvailable;
-        private boolean expiredQuality;
-        private boolean onApp = true;
-        private boolean onWeb = true;
-        private boolean inStore = true;
-        private boolean inGoSocial = true;
-        private boolean enableListing;
-        private String variationName;
-        private List<String> variationValueList;
-        private List<StockQuantityInfo> stockQuantityInfoList;
-        private List<PriceInfo> priceInfoList;
-        private SeoInfo seoInfo;
-        private int priority;
+    public APICreateProduct setLotAvailable(boolean lotAvailable) {
+        payload.setLotAvailable(lotAvailable);
+        return this;
     }
 
     public APICreateProduct setShowOutOfStock(boolean showOutOfStock) {
-        info.setShowOutOfStock(showOutOfStock);
+        payload.setShowOutOfStock(showOutOfStock);
         return this;
     }
 
     public APICreateProduct setHideStock(boolean hideStock) {
-        info.setHideStock(hideStock);
+        payload.setHideStock(hideStock);
         return this;
     }
 
-    ProductPayloadInfo initBasicInformation(boolean isManagedByIMEI) {
+    ProductPayload initBasicInformation(boolean isManagedByIMEI) {
+        // set lot information
+        payload.setLotAvailable(payload.isLotAvailable() && !isManagedByIMEI);
+
         // set manage inventory
-        info.setManageByIMEI(isManagedByIMEI);
+        payload.setInventoryManageType((isManagedByIMEI) ? "IMEI_SERIAL_NUMBER" : "PRODUCT");
 
         // set product description
-        info.setProductDescription("[%s] product description.".formatted(storeInfo.getDefaultLanguage()));
-
-        // set shipping info
-        ShippingInfo shippingInfo = new ShippingInfo();
-        shippingInfo.setHeight(nextBoolean() ? 0 : 10);
-        shippingInfo.setWeight(nextBoolean() ? 0 : 10);
-        shippingInfo.setWidth(nextBoolean() ? 0 : 10);
-        shippingInfo.setLength(nextBoolean() ? 0 : 10);
-        info.setShippingInfo(shippingInfo);
+        payload.setDescription("[%s] product description.".formatted(storeInfo.getDefaultLanguage()));
 
         // set taxId
-        String taxId = taxInfo.getTaxID().isEmpty() ? "" : String.valueOf(taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size())));
-        info.setTaxId(taxId);
-
-        // init SEO data
-        SeoInfo seoInfo = getSeoInfo();
-
-        // set SEO info
-        info.setSeoInfo(seoInfo);
-
-        return info;
-    }
-
-    private SeoInfo getSeoInfo() {
-        SeoInfo seoInfo = new SeoInfo();
+        String taxId = taxInfo.getTaxID().isEmpty() ? "" : taxInfo.getTaxID().get(nextInt(taxInfo.getTaxID().size())).toString();
+        payload.setTaxId(taxId);
 
         // set SEO title
-        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        seoInfo.setSeoTitle(seoTitle);
+        String seoTitle = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
+        payload.setSeoTitle(seoTitle);
 
         // set SEO description
-        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        seoInfo.setSeoDescription(seoDescription);
+        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
+        payload.setSeoDescription(seoDescription);
 
         // set SEO keywords
-        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        seoInfo.setSeoKeywords(seoKeywords);
+        String seoKeywords = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
+        payload.setSeoKeywords(seoKeywords);
 
         // set SEO url
-        String seoURL = "%s%s".formatted(storeInfo.getDefaultLanguage(), epoch);
-        seoInfo.setSeoURL(seoURL);
-        return seoInfo;
+        String seoURL = "%s%s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
+        payload.setSeoUrl(seoURL);
+
+        return payload;
     }
 
-    ProductPayloadInfo initWithoutVariationInfo(boolean isManagedByIMEI, int... branchStock) {
-        ProductPayloadInfo info = initBasicInformation(isManagedByIMEI);
+    ProductPayload getWithoutVariationPayload(boolean isManagedByIMEI, int... branchStock) {
+        ProductPayload payload = initBasicInformation(isManagedByIMEI);
 
         // product name
         String productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isManagedByIMEI ? ("Auto - IMEI - without variation - ") : ("Auto - Normal - without variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
-        info.setProductName(productName);
+        payload.setName(productName);
 
-        // set price info list
-        PriceInfo priceInfo = new PriceInfo();
-        priceInfo.setListingPrice(nextLong(MAX_PRICE));
-        priceInfo.setSellingPrice(nextLong(priceInfo.getListingPrice()));
-        info.setPriceInfoList(List.of(priceInfo));
+        // set price payload list
+        payload.setOrgPrice(nextLong(MAX_PRICE));
+        payload.setNewPrice(nextLong(payload.getOrgPrice()));
+        payload.setCostPrice(nextLong(payload.getNewPrice()));
 
-        // set stock quantity info list
-        List<BranchStock> branchStockList = new ArrayList<>();
-        IntStream.range(0, branchInfo.getBranchID().size()).forEach(branchIndex -> {
-            BranchStock brStock = new BranchStock();
-            brStock.setBranchId(branchInfo.getBranchID().get(branchIndex));
-            brStock.setStock((branchStock.length > branchIndex) ? branchStock[branchIndex] : 0);
-            branchStockList.add(brStock);
-        });
-        StockQuantityInfo stockQuantityInfo = new StockQuantityInfo();
-        stockQuantityInfo.setBranchStockList(branchStockList);
-        info.setStockQuantityInfoList(List.of(stockQuantityInfo));
+        // set stock quantity payload list
+        List<Inventory> lstInventory = IntStream.range(0, branchInfo.getBranchID().size())
+                .mapToObj(branchIndex -> new Inventory(branchInfo.getBranchID().get(branchIndex),
+                        branchInfo.getBranchType().get(branchIndex),
+                        (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? branchStock[branchIndex] : 0))
+                .toList();
+        payload.setLstInventory(lstInventory);
 
-        return info;
+        if (payload.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+            List<ItemModelCodeDTO> itemModelCodeDTOS = new ArrayList<>();
+            payload.getLstInventory().forEach(inventory -> IntStream.range(0, inventory.getInventoryStock())
+                    .mapToObj(index -> new ItemModelCodeDTO(inventory.getBranchId(), branchInfo.getBranchName().get(branchInfo.getBranchID().indexOf(inventory.getBranchId())), "", index))
+                    .forEach(itemModelCodeDTOS::add));
+            payload.setItemModelCodeDTOS(itemModelCodeDTOS);
+        } else payload.setItemModelCodeDTOS(List.of());
+
+        return payload;
     }
 
-    ProductPayloadInfo initVariationProductInfo(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
-        ProductPayloadInfo info = initBasicInformation(isManagedByIMEI);
+    ProductPayload getWithVariationPayload(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
+        ProductPayload payload = initBasicInformation(isManagedByIMEI);
 
         // set product name
         String productName = "[%s] %s%s".formatted(storeInfo.getDefaultLanguage(), isManagedByIMEI ? ("Auto - IMEI - variation - ") : ("Auto - Normal - variation - "), new DataGenerator().generateDateTime("dd/MM HH:mm:ss"));
-        info.setProductName(productName);
+        payload.setName(productName);
 
         // generate variation map
         Map<String, List<String>> variationMap = new DataGenerator().randomVariationMap(storeInfo.getDefaultLanguage());
 
         // set variation name
         String variationName = variationMap.keySet().toString().replaceAll("[\\[\\]\\s]", "").replaceAll(",", "|");
-        info.setVariationName(variationName);
 
         // set variation value list
         List<String> variationList = new DataGenerator().getVariationList(variationMap);
-        info.setVariationValueList(variationList);
 
-        // set price info list
-        List<PriceInfo> priceInfoList = new ArrayList<>();
-        IntStream.range(0, variationList.size()).mapToObj(varIndex -> new PriceInfo()).forEach(priceInfo -> {
-            priceInfo.setListingPrice(nextLong(MAX_PRICE));
-            priceInfo.setSellingPrice(nextLong(priceInfo.getListingPrice()));
-            priceInfoList.add(priceInfo);
-        });
-        info.setPriceInfoList(priceInfoList);
-
-        // set stock quantity info list
-        List<StockQuantityInfo> stockQuantityInfoList = new ArrayList<>();
+        // set models value
+        List<Model> models = new ArrayList<>();
         for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
-            StockQuantityInfo stockQuantityInfo = new StockQuantityInfo();
-            List<BranchStock> branchStockList = getBranchStocks(increaseNum, branchStock, varIndex);
-            stockQuantityInfo.setVariation(variationList.get(varIndex));
-            stockQuantityInfo.setBranchStockList(branchStockList);
-            stockQuantityInfoList.add(stockQuantityInfo);
+            long listingPrice = nextLong(MAX_PRICE);
+            long sellingPrice = nextLong(listingPrice);
+            int finalVarIndex = varIndex;
+            List<Inventory> lstInventory = IntStream.range(0, branchInfo.getBranchID().size())
+                    .mapToObj(branchIndex -> new Inventory(branchInfo.getBranchID().get(branchIndex),
+                            branchInfo.getBranchType().get(branchIndex),
+                            (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? (branchStock[branchIndex] + (finalVarIndex * increaseNum)) : 0))
+                    .toList();
+
+            List<ItemModelCodeDTO> itemModelCodeDTOS = new ArrayList<>();
+            if (payload.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+                lstInventory.forEach(inventory -> IntStream.range(0, inventory.getInventoryStock())
+                        .mapToObj(index -> new ItemModelCodeDTO(inventory.getBranchId(), branchInfo.getBranchName().get(branchInfo.getBranchID().indexOf(inventory.getBranchId())), variationList.get(finalVarIndex), index))
+                        .forEach(itemModelCodeDTOS::add));
+            }
+            models.add(new Model(variationList.get(finalVarIndex), listingPrice, sellingPrice, variationName, lstInventory, itemModelCodeDTOS));
         }
-        info.setStockQuantityInfoList(stockQuantityInfoList);
+        payload.setModels(models);
 
-        return info;
-    }
-
-    private List<BranchStock> getBranchStocks(int increaseNum, int[] branchStock, int varIndex) {
-        List<BranchStock> branchStockList = new ArrayList<>();
-        // set branch stock
-        IntStream.range(0, branchInfo.getBranchID().size()).forEach(branchIndex -> {
-            BranchStock brStock = new BranchStock();
-            brStock.setBranchId(branchInfo.getBranchID().get(branchIndex));
-            brStock.setStock((branchStock.length > branchIndex) ? (branchStock[branchIndex] + (varIndex * increaseNum)) : 0);
-            branchStockList.add(brStock);
-        });
-        return branchStockList;
-    }
-
-    private String getCategories() {
-        return """
-                [
-                 	{
-                 		"id": null,
-                 		"level": 1,
-                 		"cateId": 1014
-                 	},
-                 	{
-                 		"id": null,
-                 		"level": 2,
-                 		"cateId": 1680
-                 	}
-                 ]""";
-    }
-
-    private String getImages() {
-        return """
-                [
-                	{
-                		"imageUUID": "28952be8-ef6b-4877-99fa-399c7ddd8c01",
-                		"urlPrefix": "https://d3a0f2zusjbf7r.cloudfront.net",
-                		"extension": "jpg",
-                		"rank": 0
-                	}
-                ]""";
-    }
-
-    private String getShippingInfo(ShippingInfo shippingInfo) {
-        return """
-                {
-                	"weight": %s,
-                	"height": %s,
-                	"length": %s,
-                	"width": %s
-                }""".formatted(shippingInfo.getWeight(),
-                shippingInfo.getHeight(),
-                shippingInfo.getLength(),
-                shippingInfo.getWidth());
-    }
-
-    private String getInventory(BranchStock info) {
-        return """
-                {
-                	"branchId": %s,
-                	"inventoryActionType": "FROM_CREATE_AT_ITEM_SCREEN",
-                	"inventoryCurrent": 0,
-                	"inventoryStock": %s,
-                	"inventoryType": "SET",
-                	"sku": ""
-                }""".formatted(info.getBranchId(), info.getStock());
-    }
-
-    private List<String> getListInventory(List<BranchStock> infoList) {
-        return infoList.stream().map(this::getInventory).toList();
-    }
-
-    private String getModelCode(int branchId, String code) {
-        return """
-                {
-                	"branchId": %s,
-                	"code": "%s",
-                	"status": "AVAILABLE"
-                }""".formatted(branchId, code);
-    }
-
-    private String getBranchName(int branchId) {
-        return branchInfo.getBranchName().get(branchInfo.getBranchID().indexOf(branchId));
-    }
-
-    private String getIMEICode(int branchId, int index, String... variation) {
-        return "%s%s_IMEI_%s_%s".formatted((variation.length > 0) ? "%s_".formatted(variation[0]) : "", getBranchName(branchId), epoch, index);
-    }
-
-    private List<String> getItemModelCodeDTOS(List<BranchStock> infoList, String... variation) {
-        List<String> itemModelCodes = new ArrayList<>();
-        infoList.forEach(info -> IntStream.range(0, info.getStock()).mapToObj(index -> getModelCode(info.getBranchId(), getIMEICode(info.getBranchId(), index, variation))).forEach(itemModelCodes::add));
-        return itemModelCodes;
-    }
-
-    String getVariationModel(String varName, PriceInfo priceInfo, StockQuantityInfo stockQuantityInfo, boolean isManagedByIMEI) {
-        return """
-                {
-                	"name": "%s",
-                	"orgPrice": %s,
-                	"discount": 0,
-                	"newPrice": %s,
-                	"totalItem": 0,
-                	"label": "%s",
-                	"sku": "",
-                	"newStock": 0,
-                	"costPrice": 0,
-                	"lstInventory": %s,
-                	"itemModelCodeDTOS": %s
-                }""".formatted(stockQuantityInfo.getVariation(),
-                priceInfo.getListingPrice(),
-                priceInfo.getSellingPrice(),
-                varName,
-                getListInventory(stockQuantityInfo.getBranchStockList()),
-                isManagedByIMEI ? getItemModelCodeDTOS(stockQuantityInfo.getBranchStockList(), stockQuantityInfo.getVariation()) : "[]");
-    }
-
-    private List<String> getVariationModels(String varName, List<PriceInfo> priceInfoList, List<StockQuantityInfo> stockQuantityInfoList, boolean isManagedByIMEI) {
-        return IntStream.range(0, stockQuantityInfoList.size()).mapToObj(varIndex -> getVariationModel(varName, priceInfoList.get(varIndex), stockQuantityInfoList.get(varIndex), isManagedByIMEI)).toList();
-    }
-
-    private String getPayload(ProductPayloadInfo productInfo) {
-        productName = productInfo.getProductName();
-        productDescription = productInfo.getProductDescription();
-        productSellingPrice = productInfo.getPriceInfoList().stream().map(PriceInfo::getSellingPrice).toList();
-        productStockQuantity = new HashMap<>();
-        productInfo.getStockQuantityInfoList().forEach(info -> productStockQuantity.put(info.getVariation(), info.getBranchStockList().stream().map(BranchStock::getStock).toList()));
-
-        return """
-                {
-                    "categories": %s,
-                    "name": "%s",
-                    "cateId": 1680,
-                    "itemType": "BUSINESS_PRODUCT",
-                    "currency": "%s",
-                    "description": "%s",
-                    "discount": 0,
-                    %s
-                    "totalComment": 0,
-                    "totalLike": 0,
-                    "images": %s,
-                    "totalItem": 0,
-                    "shippingInfo": %s,
-                    "models": %s,
-                    "itemAttributes": [],
-                    "itemAttributeDeleteIds": [],
-                    "seoTitle": "%s",
-                    "seoDescription": "%s",
-                    "seoUrl": "%s",
-                    "seoKeywords": "%s",
-                    "priority": "%s",
-                    "taxId": %s,
-                    "quantityChanged": true,
-                    "bcoin": 0,
-                    "isSelfDelivery": false,
-                    "showOutOfStock": %s,
-                    "barcode": null,
-                    "isHideStock": %s,
-                    "lotAvailable": %s,
-                    "expiredQuality": %s,
-                    "inventoryManageType": "%s",
-                    "conversionUnitId": null,
-                    "onApp": %s,
-                    "onWeb": %s,
-                    "inStore": %s,
-                    "inGosocial": %s,
-                    "enabledListing": %s,
-                    "lstInventory": %s
-                }""".formatted(getCategories(),
-                productInfo.getProductName(),
-                productInfo.getCurrency(),
-                productInfo.getProductDescription(),
-                (productInfo.getVariationName() != null) ? "" : """
-                        "orgPrice": %s,
-                        "newPrice": %s,
-                        "costPrice": 0,""".formatted(productInfo.getPriceInfoList().get(0).getListingPrice(),
-                        productInfo.getPriceInfoList().get(0).getSellingPrice()),
-                getImages(),
-                getShippingInfo(productInfo.getShippingInfo()),
-                (productInfo.getVariationName() != null)
-                        ? getVariationModels(productInfo.getVariationName(),
-                        productInfo.getPriceInfoList(),
-                        productInfo.getStockQuantityInfoList(),
-                        productInfo.isManageByIMEI())
-                        : "[]",
-                productInfo.getSeoInfo().getSeoTitle(),
-                productInfo.getSeoInfo().getSeoDescription(),
-                productInfo.getSeoInfo().getSeoURL(),
-                productInfo.getSeoInfo().getSeoKeywords(),
-                productInfo.getPriority(),
-                productInfo.getTaxId().isEmpty() ? "\"\"" : productInfo.getTaxId(),
-                productInfo.isShowOutOfStock(),
-                productInfo.isHideStock(),
-                productInfo.isLotAvailable(),
-                productInfo.isExpiredQuality(),
-                productInfo.isManageByIMEI() ? "IMEI_SERIAL_NUMBER" : "PRODUCT",
-                productInfo.isOnApp(),
-                productInfo.isOnWeb(),
-                productInfo.isInStore(),
-                productInfo.isInGoSocial(),
-                productInfo.isEnableListing(),
-                getListInventory(productInfo.getStockQuantityInfoList().get(0).getBranchStockList()));
+        return payload;
     }
 
     public APICreateProduct createWithoutVariationProduct(boolean isManagedByIMEI, int... branchStock) {
-        hasModel = false;
-        ProductPayloadInfo info = initWithoutVariationInfo(isManagedByIMEI, branchStock);
-
         // post without variation product
-        productId = api.post(createProductPath, loginInfo.getAccessToken(), getPayload(info))
+        productId = api.post(createProductPath, loginInfo.getAccessToken(), getWithoutVariationPayload(isManagedByIMEI, branchStock))
                 .then()
                 .statusCode(201)
                 .extract()
@@ -460,11 +297,8 @@ public class APICreateProduct {
     }
 
     public APICreateProduct createVariationProduct(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
-        hasModel = true;
-        ProductPayloadInfo info = initVariationProductInfo(isManagedByIMEI, increaseNum, branchStock);
-
         // post without variation product
-        productId = api.post(createProductPath, loginInfo.getAccessToken(), getPayload(info))
+        productId = api.post(createProductPath, loginInfo.getAccessToken(), getWithVariationPayload(isManagedByIMEI, increaseNum, branchStock))
                 .then()
                 .statusCode(201)
                 .extract()
@@ -475,30 +309,30 @@ public class APICreateProduct {
     }
 
     public int getProductID() {
-        return APICreateProduct.productId;
+        return productId;
     }
 
     public String getProductName() {
-        return APICreateProduct.productName;
+        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.name).getMainProductNameMap().get(storeInfo.getDefaultLanguage());
     }
 
     public String getProductDescription() {
-        return APICreateProduct.productDescription;
+        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.name).getMainProductDescriptionMap().get(storeInfo.getDefaultLanguage());
     }
 
     public boolean isHasModel() {
-        return APICreateProduct.hasModel;
+        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.name).isHasModel();
     }
 
     public List<Long> getProductSellingPrice() {
-        return productSellingPrice;
+        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.price).getProductSellingPrice();
     }
 
     public Map<String, List<Integer>> getProductStockQuantity() {
-        return APICreateProduct.productStockQuantity;
+        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.stockQuantity).getProductStockQuantityMap();
     }
 
     public List<Integer> getBranchIds() {
-        return APICreateProduct.branchIds;
+        return branchInfo.getBranchID();
     }
 }

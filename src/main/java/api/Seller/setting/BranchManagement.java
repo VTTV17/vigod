@@ -114,6 +114,9 @@ public class BranchManagement {
             // set active branches list
             brInfo.setActiveBranches(brNames.stream().filter(brName -> brStatus.get(brNames.indexOf(brName)).equals("ACTIVE")).toList());
 
+            // set branchType
+            brInfo.setBranchType(resPath.getList("branchType"));
+
             // save cache
             branchCache.put(loginInfo.getStaffPermissionToken(), brInfo);
         }
