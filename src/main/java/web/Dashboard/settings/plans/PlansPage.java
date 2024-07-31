@@ -98,6 +98,38 @@ public class PlansPage {
 		return benefits;
 	}
 	
+	public List<List<String>> getPackageBenefitComparision(String country) {
+		String loc_Title = "//*[starts-with(@class,'line')]/*[@class='title']";
+		String loc_NewContent = "((//*[starts-with(@class,'line')]/*[@class='title'])[%s]/following-sibling::div)[%s]";
+		
+		commons.getElement(By.xpath(loc_Title)); //This implicitly means the packages are present ready for further actions
+		
+		int packageCount = 2;
+		
+		List<List<String>> benefits = new ArrayList<List<String>>();
+		
+		for (int i=1; i<= commons.getElements(By.xpath(loc_Title)).size(); i++) {
+			
+			List<String> tray = new ArrayList<>();
+			
+			tray.add(commons.getText(By.xpath(loc_Title), i-1)); //Benefit title
+			
+			//Benefit content
+			for (int j=1; j<=packageCount; j++) {
+				String tempText = commons.getText(By.xpath(loc_NewContent.formatted(i, j)));
+				if (tempText.isEmpty()) {
+					tempText = commons.getElements(By.xpath(loc_NewContent.formatted(i, j))).isEmpty() ? "false" : "true";
+				}
+				
+				tray.add(tempText);
+			}
+			benefits.add(tray);
+		}
+		
+		logger.info("Retrieved Benefit Comparison: {}", benefits);
+		return benefits;
+	}
+	
 	public PlansPage subscribeToPackage(String packageName) {
 		commons.click(By.xpath(elements.loc_btnSubscribePackageByName.formatted(packageName)));
 		logger.info("Subscribed to: {}", packageName);

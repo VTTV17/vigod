@@ -7,8 +7,14 @@ import io.restassured.response.Response;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import utilities.api.API;
 import utilities.data.DataGenerator;
+import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.gochat.facebook.GeneralAutomationCampaign;
@@ -109,4 +115,22 @@ public class APISegment {
 		return response.jsonPath().getList(".", SegmentList.class);
 	} 
 
+    public Response createSegment(CreateSegment data) {
+    	
+		String basePath = CREATE_SEGMENT_PATH + loginInfo.getStoreID();
+		String token = loginInfo.getAccessToken();
+		
+		String payload="";
+		try {
+			payload = new ObjectMapper().writeValueAsString(data);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		Response response = api.post(basePath, token, payload);
+		
+        return response;
+    }	
+	
+	
 }

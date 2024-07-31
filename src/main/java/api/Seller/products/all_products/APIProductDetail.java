@@ -72,7 +72,7 @@ public class APIProductDetail {
     }
 
     public enum ProductInformationEnum {
-        name, description, attribute, SEO, price, variation, barcodes, inventory, stockQuantity, platform, status, tax, collection, onlineShopConfig, stockAlert;
+        name, description, attribute, SEO, price, variation, barcodes, inventory, stockQuantity, platform, status, tax, collection, onlineShopConfig, stockAlert, packageInfo;
 
         static List<ProductInformationEnum> getAllValues() {
             return new ArrayList<>(Arrays.asList(ProductInformationEnum.values()));
@@ -497,6 +497,12 @@ public class APIProductDetail {
 
             if (infoEnum.contains(stockAlert)) {
                 prdInfo.setStockAlert(new APIStockAlert(loginInformation).getProductAlertNumber(productId));
+            }
+            if(infoEnum.contains(packageInfo)){
+                prdInfo.setWeight(jsonPath.getInt("shippingInfo.weight"));
+                prdInfo.setWidth(jsonPath.getInt("shippingInfo.width"));
+                prdInfo.setHeight(jsonPath.getInt("shippingInfo.height"));
+                prdInfo.setLength(jsonPath.getInt("shippingInfo.length"));
             }
         }
         return prdInfo;

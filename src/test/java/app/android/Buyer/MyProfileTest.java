@@ -5,6 +5,7 @@ import api.Buyer.productdetail.APIProductDetail;
 import api.Buyer.signup.SignUp;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APICreateProduct;
+import api.Seller.products.all_products.APIEditProduct;
 import app.Buyer.account.BuyerAccountPage;
 import app.Buyer.account.BuyerMyProfile;
 import app.Buyer.account.address.BuyerAddress;
@@ -66,13 +67,13 @@ public class MyProfileTest extends BaseTest {
         sellerPass = AccountTest.ADMIN_SHOP_VI_PASSWORD;
         userName_EditInfo_HasBirthday = SF_USERNAME_VI_4;
         userName_PhoneAccount_EditInfo_HasBirthday = SF_USERNAME_PHONE_VI_1;
+        MAX_PRICE = 999999L;
         loginInformation = new Login().setLoginInformation("+84", sellerUsername, sellerPass).getLoginInformation();
         APICreateProduct newProductInfo = new APICreateProduct(loginInformation).createWithoutVariationProduct(false, 30);
         productIDToAddToCart = newProductInfo.getProductID();
         branchID = newProductInfo.getBranchIds().get(0);
         userName_UpdateAddress = SF_USERNAME_VI_3;
         tcsFileName = FileNameAndPath.FILE_USER_PROFILE_TCS;
-        MAX_PRICE = 999999L;
     }
 
     @BeforeMethod
@@ -98,8 +99,9 @@ public class MyProfileTest extends BaseTest {
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-        super.writeResult(result);
+//        super.writeResult(result);
         if (driver != null) driver.quit();
+        new APIEditProduct(loginInformation).deleteProduct(productIDToAddToCart);
     }
 
     public BuyerAccountPage login(String buyerAccount) {
@@ -332,10 +334,10 @@ public class MyProfileTest extends BaseTest {
     @Test
     public void MUP08_CheckAddress_NoAddressThenCheckout() {
         testCaseId = "MUP08";
-        String emailAccount = callAPISignUpAccount(true);
-        login(emailAccount).changeLanguage(language);
+        String account = callAPISignUpAccount(false);
+        login(account).changeLanguage(language);
         //Go to checkout to verify address, then checkout with new address
-        callAPIAddToCart(emailAccount);
+        callAPIAddToCart(account);
         new NavigationBar(driver).tapOnCartIcon()
                 .tapOnContinueBtn();
         AddressInfo addressInfoCheckout =  new CheckoutOneStep(driver).goToDeliveryAddress().goToEditMyAddress()
@@ -343,7 +345,7 @@ public class MyProfileTest extends BaseTest {
         new DeliveryAddress(driver).verifyFullAddressOnMyAddress(addressInfoCheckout);
         new BuyerGeneral(driver).clickOnBackIcon().waitLoadingDisapear();
         new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
-        new UICommonMobile(driver).sleepInMiliSecond(2000);
+//        new UICommonMobile(driver).sleepInMiliSecond(2000);
         //Go to My profile to verify
         new NavigationBar(driver).tapOnAccountIcon()
                 .clickProfile().scrollDown()
@@ -570,5 +572,23 @@ public class MyProfileTest extends BaseTest {
         new SignUp(loginInformation).signUpByMail(account,"VN","vi",account, passBuyer);
         new LoginPage(driver).performLogin(account, passBuyer);
         new BuyerAccountPage(driver).verifyAvatarDisplay();
+    }
+    @Test
+    public void MUP20_UpdateAddressToProfileWhenCheckout(){
+        login(buyer).changeLanguage(language);
+        callAPIAddToCart(buyer);
+        new NavigationBar(driver).tapOnCartIcon()
+                .tapOnContinueBtn();
+        AddressInfo addressInfoCheckout =  new CheckoutOneStep(driver)
+                .goToDeliveryAddress().goToEditMyAddress()
+                .updateDeliveryAddress(true,true);
+        new DeliveryAddress(driver).verifyFullAddressOnMyAddress(addressInfoCheckout);
+        new BuyerGeneral(driver).clickOnBackIcon().waitLoadingDisapear();
+        new CheckoutOneStep(driver).tapOnCheckoutBtn().tapOnContinueShopping();
+        //Go to My profile to verify
+        new NavigationBar(driver).tapOnAccountIcon()
+                .clickProfile().scrollDown()
+                .clickAddress()
+                .verifyAddress(addressInfoCheckout);
     }
 }
