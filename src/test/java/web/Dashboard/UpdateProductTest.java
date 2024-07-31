@@ -2,7 +2,7 @@ package web.Dashboard;
 
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIProductDetail;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -25,7 +25,7 @@ public class UpdateProductTest extends BaseTest {
     int productId;
     ProductInfo productInfo;
     APIAllProducts apiAllProducts;
-    CreateProduct apiCreateProduct;
+    APICreateProduct apiCreateProduct;
     APIProductDetail apiProductDetail;
 
     @BeforeClass
@@ -46,7 +46,7 @@ public class UpdateProductTest extends BaseTest {
         productDetailPage = new ProductDetailPage(driver);
 
         // init API
-        apiCreateProduct = new CreateProduct(loginInformation);
+        apiCreateProduct = new APICreateProduct(loginInformation);
         apiAllProducts = new APIAllProducts(loginInformation);
         apiProductDetail = new APIProductDetail(loginInformation);
     }

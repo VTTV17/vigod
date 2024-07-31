@@ -1,7 +1,7 @@
 package api.Seller.marketing;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +28,8 @@ public class LoyaltyPoint {
     public void changeLoyaltyPointSetting(int... setting) {
         int loyaltyPointID = new API().get(LOYALTY_POINT_PATH + loginInfo.getStoreID(), loginInfo.getAccessToken()).jsonPath().getInt("id");
         int apiRatePoint = setting.length > 0 ? setting[0] : nextInt(10) + 1;
-        long apiRateAmount = setting.length > 1 ? setting[1] : (new CreateProduct(loginInformation).isHasModel() ? Collections.max(new CreateProduct(loginInformation).getProductSellingPrice()) / 2 : new CreateProduct(loginInformation).getProductSellingPrice().get(0) / 2);
-        long apiExchangeAmount = setting.length > 2 ? setting[2] : (new CreateProduct(loginInformation).isHasModel() ? Collections.max(new CreateProduct(loginInformation).getProductSellingPrice()) / 2 : new CreateProduct(loginInformation).getProductSellingPrice().get(0) / 2);
+        long apiRateAmount = setting.length > 1 ? setting[1] : (new APICreateProduct(loginInformation).isHasModel() ? Collections.max(new APICreateProduct(loginInformation).getProductSellingPrice()) / 2 : new APICreateProduct(loginInformation).getProductSellingPrice().get(0) / 2);
+        long apiExchangeAmount = setting.length > 2 ? setting[2] : (new APICreateProduct(loginInformation).isHasModel() ? Collections.max(new APICreateProduct(loginInformation).getProductSellingPrice()) / 2 : new APICreateProduct(loginInformation).getProductSellingPrice().get(0) / 2);
         String body = """
                 {
                     "clearPoint": false,

@@ -25,7 +25,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
-public class CreateProduct {
+public class APICreateProduct {
     String createProductPath = "/itemservice/api/items?fromSource=DASHBOARD";
     API api = new API();
     long epoch = Instant.now().toEpochMilli();
@@ -42,7 +42,7 @@ public class CreateProduct {
     private static List<Integer> branchIds;
     ProductPayloadInfo info = new ProductPayloadInfo();
 
-    public CreateProduct(LoginInformation loginInformation) {
+    public APICreateProduct(LoginInformation loginInformation) {
         loginInfo = new Login().getInfo(loginInformation);
         taxInfo = new VAT(loginInformation).getInfo();
         branchInfo = new BranchManagement(loginInformation).getInfo();
@@ -115,12 +115,12 @@ public class CreateProduct {
         private int priority;
     }
 
-    public CreateProduct setShowOutOfStock(boolean showOutOfStock) {
+    public APICreateProduct setShowOutOfStock(boolean showOutOfStock) {
         info.setShowOutOfStock(showOutOfStock);
         return this;
     }
 
-    public CreateProduct setHideStock(boolean hideStock) {
+    public APICreateProduct setHideStock(boolean hideStock) {
         info.setHideStock(hideStock);
         return this;
     }
@@ -444,7 +444,7 @@ public class CreateProduct {
                 getListInventory(productInfo.getStockQuantityInfoList().get(0).getBranchStockList()));
     }
 
-    public CreateProduct createWithoutVariationProduct(boolean isManagedByIMEI, int... branchStock) {
+    public APICreateProduct createWithoutVariationProduct(boolean isManagedByIMEI, int... branchStock) {
         hasModel = false;
         ProductPayloadInfo info = initWithoutVariationInfo(isManagedByIMEI, branchStock);
 
@@ -459,7 +459,7 @@ public class CreateProduct {
         return this;
     }
 
-    public CreateProduct createVariationProduct(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
+    public APICreateProduct createVariationProduct(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
         hasModel = true;
         ProductPayloadInfo info = initVariationProductInfo(isManagedByIMEI, increaseNum, branchStock);
 
@@ -475,19 +475,19 @@ public class CreateProduct {
     }
 
     public int getProductID() {
-        return CreateProduct.productId;
+        return APICreateProduct.productId;
     }
 
     public String getProductName() {
-        return CreateProduct.productName;
+        return APICreateProduct.productName;
     }
 
     public String getProductDescription() {
-        return CreateProduct.productDescription;
+        return APICreateProduct.productDescription;
     }
 
     public boolean isHasModel() {
-        return CreateProduct.hasModel;
+        return APICreateProduct.hasModel;
     }
 
     public List<Long> getProductSellingPrice() {
@@ -495,10 +495,10 @@ public class CreateProduct {
     }
 
     public Map<String, List<Integer>> getProductStockQuantity() {
-        return CreateProduct.productStockQuantity;
+        return APICreateProduct.productStockQuantity;
     }
 
     public List<Integer> getBranchIds() {
-        return CreateProduct.branchIds;
+        return APICreateProduct.branchIds;
     }
 }

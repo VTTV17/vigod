@@ -3,7 +3,7 @@ package web.StoreFront;
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
@@ -53,7 +53,7 @@ public class BH_8888 extends BaseTest {
         int branchStock = 5;
         productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock, branchStock)
+            productID = new APICreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock, branchStock)
                     .getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productID);
@@ -68,7 +68,7 @@ public class BH_8888 extends BaseTest {
         int branchStock = 5;
         productID = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock, branchStock)
+            productID = new APICreateProduct(loginInformation).createWithoutVariationProduct(isIMEIProduct, branchStock, branchStock)
                     .getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productID);
@@ -84,7 +84,7 @@ public class BH_8888 extends BaseTest {
         int increaseNum = 1;
         productID = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock, branchStock)
+            productID = new APICreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock, branchStock)
                     .getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productID);
@@ -100,7 +100,7 @@ public class BH_8888 extends BaseTest {
         int increaseNum = 1;
         productID = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(isIMEIProduct, isHideStock, isDisplayIfOutOfStock);
         if (productID == 0)
-            productID = new CreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock, branchStock)
+            productID = new APICreateProduct(loginInformation).createVariationProduct(isIMEIProduct, increaseNum, branchStock, branchStock)
                     .getProductID();
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productID);

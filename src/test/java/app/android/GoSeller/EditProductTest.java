@@ -1,6 +1,6 @@
 package app.android.GoSeller;
 
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import mobile.seller.android.login.LoginScreen;
 import mobile.seller.android.products.edit_product.EditProductScreen;
 import org.testng.annotations.BeforeClass;
@@ -17,7 +17,7 @@ import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 public class EditProductTest extends BaseTest {
     LoginInformation loginInformation;
     EditProductScreen editProductScreen;
-    CreateProduct apiCreateProduct;
+    APICreateProduct apiCreateProduct;
     int productId;
 
     @BeforeClass
@@ -36,7 +36,7 @@ public class EditProductTest extends BaseTest {
         editProductScreen = new EditProductScreen(driver);
 
         // init api create product
-        apiCreateProduct = new CreateProduct(loginInformation);
+        apiCreateProduct = new APICreateProduct(loginInformation);
     }
 
     @BeforeGroups(groups = "[UPDATE] Normal product - Without variation")

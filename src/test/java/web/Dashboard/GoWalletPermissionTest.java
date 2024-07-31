@@ -1,7 +1,6 @@
 package web.Dashboard;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.CreateProduct;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
@@ -13,7 +12,6 @@ import utilities.model.staffPermission.CreatePermission;
 import web.Dashboard.gowallet.transactionhistory.TransactionHistoryPage;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
-import web.Dashboard.marketing.affiliate.information.Information;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +19,6 @@ import java.util.List;
 
 import static utilities.account.AccountTest.*;
 import static utilities.account.AccountTest.STAFF_SHOP_VI_PASSWORD;
-import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 
 public class GoWalletPermissionTest extends BaseTest{
     String sellerUserName;

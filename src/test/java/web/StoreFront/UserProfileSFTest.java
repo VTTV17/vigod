@@ -1,7 +1,7 @@
 package web.StoreFront;
 
 import api.Seller.login.Login;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -99,9 +99,9 @@ public class UserProfileSFTest extends BaseTest {
         fullName_UpdateAddress = PropertiesUtil.getEnvironmentData("buyerName3");
         MAX_PRICE = 999999L;
         loginInformation = new Login().setLoginInformation("+84",userNameDb_ShopVi,passWordDashboard).getLoginInformation();
-        productIDToBuyNow = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
+        productIDToBuyNow = String.valueOf(new APICreateProduct(loginInformation).createWithoutVariationProduct(false,30).getProductID());
         loginInformation = new Login().setLoginInformation(userNameDb_ShopB,passWordDashboardShopB).getLoginInformation();
-        productIDToBuyNowShopB = String.valueOf(new CreateProduct(loginInformation).createWithoutVariationProduct(false,100).getProductID());
+        productIDToBuyNowShopB = String.valueOf(new APICreateProduct(loginInformation).createWithoutVariationProduct(false,100).getProductID());
         displayName = PropertiesUtil.getEnvironmentData("buyerName1");
         membershipLevel = PropertiesUtil.getEnvironmentData("membershipLevel");
         barcodeNumber = PropertiesUtil.getEnvironmentData("barcodeBuyer1");

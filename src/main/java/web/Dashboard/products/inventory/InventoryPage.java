@@ -1,6 +1,6 @@
 package web.Dashboard.products.inventory;
 
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.inventory.Inventory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -151,11 +151,11 @@ public class InventoryPage extends InventoryElement {
 
         // get productId is created by staff
         int createdProductId = permissions.getProduct().getProductManagement().isCreateProduct()
-                ? new CreateProduct(staffLoginInformation).createWithoutVariationProduct(false, 1000).getProductID()
+                ? new APICreateProduct(staffLoginInformation).createWithoutVariationProduct(false, 1000).getProductID()
                 : 0;
 
         // get productId is created by seller
-        int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
+        int notCreatedProductId = new APICreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
 
         // check view product inventory
         checkViewProductInventory(permissions,  notCreatedProductId, createdProductId);

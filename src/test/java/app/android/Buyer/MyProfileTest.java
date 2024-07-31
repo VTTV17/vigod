@@ -4,7 +4,7 @@ import api.Buyer.login.LoginSF;
 import api.Buyer.productdetail.APIProductDetail;
 import api.Buyer.signup.SignUp;
 import api.Seller.login.Login;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import app.Buyer.account.BuyerAccountPage;
 import app.Buyer.account.BuyerMyProfile;
 import app.Buyer.account.address.BuyerAddress;
@@ -67,7 +67,7 @@ public class MyProfileTest extends BaseTest {
         userName_EditInfo_HasBirthday = SF_USERNAME_VI_4;
         userName_PhoneAccount_EditInfo_HasBirthday = SF_USERNAME_PHONE_VI_1;
         loginInformation = new Login().setLoginInformation("+84", sellerUsername, sellerPass).getLoginInformation();
-        CreateProduct newProductInfo = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 30);
+        APICreateProduct newProductInfo = new APICreateProduct(loginInformation).createWithoutVariationProduct(false, 30);
         productIDToAddToCart = newProductInfo.getProductID();
         branchID = newProductInfo.getBranchIds().get(0);
         userName_UpdateAddress = SF_USERNAME_VI_3;

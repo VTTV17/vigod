@@ -3,7 +3,7 @@ package web.Dashboard;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIEditProduct;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.promotion.FlashSale;
 import api.Seller.setting.PermissionAPI;
@@ -50,7 +50,7 @@ public class FlashSalePermissionTest extends BaseTest{
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product
-        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
+        APICreateProduct productInfo = new APICreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
         productCreatedByShopOwner = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
 
@@ -58,7 +58,7 @@ public class FlashSalePermissionTest extends BaseTest{
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 
         //Staff create product
-        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
+        productInfo = new APICreateProduct(ownerCredentials).createWithoutVariationProduct(false,100,100);
         productCreatedByStaff = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
     }

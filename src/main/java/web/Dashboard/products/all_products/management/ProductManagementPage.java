@@ -3,7 +3,7 @@ package web.Dashboard.products.all_products.management;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIProductDetail;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.inventory.APIInventoryHistory;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
@@ -754,11 +754,11 @@ public class ProductManagementPage extends ProductManagementElement {
 
         // get productId is created by staff
         int createdProductId = permissions.getProduct().getProductManagement().isCreateProduct()
-                ? new CreateProduct(staffLoginInformation).createWithoutVariationProduct(false, 1000).getProductID()
+                ? new APICreateProduct(staffLoginInformation).createWithoutVariationProduct(false, 1000).getProductID()
                 : 0;
 
         // get productId is created by seller
-        int notCreatedProductId = new CreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
+        int notCreatedProductId = new APICreateProduct(sellerLoginInformation).createWithoutVariationProduct(false, 1000).getProductID();
 
         // check view product list
         checkViewProductList(createdProductId, notCreatedProductId);

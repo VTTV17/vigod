@@ -4,7 +4,7 @@ import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APIEditCustomer;
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIEditProduct;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.promotion.PromotionList;
 import api.Seller.reservations.CreateBookingPOS;
 import api.Seller.reservations.ReservationAPI;
@@ -58,7 +58,7 @@ public class ReservationPermissionTest extends BaseTest {
         ownerCredentials = new Login().setLoginInformation("+84", sellerUserName, sellerPassword).getLoginInformation();
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product
-        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        APICreateProduct productInfo = new APICreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
         productCreatedByShopOwner = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
 
@@ -67,7 +67,7 @@ public class ReservationPermissionTest extends BaseTest {
         //get staff login info
         staffLoginInfo = new Login().getInfo(staffCredentials);
         //Staff create product
-        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productInfo = new APICreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
         productCreatedByStaff = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
         //delete all in-progress campaign

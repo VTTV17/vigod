@@ -10,13 +10,12 @@ import api.Seller.customers.APIEditCustomer;
 import api.Seller.login.Login;
 import api.Seller.orders.pos.APICreateOrderPOS;
 import api.Seller.products.all_products.APIEditProduct;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.setting.PermissionAPI;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.driver.InitWebdriver;
 import utilities.enums.ApproveStatus;
-import utilities.enums.TransferStatus;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.marketing.affiliate.CommissionInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -30,7 +29,6 @@ import web.Dashboard.marketing.affiliate.information.Information;
 import web.Dashboard.marketing.affiliate.order.PartnerOrdersPage;
 import web.Dashboard.marketing.affiliate.partner.PartnerPage;
 import web.Dashboard.marketing.affiliate.partnerinventory.TransferPage;
-import web.Dashboard.marketing.affiliate.payout.payouthistory.PayoutHistoryElement;
 import web.Dashboard.marketing.affiliate.payout.payouthistory.PayoutHistoryPage;
 import web.Dashboard.marketing.affiliate.payout.payoutinformation.PayoutInformationPage;
 
@@ -66,7 +64,7 @@ public class AffiliatePermissionTest extends BaseTest{
         staffCredentials = new Login().setLoginInformation("+84", staffUserName, staffPass).getLoginInformation();
         // Shop owner create product
         MAX_PRICE = 999999L;
-        CreateProduct productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        APICreateProduct productInfo = new APICreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
         productCreatedByShopOwner = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
 
@@ -74,7 +72,7 @@ public class AffiliatePermissionTest extends BaseTest{
         groupPermissionId = new PermissionAPI(ownerCredentials).createPermissionGroupThenGrantItToStaff(ownerCredentials, staffCredentials);
 
         //Staff create product
-        productInfo = new CreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
+        productInfo = new APICreateProduct(ownerCredentials).createWithoutVariationProduct(false,100);
         productCreatedByStaff = productInfo.getProductName();
         productIds.add(productInfo.getProductID());
     }

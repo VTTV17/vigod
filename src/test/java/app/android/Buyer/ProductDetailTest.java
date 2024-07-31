@@ -3,7 +3,7 @@ package app.android.Buyer;
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APIAllProducts;
 import api.Seller.products.all_products.APIProductDetail;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.WholesaleProduct;
 import api.Seller.promotion.FlashSale;
 import api.Seller.promotion.ProductDiscountCampaign;
@@ -70,7 +70,7 @@ public class ProductDetailTest extends BaseTest {
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Without variation")
     void preCondition_G1() {
         // create product for test
-        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, 5).getProductID();
+        productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(false, 5).getProductID();
 
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
@@ -82,7 +82,7 @@ public class ProductDetailTest extends BaseTest {
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Without variation")
     void preCondition_G2() {
         // create product for test
-        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, 5).getProductID();
+        productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(true, 5).getProductID();
 
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
@@ -94,7 +94,7 @@ public class ProductDetailTest extends BaseTest {
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] Normal product - Variation")
     void preCondition_G3() {
         // create product for test
-        productId = new CreateProduct(loginInformation).createVariationProduct(false, 1, 1).getProductID();
+        productId = new APICreateProduct(loginInformation).createVariationProduct(false, 1, 1).getProductID();
 
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
@@ -106,7 +106,7 @@ public class ProductDetailTest extends BaseTest {
     @BeforeGroups(groups = "[ANDROID - PRODUCT DETAIL] IMEI product - Variation")
     void preCondition_G4() {
         // create product for test
-        productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, 1).getProductID();
+        productId = new APICreateProduct(loginInformation).createVariationProduct(true, 1, 1).getProductID();
 
         // get product information
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
@@ -174,7 +174,7 @@ public class ProductDetailTest extends BaseTest {
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(false, true, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createWithoutVariationProduct(isIMEIProduct, branchStock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -188,7 +188,7 @@ public class ProductDetailTest extends BaseTest {
         int branchStock = 5;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createWithoutVariationProduct(false, branchStock).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createWithoutVariationProduct(false, branchStock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen.openProductDetailScreenAndCheckProductInformation(loginInformation, language, productInfo, customerId);
@@ -201,7 +201,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_09_SettingDisplayAndProductInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(false, 5).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(false, 5).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -215,7 +215,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_10_SettingDisplayAndProductOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(false).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(false).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -229,7 +229,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_11_SettingHiddenAndProductInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(false, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(false, 5).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(false, 5).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -244,7 +244,7 @@ public class ProductDetailTest extends BaseTest {
         int branchStock = 0;
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(false, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(false, branchStock).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(false, branchStock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -260,7 +260,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_13_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
@@ -280,7 +280,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_14_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
+            productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
@@ -300,7 +300,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G1_15_AllBranchesActiveAndShowBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(false, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -375,7 +375,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_07_HideStockAndInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(true, true, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(true).createWithoutVariationProduct(true, 5).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(true).createWithoutVariationProduct(true, 5).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -389,7 +389,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_08_ShowStockAndInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createWithoutVariationProduct(true, 5).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createWithoutVariationProduct(true, 5).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -403,7 +403,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_9_SettingDisplayAndProductInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(true, 5).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(true, 5).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -417,7 +417,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_10_SettingDisplayAndProductOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(true).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createWithoutVariationProduct(true).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -431,7 +431,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_11_SettingHiddenAndProductInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndInStock(true, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(true, 5).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(true, 5).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -445,7 +445,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_12_SettingHiddenAndProductOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithoutVariationAndOutOfStock(true, true, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(true).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createWithoutVariationProduct(true).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -460,7 +460,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_13_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
+            productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
@@ -479,7 +479,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_14_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-            productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
+            productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -498,7 +498,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G2_15_AllBranchesActiveAndShowBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 5);
-        productId = new CreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createWithoutVariationProduct(true, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -573,7 +573,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_07_HideStockAndInStock_AllVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, true, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(true).createVariationProduct(false, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(true).createVariationProduct(false, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -587,7 +587,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_08_HideStockAndInStock_SomeVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, true, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(true).createVariationProduct(false, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(true).createVariationProduct(false, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -601,7 +601,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_09_ShowStockAndInStock_AllVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createVariationProduct(false, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createVariationProduct(false, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -615,7 +615,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_10_ShowStockAndInStock_SomeVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createVariationProduct(false, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createVariationProduct(false, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -629,7 +629,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_11_SettingDisplayAndProductInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(false, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(false, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -643,7 +643,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_12_SettingDisplayAndOneOfVariationOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -657,7 +657,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_13_SettingDisplayAndAllVariationsOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(false, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(false, 0).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(false, 0).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -671,7 +671,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_14_SettingHiddenAndAllVariationsInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(false, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(false, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -685,7 +685,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_15_SettingHiddenAndOneOfVariationOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(false, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(false, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(false, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -699,7 +699,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_16_SettingHiddenAndAllVariationsOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(false, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(false, 0).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(false, 0).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -714,7 +714,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_17_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-            productId = new CreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
+            productId = new APICreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
@@ -733,7 +733,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_18_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-            productId = new CreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
+            productId = new APICreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -752,7 +752,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G3_19_AllBranchesActiveAndShowBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new CreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createVariationProduct(false, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -827,7 +827,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_07_HideStockAndInStock_AllVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, true, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(true).createVariationProduct(true, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(true).createVariationProduct(true, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -841,7 +841,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_08_HideStockAndInStock_SomeVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, true, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(true).createVariationProduct(true, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(true).createVariationProduct(true, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -855,7 +855,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_09_ShowStockAndInStock_AllVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createVariationProduct(true, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createVariationProduct(true, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -869,7 +869,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_10_ShowStockAndInStock_SomeVariations() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setHideStock(false).createVariationProduct(true, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setHideStock(false).createVariationProduct(true, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -883,7 +883,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_11_SettingDisplayAndProductInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -897,7 +897,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_12_SettingDisplayAndOneOfVariationOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -911,7 +911,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_13_SettingDisplayAndAllVariationsOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(true, false, true);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 0).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(true).createVariationProduct(true, 0).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -925,7 +925,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_14_SettingHiddenAndAllVariationsInStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(true, 1, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(true, 1, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -939,7 +939,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_15_SettingHiddenAndOneOfVariationOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndInStock(true, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(true, 1).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(true, 1).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -953,7 +953,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_16_SettingHiddenAndAllVariationsOutOfStock() {
         productId = new APIAllProducts(loginInformation).getProductIDWithVariationAndOutOfStock(true, false, false);
         if (productId == 0)
-            productId = new CreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(true, 0).getProductID();
+            productId = new APICreateProduct(loginInformation).setShowOutOfStock(false).createVariationProduct(true, 0).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
 
         productDetailScreen
@@ -968,7 +968,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_17_OneBranchActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .inactiveAllPaidBranches();
@@ -987,7 +987,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_18_AllBranchesActiveAndHideBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).hideFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();
@@ -1006,7 +1006,7 @@ public class ProductDetailTest extends BaseTest {
     void Android_Buyer_G4_19_AllBranchesActiveAndShowBranchOnStoreFront() {
         int[] stock = new int[branchID.size()];
         Arrays.fill(stock, 1);
-        productId = new CreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
+        productId = new APICreateProduct(loginInformation).createVariationProduct(true, 1, stock).getProductID();
         productInfo = new APIProductDetail(loginInformation).getInfo(productId);
         new BranchManagement(loginInformation).showFreeBranchOnShopOnline()
                 .activeAndShowAllPaidBranchesOnShopOnline();

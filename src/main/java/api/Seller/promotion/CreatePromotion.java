@@ -2,7 +2,7 @@ package api.Seller.promotion;
 
 import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
-import api.Seller.products.all_products.CreateProduct;
+import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.setting.BranchManagement;
 import io.restassured.path.json.JsonPath;
@@ -629,7 +629,7 @@ public class CreatePromotion {
                 {
                     "conditionValue": %s
                 }
-                """.formatted(appliesToType == 1 ? new APIProductCollection(loginInformation).createCollection() : new CreateProduct(loginInformation).getProductID());
+                """.formatted(appliesToType == 1 ? new APIProductCollection(loginInformation).createCollection() : new APICreateProduct(loginInformation).getProductID());
         String appliesToCondition = """
                 {
                     "conditionOption": "%s",
@@ -649,12 +649,12 @@ public class CreatePromotion {
 
         String minimumRequirementLabel = minimumRequirementType == 0 ? "MIN_REQUIREMENTS_NONE" : (minimumRequirementType == 1) ? "MIN_REQUIREMENTS_PURCHASE_AMOUNT" : "MIN_REQUIREMENTS_QUANTITY_OF_ITEMS";
         int minStock = 1;
-        if (new CreateProduct(loginInformation).isHasModel()) {
-            for (String key : new CreateProduct(loginInformation).getProductStockQuantity().keySet()) {
-                minStock = Math.min(minStock, Collections.min(new CreateProduct(loginInformation).getProductStockQuantity().get(key)));
+        if (new APICreateProduct(loginInformation).isHasModel()) {
+            for (String key : new APICreateProduct(loginInformation).getProductStockQuantity().keySet()) {
+                minStock = Math.min(minStock, Collections.min(new APICreateProduct(loginInformation).getProductStockQuantity().get(key)));
             }
-        } else minStock = Collections.min(new CreateProduct(loginInformation).getProductStockQuantity().get(null));
-        long minPurchaseAmount = Collections.min(new CreateProduct(loginInformation).getProductSellingPrice());
+        } else minStock = Collections.min(new APICreateProduct(loginInformation).getProductStockQuantity().get(null));
+        long minPurchaseAmount = Collections.min(new APICreateProduct(loginInformation).getProductSellingPrice());
         String minimumRequirement = """
                 {
                     "conditionOption": "%s",
