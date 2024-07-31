@@ -5,11 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import org.openqa.selenium.WebElement;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.enums.MenuItemType;
 import utilities.links.Links;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
+
+import java.util.List;
 
 public class AddMenu {
 
@@ -31,6 +34,7 @@ public class AddMenu {
 	By loc_ddvUrlLinkType = By.cssSelector(".links .dropdown-menu button");
 	By loc_ddlUrlLinkValue = By.cssSelector(".collections .btn-secondary");
 	By loc_ddvUrlLinkValue = By.cssSelector(".collections .dropdown-menu button");
+	By loc_txtLinkValue = By.id("link");
 	By loc_btnEditTranslation = By.xpath("//button[contains(@class,'gs-button__green')]/preceding-sibling::button");
 	By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
 	public AddMenu inputMenuTitle(String menuTitle) {
@@ -65,16 +69,35 @@ public class AddMenu {
 	/**
 	 * Don't use this function to input link value.
 	 */
-	public void selectUrlLinkValue(){
-		commonAction.click(loc_ddlUrlLinkValue);
-		commonAction.click(loc_ddvUrlLinkValue,0);
+	public void selectRandomUrlLink(){
+		boolean selected = false;
+		commonAction.click(loc_ddlUrlLinkType);
+		for (int i=0; i<6; i++){
+			commonAction.click(loc_ddvUrlLinkType,i);
+			commonAction.click(loc_ddlUrlLinkValue);
+			List<WebElement> suggestionList = commonAction.getElements(loc_ddvUrlLinkValue,2);
+			if(suggestionList.size()>0){
+				commonAction.click(loc_ddvUrlLinkValue,0);
+				return;
+			}else {
+				List<WebElement> linkInput = commonAction.getElements(loc_txtLinkValue,1);
+				if(linkInput.size()>0){
+					commonAction.inputText(loc_txtMenuName,"https://www.gosell.vn");
+					return;
+				}
+			}
+		}
+		if(!selected) try {
+			throw new Exception("No input url link");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	public void createSimpleAMenu(){
 		inputMenuTitle("menu "+new DataGenerator().randomNumberGeneratedFromEpochTime(5));
 		clickOnAddMenuItem();
 		inputMenuItemName("menu item "+new DataGenerator().randomNumberGeneratedFromEpochTime(5));
-		selectUrlLinkType(MenuItemType.COLLECTION_PRODUCT);
-		selectUrlLinkValue();
+		selectRandomUrlLink();
 		new ConfirmationDialog(driver).clickGreenBtn();
 		commonAction.sleepInMiliSecond(300);
 		new ConfirmationDialog(driver).clickGreenBtnOnSecondModal();
@@ -91,5 +114,9 @@ public class AddMenu {
 		commonAction.click(loc_dlgEditTranslation_btnSave);
 		logger.info("Click on Save button on Edit Translation modal.");
 		return this;
+	}
+	public void clickCancelAddMenuItem(){
+		new ConfirmationDialog(driver).clickCancelBtn();
+		logger.info("Click on Cancle btn on Add Menu Item popup.");
 	}
 }

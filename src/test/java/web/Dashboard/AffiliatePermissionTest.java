@@ -346,10 +346,10 @@ public class AffiliatePermissionTest extends BaseTest{
                 //Assign partner to customer
                 new APIEditCustomer(ownerCredentials).assignPartnerToCustomer(customer, partner);
                 //Create order
-                new APICreateOrderPOS(ownerCredentials).CreatePOSOrder(customer,productIds.get(0));
+                new APICreateOrderPOS(ownerCredentials).createPOSOrder(customer,productIds.get(0));
             } else {
                 //Create order
-                new APICreateOrderPOS(ownerCredentials).CreatePOSOrder(customer,productIds.get(0));
+                new APICreateOrderPOS(ownerCredentials).createPOSOrder(customer,productIds.get(0));
             }
         }
     }
@@ -396,7 +396,7 @@ public class AffiliatePermissionTest extends BaseTest{
         LoginInformation resellerCredentials = new Login().setLoginInformation("+84", USERNAME_RESELLER_SHOPVI, PASSWORD_RESELLER_SHOPVI).getLoginInformation();
         int orderProductListSize = new APIPartnerOrders(ownerCredentials).getResellerOrderByApproveStatus(ApproveStatus.PENDING).size();
         for(int i=0; i< 2 - orderProductListSize; i++){
-            new APICreateOrderPOS(resellerCredentials).CreatePOSOrder(0);
+            new APICreateOrderPOS(resellerCredentials).createPOSOrder(0);
         }
     }
     @DataProvider

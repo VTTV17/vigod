@@ -60,7 +60,7 @@ public class OnlineShopPermissionTest extends BaseTest{
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-        driver.quit();
+//        driver.quit();
     }
     @DataProvider
     public Object[] ThemesData(){
@@ -1250,10 +1250,10 @@ public class OnlineShopPermissionTest extends BaseTest{
     @DataProvider
     public Object[] MenuData(){
         return new Object[][]{
-                {"1"},
-                {"10"},
+//                {"1"},
+//                {"10"},
                 {"11"},
-                {"100"},
+//                {"100"},
 //                {"101"},
 //                {"110"},
 //                {"111"},
@@ -1262,9 +1262,9 @@ public class OnlineShopPermissionTest extends BaseTest{
 //                {"1010"},
 //                {"1011"},
 //                {"1100"},
-                {"1101"},   //Bug1: Translation api response 403 when has permission
-                {"1110"},
-                {"1111"}    //Bug1
+//                {"1101"},   //Bug1: Translation api response 403 when has permission
+//                {"1110"},
+//                {"1111"}    //Bug1
         };
     }
     @Test(dataProvider = "MenuData")

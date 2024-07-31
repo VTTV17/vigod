@@ -12,7 +12,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import utilities.api.API;
 import utilities.assert_customize.AssertCustomize;
 import utilities.enums.analytics.FilterType;
 import utilities.links.Links;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class OrderAnalytics {
 
@@ -154,10 +152,13 @@ public class OrderAnalytics {
             int orderNumericBefore = getOrdersMetric();
             //Seller create order on all branches.
             List<Integer> branchIds = new BranchManagement(sellerLoginInfo).getInfo().getBranchID();
-            branchIds.stream().forEach(n -> new APICreateOrderPOS(sellerLoginInfo).CreatePOSOrderByBranch(customer,n));
-            //Get Assigned branch of staff
+            branchIds.stream().forEach(n -> new APICreateOrderPOS(sellerLoginInfo).createPOSOrderByBranch(customer,n));
+            //Get Assigned branch of staff, then create order one more
+            List<Integer> staffBranchId = new Login().getInfo(staffLoginInfo).getAssignedBranchesIds();
+            staffBranchId.stream().forEach(n -> new APICreateOrderPOS(sellerLoginInfo).createPOSOrderByBranch(customer,n));
+
             List<String> staffBranch = new Login().getInfo(staffLoginInfo).getAssignedBranchesNames();
-            int expectedOrderMetric = orderNumericBefore + staffBranch.size();
+            int expectedOrderMetric = orderNumericBefore + staffBranch.size()*2;
             waitOrderMetricUpdated();
             assertCustomize.assertEquals(getOrdersMetric(),expectedOrderMetric,
                     "[Failed] Has View data of assigned branch: Order metric actual: %s \nOrder metric expected: %s".formatted(getOrdersMetric(),expectedOrderMetric));
@@ -173,9 +174,9 @@ public class OrderAnalytics {
                 waitOrderMetricLoaded();
                 int orderNumericBefore = getOrdersMetric();
                 //Seller create order
-                new APICreateOrderPOS(sellerLoginInfo).CreatePOSOrder(customer);
+                new APICreateOrderPOS(sellerLoginInfo).createPOSOrder(customer);
                 //Staff create order
-                new APICreateOrderPOS(staffLoginInfo).CreatePOSOrder(customer);
+                new APICreateOrderPOS(staffLoginInfo).createPOSOrder(customer);
                 int expectedOrderMetric = orderNumericBefore + 1;
                 waitOrderMetricUpdated();
                 assertCustomize.assertEquals(getOrdersMetric(),expectedOrderMetric,

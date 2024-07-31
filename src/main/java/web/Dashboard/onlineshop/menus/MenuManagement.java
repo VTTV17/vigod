@@ -8,6 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
 import utilities.assert_customize.AssertCustomize;
+import utilities.enums.MenuItemType;
 import utilities.links.Links;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -37,6 +38,7 @@ public class MenuManagement {
     By loc_btnAddMenu = By.cssSelector(".gss-content-header--undefined .gs-button__green");	
     By loc_lstMenuTitle = By.cssSelector(".gs-table-body-items div:nth-child(1)");
 	By loc_lst_icnEdit = By.cssSelector(".icon-edit");
+
     public MenuManagement clickAddMenu() {
     	commonAction.click(loc_btnAddMenu);
     	logger.info("Clicked on 'Add Menu' button.");
@@ -75,6 +77,21 @@ public class MenuManagement {
 	public boolean hasTranslateMenu(){
 		return allPermissions.getOnlineStore().getMenu().isTranslateMenu();
 	}
+	public boolean hasViewProductCollectionList(){
+		return allPermissions.getProduct().getCollection().isViewCollectionList();
+	}
+	public boolean hasViewServiceCollectionList(){
+		return allPermissions.getService().getServiceCollection().isViewCollectionList();
+	}
+	public boolean hasViewPageList(){
+		return allPermissions.getOnlineStore().getPage().isViewPageList();
+	}
+	public boolean hasViewBlogList(){
+		return allPermissions.getOnlineStore().getBlog().isViewBlogCategoryList();
+	}
+	public boolean hasViewArticleList(){
+		return allPermissions.getOnlineStore().getBlog().isViewArticleList();
+	}
 	public void checkViewMenuList(){
 		List<WebElement> menuTitleList = commonAction.getElements(loc_lstMenuTitle,1);
 		if(hasViewListMenu()){
@@ -82,10 +99,35 @@ public class MenuManagement {
 		}else assertCustomize.assertTrue(menuTitleList.isEmpty(),"[Failed] Menu list should be empty.");
 		logger.info("Verified View menu list permission.");
 	}
+	public void checkViewURLLink(MenuItemType menuItemType){
+		boolean permission = false;
+		switch (menuItemType){
+			case COLLECTION_PRODUCT -> permission = hasViewProductCollectionList();
+			case COLLECTION_SERVICE -> permission = hasViewServiceCollectionList();
+			case PAGE -> permission = hasViewPageList();
+			case BLOG -> permission = hasViewBlogList();
+			case ARTICLE -> permission = hasViewArticleList();
+		}
+		addMenu.selectUrlLinkType(menuItemType);
+		commonAction.click(addMenu.loc_ddlUrlLinkValue);
+		List<WebElement> linkValueList = commonAction.getElements(addMenu.loc_ddvUrlLinkValue,2);
+		if(permission){
+			assertCustomize.assertTrue(linkValueList.size()>0,"[Failed] %s list not show".formatted(menuItemType));
+			logger.info("Verified view list %s permission.".formatted(menuItemType));
+		}else assertCustomize.assertTrue(linkValueList.isEmpty(),"[Failed] %s list should be not shown".formatted(menuItemType));
+		commonAction.click(addMenu.loc_ddlUrlLinkValue);
+	}
 	public void checkCreateMenu(){
 		navigateByUrl();
 		if(hasCreateMenu()){
 			clickAddMenu();
+			addMenu.clickOnAddMenuItem();
+			checkViewURLLink(MenuItemType.COLLECTION_PRODUCT);
+			checkViewURLLink(MenuItemType.COLLECTION_SERVICE);
+			checkViewURLLink(MenuItemType.PAGE);
+			checkViewURLLink(MenuItemType.BLOG);
+			checkViewURLLink(MenuItemType.ARTICLE);
+			addMenu.clickCancelAddMenuItem();
 			addMenu.createSimpleAMenu();
 			String message = new ConfirmationDialog(driver).getPopUpContent();
 			try {
