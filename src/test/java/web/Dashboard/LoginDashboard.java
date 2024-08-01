@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import api.Seller.login.Login;
 import api.Seller.setting.APIAccount;
-import api.kibana.KibanaAPI;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;

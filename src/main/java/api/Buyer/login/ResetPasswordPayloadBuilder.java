@@ -1,6 +1,6 @@
 package api.Buyer.login;
 
-import api.JsonObjectBuilder;
+import utilities.api.payloadbuilder.JsonObjectBuilder;
 
 public class ResetPasswordPayloadBuilder extends JsonObjectBuilder {
 	

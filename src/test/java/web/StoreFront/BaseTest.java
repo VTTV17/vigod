@@ -7,6 +7,7 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.excel.Excel;
+import utilities.screenshot.Screenshot;
 import utilities.utils.PropertiesUtil;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class BaseTest {
 
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-//        new Screenshot().takeScreenshot(driver);
+        new Screenshot().takeScreenshot(driver);
 
         // reset count false
         AssertCustomize.setCountFalse(0);

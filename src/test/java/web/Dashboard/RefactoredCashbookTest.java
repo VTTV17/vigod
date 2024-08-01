@@ -128,20 +128,12 @@ public class RefactoredCashbookTest extends BaseTest {
 	}    
 	
 	public String randomSender(CashbookGroup group) {
-		switch (group) {
-			case CUSTOMER: {
-				return DataGenerator.getRandomListElement(customerList);
-			}
-			case SUPPLIER: {
-				return DataGenerator.getRandomListElement(supplierList);
-			}
-			case STAFF: {
-				return DataGenerator.getRandomListElement(staffList);
-			}
-			default: {
-				return DataGenerator.getRandomListElement(othersList);
-			}
-		}
+		return switch (group) {
+			case CUSTOMER: yield DataGenerator.getRandomListElement(customerList);
+			case SUPPLIER: yield DataGenerator.getRandomListElement(supplierList);
+			case STAFF: yield DataGenerator.getRandomListElement(staffList);
+			default: yield DataGenerator.getRandomListElement(othersList);
+		};
 	}	
 	
 	public String randomBranch() {
