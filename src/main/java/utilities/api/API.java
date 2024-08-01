@@ -96,7 +96,7 @@ public class API {
     }
     
     @SafeVarargs
-    public final Response put(String path, String token, String body, Map<String, ?>... headers) {
+    public final Response put(String path, String token, Object body, Map<String, ?>... headers) {
         return given().relaxedHTTPSValidation()
                 .auth()
                 .oauth2(token)
