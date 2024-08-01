@@ -1,23 +1,14 @@
 package web.Dashboard;
 
-import java.util.Arrays;import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-import com.mifmif.common.regex.Generex;
-
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APICreateCustomer;
 import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mifmif.common.regex.Generex;
 import io.restassured.path.json.JsonPath;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.CustomerEmail;
 import utilities.model.dashboard.customer.CustomerGeoLocation;
@@ -27,6 +18,9 @@ import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
 import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.sellerApp.login.LoginInformation;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class CustomerTest {
 	

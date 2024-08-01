@@ -313,19 +313,19 @@ public class APICreateProduct {
     }
 
     public String getProductName() {
-        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.name).getMainProductNameMap().get(storeInfo.getDefaultLanguage());
+        return new APIProductDetailV2(loginInformation).getInfo(productId).getName();
     }
 
     public String getProductDescription() {
-        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.name).getMainProductDescriptionMap().get(storeInfo.getDefaultLanguage());
+        return new APIProductDetailV2(loginInformation).getInfo(productId).getDescription();
     }
 
     public boolean isHasModel() {
-        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.name).isHasModel();
+        return new APIProductDetailV2(loginInformation).getInfo(productId).isHasModel();
     }
 
     public List<Long> getProductSellingPrice() {
-        return new APIProductDetail(loginInformation).getInfo(productId, ProductInformationEnum.price).getProductSellingPrice();
+        return new APIProductDetailV2(loginInformation).getInfo(productId).getProductSellingPrice();
     }
 
     public Map<String, List<Integer>> getProductStockQuantity() {
