@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.customer.CustomerInfo;
+import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -40,12 +41,19 @@ public class APICustomerDetail {
             return customerInfo;
         } else return new CustomerInfo();
     }
-    
     public CustomerProfileFB getCustomerInfoAtGoSocial(int customerId) {
 		Response response = api.get(cusDetailGoSocialPath.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken()).then()
 				.statusCode(200)
 				.extract()
 				.response();
 		return response.as(CustomerProfileFB.class);
+    }
+
+    public CustomerInfoFull getFullInfo(int customerId){
+        Response getCustomerInfo = api.get(CUSTOMER_INFORMATION_PATH.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken()).then()
+                .statusCode(200)
+                .extract()
+                .response();
+        return getCustomerInfo.as(CustomerInfoFull.class);
     }
 }

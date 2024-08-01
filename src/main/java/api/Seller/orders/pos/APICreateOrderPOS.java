@@ -94,7 +94,7 @@ public class APICreateOrderPOS {
                         "phoneCode": "%s",
                         %s
                       },
-                    """.formatted(customerInfo.getMainPhoneName(),customerInfo.getMainEmail(),customerInfo.getMainPhoneNumber(),customerInfo.getMainPhoneCode(),getAddressInfo());
+                    """.formatted(customerInfo.getMainEmailName(),customerInfo.getMainEmail(),customerInfo.getMainPhoneNumber(),customerInfo.getMainPhoneCode());
         }else {
             String random = new DataGenerator().randomNumberGeneratedFromEpochTime(8);
             deliveryInfo = """

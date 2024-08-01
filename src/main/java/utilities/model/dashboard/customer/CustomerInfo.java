@@ -1,7 +1,5 @@
 package utilities.model.dashboard.customer;
-
 import lombok.Data;
-
 @Data
 public class CustomerInfo {
     private int customerId;
