@@ -274,7 +274,7 @@ public class CustomerTest {
 		System.out.println();
 	}
 	
-	@Test(invocationCount = 50, threadPoolSize = 10)
+	@Test(invocationCount = 110, threadPoolSize = 10)
 	public void createSegment() throws JsonProcessingException {
 		
 		LoginInformation login = new Login().setLoginInformation("tham1babe@mailnesia.com", "fortesting!1").getLoginInformation();
@@ -349,6 +349,30 @@ public class CustomerTest {
 		SegmentList createdSegment = createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null);
 		Assert.assertEquals(segmentdata.getName(), createdSegment.getName());
 		Assert.assertEquals(Integer.valueOf(1), createdSegment.getUserCount());
+		
+		System.out.println();
+	}
+	
+	@Test(invocationCount = 4)
+	public void deleteSegments() {
+		
+		LoginInformation login = new Login().setLoginInformation("tham1babe@mailnesia.com", "fortesting!1").getLoginInformation();
+		
+		APISegment createSegmentAPI = new APISegment(login);
+		
+		createSegmentAPI.getSegmentList().parallelStream().forEach(it -> createSegmentAPI.deleteSegment(it.getId()));
+		
+		System.out.println();
+	}
+	
+	@Test
+	public void deleteProfles() {
+		
+		LoginInformation login = new Login().setLoginInformation("tham1babe@mailnesia.com", "fortesting!1").getLoginInformation();
+		
+		APIAllCustomers allCustomerAPI = new APIAllCustomers(login);
+		
+		allCustomerAPI.deleteProfiles(allCustomerAPI.getAllCustomerIds());
 		
 		System.out.println();
 	}
