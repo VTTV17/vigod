@@ -15,15 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class APIAllCustomers {
+	Logger logger = LogManager.getLogger(APIAllCustomers.class);
 
     String GET_LIST_SEGMENT_OF_CUSTOMER = "/beehiveservices/api/segments/%s/%s";
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
-
-    String GET_ALL_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=%s&size=100&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
-
+    String GET_ALL_CUSTOMERS_PATH = "/beehiveservices/api/customer-profiles/%s/v2?page=%s&size=200&keyword=&sort=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=en";
     String EXPORT_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/export/%s/v2?keyword=&branchIds=&ignoreBranch=true&searchField=NAME&operationDebtAmount=ALL&debtAmountValue=0&langKey=vi";
+    String deleteProfilePath = "/beehiveservices/api/customer-profiles/multiple-delete/<storeId>?ids=<profileId>";
 
     LoginDashboardInfo loginInfo;
     API api = new API();
@@ -180,4 +184,25 @@ public class APIAllCustomers {
         }
         return customerInfo;
     }
+
+    public void deleteProfile(int profileId) {
+    	String basePath = deleteProfilePath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<profileId>", String.valueOf(profileId));
+    	String token = loginInfo.getAccessToken();
+    	
+        api.delete(basePath, token);
+        logger.info("Deleted customer segment with id: " + profileId);
+    }  
+    public void deleteProfiles(List<Integer> profileIds) {
+    	if (profileIds.size()==0) {
+    		logger.info("Input list of profile Ids is empty. Skipping deleteProfiles");
+    		return;
+    	}
+		String profileIdsString = profileIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+    	String basePath = deleteProfilePath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<profileId>", String.valueOf(profileIdsString));
+    	String token = loginInfo.getAccessToken();
+    	
+    	api.delete(basePath, token);
+    	logger.info("Deleted customer segment with id: {}", profileIds);
+    }    
+    
 }
