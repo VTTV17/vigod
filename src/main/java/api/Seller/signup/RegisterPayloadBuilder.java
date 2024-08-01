@@ -3,7 +3,7 @@ package api.Seller.signup;
 import java.util.HashMap;
 import java.util.Map;
 
-import api.JsonObjectBuilder;
+import utilities.api.payloadbuilder.JsonObjectBuilder;
 
 public class RegisterPayloadBuilder extends JsonObjectBuilder {
 	

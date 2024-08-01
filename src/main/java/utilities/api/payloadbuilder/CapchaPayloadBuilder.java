@@ -1,4 +1,4 @@
-package api;
+package utilities.api.payloadbuilder;
 
 public class CapchaPayloadBuilder extends JsonObjectBuilder {
 

@@ -1,4 +1,4 @@
-package api.kibana;
+package utilities.api.thirdparty;
 
 import static java.lang.Thread.sleep;
 

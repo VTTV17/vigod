@@ -10,7 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
-import api.kibana.KibanaAPI;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.model.dashboard.setupstore.SetupStoreDG;
 import utilities.utils.PropertiesUtil;

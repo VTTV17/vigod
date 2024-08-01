@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import api.CapchaPayloadBuilder;
-import api.JsonObjectBuilder;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.api.payloadbuilder.CapchaPayloadBuilder;
+import utilities.api.payloadbuilder.JsonObjectBuilder;
 
 public class SignUpDashboardAPI {
     String signupPath = "/api/register/gosell";

@@ -1,12 +1,12 @@
 package api.Buyer.login;
 
-import api.CapchaPayloadBuilder;
-import api.JsonObjectBuilder;
 import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.api.payloadbuilder.CapchaPayloadBuilder;
+import utilities.api.payloadbuilder.JsonObjectBuilder;
 import utilities.model.dashboard.storefront.loginSF;
 import utilities.model.sellerApp.login.LoginInformation;
 

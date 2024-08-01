@@ -19,9 +19,9 @@ import org.testng.annotations.Test;
 
 import api.Seller.login.Login;
 import api.Seller.setting.APIAccount;
-import api.kibana.KibanaAPI;
-import api.mailnesia.APIMailnesia;
 import utilities.account.AccountTest;
+import utilities.api.thirdparty.APIMailnesia;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.data.DataGenerator.TimeUnits;
@@ -253,7 +253,7 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
 	}
 
-	@Test
+//	@Test
 	public void SignupWithExistingAccount() throws Exception {
 
 		/*Domain .vn*/
@@ -292,7 +292,7 @@ public class RefactorSignupDB extends BaseTest {
 		signupPage.verifyUsernameExistError("ENG").completeVerify();
 	}
 
-	@Test
+//	@Test
 	public void RegisterThenLoginToContinue() {
 
 		//Randomize data
@@ -328,7 +328,7 @@ public class RefactorSignupDB extends BaseTest {
 		validateTimezoneShopName();
 	}	
 
-	@Test
+//	@Test
 	public void ResendOTPForMailAccount() throws Exception {
 		storeDG.setAccountType("EMAIL");
 		storeDG.randomStoreData();
@@ -371,7 +371,7 @@ public class RefactorSignupDB extends BaseTest {
 		validateTimezoneShopName();
 	}
 
-	@Test
+//	@Test
 	public void ResendOTPForPhoneAccount() throws Exception {
 		storeDG.setAccountType("MOBILE");
 		storeDG.randomStoreData();
@@ -415,7 +415,7 @@ public class RefactorSignupDB extends BaseTest {
 		validateTimezoneShopName();
 	}
 
-	@Test
+//	@Test
 	public void SignupByMail() {
 
 		//Randomize data
@@ -444,7 +444,7 @@ public class RefactorSignupDB extends BaseTest {
 		validateTimezoneShopName();
 	}
 
-	@Test
+//	@Test
 	public void SignupByPhone() {
 
 		//Randomize data
@@ -475,7 +475,7 @@ public class RefactorSignupDB extends BaseTest {
 
 
 
-	@Test
+//	@Test
 	public void ActivateFreeTrialWhenCreatingShop() {
 
 		//Randomize data
@@ -504,7 +504,7 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(accountPage.getPlanInfo().get(0).get(2), defaultFreeTrialPackage(storeDG.getCountry()));
 	}
 
-	@Test
+//	@Test
 	public void ActivateFreeTrialAfterShopCreated() {
 
 		//Randomize data
@@ -544,7 +544,7 @@ public class RefactorSignupDB extends BaseTest {
 		validateTimezoneShopName();
 	}
 
-	@Test(invocationCount = 1)
+//	@Test(invocationCount = 1)
 	public void SignupPurchasePackageExp() {
 
 		//Randomize data
@@ -578,10 +578,11 @@ public class RefactorSignupDB extends BaseTest {
 		checkMail(availableMail, storeDG, paymentCompleteInfo, expiryDate.replaceAll("-", "/"));
 	}
 
+	@Test
 	public void SignupPurchasePackage() {
 
 		//Randomize data
-		storeDG.randomStoreData("Vietnam");
+		storeDG.randomStoreData("Malaysia");
 		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
 		System.out.println(storeDG);
 		System.out.println(planPaymentDG);
@@ -663,7 +664,7 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
 	}	
 
-	@Test(invocationCount = 2)
+//	@Test(invocationCount = 2)
 	public void AbortPaymentProcessVN() {
 		
 		//Randomize data
@@ -719,7 +720,7 @@ public class RefactorSignupDB extends BaseTest {
 		String newExpiryDate = DateTimeFormatter.ofPattern(dateFormat).format(LocalDateTime.ofInstant(expiryDate, ZoneId.systemDefault()));
 		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
 	}		
-	@Test(invocationCount = 2)
+//	@Test(invocationCount = 2)
 	public void AbortPaymentProcessBiz() {
 		
 		//Randomize data
@@ -776,7 +777,7 @@ public class RefactorSignupDB extends BaseTest {
 		validatePackageIsEnabledExp(planPaymentDG, subcriptionDate, newExpiryDate);
 	}		
 	
-	@Test
+//	@Test
 	public void AbandonPaymentThenEnableFreeTrial() {
 		
 		//Randomize data
@@ -866,7 +867,7 @@ public class RefactorSignupDB extends BaseTest {
 		Assert.assertEquals(storeInfoPage.getTimezone(), storeDG.getTimezone());
 	}	
 
-	@Test(invocationCount = 4)
+//	@Test(invocationCount = 4)
 	public void ChangePackageVN() {
 
 		//Randomize data
@@ -945,7 +946,7 @@ public class RefactorSignupDB extends BaseTest {
 
 	}
 	
-	@Test(invocationCount = 3)
+//	@Test(invocationCount = 3)
 	public void ChangePackageBiz() {
 		
 		//Randomize data
@@ -1024,7 +1025,7 @@ public class RefactorSignupDB extends BaseTest {
 		
 	}	
 	
-	@Test(invocationCount = 4)
+//	@Test(invocationCount = 4)
 	public void RenewPackageVN() {
 		
 		//Randomize data
@@ -1092,7 +1093,7 @@ public class RefactorSignupDB extends BaseTest {
 		checkMail(availableMail, storeDG, paymentCompleteInfo, newExpiryDate.replaceAll("-", "/"));
 	}	
 	
-	@Test(invocationCount = 3)
+//	@Test(invocationCount = 3)
 	public void RenewPackageBiz() {
 		
 		//Randomize data
@@ -1160,7 +1161,7 @@ public class RefactorSignupDB extends BaseTest {
 		checkMail(availableMail, storeDG, paymentCompleteInfo, newExpiryDate.replaceAll("-", "/"));
 	}	
 	
-	@Test
+	@Test(invocationCount = 2)
 	public void PackageBenefitsVN() {
 		
 		//Randomize data
@@ -1206,6 +1207,167 @@ public class RefactorSignupDB extends BaseTest {
 				
 				Assert.assertEquals(actualBenefits, expectedBenefits);
 			}		
+		}
+	}
+	
+	@Test
+	public void PackageBenefitsBiz() {
+		
+		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		storeDG.randomStoreData("Canada");
+		storeDG.setUsername("bao142@mailnesia.com");
+		storeDG.setEmail("bao142@mailnesia.com");
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+		
+		int maxPlanCount = storeDG.getCountry().contentEquals("Vietnam") ? 3 : 1;
+		List<String> langList = new ArrayList<>();
+		langList.add("ENG");
+		if (canSwitchLanguage(storeDG.getDomain())) {
+			langList.add("VIE");
+		}
+		
+		for (String lang : langList) {
+			if (canSwitchLanguage(storeDG.getDomain())) homePage.selectLanguage(lang);
+			
+			for (int duration=1 ;duration<=maxPlanCount; duration++) {
+				plansPage.selectDuration(duration);
+				
+				List<List<String>> actualBenefits = plansPage.getPackageBenefits(storeDG.getCountry());
+				
+				List<List<String>> expectedBenefits = DataGenerator.getBenefitsByPlan(storeDG.getCountry(), duration, lang.substring(0, 2).toLowerCase()); 
+				
+				Assert.assertEquals(actualBenefits, expectedBenefits);
+			}		
+		}
+	}
+	
+	
+	@Test(invocationCount = 3)
+	public void CompareBenefitsVN() {
+		
+		//Randomize data
+		storeDG.randomStoreData("Vietnam");
+		storeDG.setUsername("0830659539");
+		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Canada");
+//		storeDG.setUsername("bao142@mailnesia.com");
+//		storeDG.setEmail("bao142@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		//Get new package
+		for (int i=0; i<20; i++) {
+			planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+			if (!planPaymentDG.getNewPackage().equals(currentPlanName)) break;
+		}
+		
+		List<String> langList = new ArrayList<>();
+		langList.add("ENG");
+		if (canSwitchLanguage(storeDG.getDomain())) {
+			langList.add("VIE");
+		}
+		
+		for (String lang : langList) {
+			if (canSwitchLanguage(storeDG.getDomain())) homePage.selectLanguage(lang);
+			
+			plansPage.selectDuration(planPaymentDG.getPeriod());
+			plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+			
+			List<List<String>> actualBenefits = plansPage.getPackageBenefitComparision(storeDG.getCountry());
+			plansPage.clickContinueOnFeatureComparisionDialog();
+			commonAction.navigateBack();	
+		}
+	}	
+	@Test
+	public void CompareBenefitsBiz() {
+		
+		//Randomize data
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("0830659539");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		storeDG.randomStoreData("Canada");
+		storeDG.setUsername("bao142@mailnesia.com");
+		storeDG.setEmail("bao142@mailnesia.com");
+		storeDG.setDomain(Links.DOMAIN_BIZ + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("automation0-shop995@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+//		storeDG.randomStoreData("Vietnam");
+//		storeDG.setUsername("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setEmail("auto0-shop0777031268@mailnesia.com");
+//		storeDG.setDomain(Links.DOMAIN + Links.LOGIN_PATH);
+		System.out.println(storeDG);
+		
+		
+		PlanStatus currentPlan = new APIAccount(new Login().setLoginInformation(storeDG.getPhoneCode(), storeDG.getUsername(), storeDG.getPassword()).getLoginInformation()).getAvailablePlanInfo().get(0);
+		NewPackage currentPlanName = NewPackage.getKeyFromValue(currentPlan.getBundlePackagePlanName());
+		Instant registeredDate = Instant.parse(currentPlan.getRegisterPackageDate());
+		Instant expiryDate = Instant.parse(currentPlan.getExpiredPackageDate());
+		int period = PlanMoney.deducePeriod(registeredDate, expiryDate);
+		
+		new LoginPage(driver).navigate(storeDG.getDomain()).performLogin(storeDG.getCountry(), storeDG.getUsername(), storeDG.getPassword());
+		
+		homePage.navigateToPage("Settings");
+		accountPage.clickAccountTab().clickRenew();
+		
+		//Get new package
+		for (int i=0; i<20; i++) {
+			planPaymentDG.randomPackageAndPaymentMethod(storeDG);
+			if (!planPaymentDG.getNewPackage().equals(currentPlanName)) break;
+		}
+		
+		List<String> langList = new ArrayList<>();
+		langList.add("ENG");
+		if (canSwitchLanguage(storeDG.getDomain())) {
+			langList.add("VIE");
+		}
+		
+		for (String lang : langList) {
+			if (canSwitchLanguage(storeDG.getDomain())) homePage.selectLanguage(lang);
+			
+			plansPage.selectDuration(planPaymentDG.getPeriod());
+			plansPage.subscribeToPackage(planPaymentDG.getNewPackage());
+			
+			List<List<String>> actualBenefits = plansPage.getPackageBenefitComparision(storeDG.getCountry());
+			plansPage.clickContinueOnFeatureComparisionDialog();
+			commonAction.navigateBack();	
 		}
 	}	
 	

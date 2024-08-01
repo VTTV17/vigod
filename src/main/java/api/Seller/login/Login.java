@@ -1,8 +1,6 @@
 package api.Seller.login;
 
 import api.Buyer.login.ResetPasswordPayloadBuilder;
-import api.CapchaPayloadBuilder;
-import api.JsonObjectBuilder;
 import api.Seller.setting.BranchManagement;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -12,6 +10,8 @@ import io.restassured.response.Response;
 import lombok.Getter;
 import org.json.JSONObject;
 import utilities.api.API;
+import utilities.api.payloadbuilder.CapchaPayloadBuilder;
+import utilities.api.payloadbuilder.JsonObjectBuilder;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;

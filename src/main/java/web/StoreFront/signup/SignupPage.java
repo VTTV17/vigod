@@ -5,7 +5,6 @@ import static utilities.links.Links.SF_URL_TIEN;
 import java.sql.SQLException;
 import java.util.Random;
 
-import api.kibana.KibanaAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -18,6 +17,7 @@ import web.StoreFront.header.HeaderSF;
 import web.StoreFront.login.LoginPage;
 import utilities.thirdparty.Mailnesia;
 import utilities.utils.PropertiesUtil;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
