@@ -24,9 +24,7 @@ public class APIProductDetailV2 {
     }
 
     public ProductInfoV2 getInfo(int productId) {
-        ProductInfoV2 productInfoV2 = api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken()).as(ProductInfoV2.class);
-        productInfoV2.analyzeData();
-        return productInfoV2;
+        return api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken()).as(ProductInfoV2.class).analyzeData();
     }
 
     @Data
@@ -82,7 +80,7 @@ public class APIProductDetailV2 {
         private Map<String, List<String>> variationValuesMap = new HashMap<>();
         private Map<Integer, List<Integer>> productStockQuantityMap = new HashMap<>();
 
-        public void analyzeData() {
+        public ProductInfoV2 analyzeData() {
             // Get product name and description
             languages.forEach(language -> {
                 this.mainProductNameMap.put(language.getLanguage(), language.getName());
@@ -148,6 +146,7 @@ public class APIProductDetailV2 {
                 // Get without variation stock
                 this.productStockQuantityMap.put(id, branches.stream().map(branchStock -> branchStock.getTotalItem() - branchStock.getSoldItem()).toList());
             }
+            return this;
         }
 
         @Data
