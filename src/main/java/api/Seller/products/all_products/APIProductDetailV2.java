@@ -64,6 +64,8 @@ public class APIProductDetailV2 {
         private boolean isHideStock;
         private String inventoryManageType;
         private String bhStatus;
+        private boolean lotAvailable;
+        private boolean expiredQuality;
 
         // Analyze data
         private List<Long> productListingPrice;
