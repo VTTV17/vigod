@@ -14,8 +14,6 @@ import api.Seller.supplier.purchase_orders.APIPurchaseOrderDetail;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -30,8 +28,6 @@ import static api.Seller.orders.return_order.APIAllReturnOrder.ReturnOrderStatus
 import static api.Seller.products.inventory.APIInventoryHistory.InventoryActionType.*;
 
 public class APIInventoryHistory {
-    Logger logger = LogManager.getLogger(APIInventoryHistory.class);
-
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
