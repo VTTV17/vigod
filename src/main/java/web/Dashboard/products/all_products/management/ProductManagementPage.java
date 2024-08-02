@@ -2,8 +2,8 @@ package web.Dashboard.products.all_products.management;
 
 import api.Seller.login.Login;
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.all_products.APICreateProduct;
+import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.inventory.APIInventoryHistory;
 import api.Seller.setting.BranchManagement;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +29,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.character_limit.CharacterLimit.MAX_STOCK_QUANTITY;
 import static utilities.links.Links.DOMAIN;
+import static web.Dashboard.products.all_products.crud.ProductPageElement.*;
 import static web.Dashboard.products.all_products.management.ProductManagementPage.BulkActions.*;
 import static web.Dashboard.products.all_products.management.ProductManagementPage.DisplayOutOfStockActions.*;
 import static web.Dashboard.products.all_products.management.ProductManagementPage.PriceType.*;
@@ -1041,15 +1042,15 @@ public class ProductManagementPage extends ProductManagementElement {
     void checkAddVariation() {
         if (!permissions.getProduct().getProductManagement().isAddVariation()) {
             // add new variation group
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productPage.getLoc_btnAddVariation()), "Restricted popup is not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnAddVariation), "Restricted popup is not shown.");
         } else {
             // add new variation group
-            commonAction.clickJS(productPage.getLoc_btnAddVariation());
+            commonAction.clickJS(loc_btnAddVariation);
 
             // add variation value
-            commonAction.getElement(productPage.getLoc_txtVariationValue(), 0).sendKeys("abc");
+            commonAction.getElement(loc_txtVariationValue).sendKeys("abc");
             commonAction.sleepInMiliSecond(500, "Wait suggest list variation value.");
-            commonAction.getElement(productPage.getLoc_txtVariationValue(), 0).sendKeys(Keys.ENTER);
+            commonAction.getElement(loc_txtVariationValue).sendKeys(Keys.ENTER);
 
             // check delete variation
             checkDeleteVariation();
@@ -1059,7 +1060,7 @@ public class ProductManagementPage extends ProductManagementElement {
 
     void checkDeleteVariation() {
         if (!permissions.getProduct().getProductManagement().isDeleteVariation()) {
-            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(productPage.getLoc_btnDeleteVariation()), "Restricted popup is not shown.");
+            assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDeleteVariation), "Restricted popup is not shown.");
         }
         logger.info("Check permission: Product >> Product management >> Delete variation.");
     }

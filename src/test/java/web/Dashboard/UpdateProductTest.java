@@ -85,7 +85,7 @@ public class UpdateProductTest extends BaseTest {
 
     //G1: Normal product without variation
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_01_UpdateProductWithoutDimension() throws Exception {
+    void UP_PRODUCT_G1_01_UpdateProductWithoutDimension() {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -93,7 +93,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_02_UpdateProductWitDimension() throws Exception {
+    void UP_PRODUCT_G1_02_UpdateProductWitDimension() {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -153,7 +153,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_07_UpdateProductWithoutCostPrice() throws Exception {
+    void UP_PRODUCT_G1_07_UpdateProductWithoutCostPrice() {
         productPage.setHasCostPrice(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -161,7 +161,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_08_UpdateProductWithCostPrice() throws Exception {
+    void UP_PRODUCT_G1_08_UpdateProductWithCostPrice() {
         productPage.setHasCostPrice(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -247,7 +247,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_15_UpdateProductWithoutManageByLotDate() throws Exception {
+    void UP_PRODUCT_G1_15_UpdateProductWithoutManageByLotDate() {
         productPage.setManageByLotDate(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -255,7 +255,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_16_UpdateProductWithManageByLotDate() throws Exception {
+    void UP_PRODUCT_G1_16_UpdateProductWithManageByLotDate() {
         productPage.setManageByLotDate(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -279,14 +279,21 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_19_AddWholesaleProduct() throws Exception {
+    void UP_PRODUCT_G1_19_AddWholesaleProduct() {
         productInfo = apiProductDetail.getInfo(productId);
         productPage.configWholesaleProduct(productInfo);
         AssertCustomize.verifyTest();
     }
 
     @Test(groups = "[UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_20_DeleteProduct() throws Exception {
+    void UP_PRODUCT_G1_20_AddConversionUnit() {
+        productInfo = apiProductDetail.getInfo(productId);
+        productPage.configConversionUnit(productInfo);
+        AssertCustomize.verifyTest();
+    }
+
+    @Test(groups = "[UPDATE] Normal product - Without variation")
+    void UP_PRODUCT_G1_21_DeleteProduct() throws Exception {
         productPage.deleteProduct(productId);
 
         productInfo = apiProductDetail.getInfo(productId);
@@ -295,7 +302,7 @@ public class UpdateProductTest extends BaseTest {
 
     //G2: IMEI product without variation
     @Test(groups = "[UPDATE] IMEI product - Without variation")
-    void UP_PRODUCT_G2_01_UpdateProductWithoutDimension() throws Exception {
+    void UP_PRODUCT_G2_01_UpdateProductWithoutDimension() {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -303,7 +310,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
-    void UP_PRODUCT_G2_02_UpdateProductWitDimension() throws Exception {
+    void UP_PRODUCT_G2_02_UpdateProductWitDimension() {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -363,7 +370,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
-    void UP_PRODUCT_G2_07_UpdateProductWithoutCostPrice() throws Exception {
+    void UP_PRODUCT_G2_07_UpdateProductWithoutCostPrice() {
         productPage.setHasCostPrice(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -371,7 +378,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
-    void UP_PRODUCT_G2_08_UpdateProductWithCostPrice() throws Exception {
+    void UP_PRODUCT_G2_08_UpdateProductWithCostPrice() {
         productPage.setHasCostPrice(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
@@ -473,7 +480,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Without variation")
-    void UP_PRODUCT_G2_17_AddWholesaleProduct() throws Exception {
+    void UP_PRODUCT_G2_17_AddWholesaleProduct() {
         productInfo = apiProductDetail.getInfo(productId);
         productPage.configWholesaleProduct(productInfo);
         AssertCustomize.verifyTest();
@@ -489,7 +496,7 @@ public class UpdateProductTest extends BaseTest {
 
     //G3: Normal product with variation
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_01_UpdateProductWithoutDimension() throws Exception {
+    void UP_PRODUCT_G3_01_UpdateProductWithoutDimension() {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -497,7 +504,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_02_UpdateProductWitDimension() throws Exception {
+    void UP_PRODUCT_G3_02_UpdateProductWitDimension() {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -557,7 +564,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_07_UpdateProductWithoutCostPrice() throws Exception {
+    void UP_PRODUCT_G3_07_UpdateProductWithoutCostPrice() {
         productPage.setHasCostPrice(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -565,7 +572,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_08_UpdateProductWithCostPrice() throws Exception {
+    void UP_PRODUCT_G3_08_UpdateProductWithCostPrice() {
         productPage.setHasCostPrice(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -652,7 +659,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_15_UpdateProductWithoutManageByLotDate() throws Exception {
+    void UP_PRODUCT_G3_15_UpdateProductWithoutManageByLotDate() {
         productPage.setManageByLotDate(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -660,7 +667,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_16_UpdateProductWithManageByLotDate() throws Exception {
+    void UP_PRODUCT_G3_16_UpdateProductWithManageByLotDate() {
         productPage.setManageByLotDate(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -699,14 +706,21 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_21_AddWholesaleProduct() throws Exception {
+    void UP_PRODUCT_G3_21_AddWholesaleProduct() {
         productInfo = apiProductDetail.getInfo(productId);
         productPage.configWholesaleProduct(productInfo);
         AssertCustomize.verifyTest();
     }
 
     @Test(groups = "[UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_22_DeleteProduct() throws Exception {
+    void UP_PRODUCT_G3_22_AddConversionUnit() {
+        productInfo = apiProductDetail.getInfo(productId);
+        productPage.configWholesaleProduct(productInfo);
+        AssertCustomize.verifyTest();
+    }
+
+    @Test(groups = "[UPDATE] Normal product - Variation")
+    void UP_PRODUCT_G3_23_DeleteProduct() throws Exception {
         productPage.deleteProduct(productId);
 
         productInfo = apiProductDetail.getInfo(productId);
@@ -715,7 +729,7 @@ public class UpdateProductTest extends BaseTest {
 
     //G4: IMEI product with variation
     @Test(groups = "[UPDATE] IMEI product - Variation")
-    void UP_PRODUCT_G4_01_UpdateProductWithoutDimension() throws Exception {
+    void UP_PRODUCT_G4_01_UpdateProductWithoutDimension() {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -723,7 +737,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
-    void UP_PRODUCT_G4_02_UpdateProductWitDimension() throws Exception {
+    void UP_PRODUCT_G4_02_UpdateProductWitDimension() {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -783,7 +797,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
-    void UP_PRODUCT_G4_07_UpdateProductWithoutCostPrice() throws Exception {
+    void UP_PRODUCT_G4_07_UpdateProductWithoutCostPrice() {
         productPage.setHasCostPrice(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -791,7 +805,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
-    void UP_PRODUCT_G4_08_UpdateProductWithCostPrice() throws Exception {
+    void UP_PRODUCT_G4_08_UpdateProductWithCostPrice() {
         productPage.setHasCostPrice(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
@@ -910,7 +924,7 @@ public class UpdateProductTest extends BaseTest {
     }
 
     @Test(groups = "[UPDATE] IMEI product - Variation")
-    void UP_PRODUCT_G4_19_AddWholesaleProduct() throws Exception {
+    void UP_PRODUCT_G4_19_AddWholesaleProduct() {
         productInfo = apiProductDetail.getInfo(productId);
         productPage.configWholesaleProduct(productInfo);
         AssertCustomize.verifyTest();

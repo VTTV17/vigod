@@ -796,6 +796,8 @@ public class UICommonAction {
             getElement(locator, index).sendKeys(content);
         } catch (StaleElementReferenceException ex) {
             getElement(locator, index).sendKeys(content);
+        } catch (ElementNotInteractableException ex) {
+            actions.sendKeys(content).perform();
         }
 
         clickOutOfTextBox(locator, index);

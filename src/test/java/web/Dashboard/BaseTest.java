@@ -7,9 +7,12 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.excel.Excel;
+import utilities.recording.AppiumRecording;
+import utilities.recording.SeleniumRecording;
 import utilities.utils.PropertiesUtil;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 @Listeners(utilities.listeners.ReportListener.class)
 public class BaseTest {
@@ -26,7 +29,7 @@ public class BaseTest {
     @BeforeSuite
     @Parameters({"browser", "headless", "environment", "language"})
     public void getConfig(@Optional("chrome") String browser,
-                   @Optional("false") String headless,
+                   @Optional("true") String headless,
                    @Optional("STAG") String environment,
                    @Optional("VIE") String language) {
         this.browser = browser;
@@ -38,8 +41,16 @@ public class BaseTest {
         PropertiesUtil.setSFLanguage(language);
     }
 
+    @BeforeMethod
+    void startTest(Method method) throws Exception {
+        AppiumRecording.startRecording(driver);
+//        SeleniumRecording.startRecord(method.getName());
+    }
+
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
+        AppiumRecording.stopRecording(driver, result);
+//        SeleniumRecording.stopRecord();
         AssertCustomize.setCountFalse(0);
 //        new Screenshot().takeScreenshot(driver);
     }
