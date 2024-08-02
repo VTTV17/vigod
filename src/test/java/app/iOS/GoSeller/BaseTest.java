@@ -4,7 +4,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utilities.assert_customize.AssertCustomize;
-import utilities.recording.ScreenRecording;
+import utilities.recording.AppiumRecording;
 import utilities.utils.PropertiesUtil;
 
 public class BaseTest {
@@ -24,7 +24,7 @@ public class BaseTest {
     @BeforeMethod
     void startTest() {
         // Start recording
-        ScreenRecording.startRecording(driver);
+        AppiumRecording.startRecording(driver);
     }
 
     @AfterMethod
@@ -33,7 +33,7 @@ public class BaseTest {
         AssertCustomize.setCountFalse(0);
 
         // Stop recording
-        ScreenRecording.stopRecording(driver, result);
+        AppiumRecording.stopRecording(driver, result);
     }
 
     @AfterSuite

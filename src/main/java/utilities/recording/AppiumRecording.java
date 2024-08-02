@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
-public class ScreenRecording {
+public class AppiumRecording {
     public static void startRecording(WebDriver driver) {
         // Start screen recording
         ((CanRecordScreen) driver).startRecordingScreen();
