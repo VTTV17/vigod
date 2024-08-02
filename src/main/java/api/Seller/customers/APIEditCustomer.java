@@ -17,7 +17,9 @@ import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class APIEditCustomer {
@@ -171,13 +173,10 @@ public class APIEditCustomer {
         List<String> currentTabList = payLoad.getTags();
         if(currentTabList==null) payLoad.setTags(tagList);
         else {
-            for (String tag:tagList) {
-                if(!currentTabList.contains(tag)) currentTabList.add(tag);
-            }
-            payLoad.setTags(currentTabList);
+            Set<String> allTab = new LinkedHashSet<>(tagList);
+            allTab.addAll(currentTabList);
+            payLoad.setTags(allTab.stream().toList());
         }
-        if(currentTabList.containsAll(tagList)) return;
-        System.out.println(payLoad);
         Response response = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH,loginInfo.getStoreID()),loginInfo.getAccessToken(),payLoad);
         response.then().statusCode(200);
     }
