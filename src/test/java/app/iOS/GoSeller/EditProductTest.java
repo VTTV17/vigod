@@ -21,7 +21,7 @@ public class EditProductTest extends BaseTest {
     int productId;
 
     @BeforeClass
-    void setup() {
+    void setupAndroid() {
         // init WebDriver
         String udid = PropertiesUtil.getEnvironmentData("udidIOSThang");
         driver = new InitIOSDriver().getSellerDriver(udid);

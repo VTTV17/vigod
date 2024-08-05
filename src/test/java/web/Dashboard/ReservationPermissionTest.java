@@ -88,7 +88,7 @@ public class ReservationPermissionTest extends BaseTest {
     }
 
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws Exception {
         //clear data - delete all created group permission
         new ServiceInfoAPI(ownerCredentials).deleteService(serviceId);
         super.writeResult(result);

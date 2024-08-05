@@ -88,7 +88,7 @@ public class MarketingPermissionTest extends BaseTest {
     }
 
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws Exception {
         //clear data
         List<Integer> membershipProgramList = new LoyaltyProgram(ownerCredentials).getMembershipList();
         for (int i=2;i<membershipProgramList.size();i++){

@@ -264,7 +264,7 @@ public class ProductPage extends ProductPageElement {
         By languageXpath = By.xpath(loc_ddvLanguageValue.formatted(language));
         do {
             // open language dropdown list
-            commonAction.clickJS(loc_ddvSelectedLanguage);
+            commonAction.click(loc_ddvSelectedLanguage);
         } while (commonAction.getListElement(languageXpath).isEmpty());
 
         // select language
@@ -350,16 +350,11 @@ public class ProductPage extends ProductPageElement {
         commonAction.getElement(loc_lblSEOSetting);
         long currentPointerHeight = (long) ((JavascriptExecutor) driver).executeScript("return arguments[0].scrollTop;", commonAction.getElement(loc_bodyApp));
         assertCustomize.assertTrue(currentPointerHeight == 0L, "Product detail page is not focused on top of page.");
-        // clear old conversion unit config
-//        if (commonAction.isCheckedJS(loc_chkAddConversionUnit)) {
-//            commonAction.clickJS(loc_chkAddConversionUnit);
-//        }
-//        logger.info("Remove old conversion unit config.");
 
         // delete old wholesale product config if any
         if (commonAction.isCheckedJS(loc_chkAddWholesalePricing)) {
             // uncheck add wholesale pricing checkbox to delete old wholesale config
-            commonAction.openPopupJS(loc_chkAddWholesalePricing, loc_dlgConfirm);
+            commonAction.click(loc_chkAddWholesalePricing);
 
             // confirm delete old wholesale config
             commonAction.click(loc_dlgConfirm_btnOK);
@@ -659,12 +654,12 @@ public class ProductPage extends ProductPageElement {
 
     void addIMEIForEachBranch(String variationValue, List<Integer> branchStock) {
         // select all branches
-        commonAction.openDropdownJS(loc_dlgAddIMEISelectedBranch, loc_dlgAddIMEI_chkSelectAllBranches);
+        commonAction.click(loc_dlgAddIMEISelectedBranch);
         logger.info("[Add IMEI popup] Open all branches dropdown.");
 
         if (!commonAction.isCheckedJS(loc_dlgAddIMEI_chkSelectAllBranches))
             commonAction.clickJS(loc_dlgAddIMEI_chkSelectAllBranches);
-        else commonAction.closeDropdown(loc_dlgAddIMEISelectedBranch, loc_dlgAddIMEI_chkSelectAllBranches);
+        else commonAction.click(loc_dlgAddIMEISelectedBranch);
         logger.info("[Add IMEI popup] Select all branches.");
 
         // remove old IMEI
@@ -698,24 +693,23 @@ public class ProductPage extends ProductPageElement {
         variationList.add(null);
 
         // get product stock quantity
-        productStockQuantity = new HashMap<>();
-        productStockQuantity.put(null, IntStream.range(0, brInfo.getBranchName().size()).mapToObj(i -> (branchStockQuantity.length > i) ? (brInfo.getActiveBranches().contains(brInfo.getBranchName().get(i)) ? branchStockQuantity[i] : 0) : 0).toList());
+        productStockQuantity = Map.of("", IntStream.range(0, brInfo.getBranchName().size()).mapToObj(i -> (branchStockQuantity.length > i) ? (brInfo.getActiveBranches().contains(brInfo.getBranchName().get(i)) ? branchStockQuantity[i] : 0) : 0).toList());
 
         /* input stock for each branch */
         if (manageByIMEI) {
             // open add IMEI popup
-            commonAction.openPopupJS(loc_txtWithoutVariationBranchStock, 0, loc_dlgAddIMEI);
+            commonAction.click(loc_txtWithoutVariationBranchStock);
             logger.info("[Create] Open Add IMEI popup without variation product.");
 
             // add IMEI/Serial number for each branch
-            addIMEIForEachBranch(null, productStockQuantity.get(null));
+            addIMEIForEachBranch("", productStockQuantity.get(""));
             logger.info("[Create] Complete add stock for IMEI product.");
 
         } else {
             // update stock for normal product
             IntStream.range(0, brInfo.getActiveBranches().size()).forEach(brIndex -> {
-                commonAction.sendKeys(loc_txtWithoutVariationBranchStock, brIndex, String.valueOf(productStockQuantity.get(null).get(brIndex)));
-                logger.info("[%s] Input stock: %s.".formatted(brInfo.getActiveBranches().get(brIndex), productStockQuantity.get(null).get(brIndex)));
+                commonAction.sendKeys(loc_txtWithoutVariationBranchStock, brIndex, String.valueOf(productStockQuantity.get("").get(brIndex)));
+                logger.info("[%s] Input stock: %s.".formatted(brInfo.getActiveBranches().get(brIndex), productStockQuantity.get("").get(brIndex)));
             });
             logger.info("[Create] Complete update stock for Normal product.");
         }
@@ -760,7 +754,7 @@ public class ProductPage extends ProductPageElement {
 
         // get product stock quantity
         productStockQuantity = new HashMap<>();
-        productStockQuantity.put(null, IntStream.range(0, brInfo.getBranchName().size()).mapToObj(brIndex -> (branchStockQuantity.length > brIndex) ? (brInfo.getActiveBranches().contains(brInfo.getBranchName().get(brIndex)) ? branchStockQuantity[brIndex] : 0) : 0).toList());
+        productStockQuantity.put("", IntStream.range(0, brInfo.getBranchName().size()).mapToObj(brIndex -> (branchStockQuantity.length > brIndex) ? (brInfo.getActiveBranches().contains(brInfo.getBranchName().get(brIndex)) ? branchStockQuantity[brIndex] : 0) : 0).toList());
 
         /* input stock for each branch */
         if (manageByIMEI) {
@@ -769,7 +763,7 @@ public class ProductPage extends ProductPageElement {
             logger.info("[Update] Open Add IMEI popup without variation product.");
 
             // add IMEI/Serial number for each branch
-            addIMEIForEachBranch(null, productStockQuantity.get(null));
+            addIMEIForEachBranch("", productStockQuantity.get(""));
             logger.info("[Update] Complete add stock for IMEI product.");
         } else {
             // open Update stock popup
@@ -777,7 +771,7 @@ public class ProductPage extends ProductPageElement {
             logger.info("Open Update stock popup.");
 
             // add stock for each branch
-            addNormalStockForEachBranch(productStockQuantity.get(null), 0);
+            addNormalStockForEachBranch(productStockQuantity.get(""), 0);
             logger.info("[Update] Complete update stock for Normal product.");
         }
 
@@ -848,7 +842,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.clickJS(loc_tblVariation_lnkSelectAction);
 
         // open Update price popup
-        commonAction.openPopupJS(loc_tblVariation_ddvActions, 0, loc_dlgCommons);
+        commonAction.click(loc_tblVariation_ddvActions);
 
         // input product price
         IntStream.range(0, variationList.size()).forEachOrdered(varIndex -> {
@@ -876,7 +870,7 @@ public class ProductPage extends ProductPageElement {
         commonAction.click(loc_ttlUpdatePrice);
 
         // close Update price popup
-        commonAction.closePopup(loc_dlgCommons_btnUpdate);
+        commonAction.click(loc_dlgCommons_btnUpdate);
     }
 
     void inputVariationStock(int increaseNum, int... branchStockQuantity) {
@@ -906,7 +900,7 @@ public class ProductPage extends ProductPageElement {
         // input SKU
         for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
             // open Update SKU popup
-            commonAction.openPopupJS(loc_tblVariation_txtSKU, varIndex, loc_dlgUpdateSKU);
+            commonAction.click(loc_tblVariation_txtSKU, varIndex);
 
             // input SKU for each branch
             for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
@@ -919,7 +913,7 @@ public class ProductPage extends ProductPageElement {
             commonAction.click(loc_ttlUpdateSKU);
 
             // close Update SKU popup
-            commonAction.closePopup(loc_dlgCommons_btnUpdate);
+            commonAction.click(loc_dlgCommons_btnUpdate);
         }
     }
 
@@ -927,7 +921,7 @@ public class ProductPage extends ProductPageElement {
         // upload image for each variation
         for (int varIndex = 0; varIndex < variationList.size(); varIndex++) {
             // open Update SKU popup
-            commonAction.openPopupJS(loc_tblVariation_imgUploads, varIndex, loc_dlgCommons);
+            commonAction.click(loc_tblVariation_imgUploads, varIndex);
             logger.info("Open upload variation image popup.");
 
             // upload image
@@ -938,7 +932,7 @@ public class ProductPage extends ProductPageElement {
             }
 
             // close Update image popup
-            commonAction.closePopup(loc_dlgCommons_btnUpdate);
+            commonAction.click(loc_dlgCommons_btnUpdate);
         }
     }
 
@@ -980,10 +974,10 @@ public class ProductPage extends ProductPageElement {
             commonAction.getElement(loc_lblSEOSetting);
 
             // open Confirm delete popup
-            commonAction.openPopupJS(loc_btnDelete, loc_dlgCommons);
+            commonAction.click(loc_btnDelete);
 
             // close confirm delete product popup
-            commonAction.closePopup(loc_dlgConfirmDelete_btnOK);
+            commonAction.click(loc_dlgConfirmDelete_btnOK);
         }
     }
 
@@ -995,7 +989,7 @@ public class ProductPage extends ProductPageElement {
         // if create product successfully, close notification popup
         if (!commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty()) {
             // close notification popup
-            commonAction.closePopup(loc_dlgNotification_btnClose);
+            commonAction.click(loc_dlgNotification_btnClose);
         } else Assert.fail("[Failed][Create product] Can not create product.");
 
         // log
@@ -1019,7 +1013,7 @@ public class ProductPage extends ProductPageElement {
         assertCustomize.assertFalse(commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), "Can not update product.");
         if (!commonAction.getListElement(loc_dlgSuccessNotification, 30000).isEmpty()) {
             // close notification popup
-            commonAction.closePopup(loc_dlgNotification_btnClose);
+            commonAction.click(loc_dlgNotification_btnClose);
 
             // log
             logger.info("Complete update product.");
@@ -1030,7 +1024,7 @@ public class ProductPage extends ProductPageElement {
         navigateToUpdateProductPage(productInfo.getProductId());
 
         // close notification popup
-        commonAction.closePopup(loc_dlgNotification_btnClose);
+        commonAction.click(loc_dlgNotification_btnClose);
         logger.info("Close notification popup.");
 
         // hide Facebook bubble
@@ -1538,7 +1532,7 @@ public class ProductPage extends ProductPageElement {
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnSave, loc_dlgSuccessNotification), "Can not update product.");
 
             // close Notification
-            commonAction.closePopup(loc_dlgNotification_btnClose);
+            commonAction.click(loc_dlgNotification_btnClose);
 
             // check delete product
             checkDeleteProduct();
@@ -1634,7 +1628,7 @@ public class ProductPage extends ProductPageElement {
         // check permission
         if (permissions.getProduct().getProductManagement().isDeleteProduct()) {
             assertCustomize.assertTrue(checkPermission.checkAccessedSuccessfully(loc_btnDelete, loc_dlgConfirm), "Confirm delete product popup is not shown.");
-            commonAction.closePopup(loc_dlgConfirm_btnCancel);
+            commonAction.click(loc_dlgConfirm_btnCancel);
         } else {
             assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_btnDelete), "Restricted popup is not shown.");
         }

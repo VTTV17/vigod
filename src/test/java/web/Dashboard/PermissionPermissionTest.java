@@ -75,7 +75,7 @@ public class PermissionPermissionTest extends BaseTest {
 	}		
 	
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws Exception {
         super.writeResult(result);
     }	
 	

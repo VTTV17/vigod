@@ -337,6 +337,7 @@ public class UICommonAction {
         Select select = new Select(getElements(locator).get(index));
         return select.getOptions();
     }
+
     public List<WebElement> getAllOptionInDropDown(By locator) {
         Select select = new Select(getElement(locator));
         return select.getOptions();
@@ -373,12 +374,14 @@ public class UICommonAction {
             return true;
         } else return !getElements(locator).get(0).isDisplayed();
     }
+
     public boolean isElementNotDisplay(By locator, int timeout) {
-        List<WebElement> elements = getElements(locator,timeout);
+        List<WebElement> elements = getElements(locator, timeout);
         if (elements.isEmpty()) {
             return true;
-        } else return !getElements(locator,timeout).get(0).isDisplayed();
+        } else return !getElements(locator, timeout).get(0).isDisplayed();
     }
+
     public String getElementAttribute(WebElement element, String attributeName) {
         String value;
         try {
@@ -423,6 +426,7 @@ public class UICommonAction {
         }
         return optionCount;
     }
+
     public int waitTillSelectDropdownHasData(By by) {
         List<WebElement> options;
         int optionCount = 0;
@@ -606,28 +610,32 @@ public class UICommonAction {
     public List<WebElement> getElements(By by) {
         return driver.findElements(by);
     }
+
     public List<WebElement> getElements(By by, int secondTimeout) {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(secondTimeout));
         List<WebElement> elements = driver.findElements(by);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
         return elements;
     }
-    public List<String> getListText(By by, int secondTimeout){
-        List<WebElement> elements = getElements(by,secondTimeout);
+
+    public List<String> getListText(By by, int secondTimeout) {
+        List<WebElement> elements = getElements(by, secondTimeout);
         List<String> texts = new ArrayList<>();
-        for (WebElement element:elements){
-            texts.add(getText(elements,elements.indexOf(element)));
+        for (WebElement element : elements) {
+            texts.add(getText(elements, elements.indexOf(element)));
         }
         return texts;
     }
-    public List<String> getListText(By by){
+
+    public List<String> getListText(By by) {
         List<WebElement> elements = getElements(by);
         List<String> texts = new ArrayList<>();
-        for (WebElement element:elements){
-            texts.add(getText(elements,elements.indexOf(element)));
+        for (WebElement element : elements) {
+            texts.add(getText(elements, elements.indexOf(element)));
         }
         return texts;
     }
+
     public WebElement getElement(By locator) {
         try {
             return wait.until(presenceOfElementLocated(locator));
@@ -685,35 +693,51 @@ public class UICommonAction {
 
     public void click(By locator) {
         try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
             elementToBeClickable(locator).click();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator));
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
             hoverActions(locator);
             clickActions(locator);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border=''", getElement(locator));
         }
     }
 
     public void click(By locator, int index) {
         try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
             elementToBeClickable(locator, index).click();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
         } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
             hoverActions(locator, index);
             clickActions(locator, index);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
         }
     }
 
     public void clickJS(By locator) {
         try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator));
         } catch (StaleElementReferenceException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator));
         }
     }
 
     public void clickJS(By locator, int index) {
         try {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
         } catch (StaleElementReferenceException ex) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
         }
     }
 
@@ -1137,11 +1161,13 @@ public class UICommonAction {
             click(locAction);
         }
     }
+
     public void uncheckTheCheckboxOrRadio(By locValue, By locAction, int index) {
-        if (getElement(locValue,index).isSelected()) {
-            click(locAction,index);
+        if (getElement(locValue, index).isSelected()) {
+            click(locAction, index);
         }
     }
+
     public void selectByVisibleText(By locator, String visibleText) {
         WebElement element = getElement(locator);
         waitTillSelectDropdownHasData(element);
@@ -1187,12 +1213,13 @@ public class UICommonAction {
             }
         }
     }
-    public void selectDropdownOptionByValue(By ddvSelectedLocator,int index, String value) {
+
+    public void selectDropdownOptionByValue(By ddvSelectedLocator, int index, String value) {
         try {
-            new Select(getElement(ddvSelectedLocator,index)).selectByValue(value);
+            new Select(getElement(ddvSelectedLocator, index)).selectByValue(value);
         } catch (NoSuchElementException | StaleElementReferenceException ex) {
             logger.info(ex);
-            selectDropdownOptionByValue(ddvSelectedLocator,index, value);
+            selectDropdownOptionByValue(ddvSelectedLocator, index, value);
         }
     }
 }

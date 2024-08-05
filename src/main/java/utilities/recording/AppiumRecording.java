@@ -2,6 +2,7 @@ package utilities.recording;
 
 import io.appium.java_client.screenrecording.CanRecordScreen;
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import utilities.data.DataGenerator;
@@ -20,7 +21,7 @@ public class AppiumRecording {
     }
 
     @SneakyThrows
-    public static void stopRecording(WebDriver driver, ITestResult result){
+    public static void stopRecording(WebDriver driver, ITestResult result) {
         // Stop screen recording and get the recorded video
         String video = ((CanRecordScreen) driver).stopRecordingScreen();
 
@@ -32,6 +33,11 @@ public class AppiumRecording {
             // Delete old recording
             String fileName = "%s.mp4".formatted(result.getName());
             new FileUtils().deleteFileInDownloadFolder(fileName);
+
+            // Create recording_video if that not available
+            File theDir = new File("./recording_video/");
+            if (!theDir.exists())
+                LogManager.getLogger().info(theDir.mkdirs() ? "Create folder 'recording_video' folder" : "Can not create 'recording_video' folder");
 
             // Save recording
             Path path = Paths.get(new DataGenerator().getPathOfFolder("recording_video") + File.separator + fileName);

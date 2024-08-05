@@ -44,7 +44,7 @@ public class BaseTest {
     }
 
     @AfterSuite
-    void tearDown() {
+    void tearDownAndroid() {
         // Clear driver
 //        if (driver != null) driver.quit();
     }

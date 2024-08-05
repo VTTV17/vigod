@@ -19,8 +19,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
 import static web.Dashboard.products.all_products.crud.ProductPage.updateProductPath;
-import static web.Dashboard.products.all_products.crud.ProductPageElement.loc_btnConfigureAddConversionUnit;
-import static web.Dashboard.products.all_products.crud.ProductPageElement.loc_chkAddConversionUnit;
+import static web.Dashboard.products.all_products.crud.ProductPageElement.*;
 
 public class ConversionUnitPage extends ConversionUnitElement {
     WebDriver driver;
@@ -54,12 +53,11 @@ public class ConversionUnitPage extends ConversionUnitElement {
 
         // Check "Add Conversion Unit" checkbox to add new configuration
         commonAction.clickJS(loc_chkAddConversionUnit);
-
         if (productInfo.getManageInventoryByIMEI())
             logger.info("Not support conversion unit for product managed by IMEI/Serial at this time.");
         else {
             // click Configure button
-            commonAction.clickJS(loc_btnConfigureAddConversionUnit);
+            commonAction.click(loc_btnConfigureAddConversionUnit);
 
             // hide Facebook bubble
             commonAction.removeFbBubble();
@@ -87,7 +85,7 @@ public class ConversionUnitPage extends ConversionUnitElement {
             logger.info("Select conversion unit: %s.".formatted(unitName));
 
             // input conversion unit quantity
-            long quantity = Math.min(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get("")), 1), MAX_PRICE / productInfo.getProductListingPrice().get(0));
+            long quantity = Math.min(Math.max(Collections.max(productInfo.getProductStockQuantityMap().get(String.valueOf(productInfo.getProductId()))), 1), MAX_PRICE / productInfo.getProductListingPrice().get(0));
             commonAction.sendKeys(withoutVariationQuantity, String.valueOf(quantity));
             logger.info("Conversion unit quantity: %s.".formatted(quantity));
 

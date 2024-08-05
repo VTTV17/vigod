@@ -101,7 +101,7 @@ public class ProductCollectionTest extends BaseTest {
         driver = new InitWebdriver().getDriver(browser, "false");
     }
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws Exception {
         super.writeResult(result);
         if (driver != null) driver.quit();
     }

@@ -42,7 +42,7 @@ public class ProductPageElement {
     By loc_btnDelete = By.cssSelector(".gss-content-header .gs-button__red--outline");
     By loc_dlgConfirmDelete_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgCommons = By.cssSelector(".modal-content");
-    By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
+    public static By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
     By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
     By loc_btnAddAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__header .gs-fake-link");
     By loc_icnDeleteAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__content-wrapper button");
@@ -121,9 +121,7 @@ public class ProductPageElement {
     public final static By loc_btnConfigureWholesalePricing = By.xpath("//label/*[@name = 'enabledListing']//ancestor::div[contains(@class,'gs-widget__header')]/following-sibling::div//button");
     /* Conversion unit config */
     public final static By loc_chkAddConversionUnit = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
-    public final static By loc_btnConfigureAddConversionUnit = By.xpath("//*[@name = 'conversionUnitCheckbox']//ancestor::div[contains(@class, 'border-bottom')]/following-sibling::div//button");
-    public final static By notSupportConversionUnitForProductManagedByIMEI = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(5) small");
-    public final static By loc_cntNoConversionUnitConfig = By.cssSelector(".gs-widget__content .bg-light-white p");
+    public final static By loc_btnConfigureAddConversionUnit = By.xpath("//*[@name = 'conversionUnitCheckbox']//ancestor::div[contains(@class, 'border-radius-bottom')]/following-sibling::div//button");
     By loc_dlgConfirm = By.cssSelector(".modal-content");
     By loc_dlgConfirm_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     By loc_dlgConfirm_btnCancel = By.cssSelector(".modal-footer .gs-button__gray--outline");

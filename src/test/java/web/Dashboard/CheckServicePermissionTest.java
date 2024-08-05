@@ -57,7 +57,7 @@ public class CheckServicePermissionTest extends BaseTest {
         staffCredentials = new Login().setLoginInformation("+84",staffUserName,staffPass).getLoginInformation();
     }
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws Exception {
         //clear data - delete all created group permission
         new PermissionAPI(ownerCredentials).deleteGroupPermission(groupPermissionId);
         new ServiceInfoAPI(ownerCredentials).deleteService(ownerCreatedServiceId);

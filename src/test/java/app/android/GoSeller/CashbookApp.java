@@ -86,7 +86,7 @@ public class CashbookApp extends BaseTest {
 	@AfterMethod
 	public void writeResult(ITestResult result) throws IOException {
 		super.writeResult(result);
-		super.tearDown();
+		super.tearDownAndroid();
 	}
 
 	public void instantiatePageObjects() throws Exception {

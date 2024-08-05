@@ -2,7 +2,11 @@ package utilities.screenshot;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.*;
+import org.apache.logging.log4j.LogManager;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import utilities.data.DataGenerator;
 
 import javax.imageio.ImageIO;
@@ -18,8 +22,25 @@ public class Screenshot {
 
     @SneakyThrows
     public void takeScreenshot(WebDriver driver) {
+        // Create debug if that not available
+        File theDir = new File("./debug/");
+        if (!theDir.exists())
+            LogManager.getLogger().info(theDir.mkdirs() ? "Create folder 'debug' folder" : "Can not create 'debug' folder");
+
         String path = new DataGenerator().getPathOfFolder("debug") + "/%s_%s.png".formatted("debug",
                 generateDateTime("yyyy_MM_dd-HH_mm_ss")).replace("/", File.separator);
+        FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
+    }
+
+    @SneakyThrows
+    public void takeScreenshot(WebDriver driver, String folderName, String fileName) {
+        // Create debug if that not available
+        File theDir = new File("./%s/".formatted(folderName));
+        if (!theDir.exists())
+            LogManager.getLogger().info(theDir.mkdirs() ? "Create folder '" + folderName + "' folder" : "Can not create '" + folderName + "' folder");
+
+        String path = "./%s/%s.png".formatted(folderName,
+                fileName).replace("/", File.separator);
         FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
     }
 
@@ -27,6 +48,11 @@ public class Screenshot {
     public Screenshot takeScreenShot(WebElement element) {
         // Get element screenshot
         File screenshot = element.getScreenshotAs(OutputType.FILE);
+
+        // Create recording_video if that not available
+        File theDir = new File("./src/main/resources/files/element_image");
+        if (!theDir.exists())
+            LogManager.getLogger().info(theDir.mkdirs() ? "Create folder 'element_image' folder" : "Can not create 'element_image' folder");
 
         // Get destination folder
         File destination = new File(new DataGenerator().getPathOfFolderInResourceRoot("element_image") + File.separator + "el_image.png");

@@ -30,6 +30,8 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.*;
 
 public class DataGenerator {
+    private List<Path> paths;
+
     public String generateString(int length) {
         return RandomStringUtils.random(length, true, false);
     }

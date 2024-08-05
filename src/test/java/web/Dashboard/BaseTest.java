@@ -7,7 +7,6 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.excel.Excel;
-import utilities.recording.AppiumRecording;
 import utilities.recording.SeleniumRecording;
 import utilities.utils.PropertiesUtil;
 
@@ -42,17 +41,15 @@ public class BaseTest {
     }
 
     @BeforeMethod
-    void startTest(Method method) throws Exception {
-        AppiumRecording.startRecording(driver);
-//        SeleniumRecording.startRecord(method.getName());
+    void startTest(Method method) {
+        System.out.println("startTest");
+        SeleniumRecording.startRecord(driver, method);
     }
 
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
-        AppiumRecording.stopRecording(driver, result);
-//        SeleniumRecording.stopRecord();
+    public void writeResult(ITestResult result) throws Exception {
+        SeleniumRecording.stopRecord(result);
         AssertCustomize.setCountFalse(0);
-//        new Screenshot().takeScreenshot(driver);
     }
 
     public void writeResultToExcel(String fileName, int sheetId, ITestResult result, String testCaseID) throws IOException {
@@ -68,7 +65,7 @@ public class BaseTest {
     }
 
     @AfterSuite
-    void tearDown() {
+    void tearDownWeb() {
         if (driver != null) driver.quit();
     }
 }

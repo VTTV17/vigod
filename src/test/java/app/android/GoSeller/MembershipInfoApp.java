@@ -76,7 +76,7 @@ public class MembershipInfoApp extends BaseTest {
 	@AfterMethod(alwaysRun = true)
 	public void writeResult(ITestResult result) throws IOException {
 		super.writeResult(result);
-		super.tearDown();
+		super.tearDownAndroid();
 		if (driverWeb != null) {
 			new Screenshot().takeScreenshot(driverWeb);
 			driverWeb.quit();

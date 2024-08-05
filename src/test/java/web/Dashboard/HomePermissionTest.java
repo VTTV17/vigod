@@ -48,7 +48,7 @@ public class HomePermissionTest extends BaseTest {
     }
 
     @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
+    public void writeResult(ITestResult result) throws Exception {
         driver.quit();
     }
     @DataProvider
