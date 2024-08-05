@@ -1,10 +1,14 @@
 package utilities.utils;
 
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utilities.data.DataGenerator;
 import utilities.file.FileNameAndPath;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -37,5 +41,10 @@ public class FileUtils {
                             ? "File '%s' is deleted.".formatted(file.getName())
                             : "Something went wrong when delete '%s' file.".formatted(file.getName()))
                     .forEachOrdered(logger::info);
+    }
+
+    @SneakyThrows
+    public void deleteFile(String fileName) {
+        Files.deleteIfExists(Paths.get(new DataGenerator().getPathOfFile("recording_video", fileName)));
     }
 }

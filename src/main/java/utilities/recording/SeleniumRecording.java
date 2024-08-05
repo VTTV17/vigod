@@ -21,6 +21,9 @@ public class SeleniumRecording {
     // Start recording video
     @SneakyThrows
     public static void startRecord(WebDriver driver, Method method) {
+        // Delete old video
+        new utilities.utils.FileUtils().deleteFile(method.getName() + ".mp4");
+
         // Create debug if that not available
         File theDir = new File("./%s/".formatted(method.getName()));
         System.out.println(theDir.getPath());
@@ -59,6 +62,6 @@ public class SeleniumRecording {
                 "ffmpeg", "-framerate", "5", "-i", System.getProperty("user.dir") + "/" + iTestResult.getName() + "/" + iTestResult.getName() + "%d.png",
                 "-c:v", "libx264", "-pix_fmt", "yuv420p", System.getProperty("user.dir") + "/recording_video/%s.mp4".formatted(iTestResult.getName()));
         Process process = processBuilder.start();
-        process.waitFor(1000, TimeUnit.MILLISECONDS);
+        process.waitFor();
     }
 }

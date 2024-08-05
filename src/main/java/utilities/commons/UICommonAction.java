@@ -694,50 +694,50 @@ public class UICommonAction {
     public void click(By locator) {
         try {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border=''", getElement(locator));
             elementToBeClickable(locator).click();
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator));
         } catch (StaleElementReferenceException | ElementNotInteractableException ex) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border=''", getElement(locator));
             hoverActions(locator);
             clickActions(locator);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border=''", getElement(locator));
         }
     }
 
     public void click(By locator, int index) {
         try {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
-            elementToBeClickable(locator, index).click();
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
+            elementToBeClickable(locator, index).click();
         } catch (StaleElementReferenceException | ElementClickInterceptedException ex) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
             hoverActions(locator, index);
             clickActions(locator, index);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
         }
     }
 
     public void clickJS(By locator) {
         try {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
         } catch (StaleElementReferenceException ex) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator));
         }
     }
 
     public void clickJS(By locator, int index) {
         try {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
         } catch (StaleElementReferenceException ex) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
         }
     }
 

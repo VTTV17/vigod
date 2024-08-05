@@ -260,12 +260,11 @@ public class ProductPage extends ProductPageElement {
         driver.get(DOMAIN);
         driver.navigate().refresh();
 
+        // open language dropdown list
+        commonAction.click(loc_ddvSelectedLanguage);
+
         // language xpath
         By languageXpath = By.xpath(loc_ddvLanguageValue.formatted(language));
-        do {
-            // open language dropdown list
-            commonAction.click(loc_ddvSelectedLanguage);
-        } while (commonAction.getListElement(languageXpath).isEmpty());
 
         // select language
         commonAction.clickJS(languageXpath);
@@ -324,6 +323,9 @@ public class ProductPage extends ProductPageElement {
     public ProductPage navigateToCreateProductPage() {
         // access to create product page by URL
         driver.get("%s%s".formatted(DOMAIN, createProductPath));
+
+        // log
+        logger.info("Navigate to create product page");
 
         // hide Facebook bubble
         commonAction.removeFbBubble();

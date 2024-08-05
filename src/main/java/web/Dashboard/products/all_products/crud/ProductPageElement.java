@@ -8,7 +8,7 @@ import web.Dashboard.products.all_products.management.ProductManagementElement;
 
 public class ProductPageElement {
     By loc_bodyApp = By.cssSelector("#app-body");
-    By loc_ddvSelectedLanguage = By.cssSelector(".language-selector .uik-select__valueWrapper");
+    By loc_ddvSelectedLanguage = By.cssSelector(".language-selector span.uik-btn__content");
     String loc_ddvLanguageValue = "//*[@class = 'uik-select__label']/span[text()= '%s']";
     By loc_btnCreateProduct = new ProductManagementElement().getLoc_btnCreateProduct();
     By loc_btnPrintBarcode = By.xpath("(//div[contains(@class,'gs-content-header-right-el d-flex')]//button)[4]");
