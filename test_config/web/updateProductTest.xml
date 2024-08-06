@@ -5,7 +5,6 @@
         <classes>
             <class name="web.Dashboard.UpdateProductTest">
                 <methods>
-                    <include name="preCondition_G1"/>
                     <include name="UP_PRODUCT_G1_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G1_02_UpdateProductWitDimension"/>
                     <include name="UP_PRODUCT_G1_03_UpdateProductWithInStock"/>
@@ -28,7 +27,6 @@
                     <include name="UP_PRODUCT_G1_20_AddConversionUnit"/>
                     <include name="UP_PRODUCT_G1_21_DeleteProduct"/>
 
-                    <include name="preCondition_G2"/>
                     <include name="UP_PRODUCT_G2_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G2_02_UpdateProductWitDimension"/>
                     <include name="UP_PRODUCT_G2_03_UpdateProductWithInStock"/>
@@ -48,7 +46,6 @@
                     <include name="UP_PRODUCT_G2_17_AddWholesaleProduct"/>
                     <include name="UP_PRODUCT_G2_18_DeleteProduct"/>
 
-                    <include name="preCondition_G3"/>
                     <include name="UP_PROD0_UpdateProductWithAnyPlatform"/>
                     <include name="UP_PRODUCT_G3_11_UpdateProductWithAttribution"/>
                     <include name="UP_PRODUCT_G3_12_UpdateProductWithoutAttribution"/>
@@ -64,7 +61,6 @@
                     <include name="UP_PRODUCT_G3_22_AddConversionUnit"/>
                     <include name="UP_PRODUCT_G3_23_DeleteProduct"/>
 
-                    <include name="preCondition_G4"/>
                     <include name="UP_PRODUCT_G4_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G4_02_UpdateProductWitDimension"/>
                     <include name="UP_PRODUCT_G4_03_UpdateProductWithInStock"/>

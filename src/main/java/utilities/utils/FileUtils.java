@@ -7,6 +7,7 @@ import utilities.data.DataGenerator;
 import utilities.file.FileNameAndPath;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -43,8 +44,10 @@ public class FileUtils {
                     .forEachOrdered(logger::info);
     }
 
-    @SneakyThrows
-    public void deleteFile(String fileName) {
-        Files.deleteIfExists(Paths.get(new DataGenerator().getPathOfFile("recording_video", fileName)));
+
+    public void deleteFile(String fileName) throws IOException {
+        File theDir = new File("./recording_video/" + fileName);
+        if (theDir.exists())
+            Files.delete(Paths.get(System.getProperty("user.dir") + "/recording_video/" + fileName));
     }
 }

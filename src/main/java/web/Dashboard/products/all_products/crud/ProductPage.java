@@ -8,6 +8,7 @@ import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import api.Seller.setting.VAT;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -33,6 +34,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -320,9 +322,14 @@ public class ProductPage extends ProductPageElement {
         return this;
     }
 
+    @SneakyThrows
     public ProductPage navigateToCreateProductPage() {
         // access to create product page by URL
+        sleep(3000);
         driver.get("%s%s".formatted(DOMAIN, createProductPath));
+        if (driver.getCurrentUrl().contains(createProductPath)) {
+            driver.get("%s%s".formatted(DOMAIN, createProductPath));
+        }
 
         // log
         logger.info("Navigate to create product page");

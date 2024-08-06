@@ -35,12 +35,11 @@ public class Screenshot {
     @SneakyThrows
     public void takeScreenshot(WebDriver driver, String folderName, String fileName) {
         // Create debug if that not available
-        File theDir = new File("./%s/".formatted(folderName));
+        File theDir = new File("./debug/%s/".formatted(folderName));
         if (!theDir.exists())
             LogManager.getLogger().info(theDir.mkdirs() ? "Create folder '" + folderName + "' folder" : "Can not create '" + folderName + "' folder");
 
-        String path = "./%s/%s.png".formatted(folderName,
-                fileName).replace("/", File.separator);
+        String path = "./debug/%s/%s.png".formatted(folderName, fileName);
         FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
     }
 
