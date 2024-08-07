@@ -3,6 +3,7 @@ package api.Seller.products.all_products;
 import api.Seller.login.Login;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.apache.logging.log4j.LogManager;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -24,7 +25,15 @@ public class APIProductDetailV2 {
     }
 
     public ProductInfoV2 getInfo(int productId) {
-        return api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken()).as(ProductInfoV2.class).analyzeData();
+        // Logger
+        LogManager.getLogger().info("Get information of productId: {}", productId);
+
+        return api.get(getDetailsOfProductPath.formatted(productId), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(ProductInfoV2.class)
+                .analyzeData();
     }
 
     @Data
