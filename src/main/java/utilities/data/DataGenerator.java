@@ -1,6 +1,5 @@
 package utilities.data;
 
-import api.dotrand.DotrandAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +7,8 @@ import com.mifmif.common.regex.Generex;
 import io.restassured.path.json.JsonPath;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import utilities.api.thirdparty.DotrandAPI;
 import utilities.enums.newpackage.NewPackage;
 import utilities.model.dashboard.setting.plan.PlanNameAndPrice;
 import utilities.model.dashboard.setupstore.CountryData;

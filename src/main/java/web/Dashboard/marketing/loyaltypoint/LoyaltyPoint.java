@@ -1,5 +1,6 @@
 package web.Dashboard.marketing.loyaltypoint;
 
+import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -105,7 +106,8 @@ public class LoyaltyPoint {
 		logger.info("Verified View point program permission.");
 	}
 	public void checkPermissionEnableProgram(){
-		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(false);
+		Response response = new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(false);
+		if(response != null) response.then().statusCode(200);
 		if(hasViewPointProgramInformation()) {
 			new HomePage(driver).navigateToPage("Home");
 			new HomePage(driver).navigateToPage("Marketing","Loyalty Point");
@@ -125,7 +127,8 @@ public class LoyaltyPoint {
 		}else logger.info("Don't have View loyalty point setting permission, so can't check enable program permission.");
 	}
 	public void checkPermissionDisableProgram(){
-		new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(true);
+		Response response = new api.Seller.marketing.LoyaltyPoint(shopOwnerLoginInfo).enableOrDisableProgram(true);
+		if(response != null) response.then().statusCode(200);
 		commonAction.sleepInMiliSecond(1000, "Wait to update enable/disable point program.");
 		if(hasViewPointProgramInformation()) {
 			new HomePage(driver).navigateToPage("Home");

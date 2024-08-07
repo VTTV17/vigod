@@ -1,14 +1,14 @@
 package api.Buyer.signup;
 
-import api.CapchaPayloadBuilder;
-import api.JsonObjectBuilder;
 import api.Seller.login.Login;
 import api.Seller.setting.StoreInformation;
-import api.kibana.KibanaAPI;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import utilities.api.API;
+import utilities.api.payloadbuilder.CapchaPayloadBuilder;
+import utilities.api.payloadbuilder.JsonObjectBuilder;
+import utilities.api.thirdparty.KibanaAPI;
 import utilities.data.DataGenerator;
 import utilities.database.InitConnection;
 import utilities.links.Links;
