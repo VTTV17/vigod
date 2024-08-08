@@ -1,4 +1,4 @@
-package web.Dashboard.orders.pos;
+package web.Dashboard.orders.pos.check_permission;
 
 import org.openqa.selenium.By;
 

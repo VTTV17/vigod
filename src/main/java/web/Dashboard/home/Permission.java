@@ -29,7 +29,7 @@ import web.Dashboard.onlineshop.pages.PageManagement;
 import web.Dashboard.onlineshop.preferences.Configuration;
 import web.Dashboard.orders.quotation.QuotationPage;
 import web.Dashboard.orders.orderlist.order_list.OrderManagementPage;
-import web.Dashboard.orders.pos.POSPage;
+import web.Dashboard.orders.pos.check_permission.POSPage;
 import web.Dashboard.orders.return_orders.return_order_management.ReturnOrdersManagementPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.Dashboard.products.inventory.InventoryPage;

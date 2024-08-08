@@ -211,6 +211,8 @@ public class LoginPage {
             ((JavascriptExecutor) driver).executeScript("localStorage.setItem('staffPermissionToken', '\"%s\"')".formatted(loginInfo.getStaffPermissionToken()));
 
         logger.info("Set local storage successfully");
+
+        driver.navigate().refresh();
     }
 
     public void verifyTextAtLoginScreen() throws Exception {

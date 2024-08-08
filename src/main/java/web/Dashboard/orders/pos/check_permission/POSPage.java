@@ -1,4 +1,4 @@
-package web.Dashboard.orders.pos;
+package web.Dashboard.orders.pos.check_permission;
 
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.products.all_products.APISuggestionProduct;
@@ -27,9 +27,9 @@ import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static utilities.character_limit.CharacterLimit.MAX_PRICE;
 import static utilities.links.Links.DOMAIN;
-import static web.Dashboard.orders.pos.POSElement.DiscountType.*;
-import static web.Dashboard.orders.pos.POSElement.SearchType.barcode;
-import static web.Dashboard.orders.pos.POSElement.SearchType.getAllSearchType;
+import static web.Dashboard.orders.pos.check_permission.POSElement.DiscountType.*;
+import static web.Dashboard.orders.pos.check_permission.POSElement.SearchType.barcode;
+import static web.Dashboard.orders.pos.check_permission.POSElement.SearchType.getAllSearchType;
 
 public class POSPage extends POSElement {
 
@@ -50,7 +50,7 @@ public class POSPage extends POSElement {
 
     public void inputProductSearchTerm(String searchTerm) {
         commonAction.sendKeys(loc_txtSearchProduct, searchTerm);
-        logger.info("Input '" + searchTerm + "' into Search Product box.");
+        logger.info("Input '{}' into Search Product box.", searchTerm);
     }
 
     /*Verify permission for certain feature*/

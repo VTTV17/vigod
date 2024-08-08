@@ -1,7 +1,6 @@
 package web.Dashboard.products.all_products.crud;
 
 import api.Seller.products.all_products.APIAllProducts;
-import api.Seller.products.all_products.APICheckProductSEOURL;
 import api.Seller.products.all_products.APIProductDetail;
 import api.Seller.products.product_collections.APIProductCollection;
 import api.Seller.setting.BranchManagement;
@@ -30,7 +29,6 @@ import web.Dashboard.products.all_products.crud.variation_detail.VariationDetail
 import web.Dashboard.products.all_products.crud.wholesale_price.WholesaleProductPage;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -52,7 +50,6 @@ public class ProductPage extends ProductPageElement {
     }
 
     AssertCustomize assertCustomize;
-    String epoch = String.valueOf(Instant.now().toEpochMilli());
     private boolean noDiscount = nextBoolean();
     private boolean hasCostPrice = false;
     private boolean hasDimension = false;
@@ -473,7 +470,7 @@ public class ProductPage extends ProductPageElement {
 
         // input SKU for each branch
         for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
-            String sku = "SKU_%s_%s".formatted(brInfo.getActiveBranches().get(brIndex), epoch);
+            String sku = "SKU_%s_%s".formatted(brInfo.getActiveBranches().get(brIndex), Instant.now().toEpochMilli());
             commonAction.sendKeys(loc_dlgUpdateSKU_txtInputSKU, brIndex, sku);
             logger.info("Input SKU: %s.".formatted(sku));
         }
@@ -586,37 +583,24 @@ public class ProductPage extends ProductPageElement {
         }
     }
 
-    String getEpoch(String language, int productId) {
-        // check SEO url
-        APICheckProductSEOURL apiCheckProductSEOURL = new APICheckProductSEOURL(loginInformation);
-        while (apiCheckProductSEOURL.isAvailableSEOURL("%s%s".formatted(storeInfo.getDefaultLanguage(), epoch), language, productId)) {
-            epoch = String.valueOf(Instant.now().plus(1, ChronoUnit.SECONDS).toEpochMilli());
-        }
-
-        return epoch;
-    }
-
     void inputSEO() {
-        // check SEO url
-        String epoch = getEpoch(language, productId);
-
         // SEO title
-        String title = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String title = "[%s] Auto - SEO Title - %s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
         commonAction.sendKeys(loc_txtSEOTitle, title);
         logger.info("SEO title: {}.", title);
 
         // SEO description
-        String description = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String description = "[%s] Auto - SEO Description - %s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
         commonAction.sendKeys(loc_txtSEODescription, description);
         logger.info("SEO description: {}.", description);
 
         // SEO keyword
-        String keyword = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String keyword = "[%s] Auto - SEO Keyword - %s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
         commonAction.sendKeys(loc_txtSEOKeywords, keyword);
         logger.info("SEO keyword: {}", keyword);
 
         // SEO URL
-        String url = "%s%s".formatted(storeInfo.getDefaultLanguage(), epoch);
+        String url = "%s%s".formatted(storeInfo.getDefaultLanguage(), Instant.now().toEpochMilli());
         commonAction.sendKeys(loc_txtSEOUrl, url);
         logger.info("SEO url: {}.", url);
     }
@@ -683,7 +667,7 @@ public class ProductPage extends ProductPageElement {
             String brName = brInfo.getActiveBranches().get(brIndex);
             int brStockIndex = brInfo.getBranchName().indexOf(brInfo.getActiveBranches().get(brIndex));
             for (int i = 0; i < branchStock.get(brStockIndex); i++) {
-                String imei = "%s%s_IMEI_%s_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", brInfo.getActiveBranches().get(brIndex), epoch, i);
+                String imei = "%s%s_IMEI_%s_%s\n".formatted(variationValue != null ? "%s_".formatted(variationValue) : "", brInfo.getActiveBranches().get(brIndex), Instant.now().toEpochMilli(), i);
                 commonAction.sendKeys(loc_dlgAddIMEI_txtAddIMEI, brIndex, imei);
                 logger.info("Input IMEI: %s.".formatted(imei.replace("\n", "")));
             }
@@ -744,12 +728,15 @@ public class ProductPage extends ProductPageElement {
         commonAction.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stock));
 
         // input stock for each branch
-        for (int brIndex = brInfo.getActiveBranches().size() - 1; brIndex >= 0; brIndex--) {
-            String brName = brInfo.getActiveBranches().get(brIndex);
+        brInfo.getActiveBranches().forEach(brName -> {
             int brStockIndex = brInfo.getBranchName().indexOf(brName);
-            commonAction.sendKeys(loc_dlgUpdateStock_txtBranchStock, brIndex, String.valueOf(branchStock.get(brStockIndex)));
-            logger.info("%s[%s] Input stock: %s.".formatted(variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, branchStock.get(brStockIndex)));
-        }
+            if (!commonAction.getListElement(loc_dlgUpdateStock_txtBranchStock(brName), 1000).isEmpty()) {
+                commonAction.sendKeys(loc_dlgUpdateStock_txtBranchStock(brName), String.valueOf(branchStock.get(brStockIndex)));
+                logger.info("%s[%s] Input stock: %s.".formatted(variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, branchStock.get(brStockIndex)));
+            } else {
+                logger.info("%s[%s] Input stock: %s.".formatted(variationList.get(varIndex) == null ? "" : "[%s]".formatted(variationList.get(varIndex)), brName, stock));
+            }
+        });
         // close Update stock popup
         commonAction.click(loc_dlgCommons_btnUpdate);
         logger.info("Close Update stock popup.");
@@ -913,7 +900,7 @@ public class ProductPage extends ProductPageElement {
 
             // input SKU for each branch
             for (int brIndex = 0; brIndex < brInfo.getActiveBranches().size(); brIndex++) {
-                String sku = "SKU_%s_%s_%s".formatted(variationList.get(varIndex), brInfo.getActiveBranches().get(brIndex), epoch);
+                String sku = "SKU_%s_%s_%s".formatted(variationList.get(varIndex), brInfo.getActiveBranches().get(brIndex), Instant.now().toEpochMilli());
                 commonAction.sendKeys(loc_dlgUpdateSKU_txtInputSKU, brIndex, sku);
                 logger.info("[Update SKU popup] Input SKU: %s.".formatted(sku));
             }
@@ -1190,24 +1177,23 @@ public class ProductPage extends ProductPageElement {
                 }
 
                 // input SEO
-                String epoch = getEpoch(language, productId);
                 // input title
-                String title = "[%s] Auto - SEO Title - %s".formatted(language, epoch);
+                String title = "[%s] Auto - SEO Title - %s".formatted(language, Instant.now().toEpochMilli());
                 commonAction.sendKeys(loc_dlgEditTranslation_txtSEOTitle, title);
                 logger.info("Input translation for SEO title: %s.".formatted(title));
 
                 // input description
-                String description = "[%s] Auto - SEO Description - %s".formatted(language, epoch);
+                String description = "[%s] Auto - SEO Description - %s".formatted(language, Instant.now().toEpochMilli());
                 commonAction.sendKeys(loc_dlgEditTranslation_txtSEODescription, description);
                 logger.info("Input translation for SEO description: %s.".formatted(description));
 
                 // input keywords
-                String keywords = "[%s] Auto - SEO Keyword - %s".formatted(language, epoch);
+                String keywords = "[%s] Auto - SEO Keyword - %s".formatted(language, Instant.now().toEpochMilli());
                 commonAction.sendKeys(loc_dlgEditTranslation_txtSEOKeywords, keywords);
                 logger.info("Input translation for SEO keywords: %s.".formatted(keywords));
 
                 // input url
-                String url = "%s%s".formatted(language, epoch);
+                String url = "%s%s".formatted(language, Instant.now().toEpochMilli());
                 commonAction.sendKeys(loc_dlgEditTranslation_txtSEOUrl, url);
                 logger.info("Input translation for SEO url: %s.".formatted(url));
 
@@ -1657,7 +1643,7 @@ public class ProductPage extends ProductPageElement {
 
             // add variation value
             if (!commonAction.getListElement(loc_txtVariationValue).isEmpty()) {
-                commonAction.getElement(loc_txtVariationValue, 0).sendKeys(epoch);
+                commonAction.getElement(loc_txtVariationValue, 0).sendKeys(String.valueOf(Instant.now().toEpochMilli()));
                 commonAction.getElement(loc_txtVariationValue, 0).sendKeys(Keys.ENTER);
                 assertCustomize.assertTrue(checkPermission.checkAccessRestricted(loc_lblVariations), "Restricted popup is not shown.");
             }

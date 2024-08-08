@@ -50,7 +50,7 @@ public class SeleniumRecording {
         // Remove images folder
         File[] files = new File(System.getProperty("user.dir") + "/debug/" + iTestResult.getName()).listFiles();
         if (files != null) Arrays.stream(files).parallel().forEach(File::delete);
-        FileUtils.deleteDirectory(new File(System.getProperty("user.dir") + "/debug/" + iTestResult.getName()));
+//        FileUtils.deleteDirectory(new File(System.getProperty("user.dir") + "/debug/" + iTestResult.getName()));
     }
 
     private static void createVideoFromImages(ITestResult iTestResult) throws Exception {

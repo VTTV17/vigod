@@ -41,7 +41,6 @@ public class ProductPageElement {
     By loc_btnDeactivate = By.cssSelector(".gss-content-header .gs-button__yellow--outline");
     By loc_btnDelete = By.cssSelector(".gss-content-header .gs-button__red--outline");
     By loc_dlgConfirmDelete_btnOK = By.cssSelector(".modal-footer .gs-button__green");
-    By loc_dlgCommons = By.cssSelector(".modal-content");
     public static By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
     By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
     By loc_btnAddAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__header .gs-fake-link");
@@ -95,7 +94,9 @@ public class ProductPageElement {
     By loc_dlgUpdateStock_chkSelectAllBranches = By.cssSelector(".modal-body .uik-menuDrop__list > button:nth-child(1)  input");
     By loc_dlgUpdateStock_tabChange = By.cssSelector(".modal-body  div > div > .gs-button:nth-child(2)");
     By loc_dlgUpdateStock_txtStockValue = By.cssSelector(".modal-body  .quantity-input-field > input");
-    By loc_dlgUpdateStock_txtBranchStock = By.cssSelector(".input-stock  > input");
+    By loc_dlgUpdateStock_txtBranchStock(String branchName) {
+        return By.xpath("//td[text() ='%s']/following-sibling::td//input | //tbody//tr//td[count(//*[text()='%s']/preceding-sibling::th) +1]//*[@name='search-input']".formatted(branchName, branchName));
+    }
     /* Product list page */
     /* Tien */
     public final static By loc_btnDeleteVariation = By.cssSelector(".d-none .product-form-variation-selector__btn-delete");

@@ -3,7 +3,6 @@ package api.Seller.products.lot_date;
 import api.Seller.login.Login;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -37,12 +36,10 @@ public class APICreateLotDate {
         private int storeId;
     }
 
-    @Getter
-    private static int lotId;
     @SneakyThrows
-    public void createLotDate() {
+    public int createLotDateAndGetLotId() {
         CreateLotPayload payload = new CreateLotPayload(loginInfo.getStoreID());
-        lotId = api.post(createLotDatePath, loginInfo.getAccessToken(), payload)
+        return api.post(createLotDatePath, loginInfo.getAccessToken(), payload)
                 .then()
                 .statusCode(201)
                 .extract()

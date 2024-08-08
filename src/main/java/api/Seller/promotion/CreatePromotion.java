@@ -653,7 +653,10 @@ public class CreatePromotion {
             for (String key : new APICreateProduct(loginInformation).getProductStockQuantity().keySet()) {
                 minStock = Math.min(minStock, Collections.min(new APICreateProduct(loginInformation).getProductStockQuantity().get(key)));
             }
-        } else minStock = Collections.min(new APICreateProduct(loginInformation).getProductStockQuantity().get(null));
+        } else
+            minStock = Collections.min(new APICreateProduct(loginInformation).getProductStockQuantity().get(String.valueOf(new APICreateProduct(loginInformation).getProductID())));
+
+        System.out.println(new APICreateProduct(loginInformation).getProductSellingPrice());
         long minPurchaseAmount = Collections.min(new APICreateProduct(loginInformation).getProductSellingPrice());
         String minimumRequirement = """
                 {

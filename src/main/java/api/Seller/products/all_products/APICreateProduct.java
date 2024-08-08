@@ -325,7 +325,8 @@ public class APICreateProduct {
     }
 
     public List<Long> getProductSellingPrice() {
-        return new APIProductDetailV2(loginInformation).getInfo(productId).getProductSellingPrice();
+        APIProductDetailV2.ProductInfoV2 v2 = new APIProductDetailV2(loginInformation).getInfo(productId);
+        return v2.isHasModel() ? v2.getProductSellingPrice() : List.of(v2.getNewPrice());
     }
 
     public Map<String, List<Integer>> getProductStockQuantity() {

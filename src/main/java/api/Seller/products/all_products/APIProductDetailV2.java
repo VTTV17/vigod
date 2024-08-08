@@ -154,6 +154,9 @@ public class APIProductDetailV2 {
             }
             // Get without variation information
             else {
+                // Get product barcode
+                this.barcodeList = List.of(barcode);
+
                 // Get without variation stock
                 this.productStockQuantityMap.put(id, branches.stream().map(branchStock -> branchStock.getTotalItem() - branchStock.getSoldItem()).toList());
             }
