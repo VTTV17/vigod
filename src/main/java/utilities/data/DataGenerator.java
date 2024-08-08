@@ -46,7 +46,7 @@ public class DataGenerator {
         return rand.nextLong(max);
     }
 
-    public int generatNumberInBound(int start, int end) {
+    public static int generatNumberInBound(int start, int end) {
         Random rand = new Random();
         int random_integer = rand.nextInt(end - start) + start;
         return random_integer;
