@@ -1,6 +1,7 @@
 package web.Dashboard;
 import api.Seller.login.Login;
 import api.Seller.marketing.*;
+import api.Seller.marketing.membership.LoyaltyProgram;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.promotion.CreatePromotion;

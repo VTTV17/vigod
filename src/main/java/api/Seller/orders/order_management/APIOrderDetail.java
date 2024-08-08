@@ -2,6 +2,7 @@ package api.Seller.orders.order_management;
 
 import api.Seller.login.Login;
 import api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
+import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -9,8 +10,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.marketing.affiliate.PayoutByProductInfo;
+import utilities.model.dashboard.orders.orderdetail.OrderDetailInfo;
+import utilities.model.dashboard.orders.orderdetail.PaymentHistoryInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +51,7 @@ public class APIOrderDetail {
     }
 
     String getOrderDetailPath = "/orderservice3/api/gs/order-details/ids/%s?getLoyaltyEarningPoint=true";
+    String getPaymentHistoryPath = "/orderservices2/api/payment-histories/bc-order/%s";
 
     Response getDetailOfOrderResponse(long orderId) {
         return api.get(getOrderDetailPath.formatted(orderId), loginInfo.getAccessToken(), Map.of("langkey", "en"));
@@ -77,5 +83,19 @@ public class APIOrderDetail {
 
         // return model
         return info;
+    }
+    public OrderDetailInfo getOrderDetail(long id){
+        Response response = getDetailOfOrderResponse(id);
+        response.then().statusCode(200);
+        OrderDetailInfo orderDetailInfo = response.as(OrderDetailInfo.class);
+        System.out.println(orderDetailInfo);
+        return orderDetailInfo;
+    }
+    public List<PaymentHistoryInfo> getPaymentHistory(long orderId){
+        Response response = api.get(getPaymentHistoryPath.formatted(orderId),loginInfo.getAccessToken());
+        response.then().statusCode(200);
+        List<PaymentHistoryInfo> paymentHistoryInfos = Arrays.asList(response.as(PaymentHistoryInfo[].class));
+        System.out.println(paymentHistoryInfos);
+        return paymentHistoryInfos;
     }
 }
