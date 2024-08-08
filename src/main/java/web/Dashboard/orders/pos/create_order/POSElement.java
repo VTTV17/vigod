@@ -16,7 +16,32 @@ public class POSElement {
     }
 
     By loc_txtCustomerSearchBox = By.xpath("#dropdownSuggestionCustomer input");
+
     By loc_lstCustomerResult(int customerId) {
-         return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(string(), '%s')]".formatted(customerId));
+        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(string(), '%s')]".formatted(customerId));
+    }
+
+    By loc_txtProductQuantity(String productName) {
+        return By.xpath("//tr[td//div[text() ='%s']]//input".formatted(productName));
+    }
+
+    By loc_txtProductQuantity(String productName, String variationValue) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//input".formatted(productName, variationValue));
+    }
+
+    By loc_btnSelectIMEI(String productName) {
+        return By.xpath("//tr[td//div[text() ='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName));
+    }
+
+    By loc_btnSelectIMEI(String productName, String variationValue) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue));
+    }
+
+    By loc_btnSelectLot(String productName) {
+        return By.xpath("//tr[td//div[text() ='%s']]//following-sibling::tr[1]//img".formatted(productName));
+    }
+
+    By loc_btnSelectLot(String productName, String variationValue) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//following-sibling::tr[1]//img".formatted(productName, variationValue));
     }
 }

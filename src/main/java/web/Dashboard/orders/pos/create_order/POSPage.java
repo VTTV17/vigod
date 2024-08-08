@@ -34,7 +34,7 @@ public class POSPage extends POSElement {
 
     void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
         // Select product
-        productIds.stream().forEach(productId -> {
+        productIds.forEach(productId -> {
             // Get product information
             APIProductDetailV2.ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
 
@@ -48,6 +48,9 @@ public class POSPage extends POSElement {
             infoV2.getBarcodeList().forEach(barcode -> {
                 // Add product/variation to cart
                 commonAction.clickJS(loc_lstProductResult(barcode));
+
+                // Wait API response
+                commonAction.sleepInMiliSecond(500,"Wait product/variation is added to cart");
 
                 // Log
                 logger.info("Add product/variation to cart, barcode: {}", barcode);
