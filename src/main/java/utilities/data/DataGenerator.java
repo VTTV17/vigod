@@ -114,7 +114,7 @@ public class DataGenerator {
      * @param country the name of the country to get the code for
      * @return the country code for the given country, or null if it is not found
      */
-    public String getCountryCode(String country) {
+    public static String getCountryCode(String country) {
         JsonNode data = jsonFileUtility.readJsonFile("CountryCodes.json").findValue(country).findValue("countryCode");
         return data.asText();
     }
