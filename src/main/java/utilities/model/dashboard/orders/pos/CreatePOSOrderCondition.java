@@ -1,6 +1,5 @@
 package utilities.model.dashboard.orders.pos;
 
-import api.Seller.setting.BranchManagement;
 import lombok.Data;
 import utilities.model.dashboard.products.productInfomation.ProductInfo;
 

@@ -1,5 +1,6 @@
-package api.Seller.marketing;
+package api.Seller.marketing.membership;
 
+import api.Seller.customers.APIEditCustomer;
 import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
@@ -8,9 +9,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
+import utilities.model.dashboard.customer.CustomerInfoFull;
+import utilities.model.dashboard.customer.segment.CreateSegment;
+import utilities.model.dashboard.customer.segment.SegmentCondition;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -30,6 +37,7 @@ public class LoyaltyProgram {
     
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
+    API api = new API();
     public LoyaltyProgram (LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
@@ -105,5 +113,61 @@ public class LoyaltyProgram {
         List<Integer> ids = getAllMembershipJsonPath().getList("id");
         logger.info("Mebership list: "+ids);
         return ids;
+    }
+
+    /**
+     *
+     * @param membershipInfo: require: segmentId, optional: enabledBenefit, discountPercent, discountMaxAmount if any
+     * @return
+     */
+    public LoyaltyProgramInfo createMembership(LoyaltyProgramInfo membershipInfo){
+        membershipInfo.setSellerId(loginInfo.getStoreID());
+        Response response = api.post(CREATE_MEMBERSHIP_PATH,loginInfo.getAccessToken(),membershipInfo);
+        response.then().statusCode(201);
+        return response.as(LoyaltyProgramInfo.class);
+    }
+    public LoyaltyProgramInfo getMembershipDetail(int id){
+        LoyaltyProgramInfo detai = getAllMembershipJsonPath().getObject("find {it.id==%s}".formatted(id),LoyaltyProgramInfo.class);
+        return detai;
+    }
+    public LoyaltyProgramInfo getRandomMembershipDetail(){
+        JsonPath jsonDetail = getAllMembershipJsonPath();
+        LoyaltyProgramInfo detai = new LoyaltyProgramInfo();
+        if(jsonDetail.getList("id").size()>0){
+            detai = jsonDetail.getObject("find {[0]}",LoyaltyProgramInfo.class);
+        }else {
+            int getSegmentId = new APISegment(loginInformation).getSegmentList().get(0).getId();
+            detai.setSegmentId(getSegmentId);
+            createMembership(detai);
+        }
+        System.out.println(detai);
+        return detai;
+    }
+    public LoyaltyProgramInfo setUpMembershipForCustomer(int customerId){
+        String tagValue = "membership" + new DataGenerator().randomNumberGeneratedFromEpochTime(5);
+        new APIEditCustomer(loginInformation).getPayLoadFormat(customerId).addMoreTagForCustomer(List.of(tagValue));
+        SegmentCondition condition = new SegmentCondition();
+        condition.setName("Customer Data_Customer tag_is equal to");
+        condition.setValue(tagValue);
+        CreateSegment segmentdata = new CreateSegment();
+        segmentdata.setName("Segment " + tagValue);
+        segmentdata.setMatchCondition("ALL");
+        segmentdata.setConditions(Arrays.asList(condition));
+        Response responseSegment = new APISegment(loginInformation).createSegment(segmentdata);
+        responseSegment.prettyPrint();
+        int segmentId = responseSegment.jsonPath().getInt("id");
+        System.out.println(segmentId);
+        int membershipId = getAMembershipId();
+        LoyaltyProgramInfo membershipInfo;
+        if(membershipId == 0) {
+            membershipInfo = new LoyaltyProgramInfo();
+            membershipInfo.setSegmentId(segmentId);
+            membershipInfo = createMembership(membershipInfo);
+        }else {
+            membershipInfo = new APIEditLoyaltyProgram(loginInformation).getPayloadAsDefault(membershipId);
+            membershipInfo.setSegmentId(segmentId);
+            new APIEditLoyaltyProgram(loginInformation).editLoyaltyProgram(membershipInfo);
+        }
+        return membershipInfo;
     }
 }
