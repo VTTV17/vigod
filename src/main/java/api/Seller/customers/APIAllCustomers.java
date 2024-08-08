@@ -185,13 +185,6 @@ public class APIAllCustomers {
         return customerInfo;
     }
 
-    public void deleteProfile(int profileId) {
-    	String basePath = deleteProfilePath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<profileId>", String.valueOf(profileId));
-    	String token = loginInfo.getAccessToken();
-    	
-        api.delete(basePath, token);
-        logger.info("Deleted customer segment with id: " + profileId);
-    }  
     public void deleteProfiles(List<Integer> profileIds) {
     	if (profileIds.size()==0) {
     		logger.info("Input list of profile Ids is empty. Skipping deleteProfiles");
