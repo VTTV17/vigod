@@ -34,7 +34,7 @@ public class MembershipInformation extends BaseTest {
 	HomePage homePage;
 	HeaderSF headerPage;
 	
-	api.Seller.marketing.LoyaltyProgram loyaltyProgramAPI;
+	api.Seller.marketing.membership.LoyaltyProgram loyaltyProgramAPI;
 	APISegment segmentAPI;
 
 	JsonNode sellerData = jsonFileUtility.readJsonFile("LoginInfo.json").findValue("dashboard");
@@ -70,7 +70,7 @@ public class MembershipInformation extends BaseTest {
 		commonAction = new UICommonAction(driver);
 		
 		segmentAPI = new APISegment(loginInformation);
-		loyaltyProgramAPI = new api.Seller.marketing.LoyaltyProgram(loginInformation);
+		loyaltyProgramAPI = new api.Seller.marketing.membership.LoyaltyProgram(loginInformation);
 	}	
 	
 	/**

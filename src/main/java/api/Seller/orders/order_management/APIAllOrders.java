@@ -11,10 +11,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.orders.ordermanagement.OrderInManagement;
+import utilities.model.dashboard.orders.ordermanagement.OrderListInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static api.Seller.orders.order_management.APIAllOrderTags.OrderTags;
@@ -373,5 +376,34 @@ public class APIAllOrders {
         int totalQuantityInReturn = new APIGetListReturnOrderByOrderId(loginInformation).getItemReturnInformation(orderId).getQuantity().stream().mapToInt(q -> q).sum();
 
         return totalQuantityInOrder > totalQuantityInReturn;
+    }
+
+    /**
+     * Get order summary and order list info.
+     * @param channel
+     * @return OrderListInfo
+     */
+    public OrderListInfo getOrderListInfo(Channel channel){
+        Response response = getAllOrderResponse(0,"branch=",channel);
+        response.then().statusCode(200);
+        OrderListInfo orderListInfo = response.as(OrderListInfo.class);
+        return orderListInfo;
+    }
+
+    /**
+     *
+     * @param orderListInfo Call getOrderListInfo before to get OrderListInfo
+     * @param orderId orderId in order list by channel
+     * @return OrderInManagement
+     */
+    public OrderInManagement getOrderInfoInManagement(OrderListInfo orderListInfo, long orderId){
+        List<OrderInManagement>orderFound = orderListInfo.getResponse().stream().filter(it -> it.getId().equals(String.valueOf(orderId))).collect(Collectors.toList());
+        System.out.println(orderFound.get(0) );
+        if(orderFound.size()>0) return orderFound.get(0);
+        else try {
+            throw new Exception("OrderId: %s not found.".formatted(orderId));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

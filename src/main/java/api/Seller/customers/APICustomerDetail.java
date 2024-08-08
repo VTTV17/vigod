@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.customer.CustomerInfoFull;
+import utilities.model.dashboard.customer.CustomerOrderSummary;
 import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
@@ -23,6 +24,7 @@ public class APICustomerDetail {
     }
     String CUSTOMER_INFORMATION_PATH = "/beehiveservices/api/customer-profiles/detail/%s/%s";
     String cusDetailGoSocialPath = "/beehiveservices/api/customer-profiles/social-chat/store/%s/profile/%s";
+    String orderSummaryPath = "/orderservices2/api/customer-orders/store/<storeId>/customerId/<customerId>/summary";
 
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
@@ -56,4 +58,12 @@ public class APICustomerDetail {
                 .response();
         return getCustomerInfo.as(CustomerInfoFull.class);
     }
+    
+    public CustomerOrderSummary getOrderSummary(int customerId) {
+		String basePath = orderSummaryPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<customerId>", String.valueOf(customerId));
+		String token = loginInfo.getAccessToken();
+    	
+		Response response = api.get(basePath, token).then().statusCode(200).extract().response();
+		return response.as(CustomerOrderSummary.class);
+    }    
 }

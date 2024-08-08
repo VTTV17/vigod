@@ -139,7 +139,7 @@ public class MembershipInfoApp extends BaseTest {
 		Assert.assertEquals(membershipPage.getMembershipDescription(), description);
 		
 		// Delete loyalty program
-		api.Seller.marketing.LoyaltyProgram loyaltyProgramAPI = new api.Seller.marketing.LoyaltyProgram(loginInformation);
+		api.Seller.marketing.membership.LoyaltyProgram loyaltyProgramAPI = new api.Seller.marketing.membership.LoyaltyProgram(loginInformation);
 		loyaltyProgramAPI.deleteMembership(loyaltyProgramAPI.getMembershipIdByName(tierName));
 		
 		// Delete customer segment

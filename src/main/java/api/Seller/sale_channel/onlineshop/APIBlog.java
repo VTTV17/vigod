@@ -4,6 +4,10 @@ import api.Seller.login.Login;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -82,6 +86,19 @@ public class APIBlog {
         Response response = callCreateBlogCategory();
         response.then().statusCode(201);
         return response.as(BlogCategoryInfo.class);
+    }
+    public BlogCategoryInfo createBlogCategory(BlogCategoryInfo blogCategory){
+    	
+		String payload="";
+		try {
+			payload = new ObjectMapper().writeValueAsString(blogCategory);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+    	
+    	Response response = api.post(CREATE_CATEGORY_PATH,loginInfo.getAccessToken(), payload);
+    	response.then().statusCode(201);
+    	return response.as(BlogCategoryInfo.class);
     }
     public int getCategoryId(){
         List<Integer> categoryIdList = getBlogCategoryIdList();
