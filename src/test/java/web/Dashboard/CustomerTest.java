@@ -15,11 +15,7 @@ import api.Seller.customers.APIEditCustomer;
 import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
-import utilities.data.DataGenerator;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
-import utilities.model.dashboard.customer.CustomerEmail;
-import utilities.model.dashboard.customer.CustomerGeoLocation;
-import utilities.model.dashboard.customer.CustomerPhone;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
@@ -34,9 +30,9 @@ public class CustomerTest {
 	
 	@BeforeMethod
 	public void setup() {
-//		credentials = new Login().setLoginInformation("tham1babe@mailnesia.com", "fortesting!1").getLoginInformation();
+		credentials = new Login().setLoginInformation("tham1babe@mailnesia.com", "fortesting!1").getLoginInformation();
 //		credentials = new Login().setLoginInformation("tienvan-staging-foreign@mailnesia.com", "fortesting!1").getLoginInformation();
-		credentials = new Login().setLoginInformation("auto0-shop172215557@mailnesia.com", "fortesting!1").getLoginInformation();
+//		credentials = new Login().setLoginInformation("auto0-shop172215557@mailnesia.com", "fortesting!1").getLoginInformation();
 		storeName = new Login().getInfo(credentials).getStoreName();
 		storeId = new Login().getInfo(credentials).getStoreID();
 	}	
@@ -247,12 +243,11 @@ public class CustomerTest {
 	@Test
 	public void editProfles() {
 
-		List<String> tags = CreateCustomerTDG.randomizeTags(5);
+		List<String> tags = CreateCustomerTDG.randomizeTags(1);
 
 		APIEditCustomer editCustomerAPI = new APIEditCustomer(credentials);
 
-		editCustomerAPI.getPayLoadFormat(4933986);
-		editCustomerAPI.addMoreTagForCustomer(tags);
+		editCustomerAPI.addMoreTagForCustomer(4976117, tags);
 
 		System.out.println();
 	}
@@ -261,47 +256,9 @@ public class CustomerTest {
 	@Test
 	public void exp() throws JsonProcessingException {
 		
-		String country = "Vietnam";
-		String countryCode = "VN";
-		String phoneCode = DataGenerator.getPhoneCode(country);
-		String customerPhone = "0" + DataGenerator.generatePhoneFromRegex("(?:5(?:2[238]|59)|89[6-9]|99[013-9])\\d{6}|(?:3\\d|5[689]|7[06-9]|8[1-8]|9[0-8])\\d{7}");
-
-		String customerName = "Auto Buyer " + customerPhone;
-		String customerEmail = "auto-buyer%s@mailnesia.com".formatted(customerPhone);
+		SegmentCondition condition1 = new SegmentCondition();
 		
-		CustomerEmail email = new CustomerEmail();
-//		email.setEmail(customerEmail);
-//		email.setEmailName(customerName);
-//		email.setEmailType("MAIN");
-
-		CustomerPhone phone = new CustomerPhone();
-		phone.setPhoneCode(phoneCode);
-		phone.setPhoneName(customerName);
-		phone.setPhoneNumber(customerPhone);
-		phone.setPhoneType("MAIN");
-
-		CreateCustomerModel data = new CreateCustomerModel();
-		data.setName(customerName);
-		data.setPhone(customerPhone);
-		data.setEmail("");
-		data.setNote("");
-		data.setTags(List.of());
-		data.setAddress("");
-		data.setLocationCode("");
-		data.setDistrictCode("");
-		data.setWardCode("");
-		data.setIsCreateUser(false);
-		data.setGender(null);
-		data.setBirthday(null);
-		data.setCountryCode(countryCode);
-		data.setGeoLocation(new CustomerGeoLocation());
-		data.setPhones(List.of(phone));
-//		data.setEmails(email);
-		data.setStoreName(storeName);
-		data.setLangKey("en");
-		data.setBranchId("");
-		
-		String fg1 = new ObjectMapper().writeValueAsString(data);
+		String fg1 = new ObjectMapper().writeValueAsString(condition1);
 		
 		System.out.println(fg1);
 	}

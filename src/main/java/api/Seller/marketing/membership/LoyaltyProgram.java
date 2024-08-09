@@ -145,7 +145,7 @@ public class LoyaltyProgram {
     }
     public LoyaltyProgramInfo setUpMembershipForCustomer(int customerId){
         String tagValue = "membership" + new DataGenerator().randomNumberGeneratedFromEpochTime(5);
-        new APIEditCustomer(loginInformation).getPayLoadFormat(customerId).addMoreTagForCustomer(List.of(tagValue));
+        new APIEditCustomer(loginInformation).addMoreTagForCustomer(customerId, List.of(tagValue));
         SegmentCondition condition = new SegmentCondition();
         condition.setName("Customer Data_Customer tag_is equal to");
         condition.setValue(tagValue);

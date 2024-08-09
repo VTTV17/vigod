@@ -10,9 +10,12 @@ public class BankInfo {
     private int storeId;
     private String countryCode;
     private String fullName;
-    private String region;
+    private Integer taxCode;//VN only
+    private String region;//VN only
     private String bankHolderName;
     private String bankAccountNumber;
-    private String bankId;
+    private String bankId;//VN only
     private String bankBranchName;
+    private String bankName;//Foreign only
+    private String swiftCode;;//Foreign only
 }
