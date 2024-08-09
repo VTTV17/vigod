@@ -1,26 +1,22 @@
 package api.Seller.customers;
 
-import api.Seller.login.Login;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.restassured.response.Response;
-import lombok.Data;
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import utilities.api.API;
-import utilities.data.DataGenerator;
-import utilities.model.dashboard.customer.BankInfo;
-import utilities.model.dashboard.customer.CustomerEmail;
-import utilities.model.dashboard.customer.CustomerInfoFull;
-import utilities.model.dashboard.customer.CustomerPhone;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
-import utilities.model.sellerApp.login.LoginInformation;
-
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import api.Seller.login.Login;
+import io.restassured.response.Response;
+import lombok.Getter;
+import utilities.api.API;
+import utilities.data.DataGenerator;
+import utilities.model.dashboard.customer.CustomerInfoFull;
+import utilities.model.dashboard.customer.update.EditCustomerModel;
+import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.sellerApp.login.LoginInformation;
 
 public class APIEditCustomer {
     Logger logger = LogManager.getLogger(APIEditCustomer.class);
@@ -28,14 +24,14 @@ public class APIEditCustomer {
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    PayLoad payLoad;
     public APIEditCustomer(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         loginInfo = new Login().getInfo(loginInformation);
     }
-    public APIEditCustomer getPayLoadFormat(int customerId){
+    public EditCustomerModel getPayLoadFormat(int customerId){
         CustomerInfoFull customerInfo = new APICustomerDetail(loginInformation).getFullInfo(customerId);
-        PayLoad payLoad = new PayLoad();
+        
+        EditCustomerModel payLoad = new EditCustomerModel();
         payLoad.setId(customerInfo.getId());
         payLoad.setFullName(customerInfo.getFullName());
         payLoad.setPhones(customerInfo.getPhones());
@@ -60,8 +56,7 @@ public class APIEditCustomer {
         payLoad.setBackupEmails(customerInfo.getBackupEmails());
         payLoad.setBankInfos(customerInfo.getBankInfos());
         payLoad.setIdentityCard(customerInfo.getIdentityCard());
-        this.payLoad = payLoad;
-        return this;
+        return payLoad;
     }
     String UPDATE_CUSTOMER_PROFILE_PATH = "/beehiveservices/api/customer-profiles/edit/";
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
@@ -69,35 +64,7 @@ public class APIEditCustomer {
     String ASSIGN_STAFF_TO_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/bulk-assign-customer-to-a-staff/%s";
     @Getter
     private String customerTag;
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @Data
-    class PayLoad{
-        private int id;
-        private String fullName;
-        private List<CustomerPhone> phones;
-        private List<CustomerEmail> emails;
-        private String note;
-        private List<String> tags;
-        private int responsibleStaffUserId;
-        private String userStatus;
-        private String address;
-        private String address2;
-        private String countryCode;
-        private String locationCode;
-        private String districtCode;
-        private String city;
-        private String zipCode;
-        private String wardCode;
-        private String gender;
-        private String birthday;
-        private Integer partnerId;
-        private String companyName;
-        private String taxCode;
-        private List<CustomerPhone> backupPhones;
-        private List<CustomerEmail> backupEmails;
-        private List<BankInfo> bankInfos;
-        private String identityCard;
-    }
+    
     public void addCustomerTagForMailCustomer(String keywords) {
         Response searchCustomerByEmail = new API().get("%s%s/v2?keyword=%s&searchField=%s".formatted(SEARCH_CUSTOMER_PATH, loginInfo.getStoreID(), keywords, "EMAIL"), loginInfo.getAccessToken());
         searchCustomerByEmail.then().statusCode(200);
@@ -169,7 +136,10 @@ public class APIEditCustomer {
      * Need to call getPayLoadFormat function before call this function.
      * @param tagList
      */
-    public void addMoreTagForCustomer(List<String> tagList){
+    public void addMoreTagForCustomer(int customerId, List<String> tagList){
+    	
+    	EditCustomerModel payLoad = getPayLoadFormat(customerId);
+    	
         List<String> currentTabList = payLoad.getTags();
         if(currentTabList==null) payLoad.setTags(tagList);
         else {
