@@ -44,4 +44,10 @@ public class POSElement {
     By loc_btnSelectLot(String productName, String variationValue) {
         return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//following-sibling::tr[1]//img".formatted(productName, variationValue));
     }
+
+    By loc_dlgSelectIMEI_lstIMEI = By.cssSelector(".content:not(.selected)");
+    By loc_dlgSelectIMEI_btnSave = By.cssSelector(".modal-footer .gs-button__green");
+
+    By loc_dlgSelectLot_txtQuantity = By.cssSelector(".modal-lot-select .get-quantity input");
+    By loc_dlgSelectLot_btnSave = By.cssSelector(".modal-footer .gs-button__green");
 }
