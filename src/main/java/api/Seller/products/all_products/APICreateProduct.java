@@ -161,8 +161,7 @@ public class APICreateProduct {
         private List<Inventory> lstInventory;
         private List<ItemModelCodeDTO> itemModelCodeDTOS;
     }
-
-    ProductPayload payload = new ProductPayload();
+    private ProductPayload payload = new ProductPayload();
 
     public APICreateProduct setLotAvailable(boolean lotAvailable) {
         payload.setLotAvailable(lotAvailable);
@@ -285,8 +284,14 @@ public class APICreateProduct {
     }
 
     public APICreateProduct createWithoutVariationProduct(boolean isManagedByIMEI, int... branchStock) {
+        // Get product payload
+        ProductPayload productPayload = getWithoutVariationPayload(isManagedByIMEI, branchStock);
+
+        // Renew product payload for next API
+        payload = new ProductPayload();
+
         // post without variation product
-        productId = api.post(createProductPath, loginInfo.getAccessToken(), getWithoutVariationPayload(isManagedByIMEI, branchStock))
+        productId = api.post(createProductPath, loginInfo.getAccessToken(), productPayload)
                 .then()
                 .statusCode(201)
                 .extract()
@@ -297,8 +302,14 @@ public class APICreateProduct {
     }
 
     public APICreateProduct createVariationProduct(boolean isManagedByIMEI, int increaseNum, int... branchStock) {
+        // Get product payload
+        ProductPayload productPayload = getWithVariationPayload(isManagedByIMEI, increaseNum, branchStock);
+
+        // Renew product payload for next API
+        payload = new ProductPayload();
+
         // post without variation product
-        productId = api.post(createProductPath, loginInfo.getAccessToken(), getWithVariationPayload(isManagedByIMEI, increaseNum, branchStock))
+        productId = api.post(createProductPath, loginInfo.getAccessToken(), productPayload)
                 .then()
                 .statusCode(201)
                 .extract()
