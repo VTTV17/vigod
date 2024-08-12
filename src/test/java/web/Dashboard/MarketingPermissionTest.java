@@ -461,8 +461,8 @@ public class MarketingPermissionTest extends BaseTest {
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.MARKETING_MENU_ITEM_NAME, Constant.BUYLINK_MENU_ITEM_NAME);
-        new BuyLinkManagement(driver).getLoginInfo(staffCredentials).clickExploreNow()
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new BuyLinkManagement(driver).getLoginInfo(staffCredentials).navigateUrl().clickExploreNow()
                 .checkBuyLinkPermission(allPermissions,productCreatedByShopOwner,productCreatedByStaff);
     }
     public int callAPIGetDraftId(){
@@ -587,8 +587,8 @@ public class MarketingPermissionTest extends BaseTest {
         System.out.println("Permission Push Notification: "+allPermissions.getMarketing().getPushNotification());
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Push Notification");
-        new PushNotificationManagement(driver).clickExploreNow()
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new PushNotificationManagement(driver).navigateByUrl().clickExploreNow()
                 .checkPushNotificationPermission(allPermissions,eventCampaignId);
 
         //Get newest data to clear
@@ -692,8 +692,8 @@ public class MarketingPermissionTest extends BaseTest {
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Loyalty Program");
-        new web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram(driver)
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new web.Dashboard.marketing.loyaltyprogram.LoyaltyProgram(driver).navigateByUrl()
                 .checkLoyaltyProgramPermission(allPermissions);
     }
     @DataProvider
@@ -733,8 +733,8 @@ public class MarketingPermissionTest extends BaseTest {
 
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Marketing", "Loyalty Point");
-        new LoyaltyPoint(driver).getLoginInformation(ownerCredentials)
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new LoyaltyPoint(driver).getLoginInformation(ownerCredentials).navigateByUrl()
                 .checkLoyaltyPointPermission(allPermissions);
     }
 }

@@ -129,11 +129,12 @@ public class PushNotificationManagement {
 		}
 		commonAction.sleepInMiliSecond(500, "Wait in filter status.");
 	}
-	public void navigateByUrl(){
+	public PushNotificationManagement navigateByUrl(){
 		String url = Links.DOMAIN + "/marketing/notification";
 		commonAction.navigateToURL(url);
 		commonAction.sleepInMiliSecond(500);
 		logger.info("Navigate to url: "+url);
+		return this;
 	}
 	public void checkPermissionViewCampaignList(){
 		List<WebElement> campaignNames = commonAction.getElements(loc_lst_lblCampaignName,3);

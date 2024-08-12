@@ -38,11 +38,11 @@ public class EditProductCollection extends CreateProductCollection {
     public EditProductCollection navigateEditCollection(String collectioName, String languageDashboard) throws Exception {
 
         home.waitTillSpinnerDisappear();
-        home.navigateToPage("Products", "Product Collections");
+//        home.navigateToPage("Products", "Product Collections");
         home.selectLanguage(languageDashboard);
         home.hideFacebookBubble();
         productCollectionManagement = new ProductCollectionManagement(driver);
-        return productCollectionManagement.goToEditProductCollection(collectioName);
+        return productCollectionManagement.navigateToProductCollectionManagementPage().goToEditProductCollection(collectioName);
     }
 
     public ProductCollectionManagement editProductPriorityInCollection() {

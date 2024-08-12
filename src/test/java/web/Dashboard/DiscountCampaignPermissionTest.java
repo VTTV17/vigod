@@ -83,7 +83,7 @@ public class DiscountCampaignPermissionTest extends BaseTest{
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
         //clear data - delete all created group permission
-        super.writeResult(result);
+//        super.writeResult(result);
         driver.quit();
     }
 

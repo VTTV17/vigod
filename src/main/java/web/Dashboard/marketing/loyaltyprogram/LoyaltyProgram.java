@@ -84,11 +84,12 @@ public class LoyaltyProgram {
 		}
     }
     /*-------------------------------------*/
-	public void navigateByUrl(){
+	public LoyaltyProgram navigateByUrl(){
 		String url = Links.DOMAIN + "/marketing/loyalty/list";
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
 		commonAction.sleepInMiliSecond(500);
+		return this;
 	}
 	/* Get Loyalty Program permission */
 	public boolean hasViewListMembershipPers(){

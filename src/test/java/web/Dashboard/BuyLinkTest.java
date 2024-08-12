@@ -2,6 +2,8 @@ package web.Dashboard;
 
 import api.Seller.login.Login;
 import api.Seller.marketing.APIBuyLink;
+import api.Seller.products.all_products.APIProductDetail;
+import api.Seller.promotion.ProductDiscountCode;
 import api.Seller.sale_channel.onlineshop.APIPreferences;
 import api.Seller.products.all_products.APIEditProduct;
 import api.Seller.products.all_products.APICreateProduct;
@@ -10,6 +12,9 @@ import api.Seller.promotion.ProductDiscountCampaign;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 
+import utilities.api.API;
+import utilities.model.api.promotion.productDiscountCode.ProductDiscountCodeConditions;
+import utilities.model.dashboard.products.productInfomation.ProductInfo;
 import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.buylink.BuyLinkManagement;
@@ -80,8 +85,8 @@ public class BuyLinkTest extends BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        super.writeResult(result);
-//        if (driver != null) driver.quit();
+//        super.writeResult(result);
+        if (driver != null) driver.quit();
     }
     @AfterClass
     public void afterClass(){
@@ -100,16 +105,16 @@ public class BuyLinkTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userNameDb, passWordDb);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.MARKETING_MENU_ITEM_NAME, Constant.BUYLINK_MENU_ITEM_NAME);
-        return new BuyLinkManagement(driver);
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble();
+        return new BuyLinkManagement(driver).navigateUrl();
     }
     public CreateBuyLink LoginAndNavigateToCreateBuyLinkPage() {
         login = new LoginPage(driver);
         login.navigate().performLogin(userNameDb, passWordDb);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.MARKETING_MENU_ITEM_NAME, Constant.BUYLINK_MENU_ITEM_NAME);
+        home.waitTillSpinnerDisappear().selectLanguage(languageDB).hideFacebookBubble();
         buyLinkManagement = new BuyLinkManagement(driver);
-        buyLinkManagement.clickExploreNow();
+        buyLinkManagement.navigateUrl().clickExploreNow();
         return buyLinkManagement.clickCreateBuyLink();
     }
 
@@ -130,6 +135,7 @@ public class BuyLinkTest extends BaseTest {
     @Test
     public void BL03_CheckCreateBuyLinkWithoutDiscountAndCheckout() throws Exception {
         testCaseId = "BL03";
+        new APIPreferences(loginInformation).setUpGuestCheckout(false);
         APICreateProduct productInfo = new APICreateProduct(loginInformation).createWithoutVariationProduct(false,1);
         int productId =  productInfo.getProductID();
         productIds.add(productId); // add to list to clear data
@@ -164,21 +170,12 @@ public class BuyLinkTest extends BaseTest {
         CreatePromotion.apiAppliesCondtionType=0;
         CreatePromotion.apiMinimumRequiredType=0;
         CreatePromotion.apiApplicableBranchCondition=0;
+        new APIPreferences(loginInformation).setUpGuestCheckout(false);
         APICreateProduct productInfo = new APICreateProduct(loginInformation).createWithoutVariationProduct(false,10);
         int productId =  productInfo.getProductID();
         productIds.add(productId);
         new CreatePromotion(loginInformation).createProductDiscountCode(0);
 
-//        ProductInfo productInfo1 = new ProductInformation(loginInformation).getInfo(productId);
-//        ProductDiscountCodeConditions codeConditions = new ProductDiscountCodeConditions();
-//        codeConditions.setCouponType(1);
-//        codeConditions.setCouponLimitedUsage(false);
-//        codeConditions.setCouponLimitToOne(false);
-//        codeConditions.setEnableReward(false);
-//        codeConditions.setAppliesToWeb(true);
-//        codeConditions.setSegmentConditionType(0);
-//        codeConditions.setAppliesToType(0);
-//        new ProductDiscountCode(loginInformation).createProductDiscountCode(codeConditions, productInfo1, 0);
         productName = new String[]{new APICreateProduct(loginInformation).getProductName()};
         discountCodeName = CreatePromotion.apiDiscountName;
         productPrice = new APICreateProduct(loginInformation).getProductSellingPrice().get(0);

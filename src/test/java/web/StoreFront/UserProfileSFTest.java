@@ -119,8 +119,8 @@ public class UserProfileSFTest extends BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws IOException {
-        super.writeResult(result);
-//        if (driver != null) driver.quit();
+//        super.writeResult(result);
+        if (driver != null) driver.quit();
     }
 
     public UserProfileInfo loginAndGoToUserProfile(String userName) {
