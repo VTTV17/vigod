@@ -18,6 +18,8 @@ import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
+import utilities.model.dashboard.customer.CustomerDebtRecord;
+import utilities.model.dashboard.customer.CustomerOrder;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
@@ -326,8 +328,11 @@ public class CustomerTest {
 		
 		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
 		
-		LoyaltyProgramInfo dg = new APICustomerDetail(credentials).getMembership(3913210);
-		List<Object> dg1 = new APICustomerDetail(credentials).getPoint(43737902).jsonPath().getList(".");
+//		LoyaltyProgramInfo dg = new APICustomerDetail(credentials).getMembership(3913210);
+//		List<Object> dg1 = new APICustomerDetail(credentials).getPoint(43737902).jsonPath().getList(".");
+		
+//		List<CustomerOrder> dg1 = new APICustomerDetail(credentials).getOrders(3950154, 43737902);
+		List<CustomerDebtRecord> dg1 = new APICustomerDetail(credentials).getDebtRecords(3950154);
 		
 //		SegmentCondition condition1 = new SegmentCondition();
 		System.out.println(new ObjectMapper().writeValueAsString(dg1));
