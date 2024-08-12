@@ -75,11 +75,11 @@ public class CreateProductCollection extends CreateProductCollectionElement {
 
     public CreateProductCollection navigate(String languageDashboard) throws Exception {
         home.waitTillSpinnerDisappear1();
-        home.navigateToPage("Products", "Product Collections");
+//        home.navigateToPage("Products", "Product Collections");
         home.selectLanguage(languageDashboard);
         home.hideFacebookBubble();
         productCollectionManagement = new ProductCollectionManagement(driver);
-        return productCollectionManagement.clickOnCreateCollection();
+        return productCollectionManagement.navigateToProductCollectionManagementPage().clickOnCreateCollection();
     }
 
     public CreateProductCollection inputCollectionName(String collectioName) {

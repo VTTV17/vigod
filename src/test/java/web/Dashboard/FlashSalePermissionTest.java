@@ -238,8 +238,8 @@ public class FlashSalePermissionTest extends BaseTest{
         System.out.println("All permission: "+allPermissions.getPromotion().getFlashSale());
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Promotion","Flash Sale");
-        new FlashSalePage(driver).clickExploreNow()
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new FlashSalePage(driver).navigateUrl().clickExploreNow()
                 .verifyPermissionFlashSale(allPermissions,flashSaleId,productCreatedByShopOwner,productCreatedByStaff);
     }
 }

@@ -78,11 +78,12 @@ public class LoyaltyPoint {
 		}
     }
     /*-------------------------------------*/
-	public void navigateByUrl(){
+	public LoyaltyPoint navigateByUrl(){
 		String url = Links.DOMAIN + "/marketing/loyalty-point/setting";
 		commonAction.navigateToURL(url);
 		commonAction.sleepInMiliSecond(500);
 		logger.info("Navigate to url: "+url);
+		return this;
 	}
     public boolean hasViewPointProgramInformation(){
 		return allPermissions.getMarketing().getLoyaltyPoint().isViewPointProgramInformation();

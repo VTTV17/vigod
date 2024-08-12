@@ -36,14 +36,6 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
         commonAction = new UICommonAction(driver);
         home = new HomePage(driver);
     }
-
-    public ProductCollectionManagement navigateToProductCollectionManagement() {
-//        waitTillSpinnerDisappear();
-        home.navigateToPage("Products", "Product Collections");
-        logger.info("Go to product collection management page.");
-        return this;
-    }
-
     public CreateProductCollection clickOnCreateCollection() {
         commonAction.click(loc_btnCreateProductCollection);
         home.waitTillSpinnerDisappear1();
@@ -240,11 +232,12 @@ public class ProductCollectionManagement extends ProductCollectionManagementElem
         checkDeleteCollection();
     }
 
-    void navigateToProductCollectionManagementPage() {
+   public ProductCollectionManagement navigateToProductCollectionManagementPage() {
         if (!driver.getCurrentUrl().contains("/collection/list")) {
             driver.get("%s/collection/list".formatted(DOMAIN));
             logger.info("Navigate to product collection management.");
         }
+        return this;
     }
 
     void checkViewCollectionList() {

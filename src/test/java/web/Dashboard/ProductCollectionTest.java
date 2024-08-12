@@ -102,7 +102,7 @@ public class ProductCollectionTest extends BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        super.writeResult(result);
+//        super.writeResult(result);
         if (driver != null) driver.quit();
     }
     public void callLoginAPI() {
@@ -501,7 +501,7 @@ public class ProductCollectionTest extends BaseTest {
         home = new HomePage(driver);
         home.waitTillSpinnerDisappear();
         ProductCollectionManagement productCollectionManagement = new ProductCollectionManagement(driver);
-        productCollectionManagement.navigateToProductCollectionManagement();
+        productCollectionManagement.navigateToProductCollectionManagementPage();
         String firstCollection = productCollectionManagement.getTheFirstCollectionName();
         productCollectionManagement.deleteTheFirstCollection();
         productCollectionManagement.verifyCollectNameNotDisplayInList(firstCollection);
