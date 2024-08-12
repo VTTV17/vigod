@@ -84,7 +84,7 @@ public class ServiceCollectionTest extends BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        super.writeResult(result);
+//        super.writeResult(result);
         if (driver != null) driver.quit();
     }
     @AfterClass

@@ -88,7 +88,7 @@ public class CreateServiceTest extends BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        super.writeResult(result);
+//        super.writeResult(result);
         if (driver != null) driver.quit();
     }
     public ServiceInfo callAPICreateService(){
@@ -107,9 +107,9 @@ public class CreateServiceTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWord);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
         serviceManagement = new ServiceManagementPage(driver);
-        serviceManagement.goToCreateServicePage();
+        serviceManagement.navigateToServiceManagementUrl().goToCreateServicePage();
         return new CreateServicePage(driver);
     }
 
@@ -135,8 +135,8 @@ public class CreateServiceTest extends BaseTest {
         login = new LoginPage(driver);
         login.navigate().performLogin(userName, passWord);
         home = new HomePage(driver);
-        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        return new ServiceManagementPage(driver);
+        home.waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        return new ServiceManagementPage(driver).navigateToServiceManagementUrl();
     }
     public void checkPermisionUpdateSVByPackage(String userName, boolean isPermission) throws Exception {
         login = new LoginPage(driver);
@@ -552,9 +552,9 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage.verifySEOInfo(SEOTitleTranslate, SEODesctiptionTranslate, SEOKeywordTranslate, "", "")
                      .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, SEOTitleTranslate);
         //edit seo
-        home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        new ServiceManagementPage(driver).goToEditService(serviceEdit);
+//        home = new HomePage(driver);
+//        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit);
         SEOTitle = "SEO title update " + generate.generateString(5);
         SEODesctiption = "SEO description update " + generate.generateString(5);
         SEOKeyword = "SEO keyword update " + generate.generateString(5);
@@ -594,9 +594,9 @@ public class CreateServiceTest extends BaseTest {
                 .verifyNavigateToServiceDetailBySEOUrl(SF_URL, SEOUrlTranslate, SEOTitleTranslate);
 
         //delete seo
-        home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        new ServiceManagementPage(driver).goToEditService(serviceEdit);
+//        home = new HomePage(driver);
+//        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit);
         String description = createService.getServiceDescription();
         createService.inputSEOTitle("")
                 .inputSEODescription("")
@@ -651,9 +651,9 @@ public class CreateServiceTest extends BaseTest {
         headerSF.searchWithFullName(serviceTestStatus)
                 .verifySearchNotFound(serviceTestStatus);
         //update into active
-        home = new HomePage(driver);
-        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        new ServiceManagementPage(driver).goToEditService(serviceTestStatus)
+//        home = new HomePage(driver);
+//        home.navigateToPageByURL().waitTillSpinnerDisappear1().navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceTestStatus)
                 .updateServiceStatus("active")
                 .verifyUpdateServiceSuccessfully()
                 .clickCloseBTNOnNotificationPopup();
@@ -737,11 +737,11 @@ public class CreateServiceTest extends BaseTest {
         serviceDetailPage = new ServiceDetailPage(driver);
         serviceDetailPage.verifyServiceListSize(imageSize);
         //delete image
-        home = new HomePage(driver);
-        home.navigateToPageByURL()
-//                .waitTillSpinnerDisappear1()
-                .navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
-        new ServiceManagementPage(driver).goToEditService(serviceEdit)
+//        home = new HomePage(driver);
+//        home.navigateToPageByURL()
+////                .waitTillSpinnerDisappear1()
+//                .navigateToPage(Constant.SERVICES_MENU_ITEM_NAME);
+        new ServiceManagementPage(driver).navigateToServiceManagementUrl().goToEditService(serviceEdit)
                 .removeAllImages()
                 .uploadImages(images)
                 .clickSaveBtn()
@@ -768,20 +768,20 @@ public class CreateServiceTest extends BaseTest {
         selectedCollection = createService.getSelectedCollection();
         createService.clickSaveBtn().verifyUpdateServiceSuccessfully();
         for (String collectionName : selectedCollection) {
-            new HomePage(driver).navigateToPageByURL().navigateToPage("Services", "Service Collections");
+//            new HomePage(driver).navigateToPageByURL().navigateToPage("Services", "Service Collections");
             ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver);
-            serCollection.goToEditServiceCollection(collectionName)
+            serCollection.navigateToServiceCollectUrl().goToEditServiceCollection(collectionName)
                     .verifyServiceShowInServiceList(serviceEdit);
         }
-        new HomePage(driver).navigateToPageByURL().navigateToPage("Services");
+//        new HomePage(driver).navigateToPageByURL().navigateToPage("Services");
         serviceManagement = new ServiceManagementPage(driver);
-        serviceManagement.goToEditService(serviceEdit)
+        serviceManagement.navigateToServiceManagementUrl().goToEditService(serviceEdit)
                 .removeAllCollection()
                 .clickSaveBtn().verifyUpdateServiceSuccessfully();
         for (String collectionName : selectedCollection) {
-            new HomePage(driver).navigateToPageByURL().navigateToPage("Services", "Service Collections");
+//            new HomePage(driver).navigateToPageByURL().navigateToPage("Services", "Service Collections");
             ServiceCollectionManagement serCollection = new ServiceCollectionManagement(driver);
-            serCollection.goToEditServiceCollection(collectionName)
+            serCollection.navigateToServiceCollectUrl().goToEditServiceCollection(collectionName)
                     .verifyServiceNotShowInServiceList(serviceEdit);
         }
     }

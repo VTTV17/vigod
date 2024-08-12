@@ -10,17 +10,7 @@ public class OrderListInfo {
     private OrderListSummaryVM orderListSummaryVM;
     private List<OrderInManagement> response;
 }
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@Data
-class OrderListSummaryVM{
-    private int toConfirmCount;
-    private int shippedCount;
-    private int deliveredCount;
-    private int cancelledCount;
-    private double customerDebt;
-    private double sellerDebt;
-    private double receivedAmount;
-}
+
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
 class Item {

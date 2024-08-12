@@ -185,11 +185,12 @@ public class BuyLinkManagement extends HomePage{
 	}
 	private boolean hasViewCreatedProductListPers() {
 		return allPermissions.getProduct().getProductManagement().isCreateProduct();
-	}	public void navigateUrl(){
+	}	public BuyLinkManagement navigateUrl(){
 		String url = Links.DOMAIN + "/marketing/buy-link/list";
 		commonAction.navigateToURL(url);
 		logger.info("Navigate to url: "+url);
 		commonAction.sleepInMiliSecond(500);
+		return this;
 	}
 	public void checkPermissionViewBuyLinkList(){
 		commonAction.sleepInMiliSecond(500);

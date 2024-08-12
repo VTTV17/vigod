@@ -36,7 +36,7 @@ public class ProductCollectionManagementTest extends BaseTest {
     }
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-        super.writeResult(result);
+//        super.writeResult(result);
         if (driver != null) driver.quit();
     }
     @Test
@@ -46,6 +46,6 @@ public class ProductCollectionManagementTest extends BaseTest {
         homePage = new HomePage(driver);
         homePage.waitTillSpinnerDisappear().hideFacebookBubble().selectLanguage(languageDashboard);
         productCollectionManagement = new ProductCollectionManagement(driver);
-        productCollectionManagement.navigateToProductCollectionManagement().verifyTextOfPage();
+        productCollectionManagement.navigateToProductCollectionManagementPage().verifyTextOfPage();
     }
 }

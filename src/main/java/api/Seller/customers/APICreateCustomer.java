@@ -4,14 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import api.Seller.login.Login;
 import io.restassured.response.Response;
+import lombok.SneakyThrows;
 import utilities.api.API;
-import utilities.model.dashboard.customer.create.CreateCustomer;
+import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -42,17 +41,12 @@ public class APICreateCustomer {
 		return response.getBody().as(boolean.class);
 	} 
 	
-	public Response createCustomer(CreateCustomer customerData) {
+	@SneakyThrows
+	public Response createCustomer(CreateCustomerModel customerData) {
 		
 		String basePath = createCustomerPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID()));
 		String token = loginInfo.getAccessToken();
-		
-		String payload="";
-		try {
-			payload = new ObjectMapper().setSerializationInclusion(Include.NON_NULL).writeValueAsString(customerData);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+		String payload = new ObjectMapper().writeValueAsString(customerData);
 		
 		Response response = api.post(basePath, token, payload);
 		return response;

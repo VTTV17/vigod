@@ -60,7 +60,7 @@ public class OnlineShopPermissionTest extends BaseTest{
 
     @AfterMethod
     public void writeResult(ITestResult result) throws Exception {
-//        driver.quit();
+        driver.quit();
     }
     @DataProvider
     public Object[] ThemesData(){
@@ -1190,8 +1190,8 @@ public class OnlineShopPermissionTest extends BaseTest{
         int categoryId = new APIBlog(ownerCredentials).getCategoryId();
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Online Shop","Blog");
-        new BlogManagement(driver).getLoginInfo(staffCredentials).checkBlogPermission(allPermissions,articleId,categoryId);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new BlogManagement(driver).getLoginInfo(staffCredentials).navigateByUrl().checkBlogPermission(allPermissions,articleId,categoryId);
     }
 
     @DataProvider
@@ -1244,8 +1244,8 @@ public class OnlineShopPermissionTest extends BaseTest{
         int pageId = new PageManagement(driver).getLoginInfo(staffCredentials,ownerCredentials).callAPIGetPageId();
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Online Shop","Pages");
-        new PageManagement(driver).getLoginInfo(staffCredentials,ownerCredentials).checkPagePermission(allPermissions,pageId);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new PageManagement(driver).getLoginInfo(staffCredentials,ownerCredentials).navigateByUrl().checkPagePermission(allPermissions,pageId);
     }
     @DataProvider
     public Object[] MenuData(){
@@ -1282,8 +1282,8 @@ public class OnlineShopPermissionTest extends BaseTest{
         int menuIdEditable = new APIMenus(ownerCredentials).getMenuIdCanEdit();
         //Check on UI
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
-        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble().navigateToPage("Online Shop","Menus");
-        new MenuManagement(driver).checkMenuPermission(allPermissions);
+        new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB).hideFacebookBubble();
+        new MenuManagement(driver).navigateByUrl().checkMenuPermission(allPermissions);
     }
     @DataProvider
     public Object[] DomainData(){
@@ -1340,6 +1340,5 @@ public class OnlineShopPermissionTest extends BaseTest{
         new LoginPage(driver).staffLogin(staffUserName, staffPass);
         new HomePage(driver).waitTillSpinnerDisappear1().selectLanguage(languageDB);
         new Configuration(driver).getLoginInfo(staffCredentials).checkPreferencesPermission(allPermissions);
-
     }
 }

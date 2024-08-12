@@ -157,6 +157,7 @@ public class ServiceDetailPage {
     public ServiceDetailPage verifyNavigateToServiceDetailBySEOUrl(String domain, String SEOUrl, String seviceName) {
         commons.openNewTab();
         commons.switchToWindow(1);
+        logger.info("SEO url: "+domain+SEOUrl);
         commons.navigateToURL(domain+SEOUrl);
         verifyServiceName(seviceName);
         commons.closeTab();
