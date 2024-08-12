@@ -11,15 +11,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import api.Seller.customers.APIAllCustomers;
 import api.Seller.customers.APICreateCustomer;
+import api.Seller.customers.APICustomerDetail;
 import api.Seller.customers.APIEditCustomer;
 import api.Seller.customers.APISegment;
 import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
 import utilities.model.dashboard.customer.segment.SegmentList;
+import utilities.model.dashboard.customer.update.EditCustomerModel;
+import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 public class CustomerTest {
@@ -243,24 +247,90 @@ public class CustomerTest {
 	@Test
 	public void editProfles() {
 
-		List<String> tags = CreateCustomerTDG.randomizeTags(1);
+		List<String> tags = CreateCustomerTDG.randomizeTags(5);
 
 		APIEditCustomer editCustomerAPI = new APIEditCustomer(credentials);
 
-		editCustomerAPI.addMoreTagForCustomer(4976117, tags);
-
-		System.out.println();
+		Response result = editCustomerAPI.addMoreTagForCustomer(4976117, tags);
+		
+		List<String> actualTags = result.jsonPath().get("tags.collect{ it -> it.value }");
+		
+		Assert.assertTrue(actualTags.containsAll(tags));
 	}
 	
+	@Test
+	public void removeTagsFromCustomer() {
 
+		APIEditCustomer editCustomerAPI = new APIEditCustomer(credentials);
+
+		EditCustomerModel editPayload = editCustomerAPI.getPayLoadFormat(4976117);
+		editPayload.setTags(List.of());
+		
+		Response result = editCustomerAPI.updateCustomerInfo(editPayload);
+		
+		Assert.assertEquals(result.jsonPath().getList("tags").size(), 0);
+		
+	}
+
+	@Test
+	public void customerRemovedFromSegment() {
+
+		//Build customer data
+		CreateCustomerModel data = CreateCustomerTDG.generateForeignCustomer(storeName);
+		if (data.getTags().isEmpty()) data.setTags(CreateCustomerTDG.randomizeTags(1));
+		//Create customer
+		APICreateCustomer createCustomerAPI = new APICreateCustomer(credentials);
+		JsonPath createResponse = createCustomerAPI.createCustomer(data).jsonPath();
+
+		//Build segment condition
+		SegmentCondition condition1 = new SegmentCondition();
+		condition1.setName("Customer Data_Customer tag_is equal to");
+		condition1.setValue(data.getTags().get(0));
+		//Build segment data
+		CreateSegment segmentdata = new CreateSegment();
+		segmentdata.setName("Segment " + data.getTags().get(0));
+		segmentdata.setMatchCondition("ALL");
+		segmentdata.setConditions(List.of(condition1));
+		//Create segment
+		APISegment createSegmentAPI = new APISegment(credentials);
+		JsonPath createSegmentResponse = createSegmentAPI.createSegment(segmentdata).jsonPath();
+		Integer createdSegmentId = createSegmentResponse.get("id");
+
+		//Verify response
+		SegmentList createdSegment = createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null);
+		Assert.assertEquals(Integer.valueOf(1), createdSegment.getUserCount());
+		
+		//Remove tags from customer
+		APIEditCustomer editCustomerAPI = new APIEditCustomer(credentials);
+		EditCustomerModel editPayload = editCustomerAPI.getPayLoadFormat(createResponse.get("id"));
+		editPayload.setTags(List.of());
+		editCustomerAPI.updateCustomerInfo(editPayload);
+		
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//Verify response
+		Assert.assertEquals(Integer.valueOf(0), createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null).getUserCount());
+	
+		//Rollback
+		createSegmentAPI.deleteSegment(createdSegmentId);
+	}	
+	
+	
 	@Test
 	public void exp() throws JsonProcessingException {
 		
-		SegmentCondition condition1 = new SegmentCondition();
+		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
 		
-		String fg1 = new ObjectMapper().writeValueAsString(condition1);
+		LoyaltyProgramInfo dg = new APICustomerDetail(credentials).getMembership(3913210);
+		List<Object> dg1 = new APICustomerDetail(credentials).getPoint(43737902).jsonPath().getList(".");
 		
-		System.out.println(fg1);
+//		SegmentCondition condition1 = new SegmentCondition();
+		System.out.println(new ObjectMapper().writeValueAsString(dg1));
 	}
 
 }

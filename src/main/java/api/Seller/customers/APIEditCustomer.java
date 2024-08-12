@@ -132,11 +132,16 @@ public class APIEditCustomer {
         createRecord.then().statusCode(200);
     }
 
+    public Response updateCustomerInfo(EditCustomerModel payLoad){
+    	Response response = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH,loginInfo.getStoreID()),loginInfo.getAccessToken(),payLoad);
+    	response.then().statusCode(200);
+    	return response;
+    }
+    
     /**
-     * Need to call getPayLoadFormat function before call this function.
      * @param tagList
      */
-    public void addMoreTagForCustomer(int customerId, List<String> tagList){
+    public Response addMoreTagForCustomer(int customerId, List<String> tagList){
     	
     	EditCustomerModel payLoad = getPayLoadFormat(customerId);
     	
@@ -147,7 +152,6 @@ public class APIEditCustomer {
             allTab.addAll(currentTabList);
             payLoad.setTags(allTab.stream().toList());
         }
-        Response response = api.put("%s%s".formatted(UPDATE_CUSTOMER_PROFILE_PATH,loginInfo.getStoreID()),loginInfo.getAccessToken(),payLoad);
-        response.then().statusCode(200);
+        return updateCustomerInfo(payLoad);
     }
 }
