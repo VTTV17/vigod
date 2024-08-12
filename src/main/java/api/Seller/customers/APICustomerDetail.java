@@ -10,6 +10,7 @@ import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.CustomerOrderSummary;
 import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 public class APICustomerDetail {
@@ -25,7 +26,9 @@ public class APICustomerDetail {
     String CUSTOMER_INFORMATION_PATH = "/beehiveservices/api/customer-profiles/detail/%s/%s";
     String cusDetailGoSocialPath = "/beehiveservices/api/customer-profiles/social-chat/store/%s/profile/%s";
     String orderSummaryPath = "/orderservices2/api/customer-orders/store/<storeId>/customerId/<customerId>/summary";
-
+    String membershipPath = "/beehiveservices/api/memberships/<storeId>/<customerId>";
+    String pointPath = "/orderservices2/api/loyalty-earning-points/all-point-types/summary?storeId=%s&buyerId=%s";
+    
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
             Response getCustomerInfo = api.get(CUSTOMER_INFORMATION_PATH.formatted(loginInfo.getStoreID(), customerId), loginInfo.getAccessToken()).then()
@@ -65,5 +68,31 @@ public class APICustomerDetail {
     	
 		Response response = api.get(basePath, token).then().statusCode(200).extract().response();
 		return response.as(CustomerOrderSummary.class);
+    }    
+    
+    /**
+     * Retrieve the membership labeled to a customer
+     * @param customerId Do not mistake customerId (customer-profile table) for userId (jhi_user table)
+     * @return LoyaltyProgramInfo DTO
+     */
+    public LoyaltyProgramInfo getMembership(int customerId) {
+    	String basePath = membershipPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<customerId>", String.valueOf(customerId));
+    	String token = loginInfo.getAccessToken();
+    	
+    	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
+    	return response.as(LoyaltyProgramInfo.class);
+    }    
+    
+    /**
+     * Retrieve the points given to a customer
+     * @param userId Do not mistake userId (jhi_user table) for customerId (customer-profile table)
+     * @return Response object
+     */
+    public Response getPoint(int userId) {
+    	String basePath = pointPath.formatted(loginInfo.getStoreID(), userId);
+    	String token = loginInfo.getAccessToken();
+    	
+    	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
+    	return response;
     }    
 }
