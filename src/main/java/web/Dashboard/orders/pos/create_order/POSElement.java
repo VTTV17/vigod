@@ -6,8 +6,11 @@ public class POSElement {
     By loc_ddvSelectedBranch = By.cssSelector("div[class='uik-select__wrapper pos-selector'] div[class='uik-select__valueWrapper']");
 
     By loc_lstBranches(String branchName) {
-        return By.xpath("(//div[text() = '%s'])[last()]");
+        return By.xpath("(//div[text() = '%s'])[last()]".formatted(branchName));
     }
+
+    By loc_dlgConfirmSwitchBranch = By.cssSelector(".confirm-modal");
+    By loc_dlgConfirmSwitchBranch_btnOK = By.cssSelector(".confirm-modal .gs-button__green");
 
     By loc_txtProductSearchBox = By.cssSelector("#dropdownSuggestionProduct input");
 

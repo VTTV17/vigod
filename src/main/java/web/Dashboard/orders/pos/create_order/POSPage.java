@@ -1,5 +1,6 @@
 package web.Dashboard.orders.pos.create_order;
 
+import api.Seller.orders.pos.APIPOSApplyDiscount;
 import api.Seller.products.all_products.APICreateProduct;
 import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.products.lot_date.APICreateLotDate;
@@ -11,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
@@ -19,19 +21,22 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utilities.links.Links.DOMAIN;
 
 public class POSPage extends POSElement {
     WebDriver driver;
     AssertCustomize assertCustomize;
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger();
+
     public POSPage(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
     }
 
-    private List<Integer> createProductForPOSCart(LoginInformation loginInformation, int stockQuantity) {
+    /* Precondition */
+    private List<Integer> createProductForPOSCart(LoginInformation loginInformation, BranchInfo branchInfo, int stockQuantity) {
         // Create lot
         int lotId = new APICreateLotDate(loginInformation).createLotDateAndGetLotId();
 
@@ -39,7 +44,7 @@ public class POSPage extends POSElement {
         List<Integer> items = new ArrayList<>();
 
         // Init stock
-        int[] stock = new int[new BranchManagement(loginInformation).getInfo().getBranchID().size()];
+        int[] stock = new int[branchInfo.getBranchID().size()];
         Arrays.fill(stock, stockQuantity);
 
         // Init API create product
@@ -67,12 +72,26 @@ public class POSPage extends POSElement {
         return items;
     }
 
+    public POSPage navigateToPOSPage() {
+        // Navigate to POS page
+        driver.get("%s/order/instore-purchase".formatted(DOMAIN));
+
+        // Log
+        logger.info("Navigate to POS page by URL");
+        return this;
+    }
+
     void selectBranch(String branchName) {
         // Open branch dropdown
         commonAction.clickJS(loc_ddvSelectedBranch);
 
         // Select branch
         commonAction.clickJS(loc_lstBranches(branchName));
+
+        // Confirm switch branch
+        if (!commonAction.getListElement(loc_dlgConfirmSwitchBranch).isEmpty()) {
+            commonAction.click(loc_dlgConfirmSwitchBranch_btnOK);
+        }
 
         // Log
         logger.info("Select branch: {}", branchName);
@@ -96,7 +115,7 @@ public class POSPage extends POSElement {
                 commonAction.clickJS(loc_lstProductResult(barcode));
 
                 // Wait API response
-                commonAction.sleepInMiliSecond(500,"Wait product/variation is added to cart");
+                commonAction.sleepInMiliSecond(500, "Wait product/variation is added to cart");
 
                 // Log
                 logger.info("Add product/variation to cart, barcode: {}", barcode);
@@ -107,8 +126,8 @@ public class POSPage extends POSElement {
                 // Get variation value
                 String variationValue = infoV2.isHasModel()
                         ? infoV2.getVariationValuesMap()
-                            .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
-                            .get(infoV2.getBarcodeList().indexOf(barcode)).replace("|", " | ")
+                        .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
+                        .get(infoV2.getBarcodeList().indexOf(barcode)).replace("|", " | ")
                         : "";
 
                 // Input quantity
@@ -170,11 +189,30 @@ public class POSPage extends POSElement {
         });
     }
 
+    void addCustomer(int customerId) {
+
+    }
+
     public void createPOSOrder(LoginInformation loginInformation, int stockQuantity) {
+        // Get branch information
+        BranchInfo branchInfo = new BranchManagement(loginInformation).getInfo();
+
         // Create products for test
-        List<Integer> productIds = createProductForPOSCart(loginInformation, stockQuantity);
+        List<Integer> productIds = createProductForPOSCart(loginInformation, branchInfo, stockQuantity);
+
+        // Get cart quantity
+        int cartQuantity = nextInt(stockQuantity) + 1;
+
+        // Select branch
+        String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
+        selectBranch(branchName);
 
         // Add product to cart
-        selectProduct(loginInformation, productIds, nextInt(stockQuantity) + 1);
+        selectProduct(loginInformation, productIds, cartQuantity);
+
+        // Add customer
+
+        // Check API
+        new APIPOSApplyDiscount(loginInformation).getPOSApplyDiscountInfo(productIds, cartQuantity, branchInfo.getBranchID().get(branchInfo.getBranchName().indexOf(branchName)), "");
     }
 }

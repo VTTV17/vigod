@@ -80,7 +80,7 @@ public class APIProductDetailV2 {
         private List<Long> productListingPrice;
         private List<Long> productSellingPrice;
         private List<Long> productCostPrice;
-        private List<Integer> variationModelList;
+        private List<Integer> variationModelList = new ArrayList<>();
         private List<String> barcodeList;
         private List<String> variationStatus;
         private Map<String, String> mainProductNameMap = new HashMap<>();
@@ -159,6 +159,9 @@ public class APIProductDetailV2 {
 
                 // Get without variation stock
                 this.productStockQuantityMap.put(id, branches.stream().map(branchStock -> branchStock.getTotalItem() - branchStock.getSoldItem()).toList());
+
+                // Get model list
+                this.variationModelList.add(null);
             }
             return this;
         }
