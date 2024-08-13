@@ -34,7 +34,7 @@ public class APICustomerDetail {
     String membershipPath = "/beehiveservices/api/memberships/<storeId>/<customerId>";
     String pointPath = "/orderservices2/api/loyalty-earning-points/all-point-types/summary?storeId=%s&buyerId=%s";
     String orderPath = "/beehiveservices/api/bc-orders/orders/storeId/%s?page=0&size=50&userId=%s&customerId=%s&userIdChannel=";
-    String debtRecordPath = "/orderservices2/api/customer-debt/get-all/storeId/<storeId>/customerId/<customerId>?page=2&size=50";
+    String debtRecordPath = "/orderservices2/api/customer-debt/get-all/storeId/<storeId>/customerId/<customerId>?page=0&size=50";
     
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
