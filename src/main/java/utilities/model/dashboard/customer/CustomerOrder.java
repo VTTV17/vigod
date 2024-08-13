@@ -25,6 +25,7 @@ public class CustomerOrder {
     public BigDecimal subTotal;
     public String currency;
     public String paymentMethod;
+    public String systemNote; //Hidden on specific cases
     public String note;
     public String createdDate;
     public String createdBy;
@@ -74,9 +75,11 @@ public class CustomerOrder {
     public String fullShippingAddressEn;
     public String partnerCode;
     public String phoneCode;
+    public LandingPageInfo landingPageInfo; //Hidden on specific cases
     public List<Object> orderTags;
     public String madeBy;
     public String statusUpdatedDate;
+    public String approvedCommissionDate; //Hidden on specific cases
     public Integer totalItems;
     public Integer totalItemQty;
     public List<PaymentHistory> paymentHistories;
@@ -101,6 +104,7 @@ class Item {
     public String sku;
     public String modelId;
     public String modelName;
+    public String unit; //Hidden on specific cases
 }
 
 class PaymentHistory {
@@ -111,4 +115,8 @@ class PaymentHistory {
     public String paymentReceivedBy;
     public Integer bcOrderId;
     public String note;
+}
+
+class LandingPageInfo{
+    public Integer landingPageId;
 }
