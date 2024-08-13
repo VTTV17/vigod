@@ -8,13 +8,11 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import utilities.api.API;
 import utilities.data.DataGenerator;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentList;
+import utilities.model.dashboard.customer.segment.SegmentDetail;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -29,6 +27,8 @@ public class APISegment {
     String CREATE_SEGMENT_PATH = "/beehiveservices/api/segments/create/";
     String GET_SEGMENT_LIST = "/beehiveservices/api/segments/store/%s?page=0&size=50&name.contains=&sort=id,desc";
     String DELETE_SEGMENT_PATH = "/beehiveservices/api/segments/delete/%s/%s";
+    String detailPath = "/beehiveservices/api/segments/detail/<storeId>/<segmentId>";
+    String editPath = "/beehiveservices/api/segments/edit/<storeId>/<segmentId>";
     API api = new API();
 
     LoginDashboardInfo loginInfo;
@@ -114,19 +114,28 @@ public class APISegment {
 	} 
 
     public Response createSegment(CreateSegment data) {
-    	
 		String basePath = CREATE_SEGMENT_PATH + loginInfo.getStoreID();
 		String token = loginInfo.getAccessToken();
 		
-		String payload="";
-		try {
-			payload = new ObjectMapper().writeValueAsString(data);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		
-		Response response = api.post(basePath, token, payload);
-		
+		Response response = api.post(basePath, token, data);
         return response;
+    }	
+    
+    public SegmentDetail getSegmentDetail(String segmentId) {
+    	String basePath = detailPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<segmentId>", segmentId);
+    	String token = loginInfo.getAccessToken();
+    	
+    	Response response = api.get(basePath, token);
+    	return response.as(SegmentDetail.class);
+    }	
+    
+    public Response editSegment(String segmentId, SegmentDetail segmentDetail) {
+    	String basePath = editPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<segmentId>", segmentId);
+    	String token = loginInfo.getAccessToken();
+    	
+    	segmentDetail.setId(segmentId);
+    	
+    	Response response = api.put(basePath, token, segmentDetail);
+    	return response;
     }	
 }

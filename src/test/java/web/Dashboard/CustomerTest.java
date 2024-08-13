@@ -23,6 +23,7 @@ import utilities.model.dashboard.customer.CustomerOrder;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
+import utilities.model.dashboard.customer.segment.SegmentDetail;
 import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.customer.update.EditCustomerModel;
 import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
@@ -311,7 +312,6 @@ public class CustomerTest {
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -324,18 +324,43 @@ public class CustomerTest {
 	
 	
 	@Test
-	public void exp() throws JsonProcessingException {
+	public void editSegment() {
 		
-		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
+		//Build customer data
+		CreateCustomerModel data = CreateCustomerTDG.generateForeignCustomer(storeName);
+		if (data.getTags().isEmpty()) data.setTags(CreateCustomerTDG.randomizeTags(1));
+		//Create customer
+		APICreateCustomer createCustomerAPI = new APICreateCustomer(credentials);
+		JsonPath createResponse = createCustomerAPI.createCustomer(data).jsonPath();
 		
-//		LoyaltyProgramInfo dg = new APICustomerDetail(credentials).getMembership(3913210);
-//		List<Object> dg1 = new APICustomerDetail(credentials).getPoint(43737902).jsonPath().getList(".");
+		//Build segment condition
+		SegmentCondition condition = new SegmentCondition();
+		condition.setName("Customer Data_Customer tag_is equal to");
+		condition.setValue(data.getTags().get(0));
+		//Build segment data
+		CreateSegment segmentdata = new CreateSegment();
+		segmentdata.setName("Segment " + data.getTags().get(0));
+		segmentdata.setMatchCondition("ANY");
+		segmentdata.setConditions(List.of(condition));
+		//Create segment
+		APISegment createSegmentAPI = new APISegment(credentials);
+		JsonPath createSegmentResponse = createSegmentAPI.createSegment(segmentdata).jsonPath();
+		Integer createdSegmentId = createSegmentResponse.get("id");
 		
-//		List<CustomerOrder> dg1 = new APICustomerDetail(credentials).getOrders(3950154, 43737902);
-		List<CustomerDebtRecord> dg1 = new APICustomerDetail(credentials).getDebtRecords(3950154);
+		//Verify number of users belonging to the segment
+		SegmentList createdSegment = createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null);
+		Assert.assertEquals(Integer.valueOf(1), createdSegment.getUserCount());
 		
-//		SegmentCondition condition1 = new SegmentCondition();
-		System.out.println(new ObjectMapper().writeValueAsString(dg1));
+		//Get segment detail before editing it
+		SegmentDetail segmentDetail = new APISegment(credentials).getSegmentDetail(String.valueOf(createdSegmentId));
+		//Edit condition
+		condition.setValue("ahahaha");
+		segmentDetail.setConditions(List.of(condition));
+		
+		createSegmentAPI.editSegment(String.valueOf(createdSegmentId), segmentDetail);
+		
+		//Verify number of users belonging to the segment
+		Assert.assertEquals(Integer.valueOf(0), createSegmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null).getUserCount());
 	}
 
 }
