@@ -82,7 +82,7 @@ public class APICreateProduct {
         private final boolean isSelfDelivery = false;
         private boolean showOutOfStock = true;
         private String barcode;
-        private boolean isHideStock;
+        private Boolean isHideStock = false;
         private boolean lotAvailable;
         private boolean expiredQuality;
         private String inventoryManageType;
@@ -174,7 +174,7 @@ public class APICreateProduct {
     }
 
     public APICreateProduct setHideStock(boolean hideStock) {
-        payload.setHideStock(hideStock);
+        payload.setIsHideStock(hideStock);
         return this;
     }
 

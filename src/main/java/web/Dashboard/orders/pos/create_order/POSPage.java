@@ -35,43 +35,6 @@ public class POSPage extends POSElement {
         commonAction = new UICommonAction(driver);
     }
 
-    /* Precondition */
-    private List<Integer> createProductForPOSCart(LoginInformation loginInformation, BranchInfo branchInfo, int stockQuantity) {
-        // Create lot
-        int lotId = new APICreateLotDate(loginInformation).createLotDateAndGetLotId();
-
-        // Init cart items
-        List<Integer> items = new ArrayList<>();
-
-        // Init stock
-        int[] stock = new int[branchInfo.getBranchID().size()];
-        Arrays.fill(stock, stockQuantity);
-
-        // Init API create product
-        APICreateProduct apiCreateProduct = new APICreateProduct(loginInformation);
-
-        // Create lot product
-        int withoutVariationProductId = apiCreateProduct.setLotAvailable(true).createWithoutVariationProduct(false, stock).getProductID();
-        int withVariationProductId = apiCreateProduct.setLotAvailable(true).createVariationProduct(false, 0, stock).getProductID();
-
-
-        // Create without variation product
-        items.add(apiCreateProduct.createWithoutVariationProduct(false, stock).getProductID());
-        items.add(apiCreateProduct.createWithoutVariationProduct(true, stock).getProductID());
-
-        // Create with variation product
-        items.add(apiCreateProduct.createVariationProduct(false, 0, stock).getProductID());
-        items.add(apiCreateProduct.createVariationProduct(true, 0, stock).getProductID());
-
-        // Add product to lot and update stock
-        new APIEditLotDate(loginInformation).addProductIntoLot(lotId, withoutVariationProductId, 5);
-        new APIEditLotDate(loginInformation).addProductIntoLot(lotId, withVariationProductId, 5);
-        items.add(withoutVariationProductId);
-        items.add(withVariationProductId);
-
-        return items;
-    }
-
     public POSPage navigateToPOSPage() {
         // Navigate to POS page
         driver.get("%s/order/instore-purchase".formatted(DOMAIN));
@@ -193,13 +156,7 @@ public class POSPage extends POSElement {
 
     }
 
-    public void createPOSOrder(LoginInformation loginInformation, int stockQuantity) {
-        // Get branch information
-        BranchInfo branchInfo = new BranchManagement(loginInformation).getInfo();
-
-        // Create products for test
-        List<Integer> productIds = createProductForPOSCart(loginInformation, branchInfo, stockQuantity);
-
+    public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds, int stockQuantity) {
         // Get cart quantity
         int cartQuantity = nextInt(stockQuantity) + 1;
 
