@@ -1,28 +1,34 @@
 package web.Dashboard.customers.allcustomers.create_customer;
 
+import static utilities.character_limit.CharacterLimit.MAX_CUSTOMER_NAME;
+import static utilities.character_limit.CharacterLimit.MAX_CUSTOMER_TAG_LENGTH;
+import static utilities.character_limit.CharacterLimit.MAX_CUSTOMER_TAG_NUM;
+import static utilities.character_limit.CharacterLimit.MAX_PHONE_NUMBER;
+import static utilities.character_limit.CharacterLimit.MIN_PHONE_NUMBER;
+
+import java.util.List;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
+import utilities.commons.UICommonAction;
 
-import static utilities.character_limit.CharacterLimit.*;
-
-public class CreateCustomerPopup extends CreateCustomerElement {
-    public static String customerName;
-    public static String customerPhone;
-    public static String customerPhoneCode;
+public class CreateCustomerPopup {
+    public String customerName;
+    public String customerPhone;
     public static String[] customerTags;
-    WebDriverWait wait;
+    
     Logger logger = LogManager.getLogger(CreateCustomerPopup.class);
+    
+    UICommonAction commons;
+    CreateCustomerElement elements;
 
     public CreateCustomerPopup(WebDriver driver) {
-        super(driver);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        commons = new UICommonAction(driver);
+        elements = new CreateCustomerElement();
     }
 
     public CreateCustomerPopup inputCustomerName(String... name) {
@@ -32,11 +38,8 @@ public class CreateCustomerPopup extends CreateCustomerElement {
                 : name[0];
 
         // input customer name
-        wait.until(ExpectedConditions.elementToBeClickable(CUSTOMER_NAME)).sendKeys(customerName);
-
-        // log
-        logger.info("Customer name: %s".formatted(customerName));
-
+        commons.inputText(elements.loc_txtFullName, customerName);
+        logger.info("Input Customer name: {}", customerName);
         return this;
     }
 
@@ -45,19 +48,70 @@ public class CreateCustomerPopup extends CreateCustomerElement {
         int phoneLength = RandomUtils.nextInt(MAX_PHONE_NUMBER - MIN_PHONE_NUMBER + 1) + MIN_PHONE_NUMBER;
         customerPhone = phoneNumber.length == 0 ? RandomStringUtils.random(phoneLength, false, true) : phoneNumber[0];
 
-        // get phone code
-        customerPhoneCode = wait.until(ExpectedConditions.elementToBeClickable(CUSTOMER_PHONE_CODE))
-                .getText().replace("(", "").replace(")", "");
-
         // input customer phone number
-        wait.until(ExpectedConditions.elementToBeClickable(CUSTOMER_PHONE)).sendKeys(customerPhone);
-
-        //log
-        logger.info("Customer phone: %s%s".formatted(customerPhoneCode, customerPhone));
+        commons.inputText(elements.loc_txtPhone, customerPhone);
+        logger.info("Input Phone: {}", customerPhone);
 
         return this;
     }
-
+    
+    public CreateCustomerPopup inputEmail(String email) {
+    	commons.inputText(elements.loc_txtEmail, email);
+    	logger.info("Input Email: {}", email);
+    	return this;
+    }
+    public CreateCustomerPopup inputBirthday(String birthday) {
+    	commons.inputText(elements.loc_txtBirthday, birthday);
+    	logger.info("Input Birthday: {}", birthday);
+    	return this;
+    }
+    
+    public CreateCustomerPopup selectCountry(String country) {
+    	commons.selectByVisibleText(elements.loc_ddlCountry, country);
+    	logger.info("Selected Country: {}", country);
+    	return this;
+    }
+    public CreateCustomerPopup inputAddress1(String address) {
+    	commons.inputText(elements.loc_txtAddress1, address);
+    	logger.info("Input Address 1: {}", address);
+    	return this;
+    }
+    public CreateCustomerPopup inputAddress2(String address) {
+    	commons.inputText(elements.loc_txtAddress2, address);
+    	logger.info("Input Address 2: {}", address);
+    	return this;
+    }
+    public CreateCustomerPopup selectProvinceState(String province) {
+    	commons.selectByVisibleText(elements.loc_ddlProvince, province);
+    	logger.info("Selected Province/State: {}", province);
+    	return this;
+    }
+    public CreateCustomerPopup selectDistrict(String district) {
+    	commons.selectByVisibleText(elements.loc_ddlDistrict, district);
+    	logger.info("Selected District: {}", district);
+    	return this;
+    }
+    public CreateCustomerPopup selectWard(String ward) {
+    	commons.selectByVisibleText(elements.loc_ddlWard, ward);
+    	logger.info("Selected Ward: {}", ward);
+    	return this;
+    }
+    public CreateCustomerPopup inputCity(String city) {
+    	commons.inputText(elements.loc_txtCity, city);
+    	logger.info("Input City: {}", city);
+    	return this;
+    }
+    public CreateCustomerPopup inputZipCode(String code) {
+    	commons.inputText(elements.loc_txtZipCode, code);
+    	logger.info("Input Zip Code: {}", code);
+    	return this;
+    }
+    public CreateCustomerPopup clickCustomerCreationCheckbox() {
+    	commons.click(elements.loc_chkCustomerCreation);
+    	logger.info("Clicked Customer Creation checkbox");
+    	return this;
+    }
+    
     private String[] generateTagList() {
         String[] tags = new String[RandomUtils.nextInt(MAX_CUSTOMER_TAG_NUM) + 1];
         for (int i = 0; i < tags.length; i++) {
@@ -72,18 +126,23 @@ public class CreateCustomerPopup extends CreateCustomerElement {
 
         // input customer tags
         for (String tag : customerTags) {
-            wait.until(ExpectedConditions.elementToBeClickable(CUSTOMER_TAGS)).sendKeys(tag + "\n");
-            logger.info("Customer tag: %s".formatted(tag));
+            commons.inputText(elements.loc_txtTags, tag + "\n");
+            logger.info("Input Tags: {}", tag);
         }
 
         return this;
     }
+    public CreateCustomerPopup inputTags(List<String> tags) {
+    	tags.stream().forEach(tag -> {
+    		commons.inputText(elements.loc_txtTags, tag + "\n");
+    		logger.info("Input Tags: {}", tag);
+    	});
+    	
+    	return this;
+    }
 
     public void clickAddBtn() {
-        // click add button to complete create a new customer
-        wait.until(ExpectedConditions.elementToBeClickable(ADD_BTN)).click();
-
-        //log
-        logger.info("Create customer successfully");
+        commons.click(elements.loc_btnAdd);
+        logger.info("Clicked Add button");
     }
 }
