@@ -19,7 +19,7 @@ public class API {
     public static String staffPermissionToken = "";
 
     public API() {
-        RestAssured.proxy("localhost", 8888);
+//        RestAssured.proxy("localhost", 8888);
         baseURI = Links.URI;
     }
 

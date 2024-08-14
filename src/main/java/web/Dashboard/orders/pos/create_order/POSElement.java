@@ -62,5 +62,14 @@ public class POSElement {
     By loc_lblAvailablePoint = By.cssSelector(".text-availablePoint");
     By loc_txtInputPoint = By.cssSelector(".clear-up-down-btn");
     By loc_chkUsePoint = By.cssSelector(".order-in-store-use-point .form-check-label");
-
+    By loc_btnPromotion = By.cssSelector(".title-promotion span");
+    By loc_dlgDiscount_tabDiscountCode = By.cssSelector(".box-promotion-title:nth-child(1)");
+    By loc_dlgDiscount_lstDiscountCode = By.cssSelector(".container-discount-code-item label");
+    By loc_dlgDiscount_lstDiscountCodeValue = By.cssSelector(".container-discount-code-item .discount-code-type");
+    By loc_dlgDiscount_tabDiscountAmount = By.cssSelector(".box-promotion-title:nth-child(2)");
+    By loc_dlgDiscount_txtDiscountAmountValue = By.cssSelector("[name='fixAmount']");
+    By loc_dlgDiscount_tabDiscountPercentage = By.cssSelector(".box-promotion-title:nth-child(3)");
+    By loc_dlgDiscount_txtDiscountPercentValue = By.cssSelector("[name='percentage']");
+    By loc_dlgDiscount_btnApply = By.cssSelector(".modal-content .color--gradient-blue");
+    By loc_dlgToast = By.cssSelector(".Toastify__toast--success");
 }
