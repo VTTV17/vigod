@@ -51,7 +51,11 @@ public class DataGenerator {
         int random_integer = rand.nextInt(end - start) + start;
         return random_integer;
     }
-
+    public static double generatNumberInBound(double start, double end) {
+        Random rand = new Random();
+        double randomValue = start + (end - start) * rand.nextDouble();;
+        return randomValue;
+    }
     /**
      * Returns a list of all the countries in the CountryCodes.json file as Strings.
      * @return a List of all the countries in the CountryCodes.json file
