@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.data.DataGenerator;
+import utilities.data.testdatagenerator.LoyaltyProgramTDG;
 import utilities.model.dashboard.customer.CustomerInfoFull;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
@@ -127,8 +128,8 @@ public class LoyaltyProgram {
         return response.as(LoyaltyProgramInfo.class);
     }
     public LoyaltyProgramInfo getMembershipDetail(int id){
-        LoyaltyProgramInfo detai = getAllMembershipJsonPath().getObject("find {it.id==%s}".formatted(id),LoyaltyProgramInfo.class);
-        return detai;
+        LoyaltyProgramInfo detail = getAllMembershipJsonPath().getObject("find {it.id==%s}".formatted(id),LoyaltyProgramInfo.class);
+        return detail;
     }
     public LoyaltyProgramInfo getRandomMembershipDetail(){
         JsonPath jsonDetail = getAllMembershipJsonPath();
@@ -136,6 +137,7 @@ public class LoyaltyProgram {
         if(jsonDetail.getList("id").size()>0){
             detai = jsonDetail.getObject("find {[0]}",LoyaltyProgramInfo.class);
         }else {
+            detai = LoyaltyProgramTDG.generateLoyaltyProgram();
             int getSegmentId = new APISegment(loginInformation).getSegmentList().get(0).getId();
             detai.setSegmentId(getSegmentId);
             createMembership(detai);
@@ -160,7 +162,7 @@ public class LoyaltyProgram {
         int membershipId = getAMembershipId();
         LoyaltyProgramInfo membershipInfo;
         if(membershipId == 0) {
-            membershipInfo = new LoyaltyProgramInfo();
+            membershipInfo = LoyaltyProgramTDG.generateLoyaltyProgram();
             membershipInfo.setSegmentId(segmentId);
             membershipInfo = createMembership(membershipInfo);
         }else {

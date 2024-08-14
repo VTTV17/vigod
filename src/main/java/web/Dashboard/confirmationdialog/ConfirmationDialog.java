@@ -21,13 +21,14 @@ public class ConfirmationDialog {
 	}
 
 	By loc_dlgDialog = By.cssSelector(".modal-dialog.confirm-modal");
-	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')]");
+	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')] or contains(@class,'cancel-button')");
 	By loc_btnClose = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__yellow')]");
 	public By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
 	By loc_cntMessage = By.cssSelector(".modal-body");
 	By loc_ctnTitle = By.cssSelector(".modal-title");
 	By loc_btnRed = By.cssSelector(".gs-button__red");
-	
+	By loc_btnBlue_Confirm = By.cssSelector(".modal-content .gs-button__deep-blue");
+
 	//Temporary locator
 	By loc_btnCancel_V2 = By.cssSelector(".modal-footer button:nth-child(1)");
 	By loc_btnOK_V2 = By.cssSelector(".modal-footer button:nth-child(2)");
@@ -101,5 +102,9 @@ public class ConfirmationDialog {
 	public void clickGreenBtnOnSecondModal(){
 		commonAction.click(loc_SecondModal_btnGreen);
 		logger.info("Click on Green button on the second modal");
+	}
+	public void clickBlueBtn(){
+		commonAction.click(loc_btnBlue_Confirm);
+		logger.info("Click on Blue button on modal.");
 	}
 }

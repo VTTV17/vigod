@@ -19,6 +19,7 @@ import web.Dashboard.home.HomePage;
 import web.Dashboard.login.LoginPage;
 import web.Dashboard.marketing.buylink.BuyLinkManagement;
 import web.Dashboard.marketing.buylink.CreateBuyLink;
+import web.Dashboard.orders.pos.create_order.POSPage;
 import web.Dashboard.products.all_products.crud.ProductPage;
 import web.StoreFront.GeneralSF;
 import web.StoreFront.checkout.checkoutOneStep.Checkout;
@@ -95,7 +96,6 @@ public class BuyLinkTest extends BaseTest {
             new APIEditProduct(loginInformation).deleteProduct(productId);
         }
     }
-
     public void deleteNewestBuyLink(){
         APIBuyLink apiBuyLink = new APIBuyLink(loginInformation);
         int id = apiBuyLink.getNewestBuyLinkID();

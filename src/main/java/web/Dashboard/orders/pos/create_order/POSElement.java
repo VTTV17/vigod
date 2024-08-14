@@ -50,7 +50,17 @@ public class POSElement {
 
     By loc_dlgSelectIMEI_lstIMEI = By.cssSelector(".content:not(.selected)");
     By loc_dlgSelectIMEI_btnSave = By.cssSelector(".modal-footer .gs-button__green");
-
     By loc_dlgSelectLot_txtQuantity = By.cssSelector(".modal-lot-select .get-quantity input");
     By loc_dlgSelectLot_btnSave = By.cssSelector(".modal-footer .gs-button__green");
+    By loc_lblTotalAmount = By.cssSelector(".value-total");
+    By loc_txtReceiveAmount = By.cssSelector(".order-pos__received-input");
+    By loc_lnkViewAllPayment = By.cssSelector(".view-all-payment");
+    By loc_lstPaymentMethod = By.cssSelector(".modal-content .payment-item");
+    By loc_txtPOSReceiptCode = By.cssSelector(".payment-method-mpos-list-wraper input");
+    By loc_chkNotApplyEarningPoint = By.cssSelector(".custom-check-box input");
+    By loc_lblNotApplyEarningPoint = By.cssSelector(".custom-check-box div span");
+    By loc_lblAvailablePoint = By.cssSelector(".text-availablePoint");
+    By loc_txtInputPoint = By.cssSelector(".clear-up-down-btn");
+    By loc_chkUsePoint = By.cssSelector(".order-in-store-use-point .form-check-label");
+
 }

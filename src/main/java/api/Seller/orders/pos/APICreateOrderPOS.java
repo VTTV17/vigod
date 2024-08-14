@@ -371,7 +371,7 @@ public class APICreateOrderPOS {
                 """.formatted(customerInfo.getUserId(),customerId,customerId);
     }
     public int createPOSOrder() {
-        branchId = new BranchManagement(loginInformation).getFreeBranch();
+        branchId = branchId==0? new BranchManagement(loginInformation).getFreeBranch():branchId;
         String body = """
                 {
                     "branches": [

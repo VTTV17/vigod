@@ -10,14 +10,21 @@ import api.Seller.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
+import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
+import web.Dashboard.confirmationdialog.ConfirmationDialog;
+import web.Dashboard.home.HomePage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -214,5 +221,78 @@ public class POSPage extends POSElement {
 
         // Check API
         new APIPOSApplyDiscount(loginInformation).getPOSApplyDiscountInfo(productIds, cartQuantity, branchInfo.getBranchID().get(branchInfo.getBranchName().indexOf(branchName)), "");
+    }
+    public Double getTotalAmount(){
+        String total = commonAction.getText(loc_lblTotalAmount);
+        Pattern pattern = Pattern.compile("\\d+(\\.\\d+)?");
+        Matcher matcher = pattern.matcher(total);
+        String matchNumber = "";
+        while (matcher.find()) {
+            matchNumber = matchNumber + matcher.group();
+        }
+        return Double.parseDouble(matchNumber);
+    }
+    public void inputReceiveAmount(double amount){
+        commonAction.inputText(loc_txtReceiveAmount, String.valueOf(amount));
+        logger.info("Input receive amount: "+amount);
+    }
+    public Double inputReceiveAmount(ReceivedAmountType receivedAmountType){
+        double receiveAmount = 0;
+        switch (receivedAmountType){
+            case NONE -> inputReceiveAmount(receiveAmount);
+            case FULL -> {
+                double total = getTotalAmount();
+                inputReceiveAmount(total);
+                receiveAmount = total;
+            }
+            case PARTIAL ->{
+                double random = DataGenerator.generatNumberInBound(1000,getTotalAmount());
+                inputReceiveAmount(random);
+                receiveAmount = random;
+            }
+        }
+        commonAction.inputText(loc_txtReceiveAmount,String.valueOf(receiveAmount));
+        return receiveAmount;
+    }
+    public enum POSPaymentMethod{
+        CASH, BANKTRANSFER, POS
+    }
+    public void clickOnViewAllPayment(){
+        commonAction.click(loc_lnkViewAllPayment);
+        logger.info("Click on View All Payment link");
+    }
+    public void selectPaymentMethod(POSPaymentMethod paymentMethod){
+        clickOnViewAllPayment();
+        //wait popup show
+        commonAction.getElements(loc_lstPaymentMethod,2);
+        switch (paymentMethod){
+            case CASH ->{
+                if(!commonAction.getAttribute(loc_lstPaymentMethod,0,"class").contains("selected-item"))
+                    commonAction.click(loc_lstPaymentMethod,0);
+                else return;
+            }
+            case BANKTRANSFER -> {
+                if(!commonAction.getAttribute(loc_lstPaymentMethod,1,"class").contains("selected-item"))
+                    commonAction.click(loc_lstPaymentMethod,1);
+                else return;
+            }
+            case POS -> {
+                if(!commonAction.getAttribute(loc_lstPaymentMethod,2,"class").contains("selected-item"))
+                {
+                    commonAction.click(loc_lstPaymentMethod,2);
+                    commonAction.inputText(loc_txtPOSReceiptCode,new DataGenerator().generateString(10));
+                }
+                else return;
+            }
+        }
+        new ConfirmationDialog(driver).clickBlueBtn();
+        new HomePage(driver).waitTillLoadingDotsDisappear();
+        logger.info("Select payment method: "+paymentMethod);
+    }
+    public void configApplyEarningPoint(boolean isApply){
+        if(!isApply)
+            commonAction.checkTheCheckBoxOrRadio(loc_chkNotApplyEarningPoint,loc_lblNotApplyEarningPoint);
+        else commonAction.uncheckTheCheckboxOrRadio(loc_chkNotApplyEarningPoint,loc_lblNotApplyEarningPoint);
+        logger.info("Config apply earning point: "+isApply);
     }
 }
