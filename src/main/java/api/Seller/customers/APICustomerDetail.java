@@ -2,11 +2,16 @@ package api.Seller.customers;
 
 import api.Seller.login.Login;
 import io.restassured.response.Response;
+
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
+import utilities.model.dashboard.customer.CustomerDebtRecord;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.customer.CustomerInfoFull;
+import utilities.model.dashboard.customer.CustomerOrder;
 import utilities.model.dashboard.customer.CustomerOrderSummary;
 import utilities.model.dashboard.customer.CustomerProfileFB;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -28,6 +33,8 @@ public class APICustomerDetail {
     String orderSummaryPath = "/orderservices2/api/customer-orders/store/<storeId>/customerId/<customerId>/summary";
     String membershipPath = "/beehiveservices/api/memberships/<storeId>/<customerId>";
     String pointPath = "/orderservices2/api/loyalty-earning-points/all-point-types/summary?storeId=%s&buyerId=%s";
+    String orderPath = "/beehiveservices/api/bc-orders/orders/storeId/%s?page=0&size=50&userId=%s&customerId=%s&userIdChannel=";
+    String debtRecordPath = "/orderservices2/api/customer-debt/get-all/storeId/<storeId>/customerId/<customerId>?page=0&size=50";
     
     public CustomerInfo getInfo(int customerId) {
         if (customerId != 0) {
@@ -94,5 +101,32 @@ public class APICustomerDetail {
     	
     	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
     	return response;
+    }
+    
+    /**
+     * Retrieve the orders belonging to a customer
+     * @param customerId (customer-profile table)
+     * @param userId (jhi_user table) for customerId (customer-profile table)
+     * @return CustomerOrder DTO
+     */
+    public List<CustomerOrder> getOrders(int customerId, int userId) {
+    	String basePath = orderPath.formatted(loginInfo.getStoreID(), userId, customerId);
+    	String token = loginInfo.getAccessToken();
+    	
+    	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
+    	return response.jsonPath().getList(".", CustomerOrder.class);
+    }    
+    
+    /**
+     * Retrieve the debt records belonging to a customer
+     * @param customerId (customer-profile table)
+     * @return CustomerDebtRecord DTO
+     */
+    public List<CustomerDebtRecord> getDebtRecords(int customerId) {
+    	String basePath = debtRecordPath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<customerId>", String.valueOf(customerId));
+    	String token = loginInfo.getAccessToken();
+    	
+    	Response response = api.get(basePath, token).then().statusCode(200).extract().response();
+    	return response.jsonPath().getList(".", CustomerDebtRecord.class);
     }    
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import api.Seller.customers.APIAllCustomers;
+import api.Seller.customers.APIAllCustomers.CustomerManagementInfo;
 import api.Seller.customers.APICreateCustomer;
 import api.Seller.customers.APICustomerDetail;
 import api.Seller.customers.APIEditCustomer;
@@ -18,9 +19,13 @@ import api.Seller.login.Login;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import utilities.data.testdatagenerator.CreateCustomerTDG;
+import utilities.model.dashboard.customer.CustomerDebtRecord;
+import utilities.model.dashboard.customer.CustomerOrder;
+import utilities.model.dashboard.customer.CustomerOrderSummary;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.segment.CreateSegment;
 import utilities.model.dashboard.customer.segment.SegmentCondition;
+import utilities.model.dashboard.customer.segment.SegmentDetail;
 import utilities.model.dashboard.customer.segment.SegmentList;
 import utilities.model.dashboard.customer.update.EditCustomerModel;
 import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
@@ -200,7 +205,8 @@ public class CustomerTest {
 
 		APIAllCustomers allCustomerAPI = new APIAllCustomers(credentials);
 
-		allCustomerAPI.deleteProfiles(allCustomerAPI.getAllCustomerIds());
+//		allCustomerAPI.deleteProfiles(allCustomerAPI.getAllCustomerIds());
+		allCustomerAPI.deleteProfiles(List.of(4990871));
 	}	
 
 	@Test
@@ -309,7 +315,6 @@ public class CustomerTest {
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -322,15 +327,125 @@ public class CustomerTest {
 	
 	
 	@Test
-	public void exp() throws JsonProcessingException {
+	public void editSegment() {
+		
+		//Build customer data
+		CreateCustomerModel data = CreateCustomerTDG.generateForeignCustomer(storeName);
+		if (data.getTags().isEmpty()) data.setTags(CreateCustomerTDG.randomizeTags(1));
+		//Create customer
+		APICreateCustomer createCustomerAPI = new APICreateCustomer(credentials);
+		JsonPath createResponse = createCustomerAPI.createCustomer(data).jsonPath();
+		
+		//Build segment condition
+		SegmentCondition condition = new SegmentCondition();
+		condition.setName("Customer Data_Customer tag_is equal to");
+		condition.setValue(data.getTags().get(0));
+		//Build segment data
+		CreateSegment segmentdata = new CreateSegment();
+		segmentdata.setName("Segment " + data.getTags().get(0));
+		segmentdata.setMatchCondition("ANY");
+		segmentdata.setConditions(List.of(condition));
+		//Create segment
+		APISegment segmentAPI = new APISegment(credentials);
+		JsonPath createSegmentResponse = segmentAPI.createSegment(segmentdata).jsonPath();
+		Integer createdSegmentId = createSegmentResponse.get("id");
+		
+		//Verify number of users belonging to the segment
+		SegmentList createdSegment = segmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null);
+		Assert.assertEquals(Integer.valueOf(1), createdSegment.getUserCount());
+		
+		//Get segment detail before editing it
+		SegmentDetail segmentDetail = segmentAPI.getSegmentDetail(String.valueOf(createdSegmentId));
+		//Edit condition
+		condition.setValue("ahahaha");
+		segmentDetail.setConditions(List.of(condition));
+		
+		segmentAPI.editSegment(String.valueOf(createdSegmentId), segmentDetail);
+		
+		//Verify number of users belonging to the segment
+		Assert.assertEquals(Integer.valueOf(0), segmentAPI.getSegmentList().stream().filter(it -> it.getId().equals(createdSegmentId)).findFirst().orElse(null).getUserCount());
+	}
+
+	
+	@Test
+	public void createCustomerVNExp() {
+
+		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
+		
+		CreateCustomerModel data = CreateCustomerTDG.generateVNCustomer(storeName);
+
+		APICreateCustomer createCustomerAPI = new APICreateCustomer(credentials);
+
+		JsonPath createResponse = createCustomerAPI.createCustomer(data).jsonPath();
+
+	}	
+	
+	@Test
+	public void getCustomerOrderRelatedInfo() throws JsonProcessingException {
+		
+		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
+		int customerId = 4516272;
+		int userId = 53825261;
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		APICustomerDetail customerDetailAPI = new APICustomerDetail(credentials);
+		
+		CustomerOrderSummary orderSummary = customerDetailAPI.getOrderSummary(customerId);
+		System.out.println("Order summary: " + mapper.writeValueAsString(orderSummary));
+		
+		List<CustomerOrder> orders = customerDetailAPI.getOrders(customerId, userId);
+		System.out.println("Orders: " + mapper.writeValueAsString(orders));
+		
+		List<CustomerDebtRecord> debtRecords = customerDetailAPI.getDebtRecords(customerId);
+		System.out.println("Debt records: " + mapper.writeValueAsString(debtRecords));
+		
+		LoyaltyProgramInfo membership = customerDetailAPI.getMembership(customerId);
+		System.out.println("Membership: " + mapper.writeValueAsString(membership));
+		
+		List<Object> points = customerDetailAPI.getPoint(userId).jsonPath().getList(".");
+		System.out.println("Points: " + mapper.writeValueAsString(points));
+		
+	}	
+	
+	@Test
+	public void getCustomerOrder() throws JsonProcessingException {
 		
 		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
 		
-		LoyaltyProgramInfo dg = new APICustomerDetail(credentials).getMembership(3913210);
-		List<Object> dg1 = new APICustomerDetail(credentials).getPoint(43737902).jsonPath().getList(".");
+		APIAllCustomers allCustomerAPI = new APIAllCustomers(credentials);
 		
-//		SegmentCondition condition1 = new SegmentCondition();
-		System.out.println(new ObjectMapper().writeValueAsString(dg1));
-	}
-
+		CustomerManagementInfo list = allCustomerAPI.getCustomerManagementInfo();
+		
+		for (int i=0; i<list.getUserId().size(); i++) {
+			
+			if (list.getUserId().get(i)==null) continue;
+			
+			System.out.println(i);
+			
+			String userId = list.getUserId().get(i);
+			int customerId = list.getCustomerId().get(i);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			
+			APICustomerDetail customerDetailAPI = new APICustomerDetail(credentials);
+			
+			CustomerOrderSummary orderSummary = customerDetailAPI.getOrderSummary(customerId);
+			System.out.println("Order summary: " + mapper.writeValueAsString(orderSummary));
+			
+			List<CustomerOrder> orders = customerDetailAPI.getOrders(customerId, Integer.valueOf(userId));
+			System.out.println("Orders: " + mapper.writeValueAsString(orders));
+			
+			List<CustomerDebtRecord> debtRecords = customerDetailAPI.getDebtRecords(customerId);
+			System.out.println("Debt records: " + mapper.writeValueAsString(debtRecords));
+			
+			LoyaltyProgramInfo membership = customerDetailAPI.getMembership(customerId);
+			System.out.println("Membership: " + mapper.writeValueAsString(membership));
+			
+			List<Object> points = customerDetailAPI.getPoint(Integer.valueOf(userId)).jsonPath().getList(".");
+			System.out.println("Points: " + mapper.writeValueAsString(points));
+		}
+	}	
+	
+	
 }
