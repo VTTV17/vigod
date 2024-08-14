@@ -1,6 +1,7 @@
 package web.Dashboard.service;
 
 import api.Seller.services.CreateServiceAPI;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -8,8 +9,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import utilities.api.API;
-import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.services.ServiceInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.home.HomePage;
@@ -31,6 +30,7 @@ import static utilities.account.AccountTest.*;
 import static utilities.file.FileNameAndPath.FILE_IMAGE_1;
 import static utilities.file.FileNameAndPath.FILE_IMAGE_2;
 
+@Slf4j
 public class CreateServicePage extends HomePage{
     WebDriver driver;
     WebDriverWait wait;

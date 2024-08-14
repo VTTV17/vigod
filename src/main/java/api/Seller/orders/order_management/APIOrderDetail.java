@@ -6,6 +6,7 @@ import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -23,9 +24,9 @@ import java.util.Optional;
 import static api.Seller.orders.order_management.APIAllOrderCosts.*;
 import static api.Seller.orders.order_management.APIAllOrders.*;
 import static api.Seller.orders.order_management.APIAllOrders.ShippingMethod.*;
-
+@Slf4j
 public class APIOrderDetail {
-    Logger logger = LogManager.getLogger(APIOrderDetail.class);
+//    Logger logger = LogManager.getLogger(APIOrderDetail.class);
 
     API api = new API();
     LoginDashboardInfo loginInfo;
@@ -88,14 +89,12 @@ public class APIOrderDetail {
         Response response = getDetailOfOrderResponse(id);
         response.then().statusCode(200);
         OrderDetailInfo orderDetailInfo = response.as(OrderDetailInfo.class);
-        System.out.println(orderDetailInfo);
         return orderDetailInfo;
     }
     public List<PaymentHistoryInfo> getPaymentHistory(long orderId){
         Response response = api.get(getPaymentHistoryPath.formatted(orderId),loginInfo.getAccessToken());
         response.then().statusCode(200);
         List<PaymentHistoryInfo> paymentHistoryInfos = Arrays.asList(response.as(PaymentHistoryInfo[].class));
-        System.out.println(paymentHistoryInfos);
         return paymentHistoryInfos;
     }
 }

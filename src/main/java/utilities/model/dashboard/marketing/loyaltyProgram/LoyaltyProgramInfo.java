@@ -6,14 +6,14 @@ import utilities.data.DataGenerator;
 
 @Data
 public class LoyaltyProgramInfo {
-    public String name = "Membership " + new DataGenerator().generateString(5);
-    public String description = "Membership Description" + new DataGenerator().generateString(5);
+    public String name ;
+    public String description;
     public Integer segmentId;
     public Integer sellerId;
-    public Integer priority = 1;
-    public Boolean enabledBenefit = true;
-    public Integer discountPercent = 20;
-    public Double discountMaxAmount = Double.valueOf(50000);
+    public Integer priority;
+    public Boolean enabledBenefit;
+    public Integer discountPercent;
+    public Double discountMaxAmount;
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public Image image;
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
