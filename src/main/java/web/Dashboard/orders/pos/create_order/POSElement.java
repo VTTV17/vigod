@@ -72,4 +72,9 @@ public class POSElement {
     By loc_dlgDiscount_txtDiscountPercentValue = By.cssSelector("[name='percentage']");
     By loc_dlgDiscount_btnApply = By.cssSelector(".modal-content .color--gradient-blue");
     By loc_dlgToast = By.cssSelector(".Toastify__toast--success");
+    By loc_chkUsePointValue = By.cssSelector(".order-in-store-use-point .form-check-label");
+    By loc_chkUsePointAction = By.cssSelector(".order-in-store-use-point .new-ui-checkbox-square");
+    By loc_btnPrintOrder = By.cssSelector(".btn-print-order");
+    By loc_btnPrintReceiptValue = By.cssSelector(".print-order__toggle input");
+    By loc_btnPrintnReceiptAction = By.cssSelector(".modalPrintPos .print-order__toggle");
 }

@@ -1,5 +1,6 @@
 package web.Dashboard.orders.pos.create_order;
 
+import api.Seller.marketing.LoyaltyPoint;
 import api.Seller.orders.pos.APIPOSApplyDiscount;
 import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.setting.StoreInformation;
@@ -10,6 +11,8 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.enums.pos.ReceivedAmountType;
+import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
+import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -31,11 +34,15 @@ public class POSPage extends POSElement {
     AssertCustomize assertCustomize;
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger();
-
+    LoginInformation loginInformation;
     public POSPage(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
+    }
+    public POSPage getLoginInfo(LoginInformation loginInformation){
+        this.loginInformation = loginInformation;
+        return this;
     }
 
     public POSPage navigateToPOSPage() {
@@ -63,7 +70,7 @@ public class POSPage extends POSElement {
         logger.info("Select branch: {}", branchName);
     }
 
-    void selectProduct(LoginInformation loginInformation, List<Integer> productIds, int quantity) {
+    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds, int quantity) {
         // Select product
         productIds.forEach(productId -> {
             // Get product information
@@ -194,20 +201,17 @@ public class POSPage extends POSElement {
 
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
         double receiveAmount = 0;
-        switch (receivedAmountType) {
-            case NONE -> inputReceiveAmount(receiveAmount);
+        switch (receivedAmountType){
             case FULL -> {
                 double total = getTotalAmount();
-                inputReceiveAmount(total);
                 receiveAmount = total;
             }
-            case PARTIAL -> {
-                double random = DataGenerator.generatNumberInBound(1000, getTotalAmount());
-                inputReceiveAmount(random);
+            case PARTIAL ->{
+                double random = DataGenerator.generatNumberInBound(1000,getTotalAmount());
                 receiveAmount = random;
             }
         }
-        commonAction.inputText(loc_txtReceiveAmount, String.valueOf(receiveAmount));
+        inputReceiveAmount(receiveAmount);
         return receiveAmount;
     }
 
@@ -223,35 +227,39 @@ public class POSPage extends POSElement {
     public void selectPaymentMethod(POSPaymentMethod paymentMethod) {
         clickOnViewAllPayment();
         //wait popup show
-        commonAction.getElements(loc_lstPaymentMethod, 2);
-        switch (paymentMethod) {
-            case CASH -> {
-                if (!commonAction.getAttribute(loc_lstPaymentMethod, 0, "class").contains("selected-item"))
-                    commonAction.click(loc_lstPaymentMethod, 0);
-                else return;
+        commonAction.getElements(loc_lstPaymentMethod,2);
+        switch (paymentMethod){
+            case CASH ->{
+                if(!commonAction.getAttribute(loc_lstPaymentMethod,0,"class").contains("selected-item"))
+                    commonAction.click(loc_lstPaymentMethod,0);
             }
             case BANKTRANSFER -> {
-                if (!commonAction.getAttribute(loc_lstPaymentMethod, 1, "class").contains("selected-item"))
-                    commonAction.click(loc_lstPaymentMethod, 1);
-                else return;
+                if(!commonAction.getAttribute(loc_lstPaymentMethod,1,"class").contains("selected-item"))
+                    commonAction.click(loc_lstPaymentMethod,1);
             }
             case POS -> {
-                if (!commonAction.getAttribute(loc_lstPaymentMethod, 2, "class").contains("selected-item")) {
-                    commonAction.click(loc_lstPaymentMethod, 2);
-                    commonAction.inputText(loc_txtPOSReceiptCode, new DataGenerator().generateString(10));
-                } else return;
+                if(!commonAction.getAttribute(loc_lstPaymentMethod,2,"class").contains("selected-item"))
+                {
+                    commonAction.click(loc_lstPaymentMethod,2);
+                    commonAction.inputText(loc_txtPOSReceiptCode,new DataGenerator().generateString(10));
+                }
             }
         }
         new ConfirmationDialog(driver).clickBlueBtn();
         new HomePage(driver).waitTillLoadingDotsDisappear();
         logger.info("Select payment method: {}", paymentMethod);
     }
-
     public void configApplyEarningPoint(boolean isApply) {
-        if (!isApply)
-            commonAction.checkTheCheckBoxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
-        else commonAction.uncheckTheCheckboxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
-        logger.info("Config apply earning point: {}", isApply);
+        if(!commonAction.getElements(loc_chkNotApplyEarningPoint,1).isEmpty()) {
+            if (!isApply)
+                commonAction.checkTheCheckBoxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
+            else commonAction.uncheckTheCheckboxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
+            logger.info("Config apply earning point: " + isApply);
+        }else try {
+            throw new Exception("Not apply earning point checkbox not show.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void applyDiscount() {
@@ -312,4 +320,43 @@ public class POSPage extends POSElement {
         // Log
         logger.info("Close Discount popup");
     }
+    public void inputUsePoint(int point){
+        if(!commonAction.getAttribute(loc_chkUsePointValue,"class").contains("checked")) commonAction.click(loc_chkUsePointAction);
+        commonAction.inputText(loc_txtInputPoint,String.valueOf(point));
+    }
+    enum UsePointType{
+        SERVERAL, MAX_ORDER, MAX_AVAILABLE
+    }
+    public int redeemPointNeedForTotal(){
+        LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
+        Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
+        return (int) (getTotalAmount()/exchangeAmount);
+    }
+    public int inputUsePoint(UsePointType usePointType){
+        int point = 0;
+        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
+        switch (usePointType){
+            case SERVERAL -> {
+                point = point>1? DataGenerator.generatNumberInBound(1,availablePoint-1): 1;
+            }
+            case MAX_AVAILABLE,MAX_ORDER ->{
+                int redeemPointNeed = redeemPointNeedForTotal();
+                point = availablePoint> redeemPointNeed? redeemPointNeed: availablePoint;
+            }
+        }
+        inputUsePoint(point);
+        return point;
+    }
+    public void clickPrintOrderIcon(){
+        commonAction.click(loc_btnPrintOrder);
+        logger.info("Click on Print Order icon.");
+    }
+    public void enableDisablePrint(boolean isEnable){
+        clickPrintOrderIcon();
+        if(isEnable){
+            commonAction.checkTheCheckBoxOrRadio(loc_btnPrintReceiptValue,loc_btnPrintnReceiptAction);
+        }else commonAction.uncheckTheCheckboxOrRadio(loc_btnPrintReceiptValue,loc_btnPrintnReceiptAction);
+        new ConfirmationDialog(driver).clickGreenBtn();
+    }
+
 }
