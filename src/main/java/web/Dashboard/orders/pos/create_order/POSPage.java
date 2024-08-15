@@ -166,6 +166,12 @@ public class POSPage extends POSElement {
 
     }
 
+    public POSPage selectCustomer(String name) {
+    	commonAction.inputText(loc_txtCustomerSearchBox, name);
+    	commonAction.click(loc_lstCustomerResult(name));
+    	return this;
+    }    
+    
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds, int stockQuantity) {
         // Get cart quantity
         int cartQuantity = nextInt(stockQuantity) + 1;
