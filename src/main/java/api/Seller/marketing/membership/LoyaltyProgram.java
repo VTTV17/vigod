@@ -164,10 +164,12 @@ public class LoyaltyProgram {
         if(membershipId == 0) {
             membershipInfo = LoyaltyProgramTDG.generateLoyaltyProgram();
             membershipInfo.setSegmentId(segmentId);
+            membershipInfo.setName("Membership "+tagValue);
             membershipInfo = createMembership(membershipInfo);
         }else {
             membershipInfo = new APIEditLoyaltyProgram(loginInformation).getPayloadAsDefault(membershipId);
             membershipInfo.setSegmentId(segmentId);
+            membershipInfo.setName("Membership "+tagValue);
             new APIEditLoyaltyProgram(loginInformation).editLoyaltyProgram(membershipInfo);
         }
         return membershipInfo;

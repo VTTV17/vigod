@@ -89,6 +89,7 @@ public class APIOrderDetail {
         Response response = getDetailOfOrderResponse(id);
         response.then().statusCode(200);
         OrderDetailInfo orderDetailInfo = response.as(OrderDetailInfo.class);
+        System.out.println(orderDetailInfo);
         return orderDetailInfo;
     }
     public List<PaymentHistoryInfo> getPaymentHistory(long orderId){
