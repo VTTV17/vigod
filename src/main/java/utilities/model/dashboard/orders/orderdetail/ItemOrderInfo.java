@@ -8,8 +8,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Data
 public class ItemOrderInfo {
-    private int id;
-    private int itemId;
+    private Long id;
+    private Long itemId;
     private String name;
     private double price;
     private double totalAmount;
@@ -24,7 +24,7 @@ public class ItemOrderInfo {
     private Boolean isDeposit;
     private Boolean flashSale;
     private String inventoryManageType;
-    private List<Object> orderItemIMEIs;
+    private List<OrderItemIMEIs> orderItemIMEIs;
     private Boolean isHasLot;
     private Boolean isHasLocation;
     private Boolean isOrderCreatedBeforeItemEnabledLotDate;
@@ -37,9 +37,9 @@ public class ItemOrderInfo {
     private Boolean hasLot;
     private Boolean hasLocation;
     private String conversionUnitName;
-    private int conversionUnitItemId;
+    private Long conversionUnitItemId;
     private String parentId;
-    private int variationId;
+    private Long variationId;
     private String variationName;
     private LotLocation lotLocation;
     private String sku;

@@ -27,7 +27,7 @@ public class OrderInfo {
     private double totalDiscount;
     private List<Object> discounts;
     private String transactionNumber;
-    private int totalTaxAmount;
+    private double totalTaxAmount;
     private double loyaltyPoint;
     private int pointAmount;
     private double receivedAmount;
