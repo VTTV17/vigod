@@ -18,10 +18,13 @@ public class POSElement {
         return By.xpath("//code[text() = '%s']".formatted(productBarcode));
     }
 
-    By loc_txtCustomerSearchBox = By.xpath("#dropdownSuggestionCustomer input");
+    By loc_txtCustomerSearchBox = By.cssSelector("#dropdownSuggestionCustomer input");
 
     By loc_lstCustomerResult(int customerId) {
-        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(string(), '%s')]".formatted(customerId));
+        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(., '%s')]".formatted(customerId));
+    }
+    By loc_lstCustomerResult(String name) {
+    	return By.xpath("//*[contains(@class,'search-list__result')]//div[@class='full-name' and .=\"%s\"]".formatted(name));
     }
 
     By loc_txtProductQuantity(String productName) {
