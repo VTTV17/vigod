@@ -15,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
 import utilities.commons.UICommonAction;
+import utilities.model.dashboard.customer.create.CreateCustomerModel;
+import utilities.model.dashboard.customer.create.UICreateCustomerData;
+import utilities.model.dashboard.customer.create.UICreateCustomerData.UICreateCustomerDataBuilder;
 
 public class CreateCustomerPopup {
     public String customerName;
@@ -106,6 +109,23 @@ public class CreateCustomerPopup {
     	logger.info("Input Zip Code: {}", code);
     	return this;
     }
+    public CreateCustomerPopup fillVNAddress(String country, String address, String province, String district, String ward) {
+    	selectCountry(country);
+    	inputAddress1(address);
+    	selectProvinceState(province);
+    	selectDistrict(district);
+    	selectWard(ward);
+    	return this;
+    }    
+    public CreateCustomerPopup fillForeignAddress(String country, String address, String address2, String province, String city, String zipCode) {
+    	selectCountry(country);
+    	inputAddress1(address);
+    	inputAddress2(address2);
+    	selectProvinceState(province);
+    	inputCity(city);
+    	inputZipCode(zipCode);
+    	return this;
+    }     
     public CreateCustomerPopup clickCustomerCreationCheckbox() {
     	commons.click(elements.loc_chkCustomerCreation);
     	logger.info("Clicked Customer Creation checkbox");
@@ -141,6 +161,26 @@ public class CreateCustomerPopup {
     	return this;
     }
 
+    public CreateCustomerPopup createCustomer(UICreateCustomerData data) {
+    	inputCustomerName(data.getName());
+    	inputCustomerPhone(data.getPhone());
+    	inputEmail(data.getEmail());
+    	//gender
+    	//birthday
+    	if(data.getCountry().contentEquals("Vietnam")) {
+    		fillVNAddress(data.getCountry(), data.getAddress(), data.getProvince(), data.getDistrict(), data.getWard());
+    	} else {
+    		fillForeignAddress(data.getCountry(), data.getAddress(), data.getAddress2(), data.getProvince(), data.getCity(), data.getZipCode());
+    	}
+    	
+    	inputTags(data.getTags());
+
+    	//note
+    	
+    	clickCustomerCreationCheckbox(); // Remember to check status before the click
+    	return this;
+    }    
+    
     public void clickAddBtn() {
         commons.click(elements.loc_btnAdd);
         logger.info("Clicked Add button");
