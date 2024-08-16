@@ -272,7 +272,7 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void hideRemainingStockOnOnlineStore() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(loc_chkHideRemainingStock);
+        boolean status = productInfo.isHideStock();
 
         // Hide remaining stock on online store config
         if (!Objects.equals(hideRemainingStock, status)) commonMobile.click(loc_chkHideRemainingStock);
@@ -287,7 +287,7 @@ public class EditProductScreen extends EditProductElement {
     @SneakyThrows
     void displayIfOutOfStock() {
         // Get current checkbox status
-        boolean status = commonMobile.isChecked(loc_chkDisplayIfOutOfStock);
+        boolean status = productInfo.getShowOutOfStock();
 
         // Add display out of stock config
         if (!Objects.equals(showOutOfStock, status)) commonMobile.click(loc_chkDisplayIfOutOfStock);
@@ -302,7 +302,7 @@ public class EditProductScreen extends EditProductElement {
     void manageProductByLot() {
         if (!manageByIMEI) {
             // Get current manage by lot checkbox status
-            boolean status = !commonMobile.isEnabled(loc_chkManageStockByLotDate);
+            boolean status = productInfo.getLotAvailable();
 
             // Manage product by lot
             if (manageByLot && !status) commonMobile.click(loc_chkManageStockByLotDate);
