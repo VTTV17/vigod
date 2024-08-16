@@ -84,7 +84,7 @@ public class HomePage extends HomePageElement {
         map.put("Discount", "component.navigation.promotion.discount");
         map.put("Flash Sale", "component.navigation.promotion.flashsale");
         map.put("Customers", "component.navigation.customers");
-        map.put("All Customers", "component.navigation.customers.allCustomers");
+        map.put("All Customers", "component.navigation.customers");
         map.put("Segments", "component.navigation.customers.segments");
         map.put("Call Center", "component.navigation.callCenter");
         map.put("Call History", "component.navigation.callCenter.history");

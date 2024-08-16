@@ -46,7 +46,7 @@ public class CustomerTest {
 		storeId = new Login().getInfo(credentials).getStoreID();
 	}	
 
-	@Test
+	@Test(invocationCount = 20)
 	public void createCustomerVN() {
 
 		CreateCustomerModel data = CreateCustomerTDG.generateVNCustomer(storeName);
@@ -55,76 +55,43 @@ public class CustomerTest {
 
 		JsonPath createResponse = createCustomerAPI.createCustomer(data).jsonPath();
 
-		String actualPhoneCode = createResponse.get("phones[0].phoneCode");
-		String actualPhoneName = createResponse.get("phones[0].phoneName");
-		String actualPhoneNumber = createResponse.get("phones[0].phoneNumber");
-		String actualPhoneType = createResponse.get("phones[0].phoneType");
 
+		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), createResponse.get("phoneCode"));
+		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), createResponse.get("phones[0].phoneCode"));
+		Assert.assertEquals(data.getName(), createResponse.get("phones[0].phoneName"));
+		Assert.assertEquals(data.getPhones().get(0).getPhoneNumber(), createResponse.get("phones[0].phoneNumber"));
+		Assert.assertEquals(data.getPhones().get(0).getPhoneType(), createResponse.get("phones[0].phoneType"));
 
-		List<String> actualEmail = createResponse.get("emails.collect{ it -> it.email }");
-		List<String> actualEmailName = createResponse.get("emails.collect{ it -> it.emailName }");
-		List<String> actualEmailType = createResponse.get("emails.collect{ it -> it.emailType }");
+		Assert.assertEquals(data.getEmails().getEmail(), createResponse.getList("emails.collect{ it -> it.email }").get(0));
+		Assert.assertEquals(data.getEmails().getEmailName(), createResponse.getList("emails.collect{ it -> it.emailName }").get(0));
+		Assert.assertEquals(data.getEmails().getEmailType(), createResponse.getList("emails.collect{ it -> it.emailType }").get(0));
 
-		String actualFullName = createResponse.get("fullName");
+		Assert.assertEquals(data.getName(), createResponse.get("fullName"));
 
-		int actualStoreId = createResponse.get("storeId");
+		Assert.assertEquals(storeId, (int)createResponse.get("storeId"));
 
-		String actualUselessPhoneCode = createResponse.get("phoneCode");
+		Assert.assertEquals("GOSELL", createResponse.get("saleChannel"));
 
-		String actualSaleChannel = createResponse.get("saleChannel");
+		Assert.assertEquals(data.getNote(), createResponse.get("note"));
+		Assert.assertEquals(data.getTags(), createResponse.get("tags.collect{ it -> it.value }"));
 
-		//Check if present
-		String actualNote = createResponse.get("note");
-		List<String> actualTags = createResponse.get("tags.collect{ it -> it.value }");
+		Assert.assertEquals(!data.getIsCreateUser(), Boolean.valueOf(createResponse.getBoolean("guest")));
 
-		boolean isGuest = createResponse.get("guest");
+		Assert.assertEquals(data.getAddress(), createResponse.get("customerAddress.address"));
+		Assert.assertEquals(data.getCountryCode(), createResponse.get("customerAddress.countryCode"));
+		Assert.assertEquals(data.getLocationCode(), createResponse.get("customerAddress.locationCode"));
+		Assert.assertEquals(data.getDistrictCode(), createResponse.get("customerAddress.districtCode"));
+		Assert.assertEquals(data.getWardCode(), createResponse.get("customerAddress.wardCode"));
 
-		String actualGender = createResponse.get("gender");
-
-		String actualAddress = createResponse.get("customerAddress.address");
-		String actualAddressCountryCode = createResponse.get("customerAddress.countryCode");
-		String actualAddressLocationCode = createResponse.get("customerAddress.locationCode");
-		String actualAddressDistrictCode = createResponse.get("customerAddress.districtCode");
-		String actualAddressWardCode = createResponse.get("customerAddress.wardCode");
-
-		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), actualUselessPhoneCode);
-		
-		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), actualPhoneCode);
-		Assert.assertEquals(data.getName(), actualPhoneName);
-		Assert.assertEquals(data.getPhones().get(0).getPhoneNumber(), actualPhoneNumber);
-		Assert.assertEquals(data.getPhones().get(0).getPhoneType(), actualPhoneType);
-
-		Assert.assertEquals(data.getEmails().getEmail(), actualEmail.get(0));
-		Assert.assertEquals(data.getEmails().getEmailName(), actualEmailName.get(0));
-		Assert.assertEquals(data.getEmails().getEmailType(), actualEmailType.get(0));
-
-		Assert.assertEquals(data.getName(), actualFullName);
-
-		Assert.assertEquals(storeId, actualStoreId);
-
-		Assert.assertEquals("GOSELL", actualSaleChannel);
-
-		Assert.assertEquals(data.getNote(), actualNote);
-
-		Assert.assertEquals(data.getTags(), actualTags);
-
-		Assert.assertEquals(!data.getIsCreateUser(), Boolean.valueOf(isGuest));
-
-		Assert.assertEquals(data.getAddress(), actualAddress);
-		Assert.assertEquals(data.getCountryCode(), actualAddressCountryCode);
-		Assert.assertEquals(data.getLocationCode(), actualAddressLocationCode);
-		Assert.assertEquals(data.getDistrictCode(), actualAddressDistrictCode);
-		Assert.assertEquals(data.getWardCode(), actualAddressWardCode);
-
-		Assert.assertEquals(data.getGender(), actualGender);
+		Assert.assertEquals(data.getGender(), createResponse.get("gender"));
 
 		Assert.assertTrue(new APIAllCustomers(credentials).getAllCustomerNames().contains(data.getName()));
 
 		System.out.println();
 	}
 
-	@Test
-	public void createCustomerForeign() {
+	@Test(invocationCount = 20)
+	public void createCustomerForeign() throws InterruptedException {
 
 		CreateCustomerModel data = CreateCustomerTDG.generateForeignCustomer(storeName);
 
@@ -132,70 +99,38 @@ public class CustomerTest {
 
 		JsonPath createResponse = createCustomerAPI.createCustomer(data).jsonPath();
 
-		String actualPhoneCode = createResponse.get("phones[0].phoneCode");
-		String actualPhoneName = createResponse.get("phones[0].phoneName");
-		String actualPhoneNumber = createResponse.get("phones[0].phoneNumber");
-		String actualPhoneType = createResponse.get("phones[0].phoneType");
-
-		List<String> actualEmail = createResponse.get("emails.collect{ it -> it.email }");
-		List<String> actualEmailName = createResponse.get("emails.collect{ it -> it.emailName }");
-		List<String> actualEmailType = createResponse.get("emails.collect{ it -> it.emailType }");
-
-		String actualFullName = createResponse.get("fullName");
-
-		int actualStoreId = createResponse.get("storeId");
-
-		String actualUselessPhoneCode = createResponse.get("phoneCode");
-
-		String actualSaleChannel = createResponse.get("saleChannel");
-
-		//Check if present
-		String actualNote = createResponse.get("note");
-		List<String> actualTags = createResponse.get("tags.collect{ it -> it.value }");
-
-		boolean isGuest = createResponse.get("guest");
-
-		String actualAddress = createResponse.get("customerAddress.address");
-		String actualAddress2 = createResponse.get("customerAddress.address2");
-		String actualAddressCountryCode = createResponse.get("customerAddress.countryCode");
-		String actualAddressLocationCode = createResponse.get("customerAddress.locationCode");
-		String actualAddressDistrictCode = createResponse.get("customerAddress.districtCode");
-		String actualAddressWardCode = createResponse.get("customerAddress.wardCode");
-
-		String actualGender = createResponse.get("gender");
-
-		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), actualUselessPhoneCode);
 		
-		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), actualPhoneCode);
-		Assert.assertEquals(data.getName(), actualPhoneName);
-		Assert.assertEquals(data.getPhones().get(0).getPhoneNumber(), actualPhoneNumber);
-		Assert.assertEquals(data.getPhones().get(0).getPhoneType(), actualPhoneType);
+		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), createResponse.get("phoneCode"));
+		Assert.assertEquals(data.getPhones().get(0).getPhoneCode(), createResponse.get("phones[0].phoneCode"));
+		Assert.assertEquals(data.getName(), createResponse.get("phones[0].phoneName"));
+		Assert.assertEquals(data.getPhones().get(0).getPhoneNumber(), createResponse.get("phones[0].phoneNumber"));
+		Assert.assertEquals(data.getPhones().get(0).getPhoneType(), createResponse.get("phones[0].phoneType"));
 
-		Assert.assertEquals(data.getEmails().getEmail(), actualEmail.get(0));
-		Assert.assertEquals(data.getEmails().getEmailName(), actualEmailName.get(0));
-		Assert.assertEquals(data.getEmails().getEmailType(), actualEmailType.get(0));
+		Assert.assertEquals(data.getEmails().getEmail(), createResponse.getList("emails.collect{ it -> it.email }").get(0));
+		Assert.assertEquals(data.getEmails().getEmailName(), createResponse.getList("emails.collect{ it -> it.emailName }").get(0));
+		Assert.assertEquals(data.getEmails().getEmailType(), createResponse.getList("emails.collect{ it -> it.emailType }").get(0));
 
-		Assert.assertEquals(data.getName(), actualFullName);
+		Assert.assertEquals(data.getName(), createResponse.get("fullName"));
 
-		Assert.assertEquals(storeId, actualStoreId);
+		Assert.assertEquals(storeId, (int)createResponse.get("storeId"));
 
-		Assert.assertEquals("GOSELL", actualSaleChannel);
+		Assert.assertEquals("GOSELL", createResponse.get("saleChannel"));
 
-		Assert.assertEquals(data.getNote(), actualNote);
+		Assert.assertEquals(data.getNote(), createResponse.get("note"));
+		Assert.assertEquals(data.getTags(), createResponse.get("tags.collect{ it -> it.value }"));
 
-		Assert.assertEquals(data.getTags(), actualTags);
+		Assert.assertEquals(!data.getIsCreateUser(), Boolean.valueOf(createResponse.getBoolean("guest")));
 
-		Assert.assertEquals(!data.getIsCreateUser(), Boolean.valueOf(isGuest));
+		Assert.assertEquals(data.getAddress(), createResponse.get("customerAddress.address"));
+		Assert.assertEquals(data.getAddress2(), createResponse.get("customerAddress.address2"));
+		Assert.assertEquals(data.getCountryCode(), createResponse.get("customerAddress.countryCode"));
+		Assert.assertEquals(data.getLocationCode(), createResponse.get("customerAddress.locationCode"));
+		Assert.assertEquals("", createResponse.get("customerAddress.districtCode"));
+		Assert.assertEquals("", createResponse.get("customerAddress.wardCode"));
 
-		Assert.assertEquals(data.getAddress(), actualAddress);
-		Assert.assertEquals(data.getAddress2(), actualAddress2);
-		Assert.assertEquals(data.getCountryCode(), actualAddressCountryCode);
-		Assert.assertEquals(data.getLocationCode(), actualAddressLocationCode);
-		Assert.assertEquals("", actualAddressDistrictCode);
-		Assert.assertEquals("", actualAddressWardCode);
-
-		Assert.assertEquals(data.getGender(), actualGender);
-
+		Assert.assertEquals(data.getGender(), createResponse.get("gender"));
+		
+		Thread.sleep(500); //Sometimes it takes longer for the newly created customer to be included in the All Customer list
 		Assert.assertTrue(new APIAllCustomers(credentials).getAllCustomerNames().contains(data.getName()));
 
 	}
@@ -205,8 +140,7 @@ public class CustomerTest {
 
 		APIAllCustomers allCustomerAPI = new APIAllCustomers(credentials);
 
-//		allCustomerAPI.deleteProfiles(allCustomerAPI.getAllCustomerIds());
-		allCustomerAPI.deleteProfiles(List.of(4990871));
+		allCustomerAPI.deleteProfiles(allCustomerAPI.getAllCustomerIds());
 	}	
 
 	@Test
@@ -257,7 +191,7 @@ public class CustomerTest {
 
 		APIEditCustomer editCustomerAPI = new APIEditCustomer(credentials);
 
-		Response result = editCustomerAPI.addMoreTagForCustomer(4976117, tags);
+		Response result = editCustomerAPI.addMoreTagForCustomer(4997181, tags);
 		
 		List<String> actualTags = result.jsonPath().get("tags.collect{ it -> it.value }");
 		
@@ -269,7 +203,7 @@ public class CustomerTest {
 
 		APIEditCustomer editCustomerAPI = new APIEditCustomer(credentials);
 
-		EditCustomerModel editPayload = editCustomerAPI.getPayLoadFormat(4976117);
+		EditCustomerModel editPayload = editCustomerAPI.getPayLoadFormat(4997181);
 		editPayload.setTags(List.of());
 		
 		Response result = editCustomerAPI.updateCustomerInfo(editPayload);
@@ -408,7 +342,6 @@ public class CustomerTest {
 		
 	}	
 	
-	@Test
 	public void getCustomerOrder() throws JsonProcessingException {
 		
 		credentials = new Login().setLoginInformation("tienvan-staging-vn@mailnesia.com", "fortesting!1").getLoginInformation();
