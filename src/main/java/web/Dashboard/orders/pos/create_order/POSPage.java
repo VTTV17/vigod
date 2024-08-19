@@ -1,8 +1,10 @@
 package web.Dashboard.orders.pos.create_order;
 
 import api.Seller.marketing.LoyaltyPoint;
-import api.Seller.orders.pos.APIPOSApplyDiscount;
+import api.Seller.products.all_products.APIProductConversionUnit;
+import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitItem;
 import api.Seller.products.all_products.APIProductDetailV2;
+import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,7 +14,6 @@ import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
-import utilities.model.dashboard.marketing.loyaltyProgram.LoyaltyProgramInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
@@ -23,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -35,12 +37,14 @@ public class POSPage extends POSElement {
     UICommonAction commonAction;
     Logger logger = LogManager.getLogger();
     LoginInformation loginInformation;
+
     public POSPage(WebDriver driver) {
         this.driver = driver;
         assertCustomize = new AssertCustomize(driver);
         commonAction = new UICommonAction(driver);
     }
-    public POSPage getLoginInfo(LoginInformation loginInformation){
+
+    public POSPage getLoginInfo(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
         return this;
     }
@@ -54,7 +58,12 @@ public class POSPage extends POSElement {
         return this;
     }
 
+    private String branchName;
+
     void selectBranch(String branchName) {
+        // Get branchName for calculate stock in branch
+        this.branchName = branchName;
+
         // Open branch dropdown
         commonAction.clickJS(loc_ddvSelectedBranch);
 
@@ -70,11 +79,11 @@ public class POSPage extends POSElement {
         logger.info("Select branch: {}", branchName);
     }
 
-    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds, int quantity) {
+    public void selectProduct(LoginInformation loginInformation, List<Integer> productIds) {
         // Select product
         productIds.forEach(productId -> {
             // Get product information
-            APIProductDetailV2.ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
+            ProductInfoV2 infoV2 = new APIProductDetailV2(loginInformation).getInfo(productId);
 
             // Search product
             commonAction.sendKeys(loc_txtProductSearchBox, infoV2.getName());
@@ -82,84 +91,128 @@ public class POSPage extends POSElement {
             // Log
             logger.info("Search product, keyword: {}", infoV2.getName());
 
-            // Select product/variations
-            infoV2.getBarcodeList().forEach(barcode -> {
-                // Add product/variation to cart
-                commonAction.clickJS(loc_lstProductResult(barcode));
+            // Get list conversion unit
+            List<ConversionUnitItem> unitItems = new APIProductConversionUnit(loginInformation).getItemConversionUnit(productId);
 
-                // Wait API response
-                commonAction.sleepInMiliSecond(500, "Wait product/variation is added to cart");
+            // If product has conversion unit, only add conversion unit
+            if (unitItems.isEmpty()) {
+                // Select product/variations
+                infoV2.getBarcodeList().forEach(barcode -> {
+                    // Get current stock in branch
+                    int currentStock = infoV2.getProductStockQuantityMap()
+                            .get(infoV2.isHasModel()
+                                    ? infoV2.getVariationModelList()
+                                    .get(infoV2.getBarcodeList().indexOf(barcode))
+                                    : infoV2.getId())
+                            .get(new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName));
+
+                    // Add product/variation to cart
+                    addProductToCart(loginInformation, infoV2, barcode, currentStock, infoV2.getBarcodeList().indexOf(barcode), "-");
+                });
+            } else {
+                // Select conversion unit
+                unitItems.forEach(unit -> {
+                    // Get current stock
+                    int currentStock = infoV2.getProductStockQuantityMap()
+                                               .get(infoV2.isHasModel() ? unit.getModelId() : infoV2.getId())
+                                               .get(new BranchManagement(loginInformation).getInfo().getBranchName().indexOf(branchName))
+                                       / unit.getQuantity();
+
+                    // Add conversion unit to cart
+                    addProductToCart(loginInformation, infoV2, unit.getBarcode(), currentStock, infoV2.getVariationModelList().indexOf(unit.getModelId()), unit.getConversionUnitName());
+                });
+            }
+        });
+    }
+
+    void addProductToCart(LoginInformation loginInformation, ProductInfoV2 infoV2, String barcode, int currentStock, int varIndex, String unitName) {
+        // Check stock, only add to cart when in-stock
+        if (currentStock > 0) {
+            // Add conversion unit to cart
+            commonAction.clickJS(loc_lstProductResult(barcode));
+
+            // Wait API response
+            commonAction.sleepInMiliSecond(500, "Wait product/variation/conversion unit is added to cart");
+
+            // Log
+            logger.info("Add product/variation/conversion unit to cart, barcode: {}", barcode);
+
+            // Get product name
+            String productName = infoV2.getName();
+
+            // Get variation value
+            String variationValue = infoV2.isHasModel()
+                    ? infoV2.getVariationValuesMap()
+                        .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
+                        .get(varIndex).replace("|", " | ")
+                    : "";
+
+            // Get quantity
+            int quantity = nextInt(currentStock) + 1;
+
+            // Input quantity
+            commonAction.sendKeys(infoV2.isHasModel()
+                            ? loc_txtProductQuantity(productName, variationValue, unitName)
+                            : loc_txtProductQuantity(productName, unitName),
+                    String.valueOf(quantity));
+
+            // Select Lot if product quantity is managed by Lot
+            if (infoV2.isLotAvailable()) {
+                // Open Select Lot popup
+                commonAction.click(infoV2.isHasModel()
+                        ? loc_btnSelectLot(productName, variationValue, unitName)
+                        : loc_btnSelectLot(productName, unitName));
 
                 // Log
-                logger.info("Add product/variation to cart, barcode: {}", barcode);
+                logger.info("Open Select Lot popup");
 
-                // Get product name
-                String productName = infoV2.getName();
+                // Add lot quantity
+                commonAction.sendKeys(loc_dlgSelectLot_txtQuantity, String.valueOf(quantity));
 
-                // Get variation value
-                String variationValue = infoV2.isHasModel()
-                        ? infoV2.getVariationValuesMap()
-                        .get(new StoreInformation(loginInformation).getInfo().getDefaultLanguage())
-                        .get(infoV2.getBarcodeList().indexOf(barcode)).replace("|", " | ")
-                        : "";
+                // Log
+                logger.info("Select lot quantity: {}", quantity);
 
-                // Input quantity
-                commonAction.sendKeys(infoV2.isHasModel()
-                                ? loc_txtProductQuantity(productName, variationValue)
-                                : loc_txtProductQuantity(productName),
-                        String.valueOf(quantity));
+                // Save changes
+                commonAction.click(loc_dlgSelectLot_btnSave);
 
-                // Select IMEI if product is managed by IMEI
-                if (!infoV2.getInventoryManageType().equals("PRODUCT")) {
-                    // Open Select IMEI popup
-                    commonAction.click(infoV2.isHasModel()
-                            ? loc_btnSelectIMEI(productName, variationValue)
-                            : loc_btnSelectIMEI(productName));
+                // Log
+                logger.info("Close Select Lot popup");
+            }
 
-                    // Log
-                    logger.info("Open select IMEI popup");
+            // Select IMEI if product is managed by IMEI
+            if (!infoV2.getInventoryManageType().equals("PRODUCT")) {
+                // Open Select IMEI popup
+                commonAction.click(infoV2.isHasModel()
+                        ? loc_btnSelectIMEI(productName, variationValue, unitName)
+                        : loc_btnSelectIMEI(productName, unitName));
 
-                    // Select IMEI
-                    IntStream.range(0, quantity)
-                            .mapToObj(imeiIndex -> commonAction.getText(loc_dlgSelectIMEI_lstIMEI)) // Get IMEI value
-                            .forEach(imeiValue -> {
-                                // Select IMEI
-                                commonAction.click(loc_dlgSelectIMEI_lstIMEI);
-                                // Log
-                                logger.info("Select IMEI: {}", imeiValue);
-                            });
+                // Log
+                logger.info("Open select IMEI popup");
 
-                    // Save changes
-                    commonAction.click(loc_dlgSelectIMEI_btnSave);
+                // Select IMEI
+                IntStream.range(0, quantity)
+                        .mapToObj(_ -> commonAction.getText(loc_dlgSelectIMEI_lstIMEI)) // Get IMEI value
+                        .forEach(imeiValue -> {
+                            // Select IMEI
+                            commonAction.click(loc_dlgSelectIMEI_lstIMEI);
+                            // Log
+                            logger.info("Select IMEI: {}", imeiValue);
+                        });
 
-                    // Log
-                    logger.info("Close Select IMEI popup");
-                }
+                // Save changes
+                commonAction.click(loc_dlgSelectIMEI_btnSave);
 
-                // Select Lot if product quantity is managed by Lot
-                if (infoV2.isLotAvailable()) {
-                    // Open Select Lot popup
-                    commonAction.click(infoV2.isHasModel()
-                            ? loc_btnSelectLot(productName, variationValue)
-                            : loc_btnSelectLot(productName));
+                // Log
+                logger.info("Close Select IMEI popup");
+            }
 
-                    // Log
-                    logger.info("Open Select Lot popup");
-
-                    // Add lot quantity
-                    commonAction.sendKeys(loc_dlgSelectLot_txtQuantity, String.valueOf(quantity));
-
-                    // Log
-                    logger.info("Select lot quantity: {}", quantity);
-
-                    // Save changes
-                    commonAction.click(loc_dlgSelectLot_btnSave);
-
-                    // Log
-                    logger.info("Close Select Lot popup");
-                }
-            });
-        });
+            // Log
+            logger.info("Add conversion unit to cart, productName: {}, variationValue: {}, unitName: {}, quantity: {}",
+                    productName,
+                    variationValue.isEmpty() ? "None" : variationValue,
+                    unitName.equals("-") ? "None" : unitName,
+                    quantity);
+        }
     }
 
     void addCustomer(int customerId) {
@@ -167,21 +220,18 @@ public class POSPage extends POSElement {
     }
 
     public POSPage selectCustomer(String name) {
-    	commonAction.inputText(loc_txtCustomerSearchBox, name);
-    	commonAction.click(loc_lstCustomerResult(name));
-    	return this;
-    }    
-    
-    public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds, int stockQuantity) {
-        // Get cart quantity
-        int cartQuantity = nextInt(stockQuantity) + 1;
+        commonAction.inputText(loc_txtCustomerSearchBox, name);
+        commonAction.click(loc_lstCustomerResult(name));
+        return this;
+    }
 
+    public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
         // Select branch
         String branchName = branchInfo.getBranchName().get(nextInt(branchInfo.getBranchName().size()));
         selectBranch(branchName);
 
         // Add product to cart
-        selectProduct(loginInformation, productIds, cartQuantity);
+        selectProduct(loginInformation, productIds);
 
         // Add customer
 
@@ -207,13 +257,13 @@ public class POSPage extends POSElement {
 
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
         double receiveAmount = 0;
-        switch (receivedAmountType){
+        switch (receivedAmountType) {
             case FULL -> {
                 double total = getTotalAmount();
                 receiveAmount = total;
             }
-            case PARTIAL ->{
-                double random = DataGenerator.generatNumberInBound(1000,getTotalAmount());
+            case PARTIAL -> {
+                double random = DataGenerator.generatNumberInBound(1000, getTotalAmount());
                 receiveAmount = random;
             }
         }
@@ -233,21 +283,20 @@ public class POSPage extends POSElement {
     public void selectPaymentMethod(POSPaymentMethod paymentMethod) {
         clickOnViewAllPayment();
         //wait popup show
-        commonAction.getElements(loc_lstPaymentMethod,2);
-        switch (paymentMethod){
-            case CASH ->{
-                if(!commonAction.getAttribute(loc_lstPaymentMethod,0,"class").contains("selected-item"))
-                    commonAction.click(loc_lstPaymentMethod,0);
+        commonAction.getElements(loc_lstPaymentMethod, 2);
+        switch (paymentMethod) {
+            case CASH -> {
+                if (!commonAction.getAttribute(loc_lstPaymentMethod, 0, "class").contains("selected-item"))
+                    commonAction.click(loc_lstPaymentMethod, 0);
             }
             case BANKTRANSFER -> {
-                if(!commonAction.getAttribute(loc_lstPaymentMethod,1,"class").contains("selected-item"))
-                    commonAction.click(loc_lstPaymentMethod,1);
+                if (!commonAction.getAttribute(loc_lstPaymentMethod, 1, "class").contains("selected-item"))
+                    commonAction.click(loc_lstPaymentMethod, 1);
             }
             case POS -> {
-                if(!commonAction.getAttribute(loc_lstPaymentMethod,2,"class").contains("selected-item"))
-                {
-                    commonAction.click(loc_lstPaymentMethod,2);
-                    commonAction.inputText(loc_txtPOSReceiptCode,new DataGenerator().generateString(10));
+                if (!commonAction.getAttribute(loc_lstPaymentMethod, 2, "class").contains("selected-item")) {
+                    commonAction.click(loc_lstPaymentMethod, 2);
+                    commonAction.inputText(loc_txtPOSReceiptCode, new DataGenerator().generateString(10));
                 }
             }
         }
@@ -255,13 +304,14 @@ public class POSPage extends POSElement {
         new HomePage(driver).waitTillLoadingDotsDisappear();
         logger.info("Select payment method: {}", paymentMethod);
     }
+
     public void configApplyEarningPoint(boolean isApply) {
-        if(!commonAction.getElements(loc_chkNotApplyEarningPoint,1).isEmpty()) {
+        if (!commonAction.getElements(loc_chkNotApplyEarningPoint, 1).isEmpty()) {
             if (!isApply)
                 commonAction.checkTheCheckBoxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
             else commonAction.uncheckTheCheckboxOrRadio(loc_chkNotApplyEarningPoint, loc_lblNotApplyEarningPoint);
             logger.info("Config apply earning point: " + isApply);
-        }else try {
+        } else try {
             throw new Exception("Not apply earning point checkbox not show.");
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -326,42 +376,49 @@ public class POSPage extends POSElement {
         // Log
         logger.info("Close Discount popup");
     }
-    public void inputUsePoint(int point){
-        if(!commonAction.getAttribute(loc_chkUsePointValue,"class").contains("checked")) commonAction.click(loc_chkUsePointAction);
-        commonAction.inputText(loc_txtInputPoint,String.valueOf(point));
+
+    public void inputUsePoint(int point) {
+        if (!commonAction.getAttribute(loc_chkUsePointValue, "class").contains("checked"))
+            commonAction.click(loc_chkUsePointAction);
+        commonAction.inputText(loc_txtInputPoint, String.valueOf(point));
     }
-    enum UsePointType{
+
+    enum UsePointType {
         SERVERAL, MAX_ORDER, MAX_AVAILABLE
     }
-    public int redeemPointNeedForTotal(){
+
+    public int redeemPointNeedForTotal() {
         LoyaltyPointInfo loyaltyPointInfo = new LoyaltyPoint(loginInformation).getLoyaltyPointSetting();
         Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
-        return (int) (getTotalAmount()/exchangeAmount);
+        return (int) (getTotalAmount() / exchangeAmount);
     }
-    public int inputUsePoint(UsePointType usePointType){
+
+    public int inputUsePoint(UsePointType usePointType) {
         int point = 0;
         int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
-        switch (usePointType){
+        switch (usePointType) {
             case SERVERAL -> {
-                point = point>1? DataGenerator.generatNumberInBound(1,availablePoint-1): 1;
+                point = point > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
             }
-            case MAX_AVAILABLE,MAX_ORDER ->{
+            case MAX_AVAILABLE, MAX_ORDER -> {
                 int redeemPointNeed = redeemPointNeedForTotal();
-                point = availablePoint> redeemPointNeed? redeemPointNeed: availablePoint;
+                point = availablePoint > redeemPointNeed ? redeemPointNeed : availablePoint;
             }
         }
         inputUsePoint(point);
         return point;
     }
-    public void clickPrintOrderIcon(){
+
+    public void clickPrintOrderIcon() {
         commonAction.click(loc_btnPrintOrder);
         logger.info("Click on Print Order icon.");
     }
-    public void enableDisablePrint(boolean isEnable){
+
+    public void enableDisablePrint(boolean isEnable) {
         clickPrintOrderIcon();
-        if(isEnable){
-            commonAction.checkTheCheckBoxOrRadio(loc_btnPrintReceiptValue,loc_btnPrintnReceiptAction);
-        }else commonAction.uncheckTheCheckboxOrRadio(loc_btnPrintReceiptValue,loc_btnPrintnReceiptAction);
+        if (isEnable) {
+            commonAction.checkTheCheckBoxOrRadio(loc_btnPrintReceiptValue, loc_btnPrintnReceiptAction);
+        } else commonAction.uncheckTheCheckboxOrRadio(loc_btnPrintReceiptValue, loc_btnPrintnReceiptAction);
         new ConfirmationDialog(driver).clickGreenBtn();
     }
 
