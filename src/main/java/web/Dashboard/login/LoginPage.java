@@ -17,6 +17,7 @@ import web.Dashboard.home.HomePage;
 import utilities.thirdparty.Facebook;
 import utilities.utils.PropertiesUtil;
 import utilities.commons.UICommonAction;
+import utilities.enums.DisplayLanguage;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
@@ -153,20 +154,23 @@ public class LoginPage {
      * @param either "ENG" or "VIE"
      */
     public LoginPage selectDisplayLanguage(String language) {
-    	if (getSelectedLanguage().contentEquals(language)) return this;
-
+    	return selectDisplayLanguage(DisplayLanguage.valueOf(language));
+    }
+    public LoginPage selectDisplayLanguage(DisplayLanguage language) {
+    	if (getSelectedLanguage().equals(language.name())) return this;
+    	
     	commonAction.click(loc_ddlLanguage);
-        if (!language.contentEquals("ENG") && !language.contentEquals("VIE")) {
-        	language = "ENG";
-        	logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
-        }
-        
-        commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
-        
-        commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
-        logger.info("Selected display language '%s'.".formatted(language));
-        commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
-        return this;
+    	commonAction.sleepInMiliSecond(500, "Not sure why sometimes the page is white without this sleep");
+    	
+    	if (!language.equals(DisplayLanguage.ENG) && !language.equals(DisplayLanguage.ENG)) {
+    		language = DisplayLanguage.ENG;
+    		logger.info("Input value does not match 'VIE' or 'ENG', so 'ENG' will be selected by default");
+    	}
+    	
+    	commonAction.click(By.xpath(loc_ddvLanguage.formatted(language)));
+    	logger.info("Selected display language '%s'.".formatted(language));
+    	commonAction.sleepInMiliSecond(200, "Wait a little after changing display language");
+    	return this;
     }
     
     public String getLoginFailError() {

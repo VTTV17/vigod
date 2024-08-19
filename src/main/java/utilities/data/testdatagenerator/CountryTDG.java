@@ -7,97 +7,95 @@ import utilities.data.DataGenerator;
 import utilities.model.dashboard.setupstore.CountryData;
 
 public class CountryTDG {
-	public static List<String> avoidedCountry() {
-		List<String> avoidedCountries = new ArrayList<>();
+	/**
+	 * <p>These countries are excluded from country pool for automation as their phone doesn't comply to GoSELL's phone criteria
+	 * (Eg. phone number length is not in the range of (8, 15))
+	 */
+	public static List<String> excludedCountries; 
+	static {
+		excludedCountries = new ArrayList<>();
 		//these countries have phone numbers of less than 8 digits
-		avoidedCountries.add("Aland Islands");
-		avoidedCountries.add("Andorra");
-		avoidedCountries.add("Aruba");
-		avoidedCountries.add("Belize");
-		avoidedCountries.add("Bonaire, Sint Eustatius and Saba");
-		avoidedCountries.add("British Indian Ocean Territory");
-		avoidedCountries.add("Brunei");
-		avoidedCountries.add("Cape Verde");
-		avoidedCountries.add("Comoros");
-		avoidedCountries.add("Cook Islands");
-		avoidedCountries.add("Eritrea");
-		avoidedCountries.add("Estonia");
-		avoidedCountries.add("Falkland Islands");
-		avoidedCountries.add("Faroe Islands");
-		avoidedCountries.add("Fiji Islands");
-		avoidedCountries.add("Gabon");
-		avoidedCountries.add("Gambia The");
-		avoidedCountries.add("Greenland");
-		avoidedCountries.add("Guyana");
-		avoidedCountries.add("Iceland");
-		avoidedCountries.add("Liberia");
-		avoidedCountries.add("Liechtenstein");
-		avoidedCountries.add("Maldives");
-		avoidedCountries.add("Marshall Islands");
-		avoidedCountries.add("Micronesia");
-		avoidedCountries.add("Nauru");
-		avoidedCountries.add("New Caledonia");
-		avoidedCountries.add("Niue");
-		avoidedCountries.add("Norfolk Island");
-		avoidedCountries.add("Palau");
-		avoidedCountries.add("Panama");
-		avoidedCountries.add("Saint Helena");
-		avoidedCountries.add("Saint Pierre and Miquelon");
-		avoidedCountries.add("Sao Tome and Principe");
-		avoidedCountries.add("Seychelles");
-		avoidedCountries.add("Solomon Islands");
-		avoidedCountries.add("Suriname");
-		avoidedCountries.add("Tokelau");
-		avoidedCountries.add("Tonga");
-		avoidedCountries.add("Tuvalu");
-		avoidedCountries.add("Vanuatu");
-		avoidedCountries.add("Wallis And Futuna Islands");
+		excludedCountries.add("Aland Islands");
+		excludedCountries.add("Andorra");
+		excludedCountries.add("Aruba");
+		excludedCountries.add("Belize");
+		excludedCountries.add("Bonaire, Sint Eustatius and Saba");
+		excludedCountries.add("British Indian Ocean Territory");
+		excludedCountries.add("Brunei");
+		excludedCountries.add("Cape Verde");
+		excludedCountries.add("Comoros");
+		excludedCountries.add("Cook Islands");
+		excludedCountries.add("Eritrea");
+		excludedCountries.add("Estonia");
+		excludedCountries.add("Falkland Islands");
+		excludedCountries.add("Faroe Islands");
+		excludedCountries.add("Fiji Islands");
+		excludedCountries.add("Gabon");
+		excludedCountries.add("Gambia The");
+		excludedCountries.add("Greenland");
+		excludedCountries.add("Guyana");
+		excludedCountries.add("Iceland");
+		excludedCountries.add("Liberia");
+		excludedCountries.add("Liechtenstein");
+		excludedCountries.add("Maldives");
+		excludedCountries.add("Marshall Islands");
+		excludedCountries.add("Micronesia");
+		excludedCountries.add("Nauru");
+		excludedCountries.add("New Caledonia");
+		excludedCountries.add("Niue");
+		excludedCountries.add("Norfolk Island");
+		excludedCountries.add("Palau");
+		excludedCountries.add("Panama");
+		excludedCountries.add("Saint Helena");
+		excludedCountries.add("Saint Pierre and Miquelon");
+		excludedCountries.add("Sao Tome and Principe");
+		excludedCountries.add("Seychelles");
+		excludedCountries.add("Solomon Islands");
+		excludedCountries.add("Suriname");
+		excludedCountries.add("Tokelau");
+		excludedCountries.add("Tonga");
+		excludedCountries.add("Tuvalu");
+		excludedCountries.add("Vanuatu");
+		excludedCountries.add("Wallis And Futuna Islands");
 		//they don't actually have valid phone numbers
-		avoidedCountries.add("Bouvet Island");
-		avoidedCountries.add("French Southern Territories");
-		avoidedCountries.add("Heard Island and McDonald Islands");
-		avoidedCountries.add("Pitcairn Island");
-		avoidedCountries.add("United States Minor Outlying Islands");
-		avoidedCountries.add("Antarctica");
-		avoidedCountries.add("South Georgia");
-		
-		return avoidedCountries;
+		excludedCountries.add("Bouvet Island");
+		excludedCountries.add("French Southern Territories");
+		excludedCountries.add("Heard Island and McDonald Islands");
+		excludedCountries.add("Pitcairn Island");
+		excludedCountries.add("United States Minor Outlying Islands");
+		excludedCountries.add("Antarctica");
+		excludedCountries.add("South Georgia");
 	}
 	
 	/**
-	 * <p>Retrieves a random CountryData DTO to create stores excluding countries in the list of avoided countries
+	 * <p>Retrieves a random CountryData DTO to create stores excluding countries in the list of excluded countries
 	 * <p>Countries having null timezone/language will also be excluded
 	 * @return CountryData DTO
 	 */
 	public static CountryData randomStoreCountry() {
-		CountryData countryEntity = null;
-		for (int i=0; i<500; i++) {
-			countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
-			
-			//Temporarily skip these country as they have valid phone numbers
-			if(avoidedCountry().contains(countryEntity.getOut_country())) continue;
-			
-			//Temporarily skip this country as its timezone is defined as null in our database
-			if (countryEntity.getTimezone()==null) continue;
-			//Temporarily skip this country as its language is defined as null in our database
-			if (countryEntity.getLanguage()==null) continue;
-			break;
-		}
-		return countryEntity;
+	    CountryData countryEntity;
+	    int attempts = 0;
+	    do {
+	        countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
+	        attempts++;
+	    } while ((excludedCountries.contains(countryEntity.getOut_country()) ||
+	              countryEntity.getTimezone() == null ||
+	              countryEntity.getLanguage() == null) && attempts < 500);
+	    return countryEntity;
 	}	
 	
 	/**
-	 * <p>Retrieves a random CountryData DTO to create customers excluding countries in the list of avoided countries.
+	 * <p>Retrieves a random CountryData DTO to create customers excluding countries in the list of excluded countries.
 	 * @return CountryData DTO
 	 */
 	public static CountryData randomCustomerCountry() {
-		CountryData countryEntity = null;
-		for (int i=0; i<500; i++) {
-			countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
-			if(avoidedCountry().contains(countryEntity.getOut_country())) continue;
-			break;
-		}
-		return countryEntity;
+	    CountryData countryEntity;
+	    int attempts = 0;
+	    do {
+	        countryEntity = DataGenerator.getRandomListElement(DataGenerator.getCountryListExp());
+	        attempts++;
+	    } while (excludedCountries.contains(countryEntity.getOut_country()) && attempts < 500);
+	    return countryEntity;
 	}	
 	
 }
