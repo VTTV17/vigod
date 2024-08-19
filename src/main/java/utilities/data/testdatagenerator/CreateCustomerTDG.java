@@ -9,6 +9,7 @@ import com.mifmif.common.regex.Generex;
 
 import api.catalog.APICatalog;
 import utilities.data.DataGenerator;
+import utilities.enums.DisplayLanguage;
 import utilities.model.dashboard.catalog.CityTree;
 import utilities.model.dashboard.catalog.District;
 import utilities.model.dashboard.catalog.Ward;
@@ -17,7 +18,6 @@ import utilities.model.dashboard.customer.CustomerGeoLocation;
 import utilities.model.dashboard.customer.CustomerPhone;
 import utilities.model.dashboard.customer.create.CreateCustomerModel;
 import utilities.model.dashboard.customer.create.UICreateCustomerData;
-import utilities.model.dashboard.customer.create.UICreateCustomerData.UICreateCustomerDataBuilder;
 
 public class CreateCustomerTDG {
 	
@@ -50,7 +50,6 @@ public class CreateCustomerTDG {
 		IntStream.range(0, tagCount).forEach(e -> tags.add(randomizePersonality() + String.valueOf(System.nanoTime()).replaceAll("0{2}$", "").replaceAll("^\\d{3}", "")));
 		return tags;
 	}	
-
 	
 	public static CreateCustomerModel generateVNCustomer(String storeName) {
 		String country = "Vietnam";
@@ -198,7 +197,7 @@ public class CreateCustomerTDG {
 	/**
 	 * @param dashboardDisplayLang VIE/ENG
 	 */
-	public static UICreateCustomerData buildVNCustomerUIData(String dashboardDisplayLang) {
+	public static UICreateCustomerData buildVNCustomerUIData(DisplayLanguage dashboardDisplayLang) {
 		String country = "Vietnam";
 		String countryCode = DataGenerator.getCountryCode(country);
 		String phoneNumber = "0" + DataGenerator.generatePhoneFromRegex("(?:5(?:2[238]|59)|89[6-9]|99[013-9])\\d{6}|(?:3\\d|5[689]|7[06-9]|8[1-8]|9[0-8])\\d{7}");
@@ -210,9 +209,9 @@ public class CreateCustomerTDG {
 		District district = DataGenerator.getRandomListElement(city.getDistricts());
 		Ward ward = DataGenerator.getRandomListElement(district.getWards());
 		
-		String cityName = dashboardDisplayLang.contentEquals("VIE") ? city.getInCountry() : city.getOutCountry(); 
-		String districtName = dashboardDisplayLang.contentEquals("VIE") ? district.getInCountry() : district.getOutCountry(); 
-		String wardName = dashboardDisplayLang.contentEquals("VIE") ? ward.getInCountry() : ward.getOutCountry();
+		String cityName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? city.getInCountry() : city.getOutCountry(); 
+		String districtName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? district.getInCountry() : district.getOutCountry(); 
+		String wardName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? ward.getInCountry() : ward.getOutCountry();
 		
 		return UICreateCustomerData.builder()
 				.name(customerName)
@@ -234,7 +233,7 @@ public class CreateCustomerTDG {
 	/**
 	 * @param dashboardDisplayLang VIE/ENG
 	 */
-	public static UICreateCustomerData buildForeignCustomerUIData(String dashboardDisplayLang) {
+	public static UICreateCustomerData buildForeignCustomerUIData(DisplayLanguage dashboardDisplayLang) {
 		
 		String country = CountryTDG.randomCustomerCountry().getOut_country();
 		String countryCode = DataGenerator.getCountryCode(country);
@@ -245,7 +244,7 @@ public class CreateCustomerTDG {
 		List<CityTree> cities = APICatalog.getCityTree(countryCode);
 		CityTree city = DataGenerator.getRandomListElement(cities);
 		
-		String cityName = city.getInCountry(); 
+		String cityName = dashboardDisplayLang.equals(DisplayLanguage.VIE) ? city.getInCountry() : city.getOutCountry(); 
 		
 		return UICreateCustomerData.builder()
 				.name(customerName)
