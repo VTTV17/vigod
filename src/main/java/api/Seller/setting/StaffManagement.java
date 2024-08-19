@@ -1,8 +1,6 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
@@ -12,14 +10,12 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class StaffManagement {
     String GET_STAFF_LIST = "/storeservice/api/store-staffs/store/%s?isEnabledCC=false&page=%s&size=100&sort=id,desc";
     API api = new API();
     LoginDashboardInfo loginInfo;
     LoginInformation loginInformation;
-    private static final Cache<String, AllStaffInformation> staffCache = CacheBuilder.newBuilder().build();
 
     public StaffManagement(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -44,44 +40,37 @@ public class StaffManagement {
     }
 
     AllStaffInformation getAllStaffInformation() {
-        AllStaffInformation info = staffCache.getIfPresent(loginInfo.getStaffPermissionToken());
-        if (Optional.ofNullable(info).isEmpty()) {
-            // init suggestion model
-            info = new AllStaffInformation();
+        AllStaffInformation info = new AllStaffInformation();
 
-            // init temp array
-            List<Integer> ids = new ArrayList<>();
-            List<Integer> userIds = new ArrayList<>();
-            List<String> emails = new ArrayList<>();
-            List<String> names = new ArrayList<>();
-            List<Boolean> enables = new ArrayList<>();
+        // init temp array
+        List<Integer> ids = new ArrayList<>();
+        List<Integer> userIds = new ArrayList<>();
+        List<String> emails = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<Boolean> enables = new ArrayList<>();
 
-            // get total products
-            int totalOfStaffs = Integer.parseInt(getAllStaffResponse(0).getHeader("X-Total-Count"));
+        // get total products
+        int totalOfStaffs = Integer.parseInt(getAllStaffResponse(0).getHeader("X-Total-Count"));
 
-            // get number of pages
-            int numberOfPages = totalOfStaffs / 100;
+        // get number of pages
+        int numberOfPages = totalOfStaffs / 100;
 
-            // get all staff info
-            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-                JsonPath jsonPath = getAllStaffResponse(pageIndex).jsonPath();
-                ids.addAll(jsonPath.getList("id"));
-                userIds.addAll(jsonPath.getList("userId"));
-                emails.addAll(jsonPath.getList("email"));
-                names.addAll(jsonPath.getList("name"));
-                enables.addAll(jsonPath.getList("enabled"));
-            }
-
-            // set permission group info
-            info.setIds(ids);
-            info.setUserIds(userIds);
-            info.setNames(names);
-            info.setEmails(emails);
-            info.setEnables(enables);
-
-            // save cache
-            staffCache.put(loginInfo.getAccessToken(), info);
+        // get all staff info
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+            JsonPath jsonPath = getAllStaffResponse(pageIndex).jsonPath();
+            ids.addAll(jsonPath.getList("id"));
+            userIds.addAll(jsonPath.getList("userId"));
+            emails.addAll(jsonPath.getList("email"));
+            names.addAll(jsonPath.getList("name"));
+            enables.addAll(jsonPath.getList("enabled"));
         }
+
+        // set permission group info
+        info.setIds(ids);
+        info.setUserIds(userIds);
+        info.setNames(names);
+        info.setEmails(emails);
+        info.setEnables(enables);
 
         // return model
         return info;

@@ -1,11 +1,11 @@
 package api.Seller.customers;
 
 import api.Seller.login.Login;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utilities.api.API;
 import utilities.model.dashboard.customer.CustomerInfo;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
@@ -13,15 +13,11 @@ import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class APIAllCustomers {
-	Logger logger = LogManager.getLogger(APIAllCustomers.class);
+    Logger logger = LogManager.getLogger(APIAllCustomers.class);
 
     String GET_LIST_SEGMENT_OF_CUSTOMER = "/beehiveservices/api/segments/%s/%s";
     String SEARCH_CUSTOMER_PATH = "/beehiveservices/api/customer-profiles/";
@@ -32,7 +28,6 @@ public class APIAllCustomers {
     LoginDashboardInfo loginInfo;
     API api = new API();
     LoginInformation loginInformation;
-    private final static Cache<String, CustomerManagementInfo> customerCache = CacheBuilder.newBuilder().build();
 
     public APIAllCustomers(LoginInformation loginInformation) {
         this.loginInformation = loginInformation;
@@ -52,55 +47,42 @@ public class APIAllCustomers {
     }
 
     public CustomerManagementInfo getCustomerManagementInfo() {
-        CustomerManagementInfo info = customerCache.getIfPresent(loginInfo.getStaffPermissionToken());
-        if (Optional.ofNullable(info).isEmpty()) {
-            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
-                CustomerManagementInfo tempInfo = customerCache.getIfPresent("");
-                customerCache.invalidateAll();
-                if (Optional.ofNullable(tempInfo).isPresent()) {
-                    customerCache.put("", tempInfo);
-                }
-            }
-            info = new CustomerManagementInfo();
-            int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
-            numberOfPages = Math.min(numberOfPages, 99);
+        CustomerManagementInfo info = new CustomerManagementInfo();
+        int numberOfPages = Integer.parseInt(getAllCustomerResponse(0).getHeader("X-Total-Count")) / 100;
+        numberOfPages = Math.min(numberOfPages, 99);
 
-            // init temp array;
-            List<String> customerName = new ArrayList<>();
-            List<Integer> customerId = new ArrayList<>();
-            List<String> userId = new ArrayList<>();
-            List<Integer> totalOrder = new ArrayList<>();
-            List<Float> debtAmount = new ArrayList<>();
-            List<String> saleChannel = new ArrayList<>();
-            List<Integer> responsibleStaffUserId = new ArrayList<>();
-            List<Boolean> guestUser = new ArrayList<>();
+        // init temp array;
+        List<String> customerName = new ArrayList<>();
+        List<Integer> customerId = new ArrayList<>();
+        List<String> userId = new ArrayList<>();
+        List<Integer> totalOrder = new ArrayList<>();
+        List<Float> debtAmount = new ArrayList<>();
+        List<String> saleChannel = new ArrayList<>();
+        List<Integer> responsibleStaffUserId = new ArrayList<>();
+        List<Boolean> guestUser = new ArrayList<>();
 
-            // get all customer info
-            for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
-                JsonPath jsonPath = getAllCustomerResponse(pageIndex).jsonPath();
-                customerName.addAll(jsonPath.getList("fullName"));
-                customerId.addAll(jsonPath.getList("id"));
-                userId.addAll(jsonPath.getList("userId"));
-                totalOrder.addAll(jsonPath.getList("totalOrder"));
-                debtAmount.addAll(jsonPath.getList("orderDebtSummary"));
-                saleChannel.addAll(jsonPath.getList("saleChannel"));
-                responsibleStaffUserId.addAll(jsonPath.getList("responsibleStaffUserId"));
-                guestUser.addAll(jsonPath.getList("guest"));
-            }
-
-            // set all customer info
-            info.setCustomerName(customerName);
-            info.setCustomerId(customerId);
-            info.setUserId(userId);
-            info.setTotalOrder(totalOrder);
-            info.setDebtAmount(debtAmount);
-            info.setSaleChannel(saleChannel);
-            info.setResponsibleStaffUserId(responsibleStaffUserId);
-            info.setGuestUser(guestUser);
-
-            // save cache
-            customerCache.put(loginInfo.getAccessToken(), info);
+        // get all customer info
+        for (int pageIndex = 0; pageIndex <= numberOfPages; pageIndex++) {
+            JsonPath jsonPath = getAllCustomerResponse(pageIndex).jsonPath();
+            customerName.addAll(jsonPath.getList("fullName"));
+            customerId.addAll(jsonPath.getList("id"));
+            userId.addAll(jsonPath.getList("userId"));
+            totalOrder.addAll(jsonPath.getList("totalOrder"));
+            debtAmount.addAll(jsonPath.getList("orderDebtSummary"));
+            saleChannel.addAll(jsonPath.getList("saleChannel"));
+            responsibleStaffUserId.addAll(jsonPath.getList("responsibleStaffUserId"));
+            guestUser.addAll(jsonPath.getList("guest"));
         }
+
+        // set all customer info
+        info.setCustomerName(customerName);
+        info.setCustomerId(customerId);
+        info.setUserId(userId);
+        info.setTotalOrder(totalOrder);
+        info.setDebtAmount(debtAmount);
+        info.setSaleChannel(saleChannel);
+        info.setResponsibleStaffUserId(responsibleStaffUserId);
+        info.setGuestUser(guestUser);
 
         return info;
     }
@@ -138,6 +120,7 @@ public class APIAllCustomers {
 
     /**
      * Retrieves a JsonPath object containing information about customers assigned to a specific staff member.
+     *
      * @param staffUserId The ID (userId) of the staff member whose assigned customers are to be retrieved.
      * @return A JsonPath object representing the retrieved customer data, enabling easy navigation and extraction of information.
      */
@@ -170,7 +153,7 @@ public class APIAllCustomers {
 
     public CustomerInfo getAccountCustomerForCreatePOS() {
         CustomerManagementInfo info = getCustomerManagementInfo();
-        List<Integer> customerId =  info.getCustomerId();
+        List<Integer> customerId = info.getCustomerId();
         List<String> customerName = info.getCustomerName();
         List<Boolean> guestUser = info.getGuestUser();
 
@@ -186,16 +169,16 @@ public class APIAllCustomers {
     }
 
     public void deleteProfiles(List<Integer> profileIds) {
-    	if (profileIds.size()==0) {
-    		logger.info("Input list of profile Ids is empty. Skipping deleteProfiles");
-    		return;
-    	}
-		String profileIdsString = profileIds.stream().map(String::valueOf).collect(Collectors.joining(","));
-    	String basePath = deleteProfilePath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<profileId>", String.valueOf(profileIdsString));
-    	String token = loginInfo.getAccessToken();
-    	
-    	api.delete(basePath, token);
-    	logger.info("Deleted customer segment with id: {}", profileIds);
-    }    
-    
+        if (profileIds.size() == 0) {
+            logger.info("Input list of profile Ids is empty. Skipping deleteProfiles");
+            return;
+        }
+        String profileIdsString = profileIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+        String basePath = deleteProfilePath.replaceAll("<storeId>", String.valueOf(loginInfo.getStoreID())).replaceAll("<profileId>", String.valueOf(profileIdsString));
+        String token = loginInfo.getAccessToken();
+
+        api.delete(basePath, token);
+        logger.info("Deleted customer segment with id: {}", profileIds);
+    }
+
 }
