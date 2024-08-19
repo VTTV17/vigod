@@ -24,16 +24,19 @@ public class BaseTest {
     public String browser;
     public String headless;
     public String language;
+    public String domain;
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "environment", "language"})
+    @Parameters({"browser", "headless", "environment", "language", "domain"})
     public void getConfig(@Optional("chrome") String browser,
-                   @Optional("true") String headless,
+                   @Optional("false") String headless,
                    @Optional("STAG") String environment,
-                   @Optional("VIE") String language) {
+                   @Optional("ENG") String language, 
+                   @Optional("VN") String domain ) { // either VN or BIZ
         this.browser = browser;
         this.headless = headless;
         this.language = language;
+        this.domain = domain;
         // set environment, language for Properties
         PropertiesUtil.setEnvironment(environment);
         PropertiesUtil.setDBLanguage(language);
