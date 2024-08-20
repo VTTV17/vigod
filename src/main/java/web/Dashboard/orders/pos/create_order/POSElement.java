@@ -80,4 +80,36 @@ public class POSElement {
     By loc_btnPrintOrder = By.cssSelector(".btn-print-order");
     By loc_btnPrintReceiptValue = By.cssSelector(".print-order__toggle input");
     By loc_btnPrintnReceiptAction = By.cssSelector(".modalPrintPos .print-order__toggle");
+    By loc_lst_tltTotalPromotionApply = By.cssSelector("#order-discount-detail-popover .align-items-center");
+    By loc_icnPromotionInfo = By.cssSelector(".group-promotion-inStore button");
+    By loc_lblPromotionValue = By.cssSelector(".value-promotion");
+    By loc_lblTaxValue = By.cssSelector(".value-tax");
+    By loc_lblShippingFee = By.cssSelector(".value-delivery");
+    By loc_lblSubTotalValue = By.cssSelector(".order-in-store-purchase-content__subTotal .align-self-baseline");
+    By loc_lst_lblProductName = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name");
+    By loc_lblVariationName (String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//following-sibling::span".formatted(productName));
+    }
+    By loc_lblSellingPriceForOne(String productName){
+        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[1]".formatted(productName));
+    }
+    By loc_lblSellingPriceAfterDiscountForOne(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'price']".formatted(productName));
+    }
+    By loc_lblUnit(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[contains(@class,'unit')]".formatted(productName));
+    }
+    By loc_lblSellingPriceTotal(String productName){
+        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[2]".formatted(productName));
+    }
+    By loc_lblPriceTotalAfterDiscount(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class='total-price']".formatted(productName));
+    }
+    By loc_lblGift(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//preceding-sibling::div[@class='text-gift']".formatted(productName));
+    }
+    By loc_ddlPromotion(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//span[@class='group-promotion-item']".formatted(productName));
+    }
+    By loc_tltPromotionApplyOnItem = By.cssSelector(".tippy-tooltip-content .align-items-center");
 }
