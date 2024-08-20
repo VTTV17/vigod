@@ -194,7 +194,7 @@ public class POSPage extends POSElement {
 
                 // Select IMEI
                 IntStream.range(0, quantity)
-                        .mapToObj(_ -> commonAction.getText(loc_dlgSelectIMEI_lstIMEI)) // Get IMEI value
+                        .mapToObj(a -> commonAction.getText(loc_dlgSelectIMEI_lstIMEI)) // Get IMEI value
                         .forEach(imeiValue -> {
                             // Select IMEI
                             commonAction.click(loc_dlgSelectIMEI_lstIMEI);
@@ -367,16 +367,6 @@ public class POSPage extends POSElement {
         // Log
         logger.info("Close Discount popup");
     }
-//<<<<<<< Updated upstream
-//
-//    public void inputUsePoint(int point) {
-//        if (!commonAction.getAttribute(loc_chkUsePointValue, "class").contains("checked"))
-//            commonAction.click(loc_chkUsePointAction);
-//        commonAction.inputText(loc_txtInputPoint, String.valueOf(point));
-//    }
-//
-//    enum UsePointType {
-//=======
     public void inputUsePoint(int point){
         if(!commonAction.getAttribute(loc_chkUsePointValue,"class").contains("checked"))
         {
@@ -387,7 +377,6 @@ public class POSPage extends POSElement {
         logger.info("Input point = {}",point);
     }
     public enum UsePointType{
-//>>>>>>> Stashed changes
         SERVERAL, MAX_ORDER, MAX_AVAILABLE
     }
 
@@ -396,17 +385,6 @@ public class POSPage extends POSElement {
         Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
         return (int) (getTotalAmount() / exchangeAmount);
     }
-//<<<<<<< Updated upstream
-//
-//    public int inputUsePoint(UsePointType usePointType) {
-//        int point = 0;
-//        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
-//        switch (usePointType) {
-//            case SERVERAL -> {
-//                point = point > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
-//            }
-//            case MAX_AVAILABLE, MAX_ORDER -> {
-//=======
     @SneakyThrows
     public int inputUsePoint(UsePointType usePointType){
         int point = 0;
@@ -415,7 +393,6 @@ public class POSPage extends POSElement {
         switch (usePointType){
             case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1,availablePoint-1): 1;
             case MAX_AVAILABLE,MAX_ORDER ->{
-//>>>>>>> Stashed changes
                 int redeemPointNeed = redeemPointNeedForTotal();
                 point = availablePoint > redeemPointNeed ? redeemPointNeed : availablePoint;
             }
