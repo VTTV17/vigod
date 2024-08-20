@@ -43,19 +43,3 @@ class BcOrderGroup {
     private double totalPrice;
     private Boolean withSameProviderShouldReturnTheCheapest;
 }
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@Data
-class GsOrderBXGYDTO {
-    private Long itemId;
-    private Long modelId;
-    private Long bxgyId;
-    private Long bcOrderId;
-    private double promoAmount;
-    private Long orderItemId;
-    private String createdDate;
-    private String lastModifiedDate;
-    private String sku;
-    private String bxgyName;
-    private String promotionType;
-    private String giftType;
-}

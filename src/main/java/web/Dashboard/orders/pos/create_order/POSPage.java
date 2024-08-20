@@ -6,22 +6,25 @@ import api.Seller.products.all_products.APIProductConversionUnit.ConversionUnitI
 import api.Seller.products.all_products.APIProductDetailV2;
 import api.Seller.setting.BranchManagement;
 import api.Seller.setting.StoreInformation;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import utilities.data.GetDataByRegex;
 import utilities.enums.pos.ReceivedAmountType;
 import utilities.model.dashboard.marketing.loyaltyPoint.LoyaltyPointInfo;
+import utilities.model.dashboard.orders.orderdetail.*;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static api.Seller.products.all_products.APIProductDetailV2.ProductInfoV2;
@@ -241,13 +244,7 @@ public class POSPage extends POSElement {
 
     public Double getTotalAmount() {
         String total = commonAction.getText(loc_lblTotalAmount);
-        Pattern pattern = Pattern.compile("\\d+(\\.\\d+)?");
-        Matcher matcher = pattern.matcher(total);
-        String matchNumber = "";
-        while (matcher.find()) {
-            matchNumber = matchNumber + matcher.group();
-        }
-        return Double.parseDouble(matchNumber);
+        return GetDataByRegex.getAmountByRegex(total);
     }
 
     public void inputReceiveAmount(double amount) {
@@ -256,17 +253,11 @@ public class POSPage extends POSElement {
     }
 
     public Double inputReceiveAmount(ReceivedAmountType receivedAmountType) {
-        double receiveAmount = 0;
-        switch (receivedAmountType) {
-            case FULL -> {
-                double total = getTotalAmount();
-                receiveAmount = total;
-            }
-            case PARTIAL -> {
-                double random = DataGenerator.generatNumberInBound(1000, getTotalAmount());
-                receiveAmount = random;
-            }
-        }
+        double receiveAmount = (Objects.requireNonNull(receivedAmountType) == ReceivedAmountType.FULL)
+                ? getTotalAmount()
+                : ((receivedAmountType == ReceivedAmountType.PARTIAL)
+                ? DataGenerator.generatNumberInBound(1000, getTotalAmount())
+                : 0);
         inputReceiveAmount(receiveAmount);
         return receiveAmount;
     }
@@ -376,14 +367,27 @@ public class POSPage extends POSElement {
         // Log
         logger.info("Close Discount popup");
     }
-
-    public void inputUsePoint(int point) {
-        if (!commonAction.getAttribute(loc_chkUsePointValue, "class").contains("checked"))
+//<<<<<<< Updated upstream
+//
+//    public void inputUsePoint(int point) {
+//        if (!commonAction.getAttribute(loc_chkUsePointValue, "class").contains("checked"))
+//            commonAction.click(loc_chkUsePointAction);
+//        commonAction.inputText(loc_txtInputPoint, String.valueOf(point));
+//    }
+//
+//    enum UsePointType {
+//=======
+    public void inputUsePoint(int point){
+        if(!commonAction.getAttribute(loc_chkUsePointValue,"class").contains("checked"))
+        {
             commonAction.click(loc_chkUsePointAction);
-        commonAction.inputText(loc_txtInputPoint, String.valueOf(point));
+            logger.info("Click on Use point.");
+        }
+        commonAction.inputText(loc_txtInputPoint,String.valueOf(point));
+        logger.info("Input point = {}",point);
     }
-
-    enum UsePointType {
+    public enum UsePointType{
+//>>>>>>> Stashed changes
         SERVERAL, MAX_ORDER, MAX_AVAILABLE
     }
 
@@ -392,15 +396,26 @@ public class POSPage extends POSElement {
         Long exchangeAmount = loyaltyPointInfo.getExchangeAmount();
         return (int) (getTotalAmount() / exchangeAmount);
     }
-
-    public int inputUsePoint(UsePointType usePointType) {
+//<<<<<<< Updated upstream
+//
+//    public int inputUsePoint(UsePointType usePointType) {
+//        int point = 0;
+//        int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
+//        switch (usePointType) {
+//            case SERVERAL -> {
+//                point = point > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
+//            }
+//            case MAX_AVAILABLE, MAX_ORDER -> {
+//=======
+    @SneakyThrows
+    public int inputUsePoint(UsePointType usePointType){
         int point = 0;
         int availablePoint = Integer.parseInt(commonAction.getText(loc_lblAvailablePoint));
-        switch (usePointType) {
-            case SERVERAL -> {
-                point = point > 1 ? DataGenerator.generatNumberInBound(1, availablePoint - 1) : 1;
-            }
-            case MAX_AVAILABLE, MAX_ORDER -> {
+        if (availablePoint == 0) throw new Exception("Customer don't have any available point");
+        switch (usePointType){
+            case SERVERAL -> point = availablePoint > 1 ? DataGenerator.generatNumberInBound(1,availablePoint-1): 1;
+            case MAX_AVAILABLE,MAX_ORDER ->{
+//>>>>>>> Stashed changes
                 int redeemPointNeed = redeemPointNeedForTotal();
                 point = availablePoint > redeemPointNeed ? redeemPointNeed : availablePoint;
             }
@@ -421,5 +436,94 @@ public class POSPage extends POSElement {
         } else commonAction.uncheckTheCheckboxOrRadio(loc_btnPrintReceiptValue, loc_btnPrintnReceiptAction);
         new ConfirmationDialog(driver).clickGreenBtn();
     }
+    public double getTotalDiscountAmount(){
+        String discountText = commonAction.getText(loc_lblPromotionValue);
+        logger.info("Get total discount: "+discountText);
+        return GetDataByRegex.getAmountByRegex(discountText);
+    }
+    public double getTaxAmount(){
+        String taxValue = commonAction.getText(loc_lblTaxValue);
+        logger.info("Get tax amount: "+taxValue);
+        return GetDataByRegex.getAmountByRegex(taxValue);
+    }
+    public long getShippingFee(){
+        String shippingFee = commonAction.getText(loc_lblShippingFee);
+        logger.info("Get shipping fee: "+shippingFee);
+        return (long)GetDataByRegex.getAmountByRegex(shippingFee);
+    }
 
+    /**
+     *
+     * @param actionlocator : locator that user hover or click on it.
+     * @param tooltipLocator
+     * @return List<ItemTotalDiscount> with fields: Name and Value
+     */
+    public Map<String,Double> getPromotionDetailApply(By actionlocator, By tooltipLocator){
+        List<WebElement> infoIcon = commonAction.getElements(actionlocator,1);
+        Map<String,Double> itemDiscountList = new HashMap<>();
+        if(!infoIcon.isEmpty()){
+            commonAction.click(actionlocator);
+            List<WebElement> promotionList = commonAction.getElements(tooltipLocator,1);
+            promotionList.stream().forEach(i -> {
+                String[] promoItem = i.getText().split("\n");
+                itemDiscountList.put(promoItem[0], GetDataByRegex.getAmountByRegex(promoItem[1]));
+            });
+        }
+        return itemDiscountList;
+    }
+    public List<SummaryDiscount> getTotalPromotionDetailApply(){
+        Map<String,Double> promotionDetail =  getPromotionDetailApply(loc_icnPromotionInfo,loc_lst_tltTotalPromotionApply);
+        List<SummaryDiscount> itemTotalDiscountList = new ArrayList<>();
+        for(Map.Entry<String,Double> entry : promotionDetail.entrySet()){
+            SummaryDiscount itemTotalDiscount = new SummaryDiscount();
+            itemTotalDiscount.setLabel(entry.getKey());
+            itemTotalDiscount.setValue(entry.getValue());
+            itemTotalDiscountList.add(itemTotalDiscount);
+        }
+        return itemTotalDiscountList;
+    }
+    public double getSubTotalValue(){
+        String subtotalText = commonAction.getText(loc_lblSubTotalValue);
+        logger.info("Get Subtotal value: {}",subtotalText);
+        return GetDataByRegex.getAmountByRegex(subtotalText);
+    }
+    public List<ItemOrderInfo> getItemDiscountInfo(){
+        List<ItemOrderInfo> itemDiscountList = new ArrayList<>();
+        List<WebElement> productList = new ArrayList<>();
+        for (int i = 0; i< productList.size(); i++){
+            ItemOrderInfo itemOrderInfo = new ItemOrderInfo();
+            String productName = productList.get(i).getText();
+            itemOrderInfo.setName(productName);
+            if(!commonAction.getElements(loc_lblVariationName(productName)).isEmpty())
+                    itemOrderInfo.setVariationName(commonAction.getText(loc_lblVariationName(productName)));
+            if(!commonAction.getElements(loc_lblGift(productName)).isEmpty()){
+                GsOrderBXGYDTO gsOrderBXGYDTO  = new GsOrderBXGYDTO();
+                gsOrderBXGYDTO.setGiftType("BUY_X_GET_Y");
+                itemOrderInfo.setGsOrderBXGYDTO(gsOrderBXGYDTO);
+            }
+            itemOrderInfo.setPrice(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceForOne(productName))));
+            itemOrderInfo.setPriceDiscount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceAfterDiscountForOne(productName))));
+            itemOrderInfo.setTotalAmount(GetDataByRegex.getAmountByRegex(commonAction.getText(loc_lblSellingPriceTotal(productName))));
+            if(!commonAction.getText(loc_lblUnit(productName)).equals("-"))
+                itemOrderInfo.setConversionUnitName(commonAction.getText(loc_lblUnit(productName)));
+            itemOrderInfo.setQuantity(Integer.parseInt(commonAction.getText(loc_txtProductQuantity(productName,"-"))));
+            //Set promotion info of each item
+            commonAction.click(loc_ddlPromotion(productName));
+            Map<String,Double> itemTotalDiscountMap = getPromotionDetailApply(loc_ddlPromotion(productName),loc_tltPromotionApplyOnItem);
+            List<ItemTotalDiscount> itemTotalDiscountList = new ArrayList<>();
+            for(Map.Entry<String,Double> entry : itemTotalDiscountMap.entrySet()){
+                ItemTotalDiscount itemTotalDiscount = new ItemTotalDiscount();
+                itemTotalDiscount.setLabel(entry.getKey());
+                itemTotalDiscount.setValue(entry.getValue());
+                itemTotalDiscountList.add(itemTotalDiscount);
+            }
+            itemOrderInfo.setItemTotalDiscounts(itemTotalDiscountList);
+            itemDiscountList.add(itemOrderInfo);
+        }
+        return itemDiscountList;
+    }
+//    public OrderDetailInfo getOrderInfoBeforeCheckOut(){
+//        OrderDetailInfo orderDetailInfo = new OrderDetailInfo();
+//        orderDetailInfo.setItems(getItemDiscountInfo());
+//    }
 }
