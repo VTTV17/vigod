@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
+    <parameter name="environment" value="STAG"/>
+    <parameter name="language" value="VIE"/>
+    <parameter name="domain" value="VN"/>
+    <test name="GoSELL-Tien-Vn">
+        <classes>
+            <class name="web.Dashboard.LoginDashboard">
+                <methods>
+                    <include name="LoginDB_02_LoginWithAllFieldsLeftBlank"/>
+                    <include name="LoginDB_03_LoginWithInvalidPhoneFormat"/>
+                    <include name="LoginDB_04_LoginWithInvalidMailFormat"/>
+                    <include name="LoginDB_05_LoginWithNonExistingAccount"/>
+                    <include name="LoginDB_06_LoginWithCorrectAccount"/>
+                    <include name="LoginDB_08_StaffLogin"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
