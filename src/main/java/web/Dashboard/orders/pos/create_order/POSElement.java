@@ -112,4 +112,8 @@ public class POSElement {
         return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//span[@class='group-promotion-item']".formatted(productName));
     }
     By loc_tltPromotionApplyOnItem = By.cssSelector(".tippy-tooltip-content .align-items-center");
+    
+    By loc_chkDelivery = By.cssSelector(".delivery-group-info .form-check");
+    
+    
 }

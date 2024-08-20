@@ -23,6 +23,7 @@ import utilities.model.dashboard.setting.branchInformation.BranchInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 import web.Dashboard.confirmationdialog.ConfirmationDialog;
 import web.Dashboard.home.HomePage;
+import web.Dashboard.orders.pos.create_order.deliverydialog.DeliveryDialog;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -226,6 +227,11 @@ public class POSPage extends POSElement {
         commonAction.inputText(loc_txtCustomerSearchBox, name);
         commonAction.click(loc_lstCustomerResult(name));
         return this;
+    }
+    
+    public DeliveryDialog tickDelivery() {
+    	commonAction.click(loc_chkDelivery);
+    	return new DeliveryDialog(driver);
     }
 
     public void createPOSOrder(LoginInformation loginInformation, BranchInfo branchInfo, List<Integer> productIds) {
