@@ -18,34 +18,37 @@ public class POSElement {
         return By.xpath("//code[text() = '%s']".formatted(productBarcode));
     }
 
-    By loc_txtCustomerSearchBox = By.xpath("#dropdownSuggestionCustomer input");
+    By loc_txtCustomerSearchBox = By.cssSelector("#dropdownSuggestionCustomer input");
 
     By loc_lstCustomerResult(int customerId) {
-        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(string(), '%s')]".formatted(customerId));
+        return By.xpath("//*[@class = 'mobile-customer-profile-row__right' and contains(., '%s')]".formatted(customerId));
+    }
+    By loc_lstCustomerResult(String name) {
+    	return By.xpath("//*[contains(@class,'search-list__result')]//div[@class='full-name' and .=\"%s\"]".formatted(name));
     }
 
-    By loc_txtProductQuantity(String productName) {
-        return By.xpath("//tr[td//div[text() ='%s']]//input".formatted(productName));
+    By loc_txtProductQuantity(String productName, String unitName) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//div[text()='%s']]//input".formatted(productName, unitName));
     }
 
-    By loc_txtProductQuantity(String productName, String variationValue) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//input".formatted(productName, variationValue));
+    By loc_txtProductQuantity(String productName, String variationValue, String unitName) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s'] and td//div[text()='%s']]//input".formatted(productName, variationValue, unitName));
     }
 
-    By loc_btnSelectIMEI(String productName) {
-        return By.xpath("//tr[td//div[text() ='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName));
+    By loc_btnSelectIMEI(String productName, String unitName) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//div[text()='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName, unitName));
     }
 
-    By loc_btnSelectIMEI(String productName, String variationValue) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue));
+    By loc_btnSelectIMEI(String productName, String variationValue, String unitName) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s'] and td//div[text()='%s']]//*[@class='select-IMEI errorIMEI']".formatted(productName, variationValue, unitName));
     }
 
-    By loc_btnSelectLot(String productName) {
-        return By.xpath("//tr[td//div[text() ='%s']]//following-sibling::tr[1]//img".formatted(productName));
+    By loc_btnSelectLot(String productName, String unitName) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//div[text()='%s']]//following-sibling::tr[1]//img".formatted(productName, unitName));
     }
 
-    By loc_btnSelectLot(String productName, String variationValue) {
-        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s']]//following-sibling::tr[1]//img".formatted(productName, variationValue));
+    By loc_btnSelectLot(String productName, String variationValue, String unitName) {
+        return By.xpath("//tr[td//div[text() ='%s'] and td//span[text() ='%s'] and td//div[text()='%s']]//following-sibling::tr[1]//img".formatted(productName, variationValue, unitName));
     }
 
     By loc_dlgSelectIMEI_lstIMEI = By.cssSelector(".content:not(.selected)");
@@ -77,4 +80,40 @@ public class POSElement {
     By loc_btnPrintOrder = By.cssSelector(".btn-print-order");
     By loc_btnPrintReceiptValue = By.cssSelector(".print-order__toggle input");
     By loc_btnPrintnReceiptAction = By.cssSelector(".modalPrintPos .print-order__toggle");
+    By loc_lst_tltTotalPromotionApply = By.cssSelector("#order-discount-detail-popover .align-items-center");
+    By loc_icnPromotionInfo = By.cssSelector(".group-promotion-inStore button");
+    By loc_lblPromotionValue = By.cssSelector(".value-promotion");
+    By loc_lblTaxValue = By.cssSelector(".value-tax");
+    By loc_lblShippingFee = By.cssSelector(".value-delivery");
+    By loc_lblSubTotalValue = By.cssSelector(".order-in-store-purchase-content__subTotal .align-self-baseline");
+    By loc_lst_lblProductName = By.cssSelector(".order-in-store-purchase-cart-product-list__product-name");
+    By loc_lblVariationName (String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//following-sibling::span".formatted(productName));
+    }
+    By loc_lblSellingPriceForOne(String productName){
+        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[1]".formatted(productName));
+    }
+    By loc_lblSellingPriceAfterDiscountForOne(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'price']".formatted(productName));
+    }
+    By loc_lblUnit(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[contains(@class,'unit')]".formatted(productName));
+    }
+    By loc_lblSellingPriceTotal(String productName){
+        return By.xpath("(//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class = 'selling-price'])[2]".formatted(productName));
+    }
+    By loc_lblPriceTotalAfterDiscount(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//div[@class='total-price']".formatted(productName));
+    }
+    By loc_lblGift(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//preceding-sibling::div[@class='text-gift']".formatted(productName));
+    }
+    By loc_ddlPromotion(String productName){
+        return By.xpath("//div[contains(@class,'product-list')]//div[text() = '%s']//ancestor::tr//span[@class='group-promotion-item']".formatted(productName));
+    }
+    By loc_tltPromotionApplyOnItem = By.cssSelector(".tippy-tooltip-content .align-items-center");
+    
+    By loc_chkDelivery = By.cssSelector(".delivery-group-info .form-check");
+    
+    
 }

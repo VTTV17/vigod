@@ -6,6 +6,7 @@ import api.Seller.setting.BranchManagement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.logging.log4j.LogManager;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
 import utilities.model.dashboard.setting.branchInformation.BranchInfo;
@@ -111,6 +112,7 @@ public class APIEditLotDate {
     }
 
     public void addProductIntoLot(int lotId, int productId, int newStock) {
+        LogManager.getLogger().info("Add product into lot, lotId: {}, productId: {}, newStock: {}", lotId, productId, newStock);
         api.put(editLotDatePath, loginInfo.getAccessToken(), getPayload(lotId, productId, newStock))
                 .then().statusCode(200);
     }

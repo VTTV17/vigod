@@ -239,11 +239,8 @@ public class CreateProductScreen extends CreateProductElement {
 
     @SneakyThrows
     void hideRemainingStockOnOnlineStore() {
-        // Get current checkbox status
-        boolean status = commonAndroid.isChecked(loc_chkHideRemainingStock);
-
         // Hide remaining stock on online store config
-        if (!Objects.equals(hideRemainingStock, status)) commonAndroid.click(loc_chkHideRemainingStock);
+        if (hideRemainingStock) commonAndroid.click(loc_chkHideRemainingStock);
 
         // Log
         logger.info("Hide remaining stock on online store config: {}", hideRemainingStock);
@@ -254,11 +251,8 @@ public class CreateProductScreen extends CreateProductElement {
 
     @SneakyThrows
     void displayIfOutOfStock() {
-        // Get current checkbox status
-        boolean status = commonAndroid.isChecked(loc_chkDisplayIfOutOfStock);
-
         // Add display out of stock config
-        if (!Objects.equals(showOutOfStock, status)) commonAndroid.click(loc_chkDisplayIfOutOfStock);
+        if (!showOutOfStock) commonAndroid.click(loc_chkDisplayIfOutOfStock);
 
         // Log
         logger.info("Display out of stock config: {}", showOutOfStock);
@@ -286,11 +280,8 @@ public class CreateProductScreen extends CreateProductElement {
 
     void manageProductByLot() {
         if (!manageByIMEI) {
-            // Get current manage by lot checkbox status
-            boolean status = commonAndroid.isChecked(loc_chkManageStockByLotDate);
-
             // Manage product by lot
-            if (manageByLot && !status) commonAndroid.click(loc_chkManageStockByLotDate);
+            if (manageByLot) commonAndroid.click(loc_chkManageStockByLotDate);
 
             // Log
             logger.info("Manage product by lot date: {}", manageByLot);

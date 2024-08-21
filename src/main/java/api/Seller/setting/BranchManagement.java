@@ -1,11 +1,8 @@
 package api.Seller.setting;
 
 import api.Seller.login.Login;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utilities.api.API;
@@ -30,8 +27,6 @@ public class BranchManagement {
     LoginDashboardInfo loginInfo;
     BranchInfo brInfo;
     Logger logger = LogManager.getLogger(BranchManagement.class);
-    @Getter
-    private static final Cache<String, BranchInfo> branchCache = CacheBuilder.newBuilder().build();
     API api = new API();
 
     public BranchManagement(LoginInformation loginInformation, LoginDashboardInfo... loginInfo) {
@@ -52,19 +47,7 @@ public class BranchManagement {
 
     public BranchInfo getInfo() {
         // init branch info model
-        BranchInfo brInfo = branchCache.getIfPresent(loginInfo.getStaffPermissionToken());
-
-        if (brInfo == null) {
-            // if staff token is changed, clear cache
-            if (!loginInfo.getStaffPermissionToken().isEmpty()) {
-                BranchInfo tempInfo = branchCache.getIfPresent("");
-                branchCache.invalidateAll();
-                if (Optional.ofNullable(tempInfo).isPresent()) {
-                    branchCache.put("", tempInfo);
-                }
-            }
-            // init branch info model
-            brInfo = new BranchInfo();
+        BranchInfo brInfo = new BranchInfo();
 
             // using API to get branch information
             JsonPath resPath = getBranchInfoResponseJsonPath();
@@ -117,9 +100,6 @@ public class BranchManagement {
             // set branchType
             brInfo.setBranchType(resPath.getList("branchType"));
 
-            // save cache
-            branchCache.put(loginInfo.getStaffPermissionToken(), brInfo);
-        }
         // return branch info
         return brInfo;
     }
@@ -167,9 +147,6 @@ public class BranchManagement {
         api.put(changeBranchStatusPath.formatted(loginInfo.getStoreID(), brID, branchStatus), loginInfo.getAccessToken());
         logger.info("[API]Change '%s' status: %s.".formatted(branchName, branchStatus));
 
-        // clear cache to get new info
-        branchCache.invalidateAll();
-
         // get latest branch info
         brInfo = getInfo();
     }
@@ -195,7 +172,7 @@ public class BranchManagement {
         brInfo = getInfo();
 
         // hide free branch on shop online
-        updateBranchInfo(brInfo.getBranchID().get(0), true, true, "ACTIVE");
+        updateBranchInfo(brInfo.getBranchID().getFirst(), true, true, "ACTIVE");
         return this;
     }
 
@@ -204,7 +181,7 @@ public class BranchManagement {
         brInfo = getInfo();
 
         // show free branch on shop online
-        updateBranchInfo(brInfo.getBranchID().get(0), true, false, "ACTIVE");
+        updateBranchInfo(brInfo.getBranchID().getFirst(), true, false, "ACTIVE");
         return this;
     }
 
@@ -246,6 +223,6 @@ public class BranchManagement {
     public int getFreeBranch() {
         Response response = api.get(GET_BRANCH_FREE.formatted(loginInfo.getStoreID()), loginInfo.getAccessToken());
         response.then().statusCode(200);
-        return (int) response.jsonPath().getList("id").get(0);
+        return (int) response.jsonPath().getList("id").getFirst();
     }
 }

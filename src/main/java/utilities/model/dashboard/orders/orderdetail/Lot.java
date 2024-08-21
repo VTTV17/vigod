@@ -18,7 +18,7 @@ public class Lot {
     private Long remainingStock;
     private Long remainingExpiryDays;
     private Long selectedQuantity;
-    private boolean isLotDeleted;
+    private Boolean isLotDeleted;
     private Long remainingReturnStock;
     private List<Location> locations;
 }

@@ -28,10 +28,6 @@ public class Login {
     String storeStaff = "/storeservice/api/store-staffs/user/%s";
     API api = new API();
     private static LoginInformation loginInfo = new LoginInformation();
-    @Getter
-    private static final Cache<LoginInformation, LoginDashboardInfo> loginCache = CacheBuilder.newBuilder()
-            .build();
-
 
     Response getLoginResponse(String account, String password) {
         String body = """
@@ -77,62 +73,57 @@ public class Login {
     }
 
     public LoginDashboardInfo getInfo(LoginInformation loginInformation) {
-        LoginDashboardInfo info = loginCache.getIfPresent(loginInformation);
-        if (Optional.ofNullable(info).isEmpty()) {
-            // init login dashboard info model
-            info = new LoginDashboardInfo();
 
-            // get login response
-            Response res;
+        // init login dashboard info model
+        LoginDashboardInfo info = new LoginDashboardInfo();
 
-            if (loginInformation.getEmail() != null)
-                res = getLoginResponse(loginInformation.getEmail(), loginInformation.getPassword()); //if account is email
-            else
-                res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
+        // get login response
+        Response res;
 
-            // get jsonPath
-            JsonPath jPath = res.jsonPath();
+        if (loginInformation.getEmail() != null)
+            res = getLoginResponse(loginInformation.getEmail(), loginInformation.getPassword()); //if account is email
+        else
+            res = getLoginWithPhoneResponse(loginInformation.getPhoneCode(), loginInformation.getPhoneNumber(), loginInformation.getPassword());
 
-            // set accessToken
-            info.setAccessToken(jPath.getString("accessToken"));
+        // get jsonPath
+        JsonPath jPath = res.jsonPath();
 
-            // set refreshToken
-            info.setRefreshToken(jPath.getString("refreshToken"));
+        // set accessToken
+        info.setAccessToken(jPath.getString("accessToken"));
 
-            // set userId
-            info.setUserId(jPath.getInt("id"));
+        // set refreshToken
+        info.setRefreshToken(jPath.getString("refreshToken"));
 
-            // set ownerId
-            info.setOwnerId(jPath.getInt("id"));
+        // set userId
+        info.setUserId(jPath.getInt("id"));
 
-            try {
-                // set storeID
-                info.setStoreID(jPath.getInt("store.id"));
+        // set ownerId
+        info.setOwnerId(jPath.getInt("id"));
 
-                // set storeName
-                info.setStoreName(jPath.getString("store.name"));
-            } catch (NullPointerException ignore) {
-            }
+        try {
+            // set storeID
+            info.setStoreID(jPath.getInt("store.id"));
 
-            // if login by staff => login and get staff information
-            if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
-
-            // set staffToken
-            if (Optional.ofNullable(info.getStaffPermissionToken()).isEmpty()) info.setStaffPermissionToken("");
-            API.setStaffPermissionToken(info.getStaffPermissionToken());
-
-            // get branch info
-            BranchInfo branchInfo = new BranchManagement(loginInformation, info).getInfo();
-
-            // get assigned branch ids
-            info.setAssignedBranchesIds(branchInfo.getBranchID());
-
-            // get assigned branch names
-            info.setAssignedBranchesNames(branchInfo.getBranchName());
-
-            // save loginCache
-            loginCache.put(loginInformation, info);
+            // set storeName
+            info.setStoreName(jPath.getString("store.name"));
+        } catch (NullPointerException ignore) {
         }
+
+        // if login by staff => login and get staff information
+        if (!jPath.getList("authorities").contains("ROLE_STORE")) info = getStaffInfo(info);
+
+        // set staffToken
+        if (Optional.ofNullable(info.getStaffPermissionToken()).isEmpty()) info.setStaffPermissionToken("");
+        API.setStaffPermissionToken(info.getStaffPermissionToken());
+
+        // get branch info
+        BranchInfo branchInfo = new BranchManagement(loginInformation, info).getInfo();
+
+        // get assigned branch ids
+        info.setAssignedBranchesIds(branchInfo.getBranchID());
+
+        // get assigned branch names
+        info.setAssignedBranchesNames(branchInfo.getBranchName());
 
         // return login dashboard info
         return info;

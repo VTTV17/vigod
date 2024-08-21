@@ -10,7 +10,6 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 import utilities.extentreports.ExtentTestManager;
 
-import static java.lang.Thread.sleep;
 import static utilities.extentreports.ExtentManager.getExtentReports;
 
 public class ReportListener implements ITestListener {

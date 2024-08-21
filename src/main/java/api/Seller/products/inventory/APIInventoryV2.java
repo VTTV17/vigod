@@ -1,12 +1,14 @@
 package api.Seller.products.inventory;
 
 import api.Seller.login.Login;
+import api.Seller.orders.order_management.APIOrderDetail;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lombok.Data;
 import utilities.api.API;
 import utilities.model.dashboard.loginDashBoard.LoginDashboardInfo;
+import utilities.model.dashboard.orders.orderdetail.ItemOrderInfo;
 import utilities.model.sellerApp.login.LoginInformation;
 
 import java.util.ArrayList;
@@ -75,5 +77,10 @@ public class APIInventoryV2 {
         private int totalBranches;
         private String inventoryType;
         private boolean hasConversion;
+    }
+
+    public void checkInventoryAfterOrder(int currentQuantity, long orderId) {
+        List<ItemOrderInfo> items = new APIOrderDetail(loginInformation).getOrderDetail(orderId).getItems();
+
     }
 }

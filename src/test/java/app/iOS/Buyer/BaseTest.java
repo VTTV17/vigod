@@ -7,6 +7,7 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.recording.AppiumRecording;
 import utilities.utils.PropertiesUtil;
 
+@Listeners(utilities.listeners.ReportListener.class)
 public class BaseTest {
     public WebDriver driver;
     public String tcsFileName;

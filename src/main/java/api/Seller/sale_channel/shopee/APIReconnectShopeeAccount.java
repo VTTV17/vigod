@@ -43,8 +43,5 @@ public class APIReconnectShopeeAccount {
                     .extract()
                     .response();
         });
-
-        // clear cache
-        APIShopeeManagement.getShopeeAccountCache().invalidateAll();
     }
 }

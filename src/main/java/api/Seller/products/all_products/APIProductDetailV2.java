@@ -101,7 +101,7 @@ public class APIProductDetailV2 {
             // Get variation information
             if (hasModel) {
                 // Get variation name map
-                models.get(0).getLanguages().forEach(language -> this.variationGroupNameMap.put(language.getLanguage(), language.getLabel()));
+                models.getFirst().getLanguages().forEach(language -> this.variationGroupNameMap.put(language.getLanguage(), language.getLabel()));
 
                 // Get others information
                 models.forEach(model -> {
@@ -140,7 +140,7 @@ public class APIProductDetailV2 {
                             .boxed()
                             .collect(Collectors.toMap(languageIndex -> model.getLanguages().get(languageIndex).getLanguage(),
                                     languageIndex -> model.isUseProductDescription() ? description : Optional.ofNullable(model.getLanguages().get(languageIndex).getDescription()).orElse(description),
-                                    (a, b) -> b)));
+                                    (_, b) -> b)));
 
                     // Get variation value map
                     model.getLanguages().forEach(language -> {
