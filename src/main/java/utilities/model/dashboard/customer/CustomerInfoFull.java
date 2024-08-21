@@ -48,11 +48,3 @@ public class CustomerInfoFull {
     private Integer partnerId;
     private String userStatus;
 }
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@Data
-class CustomerAddressFull {
-    private String country;
-    private String city;
-    private String district;
-    private String ward;
-}

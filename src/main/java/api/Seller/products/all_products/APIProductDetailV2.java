@@ -133,7 +133,7 @@ public class APIProductDetailV2 {
                             .boxed()
                             .collect(Collectors.toMap(languageIndex -> model.getLanguages().get(languageIndex).getLanguage(),
                                     languageIndex -> Optional.ofNullable(model.getLanguages().get(languageIndex).getVersionName()).orElse(name),
-                                    (_, b) -> b)));
+                                    (a, b) -> b)));
 
                     // Get version name
                     this.versionDescriptionMap.put(id, IntStream.range(0, model.getLanguages().size())
