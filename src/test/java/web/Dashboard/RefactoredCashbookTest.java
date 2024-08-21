@@ -1,5 +1,9 @@
 package web.Dashboard;
 
+import static utilities.account.AccountTest.ADMIN_COUNTRY_TIEN;
+import static utilities.account.AccountTest.ADMIN_PASSWORD_TIEN;
+import static utilities.account.AccountTest.ADMIN_USERNAME_TIEN;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -26,6 +30,7 @@ import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.driver.InitWebdriver;
+import utilities.enums.Domain;
 import utilities.enums.cashbook.CashbookExpense;
 import utilities.enums.cashbook.CashbookGroup;
 import utilities.enums.cashbook.CashbookPaymentMethod;
@@ -63,18 +68,25 @@ public class RefactoredCashbookTest extends BaseTest {
 
 	@BeforeClass
 	public void loadTestData() {
-		String username;
-		String password;
-		String country;
-		username = AccountTest.ADMIN_USERNAME_TIEN;
-		password = AccountTest.ADMIN_PASSWORD_TIEN;
-		country = AccountTest.ADMIN_COUNTRY_TIEN;
+		
+		String country, username, password;
+		if(Domain.valueOf(domain).equals(Domain.VN)) {
+			country = ADMIN_COUNTRY_TIEN;
+			username = ADMIN_USERNAME_TIEN;
+			password = ADMIN_PASSWORD_TIEN;
+		} else {
+			country = AccountTest.ADMIN_MAIL_BIZ_COUNTRY;
+			username = AccountTest.ADMIN_MAIL_BIZ_USERNAME;
+			password = AccountTest.ADMIN_MAIL_BIZ_PASSWORD;
+		}
+		
 		LoginInformation loginInformation = new Login().setLoginInformation(username, password).getLoginInformation();
         customerList = new APIAllCustomers(loginInformation).getAllCustomerNames();
         supplierList = new APISupplier(loginInformation).getAllSupplierNames();
         staffList = new StaffManagement(loginInformation).getAllStaffNames();
         othersList = new OthersGroupAPI(loginInformation).getAllOtherGroupNames();
         branchList = new BranchManagement(loginInformation).getInfo().getActiveBranches();
+        
         cashbookAPI = new CashbookAPI(loginInformation);
         transactionIdList = cashbookAPI.getAllTransactionCodes();
         
@@ -85,14 +97,23 @@ public class RefactoredCashbookTest extends BaseTest {
 		commonAction = new UICommonAction(driver);
 		generate = new DataGenerator();
 
-		loginPage.navigate().performLogin(country, username, password);
-		homePage.waitTillSpinnerDisappear1().selectLanguage(language).hideFacebookBubble();
+		navigateToPage(Domain.valueOf(domain));
+		loginPage.performLogin(country, username, password);
+		homePage.waitTillSpinnerDisappear1().hideFacebookBubble();
 		cashbookPage.navigate();
 	}	
 
+	void navigateToPage(Domain domain) {
+		switch (domain) {
+			case VN -> loginPage.navigate().selectDisplayLanguage(language);
+			case BIZ -> loginPage.navigateBiz();
+			default -> throw new IllegalArgumentException("Unexpected value: " + domain);
+		}
+	}		
+	
 	@BeforeMethod
 	public void navigateToPage() {
-		cashbookPage.navigateByURL();
+		commonAction.refreshPage();
 	}
 
     @AfterMethod
@@ -149,18 +170,9 @@ public class RefactoredCashbookTest extends BaseTest {
 	}		
 
 	public String randomAmount() {
-		return String.valueOf(Math.round(generate.generatNumberInBound(1, 50))*10);
+		return String.valueOf(Math.round(DataGenerator.generatNumberInBound(1, 50))*10);
 	}	
 	
-	/**
-	 * Extract numbers from a string
-	 * @param rawAmount
-	 * @return
-	 */
-	public String extractDigits(String rawAmount) {
-		return rawAmount.replaceAll("[^\\d+\\.]","");
-	}
-
 	public String[] revenueSources(CashbookGroup group) {
 		if (group != CashbookGroup.SUPPLIER) {
 			return Arrays.stream(CashbookRevenue.values()).map(name -> CashbookRevenue.getTextByLanguage(name)).toArray(String[]::new);
@@ -235,7 +247,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), source, "Revenue type");
 		Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), "-", "Expense type");
 		Assert.assertEquals(record.get(Cashbook.NAME_COL), sender, "Sender");
-		Assert.assertTrue(new BigDecimal(extractDigits(record.get(Cashbook.AMOUNT_COL))).compareTo(new BigDecimal(amount))==0, "Amount");
+		Assert.assertTrue(new BigDecimal(DataGenerator.extractDigits(record.get(Cashbook.AMOUNT_COL))).compareTo(new BigDecimal(amount))==0, "Amount");
 	}
 
 	public void verifyRecordDataAfterPaymentCreated(List<String> record, String branch, String source,
@@ -244,7 +256,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		Assert.assertEquals(record.get(Cashbook.REVENUETYPE_COL), "-", "Revenue type");
 		Assert.assertEquals(record.get(Cashbook.EXPENSETYPE_COL), source, "Expense type");
 		Assert.assertEquals(record.get(Cashbook.NAME_COL), sender, "Sender");
-		Assert.assertTrue(new BigDecimal(extractDigits(record.get(Cashbook.AMOUNT_COL))).compareTo(new BigDecimal(amount))==0, "Amount");
+		Assert.assertTrue(new BigDecimal(DataGenerator.extractDigits(record.get(Cashbook.AMOUNT_COL))).compareTo(new BigDecimal(amount))==0, "Amount");
 	}
 
 	public void verifyRecordDataOnTransactionIDPopup(String group, String sender, String source, String branch,
@@ -253,7 +265,7 @@ public class RefactoredCashbookTest extends BaseTest {
 		Assert.assertEquals(cashbookPage.getName(), sender, "Sender/Recipient name");
 		Assert.assertEquals(cashbookPage.getSourceOrExpense(), source, "Revenue/Expense");
 		Assert.assertEquals(cashbookPage.getBranch(), branch, "Branch");
-		Assert.assertEquals(extractDigits(cashbookPage.getAmount()), amount, "Amount");
+		Assert.assertEquals(DataGenerator.extractDigits(cashbookPage.getAmount()), amount, "Amount");
 		Assert.assertEquals(cashbookPage.getPaymentMethod(), paymentMethod, "Payment method");
 		Assert.assertEquals(cashbookPage.getNote(), note, "Note");
 		Assert.assertEquals(cashbookPage.isAccountingChecked(), isAccountingChecked, "Accounting");

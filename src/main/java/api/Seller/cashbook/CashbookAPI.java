@@ -53,7 +53,7 @@ public class CashbookAPI {
     	String amount = getCashbookSummaryResponse().asPrettyString();
     	
         List<BigDecimal> summary = new ArrayList<>();
-        Matcher matcher = Pattern.compile("\"\\w+\": (\\d+\\.*\\d*)")
+        Matcher matcher = Pattern.compile("\"\\w+\": (-?\\d+\\.*\\d*)")
             .matcher(amount);
         while (matcher.find()) {
           summary.add(new BigDecimal(matcher.group(1)));
