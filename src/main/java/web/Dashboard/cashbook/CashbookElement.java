@@ -33,6 +33,6 @@ public class CashbookElement {
 	By loc_tmpRandomPayment = By.xpath("//*[@class='transaction-code' and contains(.,'PN')]");
 	
 	String searchResultXpath = "//div[contains(@class,'search-item') %s]";
-	String conditionFilterDropdownXpath = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()='%s']";
+	String conditionFilterDropdownXpath = "//div[contains(@class,'undefined')]//div[@class='uik-select__label' and text()=\"%s\"]";
 	
 }
