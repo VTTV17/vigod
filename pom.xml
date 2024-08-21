@@ -136,6 +136,9 @@
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <suiteXmlFiles>test_config/web/run_all.xml</suiteXmlFiles>
+        <udid>emulator-5554</udid>
+        <appiumPort>4723</appiumPort>
     </properties>
 
     <build>
@@ -146,11 +149,15 @@
                 <version>3.1.2</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <suiteXmlFile>test_config/web/run_all.xml</suiteXmlFile>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <suiteXmlFile>${suiteFile}</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <udid>${udid}</udid>
+                        <appiumPort>${appiumPort}</appiumPort>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
