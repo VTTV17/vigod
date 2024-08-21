@@ -16,4 +16,7 @@ public class LotLocation {
     private boolean hasLot;
     private List<Lot> lots;
     private List<Location> locations;
+    private String modelName;
+    private int modelId;
+    private String barCode;
 }

@@ -44,4 +44,6 @@ public class ItemOrderInfo {
     private LotLocation lotLocation;
     private String sku;
     private GsOrderBXGYDTO gsOrderBXGYDTO;
+    private Long parentItemId;
+    private Long parentModelId;
 }
