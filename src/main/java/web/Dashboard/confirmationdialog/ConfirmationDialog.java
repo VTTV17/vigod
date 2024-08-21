@@ -21,7 +21,7 @@ public class ConfirmationDialog {
 	}
 
 	By loc_dlgDialog = By.cssSelector(".modal-dialog.confirm-modal");
-	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white')] or contains(@class,'cancel-button')");
+	By loc_btnCancel = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__gray') or contains(@class,'gs-button__white') or contains(@class,'cancel-button')]");
 	By loc_btnClose = By.xpath("//*[contains(@class,'modal-footer')]/button[contains(@class,'gs-button__yellow')]");
 	public By loc_btnOK = By.cssSelector(".modal-footer button.gs-button__green");
 	By loc_cntMessage = By.cssSelector(".modal-body");

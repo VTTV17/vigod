@@ -466,4 +466,12 @@ public class DataGenerator {
         LocalDateTime currentTime = LocalDateTime.now();
         return forwardTimeWithFormat(currentTime, timeAmount, unit, outputFormat);
     }
+    
+	/**
+	 * Extract numbers from a string
+	 * @param rawAmount
+	 */
+	public static String extractDigits(String rawAmount) {
+		return rawAmount.replaceAll("[^\\d+\\.-]","");
+	}    
 }

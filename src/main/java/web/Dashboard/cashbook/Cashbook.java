@@ -19,6 +19,7 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 import org.testng.Assert;
 
 import utilities.commons.UICommonAction;
+import utilities.data.DataGenerator;
 import utilities.enums.cashbook.CashbookGroup;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
@@ -87,7 +88,7 @@ public class Cashbook {
 		List<BigDecimal> summary = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			String rawAmount = commonAction.getText(elements.loc_lblCashbookSummary, i);
-			summary.add(new BigDecimal(rawAmount.replaceAll("[^\\d+\\.]","")));
+			summary.add(new BigDecimal(DataGenerator.extractDigits(rawAmount)));
 		}
 		return summary;
 	}
@@ -200,7 +201,7 @@ public class Cashbook {
 
 	public Cashbook selectBranch(String branch) {
 		commonAction.click(elements.loc_ddlBranch);
-		By locator = By.xpath("//div[contains(@class,'uik-select__label') and text()='%s']".formatted(branch));
+		By locator = By.xpath("//div[contains(@class,'uik-select__label') and text()=\"%s\"]".formatted(branch));
 		commonAction.click(locator);
 		logger.info("Selected Branch: %s.".formatted(branch));
 		return this;
