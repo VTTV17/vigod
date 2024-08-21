@@ -49,6 +49,7 @@ public class InitWebdriver {
                     chromeOptions.addArguments("start-maximized");
                     if (headless) chromeOptions.addArguments("--headless");
                     chromeOptions.addArguments("--disable-site-isolation-trials");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
                     chromeOptions.addArguments("--remote-allow-origins=*");
                     chromeOptions.addArguments("--no-sandbox");
                     Map<String, Object> prefs = new HashMap<>();
