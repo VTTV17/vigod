@@ -94,9 +94,15 @@ public class Cashbook {
 	}
 
 	public void waitTillRecordsAppear() {
-		for (int i=0; i<6; i++) {
+		for (int i=0; i<10; i++) {
 			if (!commonAction.getElements(elements.loc_tblCashbookRecord).isEmpty()) break;
 			commonAction.sleepInMiliSecond(500, "Waiting for records to appear");
+		}
+	}	
+	public void waitTillTableEmpty() {
+		for (int i=0; i<10; i++) {
+			if (!commonAction.getElements(elements.loc_icnEmptyWallet).isEmpty()) break;
+			commonAction.sleepInMiliSecond(500, "Waiting for records to disappear");
 		}
 	}	
 	

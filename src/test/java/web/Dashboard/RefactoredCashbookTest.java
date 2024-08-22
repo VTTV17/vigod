@@ -422,6 +422,9 @@ public class RefactoredCashbookTest extends BaseTest {
 		for (int i=0; i<3; i++) {
 			String transactionId = randomTransactionId();
 			
+			//Deliberately input a random search term to empty the table
+			cashbookPage.inputCashbookSearchTerm("DFRT").waitTillTableEmpty();
+			
 			cashbookPage.inputCashbookSearchTerm(transactionId);
 			
 			List<List<String>> searchedRecords = cashbookPage.getRecords();
@@ -429,7 +432,7 @@ public class RefactoredCashbookTest extends BaseTest {
 			/* Click on the searched record */
 			Assert.assertEquals(searchedRecords.size(), 1, "Number of found records");
 			Assert.assertEquals(searchedRecords.get(0).get(Cashbook.TRANSACTIONCODE_COL), transactionId, "Transaction Code");	
-			cashbookPage.inputCashbookSearchTerm("DFRT");
+			
 		}
 	}
 	
@@ -692,8 +695,8 @@ public class RefactoredCashbookTest extends BaseTest {
 		//cashbookPage.selectFilteredName(name);
 		cashbookPage.selectFilteredPaymentMethod(payment);
 		cashbookPage.clickFilterDoneBtn();
-		
-		commonAction.sleepInMiliSecond(1000);
+		commonAction.sleepInMiliSecond(4000, "Wait till the table is regenerated after the filter conditions are input");
+
 		records = cashbookPage.getRecords();
 		
 		Assert.assertNotEquals(records.size(), 0, "Number of found records");
