@@ -56,6 +56,7 @@ public class InitWebdriver {
                     prefs.put("download.default_directory", FileNameAndPath.downloadFolder);
                     chromeOptions.setExperimentalOption("prefs", prefs);
                     driver = new ChromeDriver(chromeOptions);
+                    if (headless) driver.manage().window().setSize(new Dimension(1920, 1080));
                 }
             }
         }
