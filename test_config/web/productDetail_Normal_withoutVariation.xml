@@ -11,14 +11,14 @@
 <!--                    <include name="G1_04_DiscountCampaignIsInProgress" />-->
 <!--                    <include name="G1_05_DiscountCampaignIsExpired" />-->
 <!--                    <include name="G1_06_DiscountCampaignIsSchedule" />-->
-                    <include name="G1_07_HideStockAndInStock" />
-                    <include name="G1_08_ShowStockAndInStock" />
-                    <include name="G1_09_SettingDisplayAndProductInStock" />
-                    <include name="G1_10_SettingDisplayAndProductOutOfStock" />
-                    <include name="G1_11_SettingHiddenAndProductInStock" />
-                    <include name="G1_12_SettingHiddenAndProductOutOfStock" />
-                    <include name="G1_13_OneBranchActiveAndHideBranchOnStoreFront" />
-                    <include name="G1_14_AllBranchesActiveAndHideBranchOnStoreFront" />
+<!--                    <include name="G1_07_HideStockAndInStock" />-->
+<!--                    <include name="G1_08_ShowStockAndInStock" />-->
+<!--                    <include name="G1_09_SettingDisplayAndProductInStock" />-->
+<!--                    <include name="G1_10_SettingDisplayAndProductOutOfStock" />-->
+<!--                    <include name="G1_11_SettingHiddenAndProductInStock" />-->
+<!--                    <include name="G1_12_SettingHiddenAndProductOutOfStock" />-->
+<!--                    <include name="G1_13_OneBranchActiveAndHideBranchOnStoreFront" />-->
+<!--                    <include name="G1_14_AllBranchesActiveAndHideBranchOnStoreFront" />-->
                     <include name="G1_15_AllBranchesActiveAndShowBranchOnStoreFront" />
                 </methods>
             </class>
