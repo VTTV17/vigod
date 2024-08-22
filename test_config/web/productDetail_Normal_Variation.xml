@@ -5,12 +5,6 @@
         <classes>
             <class name="web.StoreFront.ProductDetailTest">
                 <methods>
-<!--                    <include name="G3_01_FlashSaleIsInProgress"/>-->
-<!--                    <include name="G3_02_FlashSaleIsExpired"/>-->
-<!--                    <include name="G3_03_FlashSaleIsSchedule"/>-->
-<!--                    <include name="G3_04_DiscountCampaignIsInProgress"/>-->
-<!--                    <include name="G3_05_DiscountCampaignIsExpired"/>-->
-<!--                    <include name="G3_06_DiscountCampaignIsSchedule"/>-->
 <!--                    <include name="G3_07_HideStockAndInStock_AllVariations"/>-->
 <!--                    <include name="G3_08_HideStockAndInStock_SomeVariations"/>-->
 <!--                    <include name="G3_09_ShowStockAndInStock_AllVariations"/>-->
