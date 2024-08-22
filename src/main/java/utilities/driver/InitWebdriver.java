@@ -46,7 +46,7 @@ public class InitWebdriver {
                 default -> {
                     WebDriverManager.chromedriver().setup();
                     ChromeOptions chromeOptions = new ChromeOptions();
-                    chromeOptions.addArguments("start-maximized");
+                    chromeOptions.addArguments("--start-maximized");
                     if (headless) chromeOptions.addArguments("--headless");
                     chromeOptions.addArguments("--disable-site-isolation-trials");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
