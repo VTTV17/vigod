@@ -1,6 +1,7 @@
 package utilities.driver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -20,7 +21,8 @@ public class InitWebdriver {
     private WebDriver driver;
 
     public WebDriver getDriver(String browser, String... headlessMode) {
-        boolean headless = headlessMode.length == 0 || headlessMode[0].equals("true");
+        LogManager.getLogger(System.getProperty("os.name"));
+        boolean headless = System.getProperty("os.name").equals("Linux") || headlessMode.length == 0 || headlessMode[0].equals("true");
         if (driver == null) {
             switch (browser) {
                 case "firefox" -> {

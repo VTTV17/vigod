@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="[StoreFront] Product Detail">
+    <test name="Normal x Without variation">
+        <classes>
+            <class name="web.StoreFront.ProductDetailTest">
+                <methods>
+<!--                    <include name="G1_07_HideStockAndInStock" />-->
+<!--                    <include name="G1_08_ShowStockAndInStock" />-->
+<!--                    <include name="G1_09_SettingDisplayAndProductInStock" />-->
+<!--                    <include name="G1_10_SettingDisplayAndProductOutOfStock" />-->
+<!--                    <include name="G1_11_SettingHiddenAndProductInStock" />-->
+<!--                    <include name="G1_12_SettingHiddenAndProductOutOfStock" />-->
+<!--                    <include name="G1_13_OneBranchActiveAndHideBranchOnStoreFront" />-->
+<!--                    <include name="G1_14_AllBranchesActiveAndHideBranchOnStoreFront" />-->
+                    <include name="G1_15_AllBranchesActiveAndShowBranchOnStoreFront" />
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite> <!-- Default Suite -->

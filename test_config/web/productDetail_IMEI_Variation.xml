@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="[StoreFront] Product Detail">
+    <test thread-count="5" name="IMEI x Variation">
+        <classes>
+            <class name="web.StoreFront.ProductDetailTest">
+                <methods>
+<!--                    <include name="G4_07_HideStockAndInStock_AllVariations"/>-->
+<!--                    <include name="G4_08_HideStockAndInStock_SomeVariations"/>-->
+<!--                    <include name="G4_09_ShowStockAndInStock_AllVariations"/>-->
+<!--                    <include name="G4_10_ShowStockAndInStock_SomeVariations"/>-->
+<!--                    <include name="G4_11_SettingDisplayAndProductInStock"/>-->
+<!--                    <include name="G4_12_SettingDisplayAndOneOfVariationOutOfStock"/>-->
+<!--                    <include name="G4_13_SettingDisplayAndAllVariationsOutOfStock"/>-->
+<!--                    <include name="G4_14_SettingHiddenAndAllVariationsInStock"/>-->
+<!--                    <include name="G4_15_SettingHiddenAndOneOfVariationOutOfStock"/>-->
+<!--                    <include name="G4_16_SettingHiddenAndAllVariationsOutOfStock"/>-->
+<!--                    <include name="G4_17_OneBranchActiveAndHideBranchOnStoreFront"/>-->
+<!--                    <include name="G4_18_AllBranchesActiveAndHideBranchOnStoreFront"/>-->
+                    <include name="G4_19_AllBranchesActiveAndShowBranchOnStoreFront"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite> <!-- Default Suite -->
