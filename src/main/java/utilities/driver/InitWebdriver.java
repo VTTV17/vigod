@@ -22,7 +22,7 @@ public class InitWebdriver {
 
     public WebDriver getDriver(String browser, String... headlessMode) {
         LogManager.getLogger(System.getProperty("os.name"));
-        boolean headless = System.getProperty("os.name").equals("Ubuntu") || headlessMode.length == 0 || headlessMode[0].equals("true");
+        boolean headless = System.getProperty("os.name").equals("Linux") || headlessMode.length == 0 || headlessMode[0].equals("true");
         if (driver == null) {
             switch (browser) {
                 case "firefox" -> {
