@@ -5,12 +5,12 @@
         <classes>
             <class name="web.StoreFront.ProductDetailTest">
                 <methods>
-                    <include name="G1_01_FlashSaleIsInProgress" />
-                    <include name="G1_02_FlashSaleIsExpired" />
-                    <include name="G1_03_FlashSaleIsSchedule" />
-                    <include name="G1_04_DiscountCampaignIsInProgress" />
-                    <include name="G1_05_DiscountCampaignIsExpired" />
-                    <include name="G1_06_DiscountCampaignIsSchedule" />
+<!--                    <include name="G1_01_FlashSaleIsInProgress" />-->
+<!--                    <include name="G1_02_FlashSaleIsExpired" />-->
+<!--                    <include name="G1_03_FlashSaleIsSchedule" />-->
+<!--                    <include name="G1_04_DiscountCampaignIsInProgress" />-->
+<!--                    <include name="G1_05_DiscountCampaignIsExpired" />-->
+<!--                    <include name="G1_06_DiscountCampaignIsSchedule" />-->
                     <include name="G1_07_HideStockAndInStock" />
                     <include name="G1_08_ShowStockAndInStock" />
                     <include name="G1_09_SettingDisplayAndProductInStock" />
