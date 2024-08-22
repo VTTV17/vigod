@@ -3,7 +3,7 @@
 <suite name="[StoreFront] Product Detail">
     <test thread-count="5" name="IMEI x Variation">
         <classes>
-            <class name="web.StoreFront.ProductDetailTest$IMEIProductWithVariationTest">
+            <class name="web.StoreFront.ProductDetailTest">
                 <methods>
                     <include name="G4_01_FlashSaleIsInProgress"/>
                     <include name="G4_02_FlashSaleIsExpired"/>

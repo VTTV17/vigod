@@ -3,7 +3,7 @@
 <suite name="[StoreFront] Product Detail">
     <test name="Normal x Without variation">
         <classes>
-            <class name="web.StoreFront.ProductDetailTest$NormalProductWithoutVariationTest">
+            <class name="web.StoreFront.ProductDetailTest">
                 <methods>
                     <include name="G1_01_FlashSaleIsInProgress" />
                     <include name="G1_02_FlashSaleIsExpired" />
