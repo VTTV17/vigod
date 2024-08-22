@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import utilities.commons.UICommonAndroid;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,13 +46,45 @@ public class InitAndroidDriver {
         return new AndroidDriver(new URL(url), capabilities);
     }
 
+    public AndroidDriver getAndroidDriver(String udid) throws MalformedURLException {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("udid", udid);
+        capabilities.setCapability("platformName", "ANDROID");
+        capabilities.setCapability("newCommandTimeout", 300000);
+        capabilities.setCapability("noReset", "false");
+        capabilities.setCapability("fastReset", "true");
+        capabilities.setCapability("resetOnSessionStartOnly", "true");
+        capabilities.setCapability("autoGrantPermissions", "true");
+        capabilities.setCapability("automationName", "UIAutomator2");
+        // Fix startActivity issue
+        capabilities.setCapability("appWaitActivity", "*");
+        capabilities.setCapability("appWaitForLaunch", "false");
+        return new AndroidDriver(new URL(url), capabilities);
+    }
 
-    public AndroidDriver getSellerDriver(String udid) {
-        try {
-            return getAndroidDriver(udid, goSELLERBundleId, goSELLERLoginActivity);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+
+    public AndroidDriver getAndroidDriver(String udid, String appPath) throws MalformedURLException {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("udid", udid);
+        capabilities.setCapability("platformName", "ANDROID");
+        capabilities.setCapability("newCommandTimeout", 300000);
+        capabilities.setCapability("noReset", "false");
+        capabilities.setCapability("fastReset", "true");
+        capabilities.setCapability("resetOnSessionStartOnly", "true");
+        capabilities.setCapability("autoGrantPermissions", "true");
+        capabilities.setCapability("automationName", "UIAutomator2");
+        // Fix startActivity issue
+        capabilities.setCapability("appWaitActivity", "*");
+        capabilities.setCapability("appWaitForLaunch", "false");
+        capabilities.setCapability("app", appPath);
+        return new AndroidDriver(new URL(url), capabilities);
+    }
+
+
+    public AndroidDriver getSellerDriver(String udid) throws MalformedURLException {
+        AndroidDriver driver = getAndroidDriver(udid, System.getProperty("user.dir") + "/src/main/resources/app/GoSELLER STAG.apk");
+        new UICommonAndroid(driver).relaunchApp(goSELLERBundleId);
+        return driver;
     }
 
     @SneakyThrows

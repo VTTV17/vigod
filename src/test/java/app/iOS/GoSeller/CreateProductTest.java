@@ -8,6 +8,8 @@ import utilities.driver.InitIOSDriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
 
+import java.util.Optional;
+
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
@@ -19,7 +21,7 @@ public class CreateProductTest extends BaseTest {
     @BeforeClass
     void setup() {
         // init WebDriver
-        String udid = PropertiesUtil.getEnvironmentData("udidIOSThang");
+        String udid = Optional.ofNullable(System.getProperty("udidIOS")).orElse(PropertiesUtil.getEnvironmentData("udidIOSThang"));
         driver = new InitIOSDriver().getSellerDriver(udid);
 
         // init login information

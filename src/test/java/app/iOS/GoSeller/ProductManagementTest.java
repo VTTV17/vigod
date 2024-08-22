@@ -8,6 +8,8 @@ import utilities.driver.InitIOSDriver;
 import utilities.model.sellerApp.login.LoginInformation;
 import utilities.utils.PropertiesUtil;
 
+import java.util.Optional;
+
 import static utilities.account.AccountTest.ADMIN_ACCOUNT_THANG;
 import static utilities.account.AccountTest.ADMIN_PASSWORD_THANG;
 
@@ -18,7 +20,7 @@ public class ProductManagementTest extends BaseTest {
     @BeforeClass
     void setup() {
         // Init driver
-        String uuid = PropertiesUtil.getEnvironmentData("udidIOSThang");
+        String uuid = Optional.ofNullable(System.getProperty("udidIOS")).orElse(PropertiesUtil.getEnvironmentData("udidIOSThang"));
         driver = new InitIOSDriver().getSellerDriver(uuid);
 
         // Init login information

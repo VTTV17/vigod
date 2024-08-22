@@ -10,16 +10,18 @@ import java.net.URL;
 import static utilities.environment.goSELLEREnvironment.goSELLERBundleId;
 
 public class InitIOSDriver {
-    private final static String url = "http://127.0.0.1:4724/wd/hub";
+    private final static String url = "http://localhost:%s/wd/hub".formatted(System.getProperty("appiumPort"));
 
     public IOSDriver getIOSDriver(String udid) throws MalformedURLException {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("udid", udid);
         capabilities.setCapability("platformName", "iOS");
         capabilities.setCapability("newCommandTimeout", 300000);
+        capabilities.setCapability("wdaStartupRetries", 5);
         capabilities.setCapability("automationName", "XCUITest");
         return new IOSDriver(new URL(url), capabilities);
     }
+
 
     public IOSDriver getSellerDriver(String udid) {
         try {
@@ -27,6 +29,7 @@ public class InitIOSDriver {
             IOSDriver driver = getIOSDriver(udid);
 
             // Open GoSeller app
+            driver.installApp(System.getProperty("user.dir") + "/src/main/resources/app/GoSeller STG.zip");
             driver.terminateApp(goSELLERBundleId);
             driver.activateApp(goSELLERBundleId);
 
