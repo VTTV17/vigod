@@ -45,7 +45,6 @@ public class BaseTest {
 
     @BeforeMethod
     void startTest(Method method) {
-        System.out.println("startTest");
         SeleniumRecording.startRecord(driver, method);
     }
 

@@ -7,10 +7,11 @@ import utilities.assert_customize.AssertCustomize;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
 import utilities.excel.Excel;
-import utilities.screenshot.Screenshot;
+import utilities.recording.SeleniumRecording;
 import utilities.utils.PropertiesUtil;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 @Listeners(utilities.listeners.ReportListener.class)
 public class BaseTest {
@@ -23,27 +24,33 @@ public class BaseTest {
     public String browser;
     public String headless;
     public String language;
+    public String domain;
 
     @BeforeSuite
-    @Parameters({"browser", "headless", "environment", "language"})
+    @Parameters({"browser", "headless", "environment", "language", "domain"})
     public void getConfig(@Optional("chrome") String browser,
                           @Optional("false") String headless,
                           @Optional("STAG") String environment,
-                          @Optional("VIE") String language) {
+                          @Optional("ENG") String language,
+                          @Optional("VN") String domain ) { // either VN or BIZ
         this.browser = browser;
         this.headless = headless;
         this.language = language;
+        this.domain = domain;
         // set environment, language for Properties
         PropertiesUtil.setEnvironment(environment);
         PropertiesUtil.setDBLanguage(language);
         PropertiesUtil.setSFLanguage(language);
     }
 
-    @AfterMethod
-    public void writeResult(ITestResult result) throws IOException {
-        new Screenshot().takeScreenshot(driver);
+    @BeforeMethod
+    void startTest(Method method) {
+        SeleniumRecording.startRecord(driver, method);
+    }
 
-        // reset count false
+    @AfterMethod
+    public void writeResult(ITestResult result) throws Exception {
+        SeleniumRecording.stopRecord(result);
         AssertCustomize.setCountFalse(0);
     }
 
@@ -60,7 +67,7 @@ public class BaseTest {
     }
 
     @AfterSuite
-    void tearDown() {
+    void tearDownWeb() {
         if (driver != null) driver.quit();
     }
 }
