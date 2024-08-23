@@ -67,6 +67,20 @@ public class VATInformation {
     	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
 		return this;
 	}	
+	
+	/**
+	 * Waits until VATs appear
+	 * @return true if there are VATs in the table
+	 */
+	public boolean waitForVATEntries() {
+		
+    	for (int i=0; i<6; i++) {
+    		if (!commonAction.getElements(elements.loc_tblVATRows).isEmpty()) return true;
+    		commonAction.sleepInMiliSecond(500, "Wait until there are VATs in VAT table");
+    	}
+		
+		return false;
+	}	
 
     /**
      * A temporary function that helps get rid of the annoying try catch block when reading text from property file
@@ -153,6 +167,8 @@ public class VATInformation {
 	}	
 	
 	public String getDefaultTax() {
+		waitForVATEntries(); //Workaround to wait till the default tax is returned from API, otherwise it'll always show "No option", which makes our tests flaky on CI env
+		
 		String value = commonAction.getText(elements.loc_ddlDefaultVAT);
 		logger.info("Retrieved default tax: " + value);
 		return value;
@@ -219,13 +235,13 @@ public class VATInformation {
     		return;
     	}
     	
-    	boolean flag = commonAction.getElements(elements.loc_tblVATRows).isEmpty();
-    	String error = "VAT list is empty";
+    	boolean flag = waitForVATEntries();
+    	String error = "VAT list not is empty";
     	
     	if (staffPermission.getSetting().getTAX().isViewTAXList()) {
-    		Assert.assertFalse(flag, error);
-    	} else {
     		Assert.assertTrue(flag, error);
+    	} else {
+    		Assert.assertFalse(flag, error);
     	}
     	logger.info("Finished checkPermissionToViewVATList");
     }    
@@ -243,7 +259,7 @@ public class VATInformation {
     	DataGenerator randomData = new DataGenerator();
     	
     	String taxName = "Auto Tax " + randomData.randomNumberGeneratedFromEpochTime(5);
-    	String taxRate = String.valueOf(randomData.generatNumberInBound(0, 101));
+    	String taxRate = String.valueOf(DataGenerator.generatNumberInBound(0, 101));
     	clickAddTaxInformation().inputTaxName(taxName).inputTaxRate(taxRate).selectTaxType(0).clickAddBtn();
     	
     	if (staffPermission.getSetting().getTAX().isCreateSellingTAX()) {
@@ -264,7 +280,7 @@ public class VATInformation {
     	DataGenerator randomData = new DataGenerator();
     	
     	String taxName = "Auto Tax " + randomData.randomNumberGeneratedFromEpochTime(5);
-    	String taxRate = String.valueOf(randomData.generatNumberInBound(0, 101));
+    	String taxRate = String.valueOf(DataGenerator.generatNumberInBound(0, 101));
     	clickAddTaxInformation().inputTaxName(taxName).inputTaxRate(taxRate).selectTaxType(1).clickAddBtn();
     	
     	if (staffPermission.getSetting().getTAX().isCreateImportingTAX()) {
