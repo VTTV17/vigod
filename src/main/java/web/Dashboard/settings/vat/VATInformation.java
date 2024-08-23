@@ -1,6 +1,7 @@
 package web.Dashboard.settings.vat;
 
 import static utilities.links.Links.DOMAIN;
+import static utilities.links.Links.DOMAIN_BIZ;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,8 +9,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
+import utilities.account.AccountTest;
 import utilities.commons.UICommonAction;
 import utilities.data.DataGenerator;
+import utilities.enums.Domain;
 import utilities.model.staffPermission.AllPermissions;
 import utilities.permission.CheckPermission;
 import utilities.utils.PropertiesUtil;
@@ -24,12 +27,18 @@ public class VATInformation {
 	UICommonAction commonAction;
 	HomePage homePage;
 	VATPageElement elements;
+	
+	Domain domain;
 
 	public VATInformation(WebDriver driver) {
 		this.driver = driver;
 		commonAction = new UICommonAction(driver);
 		homePage = new HomePage(driver);
 		elements = new VATPageElement();
+	}
+	public VATInformation(WebDriver driver, Domain domain) {
+		this(driver);
+		this.domain = domain;
 	}
 
 	public VATInformation navigate() {
@@ -49,7 +58,12 @@ public class VATInformation {
 	}		
 
 	public VATInformation navigateToManagementScreenByURL() {
-		navigateByURL(DOMAIN + "/setting?tabId=9");
+		if (domain.equals(Domain.VN)) {
+			navigateByURL(DOMAIN + "/setting?tabId=9");
+		} else {
+			navigateByURL(DOMAIN_BIZ + "/setting?tabId=9");
+		}
+		
     	commonAction.sleepInMiliSecond(500, "Wait a little after navigation");
 		return this;
 	}	

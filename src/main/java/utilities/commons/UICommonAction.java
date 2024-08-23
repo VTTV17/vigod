@@ -35,7 +35,7 @@ public class UICommonAction {
 
     public UICommonAction(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         actions = new Actions(driver);
     }
 
