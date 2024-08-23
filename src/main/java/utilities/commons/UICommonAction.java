@@ -983,8 +983,13 @@ public class UICommonAction {
     }
 
     public void removeElement(By locator) {
-        if (!getListElement(locator).isEmpty())
-            ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
+        if (!getListElement(locator).isEmpty()) return;
+        try {
+        	((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
+        } catch (StaleElementReferenceException ex) {
+        	logger.debug("Retrying function removeElement after catching {}", ex);
+        	((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
+        }
     }
 
     public void removeFbBubble() {
